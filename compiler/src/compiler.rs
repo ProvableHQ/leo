@@ -267,15 +267,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
 
         program.enforce_program(input)?;
 
-        Ok(program.render(&self.options))
-    }
-
-    pub fn compile<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
-        &self,
-        cs: CS,
-        input: &leo_ast::Input,
-    ) -> Result<CompilationData> {
-        let compiled = self.compile_ir(input)?;
+        let compiled = program.render(&self.options);
 
         if self.output_options.emit_ir {
             let writer = |extension: &str, data: Vec<u8>| {
@@ -300,7 +292,15 @@ impl<'a, 'b> Compiler<'a, 'b> {
             );
         }
 
-        self.compile_inner::<F, G, CS>(cs, input, compiled)
+        Ok(compiled)
+    }
+
+    pub fn compile<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+        &self,
+        cs: CS,
+        input: &leo_ast::Input,
+    ) -> Result<CompilationData> {
+        self.compile_inner::<F, G, CS>(cs, input, self.compile_ir(input)?)
     }
 
     pub fn compile_inner<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(

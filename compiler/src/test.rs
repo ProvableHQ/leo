@@ -97,9 +97,9 @@ struct OutputItem {
 #[derive(serde::Deserialize, serde::Serialize, PartialEq)]
 struct CompileOutput {
     pub circuit: SummarizedCircuit,
-    pub ir: Vec<String>,
     pub output: Vec<OutputItem>,
     pub initial_ast: String,
+    pub ir: String,
     pub imports_resolved_ast: String,
     pub canonicalized_ast: String,
     pub type_inferenced_ast: String,
@@ -252,10 +252,6 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         let parsed = parsed.clone();
         let (compiled, input_data) = handler.extend_if_error(compile_and_process(parsed, &input, &state))?;
 
-        if std::env::var("EMIT_IR").unwrap_or_default().trim() == "1" {
-            emit_ir(&test, &compiled, &input_data);
-        }
-
         let mut cs: CircuitSynthesizer<Bls12_377> = Default::default();
         let output = buffer_if_err(
             &err_buf,
@@ -301,6 +297,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         });
     }
 
+    let ir = hash_file("/tmp/output/test.leo.ir.json");
     let initial_ast = hash_file("/tmp/output/initial_ast.json");
     let imports_resolved_ast = hash_file("/tmp/output/imports_resolved_ast.json");
     let canonicalized_ast = hash_file("/tmp/output/canonicalization_ast.json");
@@ -312,13 +309,8 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
 
     let final_output = CompileOutput {
         circuit: last_circuit.unwrap(),
-        ir: last_ir
-            .unwrap()
-            .to_string()
-            .split('\n')
-            .map(|x| x.to_string())
-            .collect::<Vec<String>>(),
         output: output_items,
+        ir,
         initial_ast,
         imports_resolved_ast,
         canonicalized_ast,
@@ -338,29 +330,6 @@ impl Namespace for CompileNamespace {
 
         run_test(test, &handler, &err_buf).map_err(|()| err_buf.0.take().to_string())
     }
-}
-
-/// hacky way to emit IR for snarkVM tests
-fn emit_ir(test: &Test, compiled: &IR_Program, input_data: &InputData) {
-    let mut target_path = std::env::current_dir().unwrap().join("tests").join("ir");
-    target_path.push(
-        test.path
-            .iter()
-            .skip_while(|p| p.to_str().unwrap() != "..")
-            .collect::<PathBuf>()
-            .strip_prefix(Path::new("..").join("tests").join("compiler"))
-            .unwrap()
-            .to_path_buf(),
-    );
-    target_path.pop();
-    create_dir_all(&target_path).unwrap();
-    let writer = |extension, data: Vec<u8>| {
-        let mut f = File::create(target_path.join(format!("{}{}", test.name, extension))).unwrap();
-        f.write_all(&data).unwrap();
-    };
-    writer(".leo.ir", compiled.serialize().unwrap());
-    writer(".leo.ir.fmt", compiled.to_string().as_bytes().to_vec());
-    writer(".leo.ir.input", input_data.serialize().unwrap());
 }
 
 struct TestRunner;
