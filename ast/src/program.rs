@@ -89,8 +89,7 @@ impl Program {
     }
 
     pub fn handle_internal_annotations(&mut self) {
-        let circuit_functions: Vec<_> = self
-            .circuits
+        self.circuits
             .iter_mut()
             .flat_map(|(_, circuit)| &mut circuit.members)
             .filter_map(|member| {
@@ -100,27 +99,26 @@ impl Program {
                     None
                 }
             })
-            .collect();
-
-        circuit_functions.into_iter().for_each(|function| {
-            function.annotations.clone().into_iter().for_each(|(name, _)| {
-                match (name.as_str(), function.annotations.remove(&name)) {
-                    ("CoreFunction", Some(core_map)) => {
-                        function.core_mapping.replace(
-                            core_map
-                                .arguments
-                                .get(0)
-                                .or(Some(&function.identifier.name))
-                                .map(|f| f.to_string()),
-                        );
+            .into_iter()
+            .for_each(|function| {
+                function.annotations.clone().into_iter().for_each(|(name, _)| {
+                    match (name.as_str(), function.annotations.remove(&name)) {
+                        ("CoreFunction", Some(core_map)) => {
+                            function.core_mapping.replace(
+                                core_map
+                                    .arguments
+                                    .get(0)
+                                    .or(Some(&function.identifier.name))
+                                    .map(|f| f.to_string()),
+                            );
+                        }
+                        ("AlwaysConst", Some(_)) => {
+                            function.const_ = true;
+                        }
+                        _ => todo!("we should handle re-entrant parsing"),
                     }
-                    ("AlwaysConst", Some(_)) => {
-                        function.const_ = true;
-                    }
-                    _ => todo!("we should handle re-entrant parsing"),
-                }
-            })
-        });
+                })
+            });
 
         /* for (_, circuit) in self.circuits.iter_mut() {
             for member in circuit.members.iter_mut() {
