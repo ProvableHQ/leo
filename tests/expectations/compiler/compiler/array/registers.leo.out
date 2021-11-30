@@ -274,6 +274,6 @@ outputs:
               type: "[u8; 3]"
               value: "[1, 2, 3]"
     initial_ast: 3851f6ab1cc9919de3deb75abc85e8dc0cf1d93f7a408d1abe90572fa9c28f16
-    imports_resolved_ast: c202e5d7af095beb58cd9e8250902667c699a0452e98e8361f2a76a5f562a157
-    canonicalized_ast: c202e5d7af095beb58cd9e8250902667c699a0452e98e8361f2a76a5f562a157
-    type_inferenced_ast: 4dc2ea4c72bdb6af0863aa5ece999059847e698dafe0862951d1a4d38cc06fd9
+    imports_resolved_ast: 49e4966d2ca62f48eb4e9871ba476c07536f572ea88fe4b030442a05cbded2ff
+    canonicalized_ast: 49e4966d2ca62f48eb4e9871ba476c07536f572ea88fe4b030442a05cbded2ff
+    type_inferenced_ast: 4fcab0dcd48b9e6d6a70b7e5f383ff65c208ee6773e807c69948577776c0124c

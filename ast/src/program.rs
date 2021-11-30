@@ -115,35 +115,12 @@ impl Program {
                         ("AlwaysConst", Some(_)) => {
                             function.const_ = true;
                         }
-                        _ => todo!("we should handle re-entrant parsing"),
+                        // Could still be a valid annotation.
+                        // Carry on and let ASG handle.
+                        _ => {}
                     }
                 })
             });
-
-        /* for (_, circuit) in self.circuits.iter_mut() {
-            for member in circuit.members.iter_mut() {
-                if let CircuitMember::CircuitFunction(function) = member {
-                    for (name, annotation) in function.annotations.iter_mut() {
-                        match name.as_str() {
-                            "CoreFunction" if core_mapping_annotation => {
-                                if let Some(core_map) = function.annotations.remove("CoreFunction") {
-                                    function.core_mapping.replace(
-                                        core_map
-                                            .arguments
-                                            .get(0)
-                                            .or(Some(&function.identifier.name))
-                                            .map(|f| f.to_string()),
-                                    );
-                                }
-                            }
-                            "AlwaysConst" => {}
-
-                            _ => todo!("we should handle re-entrant parsing"),
-                        }
-                    }
-                }
-            }
-        } */
     }
 
     pub fn get_name(&self) -> String {
