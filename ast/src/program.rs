@@ -88,11 +88,24 @@ impl Program {
         }
     }
 
-    pub fn set_core_mapping(&mut self) {
-        for (_, circuit) in self.circuits.iter_mut() {
-            for member in circuit.members.iter_mut() {
+    pub fn handle_internal_annotations(&mut self) {
+        let circuit_functions: Vec<_> = self
+            .circuits
+            .iter_mut()
+            .flat_map(|(_, circuit)| &mut circuit.members)
+            .filter_map(|member| {
                 if let CircuitMember::CircuitFunction(function) = member {
-                    if let Some(core_map) = function.annotations.remove("CoreFunction") {
+                    Some(function)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        circuit_functions.into_iter().for_each(|function| {
+            function.annotations.clone().into_iter().for_each(|(name, _)| {
+                match (name.as_str(), function.annotations.remove(&name)) {
+                    ("CoreFunction", Some(core_map)) => {
                         function.core_mapping.replace(
                             core_map
                                 .arguments
@@ -101,9 +114,38 @@ impl Program {
                                 .map(|f| f.to_string()),
                         );
                     }
+                    ("AlwaysConst", Some(_)) => {
+                        function.const_ = true;
+                    }
+                    _ => todo!("we should handle re-entrant parsing"),
+                }
+            })
+        });
+
+        /* for (_, circuit) in self.circuits.iter_mut() {
+            for member in circuit.members.iter_mut() {
+                if let CircuitMember::CircuitFunction(function) = member {
+                    for (name, annotation) in function.annotations.iter_mut() {
+                        match name.as_str() {
+                            "CoreFunction" if core_mapping_annotation => {
+                                if let Some(core_map) = function.annotations.remove("CoreFunction") {
+                                    function.core_mapping.replace(
+                                        core_map
+                                            .arguments
+                                            .get(0)
+                                            .or(Some(&function.identifier.name))
+                                            .map(|f| f.to_string()),
+                                    );
+                                }
+                            }
+                            "AlwaysConst" => {}
+
+                            _ => todo!("we should handle re-entrant parsing"),
+                        }
+                    }
                 }
             }
-        }
+        } */
     }
 
     pub fn get_name(&self) -> String {

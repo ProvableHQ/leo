@@ -124,7 +124,7 @@ pub fn static_include_stdlib() {
     );
 }
 
-fn resolve_file(handler: &Handler, file: &str, mapping: bool) -> Result<Program> {
+fn resolve_file(handler: &Handler, file: &str) -> Result<Program> {
     let stdlib = STDLIB.lock().unwrap();
 
     let resolved = stdlib
@@ -132,9 +132,7 @@ fn resolve_file(handler: &Handler, file: &str, mapping: bool) -> Result<Program>
         .ok_or_else(|| ImportError::no_such_stdlib_file(file))?;
 
     let mut ast = leo_parser::parse_ast(handler, file, resolved)?.into_repr();
-    if mapping {
-        ast.set_core_mapping();
-    }
+    ast.handle_internal_annotations();
 
     Ok(ast)
 }
@@ -144,7 +142,7 @@ pub fn resolve_prelude_modules(handler: &Handler) -> Result<IndexMap<Vec<String>
 
     for path in PRELUDE.iter() {
         // If on windows replace \\ with / as all paths are stored in unix style.
-        let program = resolve_file(handler, path, true)?;
+        let program = resolve_file(handler, path)?;
 
         let removed_extension = path.replace(".leo", "");
         let mut parts: Vec<String> = vec![String::from("std")];
@@ -164,5 +162,5 @@ pub fn resolve_stdlib_module(handler: &Handler, module: &str) -> Result<Program>
     let mut file_path = module.replace(".", "/");
     file_path.push_str(".leo");
 
-    resolve_file(handler, &file_path, true)
+    resolve_file(handler, &file_path)
 }
