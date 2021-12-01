@@ -102,17 +102,19 @@ impl Program {
             .into_iter()
             .for_each(|function| {
                 function.annotations.clone().into_iter().for_each(|(name, _)| {
-                    match (name.as_str(), function.annotations.remove(&name)) {
-                        ("CoreFunction", Some(core_map)) => {
-                            function.core_mapping.replace(
-                                core_map
-                                    .arguments
-                                    .get(0)
-                                    .or(Some(&function.identifier.name))
-                                    .map(|f| f.to_string()),
-                            );
+                    match name.as_str() {
+                        "CoreFunction" => {
+                            if let Some(core_map) = function.annotations.remove(&name) {
+                                function.core_mapping.replace(
+                                    core_map
+                                        .arguments
+                                        .get(0)
+                                        .or(Some(&function.identifier.name))
+                                        .map(|f| f.to_string()),
+                                );
+                            }
                         }
-                        ("AlwaysConst", Some(_)) => {
+                        "AlwaysConst" if function.annotations.remove(&name).is_some() => {
                             function.const_ = true;
                         }
                         // Could still be a valid annotation.
