@@ -99,27 +99,26 @@ impl Program {
                     None
                 }
             })
-            .into_iter()
             .for_each(|function| {
-                function.annotations.clone().into_iter().for_each(|(name, _)| {
+                function.annotations.retain(|name, core_map| {
                     match name.as_str() {
                         "CoreFunction" => {
-                            if let Some(core_map) = function.annotations.remove(&name) {
-                                function.core_mapping.replace(
-                                    core_map
-                                        .arguments
-                                        .get(0)
-                                        .or(Some(&function.identifier.name))
-                                        .map(|f| f.to_string()),
-                                );
-                            }
+                            function.core_mapping.replace(
+                                core_map
+                                    .arguments
+                                    .get(0)
+                                    .or(Some(&function.identifier.name))
+                                    .map(|f| f.to_string()),
+                            );
+                            false
                         }
-                        "AlwaysConst" if function.annotations.remove(&name).is_some() => {
+                        "AlwaysConst" => {
                             function.const_ = true;
+                            false
                         }
                         // Could still be a valid annotation.
                         // Carry on and let ASG handle.
-                        _ => {}
+                        _ => true,
                     }
                 })
             });
