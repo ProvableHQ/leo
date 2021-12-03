@@ -88,22 +88,40 @@ impl Program {
         }
     }
 
-    pub fn set_core_mapping(&mut self) {
-        for (_, circuit) in self.circuits.iter_mut() {
-            for member in circuit.members.iter_mut() {
+    pub fn handle_internal_annotations(&mut self) {
+        self.circuits
+            .iter_mut()
+            .flat_map(|(_, circuit)| &mut circuit.members)
+            .filter_map(|member| {
                 if let CircuitMember::CircuitFunction(function) = member {
-                    if let Some(core_map) = function.annotations.remove("CoreFunction") {
-                        function.core_mapping.replace(
-                            core_map
-                                .arguments
-                                .get(0)
-                                .or(Some(&function.identifier.name))
-                                .map(|f| f.to_string()),
-                        );
-                    }
+                    Some(function)
+                } else {
+                    None
                 }
-            }
-        }
+            })
+            .for_each(|function| {
+                function.annotations.retain(|name, core_map| {
+                    match name.as_str() {
+                        "CoreFunction" => {
+                            function.core_mapping.replace(
+                                core_map
+                                    .arguments
+                                    .get(0)
+                                    .or(Some(&function.identifier.name))
+                                    .map(|f| f.to_string()),
+                            );
+                            false
+                        }
+                        "AlwaysConst" => {
+                            function.const_ = true;
+                            false
+                        }
+                        // Could still be a valid annotation.
+                        // Carry on and let ASG handle.
+                        _ => true,
+                    }
+                })
+            });
     }
 
     pub fn get_name(&self) -> String {

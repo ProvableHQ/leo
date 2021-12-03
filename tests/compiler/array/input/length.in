@@ -1,0 +1,8 @@
+[main]
+arr1: [u8; 2] = [0; 2];
+
+[constants]
+arr2: [u8; 2] = [0; 2];
+
+[registers]
+r0: bool = false;
