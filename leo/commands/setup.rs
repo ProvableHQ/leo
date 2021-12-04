@@ -24,8 +24,9 @@ use leo_package::{
 };
 
 use snarkvm_algorithms::{
-    snark::groth16::{Groth16, PreparedVerifyingKey, ProvingKey, VerifyingKey},
+    snark::groth16::{Groth16, ProvingKey, VerifyingKey},
     traits::snark::SNARK,
+    SRS,
 };
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use snarkvm_utilities::ToBytes;
@@ -47,11 +48,7 @@ pub struct Setup {
 
 impl<'a> Command<'a> for Setup {
     type Input = <Build as Command<'a>>::Output;
-    type Output = (
-        CompilerWrapper<'a>,
-        ProvingKey<Bls12_377>,
-        PreparedVerifyingKey<Bls12_377>,
-    );
+    type Output = (CompilerWrapper<'a>, ProvingKey<Bls12_377>, VerifyingKey<Bls12_377>);
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Setup")
@@ -77,13 +74,13 @@ impl<'a> Command<'a> for Setup {
             && VerificationKeyFile::new(&package_name).exists_at(&path);
 
         // If keys do not exist or the checksum differs, run the program setup
-        let (proving_key, prepared_verifying_key) = if !keys_exist || checksum_differs {
+        let (proving_key, verifying_key) = if !keys_exist || checksum_differs {
             tracing::info!("Starting...");
 
             // Run the program setup operation
             let rng = &mut thread_rng();
-            let (proving_key, prepared_verifying_key) =
-                Groth16::<Bls12_377, CompilerWrapper, Vec<Fr>>::setup(&constraint_compiler, rng)
+            let (proving_key, verifying_key) =
+                Groth16::<Bls12_377, Vec<Fr>>::setup(&constraint_compiler, &mut SRS::CircuitSpecific(rng))
                     .map_err(|_| CliError::unable_to_setup())?;
 
             // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
@@ -108,7 +105,7 @@ impl<'a> Command<'a> for Setup {
             let _ = verification_key_file.write_to(&path, &verification_key)?;
             tracing::info!("Complete");
 
-            (proving_key, prepared_verifying_key)
+            (proving_key, verifying_key)
         } else {
             tracing::info!("Detected saved setup");
 
@@ -131,13 +128,11 @@ impl<'a> Command<'a> for Setup {
             let verifying_key =
                 VerifyingKey::<Bls12_377>::read(verifying_key_bytes.as_slice()).map_err(CliError::cli_io_error)?;
 
-            // Derive the prepared verifying key file from the verifying key
-            let prepared_verifying_key = PreparedVerifyingKey::<Bls12_377>::from(verifying_key);
             tracing::info!("Complete");
 
-            (proving_key, prepared_verifying_key)
+            (proving_key, verifying_key)
         };
 
-        Ok((constraint_compiler, proving_key, prepared_verifying_key))
+        Ok((constraint_compiler, proving_key, verifying_key))
     }
 }

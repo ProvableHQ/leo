@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::{build::BuildOptions, prove::Prove};
-use crate::{commands::Command, context::Context, wrapper::CompilerWrapper};
+use crate::{commands::Command, context::Context};
 use leo_errors::{Result, SnarkVMError};
 
 use snarkvm_algorithms::{snark::groth16::Groth16, traits::SNARK};
@@ -51,14 +51,13 @@ impl<'a> Command<'a> for Run {
     }
 
     fn apply(self, _context: Context<'a>, input: Self::Input) -> Result<Self::Output> {
-        let (proof, prepared_verifying_key) = input;
+        let (proof, verifying_key) = input;
 
         tracing::info!("Starting...");
 
         // Run the verifier
-        let is_success =
-            Groth16::<Bls12_377, CompilerWrapper, Vec<Fr>>::verify(&prepared_verifying_key, &vec![], &proof)
-                .map_err(|_| SnarkVMError::default())?;
+        let is_success = Groth16::<Bls12_377, Vec<Fr>>::verify(&verifying_key, &vec![], &proof)
+            .map_err(|_| SnarkVMError::default())?;
 
         // Log the verifier output
         match is_success {

@@ -19,7 +19,7 @@ use crate::{commands::Command, context::Context};
 use leo_errors::{CliError, Result, SnarkVMError};
 use leo_package::{outputs::ProofFile, PackageFile};
 use snarkvm_algorithms::{
-    snark::groth16::{Groth16, PreparedVerifyingKey, Proof},
+    snark::groth16::{Groth16, Proof, VerifyingKey},
     traits::SNARK,
 };
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
@@ -42,7 +42,7 @@ pub struct Prove {
 
 impl<'a> Command<'a> for Prove {
     type Input = <Setup as Command<'a>>::Output;
-    type Output = (Proof<Bls12_377>, PreparedVerifyingKey<Bls12_377>);
+    type Output = (Proof<Bls12_377>, VerifyingKey<Bls12_377>);
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Proving")
@@ -57,7 +57,7 @@ impl<'a> Command<'a> for Prove {
     }
 
     fn apply(self, context: Context<'a>, input: Self::Input) -> Result<Self::Output> {
-        let (program, parameters, prepared_verifying_key) = input;
+        let (program, parameters, verifying_key) = input;
 
         // Get the package name
         let path = context.dir()?;
@@ -68,13 +68,13 @@ impl<'a> Command<'a> for Prove {
         let rng = &mut thread_rng();
         // TODO fix this once snarkvm has better errors.
         let program_proof =
-            Groth16::<Bls12_377, _, Vec<Fr>>::prove(&parameters, &program, rng).map_err(|_| SnarkVMError::default())?;
+            Groth16::<Bls12_377, Vec<Fr>>::prove(&parameters, &program, rng).map_err(|_| SnarkVMError::default())?;
 
         // Write the proof file to the output directory
         let mut proof = vec![];
         program_proof.write_le(&mut proof).map_err(CliError::cli_io_error)?;
         ProofFile::new(&package_name).write_to(&path, &proof[..])?;
 
-        Ok((program_proof, prepared_verifying_key))
+        Ok((program_proof, verifying_key))
     }
 }
