@@ -13,7 +13,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-
+/*
 use crate::utilities::*;
 use leo_ast::Record as AstRecord;
 use leo_errors::{LeoError, Result, SnarkVMError, StateError};
@@ -113,3 +113,4 @@ impl TryFrom<&AstRecord> for DPCRecordValues {
         })
     }
 }
+*/

@@ -13,7 +13,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-
+/*
 use crate::{verify_record_commitment, StateLeafValues, StateValues};
 use leo_ast::Input as AstInput;
 use leo_errors::{Result, SnarkVMError, StateError};
@@ -23,7 +23,8 @@ use snarkvm_algorithms::{
     traits::{CommitmentScheme, CRH},
 };
 use snarkvm_dpc::{
-    testnet1::{instantiated::Components, parameters::SystemParameters},
+
+    testnet2::{instantiated::Components, parameters::SystemParameters},
     DPCComponents,
 };
 use snarkvm_utilities::{bytes::ToBytes, to_bytes_le, FromBytes};
@@ -94,3 +95,4 @@ pub fn verify_local_data_commitment(dpc: &SystemParameters<Components>, ast_inpu
 
     Ok(result)
 }
+*/
