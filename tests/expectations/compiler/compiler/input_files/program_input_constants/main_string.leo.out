@@ -4,11 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 2
-      num_constraints: 2
-      at: 401937c524c61a28b4fab76d7a1f85bb628850012af62362a0922610372faf92
-      bt: cdf9a9cee4f2edf55111a95ae60bde9801080f6bde638a5c79273a39a2f9f7f5
-      ct: 643d5437104296e21d906ecb15b2c96ad278f20cfc4af53b12bb6069bd853726
+      num_private_variables: 17
+      num_constraints: 22
+      at: b90455fd59e51589d10427d2e16618c4c8cf88d90501737dd864a4325451c15c
+      bt: e3862c961628e70ef491a702da0caded9e9b194b7bf04ad97c6a8d4dad40d96f
+      ct: 0c03c9447a183a55e9d85c3d92a3cf7418d31395c22fb5bf9d039620e863edb1
     output:
       - input_file: input/main_string.in
         output:

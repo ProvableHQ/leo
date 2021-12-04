@@ -4,11 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 70
+      num_private_variables: 69
       num_constraints: 4
-      at: 2bfa66cf5bae7b7326e489c0be39e1a33f7a0ae9c0f85007c9c6280626e44823
-      bt: b863e2f23191c83e093e8b27d0d036b1eebe82000097e881a698348d3290163b
-      ct: 19488e9d1f6d0cfc9fb6e6e6048108b8717ceefc6d3ade9aa8b5e5d59da661c8
+      at: 1ad60aee6364749bbc9c1899b096c53b0c42aacc40c5bfb9c716c69fa2835f11
+      bt: 6485ec721b1a97fdd4c895a23cfed92e15b6bcab5097ac0e50b08b8076b34171
+      ct: 004d57570a46901e517d47bc678267e97109544762daf2564bc055b9543138b7
     output:
       - input_file: inputs/nonprinting.in
         output:

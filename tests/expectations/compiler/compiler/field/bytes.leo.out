@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "f#0 i#1: `to_bytes_le` call not implemented for target `FieldType(Constant(Fp256(238)))`"
+  - "f#0 i#1: `to_bytes_le` call not implemented for target `FieldType(Variable(AllocatedFp { value: Some(Fp256(238)), variable: LC(LinearCombination([(Variable(Public(0)), Fp256(238))])) }))`"
