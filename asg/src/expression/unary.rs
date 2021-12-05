@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
+use crate::{AsgId, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 pub use leo_ast::UnaryOperation;
 use leo_errors::{AsgError, Result, Span};
 
@@ -22,6 +22,7 @@ use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct UnaryExpression<'a> {
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub operation: UnaryOperation,
@@ -31,6 +32,10 @@ pub struct UnaryExpression<'a> {
 impl<'a> Node for UnaryExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
+    }
+
+    fn asg_id(&self) -> AsgId {
+        self.id
     }
 }
 
@@ -130,6 +135,7 @@ impl<'a> FromAst<'a, leo_ast::UnaryExpression> for UnaryExpression<'a> {
             }
         }
         Ok(UnaryExpression {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             operation: value.op.clone(),

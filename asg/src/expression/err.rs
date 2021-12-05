@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
+use crate::{AsgId, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 use leo_errors::{Result, Span};
 
 use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct ErrExpression<'a> {
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
 }
@@ -28,6 +29,10 @@ pub struct ErrExpression<'a> {
 impl<'a> Node for ErrExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
+    }
+
+    fn asg_id(&self) -> AsgId {
+        self.id
     }
 }
 
@@ -63,8 +68,9 @@ impl<'a> ExpressionNode<'a> for ErrExpression<'a> {
 }
 
 impl<'a> FromAst<'a, leo_ast::ErrExpression> for ErrExpression<'a> {
-    fn from_ast(_: &'a Scope<'a>, value: &leo_ast::ErrExpression, _: Option<PartialType<'a>>) -> Result<Self> {
+    fn from_ast(scope: &'a Scope<'a>, value: &leo_ast::ErrExpression, _: Option<PartialType<'a>>) -> Result<Self> {
         Ok(Self {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(value.span.clone()),
         })

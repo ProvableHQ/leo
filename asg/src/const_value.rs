@@ -166,6 +166,24 @@ pub enum ConstValue<'a> {
     Err,
 }
 
+impl<'a> fmt::Display for ConstValue<'a> {
+    //TODO: Finish formatting as needed
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            ConstValue::Int(int) => write!(f, "{:?}", int),
+            ConstValue::Group(group) => write!(f, "{:?}", group),
+            ConstValue::Field(field) => write!(f, "Field({:})", field),
+            ConstValue::Address(addr) => write!(f, "Address({:})", addr),
+            ConstValue::Boolean(b) => write!(f, "{:}", b),
+            ConstValue::Char(char) => write!(f, "{:?}", char),
+            ConstValue::Tuple(_) => write!(f, "Tuple"),
+            ConstValue::Array(_) => write!(f, "Array"),
+            ConstValue::Circuit(_, _) => write!(f, "Circuit"),
+            ConstValue::Err => write!(f, "Err"),
+        }
+    }
+}
+
 macro_rules! const_int_op {
     ($name: ident, $retType: ty, $x: ident, $transform: expr) => {
         pub fn $name(&self) -> $retType {

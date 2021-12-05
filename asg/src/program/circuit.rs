@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, ExpressionNode, FromAst, Function, Identifier, Node, Scope, Type};
+use crate::{AsgId, Expression, ExpressionNode, FromAst, Function, Identifier, Node, Scope, Type};
 use leo_errors::{AsgError, Result, Span};
 
 use indexmap::IndexMap;
@@ -41,7 +41,7 @@ impl<'a> CircuitMember<'a> {
 
 #[derive(Clone)]
 pub struct Circuit<'a> {
-    pub id: u32,
+    pub id: AsgId,
     pub name: RefCell<Identifier>,
     pub scope: &'a Scope<'a>,
     pub span: Option<Span>,
@@ -62,6 +62,10 @@ impl<'a> Eq for Circuit<'a> {}
 impl<'a> Node for Circuit<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
+    }
+
+    fn asg_id(&self) -> AsgId {
+        self.id
     }
 }
 

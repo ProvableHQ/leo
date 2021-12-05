@@ -16,13 +16,14 @@
 
 use leo_ast::IntegerType;
 
-use crate::{Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Statement, Variable};
+use crate::{AsgId, Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Statement, Variable};
 use leo_errors::{AsgError, Result, Span};
 
 use std::cell::{Cell, RefCell};
 
 #[derive(Clone)]
 pub struct IterationStatement<'a> {
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
     pub variable: &'a Variable<'a>,
@@ -35,6 +36,10 @@ pub struct IterationStatement<'a> {
 impl<'a> Node for IterationStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
+    }
+
+    fn asg_id(&self) -> AsgId {
+        self.id
     }
 }
 
@@ -74,6 +79,7 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
             .insert(statement.variable.name.to_string(), variable);
 
         let statement = scope.context.alloc_statement(Statement::Iteration(IterationStatement {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(statement.span.clone()),
             variable,

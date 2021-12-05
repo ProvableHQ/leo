@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
+use crate::{AsgId, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 use leo_ast::SpreadOrExpression;
 use leo_errors::{AsgError, Result, Span};
 
@@ -22,6 +22,7 @@ use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct ArrayInlineExpression<'a> {
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub elements: Vec<(Cell<&'a Expression<'a>>, bool)>, // bool = if spread
@@ -48,6 +49,10 @@ impl<'a> ArrayInlineExpression<'a> {
 impl<'a> Node for ArrayInlineExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
+    }
+
+    fn asg_id(&self) -> AsgId {
+        self.id
     }
 }
 
@@ -137,6 +142,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
         let mut len = 0;
 
         let output = ArrayInlineExpression {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             elements: value

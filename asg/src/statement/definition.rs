@@ -14,13 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Statement, Type, Variable};
+use crate::{
+    AsgId, Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Statement, Type, Variable,
+};
 use leo_errors::{AsgError, Result, Span};
 
 use std::cell::{Cell, RefCell};
 
 #[derive(Clone)]
 pub struct DefinitionStatement<'a> {
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
     pub variables: Vec<&'a Variable<'a>>,
@@ -28,13 +31,14 @@ pub struct DefinitionStatement<'a> {
 }
 
 impl<'a> DefinitionStatement<'a> {
-    pub fn split(&self) -> Vec<(String, Self)> {
+    pub fn split(&self, scope: &'a Scope<'a>) -> Vec<(String, Self)> {
         self.variables
             .iter()
             .map(|variable| {
                 (
                     variable.borrow().name.name.to_string(),
                     DefinitionStatement {
+                        id: scope.context.get_id(),
                         parent: self.parent.clone(),
                         span: self.span.clone(),
                         variables: vec![variable],
@@ -49,6 +53,10 @@ impl<'a> DefinitionStatement<'a> {
 impl<'a> Node for DefinitionStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
+    }
+
+    fn asg_id(&self) -> AsgId {
+        self.id
     }
 }
 
@@ -148,6 +156,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
         let statement = scope
             .context
             .alloc_statement(Statement::Definition(DefinitionStatement {
+                id: scope.context.get_id(),
                 parent: Cell::new(None),
                 span: Some(statement.span.clone()),
                 variables: variables.clone(),

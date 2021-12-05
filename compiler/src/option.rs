@@ -46,5 +46,10 @@ pub struct OutputOptions {
     pub ast_imports_resolved: bool,
     pub ast_canonicalized: bool,
     pub ast_type_inferenced: bool,
+    pub asg_initial: bool,
+    pub asg_constants_folded: bool,
+    pub asg_dead_code_eliminated: bool,
+    pub asg_exclude_edges: Vec<Box<str>>,
+    pub asg_exclude_labels: Vec<Box<str>>,
     pub emit_ir: bool,
 }

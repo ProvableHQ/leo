@@ -15,16 +15,16 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::{accesses::*, expression::*, program::*, statement::*};
+use crate::{accesses::*, expression::*, program::*, statement::*, Variable};
 
 use std::marker::PhantomData;
 
-pub struct MonoidalDirector<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> {
+pub struct MonoidalDirector<'a, T: Magma, R: MonoidalReducerExpression<'a, T>> {
     reducer: R,
     _monoid: PhantomData<&'a T>,
 }
 
-impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T, R> {
+impl<'a, T: Magma, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T, R> {
     pub fn new(reducer: R) -> Self {
         Self {
             reducer,
@@ -56,17 +56,17 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         self.reducer.reduce_expression(input, value)
     }
 
-    pub fn reduce_err(&mut self, input: &ErrExpression<'a>) -> T {
+    pub fn reduce_err(&mut self, input: &'a ErrExpression<'a>) -> T {
         self.reducer.reduce_err(input)
     }
 
-    pub fn reduce_array_init(&mut self, input: &ArrayInitExpression<'a>) -> T {
+    pub fn reduce_array_init(&mut self, input: &'a ArrayInitExpression<'a>) -> T {
         let element = self.reduce_expression(input.element.get());
 
         self.reducer.reduce_array_init(input, element)
     }
 
-    pub fn reduce_array_inline(&mut self, input: &ArrayInlineExpression<'a>) -> T {
+    pub fn reduce_array_inline(&mut self, input: &'a ArrayInlineExpression<'a>) -> T {
         let elements = input
             .elements
             .iter()
@@ -76,14 +76,14 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         self.reducer.reduce_array_inline(input, elements)
     }
 
-    pub fn reduce_binary(&mut self, input: &BinaryExpression<'a>) -> T {
+    pub fn reduce_binary(&mut self, input: &'a BinaryExpression<'a>) -> T {
         let left = self.reduce_expression(input.left.get());
         let right = self.reduce_expression(input.right.get());
 
         self.reducer.reduce_binary(input, left, right)
     }
 
-    pub fn reduce_call(&mut self, input: &CallExpression<'a>) -> T {
+    pub fn reduce_call(&mut self, input: &'a CallExpression<'a>) -> T {
         let target = input.target.get().map(|e| self.reduce_expression(e));
         let arguments = input
             .arguments
@@ -94,7 +94,7 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         self.reducer.reduce_call(input, target, arguments)
     }
 
-    pub fn reduce_circuit_init(&mut self, input: &CircuitInitExpression<'a>) -> T {
+    pub fn reduce_circuit_init(&mut self, input: &'a CircuitInitExpression<'a>) -> T {
         let values = input
             .values
             .iter()
@@ -104,7 +104,7 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         self.reducer.reduce_circuit_init(input, values)
     }
 
-    pub fn reduce_ternary_expression(&mut self, input: &TernaryExpression<'a>) -> T {
+    pub fn reduce_ternary_expression(&mut self, input: &'a TernaryExpression<'a>) -> T {
         let condition = self.reduce_expression(input.condition.get());
         let if_true = self.reduce_expression(input.if_true.get());
         let if_false = self.reduce_expression(input.if_false.get());
@@ -113,20 +113,20 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
             .reduce_ternary_expression(input, condition, if_true, if_false)
     }
 
-    pub fn reduce_cast_expression(&mut self, input: &CastExpression<'a>) -> T {
+    pub fn reduce_cast_expression(&mut self, input: &'a CastExpression<'a>) -> T {
         let inner = self.reduce_expression(input.inner.get());
 
         self.reducer.reduce_cast_expression(input, inner)
     }
 
-    pub fn reduce_array_access(&mut self, input: &ArrayAccess<'a>) -> T {
+    pub fn reduce_array_access(&mut self, input: &'a ArrayAccess<'a>) -> T {
         let array = self.reduce_expression(input.array.get());
         let index = self.reduce_expression(input.index.get());
 
         self.reducer.reduce_array_access(input, array, index)
     }
 
-    pub fn reduce_array_range_access(&mut self, input: &ArrayRangeAccess<'a>) -> T {
+    pub fn reduce_array_range_access(&mut self, input: &'a ArrayRangeAccess<'a>) -> T {
         let array = self.reduce_expression(input.array.get());
         let left = input.left.get().map(|e| self.reduce_expression(e));
         let right = input.right.get().map(|e| self.reduce_expression(e));
@@ -134,23 +134,23 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         self.reducer.reduce_array_range_access(input, array, left, right)
     }
 
-    pub fn reduce_circuit_access(&mut self, input: &CircuitAccess<'a>) -> T {
+    pub fn reduce_circuit_access(&mut self, input: &'a CircuitAccess<'a>) -> T {
         let target = input.target.get().map(|e| self.reduce_expression(e));
 
         self.reducer.reduce_circuit_access(input, target)
     }
 
-    pub fn reduce_constant(&mut self, input: &Constant<'a>) -> T {
+    pub fn reduce_constant(&mut self, input: &'a Constant<'a>) -> T {
         self.reducer.reduce_constant(input)
     }
 
-    pub fn reduce_tuple_access(&mut self, input: &TupleAccess<'a>) -> T {
+    pub fn reduce_tuple_access(&mut self, input: &'a TupleAccess<'a>) -> T {
         let tuple_ref = self.reduce_expression(input.tuple_ref.get());
 
         self.reducer.reduce_tuple_access(input, tuple_ref)
     }
 
-    pub fn reduce_access_expression(&mut self, input: &AccessExpression<'a>) -> T {
+    pub fn reduce_access_expression(&mut self, input: &'a AccessExpression<'a>) -> T {
         use AccessExpression::*;
 
         match input {
@@ -161,24 +161,29 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         }
     }
 
-    pub fn reduce_tuple_init(&mut self, input: &TupleInitExpression<'a>) -> T {
+    pub fn reduce_tuple_init(&mut self, input: &'a TupleInitExpression<'a>) -> T {
         let values = input.elements.iter().map(|e| self.reduce_expression(e.get())).collect();
 
         self.reducer.reduce_tuple_init(input, values)
     }
 
-    pub fn reduce_unary(&mut self, input: &UnaryExpression<'a>) -> T {
+    pub fn reduce_unary(&mut self, input: &'a UnaryExpression<'a>) -> T {
         let inner = self.reduce_expression(input.inner.get());
 
         self.reducer.reduce_unary(input, inner)
     }
 
-    pub fn reduce_variable_ref(&mut self, input: &VariableRef<'a>) -> T {
-        self.reducer.reduce_variable_ref(input)
+    pub fn reduce_variable(&mut self, input: &'a Variable<'a>) -> T {
+        self.reducer.reduce_variable(input)
+    }
+
+    pub fn reduce_variable_ref(&mut self, input: &'a VariableRef<'a>) -> T {
+        let var = self.reduce_variable(input.variable);
+        self.reducer.reduce_variable_ref(input, var)
     }
 }
 
-impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, R> {
+impl<'a, T: Magma, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, R> {
     pub fn reduce_statement(&mut self, input: &'a Statement<'a>) -> T {
         let value = match input {
             Statement::Assign(s) => self.reduce_assign(s),
@@ -209,6 +214,7 @@ impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, 
     }
 
     pub fn reduce_assign(&mut self, input: &AssignStatement<'a>) -> T {
+        let variable = self.reduce_variable(input.target_variable.get());
         let accesses = input
             .target_accesses
             .iter()
@@ -216,7 +222,7 @@ impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, 
             .collect();
         let value = self.reduce_expression(input.value.get());
 
-        self.reducer.reduce_assign(input, accesses, value)
+        self.reducer.reduce_assign(input, variable, accesses, value)
     }
 
     pub fn reduce_block(&mut self, input: &BlockStatement<'a>) -> T {
@@ -258,37 +264,44 @@ impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, 
     }
 
     pub fn reduce_definition(&mut self, input: &DefinitionStatement<'a>) -> T {
+        let variables = input.variables.iter().map(|e| self.reduce_variable(e)).collect();
         let value = self.reduce_expression(input.value.get());
 
-        self.reducer.reduce_definition(input, value)
+        self.reducer.reduce_definition(input, variables, value)
     }
 
-    pub fn reduce_expression_statement(&mut self, input: &ExpressionStatement<'a>) -> T {
+    pub fn reduce_expression_statement(&mut self, input: &'a ExpressionStatement<'a>) -> T {
         let value = self.reduce_expression(input.expression.get());
 
         self.reducer.reduce_expression_statement(input, value)
     }
 
-    pub fn reduce_iteration(&mut self, input: &IterationStatement<'a>) -> T {
+    pub fn reduce_iteration(&mut self, input: &'a IterationStatement<'a>) -> T {
+        let variable = self.reduce_variable(input.variable);
         let start = self.reduce_expression(input.start.get());
         let stop = self.reduce_expression(input.stop.get());
         let body = self.reduce_statement(input.body.get());
 
-        self.reducer.reduce_iteration(input, start, stop, body)
+        self.reducer.reduce_iteration(input, variable, start, stop, body)
     }
 
-    pub fn reduce_return(&mut self, input: &ReturnStatement<'a>) -> T {
+    pub fn reduce_return(&mut self, input: &'a ReturnStatement<'a>) -> T {
         let value = self.reduce_expression(input.expression.get());
 
         self.reducer.reduce_return(input, value)
     }
 }
 
-impl<'a, T: Monoid, R: MonoidalReducerProgram<'a, T>> MonoidalDirector<'a, T, R> {
+impl<'a, T: Magma, R: MonoidalReducerProgram<'a, T>> MonoidalDirector<'a, T, R> {
     pub fn reduce_function(&mut self, input: &'a Function<'a>) -> T {
+        let arguments = input
+            .arguments
+            .iter()
+            .map(|(_, var)| self.reduce_variable(var.get()))
+            .collect();
         let body = input.body.get().map(|s| self.reduce_statement(s)).unwrap_or_default();
 
-        self.reducer.reduce_function(input, body)
+        self.reducer.reduce_function(input, arguments, body)
     }
 
     pub fn reduce_circuit_member(&mut self, input: &CircuitMember<'a>) -> T {
@@ -311,16 +324,30 @@ impl<'a, T: Monoid, R: MonoidalReducerProgram<'a, T>> MonoidalDirector<'a, T, R>
         self.reducer.reduce_circuit(input, members)
     }
 
+    pub fn reduce_alias(&mut self, input: &'a Alias<'a>) -> T {
+        self.reducer.reduce_alias(input)
+    }
+
     pub fn reduce_program(&mut self, input: &Program<'a>) -> T {
         let imported_modules = input
             .imported_modules
             .iter()
             .map(|(_, import)| self.reduce_program(import))
             .collect();
+        let aliases = input
+            .aliases
+            .iter()
+            .map(|(_, import)| self.reduce_alias(import))
+            .collect();
         let functions = input.functions.iter().map(|(_, f)| self.reduce_function(f)).collect();
+        let global_consts = input
+            .global_consts
+            .iter()
+            .map(|(_, import)| self.reduce_definition(import))
+            .collect();
         let circuits = input.circuits.iter().map(|(_, c)| self.reduce_circuit(c)).collect();
 
         self.reducer
-            .reduce_program(input, imported_modules, functions, circuits)
+            .reduce_program(input, imported_modules, aliases, functions, global_consts, circuits)
     }
 }

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
+use crate::{AsgId, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 pub use leo_ast::{BinaryOperation, BinaryOperationClass};
 use leo_errors::{AsgError, Result, Span};
 
@@ -22,6 +22,7 @@ use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct BinaryExpression<'a> {
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub operation: BinaryOperation,
@@ -32,6 +33,10 @@ pub struct BinaryExpression<'a> {
 impl<'a> Node for BinaryExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
+    }
+
+    fn asg_id(&self) -> AsgId {
+        self.id
     }
 }
 
@@ -221,6 +226,7 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
             (_, _) => (),
         }
         Ok(BinaryExpression {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             operation: value.op,

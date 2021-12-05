@@ -28,6 +28,9 @@ pub use self::circuit::*;
 pub mod checksum;
 pub use self::checksum::*;
 
+pub mod debug_graph;
+pub use self::debug_graph::*;
+
 pub mod proof;
 pub use self::proof::*;
 

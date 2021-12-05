@@ -18,27 +18,27 @@ use std::{cell::Cell, unimplemented};
 
 use typed_arena::Arena;
 
-use crate::{Alias, ArenaNode, Circuit, Expression, Function, Scope, Statement, Variable};
+use crate::{Alias, ArenaNode, AsgId, Circuit, Expression, Function, Scope, Statement, Variable};
 
 pub struct AsgContextInner<'a> {
     pub arena: &'a Arena<ArenaNode<'a>>,
-    pub next_id: Cell<u32>,
+    pub next_id: Cell<AsgId>,
 }
 
 impl<'a> AsgContextInner<'a> {
     pub fn new(arena: &'a Arena<ArenaNode<'a>>) -> &'a Self {
         match arena.alloc(ArenaNode::Inner(AsgContextInner {
             arena,
-            next_id: Cell::new(0),
+            next_id: Cell::new(1.into()), // Reserve the value zero
         })) {
             ArenaNode::Inner(x) => x,
             _ => unimplemented!(),
         }
     }
 
-    pub fn get_id(&self) -> u32 {
+    pub fn get_id(&self) -> AsgId {
         let next_id = self.next_id.get();
-        self.next_id.replace(next_id + 1);
+        self.next_id.replace(next_id + 1.into());
         next_id
     }
 

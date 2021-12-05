@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{accesses::*, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
+use crate::{accesses::*, AsgId, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 use leo_errors::{Result, Span};
 
 #[derive(Clone)]
@@ -34,6 +34,16 @@ impl<'a> Node for AccessExpression<'a> {
             ArrayRange(access) => access.span(),
             Circuit(access) => access.span(),
             Tuple(access) => access.span(),
+        }
+    }
+
+    fn asg_id(&self) -> AsgId {
+        use AccessExpression::*;
+        match self {
+            Array(access) => access.id,
+            ArrayRange(access) => access.id,
+            Circuit(access) => access.id,
+            Tuple(access) => access.id,
         }
     }
 }

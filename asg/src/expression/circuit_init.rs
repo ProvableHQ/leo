@@ -15,7 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    Circuit, CircuitMember, ConstValue, Expression, ExpressionNode, FromAst, Identifier, Node, PartialType, Scope, Type,
+    AsgId, Circuit, CircuitMember, ConstValue, Expression, ExpressionNode, FromAst, Identifier, Node, PartialType,
+    Scope, Type,
 };
 
 use leo_errors::{AsgError, Result, Span};
@@ -25,6 +26,7 @@ use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct CircuitInitExpression<'a> {
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub circuit: Cell<&'a Circuit<'a>>,
@@ -34,6 +36,10 @@ pub struct CircuitInitExpression<'a> {
 impl<'a> Node for CircuitInitExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
+    }
+
+    fn asg_id(&self) -> AsgId {
+        self.id
     }
 }
 
@@ -145,6 +151,7 @@ impl<'a> FromAst<'a, leo_ast::CircuitInitExpression> for CircuitInitExpression<'
         }
 
         Ok(CircuitInitExpression {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             circuit: Cell::new(circuit),

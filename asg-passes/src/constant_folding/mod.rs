@@ -21,6 +21,7 @@ use leo_errors::Result;
 
 pub struct ConstantFolding<'a, 'b> {
     program: &'b Program<'a>,
+    context: &'b AsgContext<'a>,
 }
 
 impl<'a, 'b> ExpressionVisitor<'a> for ConstantFolding<'a, 'b> {
@@ -28,6 +29,7 @@ impl<'a, 'b> ExpressionVisitor<'a> for ConstantFolding<'a, 'b> {
         let expr = input.get();
         if let Some(const_value) = expr.const_value() {
             let folded_expr = Expression::Constant(Constant {
+                id: self.context.get_id(),
                 parent: Cell::new(expr.get_parent()),
                 span: expr.span().cloned(),
                 value: const_value,
@@ -46,8 +48,14 @@ impl<'a, 'b> StatementVisitor<'a> for ConstantFolding<'a, 'b> {}
 impl<'a, 'b> ProgramVisitor<'a> for ConstantFolding<'a, 'b> {}
 
 impl<'a, 'b> AsgPass<'a> for ConstantFolding<'a, 'b> {
-    fn do_pass(asg: Program<'a>) -> Result<Program<'a>> {
-        let pass = ConstantFolding { program: &asg };
+    type Input = (Program<'a>, &'b AsgContext<'a>);
+    type Output = Result<Program<'a>>;
+
+    fn do_pass((asg, ctx): Self::Input) -> Self::Output {
+        let pass = ConstantFolding {
+            program: &asg,
+            context: ctx,
+        };
         let mut director = VisitorDirector::new(pass);
         director.visit_program(&asg).ok();
         Ok(asg)

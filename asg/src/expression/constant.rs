@@ -15,7 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    CharValue, ConstInt, ConstValue, Expression, ExpressionNode, FromAst, GroupValue, Node, PartialType, Scope, Type,
+    AsgId, CharValue, ConstInt, ConstValue, Expression, ExpressionNode, FromAst, GroupValue, Node, PartialType, Scope,
+    Type,
 };
 
 use leo_errors::{AsgError, Result, Span};
@@ -25,6 +26,7 @@ use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct Constant<'a> {
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub value: ConstValue<'a>, // should not be compound constants
@@ -33,6 +35,10 @@ pub struct Constant<'a> {
 impl<'a> Node for Constant<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
+    }
+
+    fn asg_id(&self) -> AsgId {
+        self.id
     }
 }
 
@@ -66,7 +72,7 @@ impl<'a> ExpressionNode<'a> for Constant<'a> {
 
 impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
     fn from_ast(
-        _scope: &'a Scope<'a>,
+        scope: &'a Scope<'a>,
         value: &leo_ast::ValueExpression,
         expected_type: Option<PartialType<'a>>,
     ) -> Result<Constant<'a>> {
@@ -80,6 +86,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                     }
                 }
                 Constant {
+                    id: scope.context.get_id(),
                     parent: Cell::new(None),
                     span: Some(span.clone()),
                     value: ConstValue::Address(value.clone()),
@@ -93,6 +100,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                     }
                 }
                 Constant {
+                    id: scope.context.get_id(),
                     parent: Cell::new(None),
                     span: Some(span.clone()),
                     value: ConstValue::Boolean(
@@ -111,6 +119,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                 }
 
                 Constant {
+                    id: scope.context.get_id(),
                     parent: Cell::new(None),
                     span: Some(value.span().clone()),
                     value: ConstValue::Char(CharValue::from(value.clone())),
@@ -124,6 +133,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                     }
                 }
                 Constant {
+                    id: scope.context.get_id(),
                     parent: Cell::new(None),
                     span: Some(span.clone()),
                     value: ConstValue::Field(value.parse().map_err(|_| AsgError::invalid_int(value, span))?),
@@ -137,6 +147,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                     }
                 }
                 Constant {
+                    id: scope.context.get_id(),
                     parent: Cell::new(None),
                     span: Some(value.span().clone()),
                     value: ConstValue::Group((&**value).clone().try_into()?),
@@ -146,17 +157,20 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                 None => return Err(AsgError::unresolved_type("unknown", span).into()),
                 Some(PartialType::Integer(Some(sub_type), _)) | Some(PartialType::Integer(None, Some(sub_type))) => {
                     Constant {
+                        id: scope.context.get_id(),
                         parent: Cell::new(None),
                         span: Some(span.clone()),
                         value: ConstValue::Int(ConstInt::parse(&sub_type, value, span)?),
                     }
                 }
                 Some(PartialType::Type(Type::Field)) => Constant {
+                    id: scope.context.get_id(),
                     parent: Cell::new(None),
                     span: Some(span.clone()),
                     value: ConstValue::Field(value.parse().map_err(|_| AsgError::invalid_int(value, span))?),
                 },
                 Some(PartialType::Type(Type::Group)) => Constant {
+                    id: scope.context.get_id(),
                     parent: Cell::new(None),
                     span: Some(span.clone()),
                     value: ConstValue::Group(GroupValue::Single(
@@ -164,6 +178,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                     )),
                 },
                 Some(PartialType::Type(Type::Address)) => Constant {
+                    id: scope.context.get_id(),
                     parent: Cell::new(None),
                     span: Some(span.clone()),
                     value: ConstValue::Address(value.clone()),
@@ -182,6 +197,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                     }
                 }
                 Constant {
+                    id: scope.context.get_id(),
                     parent: Cell::new(None),
                     span: Some(span.clone()),
                     value: ConstValue::Int(ConstInt::parse(int_type, value, span)?),

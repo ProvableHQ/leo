@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    CircuitMember, ConstInt, ConstValue, Expression, ExpressionNode, FromAst, Identifier, IntegerType, Node,
+    AsgId, CircuitMember, ConstInt, ConstValue, Expression, ExpressionNode, FromAst, Identifier, IntegerType, Node,
     PartialType, Scope, Statement, Type, Variable,
 };
 pub use leo_ast::AssignOperation;
@@ -34,6 +34,7 @@ pub enum AssignAccess<'a> {
 
 #[derive(Clone)]
 pub struct AssignStatement<'a> {
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
     pub operation: AssignOperation,
@@ -45,6 +46,10 @@ pub struct AssignStatement<'a> {
 impl<'a> Node for AssignStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
+    }
+
+    fn asg_id(&self) -> AsgId {
+        self.id
     }
 }
 
@@ -200,6 +205,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
         let value = <&Expression<'a>>::from_ast(scope, &statement.value, target_type)?;
 
         let statement = scope.context.alloc_statement(Statement::Assign(AssignStatement {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(statement.span.clone()),
             operation: statement.operation,

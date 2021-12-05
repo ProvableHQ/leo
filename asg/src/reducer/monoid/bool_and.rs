@@ -19,12 +19,12 @@ use super::*;
 #[derive(Default)]
 pub struct BoolAnd(pub bool);
 
-impl Monoid for BoolAnd {
-    fn append(self, other: Self) -> Self {
+impl Magma for BoolAnd {
+    fn merge(self, other: Self) -> Self {
         BoolAnd(self.0 && other.0)
     }
 
-    fn append_all(self, mut others: impl Iterator<Item = Self>) -> Self {
+    fn merge_all(self, mut others: impl Iterator<Item = Self>) -> Self {
         BoolAnd(others.all(|i| i.0))
     }
 }

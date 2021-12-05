@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Alias, AsgContext, Circuit, DefinitionStatement, Function, Input, Type, Variable};
+use crate::{Alias, AsgContext, AsgId, Circuit, DefinitionStatement, Function, Input, Type, Variable};
 use leo_errors::{AsgError, Result, Span};
 
 use indexmap::IndexMap;
@@ -26,7 +26,7 @@ pub struct Scope<'a> {
     pub context: AsgContext<'a>,
 
     /// The unique id of the scope.
-    pub id: u32,
+    pub id: AsgId,
 
     /// The parent scope that this scope inherits.
     pub parent_scope: Cell<Option<&'a Scope<'a>>>,

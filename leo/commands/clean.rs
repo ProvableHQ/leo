@@ -19,8 +19,8 @@ use leo_compiler::OutputFile;
 use leo_errors::Result;
 use leo_package::{
     outputs::{
-        ChecksumFile, CircuitFile, IrSnapshot, IrSnapshotFile, ProofFile, ProvingKeyFile, Snapshot, SnapshotFile,
-        VerificationKeyFile,
+        ChecksumFile, CircuitFile, DebugGraph, DebugGraphFile, IrSnapshot, IrSnapshotFile, ProofFile, ProvingKeyFile,
+        Snapshot, SnapshotFile, VerificationKeyFile,
     },
     PackageFile,
 };
@@ -72,6 +72,10 @@ impl<'a> Command<'a> for Clean {
         SnapshotFile::new(&package_name, Snapshot::ImportsResolved).remove(&path)?;
         SnapshotFile::new(&package_name, Snapshot::TypeInference).remove(&path)?;
         SnapshotFile::new(&package_name, Snapshot::Canonicalization).remove(&path)?;
+
+        DebugGraphFile::new(&package_name, DebugGraph::Initial).remove(&path)?;
+        DebugGraphFile::new(&package_name, DebugGraph::ConstantsFolded).remove(&path)?;
+        DebugGraphFile::new(&package_name, DebugGraph::DeadCodeEliminated).remove(&path)?;
 
         IrSnapshotFile::new(&package_name, IrSnapshot::Formatted).remove(&path)?;
         IrSnapshotFile::new(&package_name, IrSnapshot::Input).remove(&path)?;

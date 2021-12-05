@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CharValue, Expression, FromAst, Node, PartialType, Scope, Statement, Type};
+use crate::{AsgId, CharValue, Expression, FromAst, Node, PartialType, Scope, Statement, Type};
 use leo_ast::ConsoleFunction as AstConsoleFunction;
 use leo_errors::{Result, Span};
 
@@ -23,9 +23,20 @@ use std::cell::Cell;
 // TODO (protryon): Refactor to not require/depend on span
 #[derive(Clone)]
 pub struct ConsoleArgs<'a> {
+    pub id: AsgId,
     pub string: Vec<CharValue>,
     pub parameters: Vec<Cell<&'a Expression<'a>>>,
     pub span: Span,
+}
+
+impl<'a> Node for ConsoleArgs<'a> {
+    fn span(&self) -> Option<&Span> {
+        Some(&self.span)
+    }
+
+    fn asg_id(&self) -> AsgId {
+        self.id
+    }
 }
 
 #[derive(Clone)]
@@ -37,6 +48,7 @@ pub enum ConsoleFunction<'a> {
 
 #[derive(Clone)]
 pub struct ConsoleStatement<'a> {
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
     pub function: ConsoleFunction<'a>,
@@ -45,6 +57,10 @@ pub struct ConsoleStatement<'a> {
 impl<'a> Node for ConsoleStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
+    }
+
+    fn asg_id(&self) -> AsgId {
+        self.id
     }
 }
 
@@ -59,6 +75,7 @@ impl<'a> FromAst<'a, leo_ast::ConsoleArgs> for ConsoleArgs<'a> {
             parameters.push(Cell::new(<&Expression<'a>>::from_ast(scope, parameter, None)?));
         }
         Ok(ConsoleArgs {
+            id: scope.context.get_id(),
             string: value.string.iter().map(CharValue::from).collect::<Vec<_>>(),
             parameters,
             span: value.span.clone(),
@@ -83,6 +100,7 @@ impl<'a> FromAst<'a, leo_ast::ConsoleStatement> for ConsoleStatement<'a> {
         _expected_type: Option<PartialType<'a>>,
     ) -> Result<Self> {
         Ok(ConsoleStatement {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(statement.span.clone()),
             function: match &statement.function {

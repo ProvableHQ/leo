@@ -80,6 +80,7 @@ impl<'a> Program<'a> {
 
         self.resolve_assign(
             &AssignStatement {
+                id: 0u32.into(), // This is okay, since constraints are compiled after ASG passes
                 parent: Cell::new(None),
                 span: assignee.span().cloned(),
                 operation: AssignOperation::Assign,

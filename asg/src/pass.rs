@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Program;
-use leo_errors::Result;
-
 pub trait AsgPass<'a> {
-    fn do_pass(asg: Program<'a>) -> Result<Program<'a>>;
+    type Input;
+    type Output;
+
+    fn do_pass(input: Self::Input) -> Self::Output;
 }

@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{BlockStatement, Expression, FromAst, Node, PartialType, Scope, Statement, Type};
+use crate::{AsgId, BlockStatement, Expression, FromAst, Node, PartialType, Scope, Statement, Type};
 use leo_errors::{Result, Span};
 
 use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct ConditionalStatement<'a> {
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
     pub condition: Cell<&'a Expression<'a>>,
@@ -31,6 +32,10 @@ pub struct ConditionalStatement<'a> {
 impl<'a> Node for ConditionalStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
+    }
+
+    fn asg_id(&self) -> AsgId {
+        self.id
     }
 }
 
@@ -53,6 +58,7 @@ impl<'a> FromAst<'a, leo_ast::ConditionalStatement> for ConditionalStatement<'a>
             .transpose()?;
 
         Ok(ConditionalStatement {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(statement.span.clone()),
             condition: Cell::new(condition),

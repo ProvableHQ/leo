@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    ConstValue, Constant, DefinitionStatement, Expression, ExpressionNode, FromAst, Node, PartialType, Scope,
+    AsgId, ConstValue, Constant, DefinitionStatement, Expression, ExpressionNode, FromAst, Node, PartialType, Scope,
     Statement, Type, Variable,
 };
 
@@ -25,6 +25,7 @@ use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct VariableRef<'a> {
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub variable: &'a Variable<'a>,
@@ -33,6 +34,10 @@ pub struct VariableRef<'a> {
 impl<'a> Node for VariableRef<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
+    }
+
+    fn asg_id(&self) -> AsgId {
+        self.id
     }
 }
 
@@ -147,6 +152,7 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
                 None => {
                     if value.name.starts_with("aleo1") {
                         return Ok(scope.context.alloc_expression(Expression::Constant(Constant {
+                            id: scope.context.get_id(),
                             parent: Cell::new(None),
                             span: Some(value.span.clone()),
                             value: ConstValue::Address(value.name.clone()),
@@ -158,6 +164,7 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
         };
 
         let variable_ref = VariableRef {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             variable,

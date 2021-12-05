@@ -15,14 +15,17 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    Circuit, CircuitMember, ConstValue, Expression, ExpressionNode, FromAst, Identifier, Node, PartialType, Scope, Type,
+    AsgId, Circuit, CircuitMember, ConstValue, Expression, ExpressionNode, FromAst, Identifier, Node, PartialType,
+    Scope, Type,
 };
 
 use leo_errors::{AsgError, Result, Span};
+
 use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct CircuitAccess<'a> {
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub circuit: Cell<&'a Circuit<'a>>,
@@ -33,6 +36,10 @@ pub struct CircuitAccess<'a> {
 impl<'a> Node for CircuitAccess<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
+    }
+
+    fn asg_id(&self) -> AsgId {
+        self.id
     }
 }
 
@@ -144,6 +151,7 @@ impl<'a> FromAst<'a, leo_ast::accesses::MemberAccess> for CircuitAccess<'a> {
         }
 
         Ok(CircuitAccess {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             target: Cell::new(Some(target)),
@@ -182,6 +190,7 @@ impl<'a> FromAst<'a, leo_ast::accesses::StaticAccess> for CircuitAccess<'a> {
         }
 
         Ok(CircuitAccess {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             target: Cell::new(None),

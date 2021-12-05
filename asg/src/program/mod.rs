@@ -27,7 +27,7 @@ pub use circuit::*;
 mod function;
 pub use function::*;
 
-use crate::{node::FromAst, ArenaNode, AsgContext, DefinitionStatement, Input, Scope, Statement};
+use crate::{node::FromAst, ArenaNode, AsgContext, AsgId, DefinitionStatement, Input, Scope, Statement};
 use leo_ast::{PackageAccess, PackageOrPackages};
 use leo_errors::{AsgError, Result, Span};
 
@@ -43,7 +43,7 @@ pub struct Program<'a> {
     pub context: AsgContext<'a>,
 
     /// The unique id of the program.
-    pub id: u32,
+    pub id: AsgId,
 
     /// The program file name.
     pub name: String,

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{statement::*, BoolAnd, Expression, Monoid, MonoidalReducerExpression, MonoidalReducerStatement, Node};
+use crate::{statement::*, BoolAnd, Expression, Magma, MonoidalReducerExpression, MonoidalReducerStatement, Node};
 
 use leo_errors::Span;
 
@@ -51,7 +51,13 @@ impl<'a> MonoidalReducerStatement<'a, BoolAnd> for ReturnPathReducer {
         BoolAnd(false)
     }
 
-    fn reduce_assign(&mut self, input: &AssignStatement, accesses: Vec<BoolAnd>, value: BoolAnd) -> BoolAnd {
+    fn reduce_assign(
+        &mut self,
+        input: &AssignStatement,
+        variable: BoolAnd,
+        accesses: Vec<BoolAnd>,
+        value: BoolAnd,
+    ) -> BoolAnd {
         BoolAnd(false)
     }
 
@@ -82,7 +88,7 @@ impl<'a> MonoidalReducerStatement<'a, BoolAnd> for ReturnPathReducer {
                 "cannot have asymmetrical return in if statement".to_string(),
             );
         }
-        if_true.append(if_false.unwrap_or(BoolAnd(false)))
+        if_true.merge(if_false.unwrap_or(BoolAnd(false)))
     }
 
     fn reduce_formatted_string(&mut self, input: &ConsoleArgs, parameters: Vec<BoolAnd>) -> BoolAnd {
@@ -93,7 +99,7 @@ impl<'a> MonoidalReducerStatement<'a, BoolAnd> for ReturnPathReducer {
         BoolAnd(false)
     }
 
-    fn reduce_definition(&mut self, input: &DefinitionStatement, value: BoolAnd) -> BoolAnd {
+    fn reduce_definition(&mut self, input: &DefinitionStatement, variables: Vec<BoolAnd>, value: BoolAnd) -> BoolAnd {
         BoolAnd(false)
     }
 
@@ -104,6 +110,7 @@ impl<'a> MonoidalReducerStatement<'a, BoolAnd> for ReturnPathReducer {
     fn reduce_iteration(
         &mut self,
         input: &IterationStatement,
+        variable: BoolAnd,
         start: BoolAnd,
         stop: BoolAnd,
         body: BoolAnd,

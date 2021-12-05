@@ -246,16 +246,41 @@ impl<'a, 'b> Compiler<'a, 'b> {
     fn do_asg_passes(&mut self) -> Result<()> {
         assert!(self.asg.is_some());
 
+        let run_dotifier = |asg: leo_asg::Program<'a>, name: &str| -> Result<leo_asg::Program<'a>> {
+            let mut path = self.output_directory.clone();
+            path.push(format!("{:}.dot", name));
+            leo_asg_passes::Dotifier::do_pass((
+                asg,
+                &self.context,
+                &self.output_options.asg_exclude_edges,
+                &self.output_options.asg_exclude_labels,
+                name.to_string(),
+                path,
+            ))
+        };
+
+        if self.output_options.asg_initial {
+            self.asg = Some(run_dotifier(self.asg.take().unwrap(), "initial_asg")?);
+        }
+
         // Do constant folding.
         if self.options.constant_folding_enabled {
             let asg = self.asg.take().unwrap();
-            self.asg = Some(leo_asg_passes::ConstantFolding::do_pass(asg)?);
+            self.asg = Some(leo_asg_passes::ConstantFolding::do_pass((asg, &self.context))?);
+
+            if self.output_options.asg_constants_folded {
+                self.asg = Some(run_dotifier(self.asg.take().unwrap(), "constants_folded_asg")?)
+            }
         }
 
         // Do dead code elimination.
         if self.options.dead_code_elimination_enabled {
             let asg = self.asg.take().unwrap();
             self.asg = Some(leo_asg_passes::DeadCodeElimination::do_pass(asg)?);
+
+            if self.output_options.asg_dead_code_eliminated {
+                self.asg = Some(run_dotifier(self.asg.take().unwrap(), "dead_code_eliminated_asg")?);
+            }
         }
 
         Ok(())

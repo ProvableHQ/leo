@@ -64,6 +64,7 @@ impl<'a> Program<'a> {
 
             arguments.push(Cell::new(&*function.scope.context.alloc_expression(
                 Expression::VariableRef(leo_asg::VariableRef {
+                    id: function.scope.context.get_id(),
                     parent: Cell::new(None),
                     span: Some(input_variable.get().borrow().name.span.clone()),
                     variable: input_variable.get(),

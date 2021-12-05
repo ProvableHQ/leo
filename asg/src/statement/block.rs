@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{FromAst, Node, PartialType, Scope, Statement};
+use crate::{AsgId, FromAst, Node, PartialType, Scope, Statement};
 use leo_errors::{Result, Span};
 
 use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct BlockStatement<'a> {
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
     pub statements: Vec<Cell<&'a Statement<'a>>>,
@@ -30,6 +31,10 @@ pub struct BlockStatement<'a> {
 impl<'a> Node for BlockStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
+    }
+
+    fn asg_id(&self) -> AsgId {
+        self.id
     }
 }
 
@@ -46,6 +51,7 @@ impl<'a> FromAst<'a, leo_ast::Block> for BlockStatement<'a> {
             output.push(Cell::new(<&'a Statement<'a>>::from_ast(new_scope, item, None)?));
         }
         Ok(BlockStatement {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(statement.span.clone()),
             statements: output,

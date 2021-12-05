@@ -15,7 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    BlockStatement, Circuit, FromAst, Identifier, MonoidalDirector, ReturnPathReducer, Scope, Statement, Type, Variable,
+    AsgId, BlockStatement, Circuit, FromAst, Identifier, MonoidalDirector, ReturnPathReducer, Scope, Statement, Type,
+    Variable,
 };
 use indexmap::IndexMap;
 pub use leo_ast::Annotation;
@@ -37,7 +38,7 @@ pub enum FunctionQualifier {
 
 #[derive(Clone)]
 pub struct Function<'a> {
-    pub id: u32,
+    pub id: AsgId,
     pub name: RefCell<Identifier>,
     pub output: Type<'a>,
     pub arguments: IndexMap<String, Cell<&'a Variable<'a>>>,

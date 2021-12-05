@@ -15,9 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 #![doc = include_str!("../README.md")]
+pub mod dotify;
+pub use dotify::*;
 
 pub mod constant_folding;
 pub use constant_folding::*;
 
 pub mod dead_code_elimination;
+
 pub use dead_code_elimination::*;

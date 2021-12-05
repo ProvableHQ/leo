@@ -28,6 +28,7 @@ pub trait ReconstructingReducerExpression<'a> {
 
     fn reduce_err(&mut self, input: ErrExpression<'a>) -> Expression<'a> {
         Expression::Err(ErrExpression {
+            id: input.id,
             parent: input.parent,
             span: input.span,
         })
@@ -35,6 +36,7 @@ pub trait ReconstructingReducerExpression<'a> {
 
     fn reduce_array_init(&mut self, input: ArrayInitExpression<'a>, element: &'a Expression<'a>) -> Expression<'a> {
         Expression::ArrayInit(ArrayInitExpression {
+            id: input.id,
             parent: input.parent,
             element: Cell::new(element),
             len: input.len,
@@ -48,6 +50,7 @@ pub trait ReconstructingReducerExpression<'a> {
         elements: Vec<(&'a Expression<'a>, bool)>,
     ) -> Expression<'a> {
         Expression::ArrayInline(ArrayInlineExpression {
+            id: input.id,
             parent: input.parent,
             elements: elements.into_iter().map(|x| (Cell::new(x.0), x.1)).collect(),
             span: input.span,
@@ -61,6 +64,7 @@ pub trait ReconstructingReducerExpression<'a> {
         right: &'a Expression<'a>,
     ) -> Expression<'a> {
         Expression::Binary(BinaryExpression {
+            id: input.id,
             parent: input.parent,
             left: Cell::new(left),
             right: Cell::new(right),
@@ -76,6 +80,7 @@ pub trait ReconstructingReducerExpression<'a> {
         arguments: Vec<&'a Expression<'a>>,
     ) -> Expression<'a> {
         Expression::Call(CallExpression {
+            id: input.id,
             parent: input.parent,
             function: input.function,
             target: Cell::new(target),
@@ -90,6 +95,7 @@ pub trait ReconstructingReducerExpression<'a> {
         values: Vec<(Identifier, &'a Expression<'a>)>,
     ) -> Expression<'a> {
         Expression::CircuitInit(CircuitInitExpression {
+            id: input.id,
             parent: input.parent,
             circuit: input.circuit,
             values: values.into_iter().map(|x| (x.0, Cell::new(x.1))).collect(),
@@ -105,6 +111,7 @@ pub trait ReconstructingReducerExpression<'a> {
         if_false: &'a Expression<'a>,
     ) -> Expression<'a> {
         Expression::Ternary(TernaryExpression {
+            id: input.id,
             parent: input.parent,
             condition: Cell::new(condition),
             if_true: Cell::new(if_true),
@@ -115,6 +122,7 @@ pub trait ReconstructingReducerExpression<'a> {
 
     fn reduce_cast_expression(&mut self, input: CastExpression<'a>, inner: &'a Expression<'a>) -> Expression<'a> {
         Expression::Cast(CastExpression {
+            id: input.id,
             parent: input.parent,
             inner: Cell::new(inner),
             target_type: input.target_type,
@@ -129,6 +137,7 @@ pub trait ReconstructingReducerExpression<'a> {
         index: &'a Expression<'a>,
     ) -> AccessExpression<'a> {
         AccessExpression::Array(ArrayAccess {
+            id: input.id,
             parent: input.parent,
             array: Cell::new(array),
             index: Cell::new(index),
@@ -144,6 +153,7 @@ pub trait ReconstructingReducerExpression<'a> {
         right: Option<&'a Expression<'a>>,
     ) -> AccessExpression<'a> {
         AccessExpression::ArrayRange(ArrayRangeAccess {
+            id: input.id,
             parent: input.parent,
             array: Cell::new(array),
             left: Cell::new(left),
@@ -159,6 +169,7 @@ pub trait ReconstructingReducerExpression<'a> {
         target: Option<&'a Expression<'a>>,
     ) -> AccessExpression<'a> {
         AccessExpression::Circuit(CircuitAccess {
+            id: input.id,
             parent: input.parent,
             circuit: input.circuit,
             target: Cell::new(target),
@@ -169,6 +180,7 @@ pub trait ReconstructingReducerExpression<'a> {
 
     fn reduce_tuple_access(&mut self, input: TupleAccess<'a>, tuple_ref: &'a Expression<'a>) -> AccessExpression<'a> {
         AccessExpression::Tuple(TupleAccess {
+            id: input.id,
             parent: input.parent,
             tuple_ref: Cell::new(tuple_ref),
             index: input.index,
@@ -186,6 +198,7 @@ pub trait ReconstructingReducerExpression<'a> {
 
     fn reduce_tuple_init(&mut self, input: TupleInitExpression<'a>, values: Vec<&'a Expression<'a>>) -> Expression<'a> {
         Expression::TupleInit(TupleInitExpression {
+            id: input.id,
             parent: input.parent,
             elements: values.into_iter().map(Cell::new).collect(),
             span: input.span,
@@ -194,6 +207,7 @@ pub trait ReconstructingReducerExpression<'a> {
 
     fn reduce_unary(&mut self, input: UnaryExpression<'a>, inner: &'a Expression<'a>) -> Expression<'a> {
         Expression::Unary(UnaryExpression {
+            id: input.id,
             parent: input.parent,
             inner: Cell::new(inner),
             span: input.span,
@@ -245,6 +259,7 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
         value: &'a Expression<'a>,
     ) -> Statement<'a> {
         Statement::Assign(AssignStatement {
+            id: input.id,
             parent: input.parent,
             span: input.span,
             operation: input.operation,
@@ -256,6 +271,7 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
 
     fn reduce_block(&mut self, input: BlockStatement<'a>, statements: Vec<&'a Statement<'a>>) -> Statement<'a> {
         Statement::Block(BlockStatement {
+            id: input.id,
             parent: input.parent,
             span: input.span,
             statements: statements.into_iter().map(Cell::new).collect(),
@@ -271,6 +287,7 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
         if_false: Option<&'a Statement<'a>>,
     ) -> Statement<'a> {
         Statement::Conditional(ConditionalStatement {
+            id: input.id,
             parent: input.parent,
             span: input.span,
             condition: Cell::new(condition),
@@ -285,6 +302,7 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
         parameters: Vec<&'a Expression<'a>>,
     ) -> ConsoleArgs<'a> {
         ConsoleArgs {
+            id: input.id,
             span: input.span,
             string: input.string,
             parameters: parameters.into_iter().map(Cell::new).collect(),
@@ -294,6 +312,7 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
     fn reduce_console_assert(&mut self, input: ConsoleStatement<'a>, argument: &'a Expression<'a>) -> Statement<'a> {
         assert!(matches!(input.function, ConsoleFunction::Assert(_)));
         Statement::Console(ConsoleStatement {
+            id: input.id,
             parent: input.parent,
             span: input.span,
             function: ConsoleFunction::Assert(Cell::new(argument)),
@@ -303,6 +322,7 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
     fn reduce_console_log(&mut self, input: ConsoleStatement<'a>, argument: ConsoleArgs<'a>) -> Statement<'a> {
         assert!(!matches!(input.function, ConsoleFunction::Assert(_)));
         Statement::Console(ConsoleStatement {
+            id: input.id,
             parent: input.parent,
             span: input.span,
             function: match input.function {
@@ -315,6 +335,7 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
 
     fn reduce_definition(&mut self, input: DefinitionStatement<'a>, value: &'a Expression<'a>) -> Statement<'a> {
         Statement::Definition(DefinitionStatement {
+            id: input.id,
             parent: input.parent,
             span: input.span,
             variables: input.variables,
@@ -328,6 +349,7 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
         expression: &'a Expression<'a>,
     ) -> Statement<'a> {
         Statement::Expression(ExpressionStatement {
+            id: input.id,
             parent: input.parent,
             span: input.span,
             expression: Cell::new(expression),
@@ -342,6 +364,7 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
         body: &'a Statement<'a>,
     ) -> Statement<'a> {
         Statement::Iteration(IterationStatement {
+            id: input.id,
             parent: input.parent,
             span: input.span,
             variable: input.variable,
@@ -354,6 +377,7 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
 
     fn reduce_return(&mut self, input: ReturnStatement<'a>, value: &'a Expression<'a>) -> Statement<'a> {
         Statement::Return(ReturnStatement {
+            id: input.id,
             parent: input.parent,
             span: input.span,
             expression: Cell::new(value),

@@ -42,7 +42,7 @@ pub use iteration::*;
 mod return_;
 pub use return_::*;
 
-use crate::{FromAst, Node, PartialType, Scope};
+use crate::{AsgId, FromAst, Node, PartialType, Scope};
 use leo_errors::{Result, Span};
 
 #[derive(Clone)]
@@ -58,6 +58,27 @@ pub enum Statement<'a> {
     Empty(Option<Span>),
 }
 
+impl<'a> Statement<'a> {
+    pub fn is_empty(&self) -> bool {
+        matches!(self, Statement::Empty(_))
+    }
+
+    pub fn get_parent(&self) -> Option<&'a Statement<'a>> {
+        use Statement::*;
+        match self {
+            Return(s) => s.parent.get(),
+            Definition(s) => s.parent.get(),
+            Assign(s) => s.parent.get(),
+            Conditional(s) => s.parent.get(),
+            Iteration(s) => s.parent.get(),
+            Console(s) => s.parent.get(),
+            Expression(s) => s.parent.get(),
+            Block(s) => s.parent.get(),
+            Empty(_s) => panic!("Method `get_parent` cannot be invoked on an Empty statement"),
+        }
+    }
+}
+
 impl<'a> Node for Statement<'a> {
     fn span(&self) -> Option<&Span> {
         use Statement::*;
@@ -71,6 +92,21 @@ impl<'a> Node for Statement<'a> {
             Expression(s) => s.span(),
             Block(s) => s.span(),
             Empty(s) => s.as_ref(),
+        }
+    }
+
+    fn asg_id(&self) -> AsgId {
+        use Statement::*;
+        match self {
+            Return(s) => s.asg_id(),
+            Definition(s) => s.asg_id(),
+            Assign(s) => s.asg_id(),
+            Conditional(s) => s.asg_id(),
+            Iteration(s) => s.asg_id(),
+            Console(s) => s.asg_id(),
+            Expression(s) => s.asg_id(),
+            Block(s) => s.asg_id(),
+            Empty(_s) => panic!("Method `asg_id` cannot be invoked on an Empty statement"),
         }
     }
 }
