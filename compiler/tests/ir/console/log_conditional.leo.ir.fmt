@@ -1,7 +1,0 @@
-decl f0: <0>
-  store &v1, ((v0), (), (), ())
-  eq &v4, v2, v3
-  mask 1, v4
-    log INFO, "", v2, "==", v3, ""
-  eq &v6, v2, v3
-  retn v6

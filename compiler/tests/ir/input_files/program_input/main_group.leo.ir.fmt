@@ -1,5 +1,0 @@
-decl f0: <0>
-  store &v0, ((), (), (), ())
-  log INFO, "a: ", v1, ""
-  log INFO, "b: ", v2, ""
-  log INFO, "c: ", v3, ""

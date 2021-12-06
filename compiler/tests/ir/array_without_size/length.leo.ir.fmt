@@ -1,6 +1,0 @@
-decl f0: <0>
-  store &v1, ((v0), (), (), ())
-  ccall &v4, 'len', v2
-  eq &v5, v4, 11
-  eq &v6, v3, v5
-  retn v6

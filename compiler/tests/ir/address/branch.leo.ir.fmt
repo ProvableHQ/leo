@@ -1,7 +1,0 @@
-decl f0: <0>
-  store &v1, ((v0), (), (), ())
-  store &v4, aleo18cw5zdez3zhypev3tnfhmwvhre9ramwle4up947gcyy5rnmjw5yqn93wsr
-  mask 1, v3
-    store &v4, aleo1f2gs8g0qpumlgzpvmkw3q07y6xrwsdr0lqsu9h9fgnh8d7e44v9qhpgpkj
-  eq &v6, v4, aleo1f2gs8g0qpumlgzpvmkw3q07y6xrwsdr0lqsu9h9fgnh8d7e44v9qhpgpkj
-  retn v6

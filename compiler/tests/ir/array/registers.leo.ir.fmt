@@ -1,7 +1,0 @@
-decl f0: <0>
-  store &v2, ((v0, v1), (), (), ())
-  tget &v4, v2, 0
-  tget &v5, v4, 0
-  eq &v6, v5, v3
-  pick &v7, v6, [3, 2, 1], [1, 2, 3]
-  retn v7

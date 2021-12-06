@@ -1,5 +1,0 @@
-decl f0: <0>
-  store &v1, ((v0), (), (), ())
-  store &v3, 18446744073709551615
-  eq &v4, v2, true
-  retn v4

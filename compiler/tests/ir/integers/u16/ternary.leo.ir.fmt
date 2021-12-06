@@ -1,6 +1,0 @@
-decl f0: <0>
-  store &v1, ((v0), (), (), ())
-  pick &v6, v2, v3, v4
-  store &v7, v6
-  eq &v8, v7, v5
-  retn v8

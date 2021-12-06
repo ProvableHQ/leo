@@ -1,8 +1,0 @@
-decl f0: <0>
-  store &v1, ((v0), (), (), ())
-  call &v3, f1
-  eq &v4, v3, ['h', 'e', 'l', 'l', 'o']
-  eq &v5, v2, v4
-  retn v5
-decl f1: <6>
-  retn ['h', 'e', 'l', 'l', 'o']

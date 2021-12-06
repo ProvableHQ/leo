@@ -1,5 +1,0 @@
-decl f0: <0>
-  store &v1, ((v0), (), (), ())
-  retn v2
-decl f1: <3>
-  retn ((), 1)

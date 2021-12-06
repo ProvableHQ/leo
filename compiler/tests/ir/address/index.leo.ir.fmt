@@ -1,7 +1,0 @@
-decl f0: <0>
-  store &v1, ((v0), (), (), ())
-  store &v3, [aleo1x0rh2cudq93fhukrsce8sgvcphddv4qs0clph64stpg0hstfds9qjvxcg6, aleo1x0rh2cudq93fhukrsce8sgvcphddv4qs0clph64stpg0hstfds9qjvxcg6, aleo1x0rh2cudq93fhukrsce8sgvcphddv4qs0clph64stpg0hstfds9qjvxcg6]
-  aget &v4, [aleo1x0rh2cudq93fhukrsce8sgvcphddv4qs0clph64stpg0hstfds9qjvxcg6, aleo1x0rh2cudq93fhukrsce8sgvcphddv4qs0clph64stpg0hstfds9qjvxcg6, aleo1x0rh2cudq93fhukrsce8sgvcphddv4qs0clph64stpg0hstfds9qjvxcg6], v2
-  store &v5, v4
-  eq &v6, v5, aleo1x0rh2cudq93fhukrsce8sgvcphddv4qs0clph64stpg0hstfds9qjvxcg6
-  retn v6

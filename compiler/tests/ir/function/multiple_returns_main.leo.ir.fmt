@@ -1,7 +1,0 @@
-decl f0: <0>
-  store &v2, ((v0, v1), (), (), ())
-  tget &v3, v2, 0
-  tget &v4, v3, 0
-  tget &v5, v2, 0
-  tget &v6, v5, 1
-  retn (v4, v6)

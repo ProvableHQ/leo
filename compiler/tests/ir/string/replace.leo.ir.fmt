@@ -1,7 +1,0 @@
-decl f0: <0>
-  store &v1, ((v0), (), (), ())
-  asget &v4, v2, 0, 4, 4
-  asset &v2, 0, 4, v3
-  store &v2, v2
-  ne &v5, v2, ['H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!']
-  retn v5

@@ -1,6 +1,0 @@
-decl f0: <0>
-  store &v1, ((v0), (), (), ())
-  store &v3, [[false, false], [false, false]]
-  store &v4, false
-  eq &v5, v2, false
-  retn v5

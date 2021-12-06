@@ -1,4 +1,0 @@
-decl f0: <0>
-  store &v2, ((v0, v1), (), (), ())
-  store &v4, (true, false)
-  retn (true, false)

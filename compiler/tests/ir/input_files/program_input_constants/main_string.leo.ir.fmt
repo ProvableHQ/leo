@@ -1,6 +1,0 @@
-decl f0: <0>
-  store &v1, ((v0), (), (), ())
-  eq &v4, v3, true
-  eq &v5, v2, ['\u{1f62d}', '\u{1f602}', '\u{1f44d}', '\u{1f601}', '\u{1f618}']
-  and &v6, v4, v5
-  retn v6

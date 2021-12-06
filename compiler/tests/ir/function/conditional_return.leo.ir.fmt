@@ -1,8 +1,0 @@
-decl f0: <0>
-  store &v2, ((v0, v1), (), (), ())
-  eq &v4, v3, 2
-  mask 1, v4
-    retn 3
-  not &v5, v4
-  mask 1, v5
-    retn 4

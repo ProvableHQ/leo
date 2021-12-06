@@ -1,9 +1,0 @@
-decl f0: <0>
-  store &v2, ((v0, v1), (), (), ())
-  tget &v4, v3, 0
-  pick &v5, v4, false, true
-  tget &v6, v3, 1
-  pick &v7, v6, false, true
-  tget &v8, (v5, v7), 0
-  tget &v9, (v5, v7), 1
-  retn (v9, v8)

@@ -1,5 +1,0 @@
-decl f0: <0>
-  store &v0, ((), (), (), ())
-  store &v1, -128
-  negate &v2, -128
-  store &v3, v2

@@ -1,6 +1,0 @@
-decl f0: <0>
-  store &v1, ((v0), (), (), ())
-  log INFO, "", v2, ""
-  eq &v3, v2, 'z'
-  pick &v4, v3, 'x', v2
-  retn v4

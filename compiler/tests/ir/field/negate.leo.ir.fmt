@@ -1,6 +1,0 @@
-decl f0: <0>
-  store &v1, ((v0), (), (), ())
-  negate &v4, v2
-  negate &v5, v3
-  eq &v6, v4, v5
-  retn v6
