@@ -1,0 +1,36 @@
+decl f0: <0>
+  store &v0, 8
+  store &v1, [[0, 0], [0, 0], [0, 0]]
+  store &v2, (1, 2)
+  tget &v3, (1, 2), 0
+  tget &v4, (1, 2), 1
+  store &v5, [1]group
+  store &v6, (_, [1])group
+  store &v7, [2]
+  store &v8, 9
+  store &v9, (10, 20)
+  store &v10, 'a'
+  store &v11, ['H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!']
+  store &v13, ((v12), (), (), ())
+  tget &v15, (1, 2), 0
+  tget &v16, (1, 2), 1
+  eq &v17, v14, 8
+  and &v18, v17, true
+  and &v19, v18, true
+  and &v20, v19, true
+  eq &v21, v15, 1
+  and &v22, v20, v21
+  eq &v23, v16, 2
+  and &v24, v22, v23
+  eq &v25, v14, 1
+  and &v26, v24, v25
+  and &v27, v26, true
+  and &v28, v27, true
+  and &v29, v28, true
+  and &v30, v29, true
+  and &v31, v30, true
+  and &v32, v31, true
+  and &v33, v32, true
+  and &v34, v33, true
+  and &v35, v34, true
+  retn v35

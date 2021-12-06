@@ -1,0 +1,15 @@
+decl f0: <0>
+  store &v1, ((v0), (), (), ())
+  store &v3, ['\u{2764}', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!', '\u{fffd}']
+  asget &v4, v3, 0, 2, 2
+  asset &v3, 0, 2, v2
+  store &v3, v3
+  store &v5, ['t', 'e', 's', 't', '1']
+  store &v6, [1, 2, 3, 4]
+  asget &v7, v6, 0, 2, 2
+  asset &v6, 0, 2, [10, 10]
+  store &v6, v6
+  eq &v8, v6, [10, 10, 3, 4]
+  eq &v9, v3, ['h', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!', '\u{fffd}']
+  and &v10, v8, v9
+  retn v10

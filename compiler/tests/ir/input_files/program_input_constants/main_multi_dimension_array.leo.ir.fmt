@@ -1,0 +1,18 @@
+decl f0: <0>
+  store &v1, ((v0), (), (), ())
+  aget &v4, v2, 0
+  aget &v5, v4, 0
+  aget &v6, v5, 0
+  aget &v7, v3, 0
+  aget &v8, v7, 0
+  aget &v9, v8, 0
+  eq &v10, v6, v9
+  aget &v11, v2, 1
+  aget &v12, v11, 1
+  aget &v13, v12, 2
+  aget &v14, v3, 1
+  aget &v15, v14, 1
+  aget &v16, v15, 2
+  eq &v17, v13, v16
+  and &v18, v10, v17
+  retn v18

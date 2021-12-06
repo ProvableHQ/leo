@@ -1,0 +1,9 @@
+decl f0: <0>
+  store &v0, ((), (), (), ())
+  mask 2, v1
+    eq &v3, v1, true
+    assert v3
+  not &v2, v1
+  mask 2, v2
+    eq &v4, v1, false
+    assert v4

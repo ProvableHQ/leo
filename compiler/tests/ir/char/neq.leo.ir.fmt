@@ -1,0 +1,5 @@
+decl f0: <0>
+  store &v1, ((v0), (), (), ())
+  ne &v3, v2, 'a'
+  pick &v4, v3, 'a', 'Z'
+  retn v4

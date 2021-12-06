@@ -1430,6 +1430,7 @@ dependencies = [
  "serde_json",
  "snarkvm-algorithms",
  "snarkvm-curves",
+ "snarkvm-dpc",
  "snarkvm-eval",
  "snarkvm-gadgets",
  "snarkvm-r1cs",

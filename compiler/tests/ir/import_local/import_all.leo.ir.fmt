@@ -1,0 +1,19 @@
+decl f0: <0>
+  store &v0, 8
+  store &v2, ((v1), (), (), ())
+  store &v4, (1, 0)
+  store &v5, ['h', 'e', 'l', 'l', 'o']
+  store &v6, ['h', 'e', 'l', 'l', 'o']
+  store &v7, 8
+  call &v8, f2
+  store &v9, v8
+  call &v10, f1
+  eq &v11, v10, 1
+  and &v12, v11, true
+  and &v13, v12, true
+  eq &v14, v13, v3
+  retn v14
+decl f1: <15>
+  retn 1
+decl f2: <15>
+  retn (3)

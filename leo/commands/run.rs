@@ -15,11 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::{build::BuildOptions, prove::Prove};
-use crate::{commands::Command, context::Context};
+use crate::{
+    commands::{Command, ProgramSNARK},
+    context::Context,
+};
 use leo_errors::{Result, SnarkVMError};
 
-use snarkvm_algorithms::{snark::groth16::Groth16, traits::SNARK};
-use snarkvm_curves::bls12_377::{Bls12_377, Fr};
+use snarkvm_algorithms::traits::SNARK;
+use snarkvm_dpc::ProgramPublicVariables;
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -56,7 +59,7 @@ impl<'a> Command<'a> for Run {
         tracing::info!("Starting...");
 
         // Run the verifier
-        let is_success = Groth16::<Bls12_377, Vec<Fr>>::verify(&verifying_key, &vec![], &proof)
+        let is_success = ProgramSNARK::verify(&verifying_key, &ProgramPublicVariables::blank(), &proof)
             .map_err(|_| SnarkVMError::default())?;
 
         // Log the verifier output

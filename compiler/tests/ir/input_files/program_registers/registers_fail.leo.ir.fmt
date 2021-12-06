@@ -1,0 +1,3 @@
+decl f0: <0>
+  store &v1, ((v0), (), (), ())
+  retn false

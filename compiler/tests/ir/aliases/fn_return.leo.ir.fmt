@@ -1,0 +1,11 @@
+decl f0: <0>
+  store &v1, ((v0), (), (), ())
+  call &v3, f1
+  store &v4, v3
+  call &v5, f2
+  store &v6, v5
+  retn v2
+decl f1: <7>
+  retn (1, 2, 3)
+decl f2: <7>
+  retn [0, 0, 0]

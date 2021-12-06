@@ -1,0 +1,17 @@
+decl f0: <0>
+  store &v1, ((v0), (), (), ())
+  store &v3, [1, 2, 3]
+  asget &v4, v3, 0, 2, 2
+  asset &v3, 0, 2, [4, 5]
+  store &v3, v3
+  aget &v5, v3, 0
+  eq &v6, v5, 4
+  aget &v7, v3, 1
+  eq &v8, v7, 5
+  and &v9, v6, v8
+  aget &v10, v3, 2
+  eq &v11, v10, 3
+  and &v12, v9, v11
+  eq &v13, v2, true
+  and &v14, v12, v13
+  retn v14

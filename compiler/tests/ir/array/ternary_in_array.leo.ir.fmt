@@ -1,0 +1,6 @@
+decl f0: <0>
+  store &v1, ((v0), (), (), ())
+  asget &v3, v2, 0, 2, 2
+  store &v4, v3
+  eq &v5, v4, [1, 1]
+  retn v5

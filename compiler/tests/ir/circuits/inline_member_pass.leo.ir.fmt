@@ -1,0 +1,12 @@
+decl f0: <0>
+  store &v1, ((v0), (), (), ())
+  store &v4, (v2)
+  call &v5, f1, v2
+  store &v6, v5
+  tget &v7, v6, 0
+  tget &v8, v4, 0
+  eq &v9, v7, v8
+  eq &v10, v9, v3
+  retn v10
+decl f1: <11>
+  retn (v11)

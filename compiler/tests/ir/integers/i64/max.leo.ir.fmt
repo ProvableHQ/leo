@@ -1,0 +1,5 @@
+decl f0: <0>
+  store &v1, ((v0), (), (), ())
+  store &v3, 9223372036854775807
+  eq &v4, v2, true
+  retn v4

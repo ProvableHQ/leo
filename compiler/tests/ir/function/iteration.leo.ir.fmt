@@ -1,0 +1,12 @@
+decl f0: <0>
+  store &v2, ((v0, v1), (), (), ())
+  store &v4, 0
+  repeat 3, &v5, false, 0, 10
+    call &v6, f1
+    add &v7, v4, v6
+    store &v4, v7
+  eq &v8, v4, 10
+  eq &v9, v8, v3
+  retn v9
+decl f1: <10>
+  retn 1

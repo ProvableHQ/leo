@@ -1,0 +1,8 @@
+decl f0: <0>
+  store &v2, ((v0, v1), (), (), ())
+  call &v4, f1
+  eq &v5, v4, 1
+  eq &v6, v5, v3
+  retn v6
+decl f1: <7>
+  retn 1

@@ -1,0 +1,9 @@
+decl f0: <0>
+  store &v1, ((v0), (), (), ())
+  store &v3, aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8
+  store &v4, aleo18qgam03qe483tdrcc3fkqwpp38ehff4a2xma6lu7hams6lfpgcpq3dq05r
+  eq &v5, v2, aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8
+  eq &v6, aleo18qgam03qe483tdrcc3fkqwpp38ehff4a2xma6lu7hams6lfpgcpq3dq05r, v2
+  eq &v7, aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8, v2
+  pick &v8, v5, v6, v7
+  retn v8

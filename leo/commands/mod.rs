@@ -60,6 +60,18 @@ pub use watch::Watch;
 // Aleo PM related commands
 pub mod package;
 
+use snarkvm_dpc::testnet2::Testnet2;
+use snarkvm_dpc::Network;
+
+// Re-export testnet2 types here.
+// todo: add network trait to leo commands and remove these.
+pub type InnerScalarField = <Testnet2 as Network>::InnerScalarField;
+pub type ProgramSNARK = <Testnet2 as Network>::ProgramSNARK;
+pub type ProgramSNARKGadget = <Testnet2 as Network>::ProgramSNARKGadget;
+pub type ProgramProvingKey = <Testnet2 as Network>::ProgramProvingKey;
+pub type ProgramVerifyingKey = <Testnet2 as Network>::ProgramVerifyingKey;
+pub type ProgramProof = <Testnet2 as Network>::ProgramProof;
+
 /// Base trait for the Leo CLI, see methods and their documentation for details.
 pub trait Command<'a> {
     /// If the current command requires running another command beforehand

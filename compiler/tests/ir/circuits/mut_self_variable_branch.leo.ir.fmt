@@ -1,0 +1,29 @@
+decl f0: <0>
+  store &v1, ((v0), (), (), ())
+  store &v3, (0)
+  call &v4, f1, v3, false, 1
+  tget &v5, v4, 0
+  store &v3, v5
+  tget &v4, v4, 1
+  call &v6, f1, v3, true, 1
+  tget &v7, v6, 0
+  store &v3, v7
+  tget &v6, v6, 1
+  call &v8, f1, v3, false, 2
+  tget &v9, v8, 0
+  store &v3, v9
+  tget &v8, v8, 1
+  call &v10, f1, v3, true, 2
+  tget &v11, v10, 0
+  store &v3, v11
+  tget &v10, v10, 1
+  tget &v12, v3, 0
+  eq &v13, v12, 2
+  eq &v14, v13, v2
+  retn v14
+decl f1: <15>
+  mask 3, v16
+    tget &v19, v15, 0
+    tset &v15, 0, v17
+    store &v15, v15
+  retn (v15, ())

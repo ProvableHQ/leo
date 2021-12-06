@@ -1,0 +1,7 @@
+decl f0: <0>
+  store &v1, ((v0), (), (), ())
+  negate &v3, [1]
+  store &v4, v3
+  add &v5, v4, v2
+  eq &v6, v5, []
+  retn v6

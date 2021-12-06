@@ -1,0 +1,12 @@
+decl f0: <0>
+  store &v2, ((v0, v1), (), (), ())
+  call &v4, f1
+  store &v5, v4
+  call &v6, f2
+  store &v7, v6
+  eq &v8, v3, true
+  retn v8
+decl f1: <9>
+  retn [[0, 0], [0, 0], [0, 0]]
+decl f2: <9>
+  retn [[0, 0], [0, 0], [0, 0]]

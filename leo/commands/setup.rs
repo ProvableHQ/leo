@@ -16,20 +16,18 @@
 
 use super::build::{Build, BuildOptions};
 use crate::wrapper::CompilerWrapper;
-use crate::{commands::Command, context::Context};
+use crate::{
+    commands::{Command, ProgramProvingKey, ProgramSNARK, ProgramVerifyingKey},
+    context::Context,
+};
 use leo_errors::{CliError, Result};
 use leo_package::{
     outputs::{ProvingKeyFile, VerificationKeyFile},
     PackageFile,
 };
 
-use snarkvm_algorithms::{
-    snark::groth16::{Groth16, ProvingKey, VerifyingKey},
-    traits::snark::SNARK,
-    SRS,
-};
-use snarkvm_curves::bls12_377::{Bls12_377, Fr};
-use snarkvm_utilities::ToBytes;
+use snarkvm_algorithms::{traits::snark::SNARK, SRS};
+use snarkvm_utilities::{FromBytes, ToBytes};
 
 use rand::thread_rng;
 use structopt::StructOpt;
@@ -48,7 +46,9 @@ pub struct Setup {
 
 impl<'a> Command<'a> for Setup {
     type Input = <Build as Command<'a>>::Output;
-    type Output = (CompilerWrapper<'a>, ProvingKey<Bls12_377>, VerifyingKey<Bls12_377>);
+
+    // todo: Bls12_377 -> Testnet2::InnerScalarField
+    type Output = (CompilerWrapper<'a>, ProgramProvingKey, ProgramVerifyingKey);
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Setup")
@@ -79,8 +79,11 @@ impl<'a> Command<'a> for Setup {
 
             // Run the program setup operation
             let rng = &mut thread_rng();
+            // let (proving_key, verifying_key) =
+            //     Groth16::<Bls12_377, Vec<Fr>>::setup(&constraint_compiler, &mut SRS::CircuitSpecific(rng))
+            //         .map_err(|_| CliError::unable_to_setup())?;
             let (proving_key, verifying_key) =
-                Groth16::<Bls12_377, Vec<Fr>>::setup(&constraint_compiler, &mut SRS::CircuitSpecific(rng))
+                ProgramSNARK::setup(&constraint_compiler, &mut SRS::CircuitSpecific(rng))
                     .map_err(|_| CliError::unable_to_setup())?;
 
             // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
@@ -98,8 +101,7 @@ impl<'a> Command<'a> for Setup {
             let verification_key_file = VerificationKeyFile::new(&package_name);
             tracing::info!("Saving verification key ({:?})", verification_key_file.file_path(&path));
             let mut verification_key = vec![];
-            proving_key
-                .vk
+            verifying_key
                 .write_le(&mut verification_key)
                 .map_err(CliError::cli_io_error)?;
             let _ = verification_key_file.write_to(&path, &verification_key)?;
@@ -116,8 +118,9 @@ impl<'a> Command<'a> for Setup {
                 tracing::info!("Skipping curve check");
             }
             let proving_key_bytes = ProvingKeyFile::new(&package_name).read_from(&path)?;
-            let proving_key = ProvingKey::<Bls12_377>::read(proving_key_bytes.as_slice(), !self.skip_key_check)
-                .map_err(CliError::cli_io_error)?;
+
+            let proving_key =
+                ProgramProvingKey::read_le(proving_key_bytes.as_slice()).map_err(CliError::cli_io_error)?;
             tracing::info!("Complete");
 
             // Read the verification key file from the output directory
@@ -125,8 +128,9 @@ impl<'a> Command<'a> for Setup {
             let verifying_key_bytes = VerificationKeyFile::new(&package_name)
                 .read_from(&path)
                 .map_err(CliError::cli_io_error)?;
+
             let verifying_key =
-                VerifyingKey::<Bls12_377>::read(verifying_key_bytes.as_slice()).map_err(CliError::cli_io_error)?;
+                ProgramVerifyingKey::read_le(verifying_key_bytes.as_slice()).map_err(CliError::cli_io_error)?;
 
             tracing::info!("Complete");
 

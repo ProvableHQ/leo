@@ -1,0 +1,7 @@
+decl f0: <0>
+  store &v1, ((v0), (), (), ())
+  log INFO, "", v2, ""
+  aget &v4, v2, 0
+  eq &v5, v4, 0
+  eq &v6, v5, v3
+  retn v6

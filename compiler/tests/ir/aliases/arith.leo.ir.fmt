@@ -1,0 +1,13 @@
+decl f0: <0>
+  store &v1, ((v0), (), (), ())
+  store &v4, v2
+  store &v5, 2
+  add &v6, v4, v5
+  store &v7, v6
+  eq &v8, v4, 1
+  eq &v9, v5, 2
+  and &v10, v8, v9
+  eq &v11, v7, 3
+  and &v12, v10, v11
+  and &v13, v12, v3
+  retn v13

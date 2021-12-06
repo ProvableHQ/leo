@@ -1,0 +1,5 @@
+decl f0: <0>
+  store &v1, ((v0), (), (), ())
+  store &v3, (v2)
+  tget &v4, v3, 0
+  retn v4

@@ -1,0 +1,9 @@
+decl f0: <0>
+  store &v1, ((v0), (), (), ())
+  store &v3, (v2)
+  tget &v4, v3, 0
+  eq &v5, v4, 'a'
+  tget &v6, v3, 0
+  pick &v7, v5, 'a', v6
+  store &v8, v7
+  retn v8

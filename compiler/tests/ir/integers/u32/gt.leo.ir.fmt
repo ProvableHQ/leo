@@ -1,0 +1,5 @@
+decl f0: <0>
+  store &v1, ((v0), (), (), ())
+  gt &v5, v2, v3
+  eq &v6, v5, v4
+  assert v6
