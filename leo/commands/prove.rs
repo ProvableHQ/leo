@@ -19,7 +19,7 @@ use crate::{
     commands::{Command, ProgramProof, ProgramSNARK, ProgramVerifyingKey},
     context::Context,
 };
-use leo_errors::{CliError, Result, SnarkVMError};
+use leo_errors::{CliError, Result};
 use leo_package::{outputs::ProofFile, PackageFile};
 use snarkvm_algorithms::traits::SNARK;
 use snarkvm_utilities::bytes::ToBytes;

@@ -19,7 +19,7 @@ use snarkvm_algorithms::{SNARK, SRS};
 use snarkvm_dpc::testnet2::Testnet2;
 use snarkvm_dpc::Network;
 
-use rand::{thread_rng, Rng};
+use rand::Rng;
 use rand_core::CryptoRng;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -74,10 +74,12 @@ pub type ProgramSNARKGadget = <Testnet2 as Network>::ProgramSNARKGadget;
 pub type ProgramProvingKey = <Testnet2 as Network>::ProgramProvingKey;
 pub type ProgramVerifyingKey = <Testnet2 as Network>::ProgramVerifyingKey;
 pub type ProgramProof = <Testnet2 as Network>::ProgramProof;
-//
-// pub fn program_srs<R: Rng + CryptoRng>() -> &mut SRS<R, Self::UniversalSetupParameters> {
-//     &mut *<Testnet2 as Network>::program_srs(&mut thread_rng()).borrow_mut()
-// }
+
+pub fn program_srs<R: Rng + CryptoRng>(
+    rng: &mut R,
+) -> Rc<RefCell<SRS<R, <ProgramSNARK as SNARK>::UniversalSetupParameters>>> {
+    <Testnet2 as Network>::program_srs(rng)
+}
 
 /// Base trait for the Leo CLI, see methods and their documentation for details.
 pub trait Command<'a> {

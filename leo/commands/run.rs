@@ -19,7 +19,7 @@ use crate::{
     commands::{Command, ProgramSNARK},
     context::Context,
 };
-use leo_errors::{Result, SnarkVMError};
+use leo_errors::Result;
 
 use snarkvm_algorithms::traits::SNARK;
 use snarkvm_dpc::ProgramPublicVariables;
@@ -60,7 +60,7 @@ impl<'a> Command<'a> for Run {
 
         // Run the verifier
         let is_success = ProgramSNARK::verify(&verifying_key, &ProgramPublicVariables::blank(), &proof)
-            .expect("Failed to program proof");
+            .expect("Failed to generate program proof");
 
         // Log the verifier output
         match is_success {

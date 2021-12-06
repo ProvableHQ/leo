@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::build::{Build, BuildOptions};
+use crate::commands::program_srs;
 use crate::wrapper::CompilerWrapper;
 use crate::{
     commands::{Command, ProgramProvingKey, ProgramSNARK, ProgramVerifyingKey},
@@ -30,8 +31,6 @@ use snarkvm_algorithms::traits::snark::SNARK;
 use snarkvm_utilities::{FromBytes, ToBytes};
 
 use rand::thread_rng;
-use snarkvm_dpc::testnet2::Testnet2;
-use snarkvm_dpc::Network;
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -49,7 +48,6 @@ pub struct Setup {
 impl<'a> Command<'a> for Setup {
     type Input = <Build as Command<'a>>::Output;
 
-    // todo: Bls12_377 -> Testnet2::InnerScalarField
     type Output = (CompilerWrapper<'a>, ProgramProvingKey, ProgramVerifyingKey);
 
     fn log_span(&self) -> Span {
@@ -79,17 +77,10 @@ impl<'a> Command<'a> for Setup {
         let (proving_key, verifying_key) = if !keys_exist || checksum_differs {
             tracing::info!("Starting...");
 
-            // Run the program setup operation
-            // let (proving_key, verifying_key) =
-            //     Groth16::<Bls12_377, Vec<Fr>>::setup(&constraint_compiler, &mut SRS::CircuitSpecific(rng))
-            //         .map_err(|_| CliError::unable_to_setup())?;
-            let (proving_key, verifying_key) = ProgramSNARK::setup(
-                &constraint_compiler,
-                &mut *<Testnet2 as Network>::program_srs(&mut thread_rng()).borrow_mut(),
-            )
-            .map_err(|_| CliError::unable_to_setup())?;
+            let (proving_key, verifying_key) =
+                ProgramSNARK::setup(&constraint_compiler, &mut *program_srs(&mut thread_rng()).borrow_mut())
+                    .map_err(|_| CliError::unable_to_setup())?;
 
-            // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
             // Write the proving key file to the output directory
             let proving_key_file = ProvingKeyFile::new(&package_name);
             tracing::info!("Saving proving key ({:?})", proving_key_file.file_path(&path));
