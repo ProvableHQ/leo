@@ -13,10 +13,16 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-
 use crate::context::Context;
 use leo_errors::Result;
+use snarkvm_algorithms::{SNARK, SRS};
+use snarkvm_dpc::testnet2::Testnet2;
+use snarkvm_dpc::Network;
 
+use rand::{thread_rng, Rng};
+use rand_core::CryptoRng;
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::time::Instant;
 use tracing::span::Span;
 
@@ -60,9 +66,6 @@ pub use watch::Watch;
 // Aleo PM related commands
 pub mod package;
 
-use snarkvm_dpc::testnet2::Testnet2;
-use snarkvm_dpc::Network;
-
 // Re-export testnet2 types here.
 // todo: add network trait to leo commands and remove these.
 pub type InnerScalarField = <Testnet2 as Network>::InnerScalarField;
@@ -71,6 +74,10 @@ pub type ProgramSNARKGadget = <Testnet2 as Network>::ProgramSNARKGadget;
 pub type ProgramProvingKey = <Testnet2 as Network>::ProgramProvingKey;
 pub type ProgramVerifyingKey = <Testnet2 as Network>::ProgramVerifyingKey;
 pub type ProgramProof = <Testnet2 as Network>::ProgramProof;
+//
+// pub fn program_srs<R: Rng + CryptoRng>() -> &mut SRS<R, Self::UniversalSetupParameters> {
+//     &mut *<Testnet2 as Network>::program_srs(&mut thread_rng()).borrow_mut()
+// }
 
 /// Base trait for the Leo CLI, see methods and their documentation for details.
 pub trait Command<'a> {

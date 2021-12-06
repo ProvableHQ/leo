@@ -66,7 +66,7 @@ impl<'a> Command<'a> for Prove {
 
         let rng = &mut thread_rng();
         // TODO fix this once snarkvm has better errors.
-        let program_proof = ProgramSNARK::prove(&proving_key, &program, rng).map_err(|_| SnarkVMError::default())?;
+        let program_proof = ProgramSNARK::prove(&proving_key, &program, rng).expect("failed to generate proof");
 
         // Write the proof file to the output directory
         let mut proof = vec![];

@@ -60,7 +60,7 @@ impl<'a> Command<'a> for Run {
 
         // Run the verifier
         let is_success = ProgramSNARK::verify(&verifying_key, &ProgramPublicVariables::blank(), &proof)
-            .map_err(|_| SnarkVMError::default())?;
+            .expect("Failed to program proof");
 
         // Log the verifier output
         match is_success {
