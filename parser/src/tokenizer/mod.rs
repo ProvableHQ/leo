@@ -28,7 +28,8 @@ pub(crate) use self::token::*;
 pub(crate) mod lexer;
 pub(crate) use self::lexer::*;
 
-use leo_errors::{LeoError, ParserError, Span};
+use leo_errors::{LeoError, ParserError};
+use leo_span::Span;
 
 use tendril::StrTendril;
 

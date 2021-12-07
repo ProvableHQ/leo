@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Expression, Node};
-use leo_errors::Span;
+use leo_span::Span;
 
 use std::fmt;
 

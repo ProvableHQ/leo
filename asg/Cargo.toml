@@ -40,8 +40,12 @@ path = "../errors"
 version = "1.5.3"
 
 [dependencies.leo-parser]
-version = "1.5.3"
 path = "../parser"
+version = "1.5.3"
+
+[dependencies.leo-span]
+path = "../span"
+version = "1.5.3"
 
 [dependencies.num-bigint]
 version = "0.4"

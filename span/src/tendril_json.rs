@@ -14,12 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_span::Span;
+//! Provides logic for serializing and deserializing the `StrTendril` type.
 
-pub trait Node:
-    std::fmt::Debug + std::fmt::Display + Clone + PartialEq + Eq + serde::Serialize + serde::de::DeserializeOwned
-{
-    fn span(&self) -> &Span;
+use serde::{Deserialize, Deserializer, Serializer};
+use tendril::StrTendril;
 
-    fn set_span(&mut self, span: Span);
+/// Serialization for the StrTendril type.
+pub fn serialize<S: Serializer>(tendril: &StrTendril, serializer: S) -> Result<S::Ok, S::Error> {
+    serializer.serialize_str(&tendril[..])
+}
+
+/// Deserialization for the StrTendril type.
+pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<StrTendril, D::Error> {
+    Ok(String::deserialize(deserializer)?.into())
 }

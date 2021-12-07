@@ -18,7 +18,8 @@ use crate::{compiler::Compiler, Output, OutputOptions};
 
 use leo_asg::*;
 use leo_errors::emitter::{Buffer, Emitter, Handler};
-use leo_errors::{LeoError, Span};
+use leo_errors::LeoError;
+use leo_span::Span;
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit, SummarizedCircuit};
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},

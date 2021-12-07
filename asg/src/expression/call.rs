@@ -19,7 +19,8 @@ use crate::{
     PartialType, Scope, Type,
 };
 pub use leo_ast::{BinaryOperation, Node as AstNode};
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{AsgError, Result};
+use leo_span::Span;
 
 use std::cell::Cell;
 

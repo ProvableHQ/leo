@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Annotation, Block, FunctionInput, Identifier, Node, Type};
-use leo_errors::Span;
+use leo_span::Span;
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};

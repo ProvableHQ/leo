@@ -16,7 +16,8 @@
 
 use crate::{Alias, AsgContextInner, AsgId, Circuit, Expression, Function, PartialType, Scope, Statement, Variable};
 
-use leo_errors::{Result, Span};
+use leo_errors::Result;
+use leo_span::Span;
 
 /// A node in the abstract semantic graph.
 pub trait Node {

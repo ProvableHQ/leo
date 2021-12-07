@@ -15,7 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Alias, AsgContext, AsgId, Circuit, DefinitionStatement, Function, Input, Type, Variable};
-use leo_errors::{AsgError, Result, Span};
+
+use leo_errors::{AsgError, Result};
+use leo_span::Span;
 
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};

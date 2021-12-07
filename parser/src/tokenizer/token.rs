@@ -48,14 +48,14 @@ impl fmt::Display for Char {
 pub enum Token {
     // Lexical Grammar
     // Literals
-    CommentLine(#[serde(with = "leo_errors::common::tendril_json")] StrTendril),
-    CommentBlock(#[serde(with = "leo_errors::common::tendril_json")] StrTendril),
+    CommentLine(#[serde(with = "leo_span::tendril_json")] StrTendril),
+    CommentBlock(#[serde(with = "leo_span::tendril_json")] StrTendril),
     StringLit(Vec<leo_ast::Char>),
-    Ident(#[serde(with = "leo_errors::common::tendril_json")] StrTendril),
-    Int(#[serde(with = "leo_errors::common::tendril_json")] StrTendril),
+    Ident(#[serde(with = "leo_span::tendril_json")] StrTendril),
+    Int(#[serde(with = "leo_span::tendril_json")] StrTendril),
     True,
     False,
-    AddressLit(#[serde(with = "leo_errors::common::tendril_json")] StrTendril),
+    AddressLit(#[serde(with = "leo_span::tendril_json")] StrTendril),
     CharLit(Char),
 
     // Symbols

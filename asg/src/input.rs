@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Circuit, CircuitMember, Identifier, Scope, Type, Variable};
-use leo_errors::Span;
+use leo_span::Span;
 
 use indexmap::IndexMap;
 use std::cell::RefCell;

@@ -14,8 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgId, Expression, ExpressionNode, FromAst, Function, Identifier, Node, Scope, Type};
-use leo_errors::{AsgError, Result, Span};
+use crate::{AsgId, Expression, ExpressionNode as _, FromAst as _, Function, Identifier, Node, Scope, Type};
+
+use leo_errors::{AsgError, Result};
+use leo_span::Span;
 
 use indexmap::IndexMap;
 use std::cell::RefCell;

@@ -1213,6 +1213,7 @@ dependencies = [
  "leo-ast-passes",
  "leo-errors",
  "leo-parser",
+ "leo-span",
  "num-bigint",
  "serde",
  "serde_json",
@@ -1238,6 +1239,7 @@ dependencies = [
  "indexmap",
  "leo-errors",
  "leo-input",
+ "leo-span",
  "pest",
  "serde",
  "serde_json",
@@ -1252,6 +1254,7 @@ dependencies = [
  "leo-ast",
  "leo-errors",
  "leo-parser",
+ "leo-span",
  "leo-stdlib",
 ]
 
@@ -1272,6 +1275,7 @@ dependencies = [
  "leo-input",
  "leo-package",
  "leo-parser",
+ "leo-span",
  "leo-state",
  "leo-stdlib",
  "leo-synthesizer",
@@ -1304,6 +1308,7 @@ dependencies = [
  "derivative",
  "eyre",
  "leo-input",
+ "leo-span",
  "pest",
  "serde",
  "tendril",
@@ -1319,6 +1324,7 @@ dependencies = [
  "leo-ast-passes",
  "leo-errors",
  "leo-parser",
+ "leo-span",
  "tracing",
 ]
 
@@ -1355,6 +1361,7 @@ dependencies = [
  "leo-input",
  "leo-package",
  "leo-parser",
+ "leo-span",
  "leo-state",
  "leo-stdlib",
  "leo-synthesizer",
@@ -1408,12 +1415,24 @@ dependencies = [
  "leo-ast",
  "leo-errors",
  "leo-input",
+ "leo-span",
  "leo-test-framework",
  "serde",
  "serde_json",
  "serde_yaml",
  "tendril",
  "tracing",
+]
+
+[[package]]
+name = "leo-span"
+version = "1.5.3"
+dependencies = [
+ "fxhash",
+ "indexmap",
+ "pest",
+ "serde",
+ "tendril",
 ]
 
 [[package]]

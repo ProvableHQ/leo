@@ -16,7 +16,8 @@
 
 use crate::{tokenizer, ParserContext, SpannedToken};
 use leo_ast::{Expression, ExpressionStatement, Statement, ValueExpression};
-use leo_errors::{emitter::Handler, LeoError, Span};
+use leo_errors::{emitter::Handler, LeoError};
+use leo_span::Span;
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
     Test,

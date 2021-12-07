@@ -13,13 +13,15 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use crate::Span;
 
-use std::fmt;
+//! Provides custom serialize/deserialize implementations for `Span`.
+
+use crate::Span;
 
 use serde::de::{MapAccess, Visitor};
 use serde::ser::SerializeMap;
 use serde::{Deserializer, Serializer};
+use std::fmt;
 
 /// The AST contains a few tuple-like enum variants the contain spans
 /// #[derive(Serialize, Deserialize)] outputs these fields as anonmyous

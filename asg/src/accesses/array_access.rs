@@ -16,7 +16,8 @@
 
 use crate::{AsgId, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 use leo_ast::IntegerType;
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{AsgError, Result};
+use leo_span::Span;
 
 use std::cell::Cell;
 

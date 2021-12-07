@@ -19,7 +19,8 @@ use crate::{
     Scope, Type,
 };
 
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{AsgError, Result};
+use leo_span::Span;
 
 use indexmap::{IndexMap, IndexSet};
 use std::cell::Cell;

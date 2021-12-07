@@ -14,12 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{borrow::Cow, unimplemented};
-
 use crate::{assert_no_whitespace, tokenizer::*, Token, KEYWORD_TOKENS};
+
 use leo_ast::*;
 use leo_errors::emitter::Handler;
-use leo_errors::{LeoError, ParserError, Result, Span};
+use leo_errors::{LeoError, ParserError, Result};
+use leo_span::Span;
+
+use std::{borrow::Cow, unimplemented};
 use tendril::format_tendril;
 
 /// Stores a program in tokenized format plus additional context.

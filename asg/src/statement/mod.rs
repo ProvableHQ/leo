@@ -43,7 +43,8 @@ mod return_;
 pub use return_::*;
 
 use crate::{AsgId, FromAst, Node, PartialType, Scope};
-use leo_errors::{Result, Span};
+use leo_errors::Result;
+use leo_span::Span;
 
 #[derive(Clone)]
 pub enum Statement<'a> {

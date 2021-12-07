@@ -17,7 +17,8 @@
 use crate::ImportParser;
 use leo_ast::Program;
 use leo_errors::emitter::Handler;
-use leo_errors::{ImportError, Result, Span};
+use leo_errors::{ImportError, Result};
+use leo_span::Span;
 
 use std::fs::DirEntry;
 

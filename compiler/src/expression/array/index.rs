@@ -18,7 +18,8 @@
 
 use crate::program::Program;
 use leo_asg::Expression;
-use leo_errors::{CompilerError, Result, Span};
+use leo_errors::{CompilerError, Result};
+use leo_span::Span;
 use snarkvm_ir::Value;
 
 impl<'a> Program<'a> {

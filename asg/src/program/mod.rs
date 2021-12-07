@@ -29,7 +29,8 @@ pub use function::*;
 
 use crate::{node::FromAst, ArenaNode, AsgContext, AsgId, DefinitionStatement, Input, Scope, Statement};
 use leo_ast::{PackageAccess, PackageOrPackages};
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{AsgError, Result};
+use leo_span::Span;
 
 use indexmap::IndexMap;
 use std::{

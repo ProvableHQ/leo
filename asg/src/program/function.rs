@@ -21,7 +21,8 @@ use crate::{
 use indexmap::IndexMap;
 pub use leo_ast::Annotation;
 use leo_ast::{FunctionInput, Node};
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{AsgError, Result};
+use leo_span::Span;
 
 use std::{
     cell::{Cell, RefCell},

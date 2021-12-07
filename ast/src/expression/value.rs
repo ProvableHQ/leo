@@ -23,29 +23,29 @@ use crate::{Char, CharValue};
 pub enum ValueExpression {
     // todo: deserialize values here
     Address(
-        #[serde(with = "leo_errors::common::tendril_json")] StrTendril,
-        #[serde(with = "leo_errors::common::span_json")] Span,
+        #[serde(with = "leo_span::tendril_json")] StrTendril,
+        #[serde(with = "leo_span::span_json")] Span,
     ),
     Boolean(
-        #[serde(with = "leo_errors::common::tendril_json")] StrTendril,
-        #[serde(with = "leo_errors::common::span_json")] Span,
+        #[serde(with = "leo_span::tendril_json")] StrTendril,
+        #[serde(with = "leo_span::span_json")] Span,
     ),
     Char(CharValue),
     Field(
-        #[serde(with = "leo_errors::common::tendril_json")] StrTendril,
-        #[serde(with = "leo_errors::common::span_json")] Span,
+        #[serde(with = "leo_span::tendril_json")] StrTendril,
+        #[serde(with = "leo_span::span_json")] Span,
     ),
     Group(Box<GroupValue>),
     Implicit(
-        #[serde(with = "leo_errors::common::tendril_json")] StrTendril,
-        #[serde(with = "leo_errors::common::span_json")] Span,
+        #[serde(with = "leo_span::tendril_json")] StrTendril,
+        #[serde(with = "leo_span::span_json")] Span,
     ),
     Integer(
         IntegerType,
-        #[serde(with = "leo_errors::common::tendril_json")] StrTendril,
-        #[serde(with = "leo_errors::common::span_json")] Span,
+        #[serde(with = "leo_span::tendril_json")] StrTendril,
+        #[serde(with = "leo_span::span_json")] Span,
     ),
-    String(Vec<Char>, #[serde(with = "leo_errors::common::span_json")] Span),
+    String(Vec<Char>, #[serde(with = "leo_span::span_json")] Span),
 }
 
 impl fmt::Display for ValueExpression {

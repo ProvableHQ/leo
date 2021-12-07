@@ -16,7 +16,8 @@
 
 use crate::{AsgId, CharValue, Expression, FromAst, Node, PartialType, Scope, Statement, Type};
 use leo_ast::ConsoleFunction as AstConsoleFunction;
-use leo_errors::{Result, Span};
+use leo_errors::Result;
+use leo_span::Span;
 
 use std::cell::Cell;
 

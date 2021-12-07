@@ -18,8 +18,11 @@
 //! asg nodes and saving relevant information.
 
 use crate::*;
+
+use leo_errors::{AstError, Result};
+use leo_span::Span;
+
 use indexmap::IndexMap;
-use leo_errors::{AstError, Result, Span};
 
 pub struct ReconstructingDirector<R: ReconstructingReducer> {
     reducer: R,

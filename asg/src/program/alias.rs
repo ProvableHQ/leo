@@ -15,7 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{AsgId, Identifier, Node, Scope, Type};
-use leo_errors::{Result, Span};
+
+use leo_errors::Result;
+use leo_span::Span;
 
 use std::cell::RefCell;
 

@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{BacktracedError, Span, INDENT};
+use crate::{BacktracedError, INDENT};
 
-use std::fmt;
+use leo_span::Span;
 
 use backtrace::Backtrace;
 use color_backtrace::{BacktracePrinter, Verbosity};
 use colored::Colorize;
+use std::fmt;
 
 /// Formatted compiler error type
 ///     undefined value `x`

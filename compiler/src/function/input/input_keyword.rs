@@ -16,7 +16,8 @@
 
 use crate::Program;
 use leo_asg::{Circuit, CircuitMember, Type};
-use leo_errors::{Result, Span};
+use leo_errors::Result;
+use leo_span::Span;
 use snarkvm_ir::Value;
 
 pub const RECORD_VARIABLE_NAME: &str = "record";

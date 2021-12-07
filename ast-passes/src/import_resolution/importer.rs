@@ -18,7 +18,8 @@ use crate::resolver::*;
 
 use leo_ast::*;
 use leo_errors::emitter::Handler;
-use leo_errors::{AstError, Result, Span};
+use leo_errors::{AstError, Result};
+use leo_span::Span;
 
 use indexmap::IndexMap;
 

@@ -16,7 +16,7 @@
 
 use crate::{statement::*, BoolAnd, Expression, Magma, MonoidalReducerExpression, MonoidalReducerStatement, Node};
 
-use leo_errors::Span;
+use leo_span::Span;
 
 pub struct ReturnPathReducer {
     pub errors: Vec<(Span, String)>,

@@ -16,7 +16,8 @@
 
 use leo_ast::Program;
 use leo_errors::emitter::Handler;
-use leo_errors::{Result, Span};
+use leo_errors::Result;
+use leo_span::Span;
 use leo_stdlib::resolve_stdlib_module;
 
 pub trait ImportResolver {

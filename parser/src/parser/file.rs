@@ -17,7 +17,8 @@
 use super::*;
 use crate::KEYWORD_TOKENS;
 
-use leo_errors::{ParserError, Result, Span};
+use leo_errors::{ParserError, Result};
+use leo_span::Span;
 
 use tendril::format_tendril;
 

@@ -16,7 +16,6 @@
 
 //! Compiles a Leo program from a file path.
 
-use indexmap::IndexMap;
 use leo_asg::{
     AccessExpression as AsgAccessExpression, ArrayAccess as AsgArrayAccess,
     ArrayInitExpression as AsgArrayInitExpression, ArrayInlineExpression as AsgArrayInlineExpression,
@@ -50,7 +49,10 @@ use leo_ast::{
     TupleInitExpression as AstTupleInitExpression, Type as AstType, UnaryExpression as AstUnaryExpression,
     ValueExpression,
 };
-use leo_errors::{AstError, Result, Span};
+use leo_errors::{AstError, Result};
+use leo_span::Span;
+
+use indexmap::IndexMap;
 use tendril::StrTendril;
 
 pub trait CombinerOptions {

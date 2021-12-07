@@ -23,7 +23,7 @@ use tendril::StrTendril;
 /// A number string guaranteed to be positive by the pest grammar.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
 pub struct PositiveNumber {
-    #[serde(with = "leo_errors::common::tendril_json")]
+    #[serde(with = "leo_span::tendril_json")]
     pub value: StrTendril,
 }
 

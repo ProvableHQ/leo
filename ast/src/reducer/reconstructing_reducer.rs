@@ -15,8 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::*;
+
+use leo_errors::Result;
+use leo_span::Span;
+
 use indexmap::IndexMap;
-use leo_errors::{Result, Span};
 
 // Needed to fix clippy bug.
 #[allow(clippy::redundant_closure)]

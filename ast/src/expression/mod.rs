@@ -18,7 +18,7 @@ use crate::{
     ArrayDimensions, CircuitImpliedVariableDefinition, GroupValue, Identifier, IntegerType, Node, SpreadOrExpression,
 };
 
-use leo_errors::Span;
+use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

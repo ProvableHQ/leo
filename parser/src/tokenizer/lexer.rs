@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::tokenizer::{Char, Token};
-use leo_errors::Span;
+use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use tendril::StrTendril;
 

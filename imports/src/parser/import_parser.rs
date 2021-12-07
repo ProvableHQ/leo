@@ -17,7 +17,8 @@
 use leo_ast::Program;
 use leo_ast_passes::ImportResolver;
 use leo_errors::emitter::Handler;
-use leo_errors::{ImportError, LeoError, Result, Span};
+use leo_errors::{ImportError, LeoError, Result};
+use leo_span::Span;
 
 use indexmap::{IndexMap, IndexSet};
 use std::path::PathBuf;

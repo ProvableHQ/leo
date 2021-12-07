@@ -16,7 +16,8 @@
 
 use indexmap::IndexMap;
 use leo_ast::*;
-use leo_errors::{AstError, Result, Span};
+use leo_errors::{AstError, Result};
+use leo_span::Span;
 
 /// Replace Self when it is in a enclosing circuit type.
 /// Error when Self is outside an enclosing circuit type.

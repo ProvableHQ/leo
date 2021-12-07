@@ -18,35 +18,32 @@
 
 use crate::{asg_group_coordinate_to_ir, decode_address, CompilerOptions, Output, OutputFile, Program};
 use crate::{OutputOptions, TypeInferencePhase};
+
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_asg::{Asg, AsgPass, CircuitMember, GroupValue, Program as AsgProgram};
 use leo_ast::AstPass;
 use leo_ast::{InputValue, IntegerType, Program as AstProgram};
 use leo_errors::emitter::Handler;
-use leo_errors::AsgError;
-use leo_errors::SnarkVMError;
-use leo_errors::StateError;
-use leo_errors::{CompilerError, Result, Span};
+use leo_errors::{AsgError, CompilerError, Result, SnarkVMError, StateError};
 use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_parser::parse_ast;
-
-use eyre::eyre;
-use leo_synthesizer::CircuitSynthesizer;
-use num_bigint::{BigInt, Sign};
-use sha2::{Digest, Sha256};
-
+use leo_span::Span;
 use snarkvm_curves::bls12_377::Bls12_377;
 use snarkvm_eval::edwards_bls12::EdwardsGroupType;
 use snarkvm_eval::{Evaluator, GroupType, PrimeField};
 use snarkvm_ir::InputData;
 use snarkvm_ir::{Group, Integer, Type, Value};
 use snarkvm_r1cs::ConstraintSystem;
+
+use eyre::eyre;
+use indexmap::IndexMap;
+use leo_synthesizer::CircuitSynthesizer;
+use num_bigint::{BigInt, Sign};
+use sha2::{Digest, Sha256};
 use std::io::Write;
 use std::{convert::TryFrom, fs, path::PathBuf};
-
-use indexmap::IndexMap;
 
 thread_local! {
     static THREAD_GLOBAL_CONTEXT: AsgContext<'static> = {
