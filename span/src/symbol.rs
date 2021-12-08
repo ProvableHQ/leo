@@ -16,7 +16,10 @@
 
 use crate::dropless::DroplessArena;
 
+use core::cmp::PartialEq;
+use core::convert::AsRef;
 use core::num::NonZeroU32;
+use core::ops::Deref;
 use core::{fmt, str};
 use fxhash::FxBuildHasher;
 use indexmap::IndexSet;
@@ -25,6 +28,9 @@ use std::cell::RefCell;
 use std::intrinsics::transmute;
 use std::marker::PhantomData;
 
+/// A helper for `symbols` defined below.
+/// The macro's job is to bind conventiently usable `const` items to the symbol names provided.
+/// For example, with `symbol { a, b }` you'd have `sym::a` and `sym::b`.
 macro_rules! consts {
     ($val: expr, $sym:ident $(,)?) => {
         #[allow(non_upper_case_globals)]
@@ -43,24 +49,45 @@ macro_rules! consts {
     };
 }
 
+/// A helper for `symbols` defined below.
+/// The macro's job is to merge all the hard coded strings into a single array of strings.
+/// The strategy applied is [push-down accumulation](https://danielkeep.github.io/tlborm/book/pat-push-down-accumulation.html).
 macro_rules! strings {
-    ([$($pre:tt)*] []) => {
-        [$($pre)*]
+    // Final step 0) in the push-down accumulation.
+    // Here, the actual strings gathered in `$acc` are made into an array.
+    // We have to use this approach because e.g., `$e1 , $e2` is not recognized by any syntactic
+    // category in Rust, so a macro cannot produce it.
+    ([$($acc:expr),*] []) => {
+        [$($acc),*]
     };
-    ([$($e:expr),*] [$_sym:ident: $string:literal, $($rest:tt)*]) => {
-        strings!([$($e,)* $string] [$($rest)*])
+    // Recursive case 1): Handles e.g., `x: "frodo"` and `y: "sam"`
+    // in `symbols! { x: "frodo", y: "sam", z }`.
+    ([$($acc:expr),*] [$_sym:ident: $string:literal, $($rest:tt)*]) => {
+        strings!([$($acc,)* $string] [$($rest)*])
     };
-    ([$($e:expr),*] [$sym:ident, $($rest:tt)*]) => {
-        strings!([$($e,)* stringify!($sym)] [$($rest)*])
+    // Recursive case 2): Handles e.g., `x` and `y` in `symbols! { x, y, z }`.
+    ([$($acc:expr),*] [$sym:ident, $($rest:tt)*]) => {
+        strings!([$($acc,)* stringify!($sym)] [$($rest)*])
     };
-    ([$($e:expr),*] [$_sym:ident: $string:literal $(,)?]) => {
-        strings!([$($e,)* $string] [])
+    // Base case 3): As below, but with a specified string, e.g., `symbols! { x, y: "gandalf" }`.
+    ([$($acc:expr),*] [$_sym:ident: $string:literal $(,)?]) => {
+        strings!([$($acc,)* $string] [])
     };
-    ([$($e:expr),*] [$sym:ident $(,)?]) => {
-        strings!([$($e,)* stringify!($sym)] [])
+    // Base case 4): A single identitifier left.
+    // So in e.g., `symbols! { x, y }`, this handles `y` with `x` already in `$acc`.
+    ([$($acc:expr),*] [$sym:ident $(,)?]) => {
+        strings!([$($acc,)* stringify!($sym)] [])
     };
 }
 
+/// Creates predefined symbols used throughout the Leo compiler and language.
+/// Broadly speaking, any hard coded string in the compiler should be defined here.
+///
+/// The macro accepts symbols separated by commas,
+/// and a symbol is either specified as a Rust identifier, in which case it is `stringify!`ed,
+/// or as `ident: "string"` where `"string"` is the actual hard coded string.
+/// The latter case can be used when the hard coded string is not a valid identifier.
+/// In either case, a `const $ident: Symbol` will be created that you can access as `sym::$ident`.
 macro_rules! symbols {
     ($($symbols:tt)*) => {
         const PRE_DEFINED: &[&str] = &strings!([] [$($symbols)*]);
@@ -185,7 +212,7 @@ impl SymbolStr {
 }
 
 // This impl allows a `SymbolStr` to be directly equated with a `String` or `&str`.
-impl<T: std::ops::Deref<Target = str>> std::cmp::PartialEq<T> for SymbolStr {
+impl<T: Deref<Target = str>> PartialEq<T> for SymbolStr {
     fn eq(&self, other: &T) -> bool {
         self.string == other.deref()
     }
@@ -196,7 +223,7 @@ impl<T: std::ops::Deref<Target = str>> std::cmp::PartialEq<T> for SymbolStr {
 /// - `&*ss` is a `&str` (and `match &*ss { ... }` is a common pattern).
 /// - `&ss as &str` is a `&str`, which means that `&ss` can be passed to a
 ///   function expecting a `&str`.
-impl std::ops::Deref for SymbolStr {
+impl Deref for SymbolStr {
     type Target = str;
     #[inline]
     fn deref(&self) -> &str {
@@ -204,7 +231,7 @@ impl std::ops::Deref for SymbolStr {
     }
 }
 
-impl std::convert::AsRef<str> for SymbolStr {
+impl AsRef<str> for SymbolStr {
     fn as_ref(&self) -> &str {
         self.string
     }
@@ -224,6 +251,7 @@ impl fmt::Display for SymbolStr {
 
 /// All the globals for a compiler sessions.
 pub struct SessionGlobals {
+    /// The interner for `Symbol`s used in the compiler.
     symbol_interner: Interner,
 }
 
@@ -237,11 +265,9 @@ impl SessionGlobals {
 
 scoped_tls::scoped_thread_local!(static SESSION_GLOBALS: SessionGlobals);
 
+/// Creates the session globals and then runs the closure `f`.
 #[inline]
-pub fn create_session_if_not_set_then<R, F>(f: F) -> R
-where
-    F: FnOnce(&SessionGlobals) -> R,
-{
+pub fn create_session_if_not_set_then<R>(f: impl FnOnce(&SessionGlobals) -> R) -> R {
     if !SESSION_GLOBALS.is_set() {
         let sg = SessionGlobals::new();
         SESSION_GLOBALS.set(&sg, || SESSION_GLOBALS.with(f))
@@ -250,11 +276,9 @@ where
     }
 }
 
+/// Gives access to read or modify the session globals in `f`.
 #[inline]
-pub fn with_session_globals<R, F>(f: F) -> R
-where
-    F: FnOnce(&SessionGlobals) -> R,
-{
+pub fn with_session_globals<R>(f: impl FnOnce(&SessionGlobals) -> R) -> R {
     SESSION_GLOBALS.with(f)
 }
 
