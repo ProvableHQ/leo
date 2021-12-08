@@ -51,7 +51,7 @@ features = [ "derive" ]
 version = "1.0"
 
 [dependencies.sha2]
-version = "0.9"
+version = "0.10"
 
 [dependencies.hex]
 version = "0.4"
