@@ -17,19 +17,16 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
+[dependencies]
+fxhash = "0.2.1"
+scoped-tls = "1.0.0"
+pest = "2.0"
+tendril = "0.4.2"
+
 [dependencies.indexmap]
 version = "1.7"
 features = ["serde"]
 
-[dependencies.fxhash]
-version = "0.2.1"
-
-[dependencies.pest]
-version = "2.0"
-
 [dependencies.serde]
 version = "1.0.130"
 features = [ "derive", "rc" ]
-
-[dependencies.tendril]
-version = "0.4.2"

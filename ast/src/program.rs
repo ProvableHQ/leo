@@ -19,6 +19,8 @@
 
 use crate::{Alias, Circuit, CircuitMember, DefinitionStatement, Function, FunctionInput, Identifier, ImportStatement};
 
+use leo_span::{sym, Symbol};
+
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -30,7 +32,7 @@ pub struct Program {
     pub expected_input: Vec<FunctionInput>,
     pub import_statements: Vec<ImportStatement>,
     #[serde(with = "crate::common::imported_modules")]
-    pub imports: IndexMap<Vec<String>, Program>,
+    pub imports: IndexMap<Vec<Symbol>, Program>,
     pub aliases: IndexMap<Identifier, Alias>,
     pub circuits: IndexMap<Identifier, Circuit>,
     #[serde(with = "crate::common::global_consts_json")]
@@ -101,18 +103,13 @@ impl Program {
             })
             .for_each(|function| {
                 function.annotations.retain(|name, core_map| {
-                    match name.as_str() {
-                        "CoreFunction" => {
-                            function.core_mapping.replace(
-                                core_map
-                                    .arguments
-                                    .get(0)
-                                    .or(Some(&function.identifier.name))
-                                    .map(|f| f.to_string()),
-                            );
+                    match name {
+                        sym::CoreFunction => {
+                            let new = core_map.arguments.get(0).or(Some(&function.identifier.name));
+                            function.core_mapping.replace(new);
                             false
                         }
-                        "AlwaysConst" => {
+                        sym::AlwaysConst => {
                             function.const_ = true;
                             false
                         }

@@ -348,24 +348,24 @@ impl<'a, R: ReconstructingReducerProgram<'a>> ReconstructingDirector<'a, R> {
         let imported_modules = input
             .imported_modules
             .iter()
-            .map(|(module, import)| (module.clone(), self.reduce_program(import.clone())))
+            .map(|(module, import)| (*module, self.reduce_program(import.clone())))
             .collect();
-        let aliases = input.aliases.iter().map(|(name, a)| (name.clone(), *a)).collect();
+        let aliases = input.aliases.iter().map(|(name, a)| (*name, *a)).collect();
         let functions = input
             .functions
             .iter()
-            .map(|(name, f)| (name.clone(), self.reduce_function(f)))
+            .map(|(name, f)| (*name, self.reduce_function(f)))
             .collect();
         let circuits = input
             .circuits
             .iter()
-            .map(|(name, c)| (name.clone(), self.reduce_circuit(c)))
+            .map(|(name, c)| (*name, self.reduce_circuit(c)))
             .collect();
 
         let global_consts = input
             .global_consts
             .iter()
-            .map(|(name, gc)| (name.clone(), self.reduce_global_const(gc)))
+            .map(|(name, gc)| (*name, self.reduce_global_const(gc)))
             .collect();
 
         self.reducer

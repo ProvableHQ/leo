@@ -21,7 +21,9 @@ use crate::program::Program;
 use leo_asg::{Expression, Function, FunctionQualifier};
 use leo_errors::CompilerError;
 use leo_errors::Result;
+use leo_span::sym;
 use snarkvm_ir::{CallCoreData, CallData, Instruction, Integer, PredicateData, QueryData, Value};
+
 use std::cell::Cell;
 
 impl<'a> Program<'a> {
@@ -36,7 +38,7 @@ impl<'a> Program<'a> {
         if function.qualifier == FunctionQualifier::MutSelfRef && function.output.is_unit() {
             let self_var = function
                 .scope
-                .resolve_variable("self")
+                .resolve_variable(sym::SelfLower)
                 .expect("missing self in mut self function");
             let self_var_register = self.resolve_var(self_var);
             let output = Value::Tuple(vec![Value::Ref(self_var_register), Value::Tuple(vec![])]);

@@ -17,12 +17,12 @@
 use leo_ast::Program;
 use leo_errors::emitter::Handler;
 use leo_errors::Result;
-use leo_span::Span;
+use leo_span::{sym, Span, Symbol};
 use leo_stdlib::resolve_stdlib_module;
 
 pub trait ImportResolver {
     fn handler(&self) -> &Handler;
-    fn resolve_package(&mut self, package_segments: &[&str], span: &Span) -> Result<Option<Program>>;
+    fn resolve_package(&mut self, package_segments: &[Symbol], span: &Span) -> Result<Option<Program>>;
 }
 
 pub struct CoreImportResolver<'a, T: ImportResolver> {
@@ -40,12 +40,13 @@ impl<'a, T: ImportResolver> ImportResolver for CoreImportResolver<'a, T> {
     fn handler(&self) -> &Handler {
         self.inner.handler()
     }
-    fn resolve_package(&mut self, package_segments: &[&str], span: &Span) -> Result<Option<Program>> {
-        if !package_segments.is_empty() && package_segments.get(0).unwrap() == &"std" {
-            Ok(Some(resolve_stdlib_module(
-                self.handler(),
-                &*package_segments[1..].join("."),
-            )?))
+    fn resolve_package(&mut self, package_segments: &[Symbol], span: &Span) -> Result<Option<Program>> {
+        if !package_segments.is_empty() && *package_segments.get(0).unwrap() == sym::std {
+            let segs = package_segments[1..]
+                .iter()
+                .map(|x| x.as_str().to_string())
+                .collect::<Vec<_>>();
+            Ok(Some(resolve_stdlib_module(self.handler(), &segs.join("."))?))
         } else {
             self.inner.resolve_package(package_segments, span)
         }

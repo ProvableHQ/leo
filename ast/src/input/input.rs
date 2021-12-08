@@ -19,6 +19,7 @@ use leo_input::{
     files::{File, TableOrSection},
     InputParserError,
 };
+use leo_span::Symbol;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct Input {
@@ -96,13 +97,13 @@ impl Input {
 
     /// Returns the main function input value with the given `name`.
     #[allow(clippy::ptr_arg)]
-    pub fn get(&self, name: &str) -> Option<Option<InputValue>> {
+    pub fn get(&self, name: Symbol) -> Option<Option<InputValue>> {
         self.program_input.get(name)
     }
 
     /// Returns the constant input value with the given `name`.
     #[allow(clippy::ptr_arg)]
-    pub fn get_constant(&self, name: &str) -> Option<Option<InputValue>> {
+    pub fn get_constant(&self, name: Symbol) -> Option<Option<InputValue>> {
         self.program_input.get_constant(name)
     }
 

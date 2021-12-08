@@ -17,13 +17,13 @@
 use crate::Program;
 use leo_asg::{Circuit, CircuitMember, Type};
 use leo_errors::Result;
-use leo_span::Span;
+use leo_span::{sym, Span, Symbol};
 use snarkvm_ir::Value;
 
-pub const RECORD_VARIABLE_NAME: &str = "record";
-pub const REGISTERS_VARIABLE_NAME: &str = "registers";
-pub const STATE_VARIABLE_NAME: &str = "state";
-pub const STATE_LEAF_VARIABLE_NAME: &str = "state_leaf";
+pub const RECORD_VARIABLE_NAME: Symbol = sym::record;
+pub const REGISTERS_VARIABLE_NAME: Symbol = sym::registers;
+pub const STATE_VARIABLE_NAME: Symbol = sym::state;
+pub const STATE_LEAF_VARIABLE_NAME: Symbol = sym::state_leaf;
 
 impl<'a> Program<'a> {
     #[allow(clippy::vec_init_then_push)]
@@ -43,13 +43,13 @@ impl<'a> Program<'a> {
         ];
 
         let mut out_variables = vec![];
-        for name in sections.iter() {
-            let sub_circuit = match expected_type.members.borrow().get(*name) {
+        for name in sections.iter().copied() {
+            let sub_circuit = match expected_type.members.borrow().get(&name) {
                 Some(CircuitMember::Variable(Type::Circuit(circuit))) => *circuit,
                 _ => panic!("illegal input type definition from asg"),
             };
 
-            let origin = match *name {
+            let origin = match name {
                 REGISTERS_VARIABLE_NAME => input.get_registers().types(),
                 RECORD_VARIABLE_NAME => input.get_record().types(),
                 STATE_VARIABLE_NAME => input.get_state().types(),

@@ -19,6 +19,7 @@
 use leo_ast::Program;
 use leo_errors::emitter::Handler;
 use leo_errors::{ImportError, Result};
+use leo_span::Symbol;
 
 use std::sync::Mutex;
 
@@ -137,21 +138,16 @@ fn resolve_file(handler: &Handler, file: &str) -> Result<Program> {
     Ok(ast)
 }
 
-pub fn resolve_prelude_modules(handler: &Handler) -> Result<IndexMap<Vec<String>, Program>> {
-    let mut preludes: IndexMap<Vec<String>, Program> = IndexMap::new();
+pub fn resolve_prelude_modules(handler: &Handler) -> Result<IndexMap<Vec<Symbol>, Program>> {
+    let mut preludes: IndexMap<Vec<Symbol>, Program> = IndexMap::new();
 
     for path in PRELUDE.iter() {
         // If on windows replace \\ with / as all paths are stored in unix style.
         let program = resolve_file(handler, path)?;
 
         let removed_extension = path.replace(".leo", "");
-        let mut parts: Vec<String> = vec![String::from("std")];
-        parts.append(
-            &mut removed_extension
-                .split('/')
-                .map(str::to_string)
-                .collect::<Vec<String>>(),
-        );
+        let mut parts: Vec<Symbol> = vec![Symbol::intern("std")];
+        parts.append(&mut removed_extension.split('/').map(Symbol::intern).collect::<Vec<_>>());
         preludes.insert(parts, program);
     }
 

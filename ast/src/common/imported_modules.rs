@@ -16,34 +16,30 @@
 
 use crate::Program;
 
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use leo_span::Symbol;
 
 use indexmap::IndexMap;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[allow(clippy::ptr_arg)]
 pub fn serialize<S: Serializer>(
-    imported_modules: &IndexMap<Vec<String>, Program>,
+    imported_modules: &IndexMap<Vec<Symbol>, Program>,
     serializer: S,
 ) -> Result<S::Ok, S::Error> {
     let joined: IndexMap<String, Program> = imported_modules
         .into_iter()
-        .map(|(package, program)| (package.join("."), program.clone()))
+        .map(|(package, program)| {
+            let package = package.iter().map(|x| x.as_str().to_string()).collect::<Vec<_>>();
+            (package.join("."), program.clone())
+        })
         .collect();
 
     joined.serialize(serializer)
 }
 
-pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<IndexMap<Vec<String>, Program>, D::Error> {
+pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<IndexMap<Vec<Symbol>, Program>, D::Error> {
     Ok(IndexMap::<String, Program>::deserialize(deserializer)?
         .into_iter()
-        .map(|(package, program)| {
-            (
-                package
-                    .split('.')
-                    .map(|segment| segment.to_string())
-                    .collect::<Vec<String>>(),
-                program,
-            )
-        })
+        .map(|(package, program)| (package.split('.').map(Symbol::intern).collect(), program))
         .collect())
 }

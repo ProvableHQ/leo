@@ -24,7 +24,7 @@ use crate::{tokenizer::*, Token};
 use leo_ast::*;
 use leo_errors::emitter::Handler;
 use leo_errors::{ParserError, Result};
-use leo_span::Span;
+use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
 use std::unimplemented;

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Annotation, Block, FunctionInput, Identifier, Node, Type};
-use leo_span::Span;
+use leo_span::{sym, Span, Symbol};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -23,12 +23,12 @@ use std::fmt;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Function {
-    pub annotations: IndexMap<String, Annotation>,
+    pub annotations: IndexMap<Symbol, Annotation>,
     pub identifier: Identifier,
     pub input: Vec<FunctionInput>,
     pub const_: bool,
     pub output: Option<Type>,
-    pub core_mapping: std::cell::RefCell<Option<String>>,
+    pub core_mapping: std::cell::RefCell<Option<Symbol>>,
     pub block: Block,
     pub span: Span,
 }
@@ -42,19 +42,14 @@ impl PartialEq for Function {
 impl Eq for Function {}
 
 impl Function {
-    ///
     /// Returns function name.
-    ///
-    pub fn get_name(&self) -> &str {
-        &self.identifier.name
+    pub fn name(&self) -> Symbol {
+        self.identifier.name
     }
 
-    ///
     /// Returns `true` if the function name is `main`.
-    /// Returns false otherwise.
-    ///
     pub fn is_main(&self) -> bool {
-        self.get_name() == "main"
+        self.name() == sym::main
     }
 
     ///

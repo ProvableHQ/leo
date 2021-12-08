@@ -20,6 +20,7 @@ use crate::Program;
 use leo_asg::CircuitMember;
 use leo_errors::CompilerError;
 use leo_errors::Result;
+use leo_span::sym;
 
 impl<'a> Program<'a> {
     pub fn enforce_program(&mut self, input: &leo_ast::Input) -> Result<()> {
@@ -27,13 +28,13 @@ impl<'a> Program<'a> {
         let main = *self
             .asg
             .functions
-            .get("main")
+            .get(&sym::main)
             .ok_or_else(CompilerError::no_main_function)?;
         let secondary_functions: Vec<_> = asg
             .scope
             .get_functions()
             .iter()
-            .filter(|(name, _)| *name != "main")
+            .filter(|(name, _)| **name != sym::main)
             .map(|(_, f)| *f)
             .chain(asg.scope.get_circuits().iter().flat_map(|(_, circuit)| {
                 circuit

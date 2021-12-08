@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use indexmap::IndexMap;
 use leo_ast::*;
 use leo_errors::{AstError, Result};
-use leo_span::Span;
+use leo_span::{sym, Span, Symbol};
+
+use indexmap::IndexMap;
 
 /// Replace Self when it is in a enclosing circuit type.
 /// Error when Self is outside an enclosing circuit type.
@@ -279,8 +280,8 @@ impl Canonicalizer {
 
             Expression::CircuitInit(circuit_init) => {
                 let mut name = circuit_init.name.clone();
-                if name.name.as_ref() == "Self" && self.circuit_name.is_some() {
-                    name = self.circuit_name.as_ref().unwrap().clone();
+                if name.name == sym::SelfUpper && self.circuit_name.is_some() {
+                    name = self.circuit_name.clone().unwrap();
                 }
 
                 return Expression::CircuitInit(CircuitInitExpression {
@@ -305,7 +306,7 @@ impl Canonicalizer {
                 });
             }
             Expression::Identifier(identifier) => {
-                if identifier.name.as_ref() == "Self" && self.circuit_name.is_some() {
+                if identifier.name == sym::SelfUpper && self.circuit_name.is_some() {
                     return Expression::Identifier(self.circuit_name.as_ref().unwrap().clone());
                 }
             }
@@ -691,7 +692,7 @@ impl ReconstructingReducer for Canonicalizer {
         &mut self,
         function: &Function,
         identifier: Identifier,
-        annotations: IndexMap<String, Annotation>,
+        annotations: IndexMap<Symbol, Annotation>,
         input: Vec<FunctionInput>,
         const_: bool,
         output: Option<Type>,

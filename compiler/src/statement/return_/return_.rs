@@ -19,6 +19,7 @@
 use crate::program::Program;
 use leo_asg::{FunctionQualifier, ReturnStatement};
 use leo_errors::Result;
+use leo_span::sym;
 use snarkvm_ir::{Instruction, PredicateData, Value};
 
 impl<'a> Program<'a> {
@@ -30,7 +31,7 @@ impl<'a> Program<'a> {
         if is_mut_self {
             let self_var = function
                 .scope
-                .resolve_variable("self")
+                .resolve_variable(sym::SelfLower)
                 .expect("missing self in mut self function");
             let self_var_register = self.resolve_var(self_var);
             output = Value::Tuple(vec![Value::Ref(self_var_register), output]);

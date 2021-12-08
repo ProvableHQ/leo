@@ -74,10 +74,7 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
             references: vec![],
             assignments: vec![],
         }));
-        scope
-            .variables
-            .borrow_mut()
-            .insert(statement.variable.name.to_string(), variable);
+        scope.variables.borrow_mut().insert(statement.variable.name, variable);
 
         let statement = scope.context.alloc_statement(Statement::Iteration(IterationStatement {
             id: scope.context.get_id(),

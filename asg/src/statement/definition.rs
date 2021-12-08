@@ -120,7 +120,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
         }
 
         for (variable, type_) in statement.variable_names.iter().zip(output_types.into_iter()) {
-            let name = variable.identifier.name.as_ref();
+            let name = variable.identifier.name;
             if scope.resolve_global_const(name).is_some() {
                 return Err(
                     AsgError::function_variable_cannot_shadow_global_const(name, &variable.identifier.span).into(),
@@ -147,7 +147,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
 
         for variable in variables.iter() {
             let mut variables = scope.variables.borrow_mut();
-            let var_name = variable.borrow().name.name.to_string();
+            let var_name = variable.borrow().name.name;
             if variables.contains_key(&var_name) {
                 return Err(AsgError::duplicate_variable_definition(var_name, &statement.span).into());
             }

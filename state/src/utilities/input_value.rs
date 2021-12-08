@@ -24,7 +24,7 @@ use indexmap::IndexMap;
 pub fn find_input(name: String, parameters: &IndexMap<Parameter, Option<InputValue>>) -> Result<InputValue> {
     let matched_parameter = parameters
         .iter()
-        .find(|(parameter, _value)| parameter.variable.name.as_ref() == name);
+        .find(|(parameter, _value)| parameter.variable.name.as_str() == name);
 
     match matched_parameter {
         Some((_, Some(value))) => Ok(value.clone()),

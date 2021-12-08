@@ -18,7 +18,7 @@ use crate::Program;
 use leo_asg::{Circuit, CircuitMember, InputCategory};
 use leo_errors::AsgError;
 use leo_errors::Result;
-use leo_span::Span;
+use leo_span::{Span, Symbol};
 
 use snarkvm_ir::Value;
 
@@ -27,7 +27,7 @@ use super::input_keyword::*;
 impl<'a> Program<'a> {
     pub fn allocate_input_section(
         &mut self,
-        name: &str,
+        name: Symbol,
         span: &Span,
         expected_type: &'a Circuit<'a>,
         origin: Vec<(String, leo_ast::Type)>,
@@ -47,7 +47,7 @@ impl<'a> Program<'a> {
         for (name, type_) in origin {
             let real_type = self.asg.scope.resolve_ast_type(&type_, span)?;
 
-            if let Some(member) = section_members.get(&name) {
+            if let Some(member) = section_members.get(&Symbol::intern(&name)) {
                 let expected_type = match member {
                     CircuitMember::Variable(inner) => inner,
                     _ => continue, // present, but unused

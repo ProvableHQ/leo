@@ -29,7 +29,7 @@ use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_parser::parse_ast;
-use leo_span::Span;
+use leo_span::{sym, Span, Symbol};
 use snarkvm_curves::bls12_377::Bls12_377;
 use snarkvm_eval::edwards_bls12::EdwardsGroupType;
 use snarkvm_eval::{Evaluator, GroupType, PrimeField};
@@ -355,11 +355,11 @@ impl<'a, 'b> Compiler<'a, 'b> {
         let program_name = program.asg.name.clone();
         let mut output_file_name = program_name.clone();
 
-        let input_file = function.annotations.get("test").unwrap().arguments.get(0);
+        let input_file = function.annotations.get(&sym::test).unwrap().arguments.get(0);
         // get input file name from annotation or use test_name
         let input_pair = match input_file {
             Some(file_id) => {
-                let file_name = file_id.clone();
+                let file_name = file_id;
                 let file_name_kebab = file_name.to_string().replace("_", "-");
 
                 // transform "test_name" into "test-name"
@@ -598,13 +598,13 @@ impl<'a, 'b> Compiler<'a, 'b> {
 
     pub fn process_input(&self, input: &leo_ast::Input, ir: &snarkvm_ir::Header) -> Result<InputData> {
         let program = self.asg.as_ref().unwrap();
-        let main_function = *program.functions.get("main").expect("missing main function");
+        let main_function = *program.functions.get(&sym::main).expect("missing main function");
         let span = main_function.span.clone().unwrap_or_default();
 
         let mut out = InputData::default();
         for ir_input in &ir.main_inputs {
             let value = input
-                .get(&*ir_input.name)
+                .get(Symbol::intern(&ir_input.name))
                 .flatten()
                 .ok_or_else(|| CompilerError::function_input_not_found("main", &ir_input.name, &span))?;
             out.main.insert(
@@ -614,7 +614,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
         }
         for ir_input in &ir.constant_inputs {
             let value = input
-                .get_constant(&*ir_input.name)
+                .get_constant(Symbol::intern(&ir_input.name))
                 .flatten()
                 .ok_or_else(|| CompilerError::function_input_not_found("main", &ir_input.name, &span))?;
             out.constants.insert(

@@ -21,7 +21,7 @@ use crate::{
 pub use leo_ast::AssignOperation;
 use leo_ast::AssigneeAccess as AstAssigneeAccess;
 use leo_errors::{AsgError, Result};
-use leo_span::Span;
+use leo_span::{sym, Span};
 
 use std::cell::Cell;
 
@@ -60,12 +60,9 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
         statement: &leo_ast::AssignStatement,
         _expected_type: Option<PartialType<'a>>,
     ) -> Result<Self> {
-        let (name, span) = (
-            &statement.assignee.identifier.name.clone(),
-            &statement.assignee.identifier.span,
-        );
+        let (name, span) = (statement.assignee.identifier.name, &statement.assignee.identifier.span);
 
-        let variable = if name.as_ref() == "input" {
+        let variable = if name == sym::input {
             if let Some(input) = scope.resolve_input() {
                 input.container
             } else {
@@ -172,7 +169,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                             let circuit = circuit;
 
                             let members = circuit.members.borrow();
-                            let member = members.get(name.name.as_ref()).ok_or_else(|| {
+                            let member = members.get(&name.name).ok_or_else(|| {
                                 AsgError::unresolved_circuit_member(
                                     &circuit.name.borrow().name,
                                     &name.name,

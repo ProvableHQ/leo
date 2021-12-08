@@ -20,7 +20,7 @@ use crate::{
 };
 
 use leo_errors::{AsgError, Result};
-use leo_span::Span;
+use leo_span::{Span, Symbol};
 
 use indexmap::{IndexMap, IndexSet};
 use std::cell::Cell;
@@ -71,10 +71,7 @@ impl<'a> ExpressionNode<'a> for CircuitInitExpression<'a> {
         let mut members = IndexMap::new();
         for (identifier, member) in self.values.iter() {
             // insert by name because accessmembers identifiers are different.
-            members.insert(
-                identifier.name.to_string(),
-                (identifier.clone(), member.get().const_value()?),
-            );
+            members.insert(identifier.name, (identifier.clone(), member.get().const_value()?));
         }
         // Store circuit as well for get_type.
         Some(ConstValue::Circuit(self.circuit.get(), members))
@@ -92,7 +89,7 @@ impl<'a> FromAst<'a, leo_ast::CircuitInitExpression> for CircuitInitExpression<'
         expected_type: Option<PartialType<'a>>,
     ) -> Result<CircuitInitExpression<'a>> {
         let circuit = scope
-            .resolve_circuit(&value.name.name)
+            .resolve_circuit(value.name.name)
             .ok_or_else(|| AsgError::unresolved_circuit(&value.name.name, &value.name.span))?;
         match expected_type {
             Some(PartialType::Type(Type::Circuit(expected_circuit))) if expected_circuit == circuit => (),
@@ -101,14 +98,14 @@ impl<'a> FromAst<'a, leo_ast::CircuitInitExpression> for CircuitInitExpression<'
                 return Err(AsgError::unexpected_type(x, circuit.name.borrow().name.to_string(), &value.span).into());
             }
         }
-        let members: IndexMap<&str, (&Identifier, Option<&leo_ast::Expression>)> = value
+        let members: IndexMap<Symbol, (&Identifier, Option<&leo_ast::Expression>)> = value
             .members
             .iter()
-            .map(|x| (x.identifier.name.as_ref(), (&x.identifier, x.expression.as_ref())))
+            .map(|x| (x.identifier.name, (&x.identifier, x.expression.as_ref())))
             .collect();
 
         let mut values: Vec<(Identifier, Cell<&'a Expression<'a>>)> = vec![];
-        let mut defined_variables = IndexSet::<String>::new();
+        let mut defined_variables = IndexSet::<Symbol>::new();
 
         {
             let circuit_members = circuit.members.borrow();
@@ -118,13 +115,13 @@ impl<'a> FromAst<'a, leo_ast::CircuitInitExpression> for CircuitInitExpression<'
                         AsgError::overridden_circuit_member(&circuit.name.borrow().name, name, &value.span).into(),
                     );
                 }
-                defined_variables.insert(name.clone());
+                defined_variables.insert(*name);
                 let type_: Type = if let CircuitMember::Variable(type_) = &member {
                     type_.clone()
                 } else {
                     continue;
                 };
-                if let Some((identifier, receiver)) = members.get(&**name) {
+                if let Some((identifier, receiver)) = members.get(name) {
                     let received = if let Some(receiver) = *receiver {
                         <&Expression<'a>>::from_ast(scope, receiver, Some(type_.partial()))?
                     } else {
@@ -143,7 +140,7 @@ impl<'a> FromAst<'a, leo_ast::CircuitInitExpression> for CircuitInitExpression<'
             }
 
             for (name, (identifier, _expression)) in members.iter() {
-                if circuit_members.get(*name).is_none() {
+                if circuit_members.get(name).is_none() {
                     return Err(
                         AsgError::extra_circuit_member(&circuit.name.borrow().name, name, &identifier.span).into(),
                     );

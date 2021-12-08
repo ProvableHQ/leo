@@ -37,7 +37,7 @@ impl<'a> Program<'a> {
         // type checking is already done in asg
         for (name, inner) in expr.values.iter() {
             let (index, _, target) = members
-                .get_full(name.name.as_ref())
+                .get_full(&name.name)
                 .expect("illegal name in asg circuit init expression");
             match target {
                 CircuitMember::Variable(_type_) => {

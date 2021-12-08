@@ -17,7 +17,7 @@
 use crate::*;
 
 use leo_errors::Result;
-use leo_span::Span;
+use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
 
@@ -38,7 +38,7 @@ pub trait ReconstructingReducer {
 
     fn reduce_identifier(&mut self, identifier: &Identifier) -> Result<Identifier> {
         Ok(Identifier {
-            name: identifier.name.clone(),
+            name: identifier.name,
             span: identifier.span.clone(),
         })
     }
@@ -384,7 +384,7 @@ pub trait ReconstructingReducer {
         program: &Program,
         expected_input: Vec<FunctionInput>,
         import_statements: Vec<ImportStatement>,
-        imports: IndexMap<Vec<String>, Program>,
+        imports: IndexMap<Vec<Symbol>, Program>,
         aliases: IndexMap<Identifier, Alias>,
         circuits: IndexMap<Identifier, Circuit>,
         functions: IndexMap<Identifier, Function>,
@@ -440,7 +440,7 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_import(&mut self, identifier: Vec<String>, import: Program) -> Result<(Vec<String>, Program)> {
+    fn reduce_import(&mut self, identifier: Vec<Symbol>, import: Program) -> Result<(Vec<Symbol>, Program)> {
         Ok((identifier, import))
     }
 
@@ -470,7 +470,7 @@ pub trait ReconstructingReducer {
         &mut self,
         function: &Function,
         identifier: Identifier,
-        annotations: IndexMap<String, Annotation>,
+        annotations: IndexMap<Symbol, Annotation>,
         input: Vec<FunctionInput>,
         const_: bool,
         output: Option<Type>,

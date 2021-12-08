@@ -17,6 +17,7 @@
 mod dropless;
 
 pub mod symbol;
+pub use symbol::{sym, Symbol};
 
 pub mod span;
 pub use span::Span;

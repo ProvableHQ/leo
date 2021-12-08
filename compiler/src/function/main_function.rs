@@ -45,11 +45,8 @@ impl<'a> Program<'a> {
         let mut arguments = vec![];
 
         for (_, input_variable) in function.arguments.iter() {
-            let name = input_variable.get().borrow().name.name.clone();
-            if matches!(
-                (input.get(&name), input.get_constant(name.as_ref())),
-                (Some(_), Some(_))
-            ) {
+            let name = input_variable.get().borrow().name.name;
+            if matches!((input.get(name), input.get_constant(name)), (Some(_), Some(_))) {
                 return Err(
                     CompilerError::double_input_declaration(name, &input_variable.get().borrow().name.span).into(),
                 );

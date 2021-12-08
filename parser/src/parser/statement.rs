@@ -17,6 +17,7 @@
 use super::*;
 
 use leo_errors::{ParserError, Result};
+use leo_span::sym;
 
 const ASSIGN_TOKENS: &[Token] = &[
     Token::Assign,
@@ -263,15 +264,15 @@ impl ParserContext<'_> {
         let keyword = self.expect(Token::Console)?;
         self.expect(Token::Dot)?;
         let function = self.expect_ident()?;
-        let function = match &*function.name {
-            "assert" => {
+        let function = match function.name {
+            sym::assert => {
                 self.expect(Token::LeftParen)?;
                 let expr = self.parse_expression()?;
                 self.expect(Token::RightParen)?;
                 ConsoleFunction::Assert(expr)
             }
-            "error" => ConsoleFunction::Error(self.parse_console_args()?),
-            "log" => ConsoleFunction::Log(self.parse_console_args()?),
+            sym::error => ConsoleFunction::Error(self.parse_console_args()?),
+            sym::log => ConsoleFunction::Log(self.parse_console_args()?),
             x => {
                 // Not sure what it is, assume it's `log`.
                 self.emit_err(ParserError::unexpected_ident(

@@ -261,7 +261,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
     pub fn reduce_static_access(&mut self, ast: &StaticAccess, asg: &AsgCircuitAccess) -> Result<StaticAccess> {
         let type_ = if self.options.type_inference_enabled() {
             let members = asg.circuit.get().members.borrow();
-            let member = members.get(asg.member.name.as_ref());
+            let member = members.get(&asg.member.name);
             match member {
                 Some(AsgCircuitMember::Const(value)) => value.get_type().as_ref().map(|t| t.into()),
                 Some(AsgCircuitMember::Variable(type_)) => Some(type_.into()),
