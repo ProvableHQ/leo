@@ -15,6 +15,8 @@ circuit Bar {
 	a: int;
 }
 
+type Bars = [Bar; 5];
+
 function main(x: u32, y: bool) -> bool {
     let a: int = x;
 	let f: Foo = Foo { a };
