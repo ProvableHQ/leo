@@ -81,32 +81,6 @@ impl<'a> Circuit<'a> {
             scope: new_scope,
         });
 
-        let mut members = circuit.members.borrow_mut();
-        for member in value.members.iter() {
-            if let leo_ast::CircuitMember::CircuitConst(name, type_, const_value) = member {
-                if members.contains_key(name.name.as_ref()) {
-                    return Err(
-                        AsgError::redefined_circuit_member(&value.circuit_name.name, &name.name, &name.span).into(),
-                    );
-                }
-                let type_ = new_scope.resolve_ast_type(type_, &name.span)?;
-                members.insert(
-                    name.name.to_string(),
-                    CircuitMember::Const(<&Expression<'a>>::from_ast(new_scope, const_value, Some(type_.into()))?),
-                );
-            } else if let leo_ast::CircuitMember::CircuitVariable(name, type_) = member {
-                if members.contains_key(name.name.as_ref()) {
-                    return Err(
-                        AsgError::redefined_circuit_member(&value.circuit_name.name, &name.name, &name.span).into(),
-                    );
-                }
-                members.insert(
-                    name.name.to_string(),
-                    CircuitMember::Variable(new_scope.resolve_ast_type(type_, &name.span)?),
-                );
-            }
-        }
-
         Ok(circuit)
     }
 
@@ -117,25 +91,57 @@ impl<'a> Circuit<'a> {
         let circuit = circuits.get(value.circuit_name.name.as_ref()).unwrap();
 
         let mut members = circuit.members.borrow_mut();
+
         for member in value.members.iter() {
-            if let leo_ast::CircuitMember::CircuitFunction(function) = member {
-                if members.contains_key(function.identifier.name.as_ref()) {
-                    return Err(AsgError::redefined_circuit_member(
-                        &value.circuit_name.name,
-                        &function.identifier.name,
-                        &function.identifier.span,
-                    )
-                    .into());
+            match member {
+                leo_ast::CircuitMember::CircuitConst(name, type_, const_value) => {
+                    if members.contains_key(name.name.as_ref()) {
+                        return Err(AsgError::redefined_circuit_member(
+                            &value.circuit_name.name,
+                            &name.name,
+                            &name.span,
+                        )
+                        .into());
+                    }
+                    let type_ = new_scope.resolve_ast_type(type_, &name.span)?;
+                    members.insert(
+                        name.name.to_string(),
+                        CircuitMember::Const(<&Expression<'a>>::from_ast(new_scope, const_value, Some(type_.into()))?),
+                    );
                 }
-                let asg_function = Function::init(new_scope, function)?;
-                asg_function.circuit.replace(Some(circuit));
-                if asg_function.is_test() {
-                    return Err(AsgError::circuit_test_function(&function.identifier.span).into());
+                leo_ast::CircuitMember::CircuitFunction(function) => {
+                    if members.contains_key(function.identifier.name.as_ref()) {
+                        return Err(AsgError::redefined_circuit_member(
+                            &value.circuit_name.name,
+                            &function.identifier.name,
+                            &function.identifier.span,
+                        )
+                        .into());
+                    }
+                    let asg_function = Function::init(new_scope, function)?;
+                    asg_function.circuit.replace(Some(circuit));
+                    if asg_function.is_test() {
+                        return Err(AsgError::circuit_test_function(&function.identifier.span).into());
+                    }
+                    members.insert(
+                        function.identifier.name.to_string(),
+                        CircuitMember::Function(asg_function),
+                    );
                 }
-                members.insert(
-                    function.identifier.name.to_string(),
-                    CircuitMember::Function(asg_function),
-                );
+                leo_ast::CircuitMember::CircuitVariable(name, type_) => {
+                    if members.contains_key(name.name.as_ref()) {
+                        return Err(AsgError::redefined_circuit_member(
+                            &value.circuit_name.name,
+                            &name.name,
+                            &name.span,
+                        )
+                        .into());
+                    }
+                    members.insert(
+                        name.name.to_string(),
+                        CircuitMember::Variable(new_scope.resolve_ast_type(type_, &name.span)?),
+                    );
+                }
             }
         }
 

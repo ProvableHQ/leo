@@ -271,19 +271,19 @@ impl<'a> Program<'a> {
         });
 
         // Prepare header-like scope entries.
-        // Have to do aliases first.
-        for (name, alias) in program.aliases.iter() {
-            assert_eq!(name.name, alias.name.name);
-
-            let asg_alias = Alias::init(scope, alias)?;
-            scope.aliases.borrow_mut().insert(name.name.to_string(), asg_alias);
-        }
-
         for (name, circuit) in program.circuits.iter() {
             assert_eq!(name.name, circuit.circuit_name.name);
             let asg_circuit = Circuit::init(scope, circuit)?;
 
             scope.circuits.borrow_mut().insert(name.name.to_string(), asg_circuit);
+        }
+
+        // Have to do aliases after circuits but before members.
+        for (name, alias) in program.aliases.iter() {
+            assert_eq!(name.name, alias.name.name);
+
+            let asg_alias = Alias::init(scope, alias)?;
+            scope.aliases.borrow_mut().insert(name.name.to_string(), asg_alias);
         }
 
         // Second pass for circuit members.
