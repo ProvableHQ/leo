@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EIMP0374004]: Compilation failed due to directory error @ '\"/test-framework/../tests/compiler/import_misc/import\"' - Os { code: 2, kind: NotFound, message: \"No such file or directory\" }.\n    --> /test-framework/../tests/compiler/import_misc/import:4:16\n     |\n   4 | import bar.bat.*;\n     |                ^"

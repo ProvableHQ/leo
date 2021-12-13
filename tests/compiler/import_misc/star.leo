@@ -1,7 +1,9 @@
-// namespace: Compile
-// expectation: Pass
-// input_file: input/dummy.in
-// cwd: imports
+/*
+namespace: Compile
+expectation: Pass
+input_file: input/dummy.in
+cwd: imports
+*/
 
 import test-import.*;
 

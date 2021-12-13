@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EIMP0374000]: conflicting imports found for `bar`.\n    --> /test-framework/../tests/compiler/import_misc/imports:9:5\n     |\n   9 |     Bar,\n     |     ^^^"

@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EIMP0374010]: unable to select import location, conflicting paths are found: `[\"/test-framework/../tests/compiler/import_local/local_imports/collision.leo\", \"/test-framework/../tests/compiler/import_local/local_imports/collision\"]`\n    --> /test-framework/../tests/compiler/import_local/local_imports:3:18\n     |\n   3 | import collision.collide as howdy;\n     |                  ^^^^^^^"

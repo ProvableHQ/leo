@@ -19,6 +19,7 @@ use std::fmt;
 use serde_yaml::Value;
 
 use crate::{test::TestExpectationMode, Runner};
+use crate::runner::sanitize_output;
 
 pub struct TestFailure {
     pub path: String,
@@ -112,11 +113,12 @@ pub fn emit_errors<T: Runner>(
             let expected_output: Option<String> =
                 expected_output.map(|x| serde_yaml::from_value(x).expect("test expectation deserialize failed"));
             if let Some(expected_output) = expected_output.as_deref() {
-                if err != expected_output {
+                let err = err.to_string();
+                if sanitize_output(&err) != expected_output {
                     // invalid output
                     return Some(TestError::UnexpectedError {
                         expected: expected_output.to_string(),
-                        output: err.to_string(),
+                        output: err,
                         index: test_index,
                     });
                 }
