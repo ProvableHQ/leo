@@ -170,12 +170,12 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
                 errors.push(error);
             } else {
                 pass_tests += 1;
-                
+
                 new_outputs.push(
                     output
                         .as_ref()
                         .map(|x| serde_yaml::to_value(x).expect("serialization failed"))
-                        .unwrap_or_else(|e| Value::String(sanitize_output(e)))
+                        .unwrap_or_else(|e| Value::String(sanitize_output(e))),
                 );
             }
         }
@@ -239,8 +239,8 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
 }
 
 /// Cleans the outputs by removing local paths.
-/// Needed for failing import tests as they require correct setting of CWD 
-/// which leads to full system paths being printed out to the test expectations. 
+/// Needed for failing import tests as they require correct setting of CWD
+/// which leads to full system paths being printed out to the test expectations.
 pub fn sanitize_output(out: &String) -> String {
     let mut leo_dir = std::env::current_dir().unwrap();
     leo_dir.pop();

@@ -18,8 +18,8 @@ use std::fmt;
 
 use serde_yaml::Value;
 
-use crate::{test::TestExpectationMode, Runner};
 use crate::runner::sanitize_output;
+use crate::{test::TestExpectationMode, Runner};
 
 pub struct TestFailure {
     pub path: String,
