@@ -31,7 +31,6 @@ jobs:
       SCCACHE_CACHE_SIZE: 2G
       SCCACHE_DIR: ${{ matrix.sccache-path }}
       # SCCACHE_RECACHE: 1 # Uncomment this to clear cache, then comment it back out
-      working-directory: leo
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -99,7 +98,6 @@ jobs:
         with:
           command: test
           args: --all
-        working-directory: ${{env.working-directory}}
 
       - name: Print sccache stats
         run: sccache --show-stats
@@ -164,7 +162,6 @@ jobs:
           SDKROOT=$(xcrun -sdk macosx11.1 --show-sdk-path) \
           MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx11.1 --show-sdk-platform-version) \
           cargo test --all
-        working-directory: ${{env.working-directory}}
 
       - name: Print sccache stats
         run: sccache --show-stats
