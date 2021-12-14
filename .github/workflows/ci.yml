@@ -94,10 +94,11 @@ jobs:
           sccache --start-server
 
       - name: Test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all
+        run: cargo test --all -- --nocapture
+        # uses: actions-rs/cargo@v1
+        # with:
+        #   command: test
+        #   args: --all
 
       - name: Print sccache stats
         run: sccache --show-stats
