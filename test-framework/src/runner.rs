@@ -248,6 +248,7 @@ pub fn sanitize_output(out: &String) -> String {
 
     dbg!(&leo_dir);
     dbg!(&out);
+    dbg!(out.clone().replace(&leo_dir, ""));
 
     out.clone().replace(&leo_dir, "")
 }

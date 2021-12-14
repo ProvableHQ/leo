@@ -95,6 +95,8 @@ jobs:
 
       - name: Test
         run: cargo test --all -- --nocapture
+        env: 
+            TEST_FILTER=import
         # uses: actions-rs/cargo@v1
         # with:
         #   command: test
