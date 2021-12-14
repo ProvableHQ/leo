@@ -170,26 +170,26 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns a [`IntegerType`] AST node if the given token is a supported integer type, or [`None`].</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">token_to_int_type</span>(<span class="ident">token</span>: <span class="ident">Token</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IntegerType</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">token_to_int_type</span>(<span class="ident">token</span>: <span class="ident">Token</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IntegerType</span><span class="op">&gt;</span> {
         <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="ident">token</span> {
-            <span class="ident">Token::I8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::I8</span>,
-            <span class="ident">Token::I16</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::I16</span>,
-            <span class="ident">Token::I32</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::I32</span>,
-            <span class="ident">Token::I64</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::I64</span>,
-            <span class="ident">Token::I128</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::I128</span>,
-            <span class="ident">Token::U8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::U8</span>,
-            <span class="ident">Token::U16</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::U16</span>,
-            <span class="ident">Token::U32</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::U32</span>,
-            <span class="ident">Token::U64</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::U64</span>,
-            <span class="ident">Token::U128</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::U128</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">None</span>,
+            <span class="ident">Token::I8</span> =&gt; <span class="ident">IntegerType::I8</span>,
+            <span class="ident">Token::I16</span> =&gt; <span class="ident">IntegerType::I16</span>,
+            <span class="ident">Token::I32</span> =&gt; <span class="ident">IntegerType::I32</span>,
+            <span class="ident">Token::I64</span> =&gt; <span class="ident">IntegerType::I64</span>,
+            <span class="ident">Token::I128</span> =&gt; <span class="ident">IntegerType::I128</span>,
+            <span class="ident">Token::U8</span> =&gt; <span class="ident">IntegerType::U8</span>,
+            <span class="ident">Token::U16</span> =&gt; <span class="ident">IntegerType::U16</span>,
+            <span class="ident">Token::U32</span> =&gt; <span class="ident">IntegerType::U32</span>,
+            <span class="ident">Token::U64</span> =&gt; <span class="ident">IntegerType::U64</span>,
+            <span class="ident">Token::U128</span> =&gt; <span class="ident">IntegerType::U128</span>,
+            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
         })
     }
 
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns an [`ArrayDimensions`] AST node if the next tokens represent dimensions for an array type.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_array_dimensions</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ArrayDimensions</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_array_dimensions</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ArrayDimensions</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">int</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_int</span>() {
             <span class="prelude-val">Some</span>(<span class="ident">ArrayDimensions</span>(<span class="macro">vec!</span>[<span class="ident">int</span>]))
         } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="ident">Token::Underscore</span>).<span class="ident">is_some</span>() {
@@ -217,7 +217,7 @@
     <span class="doccomment">/// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a type. Also</span>
     <span class="doccomment">/// returns the span of the parsed token.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Type</span>, <span class="ident">Span</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Type</span>, <span class="ident">Span</span>)<span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">token</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="ident">Token::BigSelf</span>) {
             (<span class="ident">Type::SelfType</span>, <span class="ident">token</span>.<span class="ident">span</span>)
         } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ident</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_identifier</span>() {
@@ -248,12 +248,12 @@
             <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_oneof</span>(<span class="ident">TYPE_TOKENS</span>)<span class="question-mark">?</span>;
             (
                 <span class="kw">match</span> <span class="ident">token</span>.<span class="ident">token</span> {
-                    <span class="ident">Token::Field</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::Field</span>,
-                    <span class="ident">Token::Group</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::Group</span>,
-                    <span class="ident">Token::Address</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::Address</span>,
-                    <span class="ident">Token::Bool</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::Boolean</span>,
-                    <span class="ident">Token::Char</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::Char</span>,
-                    <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::IntegerType</span>(<span class="ident"><span class="self">Self</span>::token_to_int_type</span>(<span class="ident">x</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid int type&quot;</span>)),
+                    <span class="ident">Token::Field</span> =&gt; <span class="ident">Type::Field</span>,
+                    <span class="ident">Token::Group</span> =&gt; <span class="ident">Type::Group</span>,
+                    <span class="ident">Token::Address</span> =&gt; <span class="ident">Type::Address</span>,
+                    <span class="ident">Token::Bool</span> =&gt; <span class="ident">Type::Boolean</span>,
+                    <span class="ident">Token::Char</span> =&gt; <span class="ident">Type::Char</span>,
+                    <span class="ident">x</span> =&gt; <span class="ident">Type::IntegerType</span>(<span class="ident"><span class="self">Self</span>::token_to_int_type</span>(<span class="ident">x</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid int type&quot;</span>)),
                 },
                 <span class="ident">token</span>.<span class="ident">span</span>,
             )

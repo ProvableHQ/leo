@@ -145,35 +145,35 @@
         <span class="self">self</span>.<span class="ident">errors</span>.<span class="ident">push</span>((<span class="ident">span</span>.<span class="ident">cloned</span>().<span class="ident">unwrap_or_default</span>(), <span class="ident">error</span>));
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ReturnPathReducer</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">ReturnPathReducer</span> {
         <span class="ident">ReturnPathReducer</span> { <span class="ident">errors</span>: <span class="macro">vec!</span>[] }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ReturnPathReducer</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::new</span>()
     }
 }
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">MonoidalReducerExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">BoolAnd</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ReturnPathReducer</span> {
-    <span class="kw">fn</span> <span class="ident">reduce_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">value</span>: <span class="ident">BoolAnd</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoolAnd</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">value</span>: <span class="ident">BoolAnd</span>) -&gt; <span class="ident">BoolAnd</span> {
         <span class="ident">BoolAnd</span>(<span class="bool-val">false</span>)
     }
 }
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">MonoidalReducerStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">BoolAnd</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ReturnPathReducer</span> {
-    <span class="kw">fn</span> <span class="ident">reduce_assign_access</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">AssignAccess</span>, <span class="ident">left</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BoolAnd</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BoolAnd</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoolAnd</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_assign_access</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">AssignAccess</span>, <span class="ident">left</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BoolAnd</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BoolAnd</span><span class="op">&gt;</span>) -&gt; <span class="ident">BoolAnd</span> {
         <span class="ident">BoolAnd</span>(<span class="bool-val">false</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">AssignStatement</span>, <span class="ident">accesses</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BoolAnd</span><span class="op">&gt;</span>, <span class="ident">value</span>: <span class="ident">BoolAnd</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoolAnd</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">AssignStatement</span>, <span class="ident">accesses</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BoolAnd</span><span class="op">&gt;</span>, <span class="ident">value</span>: <span class="ident">BoolAnd</span>) -&gt; <span class="ident">BoolAnd</span> {
         <span class="ident">BoolAnd</span>(<span class="bool-val">false</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_block</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">BlockStatement</span>, <span class="ident">statements</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BoolAnd</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoolAnd</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_block</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">BlockStatement</span>, <span class="ident">statements</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BoolAnd</span><span class="op">&gt;</span>) -&gt; <span class="ident">BoolAnd</span> {
         <span class="kw">if</span> <span class="ident">statements</span>.<span class="ident">is_empty</span>() {
             <span class="ident">BoolAnd</span>(<span class="bool-val">false</span>)
         } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">index</span>) <span class="op">=</span> <span class="ident">statements</span>[..<span class="ident">statements</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>].<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="number">0</span>).<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>) {
@@ -193,7 +193,7 @@
         <span class="ident">condition</span>: <span class="ident">BoolAnd</span>,
         <span class="ident">if_true</span>: <span class="ident">BoolAnd</span>,
         <span class="ident">if_false</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BoolAnd</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoolAnd</span> {
+    ) -&gt; <span class="ident">BoolAnd</span> {
         <span class="kw">if</span> <span class="ident">if_false</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="number">0</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">if_true</span>.<span class="number">0</span> {
             <span class="self">self</span>.<span class="ident">record_error</span>(
                 <span class="ident">input</span>.<span class="ident">span</span>(),
@@ -203,19 +203,19 @@
         <span class="ident">if_true</span>.<span class="ident">append</span>(<span class="ident">if_false</span>.<span class="ident">unwrap_or</span>(<span class="ident">BoolAnd</span>(<span class="bool-val">false</span>)))
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_formatted_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">ConsoleArgs</span>, <span class="ident">parameters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BoolAnd</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoolAnd</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_formatted_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">ConsoleArgs</span>, <span class="ident">parameters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BoolAnd</span><span class="op">&gt;</span>) -&gt; <span class="ident">BoolAnd</span> {
         <span class="ident">BoolAnd</span>(<span class="bool-val">false</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_console</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">ConsoleStatement</span>, <span class="ident">argument</span>: <span class="ident">BoolAnd</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoolAnd</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_console</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">ConsoleStatement</span>, <span class="ident">argument</span>: <span class="ident">BoolAnd</span>) -&gt; <span class="ident">BoolAnd</span> {
         <span class="ident">BoolAnd</span>(<span class="bool-val">false</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_definition</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DefinitionStatement</span>, <span class="ident">value</span>: <span class="ident">BoolAnd</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoolAnd</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_definition</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DefinitionStatement</span>, <span class="ident">value</span>: <span class="ident">BoolAnd</span>) -&gt; <span class="ident">BoolAnd</span> {
         <span class="ident">BoolAnd</span>(<span class="bool-val">false</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_expression_statement</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">ExpressionStatement</span>, <span class="ident">expression</span>: <span class="ident">BoolAnd</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoolAnd</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_expression_statement</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">ExpressionStatement</span>, <span class="ident">expression</span>: <span class="ident">BoolAnd</span>) -&gt; <span class="ident">BoolAnd</span> {
         <span class="ident">BoolAnd</span>(<span class="bool-val">false</span>)
     }
 
@@ -225,12 +225,12 @@
         <span class="ident">start</span>: <span class="ident">BoolAnd</span>,
         <span class="ident">stop</span>: <span class="ident">BoolAnd</span>,
         <span class="ident">body</span>: <span class="ident">BoolAnd</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoolAnd</span> {
+    ) -&gt; <span class="ident">BoolAnd</span> {
         <span class="comment">// loops are const defined ranges, so we could probably check if they run one and emit here</span>
         <span class="ident">BoolAnd</span>(<span class="bool-val">false</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_return</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">ReturnStatement</span>, <span class="ident">value</span>: <span class="ident">BoolAnd</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoolAnd</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_return</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">ReturnStatement</span>, <span class="ident">value</span>: <span class="ident">BoolAnd</span>) -&gt; <span class="ident">BoolAnd</span> {
         <span class="ident">BoolAnd</span>(<span class="bool-val">true</span>)
     }
 }

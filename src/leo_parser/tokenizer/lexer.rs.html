@@ -595,12 +595,12 @@
 <span class="doccomment">/// Returns the length of the given `wanted` string if the string can be eaten, otherwise returns [`None`].</span>
 <span class="doccomment">/// A string can be eaten if its bytes are at the front of the given `input` array.</span>
 <span class="doccomment">///</span>
-<span class="kw">fn</span> <span class="ident">eat</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">wanted</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">eat</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">wanted</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">wanted</span> <span class="op">=</span> <span class="ident">wanted</span>.<span class="ident">as_bytes</span>();
     <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">wanted</span>.<span class="ident">len</span>() {
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
-    <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">input</span>[<span class="number">0</span>..<span class="ident">wanted</span>.<span class="ident">len</span>()] <span class="op">=</span><span class="op">=</span> <span class="ident">wanted</span> {
+    <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">input</span>[<span class="number">0</span>..<span class="ident">wanted</span>.<span class="ident">len</span>()] <span class="op">==</span> <span class="ident">wanted</span> {
         <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">wanted</span>.<span class="ident">len</span>());
     }
     <span class="prelude-val">None</span>
@@ -610,7 +610,7 @@
 <span class="doccomment">/// Returns a new `StrTendril` string if an identifier can be eaten, otherwise returns [`None`].</span>
 <span class="doccomment">/// An identifier can be eaten if its bytes are at the front of the given `input_tendril` string.</span>
 <span class="doccomment">///</span>
-<span class="kw">fn</span> <span class="ident">eat_identifier</span>(<span class="ident">input_tendril</span>: <span class="kw-2">&amp;</span><span class="ident">StrTendril</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">StrTendril</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">eat_identifier</span>(<span class="ident">input_tendril</span>: <span class="kw-2">&amp;</span><span class="ident">StrTendril</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">StrTendril</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">input_tendril</span>.<span class="ident">is_empty</span>() {
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
@@ -634,7 +634,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns a `char` if a character can be eaten, otherwise returns [`None`].</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">eat_char</span>(<span class="ident">input_tendril</span>: <span class="ident">StrTendril</span>, <span class="ident">escaped</span>: <span class="ident">bool</span>, <span class="ident">hex</span>: <span class="ident">bool</span>, <span class="ident">unicode</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Char</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">eat_char</span>(<span class="ident">input_tendril</span>: <span class="ident">StrTendril</span>, <span class="ident">escaped</span>: <span class="ident">bool</span>, <span class="ident">hex</span>: <span class="ident">bool</span>, <span class="ident">unicode</span>: <span class="ident">bool</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Char</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">input_tendril</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
@@ -649,14 +649,14 @@
 
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">character</span>) <span class="op">=</span> <span class="ident">escaped</span>.<span class="ident">chars</span>().<span class="ident">next</span>() {
                 <span class="kw">return</span> <span class="kw">match</span> <span class="ident">character</span> {
-                    <span class="string">&#39;0&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">0</span> <span class="kw">as</span> <span class="ident">char</span>)),
-                    <span class="string">&#39;t&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">9</span> <span class="kw">as</span> <span class="ident">char</span>)),
-                    <span class="string">&#39;n&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">10</span> <span class="kw">as</span> <span class="ident">char</span>)),
-                    <span class="string">&#39;r&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">13</span> <span class="kw">as</span> <span class="ident">char</span>)),
-                    <span class="string">&#39;\&quot;&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">34</span> <span class="kw">as</span> <span class="ident">char</span>)),
-                    <span class="string">&#39;\&#39;&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">39</span> <span class="kw">as</span> <span class="ident">char</span>)),
-                    <span class="string">&#39;\\&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">92</span> <span class="kw">as</span> <span class="ident">char</span>)),
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                    <span class="string">&#39;0&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">0</span> <span class="kw">as</span> <span class="ident">char</span>)),
+                    <span class="string">&#39;t&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">9</span> <span class="kw">as</span> <span class="ident">char</span>)),
+                    <span class="string">&#39;n&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">10</span> <span class="kw">as</span> <span class="ident">char</span>)),
+                    <span class="string">&#39;r&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">13</span> <span class="kw">as</span> <span class="ident">char</span>)),
+                    <span class="string">&#39;\&quot;&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">34</span> <span class="kw">as</span> <span class="ident">char</span>)),
+                    <span class="string">&#39;\&#39;&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">39</span> <span class="kw">as</span> <span class="ident">char</span>)),
+                    <span class="string">&#39;\\&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">92</span> <span class="kw">as</span> <span class="ident">char</span>)),
+                    <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
                 };
             } <span class="kw">else</span> {
                 <span class="kw">return</span> <span class="prelude-val">None</span>;
@@ -716,7 +716,7 @@
     <span class="doccomment">/// Returns a tuple: [(integer length, integer token)] if an integer can be eaten, otherwise returns [`None`].</span>
     <span class="doccomment">/// An integer can be eaten if its bytes are at the front of the given `input_tendril` string.</span>
     <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">eat_integer</span>(<span class="ident">input_tendril</span>: <span class="kw-2">&amp;</span><span class="ident">StrTendril</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">eat_integer</span>(<span class="ident">input_tendril</span>: <span class="kw-2">&amp;</span><span class="ident">StrTendril</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span>) {
         <span class="kw">if</span> <span class="ident">input_tendril</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> (<span class="number">0</span>, <span class="prelude-val">None</span>);
         }
@@ -727,7 +727,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">1</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">is_hex</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">input</span>.<span class="ident">len</span>() {
-            <span class="kw">if</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">input</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;0&#39;</span> <span class="op">&amp;&amp;</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;x&#39;</span> {
+            <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">input</span>[<span class="number">0</span>] <span class="op">==</span> <span class="string">b&#39;0&#39;</span> <span class="op">&amp;&amp;</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="string">b&#39;x&#39;</span> {
                 <span class="ident">is_hex</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 <span class="kw">continue</span>;
@@ -746,14 +746,14 @@
     }
 
     <span class="doccomment">/// Returns the number of bytes in an emoji via a bit mask.</span>
-    <span class="kw">fn</span> <span class="ident">utf8_byte_count</span>(<span class="ident">byte</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
+    <span class="kw">fn</span> <span class="ident">utf8_byte_count</span>(<span class="ident">byte</span>: <span class="ident">u8</span>) -&gt; <span class="ident">u8</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mask</span> <span class="op">=</span> <span class="number">0x80</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">while</span> <span class="ident">byte</span> <span class="op">&amp;</span> <span class="ident">mask</span> <span class="op">&gt;</span> <span class="number">0</span> {
             <span class="ident">result</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             <span class="ident">mask</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">1</span>;
         }
-        <span class="kw">if</span> <span class="ident">result</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="ident">result</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="number">1</span>
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">result</span> <span class="op">&gt;</span> <span class="number">4</span> {
             <span class="number">4</span>
@@ -766,14 +766,14 @@
     <span class="doccomment">/// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns [`None`].</span>
     <span class="doccomment">/// The next token can be eaten if the bytes at the front of the given `input_tendril` string can be scanned into a token.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">eat</span>(<span class="ident">input_tendril</span>: <span class="ident">StrTendril</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span>) {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">eat</span>(<span class="ident">input_tendril</span>: <span class="ident">StrTendril</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span>) {
         <span class="kw">if</span> <span class="ident">input_tendril</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> (<span class="number">0</span>, <span class="prelude-val">None</span>);
         }
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">input_tendril</span>[..].<span class="ident">as_bytes</span>();
         <span class="kw">match</span> <span class="ident">input</span>[<span class="number">0</span>] {
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">is_ascii_whitespace</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">None</span>),
-            <span class="string">b&#39;&quot;&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">is_ascii_whitespace</span>() =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">None</span>),
+            <span class="string">b&#39;&quot;&#39;</span> =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">1</span>;
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">1</span>;
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">start</span> <span class="op">=</span> <span class="number">1</span>;
@@ -792,10 +792,10 @@
                     }
 
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">in_escape</span> {
-                        <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;&quot;&#39;</span> {
+                        <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="string">b&#39;&quot;&#39;</span> {
                             <span class="ident">end</span> <span class="op">=</span> <span class="bool-val">true</span>;
                             <span class="kw">break</span>;
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;\\&#39;</span> {
+                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="string">b&#39;\\&#39;</span> {
                             <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">true</span>;
                             <span class="ident">start</span> <span class="op">=</span> <span class="ident">i</span>;
                             <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
@@ -805,23 +805,23 @@
                         <span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
 
                         <span class="kw">match</span> <span class="ident">input</span>[<span class="ident">i</span>] {
-                            <span class="string">b&#39;x&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="string">b&#39;x&#39;</span> =&gt; {
                                 <span class="ident">hex</span> <span class="op">=</span> <span class="bool-val">true</span>;
                             }
-                            <span class="string">b&#39;u&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="string">b&#39;u&#39;</span> =&gt; {
                                 <span class="ident">unicode</span> <span class="op">=</span> <span class="bool-val">true</span>;
                             }
-                            <span class="string">b&#39;}&#39;</span> <span class="kw">if</span> <span class="ident">unicode</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="string">b&#39;}&#39;</span> <span class="kw">if</span> <span class="ident">unicode</span> =&gt; {
                                 <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">false</span>;
                             }
-                            <span class="kw">_</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">hex</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">unicode</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="kw">_</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">hex</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">unicode</span> =&gt; {
                                 <span class="ident">escaped</span> <span class="op">=</span> <span class="bool-val">true</span>;
                                 <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">false</span>;
                             }
-                            <span class="kw">_</span> <span class="kw">if</span> <span class="ident">hex</span> <span class="op">&amp;&amp;</span> <span class="ident">len</span> <span class="op">=</span><span class="op">=</span> <span class="number">4</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="kw">_</span> <span class="kw">if</span> <span class="ident">hex</span> <span class="op">&amp;&amp;</span> <span class="ident">len</span> <span class="op">==</span> <span class="number">4</span> =&gt; {
                                 <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">false</span>;
                             }
-                            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                            <span class="kw">_</span> =&gt; {}
                         }
                     }
 
@@ -832,14 +832,14 @@
                             <span class="ident">hex</span>,
                             <span class="ident">unicode</span>,
                         ) {
-                            <span class="prelude-val">Some</span>(<span class="ident">character</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="prelude-val">Some</span>(<span class="ident">character</span>) =&gt; {
                                 <span class="ident">len</span> <span class="op">=</span> <span class="number">1</span>;
                                 <span class="ident">escaped</span> <span class="op">=</span> <span class="bool-val">false</span>;
                                 <span class="ident">hex</span> <span class="op">=</span> <span class="bool-val">false</span>;
                                 <span class="ident">unicode</span> <span class="op">=</span> <span class="bool-val">false</span>;
                                 <span class="ident">string</span>.<span class="ident">push</span>(<span class="ident">character</span>.<span class="ident">into</span>());
                             }
-                            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> (<span class="number">0</span>, <span class="prelude-val">None</span>),
+                            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> (<span class="number">0</span>, <span class="prelude-val">None</span>),
                         }
                     }
 
@@ -850,13 +850,13 @@
                     }
                 }
 
-                <span class="kw">if</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">input</span>.<span class="ident">len</span>() <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">end</span> {
+                <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="ident">input</span>.<span class="ident">len</span>() <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">end</span> {
                     <span class="kw">return</span> (<span class="number">0</span>, <span class="prelude-val">None</span>);
                 }
 
                 <span class="kw">return</span> (<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::StringLit</span>(<span class="ident">string</span>)));
             }
-            <span class="string">b&#39;\&#39;&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">b&#39;\&#39;&#39;</span> =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">1</span>;
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">false</span>;
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">escaped</span> <span class="op">=</span> <span class="bool-val">false</span>;
@@ -866,17 +866,17 @@
 
                 <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">input</span>.<span class="ident">len</span>() {
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">in_escape</span> {
-                        <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;\&#39;&#39;</span> {
+                        <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="string">b&#39;\&#39;&#39;</span> {
                             <span class="ident">end</span> <span class="op">=</span> <span class="bool-val">true</span>;
                             <span class="kw">break</span>;
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;\\&#39;</span> {
+                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="string">b&#39;\\&#39;</span> {
                             <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">true</span>;
                         }
                     } <span class="kw">else</span> {
-                        <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;x&#39;</span> {
+                        <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="string">b&#39;x&#39;</span> {
                             <span class="ident">hex</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;u&#39;</span> {
-                            <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>] <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;{&#39;</span> {
+                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="string">b&#39;u&#39;</span> {
+                            <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>] <span class="op">==</span> <span class="string">b&#39;{&#39;</span> {
                                 <span class="ident">unicode</span> <span class="op">=</span> <span class="bool-val">true</span>;
                             } <span class="kw">else</span> {
                                 <span class="kw">return</span> (<span class="number">0</span>, <span class="prelude-val">None</span>);
@@ -896,23 +896,23 @@
                 }
 
                 <span class="kw">return</span> <span class="kw">match</span> <span class="ident"><span class="self">Self</span>::eat_char</span>(<span class="ident">input_tendril</span>.<span class="ident">subtendril</span>(<span class="number">1</span>, (<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">u32</span>), <span class="ident">escaped</span>, <span class="ident">hex</span>, <span class="ident">unicode</span>) {
-                    <span class="prelude-val">Some</span>(<span class="ident">character</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::CharLit</span>(<span class="ident">character</span>))),
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="number">0</span>, <span class="prelude-val">None</span>),
+                    <span class="prelude-val">Some</span>(<span class="ident">character</span>) =&gt; (<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::CharLit</span>(<span class="ident">character</span>))),
+                    <span class="prelude-val">None</span> =&gt; (<span class="number">0</span>, <span class="prelude-val">None</span>),
                 };
             }
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">is_ascii_digit</span>() <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">is_ascii_digit</span>() =&gt; {
                 <span class="kw">return</span> <span class="ident"><span class="self">Self</span>::eat_integer</span>(<span class="kw-2">&amp;</span><span class="ident">input_tendril</span>);
             }
-            <span class="string">b&#39;!&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">b&#39;!&#39;</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;!=&quot;</span>) {
                     <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::NotEq</span>));
                 }
                 <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Not</span>));
             }
-            <span class="string">b&#39;?&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">b&#39;?&#39;</span> =&gt; {
                 <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Question</span>));
             }
-            <span class="string">b&#39;&amp;&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">b&#39;&amp;&#39;</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;&amp;&amp;&quot;</span>) {
                     <span class="comment">// if let Some(inner_len) = eat(&amp;input[len..], &quot;=&quot;) {</span>
                     <span class="comment">//     return (len + inner_len, Some(Token::AndEq));</span>
@@ -924,10 +924,10 @@
                 <span class="comment">// }</span>
                 <span class="comment">// return (1, Some(Token::BitAnd));</span>
             }
-            <span class="string">b&#39;(&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::LeftParen</span>)),
-            <span class="string">b&#39;)&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::RightParen</span>)),
-            <span class="string">b&#39;_&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Underscore</span>)),
-            <span class="string">b&#39;*&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">b&#39;(&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::LeftParen</span>)),
+            <span class="string">b&#39;)&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::RightParen</span>)),
+            <span class="string">b&#39;_&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Underscore</span>)),
+            <span class="string">b&#39;*&#39;</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;**&quot;</span>) {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">inner_len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>[<span class="ident">len</span>..], <span class="string">&quot;=&quot;</span>) {
                         <span class="kw">return</span> (<span class="ident">len</span> <span class="op">+</span> <span class="ident">inner_len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::ExpEq</span>));
@@ -938,14 +938,14 @@
                 }
                 <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Mul</span>));
             }
-            <span class="string">b&#39;+&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">b&#39;+&#39;</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;+=&quot;</span>) {
                     <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::AddEq</span>));
                 }
                 <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Add</span>));
             }
-            <span class="string">b&#39;,&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Comma</span>)),
-            <span class="string">b&#39;-&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">b&#39;,&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Comma</span>)),
+            <span class="string">b&#39;-&#39;</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;-&gt;&quot;</span>) {
                     <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Arrow</span>));
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;-=&quot;</span>) {
@@ -953,7 +953,7 @@
                 }
                 <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Minus</span>));
             }
-            <span class="string">b&#39;.&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">b&#39;.&#39;</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;...&quot;</span>) {
                     <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::DotDotDot</span>));
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;..&quot;</span>) {
@@ -964,16 +964,16 @@
                 }
                 <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Dot</span>));
             }
-            <span class="string">b&#39;/&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">b&#39;/&#39;</span> =&gt; {
                 <span class="kw">if</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;//&quot;</span>).<span class="ident">is_some</span>() {
-                    <span class="kw">let</span> <span class="ident">eol</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;\n&#39;</span>);
+                    <span class="kw">let</span> <span class="ident">eol</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">==</span> <span class="string">b&#39;\n&#39;</span>);
                     <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">eol</span>) <span class="op">=</span> <span class="ident">eol</span> { <span class="ident">eol</span> <span class="op">+</span> <span class="number">1</span> } <span class="kw">else</span> { <span class="ident">input</span>.<span class="ident">len</span>() };
                     <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::CommentLine</span>(<span class="ident">input_tendril</span>.<span class="ident">subtendril</span>(<span class="number">0</span>, <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u32</span>))));
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;/*&quot;</span>).<span class="ident">is_some</span>() {
                     <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">is_empty</span>() {
                         <span class="kw">return</span> (<span class="number">0</span>, <span class="prelude-val">None</span>);
                     }
-                    <span class="kw">let</span> <span class="ident">eol</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">windows</span>(<span class="number">2</span>).<span class="ident">skip</span>(<span class="number">2</span>).<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;*&#39;</span> <span class="op">&amp;&amp;</span> <span class="ident">x</span>[<span class="number">1</span>] <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;/&#39;</span>);
+                    <span class="kw">let</span> <span class="ident">eol</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">windows</span>(<span class="number">2</span>).<span class="ident">skip</span>(<span class="number">2</span>).<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>[<span class="number">0</span>] <span class="op">==</span> <span class="string">b&#39;*&#39;</span> <span class="op">&amp;&amp;</span> <span class="ident">x</span>[<span class="number">1</span>] <span class="op">==</span> <span class="string">b&#39;/&#39;</span>);
                     <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">eol</span>) <span class="op">=</span> <span class="ident">eol</span> { <span class="ident">eol</span> <span class="op">+</span> <span class="number">4</span> } <span class="kw">else</span> { <span class="ident">input</span>.<span class="ident">len</span>() };
                     <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::CommentBlock</span>(<span class="ident">input_tendril</span>.<span class="ident">subtendril</span>(<span class="number">0</span>, <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u32</span>))));
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;/=&quot;</span>) {
@@ -981,15 +981,15 @@
                 }
                 <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Div</span>));
             }
-            <span class="string">b&#39;:&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">b&#39;:&#39;</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;::&quot;</span>) {
                     <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::DoubleColon</span>));
                 } <span class="kw">else</span> {
                     <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Colon</span>));
                 }
             }
-            <span class="string">b&#39;;&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Semicolon</span>)),
-            <span class="string">b&#39;&lt;&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">b&#39;;&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Semicolon</span>)),
+            <span class="string">b&#39;&lt;&#39;</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;&lt;=&quot;</span>) {
                     <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::LtEq</span>));
                 }
@@ -1001,7 +1001,7 @@
                 <span class="comment">// }</span>
                 <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Lt</span>));
             }
-            <span class="string">b&#39;&gt;&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">b&#39;&gt;&#39;</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;&gt;=&quot;</span>) {
                     <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::GtEq</span>));
                 }
@@ -1018,18 +1018,18 @@
                 <span class="comment">// }</span>
                 <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Gt</span>));
             }
-            <span class="string">b&#39;=&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">b&#39;=&#39;</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;==&quot;</span>) {
                     <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Eq</span>));
                 }
                 <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Assign</span>));
             }
-            <span class="string">b&#39;@&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::At</span>)),
-            <span class="string">b&#39;[&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::LeftSquare</span>)),
-            <span class="string">b&#39;]&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::RightSquare</span>)),
-            <span class="string">b&#39;{&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::LeftCurly</span>)),
-            <span class="string">b&#39;}&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::RightCurly</span>)),
-            <span class="string">b&#39;|&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">b&#39;@&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::At</span>)),
+            <span class="string">b&#39;[&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::LeftSquare</span>)),
+            <span class="string">b&#39;]&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::RightSquare</span>)),
+            <span class="string">b&#39;{&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::LeftCurly</span>)),
+            <span class="string">b&#39;}&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::RightCurly</span>)),
+            <span class="string">b&#39;|&#39;</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;||&quot;</span>) {
                     <span class="comment">// if let Some(inner_len) = eat(&amp;input[len..], &quot;=&quot;) {</span>
                     <span class="comment">//     return (len + inner_len, Some(Token::OrEq));</span>
@@ -1054,49 +1054,49 @@
             <span class="comment">//     }</span>
             <span class="comment">//     return (1, Some(Token::Mod));</span>
             <span class="comment">// }</span>
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> (),
+            <span class="kw">_</span> =&gt; (),
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ident</span>) <span class="op">=</span> <span class="ident">eat_identifier</span>(<span class="kw-2">&amp;</span><span class="ident">input_tendril</span>) {
             <span class="kw">return</span> (
                 <span class="ident">ident</span>.<span class="ident">len</span>(),
                 <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">ident</span> {
-                    <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">starts_with</span>(<span class="string">&quot;aleo1&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::AddressLit</span>(<span class="ident">ident</span>),
-                    <span class="string">&quot;address&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::Address</span>,
-                    <span class="string">&quot;as&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::As</span>,
-                    <span class="string">&quot;bool&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::Bool</span>,
-                    <span class="string">&quot;char&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::Char</span>,
-                    <span class="string">&quot;circuit&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::Circuit</span>,
-                    <span class="string">&quot;console&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::Console</span>,
-                    <span class="string">&quot;const&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::Const</span>,
-                    <span class="string">&quot;else&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::Else</span>,
-                    <span class="string">&quot;false&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::False</span>,
-                    <span class="string">&quot;field&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::Field</span>,
-                    <span class="string">&quot;for&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::For</span>,
-                    <span class="string">&quot;function&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::Function</span>,
-                    <span class="string">&quot;group&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::Group</span>,
-                    <span class="string">&quot;i8&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::I8</span>,
-                    <span class="string">&quot;i16&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::I16</span>,
-                    <span class="string">&quot;i32&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::I32</span>,
-                    <span class="string">&quot;i64&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::I64</span>,
-                    <span class="string">&quot;i128&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::I128</span>,
-                    <span class="string">&quot;if&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::If</span>,
-                    <span class="string">&quot;import&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::Import</span>,
-                    <span class="string">&quot;in&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::In</span>,
-                    <span class="string">&quot;input&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::Input</span>,
-                    <span class="string">&quot;let&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::Let</span>,
-                    <span class="string">&quot;mut&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::Mut</span>,
-                    <span class="string">&quot;return&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::Return</span>,
-                    <span class="string">&quot;Self&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::BigSelf</span>,
-                    <span class="string">&quot;self&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::LittleSelf</span>,
-                    <span class="string">&quot;static&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::Static</span>,
-                    <span class="string">&quot;true&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::True</span>,
-                    <span class="string">&quot;type&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::Type</span>,
-                    <span class="string">&quot;u8&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::U8</span>,
-                    <span class="string">&quot;u16&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::U16</span>,
-                    <span class="string">&quot;u32&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::U32</span>,
-                    <span class="string">&quot;u64&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::U64</span>,
-                    <span class="string">&quot;u128&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::U128</span>,
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Token::Ident</span>(<span class="ident">ident</span>),
+                    <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">starts_with</span>(<span class="string">&quot;aleo1&quot;</span>) =&gt; <span class="ident">Token::AddressLit</span>(<span class="ident">ident</span>),
+                    <span class="string">&quot;address&quot;</span> =&gt; <span class="ident">Token::Address</span>,
+                    <span class="string">&quot;as&quot;</span> =&gt; <span class="ident">Token::As</span>,
+                    <span class="string">&quot;bool&quot;</span> =&gt; <span class="ident">Token::Bool</span>,
+                    <span class="string">&quot;char&quot;</span> =&gt; <span class="ident">Token::Char</span>,
+                    <span class="string">&quot;circuit&quot;</span> =&gt; <span class="ident">Token::Circuit</span>,
+                    <span class="string">&quot;console&quot;</span> =&gt; <span class="ident">Token::Console</span>,
+                    <span class="string">&quot;const&quot;</span> =&gt; <span class="ident">Token::Const</span>,
+                    <span class="string">&quot;else&quot;</span> =&gt; <span class="ident">Token::Else</span>,
+                    <span class="string">&quot;false&quot;</span> =&gt; <span class="ident">Token::False</span>,
+                    <span class="string">&quot;field&quot;</span> =&gt; <span class="ident">Token::Field</span>,
+                    <span class="string">&quot;for&quot;</span> =&gt; <span class="ident">Token::For</span>,
+                    <span class="string">&quot;function&quot;</span> =&gt; <span class="ident">Token::Function</span>,
+                    <span class="string">&quot;group&quot;</span> =&gt; <span class="ident">Token::Group</span>,
+                    <span class="string">&quot;i8&quot;</span> =&gt; <span class="ident">Token::I8</span>,
+                    <span class="string">&quot;i16&quot;</span> =&gt; <span class="ident">Token::I16</span>,
+                    <span class="string">&quot;i32&quot;</span> =&gt; <span class="ident">Token::I32</span>,
+                    <span class="string">&quot;i64&quot;</span> =&gt; <span class="ident">Token::I64</span>,
+                    <span class="string">&quot;i128&quot;</span> =&gt; <span class="ident">Token::I128</span>,
+                    <span class="string">&quot;if&quot;</span> =&gt; <span class="ident">Token::If</span>,
+                    <span class="string">&quot;import&quot;</span> =&gt; <span class="ident">Token::Import</span>,
+                    <span class="string">&quot;in&quot;</span> =&gt; <span class="ident">Token::In</span>,
+                    <span class="string">&quot;input&quot;</span> =&gt; <span class="ident">Token::Input</span>,
+                    <span class="string">&quot;let&quot;</span> =&gt; <span class="ident">Token::Let</span>,
+                    <span class="string">&quot;mut&quot;</span> =&gt; <span class="ident">Token::Mut</span>,
+                    <span class="string">&quot;return&quot;</span> =&gt; <span class="ident">Token::Return</span>,
+                    <span class="string">&quot;Self&quot;</span> =&gt; <span class="ident">Token::BigSelf</span>,
+                    <span class="string">&quot;self&quot;</span> =&gt; <span class="ident">Token::LittleSelf</span>,
+                    <span class="string">&quot;static&quot;</span> =&gt; <span class="ident">Token::Static</span>,
+                    <span class="string">&quot;true&quot;</span> =&gt; <span class="ident">Token::True</span>,
+                    <span class="string">&quot;type&quot;</span> =&gt; <span class="ident">Token::Type</span>,
+                    <span class="string">&quot;u8&quot;</span> =&gt; <span class="ident">Token::U8</span>,
+                    <span class="string">&quot;u16&quot;</span> =&gt; <span class="ident">Token::U16</span>,
+                    <span class="string">&quot;u32&quot;</span> =&gt; <span class="ident">Token::U32</span>,
+                    <span class="string">&quot;u64&quot;</span> =&gt; <span class="ident">Token::U64</span>,
+                    <span class="string">&quot;u128&quot;</span> =&gt; <span class="ident">Token::U128</span>,
+                    <span class="kw">_</span> =&gt; <span class="ident">Token::Ident</span>(<span class="ident">ident</span>),
                 }),
             );
         }
@@ -1112,14 +1112,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">SpannedToken</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&#39;{}&#39; @ &quot;</span>, <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">to_string</span>().<span class="ident">trim</span>())<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">span</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">SpannedToken</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="op">&lt;</span><span class="ident">SpannedToken</span> <span class="kw">as</span> <span class="ident">fmt::Display</span><span class="op">&gt;</span><span class="ident">::fmt</span>(<span class="self">self</span>, <span class="ident">f</span>)
     }
 }
@@ -1128,7 +1128,7 @@
 <span class="doccomment">/// Returns true if the given string looks like Aleo address.</span>
 <span class="doccomment">/// This method DOES NOT check if the address is valid on-chain.</span>
 <span class="doccomment">///</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">check_address</span>(<span class="ident">address</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">check_address</span>(<span class="ident">address</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
     <span class="comment">// &quot;aleo1&quot; (LOWERCASE_LETTER | ASCII_DIGIT){58}</span>
     <span class="kw">if</span> <span class="op">!</span><span class="ident">address</span>.<span class="ident">starts_with</span>(<span class="string">&quot;aleo1&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">address</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">63</span> {
         <span class="kw">return</span> <span class="bool-val">false</span>;

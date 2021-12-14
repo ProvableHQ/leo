@@ -129,15 +129,15 @@
     <span class="kw">type</span> <span class="ident">Input</span> <span class="op">=</span> ();
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> ();
 
-    <span class="kw">fn</span> <span class="ident">log_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">log_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         <span class="macro">tracing::span!</span>(<span class="ident">tracing::Level::INFO</span>, <span class="string">&quot;Watching&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">prelude</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">Context</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Input</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">prelude</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">Context</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Input</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>, <span class="kw">_</span>: <span class="ident"><span class="self">Self</span>::Input</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>, <span class="kw">_</span>: <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">channel</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">watcher</span> <span class="op">=</span> <span class="ident">watcher</span>(<span class="ident">tx</span>, <span class="ident">Duration::from_secs</span>(<span class="self">self</span>.<span class="ident">interval</span>)).<span class="ident">unwrap</span>();
 
@@ -150,21 +150,21 @@
         <span class="kw">loop</span> {
             <span class="kw">match</span> <span class="ident">rx</span>.<span class="ident">recv</span>() {
                 <span class="comment">// See changes on the write event</span>
-                <span class="prelude-val">Ok</span>(<span class="ident">DebouncedEvent::Write</span>(<span class="ident">_write</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Ok</span>(<span class="ident">DebouncedEvent::Write</span>(<span class="ident">_write</span>)) =&gt; {
                     <span class="kw">match</span> (<span class="ident">Build</span> {
                         <span class="ident">compiler_options</span>: <span class="self">self</span>.<span class="ident">compiler_options</span>.<span class="ident">clone</span>(),
                     })
                     .<span class="ident">execute</span>(<span class="ident">context</span>.<span class="ident">clone</span>())
                     {
-                        <span class="prelude-val">Ok</span>(<span class="ident">_output</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">tracing::info!</span>(<span class="string">&quot;Built successfully&quot;</span>),
-                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">tracing::error!</span>(<span class="string">&quot;Error {:?}&quot;</span>, <span class="ident">e</span>),
+                        <span class="prelude-val">Ok</span>(<span class="ident">_output</span>) =&gt; <span class="macro">tracing::info!</span>(<span class="string">&quot;Built successfully&quot;</span>),
+                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="macro">tracing::error!</span>(<span class="string">&quot;Error {:?}&quot;</span>, <span class="ident">e</span>),
                     };
                 }
                 <span class="comment">// Other events</span>
-                <span class="prelude-val">Ok</span>(<span class="ident">_event</span>) <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="prelude-val">Ok</span>(<span class="ident">_event</span>) =&gt; {}
 
                 <span class="comment">// Watch error</span>
-                <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
                     <span class="macro">tracing::error!</span>(<span class="string">&quot;watch error: {:?}&quot;</span>, <span class="ident">e</span>)
                     <span class="comment">// TODO (howardwu): Add graceful termination.</span>
                 }

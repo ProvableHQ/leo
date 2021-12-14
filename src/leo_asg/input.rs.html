@@ -145,7 +145,7 @@
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">STATE_LEAF_PSEUDO_CIRCUIT</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;$InputStateLeaf&quot;</span>;
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">make_header</span>(<span class="ident">scope</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Scope</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Circuit</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">make_header</span>(<span class="ident">scope</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Scope</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Circuit</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="ident">scope</span>.<span class="ident">context</span>.<span class="ident">alloc_circuit</span>(<span class="ident">Circuit</span> {
             <span class="ident">id</span>: <span class="ident">scope</span>.<span class="ident">context</span>.<span class="ident">get_id</span>(),
             <span class="ident">name</span>: <span class="ident">RefCell::new</span>(<span class="ident">Identifier::new</span>(<span class="ident">name</span>.<span class="ident">into</span>())),
@@ -156,7 +156,7 @@
         })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">scope</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Scope</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">scope</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Scope</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">input_scope</span> <span class="op">=</span> <span class="ident">scope</span>.<span class="ident">make_subscope</span>();
         <span class="kw">let</span> <span class="ident">registers</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::make_header</span>(<span class="ident">input_scope</span>, <span class="ident">REGISTERS_PSEUDO_CIRCUIT</span>);
         <span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::make_header</span>(<span class="ident">input_scope</span>, <span class="ident">RECORD_PSEUDO_CIRCUIT</span>);
@@ -205,7 +205,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Circuit</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_input_pseudo_circuit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_input_pseudo_circuit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(
             <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">name</span>.<span class="ident">borrow</span>().<span class="ident">name</span>,
             <span class="ident">REGISTERS_PSEUDO_CIRCUIT</span> <span class="op">|</span> <span class="ident">RECORD_PSEUDO_CIRCUIT</span> <span class="op">|</span> <span class="ident">STATE_PSEUDO_CIRCUIT</span> <span class="op">|</span> <span class="ident">STATE_LEAF_PSEUDO_CIRCUIT</span>

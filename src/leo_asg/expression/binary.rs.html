@@ -272,7 +272,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Node</span> <span class="kw">for</span> <span class="ident">BinaryExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Span</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Span</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">span</span>.<span class="ident">as_ref</span>()
     }
 }
@@ -282,7 +282,7 @@
         <span class="self">self</span>.<span class="ident">parent</span>.<span class="ident">replace</span>(<span class="prelude-val">Some</span>(<span class="ident">parent</span>));
     }
 
-    <span class="kw">fn</span> <span class="ident">get_parent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_parent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">parent</span>.<span class="ident">get</span>()
     }
 
@@ -291,36 +291,36 @@
         <span class="self">self</span>.<span class="ident">right</span>.<span class="ident">get</span>().<span class="ident">set_parent</span>(<span class="ident">expr</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">get_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">operation</span>.<span class="ident">class</span>() {
-            <span class="ident">BinaryOperationClass::Boolean</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Type::Boolean</span>),
-            <span class="ident">BinaryOperationClass::Numeric</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">left</span>.<span class="ident">get</span>().<span class="ident">get_type</span>(),
+            <span class="ident">BinaryOperationClass::Boolean</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Type::Boolean</span>),
+            <span class="ident">BinaryOperationClass::Numeric</span> =&gt; <span class="self">self</span>.<span class="ident">left</span>.<span class="ident">get</span>().<span class="ident">get_type</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">is_mut_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_mut_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="bool-val">false</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">const_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ConstValue</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">const_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ConstValue</span><span class="op">&gt;</span> {
         <span class="kw">use</span> <span class="ident">BinaryOperation</span>::<span class="kw-2">*</span>;
         <span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left</span>.<span class="ident">get</span>().<span class="ident">const_value</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">right</span>.<span class="ident">get</span>().<span class="ident">const_value</span>()<span class="question-mark">?</span>;
 
         <span class="kw">match</span> (<span class="ident">left</span>, <span class="ident">right</span>) {
-            (<span class="ident">ConstValue::Int</span>(<span class="ident">left</span>), <span class="ident">ConstValue::Int</span>(<span class="ident">right</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="self">self</span>.<span class="ident">operation</span> {
-                <span class="ident">Add</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConstValue::Int</span>(<span class="ident">left</span>.<span class="ident">value_add</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>),
-                <span class="ident">Sub</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConstValue::Int</span>(<span class="ident">left</span>.<span class="ident">value_sub</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>),
-                <span class="ident">Mul</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConstValue::Int</span>(<span class="ident">left</span>.<span class="ident">value_mul</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>),
-                <span class="ident">Div</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConstValue::Int</span>(<span class="ident">left</span>.<span class="ident">value_div</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>),
-                <span class="ident">Pow</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConstValue::Int</span>(<span class="ident">left</span>.<span class="ident">value_pow</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>),
-                <span class="ident">Eq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span> <span class="op">=</span><span class="op">=</span> <span class="ident">right</span>),
-                <span class="ident">Ne</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span> <span class="op">!</span><span class="op">=</span> <span class="ident">right</span>),
-                <span class="ident">Ge</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span>.<span class="ident">value_ge</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>),
-                <span class="ident">Gt</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span>.<span class="ident">value_gt</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>),
-                <span class="ident">Le</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span>.<span class="ident">value_le</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>),
-                <span class="ident">Lt</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span>.<span class="ident">value_lt</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">None</span>,
+            (<span class="ident">ConstValue::Int</span>(<span class="ident">left</span>), <span class="ident">ConstValue::Int</span>(<span class="ident">right</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="self">self</span>.<span class="ident">operation</span> {
+                <span class="ident">Add</span> =&gt; <span class="ident">ConstValue::Int</span>(<span class="ident">left</span>.<span class="ident">value_add</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>),
+                <span class="ident">Sub</span> =&gt; <span class="ident">ConstValue::Int</span>(<span class="ident">left</span>.<span class="ident">value_sub</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>),
+                <span class="ident">Mul</span> =&gt; <span class="ident">ConstValue::Int</span>(<span class="ident">left</span>.<span class="ident">value_mul</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>),
+                <span class="ident">Div</span> =&gt; <span class="ident">ConstValue::Int</span>(<span class="ident">left</span>.<span class="ident">value_div</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>),
+                <span class="ident">Pow</span> =&gt; <span class="ident">ConstValue::Int</span>(<span class="ident">left</span>.<span class="ident">value_pow</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>),
+                <span class="ident">Eq</span> =&gt; <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span> <span class="op">==</span> <span class="ident">right</span>),
+                <span class="ident">Ne</span> =&gt; <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span> <span class="op">!</span><span class="op">=</span> <span class="ident">right</span>),
+                <span class="ident">Ge</span> =&gt; <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span>.<span class="ident">value_ge</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>),
+                <span class="ident">Gt</span> =&gt; <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span>.<span class="ident">value_gt</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>),
+                <span class="ident">Le</span> =&gt; <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span>.<span class="ident">value_le</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>),
+                <span class="ident">Lt</span> =&gt; <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span>.<span class="ident">value_lt</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>),
+                <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
             }),
             <span class="comment">// (ConstValue::Field(left), ConstValue::Field(right)) =&gt; {</span>
             <span class="comment">//     Some(match self.operation {</span>
@@ -333,23 +333,23 @@
             <span class="comment">//         _ =&gt; return None,</span>
             <span class="comment">//     })</span>
             <span class="comment">// },</span>
-            (<span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span>), <span class="ident">ConstValue::Boolean</span>(<span class="ident">right</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="self">self</span>.<span class="ident">operation</span> {
-                <span class="ident">Eq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span> <span class="op">=</span><span class="op">=</span> <span class="ident">right</span>),
-                <span class="ident">Ne</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span> <span class="op">!</span><span class="op">=</span> <span class="ident">right</span>),
-                <span class="ident">And</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span> <span class="op">&amp;&amp;</span> <span class="ident">right</span>),
-                <span class="ident">Or</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span> <span class="op">|</span><span class="op">|</span> <span class="ident">right</span>),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">None</span>,
+            (<span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span>), <span class="ident">ConstValue::Boolean</span>(<span class="ident">right</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="self">self</span>.<span class="ident">operation</span> {
+                <span class="ident">Eq</span> =&gt; <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span> <span class="op">==</span> <span class="ident">right</span>),
+                <span class="ident">Ne</span> =&gt; <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span> <span class="op">!</span><span class="op">=</span> <span class="ident">right</span>),
+                <span class="ident">And</span> =&gt; <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span> <span class="op">&amp;&amp;</span> <span class="ident">right</span>),
+                <span class="ident">Or</span> =&gt; <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span> <span class="op">|</span><span class="op">|</span> <span class="ident">right</span>),
+                <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
             }),
             <span class="comment">//todo: group?</span>
-            (<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="self">self</span>.<span class="ident">operation</span> {
-                <span class="ident">Eq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span> <span class="op">=</span><span class="op">=</span> <span class="ident">right</span>),
-                <span class="ident">Ne</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span> <span class="op">!</span><span class="op">=</span> <span class="ident">right</span>),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">None</span>,
+            (<span class="ident">left</span>, <span class="ident">right</span>) =&gt; <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="self">self</span>.<span class="ident">operation</span> {
+                <span class="ident">Eq</span> =&gt; <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span> <span class="op">==</span> <span class="ident">right</span>),
+                <span class="ident">Ne</span> =&gt; <span class="ident">ConstValue::Boolean</span>(<span class="ident">left</span> <span class="op">!</span><span class="op">=</span> <span class="ident">right</span>),
+                <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
             }),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">is_consty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_consty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">left</span>.<span class="ident">get</span>().<span class="ident">is_consty</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">right</span>.<span class="ident">get</span>().<span class="ident">is_consty</span>()
     }
 }
@@ -359,29 +359,29 @@
         <span class="ident">scope</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Scope</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
         <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">leo_ast::BinaryExpression</span>,
         <span class="ident">expected_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PartialType</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BinaryExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BinaryExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">class</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">op</span>.<span class="ident">class</span>();
         <span class="kw">let</span> <span class="ident">expected_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">class</span> {
-            <span class="ident">BinaryOperationClass::Boolean</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">expected_type</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">PartialType::Type</span>(<span class="ident">Type::Boolean</span>)) <span class="op">|</span> <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">BinaryOperationClass::Boolean</span> =&gt; <span class="kw">match</span> <span class="ident">expected_type</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">PartialType::Type</span>(<span class="ident">Type::Boolean</span>)) <span class="op">|</span> <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+                <span class="prelude-val">Some</span>(<span class="ident">x</span>) =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::unexpected_type</span>(<span class="ident">Type::Boolean</span>, <span class="ident">x</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">span</span>).<span class="ident">into</span>());
                 }
             },
-            <span class="ident">BinaryOperationClass::Numeric</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">expected_type</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">x</span> @ <span class="ident">PartialType::Integer</span>(<span class="kw">_</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>),
-                <span class="prelude-val">Some</span>(<span class="ident">x</span> @ <span class="ident">PartialType::Type</span>(<span class="ident">Type::Field</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>),
-                <span class="prelude-val">Some</span>(<span class="ident">x</span> @ <span class="ident">PartialType::Type</span>(<span class="ident">Type::Group</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>),
-                <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">BinaryOperationClass::Numeric</span> =&gt; <span class="kw">match</span> <span class="ident">expected_type</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">x</span> @ <span class="ident">PartialType::Integer</span>(<span class="kw">_</span>, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">x</span>),
+                <span class="prelude-val">Some</span>(<span class="ident">x</span> @ <span class="ident">PartialType::Type</span>(<span class="ident">Type::Field</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">x</span>),
+                <span class="prelude-val">Some</span>(<span class="ident">x</span> @ <span class="ident">PartialType::Type</span>(<span class="ident">Type::Group</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">x</span>),
+                <span class="prelude-val">Some</span>(<span class="ident">x</span>) =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::unexpected_type</span>(<span class="string">&quot;integer, field, or group&quot;</span>, <span class="ident">x</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">span</span>).<span class="ident">into</span>());
                 }
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
             },
         };
 
         <span class="comment">// left</span>
         <span class="kw">let</span> (<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span> <span class="kw">match</span> <span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from_ast</span>(<span class="ident">scope</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">value</span>.<span class="ident">left</span>, <span class="ident">expected_type</span>.<span class="ident">clone</span>()) {
-            <span class="prelude-val">Ok</span>(<span class="ident">left</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">left</span>) =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">left_type</span>) <span class="op">=</span> <span class="ident">left</span>.<span class="ident">get_type</span>() {
                     <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from_ast</span>(<span class="ident">scope</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">value</span>.<span class="ident">right</span>, <span class="prelude-val">Some</span>(<span class="ident">left_type</span>.<span class="ident">partial</span>()))<span class="question-mark">?</span>;
                     (<span class="ident">left</span>, <span class="ident">right</span>)
@@ -397,7 +397,7 @@
                     }
                 }
             }
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from_ast</span>(<span class="ident">scope</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">value</span>.<span class="ident">right</span>, <span class="ident">expected_type</span>)<span class="question-mark">?</span>;
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">right_type</span>) <span class="op">=</span> <span class="ident">right</span>.<span class="ident">get_type</span>() {
                     (
@@ -413,15 +413,15 @@
         <span class="kw">let</span> <span class="ident">left_type</span> <span class="op">=</span> <span class="ident">left</span>.<span class="ident">get_type</span>();
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::unused_unit</span>)]</span>
         <span class="kw">match</span> <span class="ident">class</span> {
-            <span class="ident">BinaryOperationClass::Numeric</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">left_type</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">Type::Integer</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> (),
+            <span class="ident">BinaryOperationClass::Numeric</span> =&gt; <span class="kw">match</span> <span class="ident">left_type</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">Type::Integer</span>(<span class="kw">_</span>)) =&gt; (),
                 <span class="prelude-val">Some</span>(<span class="ident">Type::Group</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">Type::Field</span>)
-                    <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">op</span> <span class="op">=</span><span class="op">=</span> <span class="ident">BinaryOperation::Add</span> <span class="op">|</span><span class="op">|</span> <span class="ident">value</span>.<span class="ident">op</span> <span class="op">=</span><span class="op">=</span> <span class="ident">BinaryOperation::Sub</span> <span class="op">=</span><span class="op">&gt;</span>
+                    <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">op</span> <span class="op">==</span> <span class="ident">BinaryOperation::Add</span> <span class="op">|</span><span class="op">|</span> <span class="ident">value</span>.<span class="ident">op</span> <span class="op">==</span> <span class="ident">BinaryOperation::Sub</span> =&gt;
                 {
                     ()
                 }
-                <span class="prelude-val">Some</span>(<span class="ident">Type::Field</span>) <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">op</span> <span class="op">=</span><span class="op">=</span> <span class="ident">BinaryOperation::Mul</span> <span class="op">|</span><span class="op">|</span> <span class="ident">value</span>.<span class="ident">op</span> <span class="op">=</span><span class="op">=</span> <span class="ident">BinaryOperation::Div</span> <span class="op">=</span><span class="op">&gt;</span> (),
-                <span class="ident">type_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">Type::Field</span>) <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">op</span> <span class="op">==</span> <span class="ident">BinaryOperation::Mul</span> <span class="op">|</span><span class="op">|</span> <span class="ident">value</span>.<span class="ident">op</span> <span class="op">==</span> <span class="ident">BinaryOperation::Div</span> =&gt; (),
+                <span class="ident">type_</span> =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::unexpected_type</span>(
                         <span class="string">&quot;integer&quot;</span>,
                         <span class="ident">type_</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>()).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;unknown&quot;</span>.<span class="ident">to_string</span>()),
@@ -430,17 +430,17 @@
                     .<span class="ident">into</span>());
                 }
             },
-            <span class="ident">BinaryOperationClass::Boolean</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">op</span> {
-                <span class="ident">BinaryOperation::And</span> <span class="op">|</span> <span class="ident">BinaryOperation::Or</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">left_type</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">Type::Boolean</span>) <span class="op">|</span> <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> (),
-                    <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">BinaryOperationClass::Boolean</span> =&gt; <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">op</span> {
+                <span class="ident">BinaryOperation::And</span> <span class="op">|</span> <span class="ident">BinaryOperation::Or</span> =&gt; <span class="kw">match</span> <span class="ident">left_type</span> {
+                    <span class="prelude-val">Some</span>(<span class="ident">Type::Boolean</span>) <span class="op">|</span> <span class="prelude-val">None</span> =&gt; (),
+                    <span class="prelude-val">Some</span>(<span class="ident">x</span>) =&gt; {
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::unexpected_type</span>(<span class="ident">Type::Boolean</span>, <span class="ident">x</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">span</span>).<span class="ident">into</span>());
                     }
                 },
-                <span class="ident">BinaryOperation::Eq</span> <span class="op">|</span> <span class="ident">BinaryOperation::Ne</span> <span class="op">=</span><span class="op">&gt;</span> (), <span class="comment">// all types allowed</span>
-                <span class="ident">op</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">left_type</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">Type::Integer</span>(<span class="kw">_</span>)) <span class="op">|</span> <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> (),
-                    <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">BinaryOperation::Eq</span> <span class="op">|</span> <span class="ident">BinaryOperation::Ne</span> =&gt; (), <span class="comment">// all types allowed</span>
+                <span class="ident">op</span> =&gt; <span class="kw">match</span> <span class="ident">left_type</span> {
+                    <span class="prelude-val">Some</span>(<span class="ident">Type::Integer</span>(<span class="kw">_</span>)) <span class="op">|</span> <span class="prelude-val">None</span> =&gt; (),
+                    <span class="prelude-val">Some</span>(<span class="ident">x</span>) =&gt; {
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(
                             <span class="ident">AsgError::operator_allowed_only_for_type</span>(<span class="ident">op</span>.<span class="ident">as_ref</span>(), <span class="string">&quot;integer&quot;</span>, <span class="ident">x</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">span</span>).<span class="ident">into</span>(),
                         );
@@ -452,15 +452,15 @@
         <span class="kw">let</span> <span class="ident">right_type</span> <span class="op">=</span> <span class="ident">right</span>.<span class="ident">get_type</span>();
 
         <span class="kw">match</span> (<span class="ident">left_type</span>, <span class="ident">right_type</span>) {
-            (<span class="prelude-val">Some</span>(<span class="ident">left_type</span>), <span class="prelude-val">Some</span>(<span class="ident">right_type</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            (<span class="prelude-val">Some</span>(<span class="ident">left_type</span>), <span class="prelude-val">Some</span>(<span class="ident">right_type</span>)) =&gt; {
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">left_type</span>.<span class="ident">is_assignable_from</span>(<span class="kw-2">&amp;</span><span class="ident">right_type</span>) {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::unexpected_type</span>(<span class="ident">left_type</span>, <span class="ident">right_type</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">span</span>).<span class="ident">into</span>());
                 }
             }
-            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::unexpected_type</span>(<span class="string">&quot;any type&quot;</span>, <span class="string">&quot;unknown type&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">span</span>).<span class="ident">into</span>());
             }
-            (<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (),
+            (<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (),
         }
         <span class="prelude-val">Ok</span>(<span class="ident">BinaryExpression</span> {
             <span class="ident">parent</span>: <span class="ident">Cell::new</span>(<span class="prelude-val">None</span>),
@@ -473,7 +473,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">leo_ast::BinaryExpression</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">BinaryExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">leo_ast::BinaryExpression</span> {
+    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">leo_ast::BinaryExpression</span> {
         <span class="ident">leo_ast::BinaryExpression</span> {
             <span class="ident">op</span>: <span class="self">self</span>.<span class="ident">operation</span>.<span class="ident">clone</span>(),
             <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">left</span>.<span class="ident">get</span>().<span class="ident">into</span>()),

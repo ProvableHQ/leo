@@ -791,7 +791,7 @@
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next token is an expression.</span>
     <span class="doccomment">/// Includes circuit init expressions.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="comment">// Store current parser state.</span>
         <span class="kw">let</span> <span class="ident">prior_fuzzy_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">fuzzy_struct_state</span>;
 
@@ -813,7 +813,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_disjunctive_expression`].</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_conditional_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_conditional_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="comment">// Try to parse the next expression. Try BinaryOperation::Or.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_disjunctive_expression</span>()<span class="question-mark">?</span>;
 
@@ -838,7 +838,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_conjunctive_expression`].</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_disjunctive_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_disjunctive_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_conjunctive_expression</span>()<span class="question-mark">?</span>;
         <span class="kw">while</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="ident">Token::Or</span>).<span class="ident">is_some</span>() {
             <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_conjunctive_expression</span>()<span class="question-mark">?</span>;
@@ -858,7 +858,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_bit_or_expression`].</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_conjunctive_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_conjunctive_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_equality_expression</span>()<span class="question-mark">?</span>;
         <span class="kw">while</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="ident">Token::And</span>).<span class="ident">is_some</span>() {
             <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_equality_expression</span>()<span class="question-mark">?</span>;
@@ -938,16 +938,16 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_ordering_expression`].</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_equality_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_equality_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_ordering_expression</span>()<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">SpannedToken</span> { <span class="ident">token</span>: <span class="ident">op</span>, .. }) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_any</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Eq</span>, <span class="ident">Token::NotEq</span>]) {
             <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_ordering_expression</span>()<span class="question-mark">?</span>;
             <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
                 <span class="ident">span</span>: <span class="ident">expr</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="ident">right</span>.<span class="ident">span</span>(),
                 <span class="ident">op</span>: <span class="kw">match</span> <span class="ident">op</span> {
-                    <span class="ident">Token::Eq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BinaryOperation::Eq</span>,
-                    <span class="ident">Token::NotEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BinaryOperation::Ne</span>,
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(),
+                    <span class="ident">Token::Eq</span> =&gt; <span class="ident">BinaryOperation::Eq</span>,
+                    <span class="ident">Token::NotEq</span> =&gt; <span class="ident">BinaryOperation::Ne</span>,
+                    <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(),
                 },
                 <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">expr</span>),
                 <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="ident">right</span>),
@@ -962,7 +962,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_shift_expression`].</span>
     <span class="doccomment">///    </span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_ordering_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_ordering_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_additive_expression</span>()<span class="question-mark">?</span>;
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">SpannedToken</span> { <span class="ident">token</span>: <span class="ident">op</span>, .. }) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_any</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Lt</span>, <span class="ident">Token::LtEq</span>, <span class="ident">Token::Gt</span>, <span class="ident">Token::GtEq</span>])
         {
@@ -970,11 +970,11 @@
             <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
                 <span class="ident">span</span>: <span class="ident">expr</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="ident">right</span>.<span class="ident">span</span>(),
                 <span class="ident">op</span>: <span class="kw">match</span> <span class="ident">op</span> {
-                    <span class="ident">Token::Lt</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BinaryOperation::Lt</span>,
-                    <span class="ident">Token::LtEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BinaryOperation::Le</span>,
-                    <span class="ident">Token::Gt</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BinaryOperation::Gt</span>,
-                    <span class="ident">Token::GtEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BinaryOperation::Ge</span>,
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(),
+                    <span class="ident">Token::Lt</span> =&gt; <span class="ident">BinaryOperation::Lt</span>,
+                    <span class="ident">Token::LtEq</span> =&gt; <span class="ident">BinaryOperation::Le</span>,
+                    <span class="ident">Token::Gt</span> =&gt; <span class="ident">BinaryOperation::Gt</span>,
+                    <span class="ident">Token::GtEq</span> =&gt; <span class="ident">BinaryOperation::Ge</span>,
+                    <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(),
                 },
                 <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">expr</span>),
                 <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="ident">right</span>),
@@ -1014,16 +1014,16 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_mul_div_pow_expression`].</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_additive_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_additive_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_multiplicative_expression</span>()<span class="question-mark">?</span>;
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">SpannedToken</span> { <span class="ident">token</span>: <span class="ident">op</span>, .. }) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_any</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Add</span>, <span class="ident">Token::Minus</span>]) {
             <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_multiplicative_expression</span>()<span class="question-mark">?</span>;
             <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
                 <span class="ident">span</span>: <span class="ident">expr</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="ident">right</span>.<span class="ident">span</span>(),
                 <span class="ident">op</span>: <span class="kw">match</span> <span class="ident">op</span> {
-                    <span class="ident">Token::Add</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BinaryOperation::Add</span>,
-                    <span class="ident">Token::Minus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BinaryOperation::Sub</span>,
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(),
+                    <span class="ident">Token::Add</span> =&gt; <span class="ident">BinaryOperation::Add</span>,
+                    <span class="ident">Token::Minus</span> =&gt; <span class="ident">BinaryOperation::Sub</span>,
+                    <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(),
                 },
                 <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">expr</span>),
                 <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="ident">right</span>),
@@ -1038,17 +1038,17 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_exponential_expression`].</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_multiplicative_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_multiplicative_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_exponential_expression</span>()<span class="question-mark">?</span>;
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">SpannedToken</span> { <span class="ident">token</span>: <span class="ident">op</span>, .. }) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_any</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Mul</span>, <span class="ident">Token::Div</span>]) {
             <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_exponential_expression</span>()<span class="question-mark">?</span>;
             <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
                 <span class="ident">span</span>: <span class="ident">expr</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="ident">right</span>.<span class="ident">span</span>(),
                 <span class="ident">op</span>: <span class="kw">match</span> <span class="ident">op</span> {
-                    <span class="ident">Token::Mul</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BinaryOperation::Mul</span>,
-                    <span class="ident">Token::Div</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BinaryOperation::Div</span>,
+                    <span class="ident">Token::Mul</span> =&gt; <span class="ident">BinaryOperation::Mul</span>,
+                    <span class="ident">Token::Div</span> =&gt; <span class="ident">BinaryOperation::Div</span>,
                     <span class="comment">// Token::Mod =&gt; BinaryOperation::Mod,</span>
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(),
+                    <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(),
                 },
                 <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">expr</span>),
                 <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="ident">right</span>),
@@ -1063,7 +1063,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_cast_expression`].</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_exponential_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_exponential_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exprs</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="self">self</span>.<span class="ident">parse_cast_expression</span>()<span class="question-mark">?</span>];
         <span class="kw">while</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="ident">Token::Exp</span>).<span class="ident">is_some</span>() {
             <span class="ident">exprs</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">parse_cast_expression</span>()<span class="question-mark">?</span>);
@@ -1087,7 +1087,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_unary_expression`].</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_cast_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_cast_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_unary_expression</span>()<span class="question-mark">?</span>;
         <span class="kw">while</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="ident">Token::As</span>).<span class="ident">is_some</span>() {
             <span class="kw">let</span> (<span class="ident">type_</span>, <span class="ident">type_span</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_type</span>()<span class="question-mark">?</span>;
@@ -1106,7 +1106,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_postfix_expression`].</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_unary_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_unary_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ops</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">token</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_any</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Not</span>, <span class="ident">Token::Minus</span>]) {
             <span class="ident">ops</span>.<span class="ident">push</span>(<span class="ident">token</span>);
@@ -1114,10 +1114,10 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">inner</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_postfix_expression</span>()<span class="question-mark">?</span>;
         <span class="kw">for</span> <span class="ident">op</span> <span class="kw">in</span> <span class="ident">ops</span>.<span class="ident">into_iter</span>().<span class="ident">rev</span>() {
             <span class="kw">let</span> <span class="ident">operation</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">op</span>.<span class="ident">token</span> {
-                <span class="ident">Token::Not</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">UnaryOperation::Not</span>,
-                <span class="ident">Token::Minus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">UnaryOperation::Negate</span>,
+                <span class="ident">Token::Not</span> =&gt; <span class="ident">UnaryOperation::Not</span>,
+                <span class="ident">Token::Minus</span> =&gt; <span class="ident">UnaryOperation::Negate</span>,
                 <span class="comment">// Token::BitNot =&gt; UnaryOperation::BitNot,</span>
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(),
+                <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(),
             };
             <span class="comment">// hack for const signed integer overflow issues</span>
             <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">operation</span>, <span class="ident">UnaryOperation::Negate</span>) {
@@ -1151,7 +1151,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_primary_expression`].</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_postfix_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_postfix_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_primary_expression</span>()<span class="question-mark">?</span>;
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">token</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_any</span>(<span class="kw-2">&amp;</span>[
             <span class="ident">Token::LeftSquare</span>,
@@ -1161,13 +1161,13 @@
             <span class="ident">Token::LengthOf</span>,
         ]) {
             <span class="kw">match</span> <span class="ident">token</span>.<span class="ident">token</span> {
-                <span class="ident">Token::LengthOf</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Token::LengthOf</span> =&gt; {
                     <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression::LengthOf</span>(<span class="ident">LengthOfExpression</span> {
                         <span class="ident">span</span>: <span class="ident">expr</span>.<span class="ident">span</span>().<span class="ident">clone</span>(),
                         <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="ident">expr</span>),
                     })
                 }
-                <span class="ident">Token::LeftSquare</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Token::LeftSquare</span> =&gt; {
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="ident">Token::DotDot</span>).<span class="ident">is_some</span>() {
                         <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">peek_token</span>().<span class="ident">as_ref</span>() <span class="op">!</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Token::RightSquare</span> {
                             <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>))
@@ -1209,7 +1209,7 @@
                         });
                     }
                 }
-                <span class="ident">Token::Dot</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Token::Dot</span> =&gt; {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ident</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_identifier</span>() {
                         <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression::CircuitMemberAccess</span>(<span class="ident">CircuitMemberAccessExpression</span> {
                             <span class="ident">span</span>: <span class="ident">expr</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="kw-2">&amp;</span><span class="ident">ident</span>.<span class="ident">span</span>,
@@ -1228,7 +1228,7 @@
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::unexpected_str</span>(<span class="kw-2">&amp;</span><span class="ident">next</span>.<span class="ident">token</span>, <span class="string">&quot;int or ident&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">next</span>.<span class="ident">span</span>).<span class="ident">into</span>());
                     }
                 }
-                <span class="ident">Token::LeftParen</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Token::LeftParen</span> =&gt; {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">arguments</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
                     <span class="kw">let</span> <span class="ident">end_span</span>;
                     <span class="kw">loop</span> {
@@ -1249,7 +1249,7 @@
                         <span class="ident">arguments</span>,
                     });
                 }
-                <span class="ident">Token::DoubleColon</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Token::DoubleColon</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_ident</span>()<span class="question-mark">?</span>;
                     <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression::CircuitStaticFunctionAccess</span>(<span class="ident">CircuitStaticFunctionAccessExpression</span> {
                         <span class="ident">span</span>: <span class="ident">expr</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="kw-2">&amp;</span><span class="ident">ident</span>.<span class="ident">span</span>,
@@ -1257,7 +1257,7 @@
                         <span class="ident">name</span>: <span class="ident">ident</span>,
                     });
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(),
+                <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(),
             }
         }
         <span class="prelude-val">Ok</span>(<span class="ident">expr</span>)
@@ -1269,7 +1269,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method should only be called in the context of an array access expression.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_spread_or_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SpreadOrExpression</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_spread_or_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SpreadOrExpression</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="ident">Token::DotDotDot</span>).<span class="ident">is_some</span>() {
             <span class="ident">SpreadOrExpression::Spread</span>(<span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>)
         } <span class="kw">else</span> {
@@ -1281,7 +1281,7 @@
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent an</span>
     <span class="doccomment">/// circuit initialization expression.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_circuit_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">identifier</span>: <span class="ident">Identifier</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_circuit_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">identifier</span>: <span class="ident">Identifier</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">expect</span>(<span class="ident">Token::LeftCurly</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">members</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="ident">end_span</span>;
@@ -1319,7 +1319,7 @@
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent an</span>
     <span class="doccomment">/// tuple initialization expression.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_tuple_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_tuple_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">left</span>, <span class="ident">right</span>, <span class="ident">span</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_group_partial</span>().<span class="ident">transpose</span>()<span class="question-mark">?</span> {
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Expression::Value</span>(<span class="ident">ValueExpression::Group</span>(<span class="ident">Box::new</span>(<span class="ident">GroupValue::Tuple</span>(
                 <span class="ident">GroupTuple</span> {
@@ -1344,7 +1344,7 @@
                 <span class="kw">break</span>;
             }
         }
-        <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+        <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">args</span>.<span class="ident">remove</span>(<span class="number">0</span>))
         } <span class="kw">else</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">Expression::TupleInit</span>(<span class="ident">TupleInitExpression</span> {
@@ -1358,7 +1358,7 @@
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent an</span>
     <span class="doccomment">/// array initialization expression.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_array_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_array_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">end</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="ident">Token::RightSquare</span>) {
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Expression::ArrayInline</span>(<span class="ident">ArrayInlineExpression</span> {
                 <span class="ident">elements</span>: <span class="ident">Vec::new</span>(),
@@ -1372,11 +1372,11 @@
                 .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ParserError::unable_to_parse_array_dimensions</span>(<span class="ident">span</span>))<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="ident">Token::RightSquare</span>)<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">first</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">first</span> {
-                <span class="ident">SpreadOrExpression::Spread</span>(<span class="ident">first</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">SpreadOrExpression::Spread</span>(<span class="ident">first</span>) =&gt; {
                     <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">span</span> <span class="op">+</span> <span class="ident">first</span>.<span class="ident">span</span>();
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::spread_in_array_init</span>(<span class="kw-2">&amp;</span><span class="ident">span</span>).<span class="ident">into</span>());
                 }
-                <span class="ident">SpreadOrExpression::Expression</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>,
+                <span class="ident">SpreadOrExpression::Expression</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
             };
             <span class="prelude-val">Ok</span>(<span class="ident">Expression::ArrayInit</span>(<span class="ident">ArrayInitExpression</span> {
                 <span class="ident">span</span>: <span class="ident">span</span> <span class="op">+</span> <span class="kw-2">&amp;</span><span class="ident">end</span>,
@@ -1391,7 +1391,7 @@
                     <span class="ident">end_span</span> <span class="op">=</span> <span class="ident">token</span>.<span class="ident">span</span>;
                     <span class="kw">break</span>;
                 }
-                <span class="kw">if</span> <span class="ident">elements</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+                <span class="kw">if</span> <span class="ident">elements</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
                     <span class="self">self</span>.<span class="ident">expect</span>(<span class="ident">Token::Comma</span>)<span class="question-mark">?</span>;
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">token</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="ident">Token::RightSquare</span>) {
                         <span class="ident">end_span</span> <span class="op">=</span> <span class="ident">token</span>.<span class="ident">span</span>;
@@ -1420,30 +1420,30 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns an expression error if the token cannot be matched.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_primary_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_primary_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">SpannedToken</span> { <span class="ident">token</span>, <span class="ident">span</span> } <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_any</span>()<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">token</span> {
-            <span class="ident">Token::Int</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Token::Int</span>(<span class="ident">value</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">type_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_any</span>(<span class="ident">INT_TYPES</span>);
                 <span class="kw">match</span> <span class="ident">type_</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">SpannedToken</span> {
                         <span class="ident">token</span>: <span class="ident">Token::Field</span>,
                         <span class="ident">span</span>: <span class="ident">type_span</span>,
-                    }) <span class="op">=</span><span class="op">&gt;</span> {
+                    }) =&gt; {
                         <span class="ident">assert_no_whitespace</span>(<span class="kw-2">&amp;</span><span class="ident">span</span>, <span class="kw-2">&amp;</span><span class="ident">type_span</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>, <span class="string">&quot;field&quot;</span>)<span class="question-mark">?</span>;
                         <span class="ident">Expression::Value</span>(<span class="ident">ValueExpression::Field</span>(<span class="ident">value</span>, <span class="ident">span</span> <span class="op">+</span> <span class="ident">type_span</span>))
                     }
                     <span class="prelude-val">Some</span>(<span class="ident">SpannedToken</span> {
                         <span class="ident">token</span>: <span class="ident">Token::Group</span>,
                         <span class="ident">span</span>: <span class="ident">type_span</span>,
-                    }) <span class="op">=</span><span class="op">&gt;</span> {
+                    }) =&gt; {
                         <span class="ident">assert_no_whitespace</span>(<span class="kw-2">&amp;</span><span class="ident">span</span>, <span class="kw-2">&amp;</span><span class="ident">type_span</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>, <span class="string">&quot;group&quot;</span>)<span class="question-mark">?</span>;
                         <span class="ident">Expression::Value</span>(<span class="ident">ValueExpression::Group</span>(<span class="ident">Box::new</span>(<span class="ident">GroupValue::Single</span>(
                             <span class="ident">value</span>,
                             <span class="ident">span</span> <span class="op">+</span> <span class="ident">type_span</span>,
                         ))))
                     }
-                    <span class="prelude-val">Some</span>(<span class="ident">SpannedToken</span> { <span class="ident">token</span>, <span class="ident">span</span>: <span class="ident">type_span</span> }) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="prelude-val">Some</span>(<span class="ident">SpannedToken</span> { <span class="ident">token</span>, <span class="ident">span</span>: <span class="ident">type_span</span> }) =&gt; {
                         <span class="ident">assert_no_whitespace</span>(<span class="kw-2">&amp;</span><span class="ident">span</span>, <span class="kw-2">&amp;</span><span class="ident">type_span</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">token</span>.<span class="ident">to_string</span>())<span class="question-mark">?</span>;
                         <span class="ident">Expression::Value</span>(<span class="ident">ValueExpression::Integer</span>(
                             <span class="ident"><span class="self">Self</span>::token_to_int_type</span>(<span class="ident">token</span>).<span class="ident">expect</span>(<span class="string">&quot;unknown int type token&quot;</span>),
@@ -1451,39 +1451,39 @@
                             <span class="ident">span</span> <span class="op">+</span> <span class="ident">type_span</span>,
                         ))
                     }
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expression::Value</span>(<span class="ident">ValueExpression::Implicit</span>(<span class="ident">value</span>, <span class="ident">span</span>)),
+                    <span class="prelude-val">None</span> =&gt; <span class="ident">Expression::Value</span>(<span class="ident">ValueExpression::Implicit</span>(<span class="ident">value</span>, <span class="ident">span</span>)),
                 }
             }
-            <span class="ident">Token::True</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expression::Value</span>(<span class="ident">ValueExpression::Boolean</span>(<span class="string">&quot;true&quot;</span>.<span class="ident">into</span>(), <span class="ident">span</span>)),
-            <span class="ident">Token::False</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expression::Value</span>(<span class="ident">ValueExpression::Boolean</span>(<span class="string">&quot;false&quot;</span>.<span class="ident">into</span>(), <span class="ident">span</span>)),
-            <span class="ident">Token::AddressLit</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expression::Value</span>(<span class="ident">ValueExpression::Address</span>(<span class="ident">value</span>, <span class="ident">span</span>)),
-            <span class="ident">Token::CharLit</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expression::Value</span>(<span class="ident">ValueExpression::Char</span>(<span class="ident">CharValue</span> {
+            <span class="ident">Token::True</span> =&gt; <span class="ident">Expression::Value</span>(<span class="ident">ValueExpression::Boolean</span>(<span class="string">&quot;true&quot;</span>.<span class="ident">into</span>(), <span class="ident">span</span>)),
+            <span class="ident">Token::False</span> =&gt; <span class="ident">Expression::Value</span>(<span class="ident">ValueExpression::Boolean</span>(<span class="string">&quot;false&quot;</span>.<span class="ident">into</span>(), <span class="ident">span</span>)),
+            <span class="ident">Token::AddressLit</span>(<span class="ident">value</span>) =&gt; <span class="ident">Expression::Value</span>(<span class="ident">ValueExpression::Address</span>(<span class="ident">value</span>, <span class="ident">span</span>)),
+            <span class="ident">Token::CharLit</span>(<span class="ident">value</span>) =&gt; <span class="ident">Expression::Value</span>(<span class="ident">ValueExpression::Char</span>(<span class="ident">CharValue</span> {
                 <span class="ident">character</span>: <span class="ident">value</span>.<span class="ident">into</span>(),
                 <span class="ident">span</span>,
             })),
-            <span class="ident">Token::StringLit</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expression::Value</span>(<span class="ident">ValueExpression::String</span>(<span class="ident">value</span>, <span class="ident">span</span>)),
-            <span class="ident">Token::LeftParen</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">parse_tuple_expression</span>(<span class="kw-2">&amp;</span><span class="ident">span</span>)<span class="question-mark">?</span>,
-            <span class="ident">Token::LeftSquare</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">parse_array_expression</span>(<span class="kw-2">&amp;</span><span class="ident">span</span>)<span class="question-mark">?</span>,
-            <span class="ident">Token::Ident</span>(<span class="ident">name</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Token::StringLit</span>(<span class="ident">value</span>) =&gt; <span class="ident">Expression::Value</span>(<span class="ident">ValueExpression::String</span>(<span class="ident">value</span>, <span class="ident">span</span>)),
+            <span class="ident">Token::LeftParen</span> =&gt; <span class="self">self</span>.<span class="ident">parse_tuple_expression</span>(<span class="kw-2">&amp;</span><span class="ident">span</span>)<span class="question-mark">?</span>,
+            <span class="ident">Token::LeftSquare</span> =&gt; <span class="self">self</span>.<span class="ident">parse_array_expression</span>(<span class="kw-2">&amp;</span><span class="ident">span</span>)<span class="question-mark">?</span>,
+            <span class="ident">Token::Ident</span>(<span class="ident">name</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">Identifier</span> { <span class="ident">name</span>, <span class="ident">span</span> };
-                <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">fuzzy_struct_state</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">peek_token</span>().<span class="ident">as_ref</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Token::LeftCurly</span> {
+                <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">fuzzy_struct_state</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">peek_token</span>().<span class="ident">as_ref</span>() <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">Token::LeftCurly</span> {
                     <span class="self">self</span>.<span class="ident">parse_circuit_expression</span>(<span class="ident">ident</span>)<span class="question-mark">?</span>
                 } <span class="kw">else</span> {
                     <span class="ident">Expression::Identifier</span>(<span class="ident">ident</span>)
                 }
             }
-            <span class="ident">Token::BigSelf</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Token::BigSelf</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">Identifier</span> {
                     <span class="ident">name</span>: <span class="ident">token</span>.<span class="ident">to_string</span>().<span class="ident">into</span>(),
                     <span class="ident">span</span>,
                 };
-                <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">fuzzy_struct_state</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">peek_token</span>().<span class="ident">as_ref</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Token::LeftCurly</span> {
+                <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">fuzzy_struct_state</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">peek_token</span>().<span class="ident">as_ref</span>() <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">Token::LeftCurly</span> {
                     <span class="self">self</span>.<span class="ident">parse_circuit_expression</span>(<span class="ident">ident</span>)<span class="question-mark">?</span>
                 } <span class="kw">else</span> {
                     <span class="ident">Expression::Identifier</span>(<span class="ident">ident</span>)
                 }
             }
-            <span class="ident">Token::Input</span> <span class="op">|</span> <span class="ident">Token::LittleSelf</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Token::Input</span> <span class="op">|</span> <span class="ident">Token::LittleSelf</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">Identifier</span> {
                     <span class="ident">name</span>: <span class="ident">token</span>.<span class="ident">to_string</span>().<span class="ident">into</span>(),
                     <span class="ident">span</span>,
@@ -1494,7 +1494,7 @@
             <span class="comment">//     span,</span>
             <span class="comment">//     inner: Box::new(self.parse_primary_expression()?),</span>
             <span class="comment">// }),</span>
-            <span class="ident">token</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">token</span> =&gt; {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::unexpected_str</span>(<span class="ident">token</span>, <span class="string">&quot;expression&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">span</span>).<span class="ident">into</span>());
             }
         })

@@ -137,28 +137,28 @@
     <span class="kw">fn</span> <span class="ident">prepare_mut_access</span>(
         <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AssignAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">expr</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Variable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Variable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">expr</span> {
-            <span class="ident">Expression::ArrayRangeAccess</span>(<span class="ident">ArrayRangeAccessExpression</span> { <span class="ident">array</span>, <span class="ident">left</span>, <span class="ident">right</span>, .. }) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Expression::ArrayRangeAccess</span>(<span class="ident">ArrayRangeAccessExpression</span> { <span class="ident">array</span>, <span class="ident">left</span>, <span class="ident">right</span>, .. }) =&gt; {
                 <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::prepare_mut_access</span>(<span class="ident">out</span>, <span class="ident">array</span>.<span class="ident">get</span>())<span class="question-mark">?</span>;
 
                 <span class="ident">out</span>.<span class="ident">push</span>(<span class="ident">AssignAccess::ArrayRange</span>(<span class="ident">left</span>.<span class="ident">clone</span>(), <span class="ident">right</span>.<span class="ident">clone</span>()));
 
                 <span class="prelude-val">Ok</span>(<span class="ident">inner</span>)
             }
-            <span class="ident">Expression::ArrayAccess</span>(<span class="ident">ArrayAccessExpression</span> { <span class="ident">array</span>, <span class="ident">index</span>, .. }) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Expression::ArrayAccess</span>(<span class="ident">ArrayAccessExpression</span> { <span class="ident">array</span>, <span class="ident">index</span>, .. }) =&gt; {
                 <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::prepare_mut_access</span>(<span class="ident">out</span>, <span class="ident">array</span>.<span class="ident">get</span>())<span class="question-mark">?</span>;
 
                 <span class="ident">out</span>.<span class="ident">push</span>(<span class="ident">AssignAccess::ArrayIndex</span>(<span class="ident">index</span>.<span class="ident">clone</span>()));
                 <span class="prelude-val">Ok</span>(<span class="ident">inner</span>)
             }
-            <span class="ident">Expression::TupleAccess</span>(<span class="ident">TupleAccessExpression</span> { <span class="ident">tuple_ref</span>, <span class="ident">index</span>, .. }) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Expression::TupleAccess</span>(<span class="ident">TupleAccessExpression</span> { <span class="ident">tuple_ref</span>, <span class="ident">index</span>, .. }) =&gt; {
                 <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::prepare_mut_access</span>(<span class="ident">out</span>, <span class="ident">tuple_ref</span>.<span class="ident">get</span>())<span class="question-mark">?</span>;
 
                 <span class="ident">out</span>.<span class="ident">push</span>(<span class="ident">AssignAccess::Tuple</span>(<span class="kw-2">*</span><span class="ident">index</span>));
                 <span class="prelude-val">Ok</span>(<span class="ident">inner</span>)
             }
-            <span class="ident">Expression::CircuitAccess</span>(<span class="ident">CircuitAccessExpression</span> { <span class="ident">target</span>, <span class="ident">member</span>, .. }) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Expression::CircuitAccess</span>(<span class="ident">CircuitAccessExpression</span> { <span class="ident">target</span>, <span class="ident">member</span>, .. }) =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">target</span>) <span class="op">=</span> <span class="ident">target</span>.<span class="ident">get</span>() {
                     <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::prepare_mut_access</span>(<span class="ident">out</span>, <span class="ident">target</span>)<span class="question-mark">?</span>;
 
@@ -168,8 +168,8 @@
                     <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
                 }
             }
-            <span class="ident">Expression::VariableRef</span>(<span class="ident">variable_ref</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">variable_ref</span>.<span class="ident">variable</span>)),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>), <span class="comment">// not a valid reference to mutable variable, we copy</span>
+            <span class="ident">Expression::VariableRef</span>(<span class="ident">variable_ref</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">variable_ref</span>.<span class="ident">variable</span>)),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>), <span class="comment">// not a valid reference to mutable variable, we copy</span>
         }
     }
 
@@ -181,7 +181,7 @@
         <span class="ident">assignee</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
         <span class="ident">target_value</span>: <span class="ident">ConstrainedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span>,
         <span class="ident">indicator</span>: <span class="kw-2">&amp;</span><span class="ident">Boolean</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">accesses</span> <span class="op">=</span> <span class="macro">vec!</span>[];
         <span class="kw">let</span> <span class="ident">target</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::prepare_mut_access</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">accesses</span>, <span class="ident">assignee</span>)<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="ident">target</span>.<span class="ident">is_none</span>() {

@@ -213,7 +213,7 @@
     <span class="ident">handle_error</span>(<span class="ident">run_with_args</span>(<span class="ident">Opt::from_args</span>()));
 }
 
-<span class="kw">fn</span> <span class="ident">run_with_args</span>(<span class="ident">opt</span>: <span class="ident">Opt</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">run_with_args</span>(<span class="ident">opt</span>: <span class="ident">Opt</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="comment">// Variable that stores all the tests.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tests</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">test_dir</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>));
@@ -228,7 +228,7 @@
     <span class="lifetime">&#39;main_loop</span>: <span class="kw">for</span> (<span class="ident">index</span>, (<span class="ident">path</span>, <span class="ident">text</span>)) <span class="kw">in</span> <span class="ident">tests</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">config</span>) <span class="op">=</span> <span class="ident">extract_test_config</span>(<span class="ident">text</span>) {
             <span class="comment">// Skip namespaces that we don&#39;t need; also skip failure tests.</span>
-            <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">namespace</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;Compile&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">config</span>.<span class="ident">expectation</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Expectation::Fail</span> {
+            <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">namespace</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;Compile&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">config</span>.<span class="ident">expectation</span> <span class="op">==</span> <span class="ident">Expectation::Fail</span> {
                 <span class="kw">continue</span>;
             }
 
@@ -288,7 +288,7 @@
 
 <span class="doccomment">/// Do what Compiler does - prepare 3 stages of AST: initial, imports_resolved, canonicalized and type_inferenced</span>
 <span class="doccomment">/// Write these ASTs without Spans to JSON</span>
-<span class="kw">fn</span> <span class="ident">generate_asts</span>(<span class="ident">src_path</span>: <span class="ident">PathBuf</span>, <span class="ident">target_path</span>: <span class="ident">PathBuf</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">generate_asts</span>(<span class="ident">src_path</span>: <span class="ident">PathBuf</span>, <span class="ident">target_path</span>: <span class="ident">PathBuf</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="ident">std::env::set_var</span>(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>, <span class="string">&quot;true&quot;</span>);
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ast</span> <span class="op">=</span> <span class="ident">leo_parser::parse_ast</span>(<span class="ident">src_path</span>.<span class="ident">clone</span>().<span class="ident">into_os_string</span>().<span class="ident">into_string</span>().<span class="ident">unwrap</span>(), <span class="ident">text</span>)<span class="question-mark">?</span>;
@@ -321,8 +321,8 @@
 
 <span class="kw">fn</span> <span class="ident">handle_error</span>(<span class="ident">res</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
     <span class="kw">match</span> <span class="ident">res</span> {
-        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (),
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; (),
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
             <span class="macro">eprintln!</span>(<span class="string">&quot;Error: {}&quot;</span>, <span class="ident">err</span>);
             <span class="ident">std::process::exit</span>(<span class="number">1</span>);
         }

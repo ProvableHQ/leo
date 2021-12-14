@@ -828,18 +828,18 @@
 
 <span class="kw">impl</span> <span class="ident">CliError</span> {
     <span class="doccomment">/// Possible errors that can be thrown when the CLI is removing the token and username.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_token_and_username</span>(<span class="ident">error</span>: <span class="ident">std::io::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_token_and_username</span>(<span class="ident">error</span>: <span class="ident">std::io::Error</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">use</span> <span class="ident">std::io::ErrorKind</span>;
         <span class="kw">match</span> <span class="ident">error</span>.<span class="ident">kind</span>() {
-            <span class="ident">ErrorKind::NotFound</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ErrorKind::NotFound</span> =&gt; {
                 <span class="comment">// tracing::info!(&quot;you are not logged in&quot;);</span>
                 <span class="ident"><span class="self">Self</span>::not_logged_in</span>()
             }
-            <span class="ident">ErrorKind::PermissionDenied</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ErrorKind::PermissionDenied</span> =&gt; {
                 <span class="comment">// tracing::error!(&quot;permission denied - check file permission in .leo folder&quot;);</span>
                 <span class="ident"><span class="self">Self</span>::logout_permision_denied</span>()
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">_</span> =&gt; {
                 <span class="comment">// tracing::error!(&quot;something went wrong, can&#39;t access the file&quot;);</span>
                 <span class="ident"><span class="self">Self</span>::cannot_access_logout_file</span>()
             }

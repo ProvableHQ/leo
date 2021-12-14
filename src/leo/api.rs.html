@@ -348,16 +348,16 @@
     <span class="kw">type</span> <span class="ident">Output</span>;
 
     <span class="doccomment">/// Process the reqwest Response and turn it into an Output.</span>
-    <span class="kw">fn</span> <span class="ident">process</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">res</span>: <span class="ident">Response</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">process</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">res</span>: <span class="ident">Response</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Represent self as a form data for multipart (ContentType::FormData) requests.</span>
-    <span class="kw">fn</span> <span class="ident">to_form</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Form</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">to_form</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Form</span><span class="op">&gt;</span> {
         <span class="prelude-val">None</span>
     }
 
     <span class="doccomment">/// Transform specific status codes into correct errors for this route.</span>
     <span class="doccomment">/// For example 404 on package fetch should mean that &#39;Package is not found&#39;</span>
-    <span class="kw">fn</span> <span class="ident">status_to_err</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_status</span>: <span class="ident">StatusCode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LeoError</span> {
+    <span class="kw">fn</span> <span class="ident">status_to_err</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_status</span>: <span class="ident">StatusCode</span>) -&gt; <span class="ident">LeoError</span> {
         <span class="ident">CliError::unidentified_api</span>().<span class="ident">into</span>()
     }
 }
@@ -374,7 +374,7 @@
 <span class="kw">impl</span> <span class="ident">Api</span> {
     <span class="doccomment">/// Returns a new instance of API.</span>
     <span class="doccomment">/// The set host and Client are created automatically.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">host</span>: <span class="ident">String</span>, <span class="ident">auth_token</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Api</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">host</span>: <span class="ident">String</span>, <span class="ident">auth_token</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">Api</span> {
         <span class="ident">Api</span> {
             <span class="ident">client</span>: <span class="ident">Client::new</span>(),
             <span class="ident">auth_token</span>,
@@ -382,13 +382,13 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">host</span>
     }
 
     <span class="doccomment">/// Returns the token for bearer auth, otherwise None.</span>
     <span class="doccomment">/// The [`auth_token`] should be passed into the Api through Context.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">auth_token</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">auth_token</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">auth_token</span>.<span class="ident">clone</span>()
     }
 
@@ -399,7 +399,7 @@
 
     <span class="doccomment">/// Run specific route struct. Turn struct into request body</span>
     <span class="doccomment">/// and use type constants and Route implementation to get request params.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_route</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">route</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T::Output</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_route</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">route</span>: <span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T::Output</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Route</span>,
         <span class="ident">T</span>: <span class="ident">Serialize</span>,
@@ -407,10 +407,10 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">request</span>(<span class="ident">T::METHOD</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="self">self</span>.<span class="ident">host</span>, <span class="ident">T::PATH</span>));
 
         <span class="comment">// add body for POST and PUT requests</span>
-        <span class="kw">if</span> <span class="ident">T::METHOD</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Method::POST</span> <span class="op">|</span><span class="op">|</span> <span class="ident">T::METHOD</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Method::PUT</span> {
+        <span class="kw">if</span> <span class="ident">T::METHOD</span> <span class="op">==</span> <span class="ident">Method::POST</span> <span class="op">|</span><span class="op">|</span> <span class="ident">T::METHOD</span> <span class="op">==</span> <span class="ident">Method::PUT</span> {
             <span class="ident">res</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">T::CONTENT_TYPE</span> {
-                <span class="ident">ContentType::Json</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">res</span>.<span class="ident">json</span>(<span class="kw-2">&amp;</span><span class="ident">route</span>),
-                <span class="ident">ContentType::FormData</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ContentType::Json</span> =&gt; <span class="ident">res</span>.<span class="ident">json</span>(<span class="kw-2">&amp;</span><span class="ident">route</span>),
+                <span class="ident">ContentType::FormData</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">form</span> <span class="op">=</span> <span class="ident">route</span>
                         .<span class="ident">to_form</span>()
                         .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;to_form is not implemented for this route&quot;</span>));
@@ -455,7 +455,7 @@
     <span class="kw">const</span> <span class="ident">METHOD</span>: <span class="ident">Method</span> <span class="op">=</span> <span class="ident">Method::POST</span>;
     <span class="kw">const</span> <span class="ident">PATH</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;api/package/fetch&quot;</span>;
 
-    <span class="kw">fn</span> <span class="ident">process</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">res</span>: <span class="ident">Response</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">process</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">res</span>: <span class="ident">Response</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="comment">// check status code first</span>
         <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">status</span>() <span class="op">!</span><span class="op">=</span> <span class="number">200</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">status_to_err</span>(<span class="ident">res</span>.<span class="ident">status</span>()));
@@ -464,14 +464,14 @@
         <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">status_to_err</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">status</span>: <span class="ident">StatusCode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LeoError</span> {
+    <span class="kw">fn</span> <span class="ident">status_to_err</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">status</span>: <span class="ident">StatusCode</span>) -&gt; <span class="ident">LeoError</span> {
         <span class="kw">match</span> <span class="ident">status</span> {
-            <span class="ident">StatusCode::BAD_REQUEST</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CliError::package_not_found</span>().<span class="ident">into</span>(),
+            <span class="ident">StatusCode::BAD_REQUEST</span> =&gt; <span class="ident">CliError::package_not_found</span>().<span class="ident">into</span>(),
             <span class="comment">// TODO: we should return 404 on not found author/package</span>
             <span class="comment">// and return BAD_REQUEST if data format is incorrect or some of the arguments</span>
             <span class="comment">// were not passed</span>
-            <span class="ident">StatusCode::NOT_FOUND</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CliError::package_not_found</span>().<span class="ident">into</span>(),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CliError::unkown_api_error</span>(<span class="ident">status</span>).<span class="ident">into</span>(),
+            <span class="ident">StatusCode::NOT_FOUND</span> =&gt; <span class="ident">CliError::package_not_found</span>().<span class="ident">into</span>(),
+            <span class="kw">_</span> =&gt; <span class="ident">CliError::unkown_api_error</span>(<span class="ident">status</span>).<span class="ident">into</span>(),
         }
     }
 }
@@ -492,7 +492,7 @@
     <span class="kw">const</span> <span class="ident">METHOD</span>: <span class="ident">Method</span> <span class="op">=</span> <span class="ident">Method::POST</span>;
     <span class="kw">const</span> <span class="ident">PATH</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;api/account/authenticate&quot;</span>;
 
-    <span class="kw">fn</span> <span class="ident">process</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">res</span>: <span class="ident">Response</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">process</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">res</span>: <span class="ident">Response</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">status</span>() <span class="op">!</span><span class="op">=</span> <span class="number">200</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">status_to_err</span>(<span class="ident">res</span>.<span class="ident">status</span>()));
         }
@@ -500,12 +500,12 @@
         <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">status_to_err</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">status</span>: <span class="ident">StatusCode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LeoError</span> {
+    <span class="kw">fn</span> <span class="ident">status_to_err</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">status</span>: <span class="ident">StatusCode</span>) -&gt; <span class="ident">LeoError</span> {
         <span class="kw">match</span> <span class="ident">status</span> {
-            <span class="ident">StatusCode::BAD_REQUEST</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CliError::account_not_found</span>().<span class="ident">into</span>(),
+            <span class="ident">StatusCode::BAD_REQUEST</span> =&gt; <span class="ident">CliError::account_not_found</span>().<span class="ident">into</span>(),
             <span class="comment">// TODO: NOT_FOUND here should be replaced, this error code has no relation to what this route is doing</span>
-            <span class="ident">StatusCode::NOT_FOUND</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CliError::incorrect_password</span>().<span class="ident">into</span>(),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CliError::unkown_api_error</span>(<span class="ident">status</span>).<span class="ident">into</span>(),
+            <span class="ident">StatusCode::NOT_FOUND</span> =&gt; <span class="ident">CliError::incorrect_password</span>().<span class="ident">into</span>(),
+            <span class="kw">_</span> =&gt; <span class="ident">CliError::unkown_api_error</span>(<span class="ident">status</span>).<span class="ident">into</span>(),
         }
     }
 }
@@ -531,7 +531,7 @@
     <span class="kw">const</span> <span class="ident">METHOD</span>: <span class="ident">Method</span> <span class="op">=</span> <span class="ident">Method::POST</span>;
     <span class="kw">const</span> <span class="ident">PATH</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;api/package/publish&quot;</span>;
 
-    <span class="kw">fn</span> <span class="ident">to_form</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Form</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">to_form</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Form</span><span class="op">&gt;</span> {
         <span class="ident">Form::new</span>()
             .<span class="ident">text</span>(<span class="string">&quot;name&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">clone</span>())
             .<span class="ident">text</span>(<span class="string">&quot;remote&quot;</span>, <span class="self">self</span>.<span class="ident">remote</span>.<span class="ident">clone</span>())
@@ -540,20 +540,20 @@
             .<span class="ident">ok</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">process</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">res</span>: <span class="ident">Response</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">process</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">res</span>: <span class="ident">Response</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">status</span>();
 
-        <span class="kw">if</span> <span class="ident">status</span> <span class="op">=</span><span class="op">=</span> <span class="ident">StatusCode::OK</span> {
+        <span class="kw">if</span> <span class="ident">status</span> <span class="op">==</span> <span class="ident">StatusCode::OK</span> {
             <span class="kw">let</span> <span class="ident">body</span>: <span class="ident">PublishResponse</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">json</span>().<span class="ident">map_err</span>(<span class="ident">CliError::reqwest_json_error</span>)<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(<span class="ident">body</span>.<span class="ident">package_id</span>)
         } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">json</span>().<span class="ident">map_err</span>(<span class="ident">CliError::reqwest_json_error</span>)<span class="question-mark">?</span>;
             <span class="prelude-val">Err</span>(<span class="kw">match</span> <span class="ident">status</span> {
-                <span class="ident">StatusCode::BAD_REQUEST</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CliError::bad_request</span>(<span class="ident">res</span>.<span class="ident">get</span>(<span class="string">&quot;message&quot;</span>).<span class="ident">unwrap</span>()).<span class="ident">into</span>(),
-                <span class="ident">StatusCode::UNAUTHORIZED</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CliError::not_logged_in</span>().<span class="ident">into</span>(),
-                <span class="ident">StatusCode::FAILED_DEPENDENCY</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CliError::already_published</span>().<span class="ident">into</span>(),
-                <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CliError::internal_server_error</span>().<span class="ident">into</span>(),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CliError::unkown_api_error</span>(<span class="ident">status</span>).<span class="ident">into</span>(),
+                <span class="ident">StatusCode::BAD_REQUEST</span> =&gt; <span class="ident">CliError::bad_request</span>(<span class="ident">res</span>.<span class="ident">get</span>(<span class="string">&quot;message&quot;</span>).<span class="ident">unwrap</span>()).<span class="ident">into</span>(),
+                <span class="ident">StatusCode::UNAUTHORIZED</span> =&gt; <span class="ident">CliError::not_logged_in</span>().<span class="ident">into</span>(),
+                <span class="ident">StatusCode::FAILED_DEPENDENCY</span> =&gt; <span class="ident">CliError::already_published</span>().<span class="ident">into</span>(),
+                <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span> =&gt; <span class="ident">CliError::internal_server_error</span>().<span class="ident">into</span>(),
+                <span class="kw">_</span> =&gt; <span class="ident">CliError::unkown_api_error</span>(<span class="ident">status</span>).<span class="ident">into</span>(),
             })
         }
     }
@@ -579,10 +579,10 @@
     <span class="kw">const</span> <span class="ident">METHOD</span>: <span class="ident">Method</span> <span class="op">=</span> <span class="ident">Method::GET</span>;
     <span class="kw">const</span> <span class="ident">PATH</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;api/account/my_profile&quot;</span>;
 
-    <span class="kw">fn</span> <span class="ident">process</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">res</span>: <span class="ident">Response</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">process</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">res</span>: <span class="ident">Response</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="comment">// this may be extended for more precise error handling</span>
         <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">status</span>();
-        <span class="kw">if</span> <span class="ident">status</span> <span class="op">=</span><span class="op">=</span> <span class="ident">StatusCode::OK</span> {
+        <span class="kw">if</span> <span class="ident">status</span> <span class="op">==</span> <span class="ident">StatusCode::OK</span> {
             <span class="kw">let</span> <span class="ident">body</span>: <span class="ident">ProfileResponse</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">json</span>().<span class="ident">map_err</span>(<span class="ident">CliError::reqwest_json_error</span>)<span class="question-mark">?</span>;
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">body</span>.<span class="ident">username</span>));
         }

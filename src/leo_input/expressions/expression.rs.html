@@ -106,24 +106,24 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Span</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Span</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Expression::ArrayInitializer</span>(<span class="ident">expression</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">expression</span>.<span class="ident">span</span>,
-            <span class="ident">Expression::ArrayInline</span>(<span class="ident">expression</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">expression</span>.<span class="ident">span</span>,
-            <span class="ident">Expression::StringExpression</span>(<span class="ident">string</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">string</span>.<span class="ident">span</span>,
-            <span class="ident">Expression::Tuple</span>(<span class="ident">tuple</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">tuple</span>.<span class="ident">span</span>,
-            <span class="ident">Expression::Value</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">value</span>.<span class="ident">span</span>(),
+            <span class="ident">Expression::ArrayInitializer</span>(<span class="ident">expression</span>) =&gt; <span class="kw-2">&amp;</span><span class="ident">expression</span>.<span class="ident">span</span>,
+            <span class="ident">Expression::ArrayInline</span>(<span class="ident">expression</span>) =&gt; <span class="kw-2">&amp;</span><span class="ident">expression</span>.<span class="ident">span</span>,
+            <span class="ident">Expression::StringExpression</span>(<span class="ident">string</span>) =&gt; <span class="kw-2">&amp;</span><span class="ident">string</span>.<span class="ident">span</span>,
+            <span class="ident">Expression::Tuple</span>(<span class="ident">tuple</span>) =&gt; <span class="kw-2">&amp;</span><span class="ident">tuple</span>.<span class="ident">span</span>,
+            <span class="ident">Expression::Value</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>.<span class="ident">span</span>(),
         }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Expression::ArrayInitializer</span>(<span class="kw-2">ref</span> <span class="ident">expression</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Expression::ArrayInitializer</span>(<span class="kw-2">ref</span> <span class="ident">expression</span>) =&gt; {
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;array [{} ; {}]&quot;</span>, <span class="ident">expression</span>.<span class="ident">expression</span>, <span class="ident">expression</span>.<span class="ident">dimensions</span>)
             }
-            <span class="ident">Expression::ArrayInline</span>(<span class="kw-2">ref</span> <span class="ident">array</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Expression::ArrayInline</span>(<span class="kw-2">ref</span> <span class="ident">array</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">values</span> <span class="op">=</span> <span class="ident">array</span>
                     .<span class="ident">expressions</span>
                     .<span class="ident">iter</span>()
@@ -133,8 +133,8 @@
 
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;array [{}]&quot;</span>, <span class="ident">values</span>)
             }
-            <span class="ident">Expression::StringExpression</span>(<span class="kw-2">ref</span> <span class="ident">string</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">string</span>),
-            <span class="ident">Expression::Tuple</span>(<span class="kw-2">ref</span> <span class="ident">tuple</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Expression::StringExpression</span>(<span class="kw-2">ref</span> <span class="ident">string</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">string</span>),
+            <span class="ident">Expression::Tuple</span>(<span class="kw-2">ref</span> <span class="ident">tuple</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">values</span> <span class="op">=</span> <span class="ident">tuple</span>
                     .<span class="ident">expressions</span>
                     .<span class="ident">iter</span>()
@@ -144,7 +144,7 @@
 
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;({})&quot;</span>, <span class="ident">values</span>)
             }
-            <span class="ident">Expression::Value</span>(<span class="kw-2">ref</span> <span class="ident">expression</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">expression</span>),
+            <span class="ident">Expression::Value</span>(<span class="kw-2">ref</span> <span class="ident">expression</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">expression</span>),
         }
     }
 }

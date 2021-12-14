@@ -260,38 +260,38 @@
 
 <span class="kw">impl</span> <span class="ident">LeoError</span> {
     <span class="doccomment">/// Implement error code for each type of Error. For the unsupported use a default value.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
         <span class="kw">use</span> <span class="ident">LeoError</span>::<span class="kw-2">*</span>;
 
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">AsgError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">error_code</span>(),
-            <span class="ident">AstError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">error_code</span>(),
-            <span class="ident">CliError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">error_code</span>(),
-            <span class="ident">CompilerError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">error_code</span>(),
-            <span class="ident">ImportError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">error_code</span>(),
-            <span class="ident">InputError</span>(<span class="ident">_error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Default::default</span>(), <span class="comment">// TODO migrate me, or not cause we want inputs to have 0 deps.</span>
-            <span class="ident">PackageError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">error_code</span>(),
-            <span class="ident">ParserError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">error_code</span>(),
-            <span class="ident">SnarkVMError</span>(<span class="ident">_error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Default::default</span>(), <span class="comment">// TODO update once snarkvm implments a global top level error similar to LeoError.</span>
-            <span class="ident">StateError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">error_code</span>(),
+            <span class="ident">AsgError</span>(<span class="ident">error</span>) =&gt; <span class="ident">error</span>.<span class="ident">error_code</span>(),
+            <span class="ident">AstError</span>(<span class="ident">error</span>) =&gt; <span class="ident">error</span>.<span class="ident">error_code</span>(),
+            <span class="ident">CliError</span>(<span class="ident">error</span>) =&gt; <span class="ident">error</span>.<span class="ident">error_code</span>(),
+            <span class="ident">CompilerError</span>(<span class="ident">error</span>) =&gt; <span class="ident">error</span>.<span class="ident">error_code</span>(),
+            <span class="ident">ImportError</span>(<span class="ident">error</span>) =&gt; <span class="ident">error</span>.<span class="ident">error_code</span>(),
+            <span class="ident">InputError</span>(<span class="ident">_error</span>) =&gt; <span class="ident">Default::default</span>(), <span class="comment">// TODO migrate me, or not cause we want inputs to have 0 deps.</span>
+            <span class="ident">PackageError</span>(<span class="ident">error</span>) =&gt; <span class="ident">error</span>.<span class="ident">error_code</span>(),
+            <span class="ident">ParserError</span>(<span class="ident">error</span>) =&gt; <span class="ident">error</span>.<span class="ident">error_code</span>(),
+            <span class="ident">SnarkVMError</span>(<span class="ident">_error</span>) =&gt; <span class="ident">Default::default</span>(), <span class="comment">// TODO update once snarkvm implments a global top level error similar to LeoError.</span>
+            <span class="ident">StateError</span>(<span class="ident">error</span>) =&gt; <span class="ident">error</span>.<span class="ident">error_code</span>(),
         }
     }
 
     <span class="doccomment">/// Implment exit code for each type of Error, even the ones that don&#39;t have one.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exit_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exit_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
         <span class="kw">use</span> <span class="ident">LeoError</span>::<span class="kw-2">*</span>;
 
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">AsgError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">exit_code</span>(),
-            <span class="ident">AstError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">exit_code</span>(),
-            <span class="ident">CliError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">exit_code</span>(),
-            <span class="ident">CompilerError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">exit_code</span>(),
-            <span class="ident">ImportError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">exit_code</span>(),
-            <span class="ident">InputError</span>(<span class="ident">_error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">1</span>, <span class="comment">// TODO migrate me, or not cause we want inputs to have 0 deps.</span>
-            <span class="ident">PackageError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">exit_code</span>(),
-            <span class="ident">ParserError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">exit_code</span>(),
-            <span class="ident">SnarkVMError</span>(<span class="ident">_error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">1</span>, <span class="comment">// TODO update once snarkvm implments a global top level error similar to LeoError.</span>
-            <span class="ident">StateError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">exit_code</span>(),
+            <span class="ident">AsgError</span>(<span class="ident">error</span>) =&gt; <span class="ident">error</span>.<span class="ident">exit_code</span>(),
+            <span class="ident">AstError</span>(<span class="ident">error</span>) =&gt; <span class="ident">error</span>.<span class="ident">exit_code</span>(),
+            <span class="ident">CliError</span>(<span class="ident">error</span>) =&gt; <span class="ident">error</span>.<span class="ident">exit_code</span>(),
+            <span class="ident">CompilerError</span>(<span class="ident">error</span>) =&gt; <span class="ident">error</span>.<span class="ident">exit_code</span>(),
+            <span class="ident">ImportError</span>(<span class="ident">error</span>) =&gt; <span class="ident">error</span>.<span class="ident">exit_code</span>(),
+            <span class="ident">InputError</span>(<span class="ident">_error</span>) =&gt; <span class="number">1</span>, <span class="comment">// TODO migrate me, or not cause we want inputs to have 0 deps.</span>
+            <span class="ident">PackageError</span>(<span class="ident">error</span>) =&gt; <span class="ident">error</span>.<span class="ident">exit_code</span>(),
+            <span class="ident">ParserError</span>(<span class="ident">error</span>) =&gt; <span class="ident">error</span>.<span class="ident">exit_code</span>(),
+            <span class="ident">SnarkVMError</span>(<span class="ident">_error</span>) =&gt; <span class="number">1</span>, <span class="comment">// TODO update once snarkvm implments a global top level error similar to LeoError.</span>
+            <span class="ident">StateError</span>(<span class="ident">error</span>) =&gt; <span class="ident">error</span>.<span class="ident">exit_code</span>(),
         }
     }
 }

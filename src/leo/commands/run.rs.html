@@ -114,11 +114,11 @@
     <span class="kw">type</span> <span class="ident">Input</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Prove</span> <span class="kw">as</span> <span class="ident">Command</span><span class="op">&gt;</span><span class="ident">::Output</span>;
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> ();
 
-    <span class="kw">fn</span> <span class="ident">log_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">log_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         <span class="macro">tracing::span!</span>(<span class="ident">tracing::Level::INFO</span>, <span class="string">&quot;Verifying&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">prelude</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Input</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">prelude</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Input</span><span class="op">&gt;</span> {
         (<span class="ident">Prove</span> {
             <span class="ident">skip_key_check</span>: <span class="self">self</span>.<span class="ident">skip_key_check</span>,
             <span class="ident">compiler_options</span>: <span class="self">self</span>.<span class="ident">compiler_options</span>.<span class="ident">clone</span>(),
@@ -126,7 +126,7 @@
         .<span class="ident">execute</span>(<span class="ident">context</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="self">self</span>, <span class="ident">_context</span>: <span class="ident">Context</span>, <span class="ident">input</span>: <span class="ident"><span class="self">Self</span>::Input</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="self">self</span>, <span class="ident">_context</span>: <span class="ident">Context</span>, <span class="ident">input</span>: <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">proof</span>, <span class="ident">prepared_verifying_key</span>) <span class="op">=</span> <span class="ident">input</span>;
 
         <span class="macro">tracing::info!</span>(<span class="string">&quot;Starting...&quot;</span>);
@@ -141,8 +141,8 @@
 
         <span class="comment">// Log the verifier output</span>
         <span class="kw">match</span> <span class="ident">is_success</span> {
-            <span class="bool-val">true</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">tracing::info!</span>(<span class="string">&quot;Proof is valid&quot;</span>),
-            <span class="bool-val">false</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">tracing::error!</span>(<span class="string">&quot;Proof is invalid&quot;</span>),
+            <span class="bool-val">true</span> =&gt; <span class="macro">tracing::info!</span>(<span class="string">&quot;Proof is valid&quot;</span>),
+            <span class="bool-val">false</span> =&gt; <span class="macro">tracing::error!</span>(<span class="string">&quot;Proof is invalid&quot;</span>),
         };
 
         <span class="prelude-val">Ok</span>(())

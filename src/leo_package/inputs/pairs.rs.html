@@ -135,7 +135,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">InputPairs</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::default</span>()
     }
 }
@@ -143,7 +143,7 @@
 <span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Path</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InputPairs</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">LeoError</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">directory</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">directory</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">files</span> <span class="op">=</span> <span class="ident">InputsDirectory::files</span>(<span class="ident">directory</span>)<span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pairs</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">InputPair</span><span class="op">&gt;</span><span class="ident">::new</span>();
@@ -152,24 +152,24 @@
             <span class="comment">// if file name starts with . (dot) None is returned - we&#39;re</span>
             <span class="comment">// skipping these files intentionally but not exiting</span>
             <span class="kw">let</span> <span class="ident">file_extension</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">file</span>.<span class="ident">extension</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">extension</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">extension</span>,
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">continue</span>,
+                <span class="prelude-val">Some</span>(<span class="ident">extension</span>) =&gt; <span class="ident">extension</span>,
+                <span class="prelude-val">None</span> =&gt; <span class="kw">continue</span>,
             };
 
             <span class="comment">// Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.</span>
             <span class="kw">let</span> <span class="ident">file_name</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">file</span>.<span class="ident">file_stem</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">stem</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">stem</span>.<span class="ident">to_str</span>() {
-                    <span class="prelude-val">Some</span>(<span class="ident">file_name</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">file_name</span>,
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">stem</span>) =&gt; <span class="kw">match</span> <span class="ident">stem</span>.<span class="ident">to_str</span>() {
+                    <span class="prelude-val">Some</span>(<span class="ident">file_name</span>) =&gt; <span class="ident">file_name</span>,
+                    <span class="prelude-val">None</span> =&gt; {
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PackageError::failed_to_get_input_file_name</span>(<span class="ident">file</span>.<span class="ident">as_os_str</span>()).<span class="ident">into</span>());
                     }
                 },
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">None</span> =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PackageError::failed_to_get_input_file_name</span>(<span class="ident">file</span>.<span class="ident">as_os_str</span>()).<span class="ident">into</span>());
                 }
             };
 
-            <span class="kw">if</span> <span class="ident">file_extension</span> <span class="op">=</span><span class="op">=</span> <span class="ident">INPUT_FILE_EXTENSION</span>.<span class="ident">trim_start_matches</span>(<span class="string">&#39;.&#39;</span>) {
+            <span class="kw">if</span> <span class="ident">file_extension</span> <span class="op">==</span> <span class="ident">INPUT_FILE_EXTENSION</span>.<span class="ident">trim_start_matches</span>(<span class="string">&#39;.&#39;</span>) {
                 <span class="kw">let</span> <span class="ident">input_file</span> <span class="op">=</span> <span class="ident">InputFile::new</span>(<span class="ident">file_name</span>).<span class="ident">read_from</span>(<span class="kw-2">&amp;</span><span class="ident">file</span>)<span class="question-mark">?</span>.<span class="number">0</span>;
 
                 <span class="kw">if</span> <span class="ident">pairs</span>.<span class="ident">contains_key</span>(<span class="ident">file_name</span>) {
@@ -182,7 +182,7 @@
                     };
                     <span class="ident">pairs</span>.<span class="ident">insert</span>(<span class="ident">file_name</span>.<span class="ident">to_owned</span>(), <span class="ident">pair</span>);
                 }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">file_extension</span> <span class="op">=</span><span class="op">=</span> <span class="ident">STATE_FILE_EXTENSION</span>.<span class="ident">trim_start_matches</span>(<span class="string">&#39;.&#39;</span>) {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">file_extension</span> <span class="op">==</span> <span class="ident">STATE_FILE_EXTENSION</span>.<span class="ident">trim_start_matches</span>(<span class="string">&#39;.&#39;</span>) {
                 <span class="kw">let</span> <span class="ident">state_file</span> <span class="op">=</span> <span class="ident">StateFile::new</span>(<span class="ident">file_name</span>).<span class="ident">read_from</span>(<span class="kw-2">&amp;</span><span class="ident">file</span>)<span class="question-mark">?</span>.<span class="number">0</span>;
 
                 <span class="kw">if</span> <span class="ident">pairs</span>.<span class="ident">contains_key</span>(<span class="ident">file_name</span>) {

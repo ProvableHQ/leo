@@ -238,7 +238,7 @@
         <span class="ident">error_type</span>: <span class="ident">String</span>,
         <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>,
         <span class="ident">backtrace</span>: <span class="ident">Backtrace</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    ) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">S</span>: <span class="ident">ToString</span>,
     {
@@ -256,19 +256,19 @@
     }
 
     <span class="doccomment">/// Calls the backtraces error code.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exit_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exit_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
         <span class="self">self</span>.<span class="ident">backtrace</span>.<span class="ident">exit_code</span>()
     }
 
     <span class="doccomment">/// Returns an error identifier.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
         <span class="self">self</span>.<span class="ident">backtrace</span>.<span class="ident">error_code</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">FormattedError</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
-        <span class="kw">let</span> <span class="ident">underline</span> <span class="op">=</span> <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">start</span>: <span class="ident">usize</span>, <span class="kw-2">mut</span> <span class="ident">end</span>: <span class="ident">usize</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+        <span class="kw">let</span> <span class="ident">underline</span> <span class="op">=</span> <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">start</span>: <span class="ident">usize</span>, <span class="kw-2">mut</span> <span class="ident">end</span>: <span class="ident">usize</span><span class="op">|</span> -&gt; <span class="ident">String</span> {
             <span class="kw">if</span> <span class="ident">start</span> <span class="op">&gt;</span> <span class="ident">end</span> {
                 <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">start</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">end</span>)
             }
@@ -346,7 +346,7 @@
 
         <span class="kw">let</span> <span class="ident">leo_backtrace</span> <span class="op">=</span> <span class="ident">std::env::var</span>(<span class="string">&quot;LEO_BACKTRACE&quot;</span>).<span class="ident">unwrap_or_default</span>().<span class="ident">trim</span>().<span class="ident">to_owned</span>();
         <span class="kw">match</span> <span class="ident">leo_backtrace</span>.<span class="ident">as_ref</span>() {
-            <span class="string">&quot;1&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&quot;1&quot;</span> =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">printer</span> <span class="op">=</span> <span class="ident">BacktracePrinter::default</span>();
                 <span class="ident">printer</span> <span class="op">=</span> <span class="ident">printer</span>.<span class="ident">verbosity</span>(<span class="ident">Verbosity::Medium</span>);
                 <span class="ident">printer</span> <span class="op">=</span> <span class="ident">printer</span>.<span class="ident">lib_verbosity</span>(<span class="ident">Verbosity::Medium</span>);
@@ -355,7 +355,7 @@
                     .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">fmt::Error</span>)<span class="question-mark">?</span>;
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;\n{}&quot;</span>, <span class="ident">trace</span>)<span class="question-mark">?</span>;
             }
-            <span class="string">&quot;full&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&quot;full&quot;</span> =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">printer</span> <span class="op">=</span> <span class="ident">BacktracePrinter::default</span>();
                 <span class="ident">printer</span> <span class="op">=</span> <span class="ident">printer</span>.<span class="ident">verbosity</span>(<span class="ident">Verbosity::Full</span>);
                 <span class="ident">printer</span> <span class="op">=</span> <span class="ident">printer</span>.<span class="ident">lib_verbosity</span>(<span class="ident">Verbosity::Full</span>);
@@ -364,7 +364,7 @@
                     .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">fmt::Error</span>)<span class="question-mark">?</span>;
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;\n{}&quot;</span>, <span class="ident">trace</span>)<span class="question-mark">?</span>;
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="kw">_</span> =&gt; {}
         }
 
         <span class="prelude-val">Ok</span>(())
@@ -372,7 +372,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">FormattedError</span> {
-    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">backtrace</span>.<span class="ident">message</span>
     }
 }

@@ -287,7 +287,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Processor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">grammar</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">abnf</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Rule</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Processor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">grammar</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">abnf</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Rule</span><span class="op">&gt;</span>) -&gt; <span class="ident">Processor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="comment">// we need a hashmap to pull rules easily</span>
         <span class="kw">let</span> <span class="ident">rules</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Rule</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">abnf</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">rule</span><span class="op">|</span> (<span class="ident">rule</span>.<span class="ident">name</span>().<span class="ident">to_string</span>(), <span class="ident">rule</span>)).<span class="ident">collect</span>();
 
@@ -365,14 +365,14 @@
     <span class="kw">fn</span> <span class="ident">enter_scope</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_scope</span>: <span class="ident">Scope</span>) {
         <span class="kw">match</span> (<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scope</span>, <span class="kw-2">&amp;</span><span class="ident">new_scope</span>) {
             <span class="comment">// exchange scopes between Free and Code</span>
-            (<span class="ident">Scope::Free</span>, <span class="ident">Scope::Code</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">append_str</span>(<span class="string">&quot;```&quot;</span>),
-            (<span class="ident">Scope::Code</span>, <span class="ident">Scope::Free</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">append_str</span>(<span class="string">&quot;```&quot;</span>),
+            (<span class="ident">Scope::Free</span>, <span class="ident">Scope::Code</span>) =&gt; <span class="self">self</span>.<span class="ident">append_str</span>(<span class="string">&quot;```&quot;</span>),
+            (<span class="ident">Scope::Code</span>, <span class="ident">Scope::Free</span>) =&gt; <span class="self">self</span>.<span class="ident">append_str</span>(<span class="string">&quot;```&quot;</span>),
             <span class="comment">// exchange scopes between Free and Definition</span>
-            (<span class="ident">Scope::Free</span>, <span class="ident">Scope::Definition</span>(<span class="ident">rule</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            (<span class="ident">Scope::Free</span>, <span class="ident">Scope::Definition</span>(<span class="ident">rule</span>)) =&gt; {
                 <span class="self">self</span>.<span class="ident">append_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;&lt;a name=\&quot;{}\&quot;&gt;&lt;/a&gt;&quot;</span>, <span class="ident">rule</span>.<span class="ident">name</span>()));
                 <span class="self">self</span>.<span class="ident">append_str</span>(<span class="string">&quot;```abnf&quot;</span>);
             }
-            (<span class="ident">Scope::Definition</span>(<span class="ident">rule</span>), <span class="ident">Scope::Free</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            (<span class="ident">Scope::Definition</span>(<span class="ident">rule</span>), <span class="ident">Scope::Free</span>) =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rules</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
                 <span class="ident">parse_abnf_node</span>(<span class="ident">rule</span>.<span class="ident">node</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rules</span>);
 
@@ -395,7 +395,7 @@
                     <span class="self">self</span>.<span class="ident">append_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\nGo to: _{}_;\n&quot;</span>, <span class="ident">keys</span>));
                 }
             }
-            (<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (),
+            (<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (),
         };
 
         <span class="self">self</span>.<span class="ident">scope</span> <span class="op">=</span> <span class="ident">new_scope</span>;
@@ -406,22 +406,22 @@
 <span class="kw">fn</span> <span class="ident">parse_abnf_node</span>(<span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="ident">Node</span>, <span class="ident">sum</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) {
     <span class="kw">match</span> <span class="ident">node</span> {
         <span class="comment">// these two are just vectors of rules</span>
-        <span class="ident">Node::Alternatives</span>(<span class="ident">vec</span>) <span class="op">|</span> <span class="ident">Node::Concatenation</span>(<span class="ident">vec</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">Node::Alternatives</span>(<span class="ident">vec</span>) <span class="op">|</span> <span class="ident">Node::Concatenation</span>(<span class="ident">vec</span>) =&gt; {
             <span class="kw">for</span> <span class="ident">node</span> <span class="kw">in</span> <span class="ident">vec</span> {
                 <span class="ident">parse_abnf_node</span>(<span class="ident">node</span>, <span class="ident">sum</span>);
             }
         }
-        <span class="ident">Node::Group</span>(<span class="ident">node</span>) <span class="op">|</span> <span class="ident">Node::Optional</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">parse_abnf_node</span>(<span class="ident">node</span>.<span class="ident">as_ref</span>(), <span class="ident">sum</span>),
+        <span class="ident">Node::Group</span>(<span class="ident">node</span>) <span class="op">|</span> <span class="ident">Node::Optional</span>(<span class="ident">node</span>) =&gt; <span class="ident">parse_abnf_node</span>(<span class="ident">node</span>.<span class="ident">as_ref</span>(), <span class="ident">sum</span>),
 
         <span class="comment">// push rulename if it is known</span>
-        <span class="ident">Node::Rulename</span>(<span class="ident">name</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sum</span>.<span class="ident">push</span>(<span class="ident">name</span>.<span class="ident">clone</span>()),
+        <span class="ident">Node::Rulename</span>(<span class="ident">name</span>) =&gt; <span class="ident">sum</span>.<span class="ident">push</span>(<span class="ident">name</span>.<span class="ident">clone</span>()),
 
         <span class="comment">// do nothing for other nodes</span>
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> (),
+        <span class="kw">_</span> =&gt; (),
     }
 }
 
-<span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">main</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="comment">// Take Leo ABNF grammar file.</span>
     <span class="kw">let</span> <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::env::args</span>().<span class="ident">collect</span>();
     <span class="kw">let</span> <span class="ident">abnf_path</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">get</span>(<span class="number">1</span>) {

@@ -301,7 +301,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Package</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="comment">// Check that the package name is valid.</span>
         <span class="kw">if</span> <span class="op">!</span><span class="ident"><span class="self">Self</span>::is_package_name_valid</span>(<span class="ident">package_name</span>) {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PackageError::invalid_package_name</span>(<span class="ident">package_name</span>).<span class="ident">into</span>());
@@ -320,7 +320,7 @@
     <span class="doccomment">/// Package names must be lowercase and composed solely</span>
     <span class="doccomment">/// of ASCII alphanumeric characters, and may be word-separated</span>
     <span class="doccomment">/// by a single dash &#39;-&#39;.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_package_name_valid</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_package_name_valid</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
         <span class="comment">// Check that the package name is nonempty.</span>
         <span class="kw">if</span> <span class="ident">package_name</span>.<span class="ident">is_empty</span>() {
             <span class="macro">tracing::error!</span>(<span class="string">&quot;Project names must be nonempty&quot;</span>);
@@ -330,7 +330,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">previous</span> <span class="op">=</span> <span class="ident">package_name</span>.<span class="ident">chars</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>();
 
         <span class="comment">// Check that the first character is not a dash.</span>
-        <span class="kw">if</span> <span class="ident">previous</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;-&#39;</span> {
+        <span class="kw">if</span> <span class="ident">previous</span> <span class="op">==</span> <span class="string">&#39;-&#39;</span> {
             <span class="macro">tracing::error!</span>(<span class="string">&quot;Project names cannot begin with a dash&quot;</span>);
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
@@ -356,7 +356,7 @@
             }
 
             <span class="comment">// If the previous character was a dash, check that the current character is not a dash.</span>
-            <span class="kw">if</span> <span class="ident">previous</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;-&#39;</span> <span class="op">&amp;&amp;</span> <span class="ident">current</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;-&#39;</span> {
+            <span class="kw">if</span> <span class="ident">previous</span> <span class="op">==</span> <span class="string">&#39;-&#39;</span> <span class="op">&amp;&amp;</span> <span class="ident">current</span> <span class="op">==</span> <span class="string">&#39;-&#39;</span> {
                 <span class="macro">tracing::error!</span>(<span class="string">&quot;Project names may only be word-separated by one dash&quot;</span>);
                 <span class="kw">return</span> <span class="bool-val">false</span>;
             }
@@ -365,7 +365,7 @@
         }
 
         <span class="comment">// Check that the last character is not a dash.</span>
-        <span class="kw">if</span> <span class="ident">previous</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;-&#39;</span> {
+        <span class="kw">if</span> <span class="ident">previous</span> <span class="op">==</span> <span class="string">&#39;-&#39;</span> {
             <span class="macro">tracing::error!</span>(<span class="string">&quot;Project names cannot end with a dash&quot;</span>);
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
@@ -374,7 +374,7 @@
     }
 
     <span class="doccomment">/// Returns `true` if a package is can be initialized at a given path.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_initialize</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_initialize</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">bool</span> {
         <span class="comment">// Check that the package name is valid.</span>
         <span class="kw">if</span> <span class="op">!</span><span class="ident"><span class="self">Self</span>::is_package_name_valid</span>(<span class="ident">package_name</span>) {
             <span class="kw">return</span> <span class="bool-val">false</span>;
@@ -417,7 +417,7 @@
     }
 
     <span class="doccomment">/// Returns `true` if a package is initialized at the given path</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_initialized</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_initialized</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">bool</span> {
         <span class="comment">// Check that the package name is valid.</span>
         <span class="kw">if</span> <span class="op">!</span><span class="ident"><span class="self">Self</span>::is_package_name_valid</span>(<span class="ident">package_name</span>) {
             <span class="kw">return</span> <span class="bool-val">false</span>;
@@ -449,7 +449,7 @@
     }
 
     <span class="doccomment">/// Creates a package at the given path</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">author</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">author</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="comment">// First, verify that this directory is not already initialized as a Leo package.</span>
         {
             <span class="kw">if</span> <span class="op">!</span><span class="ident"><span class="self">Self</span>::can_initialize</span>(<span class="ident">package_name</span>, <span class="ident">path</span>) {
@@ -499,7 +499,7 @@
     }
 
     <span class="doccomment">/// Removes the package at the given path</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_imported_package</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_imported_package</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="ident">ImportsDirectory::remove_import</span>(<span class="ident">path</span>, <span class="ident">package_name</span>)
     }
 }

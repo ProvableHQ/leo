@@ -487,11 +487,11 @@
     <span class="ident">package_or_packages</span>: <span class="kw-2">&amp;</span><span class="ident">PackageOrPackages</span>,
 ) {
     <span class="kw">match</span> <span class="ident">package_or_packages</span> {
-        <span class="ident">PackageOrPackages::Package</span>(<span class="ident">package</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">PackageOrPackages::Package</span>(<span class="ident">package</span>) =&gt; {
             <span class="ident">package_segments</span>.<span class="ident">push</span>(<span class="ident">package</span>.<span class="ident">name</span>.<span class="ident">name</span>.<span class="ident">to_string</span>());
             <span class="ident">resolve_import_package_access</span>(<span class="ident">output</span>, <span class="ident">package_segments</span>, <span class="kw-2">&amp;</span><span class="ident">package</span>.<span class="ident">access</span>);
         }
-        <span class="ident">PackageOrPackages::Packages</span>(<span class="ident">packages</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">PackageOrPackages::Packages</span>(<span class="ident">packages</span>) =&gt; {
             <span class="ident">package_segments</span>.<span class="ident">push</span>(<span class="ident">packages</span>.<span class="ident">name</span>.<span class="ident">name</span>.<span class="ident">to_string</span>());
             <span class="kw">for</span> <span class="ident">access</span> <span class="kw">in</span> <span class="ident">packages</span>.<span class="ident">accesses</span>.<span class="ident">clone</span>() {
                 <span class="ident">resolve_import_package_access</span>(<span class="ident">output</span>, <span class="ident">package_segments</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">access</span>);
@@ -506,17 +506,17 @@
     <span class="ident">package</span>: <span class="kw-2">&amp;</span><span class="ident">PackageAccess</span>,
 ) {
     <span class="kw">match</span> <span class="ident">package</span> {
-        <span class="ident">PackageAccess::Star</span> { <span class="ident">span</span> } <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">PackageAccess::Star</span> { <span class="ident">span</span> } =&gt; {
             <span class="ident">output</span>.<span class="ident">push</span>((<span class="ident">package_segments</span>, <span class="ident">ImportSymbol::All</span>, <span class="ident">span</span>.<span class="ident">clone</span>()));
         }
-        <span class="ident">PackageAccess::SubPackage</span>(<span class="ident">subpackage</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">PackageAccess::SubPackage</span>(<span class="ident">subpackage</span>) =&gt; {
             <span class="ident">resolve_import_package</span>(
                 <span class="ident">output</span>,
                 <span class="ident">package_segments</span>,
                 <span class="kw-2">&amp;</span><span class="ident">PackageOrPackages::Package</span>(<span class="kw-2">*</span>(<span class="kw-2">*</span><span class="ident">subpackage</span>).<span class="ident">clone</span>()),
             );
         }
-        <span class="ident">PackageAccess::Symbol</span>(<span class="ident">symbol</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">PackageAccess::Symbol</span>(<span class="ident">symbol</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">symbol</span>.<span class="ident">symbol</span>.<span class="ident">span</span>.<span class="ident">clone</span>();
             <span class="kw">let</span> <span class="ident">symbol</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">alias</span>) <span class="op">=</span> <span class="ident">symbol</span>.<span class="ident">alias</span>.<span class="ident">as_ref</span>() {
                 <span class="ident">ImportSymbol::Alias</span>(<span class="ident">symbol</span>.<span class="ident">symbol</span>.<span class="ident">name</span>.<span class="ident">to_string</span>(), <span class="ident">alias</span>.<span class="ident">name</span>.<span class="ident">to_string</span>())
@@ -525,7 +525,7 @@
             };
             <span class="ident">output</span>.<span class="ident">push</span>((<span class="ident">package_segments</span>, <span class="ident">symbol</span>, <span class="ident">span</span>));
         }
-        <span class="ident">PackageAccess::Multiple</span>(<span class="ident">packages</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">PackageAccess::Multiple</span>(<span class="ident">packages</span>) =&gt; {
             <span class="ident">package_segments</span>.<span class="ident">push</span>(<span class="ident">packages</span>.<span class="ident">name</span>.<span class="ident">name</span>.<span class="ident">to_string</span>());
             <span class="kw">for</span> <span class="ident">subaccess</span> <span class="kw">in</span> <span class="ident">packages</span>.<span class="ident">accesses</span>.<span class="ident">iter</span>() {
                 <span class="ident">resolve_import_package_access</span>(<span class="ident">output</span>, <span class="ident">package_segments</span>.<span class="ident">clone</span>(), <span class="ident">subaccess</span>);
@@ -543,7 +543,7 @@
     <span class="ident">functions</span>: <span class="kw-2">&amp;</span><span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">circuits</span>: <span class="kw-2">&amp;</span><span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Circuit</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">global_consts</span>: <span class="kw-2">&amp;</span><span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DefinitionStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">aliases</span>.<span class="ident">contains_key</span>(<span class="ident">name</span>) {
         <span class="prelude-val">Err</span>(<span class="ident">AsgError::duplicate_alias_definition</span>(<span class="ident">name</span>, <span class="ident">span</span>).<span class="ident">into</span>())
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">global_consts</span>.<span class="ident">contains_key</span>(<span class="ident">name</span>) {
@@ -566,7 +566,7 @@
     <span class="doccomment">/// 3. finalize declared functions</span>
     <span class="doccomment">/// 4. resolve all asg nodes</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">context</span>: <span class="ident">AsgContext</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="ident">leo_ast::Program</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Program</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">context</span>: <span class="ident">AsgContext</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="ident">leo_ast::Program</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Program</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">imported_aliases</span>: <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Alias</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">imported_functions</span>: <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">imported_circuits</span>: <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Circuit</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
@@ -607,13 +607,13 @@
                 .<span class="ident">expect</span>(<span class="string">&quot;could not find preloaded package&quot;</span>);
 
             <span class="kw">match</span> <span class="ident">symbol</span> {
-                <span class="ident">ImportSymbol::All</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ImportSymbol::All</span> =&gt; {
                     <span class="ident">imported_aliases</span>.<span class="ident">extend</span>(<span class="ident">resolved_package</span>.<span class="ident">aliases</span>.<span class="ident">clone</span>().<span class="ident">into_iter</span>());
                     <span class="ident">imported_functions</span>.<span class="ident">extend</span>(<span class="ident">resolved_package</span>.<span class="ident">functions</span>.<span class="ident">clone</span>().<span class="ident">into_iter</span>());
                     <span class="ident">imported_circuits</span>.<span class="ident">extend</span>(<span class="ident">resolved_package</span>.<span class="ident">circuits</span>.<span class="ident">clone</span>().<span class="ident">into_iter</span>());
                     <span class="ident">imported_global_consts</span>.<span class="ident">extend</span>(<span class="ident">resolved_package</span>.<span class="ident">global_consts</span>.<span class="ident">clone</span>().<span class="ident">into_iter</span>());
                 }
-                <span class="ident">ImportSymbol::Direct</span>(<span class="ident">name</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ImportSymbol::Direct</span>(<span class="ident">name</span>) =&gt; {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">alias</span>) <span class="op">=</span> <span class="ident">resolved_package</span>.<span class="ident">aliases</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>) {
                         <span class="ident">imported_aliases</span>.<span class="ident">insert</span>(<span class="ident">name</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">alias</span>);
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">function</span>) <span class="op">=</span> <span class="ident">resolved_package</span>.<span class="ident">functions</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>) {
@@ -626,7 +626,7 @@
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::unresolved_import</span>(<span class="ident">pretty_package</span>, <span class="kw-2">&amp;</span><span class="ident">span</span>).<span class="ident">into</span>());
                     }
                 }
-                <span class="ident">ImportSymbol::Alias</span>(<span class="ident">name</span>, <span class="ident">alias</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ImportSymbol::Alias</span>(<span class="ident">name</span>, <span class="ident">alias</span>) =&gt; {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">type_alias</span>) <span class="op">=</span> <span class="ident">resolved_package</span>.<span class="ident">aliases</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>) {
                         <span class="ident">imported_aliases</span>.<span class="ident">insert</span>(<span class="ident">alias</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">type_alias</span>);
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">function</span>) <span class="op">=</span> <span class="ident">resolved_package</span>.<span class="ident">functions</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>) {
@@ -654,8 +654,8 @@
             <span class="ident">function</span>: <span class="ident">Cell::new</span>(<span class="prelude-val">None</span>),
             <span class="ident">input</span>: <span class="ident">Cell::new</span>(<span class="prelude-val">None</span>),
         }))) {
-            <span class="ident">ArenaNode::Scope</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(),
+            <span class="ident">ArenaNode::Scope</span>(<span class="ident">c</span>) =&gt; <span class="ident">c</span>,
+            <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(),
         };
 
         <span class="kw">let</span> <span class="ident">scope</span> <span class="op">=</span> <span class="ident">import_scope</span>.<span class="ident">context</span>.<span class="ident">alloc_scope</span>(<span class="ident">Scope</span> {

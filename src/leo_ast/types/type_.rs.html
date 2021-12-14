@@ -264,14 +264,14 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `true` if the self `Type` is the `SelfType`.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_self</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_self</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">Type::SelfType</span>)
     }
 
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `true` if the self `Type` is a `Circuit`.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_circuit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_circuit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">Type::Identifier</span>(<span class="kw">_</span>))
     }
 
@@ -280,17 +280,17 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Flattens array syntax: `[[u8; 1]; 2] == [u8; (2, 1)] == true`</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eq_flat</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eq_flat</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> (<span class="self">self</span>, <span class="ident">other</span>) {
-            (<span class="ident">Type::Address</span>, <span class="ident">Type::Address</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            (<span class="ident">Type::Boolean</span>, <span class="ident">Type::Boolean</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            (<span class="ident">Type::Char</span>, <span class="ident">Type::Char</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            (<span class="ident">Type::Field</span>, <span class="ident">Type::Field</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            (<span class="ident">Type::Group</span>, <span class="ident">Type::Group</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            (<span class="ident">Type::IntegerType</span>(<span class="ident">left</span>), <span class="ident">Type::IntegerType</span>(<span class="ident">right</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">left</span>.<span class="ident">eq</span>(<span class="ident">right</span>),
-            (<span class="ident">Type::Identifier</span>(<span class="ident">left</span>), <span class="ident">Type::Identifier</span>(<span class="ident">right</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">left</span>.<span class="ident">eq</span>(<span class="ident">right</span>),
-            (<span class="ident">Type::SelfType</span>, <span class="ident">Type::SelfType</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            (<span class="ident">Type::Array</span>(<span class="ident">left_type</span>, <span class="ident">left_dim</span>), <span class="ident">Type::Array</span>(<span class="ident">right_type</span>, <span class="ident">right_dim</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            (<span class="ident">Type::Address</span>, <span class="ident">Type::Address</span>) =&gt; <span class="bool-val">true</span>,
+            (<span class="ident">Type::Boolean</span>, <span class="ident">Type::Boolean</span>) =&gt; <span class="bool-val">true</span>,
+            (<span class="ident">Type::Char</span>, <span class="ident">Type::Char</span>) =&gt; <span class="bool-val">true</span>,
+            (<span class="ident">Type::Field</span>, <span class="ident">Type::Field</span>) =&gt; <span class="bool-val">true</span>,
+            (<span class="ident">Type::Group</span>, <span class="ident">Type::Group</span>) =&gt; <span class="bool-val">true</span>,
+            (<span class="ident">Type::IntegerType</span>(<span class="ident">left</span>), <span class="ident">Type::IntegerType</span>(<span class="ident">right</span>)) =&gt; <span class="ident">left</span>.<span class="ident">eq</span>(<span class="ident">right</span>),
+            (<span class="ident">Type::Identifier</span>(<span class="ident">left</span>), <span class="ident">Type::Identifier</span>(<span class="ident">right</span>)) =&gt; <span class="ident">left</span>.<span class="ident">eq</span>(<span class="ident">right</span>),
+            (<span class="ident">Type::SelfType</span>, <span class="ident">Type::SelfType</span>) =&gt; <span class="bool-val">true</span>,
+            (<span class="ident">Type::Array</span>(<span class="ident">left_type</span>, <span class="ident">left_dim</span>), <span class="ident">Type::Array</span>(<span class="ident">right_type</span>, <span class="ident">right_dim</span>)) =&gt; {
                 <span class="comment">// Convert array dimensions to owned.</span>
                 <span class="kw">let</span> <span class="ident">left_dim_owned</span> <span class="op">=</span> <span class="ident">left_dim</span>.<span class="ident">to_owned</span>();
                 <span class="kw">let</span> <span class="ident">right_dim_owned</span> <span class="op">=</span> <span class="ident">right_dim</span>.<span class="ident">to_owned</span>();
@@ -320,11 +320,11 @@
                 <span class="comment">// Call eq_flat() on the new left and right types.</span>
                 <span class="ident">left_new_type</span>.<span class="ident">eq_flat</span>(<span class="kw-2">&amp;</span><span class="ident">right_new_type</span>)
             }
-            (<span class="ident">Type::Tuple</span>(<span class="ident">left</span>), <span class="ident">Type::Tuple</span>(<span class="ident">right</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">left</span>
+            (<span class="ident">Type::Tuple</span>(<span class="ident">left</span>), <span class="ident">Type::Tuple</span>(<span class="ident">right</span>)) =&gt; <span class="ident">left</span>
                 .<span class="ident">iter</span>()
                 .<span class="ident">zip</span>(<span class="ident">right</span>)
                 .<span class="ident">all</span>(<span class="op">|</span>(<span class="ident">left_type</span>, <span class="ident">right_type</span>)<span class="op">|</span> <span class="ident">left_type</span>.<span class="ident">eq_flat</span>(<span class="ident">right_type</span>)),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 }
@@ -332,20 +332,20 @@
 <span class="doccomment">/// input pest ast -&gt; Explicit Type</span>
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">InputDataType</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Type</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">data_type</span>: <span class="ident">InputDataType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">data_type</span>: <span class="ident">InputDataType</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">data_type</span> {
-            <span class="ident">InputDataType::Address</span>(<span class="ident">_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::Address</span>,
-            <span class="ident">InputDataType::Boolean</span>(<span class="ident">_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::Boolean</span>,
-            <span class="ident">InputDataType::Char</span>(<span class="ident">_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::Char</span>,
-            <span class="ident">InputDataType::Field</span>(<span class="ident">_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::Field</span>,
-            <span class="ident">InputDataType::Group</span>(<span class="ident">_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::Group</span>,
-            <span class="ident">InputDataType::Integer</span>(<span class="ident">type_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::IntegerType</span>(<span class="ident">IntegerType::from</span>(<span class="ident">type_</span>)),
+            <span class="ident">InputDataType::Address</span>(<span class="ident">_type</span>) =&gt; <span class="ident">Type::Address</span>,
+            <span class="ident">InputDataType::Boolean</span>(<span class="ident">_type</span>) =&gt; <span class="ident">Type::Boolean</span>,
+            <span class="ident">InputDataType::Char</span>(<span class="ident">_type</span>) =&gt; <span class="ident">Type::Char</span>,
+            <span class="ident">InputDataType::Field</span>(<span class="ident">_type</span>) =&gt; <span class="ident">Type::Field</span>,
+            <span class="ident">InputDataType::Group</span>(<span class="ident">_type</span>) =&gt; <span class="ident">Type::Group</span>,
+            <span class="ident">InputDataType::Integer</span>(<span class="ident">type_</span>) =&gt; <span class="ident">Type::IntegerType</span>(<span class="ident">IntegerType::from</span>(<span class="ident">type_</span>)),
         }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">InputArrayType</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Type</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">array_type</span>: <span class="ident">InputArrayType</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">array_type</span>: <span class="ident">InputArrayType</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">element_type</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="ident">Type::from</span>(<span class="kw-2">*</span><span class="ident">array_type</span>.<span class="ident">type_</span>));
         <span class="kw">let</span> <span class="ident">dimensions</span> <span class="op">=</span> <span class="ident">ArrayDimensions::from</span>(<span class="ident">array_type</span>.<span class="ident">dimensions</span>);
 
@@ -354,7 +354,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">InputTupleType</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Type</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">tuple_type</span>: <span class="ident">InputTupleType</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">tuple_type</span>: <span class="ident">InputTupleType</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">types</span> <span class="op">=</span> <span class="ident">tuple_type</span>.<span class="ident">types_</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Type::from</span>).<span class="ident">collect</span>();
 
         <span class="ident">Type::Tuple</span>(<span class="ident">types</span>)
@@ -362,34 +362,34 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">InputType</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Type</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">type_</span>: <span class="ident">InputType</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">type_</span>: <span class="ident">InputType</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">type_</span> {
-            <span class="ident">InputType::Basic</span>(<span class="ident">type_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::from</span>(<span class="ident">type_</span>),
-            <span class="ident">InputType::Array</span>(<span class="ident">type_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::from</span>(<span class="ident">type_</span>),
-            <span class="ident">InputType::Tuple</span>(<span class="ident">type_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::from</span>(<span class="ident">type_</span>),
+            <span class="ident">InputType::Basic</span>(<span class="ident">type_</span>) =&gt; <span class="ident">Type::from</span>(<span class="ident">type_</span>),
+            <span class="ident">InputType::Array</span>(<span class="ident">type_</span>) =&gt; <span class="ident">Type::from</span>(<span class="ident">type_</span>),
+            <span class="ident">InputType::Tuple</span>(<span class="ident">type_</span>) =&gt; <span class="ident">Type::from</span>(<span class="ident">type_</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Type</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Type::Address</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;address&quot;</span>),
-            <span class="ident">Type::Boolean</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;bool&quot;</span>),
-            <span class="ident">Type::Char</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;char&quot;</span>),
-            <span class="ident">Type::Field</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;field&quot;</span>),
-            <span class="ident">Type::Group</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;group&quot;</span>),
-            <span class="ident">Type::IntegerType</span>(<span class="kw-2">ref</span> <span class="ident">integer_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">integer_type</span>),
-            <span class="ident">Type::Identifier</span>(<span class="kw-2">ref</span> <span class="ident">variable</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;circuit {}&quot;</span>, <span class="ident">variable</span>),
-            <span class="ident">Type::SelfType</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;SelfType&quot;</span>),
-            <span class="ident">Type::Array</span>(<span class="kw-2">ref</span> <span class="ident">array</span>, <span class="kw-2">ref</span> <span class="ident">dimensions</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Type::Address</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;address&quot;</span>),
+            <span class="ident">Type::Boolean</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;bool&quot;</span>),
+            <span class="ident">Type::Char</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;char&quot;</span>),
+            <span class="ident">Type::Field</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;field&quot;</span>),
+            <span class="ident">Type::Group</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;group&quot;</span>),
+            <span class="ident">Type::IntegerType</span>(<span class="kw-2">ref</span> <span class="ident">integer_type</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">integer_type</span>),
+            <span class="ident">Type::Identifier</span>(<span class="kw-2">ref</span> <span class="ident">variable</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;circuit {}&quot;</span>, <span class="ident">variable</span>),
+            <span class="ident">Type::SelfType</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;SelfType&quot;</span>),
+            <span class="ident">Type::Array</span>(<span class="kw-2">ref</span> <span class="ident">array</span>, <span class="kw-2">ref</span> <span class="ident">dimensions</span>) =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dimensions</span>) <span class="op">=</span> <span class="ident">dimensions</span> {
                     <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;[{}; {}]&quot;</span>, <span class="kw-2">*</span><span class="ident">array</span>, <span class="ident">dimensions</span>)
                 } <span class="kw">else</span> {
                     <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;[{}; _]&quot;</span>, <span class="kw-2">*</span><span class="ident">array</span>)
                 }
             }
-            <span class="ident">Type::Tuple</span>(<span class="kw-2">ref</span> <span class="ident">tuple</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Type::Tuple</span>(<span class="kw-2">ref</span> <span class="ident">tuple</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">types</span> <span class="op">=</span> <span class="ident">tuple</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>()).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>);
 
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;({})&quot;</span>, <span class="ident">types</span>)
@@ -408,7 +408,7 @@
 <span class="doccomment">/// inner array. The element type of the new array should be the same as the old array. The</span>
 <span class="doccomment">/// dimensions of the new array should be the old array dimensions with the first dimension removed.</span>
 <span class="doccomment">///</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inner_array_type</span>(<span class="ident">element_type</span>: <span class="ident">Type</span>, <span class="ident">dimensions</span>: <span class="ident">ArrayDimensions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inner_array_type</span>(<span class="ident">element_type</span>: <span class="ident">Type</span>, <span class="ident">dimensions</span>: <span class="ident">ArrayDimensions</span>) -&gt; <span class="ident">Type</span> {
     <span class="kw">if</span> <span class="ident">dimensions</span>.<span class="ident">is_empty</span>() {
         <span class="comment">// The array has one dimension.</span>
         <span class="ident">element_type</span>
@@ -422,7 +422,7 @@
 <span class="doccomment">/// Custom Serializer for Type::Array. Handles the case when ArrayDimensions are None and turns it into</span>
 <span class="doccomment">/// a Vec&lt;PositiveNumber&gt;, where the only element is &quot;0&quot;.</span>
 <span class="doccomment">///</span>
-<span class="kw">fn</span> <span class="ident">serialize_array</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">type_</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>, <span class="ident">dimensions</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ArrayDimensions</span><span class="op">&gt;</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
+<span class="kw">fn</span> <span class="ident">serialize_array</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">type_</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>, <span class="ident">dimensions</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ArrayDimensions</span><span class="op">&gt;</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="ident">Serializer</span>,
 {

@@ -80,11 +80,11 @@
         <span class="ident">tuple</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
         <span class="ident">index</span>: <span class="ident">usize</span>,
         <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConstrainedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConstrainedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// Get the tuple values.</span>
         <span class="kw">let</span> <span class="ident">tuple</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">enforce_expression</span>(<span class="ident">cs</span>, <span class="ident">tuple</span>)<span class="question-mark">?</span> {
-            <span class="ident">ConstrainedValue::Tuple</span>(<span class="ident">tuple</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">tuple</span>,
-            <span class="ident">value</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::undefined_array</span>(<span class="ident">value</span>, <span class="ident">span</span>).<span class="ident">into</span>()),
+            <span class="ident">ConstrainedValue::Tuple</span>(<span class="ident">tuple</span>) =&gt; <span class="ident">tuple</span>,
+            <span class="ident">value</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::undefined_array</span>(<span class="ident">value</span>, <span class="ident">span</span>).<span class="ident">into</span>()),
         };
 
         <span class="comment">// Check for out of bounds access.</span>

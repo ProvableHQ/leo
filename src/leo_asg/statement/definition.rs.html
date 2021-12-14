@@ -219,7 +219,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">DefinitionStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">split</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="self">Self</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">split</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="self">Self</span>)<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">variables</span>
             .<span class="ident">iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">variable</span><span class="op">|</span> {
@@ -238,7 +238,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Node</span> <span class="kw">for</span> <span class="ident">DefinitionStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Span</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Span</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">span</span>.<span class="ident">as_ref</span>()
     }
 }
@@ -248,7 +248,7 @@
         <span class="ident">scope</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Scope</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
         <span class="ident">statement</span>: <span class="kw-2">&amp;</span><span class="ident">leo_ast::DefinitionStatement</span>,
         <span class="ident">_expected_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PartialType</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">type_</span> <span class="op">=</span> <span class="ident">statement</span>
             .<span class="ident">type_</span>
             .<span class="ident">as_ref</span>()
@@ -280,16 +280,16 @@
             )
             .<span class="ident">into</span>());
         }
-        <span class="kw">if</span> <span class="ident">statement</span>.<span class="ident">variable_names</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+        <span class="kw">if</span> <span class="ident">statement</span>.<span class="ident">variable_names</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
             <span class="comment">// any return type is fine</span>
             <span class="ident">output_types</span>.<span class="ident">push</span>(<span class="ident">type_</span>);
         } <span class="kw">else</span> {
             <span class="comment">// tuple destructure</span>
             <span class="kw">match</span> <span class="ident">type_</span>.<span class="ident">as_ref</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">Type::Tuple</span>(<span class="ident">sub_types</span>)) <span class="kw">if</span> <span class="ident">sub_types</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">statement</span>.<span class="ident">variable_names</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">Type::Tuple</span>(<span class="ident">sub_types</span>)) <span class="kw">if</span> <span class="ident">sub_types</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">statement</span>.<span class="ident">variable_names</span>.<span class="ident">len</span>() =&gt; {
                     <span class="ident">output_types</span>.<span class="ident">extend</span>(<span class="ident">sub_types</span>.<span class="ident">clone</span>().<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="prelude-val">Some</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>());
                 }
-                <span class="ident">type_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">type_</span> =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::unexpected_type</span>(
                         <span class="macro">format!</span>(<span class="string">&quot;{}-ary tuple&quot;</span>, <span class="ident">statement</span>.<span class="ident">variable_names</span>.<span class="ident">len</span>()),
                         <span class="ident">type_</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>()).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;unknown&quot;</span>.<span class="ident">to_string</span>()),
@@ -354,7 +354,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">leo_ast::DefinitionStatement</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">DefinitionStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">leo_ast::DefinitionStatement</span> {
+    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">leo_ast::DefinitionStatement</span> {
         <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">variables</span>.<span class="ident">is_empty</span>());
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">variable_names</span> <span class="op">=</span> <span class="macro">vec!</span>[];

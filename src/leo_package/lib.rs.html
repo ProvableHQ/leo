@@ -78,17 +78,17 @@
 
 <span class="kw">impl</span> <span class="ident">LeoPackage</span> {
     <span class="doccomment">/// Initializes a Leo package at the given path.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">author</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">author</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="ident">package::Package::initialize</span>(<span class="ident">package_name</span>, <span class="ident">path</span>, <span class="ident">author</span>)
     }
 
     <span class="doccomment">/// Returns `true` if the given Leo package name is valid.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_package_name_valid</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_package_name_valid</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
         <span class="ident">package::Package::is_package_name_valid</span>(<span class="ident">package_name</span>)
     }
 
     <span class="doccomment">/// Removes an imported Leo package</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_imported_package</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_imported_package</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="ident">package::Package::remove_imported_package</span>(<span class="ident">package_name</span>, <span class="ident">path</span>)
     }
 }

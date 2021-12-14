@@ -602,14 +602,14 @@
 }
 
 <span class="doccomment">/// Run command with custom build arguments.</span>
-<span class="kw">fn</span> <span class="ident">run_with_args</span>(<span class="ident">opt</span>: <span class="ident">Opt</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">run_with_args</span>(<span class="ident">opt</span>: <span class="ident">Opt</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="op">!</span><span class="ident">opt</span>.<span class="ident">quiet</span> {
         <span class="comment">// Init logger with optional debug flag.</span>
         <span class="ident">logger::init_logger</span>(
             <span class="string">&quot;leo&quot;</span>,
             <span class="kw">match</span> <span class="ident">opt</span>.<span class="ident">debug</span> {
-                <span class="bool-val">false</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">1</span>,
-                <span class="bool-val">true</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">2</span>,
+                <span class="bool-val">false</span> =&gt; <span class="number">1</span>,
+                <span class="bool-val">true</span> =&gt; <span class="number">2</span>,
             },
         )<span class="question-mark">?</span>;
     }
@@ -617,38 +617,38 @@
     <span class="comment">// Get custom root folder and create context for it.</span>
     <span class="comment">// If not specified, default context will be created in cwd.</span>
     <span class="kw">let</span> <span class="ident">context</span> <span class="op">=</span> <span class="ident">handle_error</span>(<span class="kw">match</span> <span class="ident">opt</span>.<span class="ident">path</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">context::create_context</span>(<span class="ident">path</span>, <span class="ident">opt</span>.<span class="ident">api</span>),
-        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">context::get_context</span>(<span class="ident">opt</span>.<span class="ident">api</span>),
+        <span class="prelude-val">Some</span>(<span class="ident">path</span>) =&gt; <span class="ident">context::create_context</span>(<span class="ident">path</span>, <span class="ident">opt</span>.<span class="ident">api</span>),
+        <span class="prelude-val">None</span> =&gt; <span class="ident">context::get_context</span>(<span class="ident">opt</span>.<span class="ident">api</span>),
     });
 
     <span class="kw">match</span> <span class="ident">opt</span>.<span class="ident">command</span> {
-        <span class="ident">CommandOpts::Init</span> { <span class="ident">command</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">CommandOpts::New</span> { <span class="ident">command</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">CommandOpts::Build</span> { <span class="ident">command</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">CommandOpts::Setup</span> { <span class="ident">command</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">CommandOpts::Prove</span> { <span class="ident">command</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">CommandOpts::Test</span> { <span class="ident">command</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">CommandOpts::Run</span> { <span class="ident">command</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">CommandOpts::Clean</span> { <span class="ident">command</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">CommandOpts::Watch</span> { <span class="ident">command</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">CommandOpts::Update</span> { <span class="ident">command</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">CommandOpts::Init</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">CommandOpts::New</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">CommandOpts::Build</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">CommandOpts::Setup</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">CommandOpts::Prove</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">CommandOpts::Test</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">CommandOpts::Run</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">CommandOpts::Clean</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">CommandOpts::Watch</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">CommandOpts::Update</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
 
         <span class="comment">// CommandOpts::Add { command } =&gt; command.try_execute(context),</span>
-        <span class="ident">CommandOpts::Fetch</span> { <span class="ident">command</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">CommandOpts::Clone</span> { <span class="ident">command</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">CommandOpts::Login</span> { <span class="ident">command</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">CommandOpts::Logout</span> { <span class="ident">command</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">CommandOpts::Publish</span> { <span class="ident">command</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">CommandOpts::Fetch</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">CommandOpts::Clone</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">CommandOpts::Login</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">CommandOpts::Logout</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">CommandOpts::Publish</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
         <span class="comment">// CommandOpts::Remove { command } =&gt; command.try_execute(context),</span>
-        <span class="ident">CommandOpts::Lint</span> { <span class="ident">command</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">CommandOpts::Deploy</span> { <span class="ident">command</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">CommandOpts::Lint</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">CommandOpts::Deploy</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
     }
 }
 
-<span class="kw">fn</span> <span class="ident">handle_error</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">res</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span> {
+<span class="kw">fn</span> <span class="ident">handle_error</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">res</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">T</span> {
     <span class="kw">match</span> <span class="ident">res</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">t</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">t</span>) =&gt; <span class="ident">t</span>,
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
             <span class="macro">eprintln!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>);
             <span class="ident">exit</span>(<span class="ident">err</span>.<span class="ident">exit_code</span>());
         }
@@ -666,7 +666,7 @@
     <span class="kw">use</span> <span class="ident">test_dir</span>::{<span class="ident">DirBuilder</span>, <span class="ident">FileType</span>, <span class="ident">TestDir</span>};
 
     <span class="comment">// Runs Command from cmd-like argument &quot;leo run --arg1 --arg2&quot;.</span>
-    <span class="kw">fn</span> <span class="ident">run_cmd</span>(<span class="ident">args</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">run_cmd</span>(<span class="ident">args</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">split</span>(<span class="string">&#39; &#39;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">Opt::from_iter_safe</span>(<span class="ident">args</span>).<span class="ident">map_err</span>(<span class="ident">CliError::opt_args_error</span>)<span class="question-mark">?</span>;
 
@@ -683,7 +683,7 @@
     }
 
     <span class="comment">// Create a test directory with name.</span>
-    <span class="kw">fn</span> <span class="ident">testdir</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestDir</span> {
+    <span class="kw">fn</span> <span class="ident">testdir</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">TestDir</span> {
         <span class="ident">TestDir::temp</span>().<span class="ident">create</span>(<span class="ident">name</span>, <span class="ident">FileType::Dir</span>)
     }
 

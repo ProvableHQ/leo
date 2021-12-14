@@ -110,31 +110,31 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Context</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dir</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dir</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">path</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">path</span>.<span class="ident">clone</span>()),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">current_dir</span>().<span class="ident">map_err</span>(<span class="ident">CliError::cli_io_error</span>)<span class="question-mark">?</span>),
+            <span class="prelude-val">Some</span>(<span class="ident">path</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">path</span>.<span class="ident">clone</span>()),
+            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">current_dir</span>().<span class="ident">map_err</span>(<span class="ident">CliError::cli_io_error</span>)<span class="question-mark">?</span>),
         }
     }
 
     <span class="doccomment">/// Get package manifest for current context.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">manifest</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Manifest</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">manifest</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Manifest</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Manifest::try_from</span>(<span class="self">self</span>.<span class="ident">dir</span>()<span class="question-mark">?</span>.<span class="ident">as_path</span>())<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Get lock file for current context.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lock_file</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">LockFile</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lock_file</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">LockFile</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">LockFile::try_from</span>(<span class="self">self</span>.<span class="ident">dir</span>()<span class="question-mark">?</span>.<span class="ident">as_path</span>())<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Check if lock file exists.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lock_file_exists</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lock_file_exists</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">LockFile::exists_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">dir</span>()<span class="question-mark">?</span>))
     }
 }
 
 <span class="doccomment">/// Create a new context for the current directory.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_context</span>(<span class="ident">path</span>: <span class="ident">PathBuf</span>, <span class="ident">api_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_context</span>(<span class="ident">path</span>: <span class="ident">PathBuf</span>, <span class="ident">api_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">config::read_token</span>().<span class="ident">ok</span>();
 
     <span class="kw">let</span> <span class="ident">api</span> <span class="op">=</span> <span class="ident">Api::new</span>(<span class="ident">api_url</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">PACKAGE_MANAGER_URL</span>.<span class="ident">to_string</span>()), <span class="ident">token</span>);
@@ -143,7 +143,7 @@
 }
 
 <span class="doccomment">/// Returns project context.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_context</span>(<span class="ident">api_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_context</span>(<span class="ident">api_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">config::read_token</span>().<span class="ident">ok</span>();
 
     <span class="kw">let</span> <span class="ident">api</span> <span class="op">=</span> <span class="ident">Api::new</span>(<span class="ident">api_url</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">PACKAGE_MANAGER_URL</span>.<span class="ident">to_string</span>()), <span class="ident">token</span>);

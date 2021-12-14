@@ -87,14 +87,14 @@ export interface LeoError { text: string, code: string, exitCode: number }
 <span class="doccomment">/// Publicly accessible method.</span>
 <span class="doccomment">/// Parse the code and return an AST as JSON or an error object.</span>
 <span class="attribute">#[<span class="ident">wasm_bindgen</span>(<span class="ident">method</span>, <span class="ident">catch</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">JsValue</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">JsValue</span><span class="op">&gt;</span> {
     <span class="prelude-val">Ok</span>(<span class="ident">parse_program</span>(<span class="ident">program</span>).<span class="ident">map_err</span>(<span class="ident">error_to_value</span>)<span class="question-mark">?</span>)
 }
 
 <span class="doccomment">/// Parse the program and pass the Canonicalization phase;</span>
 <span class="doccomment">/// Asg is useless without compiler passes, so we need to add them once the compatibility problem in</span>
 <span class="doccomment">/// snarkvm is solved.</span>
-<span class="kw">fn</span> <span class="ident">parse_program</span>(<span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">leo_errors::Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_program</span>(<span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">leo_errors::Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">ast</span> <span class="op">=</span> <span class="ident">leo_parser::parse_ast</span>(<span class="string">&quot;&quot;</span>, <span class="ident">program</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">ast</span> <span class="op">=</span> <span class="ident">leo_ast_passes::Canonicalizer::do_pass</span>(<span class="ident">ast</span>.<span class="ident">into_repr</span>())<span class="question-mark">?</span>.<span class="ident">to_json_string</span>()<span class="question-mark">?</span>;
 
@@ -102,7 +102,7 @@ export interface LeoError { text: string, code: string, exitCode: number }
 }
 
 <span class="doccomment">/// Make a pretty-print JS object for the thrown error.</span>
-<span class="kw">fn</span> <span class="ident">error_to_value</span>(<span class="ident">err</span>: <span class="ident">LeoError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">JsValue</span> {
+<span class="kw">fn</span> <span class="ident">error_to_value</span>(<span class="ident">err</span>: <span class="ident">LeoError</span>) -&gt; <span class="ident">JsValue</span> {
     <span class="ident">JsValue::from_serde</span>(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
        <span class="string">&quot;error&quot;</span>: <span class="ident">err</span>.<span class="ident">to_string</span>(),
        <span class="string">&quot;code&quot;</span>: <span class="ident">err</span>.<span class="ident">error_code</span>(),

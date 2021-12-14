@@ -101,12 +101,12 @@
 
 <span class="kw">impl</span> <span class="ident">LeoInputParser</span> {
     <span class="doccomment">/// Reads in the given file path into a string.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_file</span>(<span class="ident">file_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">InputParserError</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_file</span>(<span class="ident">file_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">InputParserError</span><span class="op">&gt;</span> {
         <span class="ident">fs::read_to_string</span>(<span class="ident">file_path</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">InputParserError::FileReadError</span>(<span class="ident">file_path</span>.<span class="ident">to_owned</span>()))
     }
 
     <span class="doccomment">/// Parses the input file and constructs a syntax tree.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_file</span>(<span class="ident">input_file</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">files::File</span>, <span class="ident">InputParserError</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_file</span>(<span class="ident">input_file</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">files::File</span>, <span class="ident">InputParserError</span><span class="op">&gt;</span> {
         <span class="comment">// Parse the file using leo-input.pest</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">ast::parse</span>(<span class="ident">input_file</span>)<span class="question-mark">?</span>;
 

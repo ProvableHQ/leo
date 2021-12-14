@@ -183,23 +183,23 @@
         <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">input_option</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InputValue</span><span class="op">&gt;</span>,
         <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConstrainedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConstrainedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">type_</span> {
-            <span class="ident">Type::Address</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Address::from_input</span>(<span class="ident">cs</span>, <span class="ident">name</span>, <span class="ident">input_option</span>, <span class="ident">span</span>)<span class="question-mark">?</span>),
-            <span class="ident">Type::Boolean</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">bool_from_input</span>(<span class="ident">cs</span>, <span class="ident">name</span>, <span class="ident">input_option</span>, <span class="ident">span</span>)<span class="question-mark">?</span>),
-            <span class="ident">Type::Char</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">char_from_input</span>(<span class="ident">cs</span>, <span class="ident">name</span>, <span class="ident">input_option</span>, <span class="ident">span</span>)<span class="question-mark">?</span>),
-            <span class="ident">Type::Field</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">field_from_input</span>(<span class="ident">cs</span>, <span class="ident">name</span>, <span class="ident">input_option</span>, <span class="ident">span</span>)<span class="question-mark">?</span>),
-            <span class="ident">Type::Group</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">group_from_input</span>(<span class="ident">cs</span>, <span class="ident">name</span>, <span class="ident">input_option</span>, <span class="ident">span</span>)<span class="question-mark">?</span>),
-            <span class="ident">Type::Integer</span>(<span class="ident">integer_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">ConstrainedValue::Integer</span>(<span class="ident">Integer::from_input</span>(
+            <span class="ident">Type::Address</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Address::from_input</span>(<span class="ident">cs</span>, <span class="ident">name</span>, <span class="ident">input_option</span>, <span class="ident">span</span>)<span class="question-mark">?</span>),
+            <span class="ident">Type::Boolean</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">bool_from_input</span>(<span class="ident">cs</span>, <span class="ident">name</span>, <span class="ident">input_option</span>, <span class="ident">span</span>)<span class="question-mark">?</span>),
+            <span class="ident">Type::Char</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">char_from_input</span>(<span class="ident">cs</span>, <span class="ident">name</span>, <span class="ident">input_option</span>, <span class="ident">span</span>)<span class="question-mark">?</span>),
+            <span class="ident">Type::Field</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">field_from_input</span>(<span class="ident">cs</span>, <span class="ident">name</span>, <span class="ident">input_option</span>, <span class="ident">span</span>)<span class="question-mark">?</span>),
+            <span class="ident">Type::Group</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">group_from_input</span>(<span class="ident">cs</span>, <span class="ident">name</span>, <span class="ident">input_option</span>, <span class="ident">span</span>)<span class="question-mark">?</span>),
+            <span class="ident">Type::Integer</span>(<span class="ident">integer_type</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ConstrainedValue::Integer</span>(<span class="ident">Integer::from_input</span>(
                 <span class="ident">cs</span>,
                 <span class="ident">integer_type</span>,
                 <span class="ident">name</span>,
                 <span class="ident">input_option</span>,
                 <span class="ident">span</span>,
             )<span class="question-mark">?</span>)),
-            <span class="ident">Type::Array</span>(<span class="ident">type_</span>, <span class="ident">len</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">allocate_array</span>(<span class="ident">cs</span>, <span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">type_</span>, <span class="kw-2">*</span><span class="ident">len</span>, <span class="ident">input_option</span>, <span class="ident">span</span>),
-            <span class="ident">Type::Tuple</span>(<span class="ident">types</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">allocate_tuple</span>(<span class="ident">cs</span>, <span class="ident">name</span>, <span class="ident">types</span>, <span class="ident">input_option</span>, <span class="ident">span</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;main function input not implemented for type {}&quot;</span>, <span class="ident">type_</span>), <span class="comment">// Should not happen.</span>
+            <span class="ident">Type::Array</span>(<span class="ident">type_</span>, <span class="ident">len</span>) =&gt; <span class="self">self</span>.<span class="ident">allocate_array</span>(<span class="ident">cs</span>, <span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">type_</span>, <span class="kw-2">*</span><span class="ident">len</span>, <span class="ident">input_option</span>, <span class="ident">span</span>),
+            <span class="ident">Type::Tuple</span>(<span class="ident">types</span>) =&gt; <span class="self">self</span>.<span class="ident">allocate_tuple</span>(<span class="ident">cs</span>, <span class="ident">name</span>, <span class="ident">types</span>, <span class="ident">input_option</span>, <span class="ident">span</span>),
+            <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;main function input not implemented for type {}&quot;</span>, <span class="ident">type_</span>), <span class="comment">// Should not happen.</span>
         }
     }
 }
@@ -213,31 +213,31 @@
         <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">input_option</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InputValue</span><span class="op">&gt;</span>,
         <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConstrainedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConstrainedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">input_option</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">CompilerError::function_input_not_found</span>(<span class="string">&quot;main&quot;</span>, <span class="ident">name</span>, <span class="ident">span</span>))<span class="question-mark">?</span>;
 
         <span class="kw">match</span> (<span class="ident">type_</span>, <span class="ident">input</span>) {
-            (<span class="ident">Type::Address</span>, <span class="ident">InputValue::Address</span>(<span class="ident">addr</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">ConstrainedValue::Address</span>(<span class="ident">Address::constant</span>(<span class="ident">addr</span>, <span class="ident">span</span>)<span class="question-mark">?</span>)),
-            (<span class="ident">Type::Boolean</span>, <span class="ident">InputValue::Boolean</span>(<span class="ident">value</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">ConstrainedValue::Boolean</span>(<span class="ident">Boolean::constant</span>(<span class="ident">value</span>))),
-            (<span class="ident">Type::Char</span>, <span class="ident">InputValue::Char</span>(<span class="ident">character</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">character</span>.<span class="ident">character</span> {
-                <span class="ident">Char::Scalar</span>(<span class="ident">scalar</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">ConstrainedValue::Char</span>(<span class="ident"><span class="kw">crate</span>::Char::constant</span>(
+            (<span class="ident">Type::Address</span>, <span class="ident">InputValue::Address</span>(<span class="ident">addr</span>)) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ConstrainedValue::Address</span>(<span class="ident">Address::constant</span>(<span class="ident">addr</span>, <span class="ident">span</span>)<span class="question-mark">?</span>)),
+            (<span class="ident">Type::Boolean</span>, <span class="ident">InputValue::Boolean</span>(<span class="ident">value</span>)) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ConstrainedValue::Boolean</span>(<span class="ident">Boolean::constant</span>(<span class="ident">value</span>))),
+            (<span class="ident">Type::Char</span>, <span class="ident">InputValue::Char</span>(<span class="ident">character</span>)) =&gt; <span class="kw">match</span> <span class="ident">character</span>.<span class="ident">character</span> {
+                <span class="ident">Char::Scalar</span>(<span class="ident">scalar</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ConstrainedValue::Char</span>(<span class="ident"><span class="kw">crate</span>::Char::constant</span>(
                     <span class="ident">cs</span>,
                     <span class="ident">CharType::Scalar</span>(<span class="ident">scalar</span>),
                     <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">scalar</span> <span class="kw">as</span> <span class="ident">u32</span>),
                     <span class="ident">span</span>,
                 )<span class="question-mark">?</span>)),
-                <span class="ident">Char::NonScalar</span>(<span class="ident">non_scalar</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">ConstrainedValue::Char</span>(<span class="ident"><span class="kw">crate</span>::Char::constant</span>(
+                <span class="ident">Char::NonScalar</span>(<span class="ident">non_scalar</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ConstrainedValue::Char</span>(<span class="ident"><span class="kw">crate</span>::Char::constant</span>(
                     <span class="ident">cs</span>,
                     <span class="ident">CharType::NonScalar</span>(<span class="ident">non_scalar</span>),
                     <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">non_scalar</span>),
                     <span class="ident">span</span>,
                 )<span class="question-mark">?</span>)),
             },
-            (<span class="ident">Type::Field</span>, <span class="ident">InputValue::Field</span>(<span class="ident">value</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            (<span class="ident">Type::Field</span>, <span class="ident">InputValue::Field</span>(<span class="ident">value</span>)) =&gt; {
                 <span class="prelude-val">Ok</span>(<span class="ident">ConstrainedValue::Field</span>(<span class="ident">FieldType::constant</span>(<span class="ident">cs</span>, <span class="ident">value</span>, <span class="ident">span</span>)<span class="question-mark">?</span>))
             }
-            (<span class="ident">Type::Group</span>, <span class="ident">InputValue::Group</span>(<span class="ident">value</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">ConstrainedValue::Group</span>(<span class="ident">G::constant</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">into</span>(), <span class="ident">span</span>)<span class="question-mark">?</span>)),
-            (<span class="ident">Type::Integer</span>(<span class="ident">integer_type</span>), <span class="ident">InputValue::Integer</span>(<span class="ident">input_type</span>, <span class="ident">value</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            (<span class="ident">Type::Group</span>, <span class="ident">InputValue::Group</span>(<span class="ident">value</span>)) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ConstrainedValue::Group</span>(<span class="ident">G::constant</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">into</span>(), <span class="ident">span</span>)<span class="question-mark">?</span>)),
+            (<span class="ident">Type::Integer</span>(<span class="ident">integer_type</span>), <span class="ident">InputValue::Integer</span>(<span class="ident">input_type</span>, <span class="ident">value</span>)) =&gt; {
                 <span class="kw">let</span> <span class="ident">parsed</span> <span class="op">=</span> <span class="ident">ConstInt::parse</span>(<span class="ident">integer_type</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>, <span class="ident">span</span>)<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">parsed_type</span> <span class="op">=</span> <span class="ident">parsed</span>.<span class="ident">get_int_type</span>();
                 <span class="kw">let</span> <span class="ident">input_type</span> <span class="op">=</span> <span class="ident">input_type</span>.<span class="ident">into</span>();
@@ -248,7 +248,7 @@
                 }
                 <span class="prelude-val">Ok</span>(<span class="ident">ConstrainedValue::Integer</span>(<span class="ident">Integer::new</span>(<span class="kw-2">&amp;</span><span class="ident">parsed</span>)))
             }
-            (<span class="ident">Type::Array</span>(<span class="ident">type_</span>, <span class="ident">arr_len</span>), <span class="ident">InputValue::Array</span>(<span class="ident">values</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            (<span class="ident">Type::Array</span>(<span class="ident">type_</span>, <span class="ident">arr_len</span>), <span class="ident">InputValue::Array</span>(<span class="ident">values</span>)) =&gt; {
                 <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">arr_len</span> <span class="op">!</span><span class="op">=</span> <span class="ident">values</span>.<span class="ident">len</span>() {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::invalid_input_array_dimensions</span>(<span class="kw-2">*</span><span class="ident">arr_len</span>, <span class="ident">values</span>.<span class="ident">len</span>(), <span class="ident">span</span>).<span class="ident">into</span>());
                 }
@@ -260,7 +260,7 @@
                         .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>,
                 ))
             }
-            (<span class="ident">Type::Tuple</span>(<span class="ident">types</span>), <span class="ident">InputValue::Tuple</span>(<span class="ident">values</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            (<span class="ident">Type::Tuple</span>(<span class="ident">types</span>), <span class="ident">InputValue::Tuple</span>(<span class="ident">values</span>)) =&gt; {
                 <span class="kw">if</span> <span class="ident">values</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">types</span>.<span class="ident">len</span>() {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::input_tuple_size_mismatch</span>(<span class="ident">types</span>.<span class="ident">len</span>(), <span class="ident">values</span>.<span class="ident">len</span>(), <span class="ident">span</span>).<span class="ident">into</span>());
                 }
@@ -275,10 +275,10 @@
                         .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>,
                 ))
             }
-            (<span class="ident">Type::Circuit</span>(<span class="kw">_</span>), <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;main function input not implemented for type {}&quot;</span>, <span class="ident">type_</span>), <span class="comment">// Should not happen.</span>
+            (<span class="ident">Type::Circuit</span>(<span class="kw">_</span>), <span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;main function input not implemented for type {}&quot;</span>, <span class="ident">type_</span>), <span class="comment">// Should not happen.</span>
 
             <span class="comment">// Return an error if the input type and input value do not match.</span>
-            (<span class="kw">_</span>, <span class="ident">input</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::input_variable_type_mismatch</span>(<span class="ident">type_</span>, <span class="ident">input</span>, <span class="ident">name</span>, <span class="ident">span</span>).<span class="ident">into</span>()),
+            (<span class="kw">_</span>, <span class="ident">input</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">CompilerError::input_variable_type_mismatch</span>(<span class="ident">type_</span>, <span class="ident">input</span>, <span class="ident">name</span>, <span class="ident">span</span>).<span class="ident">into</span>()),
         }
     }
 }

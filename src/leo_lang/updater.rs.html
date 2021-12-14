@@ -141,7 +141,7 @@
     <span class="kw">const</span> <span class="ident">LEO_REPO_OWNER</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;AleoHQ&quot;</span>;
 
     <span class="doccomment">/// Show all available releases for `leo`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">show_available_releases</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">show_available_releases</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">releases</span> <span class="op">=</span> <span class="ident">github::ReleaseList::configure</span>()
             .<span class="ident">repo_owner</span>(<span class="ident"><span class="self">Self</span>::LEO_REPO_OWNER</span>)
             .<span class="ident">repo_name</span>(<span class="ident"><span class="self">Self</span>::LEO_REPO_NAME</span>)
@@ -162,7 +162,7 @@
     }
 
     <span class="doccomment">/// Update `leo` to the latest release.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_to_latest_release</span>(<span class="ident">show_output</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Status</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_to_latest_release</span>(<span class="ident">show_output</span>: <span class="ident">bool</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Status</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">github::Update::configure</span>()
             .<span class="ident">repo_owner</span>(<span class="ident"><span class="self">Self</span>::LEO_REPO_OWNER</span>)
             .<span class="ident">repo_name</span>(<span class="ident"><span class="self">Self</span>::LEO_REPO_NAME</span>)
@@ -180,7 +180,7 @@
     }
 
     <span class="doccomment">/// Check if there is an available update for `leo` and return the newest release.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_available</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_available</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">updater</span> <span class="op">=</span> <span class="ident">github::Update::configure</span>()
             .<span class="ident">repo_owner</span>(<span class="ident"><span class="self">Self</span>::LEO_REPO_OWNER</span>)
             .<span class="ident">repo_name</span>(<span class="ident"><span class="self">Self</span>::LEO_REPO_NAME</span>)

@@ -93,19 +93,19 @@
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::len_without_is_empty</span>)]</span>
 <span class="kw">impl</span> <span class="ident">PublicState</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::default</span>()
     }
 
     <span class="doccomment">/// Returns an empty version of this struct with `None` values.</span>
     <span class="doccomment">/// Called during constraint synthesis to provide private input variables.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">empty</span>();
 
         <span class="self">Self</span> { <span class="ident">state</span> }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">is_present</span>() {
             <span class="number">1usize</span>
         } <span class="kw">else</span> {
@@ -114,11 +114,11 @@
     }
 
     <span class="doccomment">/// Parse all input variables included in a file and store them in `self`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">sections</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Section</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">InputParserError</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">sections</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Section</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">InputParserError</span><span class="op">&gt;</span> {
         <span class="kw">for</span> <span class="ident">section</span> <span class="kw">in</span> <span class="ident">sections</span> {
             <span class="kw">match</span> <span class="ident">section</span>.<span class="ident">header</span> {
-                <span class="ident">Header::State</span>(<span class="ident">_state</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">parse</span>(<span class="ident">section</span>.<span class="ident">definitions</span>)<span class="question-mark">?</span>,
-                <span class="ident">header</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">InputParserError::public_section</span>(<span class="ident">header</span>)),
+                <span class="ident">Header::State</span>(<span class="ident">_state</span>) =&gt; <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">parse</span>(<span class="ident">section</span>.<span class="ident">definitions</span>)<span class="question-mark">?</span>,
+                <span class="ident">header</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">InputParserError::public_section</span>(<span class="ident">header</span>)),
             }
         }
 
@@ -126,7 +126,7 @@
     }
 
     <span class="doccomment">/// Returns the runtime state input values</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">State</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">State</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>
     }
 }

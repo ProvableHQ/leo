@@ -160,7 +160,7 @@
         <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CS</span>,
         <span class="ident">function</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
         <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">Input</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Output</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Output</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">registers</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">get_registers</span>();
 
         <span class="comment">// Iterate over main function input variables and allocate new values</span>
@@ -174,10 +174,10 @@
         }
 
         <span class="kw">match</span> <span class="ident">function</span>.<span class="ident">qualifier</span> {
-            <span class="ident">FunctionQualifier::SelfRef</span> <span class="op">|</span> <span class="ident">FunctionQualifier::ConstSelfRef</span> <span class="op">|</span> <span class="ident">FunctionQualifier::MutSelfRef</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">FunctionQualifier::SelfRef</span> <span class="op">|</span> <span class="ident">FunctionQualifier::ConstSelfRef</span> <span class="op">|</span> <span class="ident">FunctionQualifier::MutSelfRef</span> =&gt; {
                 <span class="macro">unimplemented!</span>(<span class="string">&quot;cannot access self variable in main function&quot;</span>)
             }
-            <span class="ident">FunctionQualifier::Static</span> <span class="op">=</span><span class="op">&gt;</span> (),
+            <span class="ident">FunctionQualifier::Static</span> =&gt; (),
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">arguments</span> <span class="op">=</span> <span class="macro">vec!</span>[];
@@ -193,11 +193,11 @@
                     <span class="ident">input</span>.<span class="ident">get_constant</span>(<span class="ident">name</span>.<span class="ident">as_ref</span>()),
                 ) {
                     <span class="comment">// If variable is in both [main] and [constants] sections - error.</span>
-                    (<span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                    (<span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; {
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::double_input_declaration</span>(<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">input_variable</span>.<span class="ident">name</span>.<span class="ident">span</span>).<span class="ident">into</span>());
                     }
                     <span class="comment">// If input option is found in [main] section and input is not const.</span>
-                    (<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(<span class="ident">input_option</span>), <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">allocate_main_function_input</span>(
+                    (<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(<span class="ident">input_option</span>), <span class="kw">_</span>) =&gt; <span class="self">self</span>.<span class="ident">allocate_main_function_input</span>(
                         <span class="ident">cs</span>,
                         <span class="kw-2">&amp;</span><span class="ident">input_variable</span>.<span class="ident">type_</span>.<span class="ident">clone</span>(),
                         <span class="kw-2">&amp;</span><span class="ident">name</span>,
@@ -205,7 +205,7 @@
                         <span class="kw-2">&amp;</span><span class="ident">input_variable</span>.<span class="ident">name</span>.<span class="ident">span</span>,
                     )<span class="question-mark">?</span>,
                     <span class="comment">// If input option is found in [constants] section and function argument is const.</span>
-                    (<span class="bool-val">true</span>, <span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="ident">input_option</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">constant_main_function_input</span>(
+                    (<span class="bool-val">true</span>, <span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="ident">input_option</span>)) =&gt; <span class="self">self</span>.<span class="ident">constant_main_function_input</span>(
                         <span class="ident">cs</span>,
                         <span class="kw-2">&amp;</span><span class="ident">input_variable</span>.<span class="ident">type_</span>.<span class="ident">clone</span>(),
                         <span class="kw-2">&amp;</span><span class="ident">name</span>,
@@ -213,19 +213,19 @@
                         <span class="kw-2">&amp;</span><span class="ident">input_variable</span>.<span class="ident">name</span>.<span class="ident">span</span>,
                     )<span class="question-mark">?</span>,
                     <span class="comment">// Function argument is const, input is not.</span>
-                    (<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    (<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">None</span>) =&gt; {
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(
                             <span class="ident">CompilerError::expected_const_input_variable</span>(<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">input_variable</span>.<span class="ident">name</span>.<span class="ident">span</span>).<span class="ident">into</span>(),
                         );
                     }
                     <span class="comment">// Input is const, function argument is not.</span>
-                    (<span class="bool-val">false</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                    (<span class="bool-val">false</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; {
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(
                             <span class="ident">CompilerError::expected_non_const_input_variable</span>(<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">input_variable</span>.<span class="ident">name</span>.<span class="ident">span</span>).<span class="ident">into</span>(),
                         );
                     }
                     <span class="comment">// When not found - Error out.</span>
-                    (<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    (<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::function_input_not_found</span>(
                             <span class="ident">function</span>.<span class="ident">name</span>.<span class="ident">borrow</span>().<span class="ident">name</span>.<span class="ident">to_string</span>(),
                             <span class="ident">name</span>,

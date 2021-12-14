@@ -109,12 +109,12 @@
         <span class="ident">array_len</span>: <span class="ident">usize</span>,
         <span class="ident">input_value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InputValue</span><span class="op">&gt;</span>,
         <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConstrainedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConstrainedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// Build the array value using the expected types.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">array_value</span> <span class="op">=</span> <span class="macro">vec!</span>[];
 
         <span class="kw">match</span> <span class="ident">input_value</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">InputValue::Array</span>(<span class="ident">arr</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">InputValue::Array</span>(<span class="ident">arr</span>)) =&gt; {
                 <span class="kw">if</span> <span class="ident">array_len</span> <span class="op">!</span><span class="op">=</span> <span class="ident">arr</span>.<span class="ident">len</span>() {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::invalid_input_array_dimensions</span>(<span class="ident">arr</span>.<span class="ident">len</span>(), <span class="ident">array_len</span>, <span class="ident">span</span>).<span class="ident">into</span>());
                 }
@@ -132,7 +132,7 @@
                     )<span class="question-mark">?</span>)
                 }
             }
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">None</span> =&gt; {
                 <span class="comment">// Allocate all row values as none</span>
                 <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">array_len</span> {
                     <span class="kw">let</span> <span class="ident">value_name</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}_{}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">to_string</span>());
@@ -140,7 +140,7 @@
                     <span class="ident">array_value</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">allocate_main_function_input</span>(<span class="ident">cs</span>, <span class="ident">array_type</span>, <span class="kw-2">&amp;</span><span class="ident">value_name</span>, <span class="prelude-val">None</span>, <span class="ident">span</span>)<span class="question-mark">?</span>);
                 }
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">_</span> =&gt; {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::invalid_function_input_array</span>(<span class="ident">input_value</span>.<span class="ident">unwrap</span>(), <span class="ident">span</span>).<span class="ident">into</span>());
             }
         }

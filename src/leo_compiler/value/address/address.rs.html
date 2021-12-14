@@ -330,7 +330,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Address</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">constant</span>(<span class="ident">address</span>: <span class="ident">String</span>, <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">constant</span>(<span class="ident">address</span>: <span class="ident">String</span>, <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">address</span> <span class="op">=</span>
             <span class="ident">AleoAddress::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">address</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">CompilerError::address_value_account_error</span>(<span class="ident">e</span>, <span class="ident">span</span>))<span class="question-mark">?</span>;
 
@@ -345,7 +345,7 @@
         })
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_constant</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_constant</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">bytes</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">byte</span><span class="op">|</span> <span class="ident">byte</span>.<span class="ident">is_constant</span>())
     }
 
@@ -354,17 +354,17 @@
         <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">input_value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InputValue</span><span class="op">&gt;</span>,
         <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConstrainedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConstrainedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// Check that the input value is the correct type</span>
         <span class="kw">let</span> <span class="ident">address_value</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input_value</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">input</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">input</span>) =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="ident">InputValue::Address</span>(<span class="ident">string</span>) <span class="op">=</span> <span class="ident">input</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">string</span>)
                 } <span class="kw">else</span> {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::address_value_invalid_address</span>(<span class="ident">name</span>, <span class="ident">span</span>).<span class="ident">into</span>());
                 }
             }
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
         };
 
         <span class="kw">let</span> <span class="ident">address</span> <span class="op">=</span> <span class="ident">Address::alloc</span>(
@@ -379,12 +379,12 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">alloc_helper</span><span class="op">&lt;</span>
         <span class="ident">F</span>: <span class="ident">PrimeField</span>,
         <span class="ident">CS</span>: <span class="ident">ConstraintSystem</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
-        <span class="ident">Fn</span>: <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span>,
+        <span class="ident">Fn</span>: <span class="ident">FnOnce</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span>,
         <span class="ident">T</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="op">&gt;</span>(
         <span class="ident">cs</span>: <span class="ident">CS</span>,
         <span class="ident">value_gen</span>: <span class="ident">Fn</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AleoAddress</span><span class="op">&lt;</span><span class="ident">Components</span><span class="op">&gt;</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AleoAddress</span><span class="op">&lt;</span><span class="ident">Components</span><span class="op">&gt;</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">cs</span>.<span class="ident">is_in_setup_mode</span>() {
             <span class="prelude-val">Ok</span>(<span class="ident">AleoAddress</span>::<span class="op">&lt;</span><span class="ident">Components</span><span class="op">&gt;</span><span class="ident">::default</span>())
         } <span class="kw">else</span> {
@@ -395,10 +395,10 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">PrimeField</span><span class="op">&gt;</span> <span class="ident">AllocGadget</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Address</span> {
-    <span class="kw">fn</span> <span class="ident">alloc_constant</span><span class="op">&lt;</span><span class="ident">Fn</span>: <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span>, <span class="ident">T</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">CS</span>: <span class="ident">ConstraintSystem</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">alloc_constant</span><span class="op">&lt;</span><span class="ident">Fn</span>: <span class="ident">FnOnce</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span>, <span class="ident">T</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">CS</span>: <span class="ident">ConstraintSystem</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>(
         <span class="ident">_cs</span>: <span class="ident">CS</span>,
         <span class="ident">value_gen</span>: <span class="ident">Fn</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">address</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="ident">address_string</span> <span class="op">=</span> <span class="ident">value_gen</span>()<span class="question-mark">?</span>.<span class="ident">borrow</span>().<span class="ident">clone</span>();
             <span class="ident">AleoAddress::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">address_string</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">SynthesisError::AssignmentMissing</span>)<span class="question-mark">?</span>
@@ -416,10 +416,10 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">alloc</span><span class="op">&lt;</span><span class="ident">Fn</span>: <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span>, <span class="ident">T</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">CS</span>: <span class="ident">ConstraintSystem</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">alloc</span><span class="op">&lt;</span><span class="ident">Fn</span>: <span class="ident">FnOnce</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span>, <span class="ident">T</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">CS</span>: <span class="ident">ConstraintSystem</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>(
         <span class="kw-2">mut</span> <span class="ident">cs</span>: <span class="ident">CS</span>,
         <span class="ident">value_gen</span>: <span class="ident">Fn</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">address</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::alloc_helper</span>(<span class="ident">cs</span>.<span class="ident">ns</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;allocate the address&quot;</span>), <span class="ident">value_gen</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">address_bytes</span> <span class="op">=</span> <span class="macro">vec!</span>[];
         <span class="ident">address</span>
@@ -434,10 +434,10 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">alloc_input</span><span class="op">&lt;</span><span class="ident">Fn</span>: <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span>, <span class="ident">T</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">CS</span>: <span class="ident">ConstraintSystem</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">alloc_input</span><span class="op">&lt;</span><span class="ident">Fn</span>: <span class="ident">FnOnce</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span>, <span class="ident">T</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">CS</span>: <span class="ident">ConstraintSystem</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>(
         <span class="kw-2">mut</span> <span class="ident">cs</span>: <span class="ident">CS</span>,
         <span class="ident">value_gen</span>: <span class="ident">Fn</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">address</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::alloc_helper</span>(<span class="ident">cs</span>.<span class="ident">ns</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;allocate the address&quot;</span>), <span class="ident">value_gen</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">address_bytes</span> <span class="op">=</span> <span class="macro">vec!</span>[];
         <span class="ident">address</span>
@@ -454,7 +454,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">PrimeField</span><span class="op">&gt;</span> <span class="ident">EvaluateEqGadget</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Address</span> {
-    <span class="kw">fn</span> <span class="ident">evaluate_equal</span><span class="op">&lt;</span><span class="ident">CS</span>: <span class="ident">ConstraintSystem</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">cs</span>: <span class="ident">CS</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Boolean</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">evaluate_equal</span><span class="op">&lt;</span><span class="ident">CS</span>: <span class="ident">ConstraintSystem</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">cs</span>: <span class="ident">CS</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Boolean</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_constant</span>() <span class="op">&amp;&amp;</span> <span class="ident">other</span>.<span class="ident">is_constant</span>() {
             <span class="prelude-val">Ok</span>(<span class="ident">Boolean::Constant</span>(<span class="self">self</span>.<span class="ident">eq</span>(<span class="ident">other</span>)))
         } <span class="kw">else</span> {
@@ -476,7 +476,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">cond_equal_helper</span>(<span class="ident">first</span>: <span class="kw-2">&amp;</span><span class="ident">Address</span>, <span class="ident">second</span>: <span class="kw-2">&amp;</span><span class="ident">Address</span>, <span class="ident">cond</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">cond_equal_helper</span>(<span class="ident">first</span>: <span class="kw-2">&amp;</span><span class="ident">Address</span>, <span class="ident">second</span>: <span class="kw-2">&amp;</span><span class="ident">Address</span>, <span class="ident">cond</span>: <span class="ident">bool</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">cond</span> <span class="op">&amp;&amp;</span> <span class="ident">first</span>.<span class="ident">address</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">second</span>.<span class="ident">address</span>.<span class="ident">is_some</span>() {
         <span class="kw">if</span> <span class="ident">first</span>.<span class="ident">eq</span>(<span class="ident">second</span>) {
             <span class="prelude-val">Ok</span>(())
@@ -494,7 +494,7 @@
         <span class="kw-2">mut</span> <span class="ident">cs</span>: <span class="ident">CS</span>,
         <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>,
         <span class="ident">condition</span>: <span class="kw-2">&amp;</span><span class="ident">Boolean</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Boolean::Constant</span>(<span class="ident">cond</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">condition</span> {
             <span class="ident">cond_equal_helper</span>(<span class="self">self</span>, <span class="ident">other</span>, <span class="ident">cond</span>)
         } <span class="kw">else</span> {
@@ -509,12 +509,12 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">cost</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">cost</span>() -&gt; <span class="ident">usize</span> {
         <span class="op">&lt;</span><span class="ident">UInt8</span> <span class="kw">as</span> <span class="ident">ConditionalEqGadget</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::cost</span>() <span class="op">*</span> <span class="number">32</span> <span class="comment">// address 32 bytes</span>
     }
 }
 
-<span class="kw">fn</span> <span class="ident">cond_select_helper</span>(<span class="ident">first</span>: <span class="kw-2">&amp;</span><span class="ident">Address</span>, <span class="ident">second</span>: <span class="kw-2">&amp;</span><span class="ident">Address</span>, <span class="ident">cond</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Address</span> {
+<span class="kw">fn</span> <span class="ident">cond_select_helper</span>(<span class="ident">first</span>: <span class="kw-2">&amp;</span><span class="ident">Address</span>, <span class="ident">second</span>: <span class="kw-2">&amp;</span><span class="ident">Address</span>, <span class="ident">cond</span>: <span class="ident">bool</span>) -&gt; <span class="ident">Address</span> {
     <span class="kw">if</span> <span class="ident">cond</span> {
         <span class="ident">first</span>.<span class="ident">clone</span>()
     } <span class="kw">else</span> {
@@ -528,7 +528,7 @@
         <span class="ident">cond</span>: <span class="kw-2">&amp;</span><span class="ident">Boolean</span>,
         <span class="ident">first</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>,
         <span class="ident">second</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Boolean::Constant</span>(<span class="ident">cond</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">cond</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">cond_select_helper</span>(<span class="ident">first</span>, <span class="ident">second</span>, <span class="ident">cond</span>))
         } <span class="kw">else</span> {
@@ -563,16 +563,16 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">cost</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">cost</span>() -&gt; <span class="ident">usize</span> {
         <span class="op">&lt;</span><span class="ident">UInt8</span> <span class="kw">as</span> <span class="ident">CondSelectGadget</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::cost</span>() <span class="op">*</span> <span class="number">32</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">Address</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std::fmt::Formatter</span>) -&gt; <span class="ident">std::fmt::Result</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">address</span> {
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">address</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">address</span>),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;[input address]&quot;</span>),
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">address</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">address</span>),
+            <span class="prelude-val">None</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;[input address]&quot;</span>),
         }
     }
 }

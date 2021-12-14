@@ -195,7 +195,7 @@
     <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CS</span>,
     <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="ident">Program</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">Input</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Output</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Output</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">resolved_program</span> <span class="op">=</span> <span class="ident">ConstrainedProgram</span>::<span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">program</span>.<span class="ident">clone</span>());
 
     <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">global_const</span>) <span class="kw">in</span> <span class="ident">program</span>.<span class="ident">global_consts</span>.<span class="ident">iter</span>() {
@@ -208,11 +208,11 @@
     };
 
     <span class="kw">match</span> <span class="ident">main</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">function</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="ident">function</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">resolved_program</span>.<span class="ident">enforce_main_function</span>(<span class="ident">cs</span>, <span class="ident">function</span>, <span class="ident">input</span>)<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
         }
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::no_main_function</span>().<span class="ident">into</span>()),
+        <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">CompilerError::no_main_function</span>().<span class="ident">into</span>()),
     }
 }
 
@@ -220,7 +220,7 @@
     <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="ident">Program</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     <span class="ident">input</span>: <span class="ident">InputPairs</span>,
     <span class="ident">output_directory</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">u32</span>, <span class="ident">u32</span>)<span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">u32</span>, <span class="ident">u32</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">resolved_program</span> <span class="op">=</span> <span class="ident">ConstrainedProgram</span>::<span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">program</span>.<span class="ident">clone</span>());
     <span class="kw">let</span> <span class="ident">program_name</span> <span class="op">=</span> <span class="ident">program</span>.<span class="ident">name</span>.<span class="ident">clone</span>();
 
@@ -246,13 +246,13 @@
         <span class="kw">let</span> <span class="ident">input_file</span> <span class="op">=</span> <span class="ident">function</span>
             .<span class="ident">annotations</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">find</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">name</span>.<span class="ident">name</span>.<span class="ident">as_ref</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;test&quot;</span>)
+            .<span class="ident">find</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">name</span>.<span class="ident">name</span>.<span class="ident">as_ref</span>() <span class="op">==</span> <span class="string">&quot;test&quot;</span>)
             .<span class="ident">unwrap</span>()
             .<span class="ident">arguments</span>
             .<span class="ident">get</span>(<span class="number">0</span>);
         <span class="comment">// get input file name from annotation or use test_name</span>
         <span class="kw">let</span> <span class="ident">input_pair</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input_file</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">file_id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">file_id</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">file_name</span> <span class="op">=</span> <span class="ident">file_id</span>.<span class="ident">clone</span>();
                 <span class="kw">let</span> <span class="ident">file_name_kebab</span> <span class="op">=</span> <span class="ident">file_name</span>.<span class="ident">to_string</span>().<span class="ident">replace</span>(<span class="string">&quot;_&quot;</span>, <span class="string">&quot;-&quot;</span>);
 
@@ -265,13 +265,13 @@
                     .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">file_name_kebab</span>)
                     .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">input</span>.<span class="ident">pairs</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">file_name_kebab</span>))
                 {
-                    <span class="prelude-val">Some</span>(<span class="ident">pair</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pair</span>.<span class="ident">to_owned</span>(),
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="prelude-val">Some</span>(<span class="ident">pair</span>) =&gt; <span class="ident">pair</span>.<span class="ident">to_owned</span>(),
+                    <span class="prelude-val">None</span> =&gt; {
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::invalid_test_context</span>(<span class="ident">file_name</span>).<span class="ident">into</span>());
                     }
                 }
             }
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">default</span>.<span class="ident">ok_or_else</span>(<span class="ident">CompilerError::no_test_input</span>)<span class="question-mark">?</span>,
+            <span class="prelude-val">None</span> =&gt; <span class="ident">default</span>.<span class="ident">ok_or_else</span>(<span class="ident">CompilerError::no_test_input</span>)<span class="question-mark">?</span>,
         };
 
         <span class="comment">// parse input files to abstract syntax trees</span>
@@ -292,7 +292,7 @@
         );
 
         <span class="kw">match</span> (<span class="ident">result</span>.<span class="ident">is_ok</span>(), <span class="ident">cs</span>.<span class="ident">is_satisfied</span>()) {
-            (<span class="bool-val">true</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            (<span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; {
                 <span class="macro">tracing::info!</span>(<span class="string">&quot;{} ... ok\n&quot;</span>, <span class="ident">full_test_name</span>);
 
                 <span class="comment">// write result to file</span>
@@ -306,13 +306,13 @@
                 <span class="comment">// increment passed tests</span>
                 <span class="ident">passed</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }
-            (<span class="bool-val">true</span>, <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            (<span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; {
                 <span class="macro">tracing::error!</span>(<span class="string">&quot;{} constraint system not satisfied\n&quot;</span>, <span class="ident">full_test_name</span>);
 
                 <span class="comment">// increment failed tests</span>
                 <span class="ident">failed</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }
-            (<span class="bool-val">false</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            (<span class="bool-val">false</span>, <span class="kw">_</span>) =&gt; {
                 <span class="comment">// Set file location of error</span>
                 <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">unwrap_err</span>();
 

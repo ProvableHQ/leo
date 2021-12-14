@@ -205,24 +205,24 @@
     <span class="doccomment">/// Because of the specifics of the macro implementation, it is not possible</span>
     <span class="doccomment">/// to set the span name with a non-literal i.e. a dynamic variable even if this</span>
     <span class="doccomment">/// variable is a &amp;&#39;static str.</span>
-    <span class="kw">fn</span> <span class="ident">log_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">log_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         <span class="macro">tracing::span!</span>(<span class="ident">tracing::Level::INFO</span>, <span class="string">&quot;Leo&quot;</span>)
     }
 
     <span class="doccomment">/// Runs the prelude and returns the Input of the current command.</span>
-    <span class="kw">fn</span> <span class="ident">prelude</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Input</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">prelude</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Input</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">std::marker::Sized</span>;
 
     <span class="doccomment">/// Runs the main operation of this command. This function is run within</span>
     <span class="doccomment">/// context of &#39;execute&#39; function, which sets logging and timers.</span>
-    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>, <span class="ident">input</span>: <span class="ident"><span class="self">Self</span>::Input</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>, <span class="ident">input</span>: <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">std::marker::Sized</span>;
 
     <span class="doccomment">/// A wrapper around the `apply` method.</span>
     <span class="doccomment">/// This function sets up tracing, timing, and the context.</span>
-    <span class="kw">fn</span> <span class="ident">execute</span>(<span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">execute</span>(<span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">std::marker::Sized</span>,
     {
@@ -249,7 +249,7 @@
     <span class="doccomment">/// Executes command but empty the result. Comes in handy where there&#39;s a</span>
     <span class="doccomment">/// need to make match arms compatible while keeping implementation-specific</span>
     <span class="doccomment">/// output possible. Errors however are all of the type Error</span>
-    <span class="kw">fn</span> <span class="ident">try_execute</span>(<span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">try_execute</span>(<span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">std::marker::Sized</span>,
     {

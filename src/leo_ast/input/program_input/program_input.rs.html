@@ -119,13 +119,13 @@
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::len_without_is_empty</span>)]</span>
 <span class="kw">impl</span> <span class="ident">ProgramInput</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::default</span>()
     }
 
     <span class="doccomment">/// Returns an empty version of this struct with `None` values.</span>
     <span class="doccomment">/// Called during constraint synthesis to provide private input values.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">main</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">main</span>.<span class="ident">empty</span>();
         <span class="kw">let</span> <span class="ident">constants</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">constants</span>.<span class="ident">empty</span>();
         <span class="kw">let</span> <span class="ident">registers</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">registers</span>.<span class="ident">empty</span>();
@@ -137,7 +137,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="number">0</span>;
 
         <span class="comment">// Add main input variables and constants.</span>
@@ -153,28 +153,28 @@
     }
 
     <span class="doccomment">/// Parse each input included in a file and store them in `self`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">section</span>: <span class="ident">Section</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">InputParserError</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">section</span>: <span class="ident">Section</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">InputParserError</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">section</span>.<span class="ident">header</span> {
-            <span class="ident">Header::Constants</span>(<span class="ident">_constants</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">constants</span>.<span class="ident">parse</span>(<span class="ident">section</span>.<span class="ident">definitions</span>),
-            <span class="ident">Header::Main</span>(<span class="ident">_main</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">main</span>.<span class="ident">parse</span>(<span class="ident">section</span>.<span class="ident">definitions</span>),
-            <span class="ident">Header::Registers</span>(<span class="ident">_registers</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">registers</span>.<span class="ident">parse</span>(<span class="ident">section</span>.<span class="ident">definitions</span>),
-            <span class="ident">header</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">InputParserError::input_section_header</span>(<span class="ident">header</span>)),
+            <span class="ident">Header::Constants</span>(<span class="ident">_constants</span>) =&gt; <span class="self">self</span>.<span class="ident">constants</span>.<span class="ident">parse</span>(<span class="ident">section</span>.<span class="ident">definitions</span>),
+            <span class="ident">Header::Main</span>(<span class="ident">_main</span>) =&gt; <span class="self">self</span>.<span class="ident">main</span>.<span class="ident">parse</span>(<span class="ident">section</span>.<span class="ident">definitions</span>),
+            <span class="ident">Header::Registers</span>(<span class="ident">_registers</span>) =&gt; <span class="self">self</span>.<span class="ident">registers</span>.<span class="ident">parse</span>(<span class="ident">section</span>.<span class="ident">definitions</span>),
+            <span class="ident">header</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">InputParserError::input_section_header</span>(<span class="ident">header</span>)),
         }
     }
 
     <span class="doccomment">/// Returns the main function input value with the given `name`</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::ptr_arg</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InputValue</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InputValue</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">main</span>.<span class="ident">get</span>(<span class="ident">name</span>)
     }
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::ptr_arg</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_constant</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InputValue</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_constant</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InputValue</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">constants</span>.<span class="ident">get</span>(<span class="ident">name</span>)
     }
 
     <span class="doccomment">/// Returns the runtime register input values</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_registers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Registers</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_registers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Registers</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">registers</span>
     }
 }

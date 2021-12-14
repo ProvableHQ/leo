@@ -360,19 +360,19 @@
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::from_over_into</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">leo_ast::Char</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Char</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">leo_ast::Char</span> {
+    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">leo_ast::Char</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Scalar</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">leo_ast::Char::Scalar</span>(<span class="ident">c</span>),
-            <span class="ident"><span class="self">Self</span>::NonScalar</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">leo_ast::Char::NonScalar</span>(<span class="ident">c</span>),
+            <span class="ident"><span class="self">Self</span>::Scalar</span>(<span class="ident">c</span>) =&gt; <span class="ident">leo_ast::Char::Scalar</span>(<span class="ident">c</span>),
+            <span class="ident"><span class="self">Self</span>::NonScalar</span>(<span class="ident">c</span>) =&gt; <span class="ident">leo_ast::Char::NonScalar</span>(<span class="ident">c</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Char</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Scalar</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">c</span>),
-            <span class="ident"><span class="self">Self</span>::NonScalar</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">c</span>),
+            <span class="ident"><span class="self">Self</span>::Scalar</span>(<span class="ident">c</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">c</span>),
+            <span class="ident"><span class="self">Self</span>::NonScalar</span>(<span class="ident">c</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">c</span>),
         }
     }
 }
@@ -544,108 +544,108 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `true` if the `self` token equals a Leo keyword.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_keyword</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="ident">KEYWORD_TOKENS</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_keyword</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="ident">KEYWORD_TOKENS</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span> <span class="op">==</span> <span class="self">self</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Token</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">use</span> <span class="ident">Token</span>::<span class="kw-2">*</span>;
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">CommentLine</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">s</span>),
-            <span class="ident">CommentBlock</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">s</span>),
-            <span class="ident">StringLit</span>(<span class="ident">string</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CommentLine</span>(<span class="ident">s</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">s</span>),
+            <span class="ident">CommentBlock</span>(<span class="ident">s</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">s</span>),
+            <span class="ident">StringLit</span>(<span class="ident">string</span>) =&gt; {
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;\&quot;&quot;</span>)<span class="question-mark">?</span>;
                 <span class="kw">for</span> <span class="ident">character</span> <span class="kw">in</span> <span class="ident">string</span>.<span class="ident">iter</span>() {
                     <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">character</span>)<span class="question-mark">?</span>;
                 }
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;\&quot;&quot;</span>)
             }
-            <span class="ident">Ident</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">s</span>),
-            <span class="ident">Int</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">s</span>),
-            <span class="ident">True</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;true&quot;</span>),
-            <span class="ident">False</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;false&quot;</span>),
-            <span class="ident">AddressLit</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">s</span>),
-            <span class="ident">CharLit</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">s</span>),
+            <span class="ident">Ident</span>(<span class="ident">s</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">s</span>),
+            <span class="ident">Int</span>(<span class="ident">s</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">s</span>),
+            <span class="ident">True</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;true&quot;</span>),
+            <span class="ident">False</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;false&quot;</span>),
+            <span class="ident">AddressLit</span>(<span class="ident">s</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">s</span>),
+            <span class="ident">CharLit</span>(<span class="ident">s</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">s</span>),
 
-            <span class="ident">At</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;@&quot;</span>),
+            <span class="ident">At</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;@&quot;</span>),
 
-            <span class="ident">Not</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;!&quot;</span>),
-            <span class="ident">And</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&amp;&amp;&quot;</span>),
-            <span class="ident">Or</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;||&quot;</span>),
-            <span class="ident">Eq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;==&quot;</span>),
-            <span class="ident">NotEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;!=&quot;</span>),
-            <span class="ident">Lt</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;&quot;</span>),
-            <span class="ident">LtEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;=&quot;</span>),
-            <span class="ident">Gt</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&gt;&quot;</span>),
-            <span class="ident">GtEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&gt;=&quot;</span>),
-            <span class="ident">Add</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;+&quot;</span>),
-            <span class="ident">Minus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;-&quot;</span>),
-            <span class="ident">Mul</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;*&quot;</span>),
-            <span class="ident">Div</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;/&quot;</span>),
-            <span class="ident">Exp</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;**&quot;</span>),
-            <span class="ident">Assign</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;=&quot;</span>),
-            <span class="ident">AddEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;+=&quot;</span>),
-            <span class="ident">MinusEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;-=&quot;</span>),
-            <span class="ident">MulEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;*=&quot;</span>),
-            <span class="ident">DivEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;/=&quot;</span>),
-            <span class="ident">ExpEq</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;**=&quot;</span>),
-            <span class="ident">LeftParen</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;(&quot;</span>),
-            <span class="ident">RightParen</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;)&quot;</span>),
-            <span class="ident">LeftSquare</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>),
-            <span class="ident">RightSquare</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>),
-            <span class="ident">LeftCurly</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{{&quot;</span>),
-            <span class="ident">RightCurly</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;}}&quot;</span>),
-            <span class="ident">Comma</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;,&quot;</span>),
-            <span class="ident">Dot</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;.&quot;</span>),
-            <span class="ident">DotDot</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;..&quot;</span>),
-            <span class="ident">DotDotDot</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;...&quot;</span>),
-            <span class="ident">Semicolon</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;;&quot;</span>),
-            <span class="ident">Colon</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;:&quot;</span>),
-            <span class="ident">DoubleColon</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;::&quot;</span>),
-            <span class="ident">Question</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;?&quot;</span>),
-            <span class="ident">Arrow</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;-&gt;&quot;</span>),
-            <span class="ident">Underscore</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;_&quot;</span>),
+            <span class="ident">Not</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;!&quot;</span>),
+            <span class="ident">And</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&amp;&amp;&quot;</span>),
+            <span class="ident">Or</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;||&quot;</span>),
+            <span class="ident">Eq</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;==&quot;</span>),
+            <span class="ident">NotEq</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;!=&quot;</span>),
+            <span class="ident">Lt</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;&quot;</span>),
+            <span class="ident">LtEq</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;=&quot;</span>),
+            <span class="ident">Gt</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&gt;&quot;</span>),
+            <span class="ident">GtEq</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&gt;=&quot;</span>),
+            <span class="ident">Add</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;+&quot;</span>),
+            <span class="ident">Minus</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;-&quot;</span>),
+            <span class="ident">Mul</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;*&quot;</span>),
+            <span class="ident">Div</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;/&quot;</span>),
+            <span class="ident">Exp</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;**&quot;</span>),
+            <span class="ident">Assign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;=&quot;</span>),
+            <span class="ident">AddEq</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;+=&quot;</span>),
+            <span class="ident">MinusEq</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;-=&quot;</span>),
+            <span class="ident">MulEq</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;*=&quot;</span>),
+            <span class="ident">DivEq</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;/=&quot;</span>),
+            <span class="ident">ExpEq</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;**=&quot;</span>),
+            <span class="ident">LeftParen</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;(&quot;</span>),
+            <span class="ident">RightParen</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;)&quot;</span>),
+            <span class="ident">LeftSquare</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>),
+            <span class="ident">RightSquare</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>),
+            <span class="ident">LeftCurly</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{{&quot;</span>),
+            <span class="ident">RightCurly</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;}}&quot;</span>),
+            <span class="ident">Comma</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;,&quot;</span>),
+            <span class="ident">Dot</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;.&quot;</span>),
+            <span class="ident">DotDot</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;..&quot;</span>),
+            <span class="ident">DotDotDot</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;...&quot;</span>),
+            <span class="ident">Semicolon</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;;&quot;</span>),
+            <span class="ident">Colon</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;:&quot;</span>),
+            <span class="ident">DoubleColon</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;::&quot;</span>),
+            <span class="ident">Question</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;?&quot;</span>),
+            <span class="ident">Arrow</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;-&gt;&quot;</span>),
+            <span class="ident">Underscore</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;_&quot;</span>),
 
-            <span class="ident">U8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u8&quot;</span>),
-            <span class="ident">U16</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u16&quot;</span>),
-            <span class="ident">U32</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u32&quot;</span>),
-            <span class="ident">U64</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u64&quot;</span>),
-            <span class="ident">U128</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u128&quot;</span>),
-            <span class="ident">I8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i8&quot;</span>),
-            <span class="ident">I16</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i16&quot;</span>),
-            <span class="ident">I32</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i32&quot;</span>),
-            <span class="ident">I64</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i64&quot;</span>),
-            <span class="ident">I128</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i128&quot;</span>),
-            <span class="ident">Field</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;field&quot;</span>),
-            <span class="ident">Group</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;group&quot;</span>),
-            <span class="ident">Bool</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;bool&quot;</span>),
-            <span class="ident">Address</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;address&quot;</span>),
-            <span class="ident">Char</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;char&quot;</span>),
-            <span class="ident">BigSelf</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Self&quot;</span>),
+            <span class="ident">U8</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u8&quot;</span>),
+            <span class="ident">U16</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u16&quot;</span>),
+            <span class="ident">U32</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u32&quot;</span>),
+            <span class="ident">U64</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u64&quot;</span>),
+            <span class="ident">U128</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u128&quot;</span>),
+            <span class="ident">I8</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i8&quot;</span>),
+            <span class="ident">I16</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i16&quot;</span>),
+            <span class="ident">I32</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i32&quot;</span>),
+            <span class="ident">I64</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i64&quot;</span>),
+            <span class="ident">I128</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i128&quot;</span>),
+            <span class="ident">Field</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;field&quot;</span>),
+            <span class="ident">Group</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;group&quot;</span>),
+            <span class="ident">Bool</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;bool&quot;</span>),
+            <span class="ident">Address</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;address&quot;</span>),
+            <span class="ident">Char</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;char&quot;</span>),
+            <span class="ident">BigSelf</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Self&quot;</span>),
 
-            <span class="ident">Input</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;input&quot;</span>),
-            <span class="ident">LittleSelf</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;self&quot;</span>),
+            <span class="ident">Input</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;input&quot;</span>),
+            <span class="ident">LittleSelf</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;self&quot;</span>),
 
-            <span class="ident">Import</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;import&quot;</span>),
+            <span class="ident">Import</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;import&quot;</span>),
 
-            <span class="ident">As</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;as&quot;</span>),
-            <span class="ident">Circuit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;circuit&quot;</span>),
-            <span class="ident">Console</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;console&quot;</span>),
-            <span class="ident">Const</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;const&quot;</span>),
-            <span class="ident">Else</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;else&quot;</span>),
-            <span class="ident">For</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;for&quot;</span>),
-            <span class="ident">Function</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;function&quot;</span>),
-            <span class="ident">If</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;if&quot;</span>),
-            <span class="ident">In</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;in&quot;</span>),
-            <span class="ident">Let</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;let&quot;</span>),
-            <span class="ident">Mut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;mut&quot;</span>),
-            <span class="ident">Return</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;return&quot;</span>),
-            <span class="ident">Static</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;static&quot;</span>),
-            <span class="ident">Type</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;type&quot;</span>),
-            <span class="ident">LengthOf</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;.len()&quot;</span>), <span class="comment">// FIXME</span>
-            <span class="ident">Eof</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&quot;</span>),
+            <span class="ident">As</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;as&quot;</span>),
+            <span class="ident">Circuit</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;circuit&quot;</span>),
+            <span class="ident">Console</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;console&quot;</span>),
+            <span class="ident">Const</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;const&quot;</span>),
+            <span class="ident">Else</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;else&quot;</span>),
+            <span class="ident">For</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;for&quot;</span>),
+            <span class="ident">Function</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;function&quot;</span>),
+            <span class="ident">If</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;if&quot;</span>),
+            <span class="ident">In</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;in&quot;</span>),
+            <span class="ident">Let</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;let&quot;</span>),
+            <span class="ident">Mut</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;mut&quot;</span>),
+            <span class="ident">Return</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;return&quot;</span>),
+            <span class="ident">Static</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;static&quot;</span>),
+            <span class="ident">Type</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;type&quot;</span>),
+            <span class="ident">LengthOf</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;.len()&quot;</span>), <span class="comment">// FIXME</span>
+            <span class="ident">Eof</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&quot;</span>),
             <span class="comment">// BitAnd =&gt; write!(f, &quot;&amp;&quot;),</span>
             <span class="comment">// BitAndEq =&gt; write!(f, &quot;&amp;=&quot;),</span>
             <span class="comment">// BitOr =&gt; write!(f, &quot;|&quot;),</span>

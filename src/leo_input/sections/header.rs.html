@@ -102,29 +102,29 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="ident">Header</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="self">self</span>) -&gt; <span class="ident">Span</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Header::Constants</span>(<span class="ident">constants</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">constants</span>.<span class="ident">span</span>,
-            <span class="ident">Header::Main</span>(<span class="ident">main</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">main</span>.<span class="ident">span</span>,
-            <span class="ident">Header::Record</span>(<span class="ident">record</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">record</span>.<span class="ident">span</span>,
-            <span class="ident">Header::Registers</span>(<span class="ident">registers</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">registers</span>.<span class="ident">span</span>,
-            <span class="ident">Header::State</span>(<span class="ident">state</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">state</span>.<span class="ident">span</span>,
-            <span class="ident">Header::StateLeaf</span>(<span class="ident">state_leaf</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">state_leaf</span>.<span class="ident">span</span>,
-            <span class="ident">Header::Identifier</span>(<span class="ident">identifier</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">identifier</span>.<span class="ident">span</span>,
+            <span class="ident">Header::Constants</span>(<span class="ident">constants</span>) =&gt; <span class="ident">constants</span>.<span class="ident">span</span>,
+            <span class="ident">Header::Main</span>(<span class="ident">main</span>) =&gt; <span class="ident">main</span>.<span class="ident">span</span>,
+            <span class="ident">Header::Record</span>(<span class="ident">record</span>) =&gt; <span class="ident">record</span>.<span class="ident">span</span>,
+            <span class="ident">Header::Registers</span>(<span class="ident">registers</span>) =&gt; <span class="ident">registers</span>.<span class="ident">span</span>,
+            <span class="ident">Header::State</span>(<span class="ident">state</span>) =&gt; <span class="ident">state</span>.<span class="ident">span</span>,
+            <span class="ident">Header::StateLeaf</span>(<span class="ident">state_leaf</span>) =&gt; <span class="ident">state_leaf</span>.<span class="ident">span</span>,
+            <span class="ident">Header::Identifier</span>(<span class="ident">identifier</span>) =&gt; <span class="ident">identifier</span>.<span class="ident">span</span>,
         }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Header</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Header::Constants</span>(<span class="ident">_constants</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;constants&quot;</span>),
-            <span class="ident">Header::Main</span>(<span class="ident">_main</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;main&quot;</span>),
-            <span class="ident">Header::Record</span>(<span class="ident">_record</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;record&quot;</span>),
-            <span class="ident">Header::Registers</span>(<span class="ident">_registers</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;registers&quot;</span>),
-            <span class="ident">Header::State</span>(<span class="ident">_state</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;state&quot;</span>),
-            <span class="ident">Header::StateLeaf</span>(<span class="ident">_state_leaf</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;state_leaf&quot;</span>),
-            <span class="ident">Header::Identifier</span>(<span class="ident">identifier</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">identifier</span>.<span class="ident">value</span>),
+            <span class="ident">Header::Constants</span>(<span class="ident">_constants</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;constants&quot;</span>),
+            <span class="ident">Header::Main</span>(<span class="ident">_main</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;main&quot;</span>),
+            <span class="ident">Header::Record</span>(<span class="ident">_record</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;record&quot;</span>),
+            <span class="ident">Header::Registers</span>(<span class="ident">_registers</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;registers&quot;</span>),
+            <span class="ident">Header::State</span>(<span class="ident">_state</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;state&quot;</span>),
+            <span class="ident">Header::StateLeaf</span>(<span class="ident">_state_leaf</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;state_leaf&quot;</span>),
+            <span class="ident">Header::Identifier</span>(<span class="ident">identifier</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">identifier</span>.<span class="ident">value</span>),
         }
     }
 }

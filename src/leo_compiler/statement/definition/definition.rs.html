@@ -105,7 +105,7 @@
         <span class="ident">variable_names</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Variable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>],
         <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ConstrainedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">values</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">variable_names</span>.<span class="ident">len</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::statement_invalid_number_of_definitions</span>(
                 <span class="ident">values</span>.<span class="ident">len</span>(),
@@ -127,12 +127,12 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CS</span>,
         <span class="ident">statement</span>: <span class="kw-2">&amp;</span><span class="ident">DefinitionStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">num_variables</span> <span class="op">=</span> <span class="ident">statement</span>.<span class="ident">variables</span>.<span class="ident">len</span>();
         <span class="kw">let</span> <span class="ident">expression</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">enforce_expression</span>(<span class="ident">cs</span>, <span class="ident">statement</span>.<span class="ident">value</span>.<span class="ident">get</span>())<span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">statement</span>.<span class="ident">span</span>.<span class="ident">clone</span>().<span class="ident">unwrap_or_default</span>();
-        <span class="kw">if</span> <span class="ident">num_variables</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+        <span class="kw">if</span> <span class="ident">num_variables</span> <span class="op">==</span> <span class="number">1</span> {
             <span class="comment">// Define a single variable with a single value</span>
             <span class="self">self</span>.<span class="ident">store_definition</span>(<span class="ident">statement</span>.<span class="ident">variables</span>.<span class="ident">get</span>(<span class="number">0</span>).<span class="ident">unwrap</span>(), <span class="ident">expression</span>);
             <span class="prelude-val">Ok</span>(())
@@ -140,8 +140,8 @@
             <span class="comment">// Define multiple variables for an expression that returns multiple results (multiple definition)</span>
             <span class="kw">let</span> <span class="ident">values</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">expression</span> {
                 <span class="comment">// ConstrainedValue::Return(values) =&gt; values,</span>
-                <span class="ident">ConstrainedValue::Tuple</span>(<span class="ident">values</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">values</span>,
-                <span class="ident">value</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ConstrainedValue::Tuple</span>(<span class="ident">values</span>) =&gt; <span class="ident">values</span>,
+                <span class="ident">value</span> =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::statement_multiple_definition</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">span</span>).<span class="ident">into</span>());
                 }
             };

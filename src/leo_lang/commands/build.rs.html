@@ -299,7 +299,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">BuildOptions</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CompilerOptions</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">options</span>: <span class="ident">BuildOptions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">options</span>: <span class="ident">BuildOptions</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">if</span> <span class="ident">options</span>.<span class="ident">disable_all_optimizations</span> {
             <span class="ident">CompilerOptions</span> {
                 <span class="ident">constant_folding_enabled</span>: <span class="bool-val">false</span>,
@@ -315,7 +315,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">BuildOptions</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AstSnapshotOptions</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">options</span>: <span class="ident">BuildOptions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">options</span>: <span class="ident">BuildOptions</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">if</span> <span class="ident">options</span>.<span class="ident">enable_all_ast_snapshots</span> {
             <span class="ident">AstSnapshotOptions</span> {
                 <span class="ident">spans_enabled</span>: <span class="ident">options</span>.<span class="ident">enable_spans</span>,
@@ -348,15 +348,15 @@
     <span class="kw">type</span> <span class="ident">Input</span> <span class="op">=</span> ();
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> (<span class="ident">Compiler</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">Fq</span>, <span class="ident">EdwardsGroupType</span><span class="op">&gt;</span>, <span class="ident">bool</span>);
 
-    <span class="kw">fn</span> <span class="ident">log_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">log_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         <span class="macro">tracing::span!</span>(<span class="ident">tracing::Level::INFO</span>, <span class="string">&quot;Build&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">prelude</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">Context</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Input</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">prelude</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">Context</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Input</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>, <span class="kw">_</span>: <span class="ident"><span class="self">Self</span>::Input</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>, <span class="kw">_</span>: <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">context</span>.<span class="ident">dir</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">manifest</span> <span class="op">=</span> <span class="ident">context</span>.<span class="ident">manifest</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">CliError::manifest_file_not_found</span>())<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">package_name</span> <span class="op">=</span> <span class="ident">manifest</span>.<span class="ident">get_package_name</span>();

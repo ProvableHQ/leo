@@ -286,7 +286,7 @@
         <span class="ident">index_resolved</span>: <span class="kw-2">&amp;</span><span class="ident">Integer</span>,
         <span class="ident">array_len</span>: <span class="ident">u32</span>,
         <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">bounds_check</span> <span class="op">=</span> <span class="ident">evaluate_lt</span>::<span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">CS</span><span class="op">&gt;</span>(
             <span class="ident">cs</span>,
             <span class="ident">ConstrainedValue::Integer</span>(<span class="ident">index_resolved</span>.<span class="ident">clone</span>()),
@@ -296,8 +296,8 @@
             <span class="ident">span</span>,
         )<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">bounds_check</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">bounds_check</span> {
-            <span class="ident">ConstrainedValue::Boolean</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;illegal non-Integer returned from lt&quot;</span>),
+            <span class="ident">ConstrainedValue::Boolean</span>(<span class="ident">b</span>) =&gt; <span class="ident">b</span>,
+            <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;illegal non-Integer returned from lt&quot;</span>),
         };
         <span class="kw">let</span> <span class="ident">namespace_string</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;evaluate array access bounds {}:{}&quot;</span>, <span class="ident">span</span>.<span class="ident">line_start</span>, <span class="ident">span</span>.<span class="ident">col_start</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unique_namespace</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">ns</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">namespace_string</span>);
@@ -314,10 +314,10 @@
         <span class="ident">array</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
         <span class="ident">index</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
         <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConstrainedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConstrainedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">array</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">enforce_expression</span>(<span class="ident">cs</span>, <span class="ident">array</span>)<span class="question-mark">?</span> {
-            <span class="ident">ConstrainedValue::Array</span>(<span class="ident">array</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">array</span>,
-            <span class="ident">value</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::undefined_array</span>(<span class="ident">value</span>.<span class="ident">to_string</span>(), <span class="ident">span</span>).<span class="ident">into</span>()),
+            <span class="ident">ConstrainedValue::Array</span>(<span class="ident">array</span>) =&gt; <span class="ident">array</span>,
+            <span class="ident">value</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::undefined_array</span>(<span class="ident">value</span>.<span class="ident">to_string</span>(), <span class="ident">span</span>).<span class="ident">into</span>()),
         };
 
         <span class="kw">let</span> <span class="ident">index_resolved</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">enforce_index</span>(<span class="ident">cs</span>, <span class="ident">index</span>, <span class="ident">span</span>)<span class="question-mark">?</span>;
@@ -372,19 +372,19 @@
         <span class="ident">right</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">length</span>: <span class="ident">usize</span>,
         <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConstrainedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConstrainedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">array</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">enforce_expression</span>(<span class="ident">cs</span>, <span class="ident">array</span>)<span class="question-mark">?</span> {
-            <span class="ident">ConstrainedValue::Array</span>(<span class="ident">array</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">array</span>,
-            <span class="ident">value</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::undefined_array</span>(<span class="ident">value</span>, <span class="ident">span</span>).<span class="ident">into</span>()),
+            <span class="ident">ConstrainedValue::Array</span>(<span class="ident">array</span>) =&gt; <span class="ident">array</span>,
+            <span class="ident">value</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::undefined_array</span>(<span class="ident">value</span>, <span class="ident">span</span>).<span class="ident">into</span>()),
         };
 
         <span class="kw">let</span> <span class="ident">from_resolved</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">left</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">from_index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">enforce_index</span>(<span class="ident">cs</span>, <span class="ident">from_index</span>, <span class="ident">span</span>)<span class="question-mark">?</span>,
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Integer::new</span>(<span class="kw-2">&amp;</span><span class="ident">ConstInt::U32</span>(<span class="number">0</span>)), <span class="comment">// Array slice starts at index 0</span>
+            <span class="prelude-val">Some</span>(<span class="ident">from_index</span>) =&gt; <span class="self">self</span>.<span class="ident">enforce_index</span>(<span class="ident">cs</span>, <span class="ident">from_index</span>, <span class="ident">span</span>)<span class="question-mark">?</span>,
+            <span class="prelude-val">None</span> =&gt; <span class="ident">Integer::new</span>(<span class="kw-2">&amp;</span><span class="ident">ConstInt::U32</span>(<span class="number">0</span>)), <span class="comment">// Array slice starts at index 0</span>
         };
         <span class="kw">let</span> <span class="ident">to_resolved</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">right</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">to_index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">enforce_index</span>(<span class="ident">cs</span>, <span class="ident">to_index</span>, <span class="ident">span</span>)<span class="question-mark">?</span>,
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">to_index</span>) =&gt; <span class="self">self</span>.<span class="ident">enforce_index</span>(<span class="ident">cs</span>, <span class="ident">to_index</span>, <span class="ident">span</span>)<span class="question-mark">?</span>,
+            <span class="prelude-val">None</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">index_bounded</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">array</span>
                     .<span class="ident">len</span>()
                     .<span class="ident">try_into</span>()
@@ -393,10 +393,10 @@
             } <span class="comment">// Array slice ends at array length</span>
         };
         <span class="kw">let</span> <span class="ident">const_dimensions</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">from_resolved</span>.<span class="ident">to_usize</span>(), <span class="ident">to_resolved</span>.<span class="ident">to_usize</span>()) {
-            (<span class="prelude-val">Some</span>(<span class="ident">from</span>), <span class="prelude-val">Some</span>(<span class="ident">to</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>((<span class="ident">from</span>, <span class="ident">to</span>)),
-            (<span class="prelude-val">Some</span>(<span class="ident">from</span>), <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>((<span class="ident">from</span>, <span class="ident">from</span> <span class="op">+</span> <span class="ident">length</span>)),
-            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">to</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>((<span class="ident">to</span> <span class="op">-</span> <span class="ident">length</span>, <span class="ident">to</span>)),
-            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            (<span class="prelude-val">Some</span>(<span class="ident">from</span>), <span class="prelude-val">Some</span>(<span class="ident">to</span>)) =&gt; <span class="prelude-val">Some</span>((<span class="ident">from</span>, <span class="ident">to</span>)),
+            (<span class="prelude-val">Some</span>(<span class="ident">from</span>), <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Some</span>((<span class="ident">from</span>, <span class="ident">from</span> <span class="op">+</span> <span class="ident">length</span>)),
+            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">to</span>)) =&gt; <span class="prelude-val">Some</span>((<span class="ident">to</span> <span class="op">-</span> <span class="ident">length</span>, <span class="ident">to</span>)),
+            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">None</span>,
         };
         <span class="prelude-val">Ok</span>(<span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">left</span>, <span class="ident">right</span>)) <span class="op">=</span> <span class="ident">const_dimensions</span> {
             <span class="kw">if</span> <span class="ident">right</span> <span class="op">-</span> <span class="ident">left</span> <span class="op">!</span><span class="op">=</span> <span class="ident">length</span> {
@@ -415,8 +415,8 @@
                     <span class="ident">span</span>,
                 )<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">calc_len</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">calc_len</span> {
-                    <span class="ident">ConstrainedValue::Integer</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">i</span>,
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;illegal non-Integer returned from sub&quot;</span>),
+                    <span class="ident">ConstrainedValue::Integer</span>(<span class="ident">i</span>) =&gt; <span class="ident">i</span>,
+                    <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;illegal non-Integer returned from sub&quot;</span>),
                 };
                 <span class="kw">let</span> <span class="ident">namespace_string</span> <span class="op">=</span> <span class="macro">format!</span>(
                     <span class="string">&quot;evaluate array range access length check {}:{}&quot;</span>,
@@ -435,8 +435,8 @@
                     <span class="ident">span</span>,
                 )<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">bounds_check</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">bounds_check</span> {
-                    <span class="ident">ConstrainedValue::Boolean</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>,
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;illegal non-Integer returned from le&quot;</span>),
+                    <span class="ident">ConstrainedValue::Boolean</span>(<span class="ident">b</span>) =&gt; <span class="ident">b</span>,
+                    <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;illegal non-Integer returned from le&quot;</span>),
                 };
                 <span class="kw">let</span> <span class="ident">namespace_string</span> <span class="op">=</span> <span class="macro">format!</span>(
                     <span class="string">&quot;evaluate array range access bounds {}:{}&quot;</span>,
@@ -467,8 +467,8 @@
                     <span class="ident">span</span>,
                 )<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">equality</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">equality</span> {
-                    <span class="ident">ConstrainedValue::Boolean</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>,
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;unexpected non-Boolean for evaluate_eq&quot;</span>),
+                    <span class="ident">ConstrainedValue::Boolean</span>(<span class="ident">b</span>) =&gt; <span class="ident">b</span>,
+                    <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;unexpected non-Boolean for evaluate_eq&quot;</span>),
                 };
 
                 <span class="kw">let</span> <span class="ident">unique_namespace</span> <span class="op">=</span>

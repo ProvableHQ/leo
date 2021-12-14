@@ -121,29 +121,29 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">InputGroupCoordinate</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GroupCoordinate</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">coordinate</span>: <span class="ident">InputGroupCoordinate</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">coordinate</span>: <span class="ident">InputGroupCoordinate</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">coordinate</span> {
-            <span class="ident">InputGroupCoordinate::Number</span>(<span class="ident">number</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GroupCoordinate::from</span>(<span class="ident">number</span>),
-            <span class="ident">InputGroupCoordinate::SignHigh</span>(<span class="ident">sign_high</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GroupCoordinate::from</span>(<span class="ident">sign_high</span>),
-            <span class="ident">InputGroupCoordinate::SignLow</span>(<span class="ident">sign_low</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GroupCoordinate::from</span>(<span class="ident">sign_low</span>),
-            <span class="ident">InputGroupCoordinate::Inferred</span>(<span class="ident">inferred</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GroupCoordinate::from</span>(<span class="ident">inferred</span>),
+            <span class="ident">InputGroupCoordinate::Number</span>(<span class="ident">number</span>) =&gt; <span class="ident">GroupCoordinate::from</span>(<span class="ident">number</span>),
+            <span class="ident">InputGroupCoordinate::SignHigh</span>(<span class="ident">sign_high</span>) =&gt; <span class="ident">GroupCoordinate::from</span>(<span class="ident">sign_high</span>),
+            <span class="ident">InputGroupCoordinate::SignLow</span>(<span class="ident">sign_low</span>) =&gt; <span class="ident">GroupCoordinate::from</span>(<span class="ident">sign_low</span>),
+            <span class="ident">InputGroupCoordinate::Inferred</span>(<span class="ident">inferred</span>) =&gt; <span class="ident">GroupCoordinate::from</span>(<span class="ident">inferred</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">GroupCoordinate</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">GroupCoordinate::Number</span>(<span class="ident">number</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">number</span>),
-            <span class="ident">GroupCoordinate::SignHigh</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;+&quot;</span>),
-            <span class="ident">GroupCoordinate::SignLow</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;-&quot;</span>),
-            <span class="ident">GroupCoordinate::Inferred</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;_&quot;</span>),
+            <span class="ident">GroupCoordinate::Number</span>(<span class="ident">number</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">number</span>),
+            <span class="ident">GroupCoordinate::SignHigh</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;+&quot;</span>),
+            <span class="ident">GroupCoordinate::SignLow</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;-&quot;</span>),
+            <span class="ident">GroupCoordinate::Inferred</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;_&quot;</span>),
         }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">InputNumberValue</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GroupCoordinate</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">number</span>: <span class="ident">InputNumberValue</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">number</span>: <span class="ident">InputNumberValue</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">number</span>.<span class="ident">to_string</span>();
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">Span::from</span>(<span class="ident">number</span>.<span class="ident">span</span>().<span class="ident">clone</span>());
 
@@ -152,19 +152,19 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">InputSignHigh</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GroupCoordinate</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">_sign</span>: <span class="ident">InputSignHigh</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">_sign</span>: <span class="ident">InputSignHigh</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">GroupCoordinate::SignHigh</span>
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">InputSignLow</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GroupCoordinate</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">_sign</span>: <span class="ident">InputSignLow</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">_sign</span>: <span class="ident">InputSignLow</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">GroupCoordinate::SignLow</span>
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">InputInferred</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GroupCoordinate</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">_sign</span>: <span class="ident">InputInferred</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">_sign</span>: <span class="ident">InputInferred</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">GroupCoordinate::Inferred</span>
     }
 }

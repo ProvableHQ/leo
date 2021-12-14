@@ -289,7 +289,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Node</span> <span class="kw">for</span> <span class="ident">AssignStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Span</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Span</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">span</span>.<span class="ident">as_ref</span>()
     }
 }
@@ -299,13 +299,13 @@
         <span class="ident">scope</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Scope</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
         <span class="ident">statement</span>: <span class="kw-2">&amp;</span><span class="ident">leo_ast::AssignStatement</span>,
         <span class="ident">_expected_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PartialType</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">span</span>) <span class="op">=</span> (
             <span class="kw-2">&amp;</span><span class="ident">statement</span>.<span class="ident">assignee</span>.<span class="ident">identifier</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
             <span class="kw-2">&amp;</span><span class="ident">statement</span>.<span class="ident">assignee</span>.<span class="ident">identifier</span>.<span class="ident">span</span>,
         );
 
-        <span class="kw">let</span> <span class="ident">variable</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">as_ref</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;input&quot;</span> {
+        <span class="kw">let</span> <span class="ident">variable</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">as_ref</span>() <span class="op">==</span> <span class="string">&quot;input&quot;</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">input</span>) <span class="op">=</span> <span class="ident">scope</span>.<span class="ident">resolve_input</span>() {
                 <span class="ident">input</span>.<span class="ident">container</span>
             } <span class="kw">else</span> {
@@ -325,23 +325,23 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">target_accesses</span> <span class="op">=</span> <span class="macro">vec!</span>[];
         <span class="kw">for</span> <span class="ident">access</span> <span class="kw">in</span> <span class="ident">statement</span>.<span class="ident">assignee</span>.<span class="ident">accesses</span>.<span class="ident">iter</span>() {
             <span class="ident">target_accesses</span>.<span class="ident">push</span>(<span class="kw">match</span> <span class="ident">access</span> {
-                <span class="ident">AstAssigneeAccess::ArrayRange</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">AstAssigneeAccess::ArrayRange</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; {
                     <span class="kw">let</span> <span class="ident">index_type</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">PartialType::Integer</span>(<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">IntegerType::U32</span>)));
                     <span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> <span class="ident">left</span>
                         .<span class="ident">as_ref</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">left</span>: <span class="kw-2">&amp;</span><span class="ident">leo_ast::Expression</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">left</span>: <span class="kw-2">&amp;</span><span class="ident">leo_ast::Expression</span><span class="op">|</span> -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
                             <span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from_ast</span>(<span class="ident">scope</span>, <span class="ident">left</span>, <span class="ident">index_type</span>.<span class="ident">clone</span>())
                         })
                         .<span class="ident">transpose</span>()<span class="question-mark">?</span>;
                     <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="ident">right</span>
                         .<span class="ident">as_ref</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="ident">leo_ast::Expression</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="ident">leo_ast::Expression</span><span class="op">|</span> -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
                             <span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from_ast</span>(<span class="ident">scope</span>, <span class="ident">right</span>, <span class="ident">index_type</span>)
                         })
                         .<span class="ident">transpose</span>()<span class="question-mark">?</span>;
 
                     <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">target_type</span> {
-                        <span class="prelude-val">Some</span>(<span class="ident">PartialType::Array</span>(<span class="ident">item</span>, <span class="ident">len</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">Some</span>(<span class="ident">PartialType::Array</span>(<span class="ident">item</span>, <span class="ident">len</span>)) =&gt; {
                             <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="ident">left</span>), <span class="prelude-val">Some</span>(<span class="ident">right</span>)) <span class="op">=</span> (
                                 <span class="ident">left</span>.<span class="ident">as_ref</span>()
                                     .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">const_value</span>())
@@ -352,16 +352,16 @@
                                     .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">ConstValue::Int</span>(<span class="ident">ConstInt::U32</span>(<span class="ident">len</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span> <span class="kw">as</span> <span class="ident">u32</span>)<span class="question-mark">?</span>)))),
                             ) {
                                 <span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">left</span> {
-                                    <span class="ident">ConstValue::Int</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">to_usize</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+                                    <span class="ident">ConstValue::Int</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">to_usize</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
                                         <span class="ident">AsgError::invalid_assign_index</span>(<span class="ident">name</span>, <span class="ident">x</span>.<span class="ident">to_string</span>(), <span class="kw-2">&amp;</span><span class="ident">statement</span>.<span class="ident">span</span>)
                                     })<span class="question-mark">?</span>,
-                                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(),
+                                    <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(),
                                 };
                                 <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">right</span> {
-                                    <span class="ident">ConstValue::Int</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">to_usize</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+                                    <span class="ident">ConstValue::Int</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">to_usize</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
                                         <span class="ident">AsgError::invalid_assign_index</span>(<span class="ident">name</span>, <span class="ident">x</span>.<span class="ident">to_string</span>(), <span class="kw-2">&amp;</span><span class="ident">statement</span>.<span class="ident">span</span>)
                                     })<span class="question-mark">?</span>,
-                                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(),
+                                    <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(),
                                 };
                                 <span class="kw">if</span> <span class="ident">right</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">left</span> {
                                     <span class="ident">target_type</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">PartialType::Array</span>(<span class="ident">item</span>.<span class="ident">clone</span>(), <span class="prelude-val">Some</span>((<span class="ident">right</span> <span class="op">-</span> <span class="ident">left</span>) <span class="kw">as</span> <span class="ident">usize</span>)))
@@ -376,15 +376,15 @@
                                 }
                             }
                         }
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::index_into_non_array</span>(<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">statement</span>.<span class="ident">span</span>).<span class="ident">into</span>()),
+                        <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::index_into_non_array</span>(<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">statement</span>.<span class="ident">span</span>).<span class="ident">into</span>()),
                     }
 
                     <span class="ident">AssignAccess::ArrayRange</span>(<span class="ident">Cell::new</span>(<span class="ident">left</span>), <span class="ident">Cell::new</span>(<span class="ident">right</span>))
                 }
-                <span class="ident">AstAssigneeAccess::ArrayIndex</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">AstAssigneeAccess::ArrayIndex</span>(<span class="ident">index</span>) =&gt; {
                     <span class="ident">target_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">target_type</span>.<span class="ident">clone</span>() {
-                        <span class="prelude-val">Some</span>(<span class="ident">PartialType::Array</span>(<span class="ident">item</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">item</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span>),
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::index_into_non_array</span>(<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">statement</span>.<span class="ident">span</span>).<span class="ident">into</span>()),
+                        <span class="prelude-val">Some</span>(<span class="ident">PartialType::Array</span>(<span class="ident">item</span>, <span class="kw">_</span>)) =&gt; <span class="ident">item</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span>),
+                        <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::index_into_non_array</span>(<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">statement</span>.<span class="ident">span</span>).<span class="ident">into</span>()),
                     };
                     <span class="ident">AssignAccess::ArrayIndex</span>(<span class="ident">Cell::new</span>(<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from_ast</span>(
                         <span class="ident">scope</span>,
@@ -392,23 +392,23 @@
                         <span class="prelude-val">Some</span>(<span class="ident">PartialType::Integer</span>(<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">IntegerType::U32</span>))),
                     )<span class="question-mark">?</span>))
                 }
-                <span class="ident">AstAssigneeAccess::Tuple</span>(<span class="ident">index</span>, <span class="ident">span</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">AstAssigneeAccess::Tuple</span>(<span class="ident">index</span>, <span class="ident">span</span>) =&gt; {
                     <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">index</span>
                         .<span class="ident">value</span>
                         .<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()
                         .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">AsgError::parse_index_error</span>(<span class="ident">span</span>))<span class="question-mark">?</span>;
                     <span class="ident">target_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">target_type</span> {
-                        <span class="prelude-val">Some</span>(<span class="ident">PartialType::Tuple</span>(<span class="ident">types</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">types</span>
+                        <span class="prelude-val">Some</span>(<span class="ident">PartialType::Tuple</span>(<span class="ident">types</span>)) =&gt; <span class="ident">types</span>
                             .<span class="ident">get</span>(<span class="ident">index</span>)
                             .<span class="ident">cloned</span>()
                             .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">AsgError::tuple_index_out_of_bounds</span>(<span class="ident">index</span>, <span class="kw-2">&amp;</span><span class="ident">statement</span>.<span class="ident">span</span>))<span class="question-mark">?</span>,
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::index_into_non_tuple</span>(<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">statement</span>.<span class="ident">span</span>).<span class="ident">into</span>()),
+                        <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::index_into_non_tuple</span>(<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">statement</span>.<span class="ident">span</span>).<span class="ident">into</span>()),
                     };
                     <span class="ident">AssignAccess::Tuple</span>(<span class="ident">index</span>)
                 }
-                <span class="ident">AstAssigneeAccess::Member</span>(<span class="ident">name</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">AstAssigneeAccess::Member</span>(<span class="ident">name</span>) =&gt; {
                     <span class="ident">target_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">target_type</span> {
-                        <span class="prelude-val">Some</span>(<span class="ident">PartialType::Type</span>(<span class="ident">Type::Circuit</span>(<span class="ident">circuit</span>))) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">Some</span>(<span class="ident">PartialType::Type</span>(<span class="ident">Type::Circuit</span>(<span class="ident">circuit</span>))) =&gt; {
                             <span class="kw">let</span> <span class="ident">circuit</span> <span class="op">=</span> <span class="ident">circuit</span>;
 
                             <span class="kw">let</span> <span class="ident">members</span> <span class="op">=</span> <span class="ident">circuit</span>.<span class="ident">members</span>.<span class="ident">borrow</span>();
@@ -421,14 +421,14 @@
                             })<span class="question-mark">?</span>;
 
                             <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">member</span> {
-                                <span class="ident">CircuitMember::Variable</span>(<span class="ident">type_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">type_</span>.<span class="ident">clone</span>(),
-                                <span class="ident">CircuitMember::Function</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="ident">CircuitMember::Variable</span>(<span class="ident">type_</span>) =&gt; <span class="ident">type_</span>.<span class="ident">clone</span>(),
+                                <span class="ident">CircuitMember::Function</span>(<span class="kw">_</span>) =&gt; {
                                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::illegal_function_assign</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">statement</span>.<span class="ident">span</span>).<span class="ident">into</span>());
                                 }
                             };
                             <span class="prelude-val">Some</span>(<span class="ident">x</span>.<span class="ident">partial</span>())
                         }
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">_</span> =&gt; {
                             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::index_into_non_tuple</span>(
                                 <span class="kw-2">&amp;</span><span class="ident">statement</span>.<span class="ident">assignee</span>.<span class="ident">identifier</span>.<span class="ident">name</span>,
                                 <span class="kw-2">&amp;</span><span class="ident">statement</span>.<span class="ident">span</span>,
@@ -461,7 +461,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">leo_ast::AssignStatement</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">AssignStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">leo_ast::AssignStatement</span> {
+    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">leo_ast::AssignStatement</span> {
         <span class="ident">leo_ast::AssignStatement</span> {
             <span class="ident">operation</span>: <span class="self">self</span>.<span class="ident">operation</span>,
             <span class="ident">assignee</span>: <span class="ident">leo_ast::Assignee</span> {
@@ -470,17 +470,17 @@
                     .<span class="ident">target_accesses</span>
                     .<span class="ident">iter</span>()
                     .<span class="ident">map</span>(<span class="op">|</span><span class="ident">access</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">access</span> {
-                        <span class="ident">AssignAccess::ArrayRange</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">AssignAccess::ArrayRange</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; {
                             <span class="ident">AstAssigneeAccess::ArrayRange</span>(<span class="ident">left</span>.<span class="ident">get</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">into</span>()), <span class="ident">right</span>.<span class="ident">get</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">into</span>()))
                         }
-                        <span class="ident">AssignAccess::ArrayIndex</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AstAssigneeAccess::ArrayIndex</span>(<span class="ident">index</span>.<span class="ident">get</span>().<span class="ident">into</span>()),
-                        <span class="ident">AssignAccess::Tuple</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AstAssigneeAccess::Tuple</span>(
+                        <span class="ident">AssignAccess::ArrayIndex</span>(<span class="ident">index</span>) =&gt; <span class="ident">AstAssigneeAccess::ArrayIndex</span>(<span class="ident">index</span>.<span class="ident">get</span>().<span class="ident">into</span>()),
+                        <span class="ident">AssignAccess::Tuple</span>(<span class="ident">index</span>) =&gt; <span class="ident">AstAssigneeAccess::Tuple</span>(
                             <span class="ident">leo_ast::PositiveNumber</span> {
                                 <span class="ident">value</span>: <span class="ident">index</span>.<span class="ident">to_string</span>().<span class="ident">into</span>(),
                             },
                             <span class="self">self</span>.<span class="ident">span</span>.<span class="ident">clone</span>().<span class="ident">unwrap_or_default</span>(),
                         ),
-                        <span class="ident">AssignAccess::Member</span>(<span class="ident">name</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AstAssigneeAccess::Member</span>(<span class="ident">name</span>.<span class="ident">clone</span>()),
+                        <span class="ident">AssignAccess::Member</span>(<span class="ident">name</span>) =&gt; <span class="ident">AstAssigneeAccess::Member</span>(<span class="ident">name</span>.<span class="ident">clone</span>()),
                     })
                     .<span class="ident">collect</span>(),
                 <span class="ident">span</span>: <span class="self">self</span>.<span class="ident">span</span>.<span class="ident">clone</span>().<span class="ident">unwrap_or_default</span>(),

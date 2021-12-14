@@ -62,7 +62,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">GrammarParameter</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Parameter</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">parameter</span>: <span class="ident">GrammarParameter</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">parameter</span>: <span class="ident">GrammarParameter</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">variable</span>: <span class="ident">Identifier::from</span>(<span class="ident">parameter</span>.<span class="ident">variable</span>),
             <span class="ident">type_</span>: <span class="ident">Type::from</span>(<span class="ident">parameter</span>.<span class="ident">type_</span>),

@@ -136,59 +136,59 @@
 }
 
 <span class="kw">impl</span> <span class="ident">IntegerType</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_signed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_signed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">use</span> <span class="ident">IntegerType</span>::<span class="kw-2">*</span>;
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">I8</span> <span class="op">|</span> <span class="ident">I16</span> <span class="op">|</span> <span class="ident">I32</span> <span class="op">|</span> <span class="ident">I64</span> <span class="op">|</span> <span class="ident">I128</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">InputIntegerType</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IntegerType</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">integer_type</span>: <span class="ident">InputIntegerType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">integer_type</span>: <span class="ident">InputIntegerType</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">integer_type</span> {
-            <span class="ident">InputIntegerType::Signed</span>(<span class="ident">signed</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::from</span>(<span class="ident">signed</span>),
-            <span class="ident">InputIntegerType::Unsigned</span>(<span class="ident">unsigned</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::from</span>(<span class="ident">unsigned</span>),
+            <span class="ident">InputIntegerType::Signed</span>(<span class="ident">signed</span>) =&gt; <span class="ident"><span class="self">Self</span>::from</span>(<span class="ident">signed</span>),
+            <span class="ident">InputIntegerType::Unsigned</span>(<span class="ident">unsigned</span>) =&gt; <span class="ident"><span class="self">Self</span>::from</span>(<span class="ident">unsigned</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">InputUnsignedIntegerType</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IntegerType</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">integer_type</span>: <span class="ident">InputUnsignedIntegerType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">integer_type</span>: <span class="ident">InputUnsignedIntegerType</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">integer_type</span> {
-            <span class="ident">InputUnsignedIntegerType::U8Type</span>(<span class="ident">_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::U8</span>,
-            <span class="ident">InputUnsignedIntegerType::U16Type</span>(<span class="ident">_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::U16</span>,
-            <span class="ident">InputUnsignedIntegerType::U32Type</span>(<span class="ident">_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::U32</span>,
-            <span class="ident">InputUnsignedIntegerType::U64Type</span>(<span class="ident">_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::U64</span>,
-            <span class="ident">InputUnsignedIntegerType::U128Type</span>(<span class="ident">_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::U128</span>,
+            <span class="ident">InputUnsignedIntegerType::U8Type</span>(<span class="ident">_type</span>) =&gt; <span class="ident">IntegerType::U8</span>,
+            <span class="ident">InputUnsignedIntegerType::U16Type</span>(<span class="ident">_type</span>) =&gt; <span class="ident">IntegerType::U16</span>,
+            <span class="ident">InputUnsignedIntegerType::U32Type</span>(<span class="ident">_type</span>) =&gt; <span class="ident">IntegerType::U32</span>,
+            <span class="ident">InputUnsignedIntegerType::U64Type</span>(<span class="ident">_type</span>) =&gt; <span class="ident">IntegerType::U64</span>,
+            <span class="ident">InputUnsignedIntegerType::U128Type</span>(<span class="ident">_type</span>) =&gt; <span class="ident">IntegerType::U128</span>,
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">InputSignedIntegerType</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IntegerType</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">integer_type</span>: <span class="ident">InputSignedIntegerType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">integer_type</span>: <span class="ident">InputSignedIntegerType</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">integer_type</span> {
-            <span class="ident">InputSignedIntegerType::I8Type</span>(<span class="ident">_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::I8</span>,
-            <span class="ident">InputSignedIntegerType::I16Type</span>(<span class="ident">_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::I16</span>,
-            <span class="ident">InputSignedIntegerType::I32Type</span>(<span class="ident">_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::I32</span>,
-            <span class="ident">InputSignedIntegerType::I64Type</span>(<span class="ident">_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::I64</span>,
-            <span class="ident">InputSignedIntegerType::I128Type</span>(<span class="ident">_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IntegerType::I128</span>,
+            <span class="ident">InputSignedIntegerType::I8Type</span>(<span class="ident">_type</span>) =&gt; <span class="ident">IntegerType::I8</span>,
+            <span class="ident">InputSignedIntegerType::I16Type</span>(<span class="ident">_type</span>) =&gt; <span class="ident">IntegerType::I16</span>,
+            <span class="ident">InputSignedIntegerType::I32Type</span>(<span class="ident">_type</span>) =&gt; <span class="ident">IntegerType::I32</span>,
+            <span class="ident">InputSignedIntegerType::I64Type</span>(<span class="ident">_type</span>) =&gt; <span class="ident">IntegerType::I64</span>,
+            <span class="ident">InputSignedIntegerType::I128Type</span>(<span class="ident">_type</span>) =&gt; <span class="ident">IntegerType::I128</span>,
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">IntegerType</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IntegerType::U8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u8&quot;</span>),
-            <span class="ident">IntegerType::U16</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u16&quot;</span>),
-            <span class="ident">IntegerType::U32</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u32&quot;</span>),
-            <span class="ident">IntegerType::U64</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u64&quot;</span>),
-            <span class="ident">IntegerType::U128</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u128&quot;</span>),
+            <span class="ident">IntegerType::U8</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u8&quot;</span>),
+            <span class="ident">IntegerType::U16</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u16&quot;</span>),
+            <span class="ident">IntegerType::U32</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u32&quot;</span>),
+            <span class="ident">IntegerType::U64</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u64&quot;</span>),
+            <span class="ident">IntegerType::U128</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u128&quot;</span>),
 
-            <span class="ident">IntegerType::I8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i8&quot;</span>),
-            <span class="ident">IntegerType::I16</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i16&quot;</span>),
-            <span class="ident">IntegerType::I32</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i32&quot;</span>),
-            <span class="ident">IntegerType::I64</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i64&quot;</span>),
-            <span class="ident">IntegerType::I128</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i128&quot;</span>),
+            <span class="ident">IntegerType::I8</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i8&quot;</span>),
+            <span class="ident">IntegerType::I16</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i16&quot;</span>),
+            <span class="ident">IntegerType::I32</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i32&quot;</span>),
+            <span class="ident">IntegerType::I64</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i64&quot;</span>),
+            <span class="ident">IntegerType::I128</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i128&quot;</span>),
         }
     }
 }

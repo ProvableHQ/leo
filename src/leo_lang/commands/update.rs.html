@@ -151,15 +151,15 @@
     <span class="kw">type</span> <span class="ident">Input</span> <span class="op">=</span> ();
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> ();
 
-    <span class="kw">fn</span> <span class="ident">log_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">log_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         <span class="macro">tracing::span!</span>(<span class="ident">tracing::Level::INFO</span>, <span class="string">&quot;Updating&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">prelude</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">Context</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Input</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">prelude</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">Context</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Input</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="self">self</span>, <span class="kw">_</span>: <span class="ident">Context</span>, <span class="kw">_</span>: <span class="ident"><span class="self">Self</span>::Input</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="self">self</span>, <span class="kw">_</span>: <span class="ident">Context</span>, <span class="kw">_</span>: <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="comment">// If --list is passed, list all available versions and return.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">list</span> {
             <span class="kw">return</span> <span class="ident">Updater::show_available_releases</span>();
@@ -170,8 +170,8 @@
             <span class="ident">Config::set_update_automatic</span>(<span class="ident">value</span>)<span class="question-mark">?</span>;
 
             <span class="kw">match</span> <span class="ident">value</span> {
-                <span class="bool-val">true</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">tracing::info!</span>(<span class="string">&quot;Automatic updates are enabled. Leo will update as new versions are released&quot;</span>),
-                <span class="bool-val">false</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="bool-val">true</span> =&gt; <span class="macro">tracing::info!</span>(<span class="string">&quot;Automatic updates are enabled. Leo will update as new versions are released&quot;</span>),
+                <span class="bool-val">false</span> =&gt; {
                     <span class="macro">tracing::info!</span>(<span class="string">&quot;Automatic updates are disabled. Leo will not update as new versions are released&quot;</span>)
                 }
             };
@@ -186,12 +186,12 @@
         }
 
         <span class="kw">match</span> <span class="ident">Updater::update_to_latest_release</span>(<span class="bool-val">true</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">status</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> (<span class="ident">status</span>.<span class="ident">uptodate</span>(), <span class="ident">status</span>.<span class="ident">updated</span>()) {
-                (<span class="bool-val">true</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">tracing::info!</span>(<span class="string">&quot;Leo is already on the latest version&quot;</span>),
-                (<span class="kw">_</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">tracing::info!</span>(<span class="string">&quot;Leo has successfully updated to version {}&quot;</span>, <span class="ident">status</span>.<span class="ident">version</span>()),
-                (<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (),
+            <span class="prelude-val">Ok</span>(<span class="ident">status</span>) =&gt; <span class="kw">match</span> (<span class="ident">status</span>.<span class="ident">uptodate</span>(), <span class="ident">status</span>.<span class="ident">updated</span>()) {
+                (<span class="bool-val">true</span>, <span class="kw">_</span>) =&gt; <span class="macro">tracing::info!</span>(<span class="string">&quot;Leo is already on the latest version&quot;</span>),
+                (<span class="kw">_</span>, <span class="bool-val">true</span>) =&gt; <span class="macro">tracing::info!</span>(<span class="string">&quot;Leo has successfully updated to version {}&quot;</span>, <span class="ident">status</span>.<span class="ident">version</span>()),
+                (<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (),
             },
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
                 <span class="macro">tracing::error!</span>(<span class="string">&quot;Could not update Leo to the latest version&quot;</span>);
                 <span class="macro">tracing::error!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">e</span>);
             }

@@ -69,18 +69,18 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&lt;</span><span class="ident">Rule</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SyntaxError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw-2">mut</span> <span class="ident">error</span>: <span class="ident">Error</span><span class="op">&lt;</span><span class="ident">Rule</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw-2">mut</span> <span class="ident">error</span>: <span class="ident">Error</span><span class="op">&lt;</span><span class="ident">Rule</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">error</span> <span class="op">=</span> <span class="ident">error</span>.<span class="ident">renamed_rules</span>(<span class="op">|</span><span class="ident">rule</span><span class="op">|</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">rule</span> {
-            <span class="ident">Rule::LINE_END</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;`;`&quot;</span>.<span class="ident">to_owned</span>(),
-            <span class="ident">Rule::type_integer</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;`u32`&quot;</span>.<span class="ident">to_owned</span>(),
-            <span class="ident">Rule::type_field</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;`field`&quot;</span>.<span class="ident">to_owned</span>(),
-            <span class="ident">Rule::type_group</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;`group`&quot;</span>.<span class="ident">to_owned</span>(),
-            <span class="ident">Rule::file</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;a table or section&quot;</span>.<span class="ident">to_owned</span>(),
-            <span class="ident">Rule::identifier</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;a variable name&quot;</span>.<span class="ident">to_owned</span>(),
-            <span class="ident">Rule::type_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;a type&quot;</span>.<span class="ident">to_owned</span>(),
-            <span class="ident">Rule::header</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;[[public]] or [[private]]&quot;</span>.<span class="ident">to_owned</span>(),
+            <span class="ident">Rule::LINE_END</span> =&gt; <span class="string">&quot;`;`&quot;</span>.<span class="ident">to_owned</span>(),
+            <span class="ident">Rule::type_integer</span> =&gt; <span class="string">&quot;`u32`&quot;</span>.<span class="ident">to_owned</span>(),
+            <span class="ident">Rule::type_field</span> =&gt; <span class="string">&quot;`field`&quot;</span>.<span class="ident">to_owned</span>(),
+            <span class="ident">Rule::type_group</span> =&gt; <span class="string">&quot;`group`&quot;</span>.<span class="ident">to_owned</span>(),
+            <span class="ident">Rule::file</span> =&gt; <span class="string">&quot;a table or section&quot;</span>.<span class="ident">to_owned</span>(),
+            <span class="ident">Rule::identifier</span> =&gt; <span class="string">&quot;a variable name&quot;</span>.<span class="ident">to_owned</span>(),
+            <span class="ident">Rule::type_</span> =&gt; <span class="string">&quot;a type&quot;</span>.<span class="ident">to_owned</span>(),
+            <span class="ident">Rule::header</span> =&gt; <span class="string">&quot;[[public]] or [[private]]&quot;</span>.<span class="ident">to_owned</span>(),
 
-            <span class="ident">rule</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">rule</span>),
+            <span class="ident">rule</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">rule</span>),
         });
 
         <span class="ident">SyntaxError::Error</span>(<span class="ident">error</span>)

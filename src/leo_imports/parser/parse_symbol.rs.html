@@ -87,7 +87,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Builds an abstract syntax tree from the given file and then builds the Leo syntax tree.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_import_file</span>(<span class="ident">package</span>: <span class="kw-2">&amp;</span><span class="ident">DirEntry</span>, <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Program</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_import_file</span>(<span class="ident">package</span>: <span class="kw-2">&amp;</span><span class="ident">DirEntry</span>, <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Program</span><span class="op">&gt;</span> {
         <span class="comment">// Get the package file type.</span>
         <span class="kw">let</span> <span class="ident">file_type</span> <span class="op">=</span> <span class="ident">package</span>
             .<span class="ident">file_type</span>()

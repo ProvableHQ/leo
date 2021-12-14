@@ -134,20 +134,20 @@
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">String</span>;
 
     <span class="doccomment">/// Build program before publishing</span>
-    <span class="kw">fn</span> <span class="ident">prelude</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Input</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">prelude</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Input</span><span class="op">&gt;</span> {
         (<span class="ident">Build</span> {
             <span class="ident">compiler_options</span>: <span class="ident">Default::default</span>(),
         })
         .<span class="ident">execute</span>(<span class="ident">context</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>, <span class="ident">_input</span>: <span class="ident"><span class="self">Self</span>::Input</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>, <span class="ident">_input</span>: <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="comment">// Get the package manifest</span>
         <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">context</span>.<span class="ident">dir</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">manifest</span> <span class="op">=</span> <span class="ident">context</span>.<span class="ident">manifest</span>()<span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">package_name</span> <span class="op">=</span> <span class="ident">manifest</span>.<span class="ident">get_package_name</span>();
-        <span class="kw">if</span> <span class="ident">KEYWORD_TOKENS</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">keyword</span><span class="op">|</span> <span class="ident">keyword</span>.<span class="ident">to_string</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">package_name</span>) {
+        <span class="kw">if</span> <span class="ident">KEYWORD_TOKENS</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">keyword</span><span class="op">|</span> <span class="ident">keyword</span>.<span class="ident">to_string</span>() <span class="op">==</span> <span class="ident">package_name</span>) {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CliError::package_cannot_be_named_after_a_keyword</span>().<span class="ident">into</span>());
         }
 
@@ -158,17 +158,17 @@
             <span class="ident">manifest</span>.<span class="ident">get_package_license</span>(),
             <span class="ident">manifest</span>.<span class="ident">get_package_remote</span>(),
         ) {
-            (<span class="prelude-val">None</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CliError::no_package_description</span>().<span class="ident">into</span>()),
-            (<span class="kw">_</span>, <span class="prelude-val">None</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CliError::missing_package_license</span>().<span class="ident">into</span>()),
-            (<span class="kw">_</span>, <span class="kw">_</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CliError::missing_package_remote</span>().<span class="ident">into</span>()),
-            (<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (),
+            (<span class="prelude-val">None</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CliError::no_package_description</span>().<span class="ident">into</span>()),
+            (<span class="kw">_</span>, <span class="prelude-val">None</span>, <span class="kw">_</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CliError::missing_package_license</span>().<span class="ident">into</span>()),
+            (<span class="kw">_</span>, <span class="kw">_</span>, <span class="prelude-val">None</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CliError::missing_package_remote</span>().<span class="ident">into</span>()),
+            (<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; (),
         };
 
         <span class="kw">let</span> <span class="ident">package_remote</span> <span class="op">=</span> <span class="ident">manifest</span>.<span class="ident">get_package_remote</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">username</span> <span class="op">=</span> <span class="ident">package_remote</span>.<span class="ident">clone</span>().<span class="ident">author</span>;
 
         <span class="comment">// Prevent most common error before accessing API.</span>
-        <span class="kw">if</span> <span class="ident">username</span> <span class="op">=</span><span class="op">=</span> <span class="ident">AUTHOR_PLACEHOLDER</span> {
+        <span class="kw">if</span> <span class="ident">username</span> <span class="op">==</span> <span class="ident">AUTHOR_PLACEHOLDER</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CliError::package_author_is_not_set</span>().<span class="ident">into</span>());
         }
 
