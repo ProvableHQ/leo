@@ -3,38 +3,54 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 with the exception of splitting the changelog into multiple files for readability purposes.
 
-## [1.0.1] - 2017-08-20
+## Version [1.0.1] - 2017-08-20
 
-### Added
+### Language
 
-- Added features
+- Language Changes.
 
-### Changed
+### Compiler
 
-- Changed features
+- Compiler Changes.
 
-### Fixed
+### Library Changes
 
-- Fixed bugs.
+- Library Changes.
 
-### Removed
+### Stabilized APIs
 
-- Removed features.
+- Stabilized APIs changes.
 
-## [1.0.0] - 2017-06-20
+### Internal Changes
 
-### Added
+- Internal Changes.
 
-- Added features
+### Compatibility Notes
 
-### Changed
+- Compatibility Notes.
 
-- Changed features
+## Version [1.0.0] - 2017-06-20
 
-### Fixed
+### Language
 
-- Fixed bugs.
+- Language Changes.
 
-### Removed
+### Compiler
 
-- Removed features.
+- Compiler Changes.
+
+### Library Changes
+
+- Library Changes.
+
+### Stabilized APIs
+
+- Stabilized APIs changes.
+
+### Internal Changes
+
+- Internal Changes.
+
+### Compatibility Notes
+
+- Compatibility Notes.

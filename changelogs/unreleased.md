@@ -1,44 +1,40 @@
 # Changelog Template
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Rust's Release Notes](https://github.com/rust-lang/rust/blob/master/RELEASES.md),
 with the exception of splitting the changelog into multiple files for readability purposes.
 
 ## [Unreleased]
 
-### Added
+### Language
 
 - Aliases
 - Arrays of Unspecified Size
+- Explicit `const function` definitions
+- Countdown loops
+- `mut self` renamed to `&self`
+- stdlib now exists
+
+### Compiler
+
 - IR
 - Recursion
 - Error System and Backtraces
-- Re-entrant parsing
-- Error recovery
-- WASM Parser
+- WASM compatible parser
+
+### Library Changes
+
+- Bits/Bytes definitions now in stdlib
+- Length function for arrays now in stdlib
+
+### Stabilized APIs
+
 - leo `fetch`
-- Explicit `const function` definitions
-- Countdown loops
 
-### Changed
+### Internal Changes
 
-- Access Calls Refactored
-- How built ins are defined
-- Global Consts
-- Shadowing disallowed on top level types
-- Rust 2021 Edition!
-- `mut self` has been renamed to `ref-self`
-- Removed loose spans from AST snapshots
+- Rust 2021 Edition
 - Imports now done before ASG
-- AST passes now in its own directory
 
-### Fixed
+### Compatibility Notes
 
-- Allowing annotations that don't exist
-- Random duplicate definitions being allowed
-- A few invalid proof bugs
-- Incorrect field and group values
-- Canonicalization Fixes
-
-### Removed
-
-- Removed features.
+- Shadowing disallowed on top level definitions
