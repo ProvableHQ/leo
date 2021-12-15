@@ -113,12 +113,12 @@ pub fn emit_errors<T: Runner>(
             let expected_output: Option<String> =
                 expected_output.map(|x| serde_yaml::from_value(x).expect("test expectation deserialize failed"));
             if let Some(expected_output) = expected_output.as_deref() {
-                let err = err.to_string();
-                if sanitize_output(&err) != expected_output {
+                let sanitized = sanitize_output(err);
+                if sanitized != expected_output {
                     // invalid output
                     return Some(TestError::UnexpectedError {
                         expected: expected_output.to_string(),
-                        output: err,
+                        output: sanitized,
                         index: test_index,
                     });
                 }

@@ -245,10 +245,5 @@ pub fn sanitize_output(out: &str) -> String {
     let mut leo_dir = std::env::current_dir().unwrap();
     leo_dir.pop();
     let leo_dir = leo_dir.into_os_string().into_string().unwrap();
-
-    dbg!(&leo_dir);
-    dbg!(&out);
-    dbg!(out.replace(&leo_dir, ""));
-
     out.replace(&leo_dir, "")
 }
