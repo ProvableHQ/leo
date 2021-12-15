@@ -534,7 +534,7 @@ impl ParserContext<'_> {
                 output,
                 span: start + block.span.clone(),
                 block,
-                core_mapping: std::cell::RefCell::new(None),
+                core_mapping: <_>::default(),
             },
         ))
     }

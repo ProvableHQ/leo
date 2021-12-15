@@ -79,12 +79,10 @@ impl<'a> Program<'a> {
 
         let output = self.alloc();
 
-        let core_mapping = function.core_mapping.borrow().clone();
-
-        if let Some(core_mapping) = core_mapping {
+        if let Some(core_mapping) = function.core_mapping.get() {
             self.emit(Instruction::CallCore(CallCoreData {
                 destination: output,
-                identifier: core_mapping,
+                identifier: core_mapping.to_string(),
                 arguments: ir_arguments,
             }));
         } else {

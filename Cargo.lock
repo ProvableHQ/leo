@@ -1228,6 +1228,7 @@ dependencies = [
  "dot",
  "leo-asg",
  "leo-errors",
+ "leo-span",
  "petgraph 0.6.0",
 ]
 

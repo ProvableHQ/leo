@@ -46,7 +46,7 @@ pub struct Function<'a> {
     pub circuit: Cell<Option<&'a Circuit<'a>>>,
     pub span: Option<Span>,
     pub body: Cell<Option<&'a Statement<'a>>>,
-    pub core_mapping: RefCell<Option<String>>,
+    pub core_mapping: Cell<Option<Symbol>>,
     pub scope: &'a Scope<'a>,
     pub qualifier: FunctionQualifier,
     pub annotations: IndexMap<Symbol, Annotation>,

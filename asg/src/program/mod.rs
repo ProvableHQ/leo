@@ -285,7 +285,7 @@ impl<'a> Program<'a> {
             assert_eq!(name.name, alias.name.name);
 
             let asg_alias = Alias::init(scope, alias)?;
-            scope.aliases.borrow_mut().insert(name.name.to_string(), asg_alias);
+            scope.aliases.borrow_mut().insert(name.name, asg_alias);
         }
 
         // Second pass for circuit members.

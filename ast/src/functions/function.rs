@@ -19,6 +19,7 @@ use leo_span::{sym, Span, Symbol};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
+use std::cell::Cell;
 use std::fmt;
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -28,7 +29,7 @@ pub struct Function {
     pub input: Vec<FunctionInput>,
     pub const_: bool,
     pub output: Option<Type>,
-    pub core_mapping: std::cell::RefCell<Option<Symbol>>,
+    pub core_mapping: Cell<Option<Symbol>>,
     pub block: Block,
     pub span: Span,
 }

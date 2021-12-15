@@ -112,7 +112,7 @@ impl<'a> Circuit<'a> {
                     );
                 }
                 leo_ast::CircuitMember::CircuitFunction(function) => {
-                    if members.contains_key(function.identifier.name.as_ref()) {
+                    if members.contains_key(&function.identifier.name) {
                         return Err(AsgError::redefined_circuit_member(
                             &value.circuit_name.name,
                             &function.identifier.name,
@@ -125,13 +125,10 @@ impl<'a> Circuit<'a> {
                     if asg_function.is_test() {
                         return Err(AsgError::circuit_test_function(&function.identifier.span).into());
                     }
-                    members.insert(
-                        function.identifier.name.to_string(),
-                        CircuitMember::Function(asg_function),
-                    );
+                    members.insert(function.identifier.name, CircuitMember::Function(asg_function));
                 }
                 leo_ast::CircuitMember::CircuitVariable(name, type_) => {
-                    if members.contains_key(name.name.as_ref()) {
+                    if members.contains_key(&name.name) {
                         return Err(AsgError::redefined_circuit_member(
                             &value.circuit_name.name,
                             &name.name,
@@ -140,7 +137,7 @@ impl<'a> Circuit<'a> {
                         .into());
                     }
                     members.insert(
-                        name.name.to_string(),
+                        name.name,
                         CircuitMember::Variable(new_scope.resolve_ast_type(type_, &name.span)?),
                     );
                 }

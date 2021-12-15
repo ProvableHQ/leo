@@ -57,20 +57,13 @@ pub struct Scope<'a> {
 
 #[allow(clippy::mut_from_ref)]
 impl<'a> Scope<'a> {
-    ///
     /// Returns a reference to the variable corresponding to the name.
     ///
     /// If the current scope did not have this name present, then the parent scope is checked.
     /// If there is no parent scope, then `None` is returned.
     ///
     pub fn resolve_variable(&self, name: Symbol) -> Option<&'a Variable<'a>> {
-        if let Some(resolved) = self.variables.borrow().get(&name) {
-            Some(*resolved)
-        } else if let Some(scope) = self.parent_scope.get() {
-            scope.resolve_variable(name)
-        } else {
-            None
-        }
+        self.resolve(name, |t| &t.variables, Scope::resolve_variable)
     }
 
     ///
@@ -105,68 +98,53 @@ impl<'a> Scope<'a> {
         }
     }
 
-    ///
     /// Returns a reference to the alias corresponding to the name.
     ///
     /// If the current scope did not have this name present, then the parent scope is checked.
     /// If there is no parent scope, then `None` is returned.
     ///
     pub fn resolve_alias(&self, name: Symbol) -> Option<&'a Alias<'a>> {
-        if let Some(resolved) = self.aliases.borrow().get(&name) {
-            Some(*resolved)
-        } else if let Some(resolved) = self.parent_scope.get() {
-            resolved.resolve_alias(name)
-        } else {
-            None
-        }
+        self.resolve(name, |t| &t.aliases, Scope::resolve_alias)
     }
 
-    ///
     /// Returns a reference to the function corresponding to the name.
     ///
     /// If the current scope did not have this name present, then the parent scope is checked.
     /// If there is no parent scope, then `None` is returned.
     ///
     pub fn resolve_function(&self, name: Symbol) -> Option<&'a Function<'a>> {
-        if let Some(resolved) = self.functions.borrow().get(&name) {
-            Some(*resolved)
-        } else if let Some(resolved) = self.parent_scope.get() {
-            resolved.resolve_function(name)
-        } else {
-            None
-        }
+        self.resolve(name, |t| &t.functions, Scope::resolve_function)
     }
 
-    ///
     /// Returns a reference to the circuit corresponding to the name.
     ///
     /// If the current scope did not have this name present, then the parent scope is checked.
     /// If there is no parent scope, then `None` is returned.
     ///
     pub fn resolve_circuit(&self, name: Symbol) -> Option<&'a Circuit<'a>> {
-        if let Some(resolved) = self.circuits.borrow().get(&name) {
-            Some(*resolved)
-        } else if let Some(resolved) = self.parent_scope.get() {
-            resolved.resolve_circuit(name)
-        } else {
-            None
-        }
+        self.resolve(name, |t| &t.circuits, Scope::resolve_circuit)
     }
 
-    ///
     /// Returns a reference to the global const definition statement corresponding to the name.
     ///
     /// If the current scope did not have this name present, then the parent scope is checked.
     /// If there is no parent scope, then `None` is returned.
     ///
     pub fn resolve_global_const(&self, name: Symbol) -> Option<&'a DefinitionStatement<'a>> {
-        if let Some(resolved) = self.global_consts.borrow().get(&name) {
-            Some(*resolved)
-        } else if let Some(resolved) = self.parent_scope.get() {
-            resolved.resolve_global_const(name)
-        } else {
-            None
-        }
+        self.resolve(name, |t| &t.global_consts, Scope::resolve_global_const)
+    }
+
+    fn resolve<T: Copy>(
+        &self,
+        name: Symbol,
+        field: impl FnOnce(&Self) -> &RefCell<IndexMap<Symbol, T>>,
+        resolve: impl FnOnce(&Self, Symbol) -> Option<T>,
+    ) -> Option<T> {
+        field(self)
+            .borrow()
+            .get(&name)
+            .copied()
+            .or_else(|| self.parent_scope.get().and_then(|r| resolve(r, name)))
     }
 
     ///

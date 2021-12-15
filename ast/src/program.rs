@@ -103,9 +103,9 @@ impl Program {
             })
             .for_each(|function| {
                 function.annotations.retain(|name, core_map| {
-                    match name {
+                    match *name {
                         sym::CoreFunction => {
-                            let new = core_map.arguments.get(0).or(Some(&function.identifier.name));
+                            let new = core_map.arguments.get(0).copied().or(Some(function.identifier.name));
                             function.core_mapping.replace(new);
                             false
                         }
