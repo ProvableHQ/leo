@@ -241,14 +241,14 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
 /// Cleans the outputs by removing local paths.
 /// Needed for failing import tests as they require correct setting of CWD
 /// which leads to full system paths being printed out to the test expectations.
-pub fn sanitize_output(out: &String) -> String {
+pub fn sanitize_output(out: &str) -> String {
     let mut leo_dir = std::env::current_dir().unwrap();
     leo_dir.pop();
     let leo_dir = leo_dir.into_os_string().into_string().unwrap();
 
     dbg!(&leo_dir);
     dbg!(&out);
-    dbg!(out.clone().replace(&leo_dir, ""));
+    dbg!(out.replace(&leo_dir, ""));
 
-    out.clone().replace(&leo_dir, "")
+    out.replace(&leo_dir, "")
 }
