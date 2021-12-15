@@ -94,13 +94,10 @@ jobs:
           sccache --start-server
 
       - name: Test
-        run: cargo test --all -- --nocapture
-        env: 
-            TEST_FILTER: import
-        # uses: actions-rs/cargo@v1
-        # with:
-        #   command: test
-        #   args: --all
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --all
 
       - name: Print sccache stats
         run: sccache --show-stats
