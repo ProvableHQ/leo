@@ -382,7 +382,7 @@ rest-of-block-comment-after-star = "/"
                                  / "*" rest-of-block-comment-after-star
                                  / not-star-or-slash rest-of-block-comment
 
-end-of-line-comment = "//" *not-line-feed-or-carriage-return newline
+end-of-line-comment = "//" *not-line-feed-or-carriage-return
 
 ; Below are the keywords in the Leo language.
 ; They cannot be used as identifiers.

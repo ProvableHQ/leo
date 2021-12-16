@@ -526,11 +526,8 @@ Go to: _[not-star-or-slash](#user-content-not-star-or-slash), [rest-of-block-com
 
 <a name="end-of-line-comment"></a>
 ```abnf
-end-of-line-comment = "//" *not-line-feed-or-carriage-return newline
+end-of-line-comment = "//" *not-line-feed-or-carriage-return
 ```
-
-Go to: _[newline](#user-content-newline)_;
-
 
 Below are the keywords in the Leo language.
 They cannot be used as identifiers.
