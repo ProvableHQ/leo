@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use lazy_static::lazy_static;
 use serde_yaml::Value;
 use std::{
     collections::BTreeMap,
@@ -21,6 +22,14 @@ use std::{
 };
 
 use crate::{error::*, fetch::find_tests, output::TestExpectation, test::*};
+
+lazy_static! {
+    static ref LEO_DIR: String = {
+        let mut leo_dir = std::env::current_dir().unwrap();
+        leo_dir.pop();
+        leo_dir.into_os_string().into_string().unwrap()
+    };
+}
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum ParseType {
@@ -242,8 +251,5 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
 /// Needed for failing import tests as they require correct setting of CWD
 /// which leads to full system paths being printed out to the test expectations.
 pub fn sanitize_output(out: &str) -> String {
-    let mut leo_dir = std::env::current_dir().unwrap();
-    leo_dir.pop();
-    let leo_dir = leo_dir.into_os_string().into_string().unwrap();
-    out.replace(&leo_dir, "")
+    out.replace(&*LEO_DIR, "").replace("\\", "/") // really don't like this line; :confused:
 }

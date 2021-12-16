@@ -1465,6 +1465,7 @@ dependencies = [
 name = "leo-test-framework"
 version = "1.5.3"
 dependencies = [
+ "lazy_static",
  "leo-asg",
  "leo-ast",
  "leo-ast-passes",
