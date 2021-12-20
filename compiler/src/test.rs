@@ -30,11 +30,20 @@ use snarkvm_ir::InputData;
 
 use core::fmt;
 use indexmap::IndexMap;
+use lazy_static::lazy_static;
 use serde_yaml::Value;
 use std::cell::RefCell;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
+
+lazy_static! {
+    static ref LEO_DIR: String = {
+        let mut leo_dir = std::env::current_dir().unwrap();
+        leo_dir.pop();
+        leo_dir.into_os_string().into_string().unwrap()
+    };
+}
 
 pub type TestCompiler<'a> = Compiler<'static, 'a>;
 
@@ -85,6 +94,7 @@ fn hash_file(path: &str) -> String {
 }
 
 struct CompileNamespace;
+struct ImportNamespace;
 
 #[derive(serde::Deserialize, serde::Serialize, PartialEq)]
 struct OutputItem {
@@ -199,7 +209,7 @@ impl fmt::Display for LeoOrString {
 
 /// A buffer used to emit errors into.
 #[derive(Clone)]
-struct BufferEmitter(Rc<RefCell<Buffer<LeoOrString>>>);
+pub(crate) struct BufferEmitter(Rc<RefCell<Buffer<LeoOrString>>>);
 
 impl Emitter for BufferEmitter {
     fn emit_err(&mut self, err: LeoError) {
@@ -211,7 +221,7 @@ fn buffer_if_err<T>(buf: &BufferEmitter, res: Result<T, String>) -> Result<T, ()
     res.map_err(|err| buf.0.borrow_mut().push(LeoOrString::String(err)))
 }
 
-fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Value, ()> {
+pub(crate) fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Value, ()> {
     // Check for CWD option:
     // ``` cwd: import ```
     // When set, uses different working directory for current file.
@@ -335,12 +345,35 @@ impl Namespace for CompileNamespace {
     }
 }
 
+impl Namespace for ImportNamespace {
+    fn parse_type(&self) -> ParseType {
+        ParseType::Whole
+    }
+
+    fn run_test(&self, test: Test) -> Result<Value, String> {
+        let err_buf = BufferEmitter(Rc::default());
+        let handler = Handler::new(Box::new(err_buf.clone()));
+
+        run_test(test, &handler, &err_buf)
+            .map_err(|()| err_buf.0.take().to_string())
+            .map_err(|err| sanitize_output(&err))
+    }
+}
+
+/// Cleans the outputs by removing local paths.
+/// Needed for failing import tests as they require correct setting of CWD
+/// which leads to full system paths being printed out to the test expectations.
+pub fn sanitize_output(out: &str) -> String {
+    out.replace(&*LEO_DIR, "").replace("\\", "/") // really don't like this line; :confused:
+}
+
 struct TestRunner;
 
 impl Runner for TestRunner {
     fn resolve_namespace(&self, name: &str) -> Option<Box<dyn Namespace>> {
         Some(match name {
             "Compile" => Box::new(CompileNamespace),
+            "Import" => Box::new(ImportNamespace),
             _ => return None,
         })
     }

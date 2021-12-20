@@ -1,0 +1,5 @@
+---
+namespace: Import
+expectation: Fail
+outputs:
+  - "Error [EPAR0370000]: $\n    --> /test-framework/../tests/import/import_misc/imports:3:13\n     |\n   3 | import money$.foo;\n     |             ^"

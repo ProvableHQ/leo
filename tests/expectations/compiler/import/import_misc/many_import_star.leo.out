@@ -1,0 +1,5 @@
+---
+namespace: Import
+expectation: Fail
+outputs:
+  - "Error [EIMP0374000]: conflicting imports found for `bar`.\n    --> /test-framework/../tests/import/import_misc/imports:5:12\n     |\n   5 | import bar.*;         // FORBIDDEN imports directory import\n     |            ^"

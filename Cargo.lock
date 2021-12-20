@@ -1263,6 +1263,7 @@ dependencies = [
  "bincode",
  "eyre",
  "indexmap",
+ "lazy_static",
  "leo-asg",
  "leo-asg-passes",
  "leo-ast",
