@@ -2,4 +2,4 @@
 namespace: Import
 expectation: Fail
 outputs:
-  - "Error [EIMP0374006]: Cannot find imported package `hello_world` in source files or import directory.\n    --> /test-framework/../tests/import/import_misc/imports:3:20\n     |\n   3 | import hello_world.foo;\n     |                    ^^^"
+  - EIMP0374006

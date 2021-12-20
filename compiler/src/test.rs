@@ -30,20 +30,11 @@ use snarkvm_ir::InputData;
 
 use core::fmt;
 use indexmap::IndexMap;
-use lazy_static::lazy_static;
 use serde_yaml::Value;
 use std::cell::RefCell;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
-
-lazy_static! {
-    static ref LEO_DIR: String = {
-        let mut leo_dir = std::env::current_dir().unwrap();
-        leo_dir.pop();
-        leo_dir.into_os_string().into_string().unwrap()
-    };
-}
 
 pub type TestCompiler<'a> = Compiler<'static, 'a>;
 
@@ -354,17 +345,17 @@ impl Namespace for ImportNamespace {
         let err_buf = BufferEmitter(Rc::default());
         let handler = Handler::new(Box::new(err_buf.clone()));
 
-        run_test(test, &handler, &err_buf)
-            .map_err(|()| err_buf.0.take().to_string())
-            .map_err(|err| sanitize_output(&err))
+        // In import tests we only keep Error code to make error messages uniform accross
+        // all platforms and exclude all platform-specific paths.
+        run_test(test, &handler, &err_buf).map_err(|()| {
+            let err_vec = err_buf.0.take().into_inner();
+            if let LeoOrString::Leo(err) = err_vec.get(0).unwrap() {
+                err.error_code()
+            } else {
+                panic!("Leo Error expected");
+            }
+        })
     }
-}
-
-/// Cleans the outputs by removing local paths.
-/// Needed for failing import tests as they require correct setting of CWD
-/// which leads to full system paths being printed out to the test expectations.
-pub fn sanitize_output(out: &str) -> String {
-    out.replace(&*LEO_DIR, "").replace("\\", "/") // really don't like this line; :confused:
 }
 
 struct TestRunner;

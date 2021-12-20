@@ -117,9 +117,6 @@ version = "0.8"
 [dependencies.num-bigint]
 version = "0.4"
 
-[dev-dependencies.lazy_static]
-version = "1.4"
-
 [dev-dependencies.rand_core]
 version = "0.6.3"
 
