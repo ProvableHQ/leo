@@ -58,9 +58,6 @@ version = "1.5.2"
 [dependencies.structopt]
 version = "0.3"
 
-[dependencies.lazy_static]
-version = "1.4"
-
 # List of dependencies for errcov
 [dependencies.leo-errors]
 path = "../errors"
