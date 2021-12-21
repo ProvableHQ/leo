@@ -38,7 +38,7 @@ use std::rc::Rc;
 
 pub type TestCompiler<'a> = Compiler<'static, 'a>;
 
-//convenience function for tests, leaks memory
+// Convenience function for tests, leaks memory.
 pub(crate) fn make_test_context() -> AsgContext<'static> {
     let allocator = Box::leak(Box::new(new_alloc_context()));
     new_context(allocator)
@@ -200,7 +200,7 @@ impl fmt::Display for LeoOrString {
 
 /// A buffer used to emit errors into.
 #[derive(Clone)]
-pub(crate) struct BufferEmitter(Rc<RefCell<Buffer<LeoOrString>>>);
+struct BufferEmitter(Rc<RefCell<Buffer<LeoOrString>>>);
 
 impl Emitter for BufferEmitter {
     fn emit_err(&mut self, err: LeoError) {
@@ -212,7 +212,7 @@ fn buffer_if_err<T>(buf: &BufferEmitter, res: Result<T, String>) -> Result<T, ()
     res.map_err(|err| buf.0.borrow_mut().push(LeoOrString::String(err)))
 }
 
-pub(crate) fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Value, ()> {
+fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Value, ()> {
     // Check for CWD option:
     // ``` cwd: import ```
     // When set, uses different working directory for current file.
