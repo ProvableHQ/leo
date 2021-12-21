@@ -82,6 +82,9 @@ impl ImportParser<'_> {
             .collect::<Result<Vec<_>, std::io::Error>>()
             .map_err(|error| ImportError::directory_error(error, &error_path, span))?;
 
+        // Sorting packages in the import directory to support constistency in order. This way we 
+        // make sure that entries are processed in the same order on every platform. Rust's default
+        // `fs::read_dir` does not provide ordering by default.
         entries.sort_by_key(|entry| entry.path());
 
         // Check if the imported package name is in the source directory.
