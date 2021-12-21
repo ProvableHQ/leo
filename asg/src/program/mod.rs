@@ -179,7 +179,7 @@ impl<'a> Program<'a> {
             let sub_program = Program::new(context, program)?;
             imported_modules.insert(package.clone(), sub_program.clone());
 
-            if package == &[sym::std, sym::prelude] {
+            if let [sym::std, sym::prelude, ..] = package.as_slice() {
                 imported_aliases.extend(sub_program.aliases.clone().into_iter());
                 imported_functions.extend(sub_program.functions.clone().into_iter());
                 imported_circuits.extend(sub_program.circuits.clone().into_iter());

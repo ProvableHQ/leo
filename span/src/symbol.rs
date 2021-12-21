@@ -105,6 +105,7 @@ symbols! {
     context,
     CoreFunction,
     error,
+    i64,
     input,
     log,
     main,
@@ -334,7 +335,7 @@ impl Interner {
         // SAFETY: Extending to `'static` is fine. Accesses only happen while the arena is alive.
         let string: &'static _ = unsafe { transmute_lt(string) };
 
-        Symbol::new(set.insert_full(string).1 as u32)
+        Symbol::new(set.insert_full(string).0 as u32)
     }
 
     /// Returns the corresponding string for the given symbol.

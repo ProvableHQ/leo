@@ -50,7 +50,7 @@ pub struct Circuit<'a> {
     pub members: RefCell<IndexMap<Symbol, CircuitMember<'a>>>,
 }
 
-impl<'a> PartialEq for Circuit<'a> {
+impl PartialEq for Circuit<'_> {
     fn eq(&self, other: &Circuit) -> bool {
         if self.name != other.name {
             return false;
@@ -59,9 +59,9 @@ impl<'a> PartialEq for Circuit<'a> {
     }
 }
 
-impl<'a> Eq for Circuit<'a> {}
+impl Eq for Circuit<'_> {}
 
-impl<'a> Node for Circuit<'a> {
+impl Node for Circuit<'_> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }

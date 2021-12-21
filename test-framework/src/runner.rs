@@ -50,6 +50,18 @@ pub trait Runner {
     }
 }
 
+fn read_expectations(path: &Path) -> Option<TestExpectation> {
+    path.exists()
+        .then(|| {
+            let env = std::env::var("CLEAR_LEO_TEST_EXPECTATIONS").unwrap_or_default();
+            env.trim().is_empty().then(|| {
+                let raw = std::fs::read_to_string(&path).expect("failed to read expectations file");
+                serde_yaml::from_str(&raw).expect("invalid yaml in expectations file")
+            })
+        })
+        .flatten()
+}
+
 pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
     std::env::remove_var("LEO_BACKTRACE"); // always remove backtrace so it doesn't clog output files
     std::env::set_var("LEO_TESTFRAMEWORK", "true");
@@ -113,20 +125,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
             .unwrap()
             .to_string();
 
-        let expectations: Option<TestExpectation> = if expectation_path.exists() {
-            if !std::env::var("CLEAR_LEO_TEST_EXPECTATIONS")
-                .unwrap_or_default()
-                .trim()
-                .is_empty()
-            {
-                None
-            } else {
-                let raw = std::fs::read_to_string(&expectation_path).expect("failed to read expectations file");
-                Some(serde_yaml::from_str(&raw).expect("invalid yaml in expectations file"))
-            }
-        } else {
-            None
-        };
+        let expectations = read_expectations(&expectation_path);
 
         let end_of_header = content.find("*/").expect("failed to find header block in test");
         let content = &content[end_of_header + 2..];

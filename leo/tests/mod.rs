@@ -14,9 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::{emitter::Handler, Result};
-use std::path::PathBuf;
-
 use crate::{
     commands::{
         package::{Login, Logout},
@@ -24,6 +21,11 @@ use crate::{
     },
     context::{create_context, Context},
 };
+
+use leo_errors::{emitter::Handler, Result};
+use leo_span::symbol::create_session_if_not_set_then;
+
+use std::path::PathBuf;
 
 /// Path to the only complex Leo program that we have
 /// - relative to source dir - where Cargo.toml is located
@@ -44,109 +46,119 @@ pub fn format_event() -> Result<()> {
 
 #[test]
 pub fn build_pedersen_hash() -> Result<()> {
-    (Build {
-        compiler_options: Default::default(),
+    create_session_if_not_set_then(|_| {
+        (Build {
+            compiler_options: Default::default(),
+        })
+        .apply(context(&Handler::default())?, ())?;
+        Ok(())
     })
-    .apply(context(&Handler::default())?, ())?;
-    Ok(())
 }
 
 #[test]
 pub fn setup_pedersen_hash() -> Result<()> {
-    let handler = Handler::default();
+    create_session_if_not_set_then(|_| {
+        let handler = Handler::default();
 
-    let build = (Build {
-        compiler_options: Default::default(),
+        let build = (Build {
+            compiler_options: Default::default(),
+        })
+        .apply(context(&handler)?, ())?;
+        (Setup {
+            skip_key_check: false,
+            compiler_options: Default::default(),
+        })
+        .apply(context(&handler)?, build.clone())?;
+        (Setup {
+            skip_key_check: true,
+            compiler_options: Default::default(),
+        })
+        .apply(context(&handler)?, build)?;
+        Ok(())
     })
-    .apply(context(&handler)?, ())?;
-    (Setup {
-        skip_key_check: false,
-        compiler_options: Default::default(),
-    })
-    .apply(context(&handler)?, build.clone())?;
-    (Setup {
-        skip_key_check: true,
-        compiler_options: Default::default(),
-    })
-    .apply(context(&handler)?, build)?;
-    Ok(())
 }
 
 #[test]
 pub fn prove_pedersen_hash() -> Result<()> {
-    let handler = Handler::default();
+    create_session_if_not_set_then(|_| {
+        let handler = Handler::default();
 
-    let build = (Build {
-        compiler_options: Default::default(),
+        let build = (Build {
+            compiler_options: Default::default(),
+        })
+        .apply(context(&handler)?, ())?;
+        let setup = (Setup {
+            skip_key_check: false,
+            compiler_options: Default::default(),
+        })
+        .apply(context(&handler)?, build)?;
+        (Prove {
+            skip_key_check: false,
+            compiler_options: Default::default(),
+        })
+        .apply(context(&handler)?, setup.clone())?;
+        (Prove {
+            skip_key_check: true,
+            compiler_options: Default::default(),
+        })
+        .apply(context(&handler)?, setup)?;
+        Ok(())
     })
-    .apply(context(&handler)?, ())?;
-    let setup = (Setup {
-        skip_key_check: false,
-        compiler_options: Default::default(),
-    })
-    .apply(context(&handler)?, build)?;
-    (Prove {
-        skip_key_check: false,
-        compiler_options: Default::default(),
-    })
-    .apply(context(&handler)?, setup.clone())?;
-    (Prove {
-        skip_key_check: true,
-        compiler_options: Default::default(),
-    })
-    .apply(context(&handler)?, setup)?;
-    Ok(())
 }
 
 #[test]
 pub fn run_pedersen_hash() -> Result<()> {
-    let handler = Handler::default();
+    create_session_if_not_set_then(|_| {
+        let handler = Handler::default();
 
-    let build = (Build {
-        compiler_options: Default::default(),
+        let build = (Build {
+            compiler_options: Default::default(),
+        })
+        .apply(context(&handler)?, ())?;
+        let setup = (Setup {
+            skip_key_check: false,
+            compiler_options: Default::default(),
+        })
+        .apply(context(&handler)?, build)?;
+        let prove = (Prove {
+            skip_key_check: false,
+            compiler_options: Default::default(),
+        })
+        .apply(context(&handler)?, setup)?;
+        (Run {
+            skip_key_check: false,
+            compiler_options: Default::default(),
+        })
+        .apply(context(&handler)?, prove.clone())?;
+        (Run {
+            skip_key_check: true,
+            compiler_options: Default::default(),
+        })
+        .apply(context(&handler)?, prove)?;
+        Ok(())
     })
-    .apply(context(&handler)?, ())?;
-    let setup = (Setup {
-        skip_key_check: false,
-        compiler_options: Default::default(),
-    })
-    .apply(context(&handler)?, build)?;
-    let prove = (Prove {
-        skip_key_check: false,
-        compiler_options: Default::default(),
-    })
-    .apply(context(&handler)?, setup)?;
-    (Run {
-        skip_key_check: false,
-        compiler_options: Default::default(),
-    })
-    .apply(context(&handler)?, prove.clone())?;
-    (Run {
-        skip_key_check: true,
-        compiler_options: Default::default(),
-    })
-    .apply(context(&handler)?, prove)?;
-    Ok(())
 }
 
 #[test]
 pub fn test_pedersen_hash() -> Result<()> {
-    let handler = Handler::default();
+    create_session_if_not_set_then(|_| {
+        let handler = Handler::default();
 
-    let mut main_file = PathBuf::from(PEDERSEN_HASH_PATH);
-    main_file.push("src/main.leo");
+        let mut main_file = PathBuf::from(PEDERSEN_HASH_PATH);
+        main_file.push("src/main.leo");
 
-    (Test {
-        files: vec![],
-        compiler_options: Default::default(),
+        (Test {
+            files: vec![],
+            compiler_options: Default::default(),
+        })
+        .apply(context(&handler)?, ())?;
+        (Test {
+            files: vec![main_file],
+            compiler_options: Default::default(),
+        })
+        .apply(context(&handler)?, ())?;
+        Ok(())
     })
-    .apply(context(&handler)?, ())?;
-    (Test {
-        files: vec![main_file],
-        compiler_options: Default::default(),
-    })
-    .apply(context(&handler)?, ())?;
-    Ok(())
 }
 
 #[test]

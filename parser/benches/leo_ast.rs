@@ -14,13 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use criterion::{criterion_group, criterion_main, Criterion};
 use leo_ast::Ast;
 use leo_errors::emitter::Handler;
+use leo_span::symbol::create_session_if_not_set_then;
+
+use criterion::{criterion_group, criterion_main, Criterion};
 use std::time::Duration;
 
 fn parse_ast(path: &str, input: &str) -> Ast {
-    leo_parser::parse_ast(&Handler::default(), path, input).expect("failed to parse benchmark")
+    create_session_if_not_set_then(|_| {
+        leo_parser::parse_ast(&Handler::default(), path, input).expect("failed to parse benchmark")
+    })
 }
 
 fn bench_big_if_else(c: &mut Criterion) {

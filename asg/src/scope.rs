@@ -120,7 +120,6 @@ impl<'a> Scope<'a> {
     ///
     /// If the current scope did not have this name present, then the parent scope is checked.
     /// If there is no parent scope, then `None` is returned.
-    ///
     pub fn resolve_circuit(&self, name: Symbol) -> Option<&'a Circuit<'a>> {
         self.resolve(name, |t| &t.circuits, Scope::resolve_circuit)
     }
@@ -129,7 +128,6 @@ impl<'a> Scope<'a> {
     ///
     /// If the current scope did not have this name present, then the parent scope is checked.
     /// If there is no parent scope, then `None` is returned.
-    ///
     pub fn resolve_global_const(&self, name: Symbol) -> Option<&'a DefinitionStatement<'a>> {
         self.resolve(name, |t| &t.global_consts, Scope::resolve_global_const)
     }
