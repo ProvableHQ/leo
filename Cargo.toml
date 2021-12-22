@@ -212,16 +212,16 @@ debug = true
 
 # Remove on pr from staging to master once snarkvm does a release.
 [patch.crates-io]
-snarkvm-algorithms = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-curves = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-dpc = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-eval = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-fields = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-gadgets = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-ir = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-parameters = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-r1cs = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-utilities = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-algorithms = { git = "https://github.com/AleoHQ/snarkVM", branch = "testnet1" }
+snarkvm-curves = { git = "https://github.com/AleoHQ/snarkVM", branch = "testnet1" }
+snarkvm-dpc = { git = "https://github.com/AleoHQ/snarkVM", branch = "testnet1" }
+snarkvm-eval = { git = "https://github.com/AleoHQ/snarkVM", branch = "testnet1" }
+snarkvm-fields = { git = "https://github.com/AleoHQ/snarkVM", branch = "testnet1" }
+snarkvm-gadgets = { git = "https://github.com/AleoHQ/snarkVM", branch = "testnet1" }
+snarkvm-ir = { git = "https://github.com/AleoHQ/snarkVM", branch = "testnet1" }
+snarkvm-parameters = { git = "https://github.com/AleoHQ/snarkVM", branch = "testnet1" }
+snarkvm-r1cs = { git = "https://github.com/AleoHQ/snarkVM", branch = "testnet1" }
+snarkvm-utilities = { git = "https://github.com/AleoHQ/snarkVM", branch = "testnet1" }
 
 # snarkvm-algorithms = { path = "D:\\Work\\leo_repos\\snarkVM\\algorithms" }
 # snarkvm-curves = { path = "D:\\Work\\leo_repos\\snarkVM\\curves" }
