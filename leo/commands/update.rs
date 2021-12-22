@@ -41,6 +41,10 @@ pub struct Update {
     #[structopt(short, long)]
     pub(crate) studio: bool,
 
+    /// Update to specified version
+    #[structopt(short = "v", long)]
+    pub(crate) version: Option<String>,
+
     /// Setting for automatic updates of Leo
     #[structopt(subcommand)]
     pub(crate) automatic: Option<Automatic>,
@@ -84,7 +88,7 @@ impl<'a> Command<'a> for Update {
             return Ok(());
         }
 
-        match Updater::update_to_latest_release(true) {
+        match Updater::update_to_release(true, self.version) {
             Ok(status) => match (status.uptodate(), status.updated()) {
                 (true, _) => tracing::info!("Leo is already on the latest version"),
                 (_, true) => tracing::info!("Leo has successfully updated to version {}", status.version()),

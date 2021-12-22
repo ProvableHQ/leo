@@ -22,7 +22,6 @@ use self_update::{backends::github, version::bump_is_greater, Status};
 
 pub struct Updater;
 
-// TODO Add logic for users to easily select release versions.
 impl Updater {
     const LEO_BIN_NAME: &'static str = "leo";
     const LEO_REPO_NAME: &'static str = "leo";
@@ -49,16 +48,24 @@ impl Updater {
         Ok(())
     }
 
-    /// Update `leo` to the latest release.
-    pub fn update_to_latest_release(show_output: bool) -> Result<Status> {
-        let status = github::Update::configure()
+    /// Update `leo` to the specified release. Defaults to latest release.
+    pub fn update_to_release(show_output: bool, version: Option<String>) -> Result<Status> {
+        let mut update_builder = github::Update::configure();
+
+        update_builder
             .repo_owner(Self::LEO_REPO_OWNER)
             .repo_name(Self::LEO_REPO_NAME)
             .bin_name(Self::LEO_BIN_NAME)
             .current_version(env!("CARGO_PKG_VERSION"))
             .show_download_progress(show_output)
             .no_confirm(true)
-            .show_output(show_output)
+            .show_output(show_output);
+
+        if let Some(v) = version {
+            update_builder.target_version_tag(&v);
+        }
+
+        let status = update_builder
             .build()
             .map_err(CliError::self_update_build_error)?
             .update()
@@ -93,7 +100,7 @@ impl Updater {
 
         if config.update.automatic {
             // If the auto update configuration is on, attempt to update the version.
-            if let Ok(status) = Self::update_to_latest_release(false) {
+            if let Ok(status) = Self::update_to_release(false, None) {
                 if status.updated() {
                     tracing::info!("Successfully updated to {}", status.version());
                 }
