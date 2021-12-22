@@ -170,11 +170,12 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
                 errors.push(error);
             } else {
                 pass_tests += 1;
+
                 new_outputs.push(
                     output
                         .as_ref()
                         .map(|x| serde_yaml::to_value(x).expect("serialization failed"))
-                        .unwrap_or_else(|e| Value::String(e.clone())),
+                        .unwrap_or_else(|e| Value::String(e.to_string())),
                 );
             }
         }

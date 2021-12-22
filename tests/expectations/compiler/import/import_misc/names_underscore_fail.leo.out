@@ -1,0 +1,5 @@
+---
+namespace: Import
+expectation: Fail
+outputs:
+  - EIMP0374006

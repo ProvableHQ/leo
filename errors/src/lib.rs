@@ -130,7 +130,7 @@ impl LeoError {
         }
     }
 
-    /// Implment exit code for each type of Error, even the ones that don't have one.
+    /// Implement exit code for each type of Error, even the ones that don't have one.
     pub fn exit_code(&self) -> i32 {
         use LeoError::*;
 

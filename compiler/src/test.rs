@@ -38,7 +38,7 @@ use std::rc::Rc;
 
 pub type TestCompiler<'a> = Compiler<'static, 'a>;
 
-//convenience function for tests, leaks memory
+// Convenience function for tests, leaks memory.
 pub(crate) fn make_test_context() -> AsgContext<'static> {
     let allocator = Box::leak(Box::new(new_alloc_context()));
     new_context(allocator)
@@ -85,6 +85,7 @@ fn hash_file(path: &str) -> String {
 }
 
 struct CompileNamespace;
+struct ImportNamespace;
 
 #[derive(serde::Deserialize, serde::Serialize, PartialEq)]
 struct OutputItem {
@@ -335,12 +336,35 @@ impl Namespace for CompileNamespace {
     }
 }
 
+impl Namespace for ImportNamespace {
+    fn parse_type(&self) -> ParseType {
+        ParseType::Whole
+    }
+
+    fn run_test(&self, test: Test) -> Result<Value, String> {
+        let err_buf = BufferEmitter(Rc::default());
+        let handler = Handler::new(Box::new(err_buf.clone()));
+
+        // In import tests we only keep Error code to make error messages uniform accross
+        // all platforms and exclude all platform-specific paths.
+        run_test(test, &handler, &err_buf).map_err(|()| {
+            let err_vec = err_buf.0.take().into_inner();
+            if let LeoOrString::Leo(err) = err_vec.get(0).unwrap() {
+                err.error_code()
+            } else {
+                panic!("Leo Error expected");
+            }
+        })
+    }
+}
+
 struct TestRunner;
 
 impl Runner for TestRunner {
     fn resolve_namespace(&self, name: &str) -> Option<Box<dyn Namespace>> {
         Some(match name {
             "Compile" => Box::new(CompileNamespace),
+            "Import" => Box::new(ImportNamespace),
             _ => return None,
         })
     }
