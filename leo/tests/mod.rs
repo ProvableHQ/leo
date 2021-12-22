@@ -192,6 +192,15 @@ pub fn leo_update_and_update_automatic() -> Result<()> {
     let update = Update {
         list: true,
         studio: true,
+        version: None,
+        automatic: None,
+    };
+    update.apply(context(&handler)?, ())?;
+
+    let update = Update {
+        list: true,
+        studio: true,
+        version: Some(String::from("v1.5.2")),
         automatic: None,
     };
     update.apply(context(&handler)?, ())?;
@@ -199,6 +208,7 @@ pub fn leo_update_and_update_automatic() -> Result<()> {
     let update = Update {
         list: false,
         studio: true,
+        version: None,
         automatic: None,
     };
     update.apply(context(&handler)?, ())?;
@@ -206,6 +216,7 @@ pub fn leo_update_and_update_automatic() -> Result<()> {
     let update = Update {
         list: false,
         studio: false,
+        version: None,
         automatic: None,
     };
     update.apply(context(&handler)?, ())?;
@@ -213,6 +224,7 @@ pub fn leo_update_and_update_automatic() -> Result<()> {
     let update = Update {
         list: false,
         studio: false,
+        version: None,
         automatic: Some(UpdateAutomatic::Automatic { value: true }),
     };
     update.apply(context(&handler)?, ())?;
@@ -220,6 +232,7 @@ pub fn leo_update_and_update_automatic() -> Result<()> {
     let update = Update {
         list: false,
         studio: false,
+        version: None,
         automatic: Some(UpdateAutomatic::Automatic { value: false }),
     };
     update.apply(context(&handler)?, ())?;
