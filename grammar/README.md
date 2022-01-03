@@ -1,4 +1,4 @@
-Copyright (C) 2019-2021 Aleo Systems Inc.
+Copyright (C) 2019-2022 Aleo Systems Inc.
 This file is part of the Leo library.
 
 The Leo library is free software: you can redistribute it and/or modify
@@ -431,8 +431,7 @@ not-star = %x0-29 / %x2B-10FFFF   ; anything but *
 
 <a name="not-star-or-slash"></a>
 ```abnf
-not-star-or-slash = %x0-29 / %x2B-2E / %x30-10FFFF
-                    ; anything but * or /
+not-star-or-slash = %x0-29 / %x2B-2E / %x30-10FFFF   ; anything but * or /
 ```
 
 <a name="not-line-feed-or-carriage-return"></a>
