@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,3 +16,12 @@
 
 pub mod canonicalizer;
 pub use canonicalizer::*;
+
+use leo_ast::{Ast, AstPass, Program, ReconstructingDirector};
+use leo_errors::Result;
+
+impl AstPass for Canonicalizer {
+    fn do_pass(self, ast: Program) -> Result<Ast> {
+        Ok(Ast::new(ReconstructingDirector::new(self).reduce_program(&ast)?))
+    }
+}
