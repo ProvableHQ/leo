@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -29,12 +29,6 @@ pub struct Canonicalizer {
     // If we are in a circuit keep track of the circuit name.
     circuit_name: Option<Identifier>,
     in_circuit: bool,
-}
-
-impl AstPass for Canonicalizer {
-    fn do_pass(self, ast: Program) -> Result<Ast> {
-        Ok(Ast::new(ReconstructingDirector::new(self).reduce_program(&ast)?))
-    }
 }
 
 impl Canonicalizer {
@@ -84,7 +78,7 @@ impl Canonicalizer {
         Ok(left)
     }
 
-    pub fn compound_operation_converstion(&mut self, operation: &AssignOperation) -> Result<BinaryOperation> {
+    pub fn compound_operation_conversion(&mut self, operation: &AssignOperation) -> Result<BinaryOperation> {
         match operation {
             AssignOperation::Assign => unreachable!(),
             AssignOperation::Add => Ok(BinaryOperation::Add),
@@ -667,7 +661,7 @@ impl ReconstructingReducer for Canonicalizer {
                     &assign.span,
                 )?;
                 let right = Box::new(value);
-                let op = self.compound_operation_converstion(&assign.operation)?;
+                let op = self.compound_operation_conversion(&assign.operation)?;
 
                 let new_value = Expression::Binary(BinaryExpression {
                     left,

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -82,7 +82,7 @@ impl ImportParser<'_> {
             .collect::<Result<Vec<_>, std::io::Error>>()
             .map_err(|error| ImportError::directory_error(error, &error_path, span))?;
 
-        // Sorting packages in the import directory to support constistency in order. This way we 
+        // Sorting packages in the import directory to support constistency in order. This way we
         // make sure that entries are processed in the same order on every platform. Rust's default
         // `fs::read_dir` does not provide ordering by default.
         entries.sort_by_key(|entry| entry.path());
