@@ -358,13 +358,15 @@ impl Namespace for ImportNamespace {
 
         // In import tests we only keep Error code to make error messages uniform accross
         // all platforms and exclude all platform-specific paths.
-        run_test(test, &handler, &err_buf).map_err(|()| {
-            let err_vec = err_buf.0.take().into_inner();
-            if let LeoOrString::Leo(err) = err_vec.get(0).unwrap() {
-                err.error_code()
-            } else {
-                panic!("Leo Error expected");
-            }
+        create_session_if_not_set_then(|_| {
+            run_test(test, &handler, &err_buf).map_err(|()| {
+                let err_vec = err_buf.0.take().into_inner();
+                if let LeoOrString::Leo(err) = err_vec.get(0).unwrap() {
+                    err.error_code()
+                } else {
+                    panic!("Leo Error expected");
+                }
+            })
         })
     }
 }
