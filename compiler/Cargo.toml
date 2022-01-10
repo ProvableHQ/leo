@@ -125,7 +125,7 @@ version = "0.3"
 default-features = false
 
 [dev-dependencies.tempfile]
-version = "3.0.4"
+version = "3.3.0"
 
 [dev-dependencies.serde_yaml]
 version = "0.8"
