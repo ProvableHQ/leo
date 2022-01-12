@@ -21,9 +21,10 @@ use crate::{
     logical::*,
     program::ConstrainedProgram,
     relational::*,
-    resolve_core_circuit,
+    // resolve_core_circuit,
     value::{Address, Char, CharType, ConstrainedCircuitMember, ConstrainedValue, Integer},
-    FieldType, GroupType,
+    FieldType,
+    GroupType,
 };
 use leo_asg::{expression::*, ConstValue, Expression, Node};
 use leo_errors::{Result, Span};
@@ -178,26 +179,27 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
             // Functions
             Expression::Call(CallExpression {
-                function,
-                target,
-                arguments,
+                // function,
+                // target,
+                // arguments,
                 ..
             }) => {
-                if let Some(circuit) = function.get().circuit.get() {
-                    let core_mapping = circuit.core_mapping.borrow();
-                    if let Some(core_mapping) = core_mapping.as_deref() {
-                        let core_circuit = resolve_core_circuit::<F, G>(core_mapping);
-                        return self.enforce_core_circuit_call_expression(
-                            cs,
-                            &core_circuit,
-                            function.get(),
-                            target.get(),
-                            &arguments[..],
-                            span,
-                        );
-                    }
-                }
-                self.enforce_function_call_expression(cs, function.get(), target.get(), &arguments[..], span)
+                unimplemented!("core circuits are not supported yet")
+                // if let Some(circuit) = function.get().circuit.get() {
+                //     let core_mapping = circuit.core_mapping.borrow();
+                //     if let Some(core_mapping) = core_mapping.as_deref() {
+                //         let core_circuit = resolve_core_circuit::<F, G>(core_mapping);
+                //         return self.enforce_core_circuit_call_expression(
+                //             cs,
+                //             &core_circuit,
+                //             function.get(),
+                //             target.get(),
+                //             &arguments[..],
+                //             span,
+                //         );
+                //     }
+                // }
+                // self.enforce_function_call_expression(cs, function.get(), target.get(), &arguments[..], span)
             }
         }
     }

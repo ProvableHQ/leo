@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod blake2s;
-pub use blake2s::*;
+// pub mod blake2s;
+// pub use blake2s::*;
 
 use crate::{ConstrainedValue, GroupType};
 use leo_asg::Function;
@@ -35,9 +35,9 @@ pub trait CoreCircuit<'a, F: PrimeField, G: GroupType<F>>: Send + Sync {
     ) -> Result<ConstrainedValue<'a, F, G>>;
 }
 
-pub fn resolve_core_circuit<'a, F: PrimeField, G: GroupType<F>>(name: &str) -> impl CoreCircuit<'a, F, G> {
-    match name {
-        "blake2s" => Blake2s,
-        _ => unimplemented!("invalid core circuit: {}", name),
-    }
-}
+// pub fn resolve_core_circuit<'a, F: PrimeField, G: GroupType<F>>(name: &str) -> impl CoreCircuit<'a, F, G> {
+//     match name {
+//         "blake2s" => Blake2s,
+//         _ => unimplemented!("invalid core circuit: {}", name),
+//     }
+// }

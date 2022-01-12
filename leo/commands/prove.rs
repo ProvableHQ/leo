@@ -68,7 +68,7 @@ impl Command for Prove {
         let rng = &mut thread_rng();
         // TODO fix this once snarkvm has better errors.
         let program_proof =
-            Groth16::<Bls12_377, _, Vec<Fr>>::prove(&parameters, &program, rng).map_err(|_| SnarkVMError::default())?;
+            Groth16::<Bls12_377, Vec<Fr>>::prove(&parameters, &program, rng).map_err(|_| SnarkVMError::default())?;
 
         // Write the proof file to the output directory
         let mut proof = vec![];

@@ -37,9 +37,9 @@ version = "1.5.3"
 path = "../package"
 version = "1.5.3"
 
-[dependencies.leo-state]
-path = "../state"
-version = "1.5.3"
+#[dependencies.leo-state]
+#path = "../state"
+#version = "1.5.3"
 
 [dependencies.leo-asg]
 path = "../asg"
@@ -65,28 +65,34 @@ version = "1.5.3"
 version = "0.4"
 
 [dependencies.snarkvm-curves]
-version = "0.7.9"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "2af7756"
 default-features = false
 
 [dependencies.snarkvm-fields]
-version = "0.7.9"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "2af7756"
 default-features = false
 
 [dependencies.snarkvm-dpc]
-version = "0.7.9"
-default-features = false
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "2af7756"
+features = ["testnet2"]
 
 [dependencies.snarkvm-gadgets]
-version = "0.7.9"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "2af7756"
 default-features = false
 features = [ "curves" ]
 
 [dependencies.snarkvm-r1cs]
-version = "0.7.9"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "2af7756"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.7.9"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "2af7756"
 
 [dependencies.bincode]
 version = "1.3"

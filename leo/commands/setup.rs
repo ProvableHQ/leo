@@ -23,6 +23,7 @@ use leo_package::outputs::{ProvingKeyFile, VerificationKeyFile};
 use snarkvm_algorithms::{
     snark::groth16::{Groth16, PreparedVerifyingKey, ProvingKey, VerifyingKey},
     traits::snark::SNARK,
+    SRS,
 };
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use snarkvm_utilities::ToBytes;
@@ -78,8 +79,8 @@ impl Command for Setup {
 
             // Run the program setup operation
             let rng = &mut thread_rng();
-            let (proving_key, prepared_verifying_key) =
-                Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(&program, rng)
+            let (proving_key, verifying_key) =
+                Groth16::<Bls12_377, Vec<Fr>>::setup(&program, &mut SRS::CircuitSpecific(rng))
                     .map_err(|_| CliError::unable_to_setup())?;
 
             // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
@@ -103,6 +104,9 @@ impl Command for Setup {
                 .map_err(CliError::cli_io_error)?;
             let _ = verification_key_file.write_to(&path, &verification_key)?;
             tracing::info!("Complete");
+
+            // Derive the prepared verifying key file from the verifying key
+            let prepared_verifying_key = PreparedVerifyingKey::<Bls12_377>::from(verifying_key);
 
             (proving_key, prepared_verifying_key)
         } else {

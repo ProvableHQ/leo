@@ -27,9 +27,8 @@ use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_parser::parse_ast;
-use leo_state::verify_local_data_commitment;
+// use leo_state::verify_local_data_commitment;
 
-use snarkvm_dpc::testnet1::{instantiated::Components, parameters::SystemParameters};
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::{ConstraintSynthesizer, ConstraintSystem, SynthesisError};
 
@@ -364,16 +363,16 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         Ok(format!("{:x}", hash))
     }
 
-    /// TODO (howardwu): Incorporate this for real program executions and intentionally-real
-    ///  test executions. Exclude it for test executions on dummy data.
-    ///
-    /// Verifies the input to the program.
-    ///
-    pub fn verify_local_data_commitment(&self, system_parameters: &SystemParameters<Components>) -> Result<bool> {
-        let result = verify_local_data_commitment(system_parameters, &self.program_input)?;
-
-        Ok(result)
-    }
+    // /// TODO (howardwu): Incorporate this for real program executions and intentionally-real
+    // ///  test executions. Exclude it for test executions on dummy data.
+    // ///
+    // /// Verifies the input to the program.
+    // ///
+    // pub fn verify_local_data_commitment(&self, system_parameters: &SystemParameters<Components>) -> Result<bool> {
+    //     let result = verify_local_data_commitment(system_parameters, &self.program_input)?;
+    //
+    //     Ok(result)
+    // }
 
     ///
     /// Manually sets main function input.
