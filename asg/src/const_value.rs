@@ -15,7 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Circuit, Identifier, IntegerType, Type};
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{AsgError, Result};
+use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
 use num_bigint::BigInt;
@@ -160,7 +161,7 @@ pub enum ConstValue<'a> {
     // compounds
     Tuple(Vec<ConstValue<'a>>),
     Array(Vec<ConstValue<'a>>),
-    Circuit(&'a Circuit<'a>, IndexMap<String, (Identifier, ConstValue<'a>)>),
+    Circuit(&'a Circuit<'a>, IndexMap<Symbol, (Identifier, ConstValue<'a>)>),
 
     // Error sentinel value
     Err,

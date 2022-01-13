@@ -15,10 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::groups::GroupCoordinate;
-use leo_errors::Span;
 use leo_input::values::{
     GroupRepresentation as InputGroupRepresentation, GroupTuple as InputGroupTuple, GroupValue as InputGroupValue,
 };
+use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -27,8 +27,8 @@ use tendril::StrTendril;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GroupValue {
     Single(
-        #[serde(with = "leo_errors::common::tendril_json")] StrTendril,
-        #[serde(with = "leo_errors::common::span_json")] Span,
+        #[serde(with = "leo_span::tendril_json")] StrTendril,
+        #[serde(with = "leo_span::span_json")] Span,
     ),
     Tuple(GroupTuple),
 }

@@ -19,7 +19,8 @@ use crate::{
     Statement, Type, Variable,
 };
 
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{AsgError, Result};
+use leo_span::{sym, Span};
 
 use std::cell::Cell;
 
@@ -131,7 +132,7 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
         value: &leo_ast::Identifier,
         expected_type: Option<PartialType<'a>>,
     ) -> Result<&'a Expression<'a>> {
-        let variable = if value.name.as_ref() == "input" {
+        let variable = if value.name == sym::input {
             if let Some(input) = scope.resolve_input() {
                 if scope.resolve_current_function().map(|f| f.const_).unwrap_or_default() {
                     return Err(AsgError::illegal_input_variable_reference_in_const_function(&value.span).into());
@@ -141,21 +142,21 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
             } else {
                 return Err(AsgError::illegal_input_variable_reference(&value.span).into());
             }
-        } else if let Some(gc) = scope.resolve_global_const(&value.name) {
+        } else if let Some(gc) = scope.resolve_global_const(value.name) {
             gc.variables
                 .iter()
                 .find(|&&v| v.borrow().name.name == value.name)
                 .unwrap()
         } else {
-            match scope.resolve_variable(&value.name) {
+            match scope.resolve_variable(value.name) {
                 Some(v) => v,
                 None => {
-                    if value.name.starts_with("aleo1") {
+                    if value.name.as_str().starts_with("aleo1") {
                         return Ok(scope.context.alloc_expression(Expression::Constant(Constant {
                             id: scope.context.get_id(),
                             parent: Cell::new(None),
                             span: Some(value.span.clone()),
-                            value: ConstValue::Address(value.name.clone()),
+                            value: ConstValue::Address(value.name.as_str().as_ref().into()),
                         })));
                     }
                     return Err(AsgError::unresolved_reference(&value.name, &value.span).into());

@@ -16,7 +16,7 @@
 
 use crate::{Expression, Node};
 
-use leo_errors::Span;
+use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

@@ -33,14 +33,12 @@ impl<'a> Program<'a> {
             Type::Circuit(circuit) => {
                 let members = circuit.members.borrow();
                 let (index, _, member) = members
-                    .get_full(name.name.as_ref())
+                    .get_full(&name.name)
                     .expect("illegal member name in circuit member assignment");
                 let inner_type = match member {
                     CircuitMember::Variable(type_) => type_.clone(),
                     CircuitMember::Const(_) | CircuitMember::Function(_) => {
-                        return Err(
-                            CompilerError::illegal_static_member_assignment(name.name.as_ref(), &name.span).into(),
-                        )
+                        return Err(CompilerError::illegal_static_member_assignment(name.name, &name.span).into())
                     }
                 };
                 (inner_type, index)

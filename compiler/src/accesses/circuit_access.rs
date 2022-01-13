@@ -27,17 +27,17 @@ impl<'a> Program<'a> {
         let members = expr.circuit.get().members.borrow();
         let (target_value, mut index) = if let Some(target) = expr.target.get() {
             let index = members
-                .get_index_of(expr.member.name.as_ref())
+                .get_index_of(&expr.member.name)
                 .expect("missing member from struct");
             (self.enforce_expression(target)?, index)
-        } else if let Some(CircuitMember::Const(value)) = members.get(expr.member.name.as_ref()) {
+        } else if let Some(CircuitMember::Const(value)) = members.get(&expr.member.name) {
             (Value::Tuple(vec![self.enforce_expression(value)?]), 0)
         } else {
             return Err(CompilerError::expected_circuit_static_const_access(expr.span.as_ref().unwrap()).into());
         };
 
         if let Some(category) = expr.circuit.get().input_type() {
-            index = self.input_index(category, expr.member.name.as_ref());
+            index = self.input_index(category, &expr.member.name.as_str());
         }
 
         let out = self.alloc();

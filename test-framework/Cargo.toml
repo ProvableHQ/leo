@@ -55,6 +55,10 @@ version = "1.5.2"
 path = "../compiler"
 version = "1.5.2"
 
+[dependencies.leo-span]
+path = "../span"
+version = "1.5.3"
+
 [dependencies.structopt]
 version = "0.3"
 

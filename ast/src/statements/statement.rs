@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConditionalStatement, Node};
-use leo_errors::Span;
+use leo_span::Span;
 
 use super::*;
 use serde::{Deserialize, Serialize};

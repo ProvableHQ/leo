@@ -19,7 +19,7 @@ use std::cell::Cell;
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, CoreCircuitFuncCall, GroupType};
 
 use leo_asg::{Expression, Function};
-use leo_errors::{Result, Span};
+use leo_errors::Result; use leo_span::Span;
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;

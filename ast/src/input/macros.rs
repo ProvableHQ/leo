@@ -97,7 +97,7 @@ macro_rules! main_input_section {
         /// `[$name]` program input section.
         #[derive(Clone, PartialEq, Eq, Default)]
         pub struct $name {
-            input: IndexMap<String, Option<InputValue>>,
+            input: IndexMap<leo_span::Symbol, Option<InputValue>>,
         }
 
         #[allow(clippy::len_without_is_empty)]
@@ -122,14 +122,14 @@ macro_rules! main_input_section {
                 self.input.len()
             }
 
-            pub fn insert(&mut self, key: String, value: Option<InputValue>) {
+            pub fn insert(&mut self, key: leo_span::Symbol, value: Option<InputValue>) {
                 self.input.insert(key, value);
             }
 
             /// Parses main input definitions and stores them in `self`.
             pub fn parse(&mut self, definitions: Vec<Definition>) -> Result<(), InputParserError> {
                 for definition in definitions {
-                    let name = definition.parameter.variable.value;
+                    let name = leo_span::Symbol::intern(&definition.parameter.variable.value);
                     let value = InputValue::from_expression(definition.parameter.type_, definition.expression)?;
 
                     self.insert(name, Some(value));
@@ -139,11 +139,11 @@ macro_rules! main_input_section {
             }
 
             /// Returns an `Option` of the main function input at `name`.
-            pub fn get(&self, name: &str) -> Option<Option<InputValue>> {
-                self.input.get(name).cloned()
+            pub fn get(&self, name: leo_span::Symbol) -> Option<Option<InputValue>> {
+                self.input.get(&name).cloned()
             }
 
-            pub fn iter(&self) -> impl Iterator<Item=(&String, &Option<InputValue>)> {
+            pub fn iter(&self) -> impl Iterator<Item=(&leo_span::Symbol, &Option<InputValue>)> {
                 self.input.iter()
             }
         }

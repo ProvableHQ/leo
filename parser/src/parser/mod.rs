@@ -19,6 +19,16 @@
 //! This module contains the [`parse()`] method which calls the underlying [`tokenize()`]
 //! method to create a new program ast.
 
+use crate::{tokenizer::*, Token};
+
+use leo_ast::*;
+use leo_errors::emitter::Handler;
+use leo_errors::{ParserError, Result};
+use leo_span::{Span, Symbol};
+
+use indexmap::IndexMap;
+use std::unimplemented;
+
 mod context;
 pub use context::*;
 
@@ -26,14 +36,6 @@ pub mod expression;
 pub mod file;
 pub mod statement;
 pub mod type_;
-
-use std::unimplemented;
-
-use crate::{tokenizer::*, Token};
-use indexmap::IndexMap;
-use leo_ast::*;
-use leo_errors::emitter::Handler;
-use leo_errors::{ParserError, Result, Span};
 
 pub(crate) fn assert_no_whitespace(left_span: &Span, right_span: &Span, left: &str, right: &str) -> Result<()> {
     if left_span.col_stop != right_span.col_start {

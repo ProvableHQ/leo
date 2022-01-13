@@ -18,12 +18,15 @@ use crate::{compiler::Compiler, Output, OutputOptions};
 
 use leo_asg::*;
 use leo_errors::emitter::{Buffer, Emitter, Handler};
-use leo_errors::{LeoError, Span};
+use leo_errors::LeoError;
+use leo_span::symbol::create_session_if_not_set_then;
+use leo_span::Span;
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit, SummarizedCircuit};
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
     Test,
 };
+
 use snarkvm_curves::bls12_377::Bls12_377;
 use snarkvm_eval::Evaluator;
 use snarkvm_ir::InputData;
@@ -269,11 +272,14 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
 
         let circuit: SummarizedCircuit = SerializedCircuit::from(cs).into();
 
+        // Add an error if circuit had no constraints.
         if circuit.num_constraints == 0 {
             let err = "- Circuit has no constraints, use inputs and registers in program to produce them";
             buffer_if_err(&err_buf, Err(err.to_string()))?;
         }
 
+        // Set circuit if not set yet.
+        // Otherwise, if circuit was changed, add an error.
         if let Some(last_circuit) = last_circuit.as_ref() {
             if last_circuit != &circuit {
                 eprintln!(
@@ -286,6 +292,9 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         } else {
             last_circuit = Some(circuit);
         }
+
+        // Set IR if not set yet.
+        // Otherwise, if IR was changed, add an error.
         if let Some(last_ir) = last_ir.as_ref() {
             if last_ir != &compiled {
                 eprintln!("{}\n{}", last_ir, compiled);
@@ -332,7 +341,9 @@ impl Namespace for CompileNamespace {
         let err_buf = BufferEmitter(Rc::default());
         let handler = Handler::new(Box::new(err_buf.clone()));
 
-        run_test(test, &handler, &err_buf).map_err(|()| err_buf.0.take().to_string())
+        create_session_if_not_set_then(|_| {
+            run_test(test, &handler, &err_buf).map_err(|()| err_buf.0.take().to_string())
+        })
     }
 }
 
@@ -347,13 +358,15 @@ impl Namespace for ImportNamespace {
 
         // In import tests we only keep Error code to make error messages uniform accross
         // all platforms and exclude all platform-specific paths.
-        run_test(test, &handler, &err_buf).map_err(|()| {
-            let err_vec = err_buf.0.take().into_inner();
-            if let LeoOrString::Leo(err) = err_vec.get(0).unwrap() {
-                err.error_code()
-            } else {
-                panic!("Leo Error expected");
-            }
+        create_session_if_not_set_then(|_| {
+            run_test(test, &handler, &err_buf).map_err(|()| {
+                let err_vec = err_buf.0.take().into_inner();
+                if let LeoOrString::Leo(err) = err_vec.get(0).unwrap() {
+                    err.error_code()
+                } else {
+                    panic!("Leo Error expected");
+                }
+            })
         })
     }
 }

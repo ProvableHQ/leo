@@ -26,6 +26,10 @@ version = "1.5.3"
 path = "../errors"
 version = "1.5.3"
 
+[dependencies.leo-span]
+path = "../span"
+version = "1.5.3"
+
 [dependencies.indexmap]
 version = "1.7.0"
 features = [ "serde-1" ]

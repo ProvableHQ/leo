@@ -21,6 +21,10 @@ rust-version = "1.56"
 [lib]
 path = "src/lib.rs"
 
+[dependencies.leo-span]
+path = "../span"
+version = "1.5.3"
+
 [dependencies.leo-ast]
 path = "../ast"
 version = "1.5.3"

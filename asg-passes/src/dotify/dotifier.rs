@@ -16,7 +16,7 @@
 use super::*;
 
 use leo_asg::*;
-use leo_errors::Span;
+use leo_span::Span;
 
 use petgraph::graph::NodeIndex;
 use std::collections::HashMap;

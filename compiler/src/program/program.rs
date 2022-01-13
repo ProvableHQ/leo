@@ -20,6 +20,7 @@ use leo_asg::{
     AsgId, CircuitMember, ExpressionNode, Function, FunctionQualifier, InputCategory, IntegerType, Type as AsgType,
     Variable,
 };
+use leo_span::sym;
 use snarkvm_ir::{Header, Instruction, MaskData, QueryData, RepeatData, SnarkVMVersion, Type, Value};
 
 use indexmap::IndexMap;
@@ -159,7 +160,7 @@ impl<'a> Program<'a> {
             _ => {
                 let self_var = function
                     .scope
-                    .resolve_variable("self")
+                    .resolve_variable(sym::SelfLower)
                     .expect("missing self var for function");
                 self.alloc_var(self_var); // alloc space for self representation
             }

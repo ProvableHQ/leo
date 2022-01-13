@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::PackageOrPackages;
-use leo_errors::Span;
+use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -28,13 +28,11 @@ pub struct ImportStatement {
 }
 
 impl ImportStatement {
-    ///
     /// Returns the the package file name of the self import statement.
-    ///
-    pub fn get_file_name(&self) -> &str {
+    pub fn get_file_name(&self) -> Symbol {
         match self.package_or_packages {
-            PackageOrPackages::Package(ref package) => &package.name.name,
-            PackageOrPackages::Packages(ref packages) => &packages.name.name,
+            PackageOrPackages::Package(ref package) => package.name.name,
+            PackageOrPackages::Packages(ref packages) => packages.name.name,
         }
     }
 }

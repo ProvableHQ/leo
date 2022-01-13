@@ -22,7 +22,8 @@ use leo_asg::{
     accesses::*, expression::*, CharValue, CircuitMember, ConstInt, ConstValue, Expression, GroupValue, Node,
 };
 use leo_errors::CompilerError;
-use leo_errors::{Result, Span};
+use leo_errors::Result;
+use leo_span::Span;
 use num_bigint::Sign;
 use snarkvm_ir::{Group, GroupCoordinate, Integer, Value};
 

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Block, Expression, Identifier, Node};
-use leo_errors::Span;
+use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

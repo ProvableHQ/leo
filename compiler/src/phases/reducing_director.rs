@@ -16,7 +16,6 @@
 
 //! Compiles a Leo program from a file path.
 
-use indexmap::IndexMap;
 use leo_asg::{
     AccessExpression as AsgAccessExpression, ArrayAccess as AsgArrayAccess,
     ArrayInitExpression as AsgArrayInitExpression, ArrayInlineExpression as AsgArrayInlineExpression,
@@ -50,7 +49,10 @@ use leo_ast::{
     TupleInitExpression as AstTupleInitExpression, Type as AstType, UnaryExpression as AstUnaryExpression,
     ValueExpression,
 };
-use leo_errors::{AstError, Result, Span};
+use leo_errors::{AstError, Result};
+use leo_span::Span;
+
+use indexmap::IndexMap;
 use tendril::StrTendril;
 
 pub trait CombinerOptions {
@@ -259,7 +261,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
     pub fn reduce_static_access(&mut self, ast: &StaticAccess, asg: &AsgCircuitAccess) -> Result<StaticAccess> {
         let type_ = if self.options.type_inference_enabled() {
             let members = asg.circuit.get().members.borrow();
-            let member = members.get(asg.member.name.as_ref());
+            let member = members.get(&asg.member.name);
             match member {
                 Some(AsgCircuitMember::Const(value)) => value.get_type().as_ref().map(|t| t.into()),
                 Some(AsgCircuitMember::Variable(type_)) => Some(type_.into()),

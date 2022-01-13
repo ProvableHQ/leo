@@ -17,9 +17,8 @@
 use super::*;
 use crate::KEYWORD_TOKENS;
 
-use leo_errors::{ParserError, Result, Span};
-
-use tendril::format_tendril;
+use leo_errors::{ParserError, Result};
+use leo_span::{sym, Span};
 
 impl ParserContext<'_> {
     ///
@@ -109,14 +108,14 @@ impl ParserContext<'_> {
         let start = self.expect(Token::At)?;
         let name = self.parse_annotation_name()?;
 
-        assert_no_whitespace(&start, &name.span, &name.name, "@")?;
+        assert_no_whitespace(&start, &name.span, &name.name.as_str(), "@")?;
 
         let (end_span, arguments) = if self.peek_is_left_par() {
             let (args, _, span) = self.parse_paren_comma_list(|p| {
                 Ok(if let Some(ident) = p.eat_identifier() {
                     Some(ident.name)
                 } else if let Some((int, _)) = p.eat_int() {
-                    Some(int.value)
+                    Some(Symbol::intern(&int.value))
                 } else {
                     let token = p.expect_any()?;
                     p.emit_err(ParserError::unexpected_str(&token.token, "ident or int", &token.span));
@@ -139,9 +138,9 @@ impl ParserContext<'_> {
         let mut name = self.expect_ident()?;
 
         // Recover `context` instead of `test`.
-        if name.name.as_ref() == "context" {
+        if name.name == sym::context {
             self.emit_err(ParserError::context_annotation(&name.span));
-            name.name = "test".into();
+            name.name = sym::test;
         }
 
         Ok(name)
@@ -176,12 +175,12 @@ impl ParserContext<'_> {
                 name.span = name.span + span;
                 let next = self.expect_ident()?;
                 name.span = name.span + next.span;
-                name.name = format_tendril!("{}-{}", name.name, next.name);
+                name.name = Symbol::intern(&format!("{}-{}", name.name, next.name));
             }
 
             if self.peek_token().as_ref() == &Token::Dot {
                 self.backtrack(SpannedToken {
-                    token: Token::Ident(name.name),
+                    token: Token::Ident((&*name.name.as_str()).into()),
                     span: name.span,
                 });
                 Ok(match self.parse_package_path()? {
@@ -217,22 +216,22 @@ impl ParserContext<'_> {
                     let span = self.expect(Token::Minus)?;
                     base.span = base.span + span;
                     let next = self.expect_loose_identifier()?;
-                    base.name = format_tendril!("{}-{}", base.name, next.name);
+                    base.name = Symbol::intern(&format!("{}-{}", base.name, next.name));
                     base.span = base.span + next.span;
                 }
                 Token::Int(_) => {
                     let (num, span) = self.eat_int().unwrap();
-                    base.name = format_tendril!("{}{}", base.name, num.value);
+                    base.name = Symbol::intern(&format!("{}{}", base.name, num.value));
                     base.span = base.span + span;
                 }
                 Token::Ident(_) => {
                     let next = self.expect_ident()?;
-                    base.name = format_tendril!("{}{}", base.name, next.name);
+                    base.name = Symbol::intern(&format!("{}{}", base.name, next.name));
                     base.span = base.span + next.span;
                 }
                 x if KEYWORD_TOKENS.contains(x) => {
                     let next = self.expect_loose_identifier()?;
-                    base.name = format_tendril!("{}{}", base.name, next.name);
+                    base.name = Symbol::intern(&format!("{}{}", base.name, next.name));
                     base.span = base.span + next.span;
                 }
                 _ => break,
@@ -240,13 +239,14 @@ impl ParserContext<'_> {
         }
 
         // Return an error if the package name contains a keyword.
-        if let Some(token) = KEYWORD_TOKENS.iter().find(|x| x.to_string() == base.name.as_ref()) {
+        if let Some(token) = KEYWORD_TOKENS.iter().find(|x| *x.to_string() == *base.name.as_str()) {
             self.emit_err(ParserError::unexpected_str(token, "package name", &base.span));
         }
 
         // Return an error if the package name contains invalid characters.
         if !base
             .name
+            .as_str()
             .chars()
             .all(|x| x.is_ascii_lowercase() || x.is_ascii_digit() || x == '-' || x == '_')
         {
@@ -419,7 +419,7 @@ impl ParserContext<'_> {
             ident
         } else if let Some(scalar_type) = self.eat_any(crate::type_::TYPE_TOKENS) {
             Identifier {
-                name: scalar_type.token.to_string().into(),
+                name: Symbol::intern(&scalar_type.token.to_string()),
                 span: scalar_type.span,
             }
         } else {
@@ -448,13 +448,13 @@ impl ParserContext<'_> {
         let reference = self.eat(Token::Ampersand);
         let mut name = if let Some(token) = self.eat(Token::LittleSelf) {
             Identifier {
-                name: token.token.to_string().into(),
+                name: sym::SelfLower,
                 span: token.span,
             }
         } else {
             self.expect_ident()?
         };
-        if name.name.as_ref() == "self" {
+        if name.name == sym::SelfLower {
             if let Some(mutable) = &mutable {
                 self.emit_err(ParserError::mut_self_parameter(&(&mutable.span + &name.span)));
                 return Ok(Self::build_ref_self(name, mutable));
@@ -464,7 +464,7 @@ impl ParserContext<'_> {
             } else if let Some(const_) = &const_ {
                 // Handle `const self`.
                 name.span = &const_.span + &name.span;
-                name.name = "const self".to_string().into();
+                name.name = Symbol::intern("const self");
                 return Ok(FunctionInput::ConstSelfKeyword(ConstSelfKeyword { identifier: name }));
             }
             // Handle `self`.
@@ -489,7 +489,8 @@ impl ParserContext<'_> {
     /// Builds a function parameter `&self`.
     fn build_ref_self(mut name: Identifier, reference: &SpannedToken) -> FunctionInput {
         name.span = &reference.span + &name.span;
-        name.name = "&self".to_string().into();
+        // FIXME(Centril): This should be *two* tokens, NOT one!
+        name.name = Symbol::intern("&self");
         FunctionInput::RefSelfKeyword(RefSelfKeyword { identifier: name })
     }
 
@@ -500,7 +501,7 @@ impl ParserContext<'_> {
         let mut annotations = IndexMap::new();
         while self.peek_token().as_ref() == &Token::At {
             let annotation = self.parse_annotation()?;
-            annotations.insert(annotation.name.name.to_string(), annotation);
+            annotations.insert(annotation.name.name, annotation);
         }
 
         // Parse optional const modifier.
@@ -533,7 +534,7 @@ impl ParserContext<'_> {
                 output,
                 span: start + block.span.clone(),
                 block,
-                core_mapping: std::cell::RefCell::new(None),
+                core_mapping: <_>::default(),
             },
         ))
     }

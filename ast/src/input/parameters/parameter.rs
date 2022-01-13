@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Identifier, Type};
-use leo_errors::Span;
 use leo_input::parameters::Parameter as GrammarParameter;
+use leo_span::Span;
 
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Parameter {

@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ArrayDimensions, Char, CharValue, GroupValue, IntegerType};
-use leo_errors::Span as AstSpan;
 use leo_input::{
     errors::InputParserError,
     expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression, StringExpression, TupleExpression},
@@ -25,6 +24,7 @@ use leo_input::{
         IntegerValue, NumberValue, Value,
     },
 };
+use leo_span::Span as AstSpan;
 use pest::Span;
 
 use std::fmt;

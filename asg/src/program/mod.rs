@@ -29,7 +29,8 @@ pub use function::*;
 
 use crate::{node::FromAst, ArenaNode, AsgContext, AsgId, DefinitionStatement, Input, Scope, Statement};
 use leo_ast::{PackageAccess, PackageOrPackages};
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{AsgError, Result};
+use leo_span::{sym, Span, Symbol};
 
 use indexmap::IndexMap;
 use std::{
@@ -50,19 +51,19 @@ pub struct Program<'a> {
 
     /// The packages imported by this program.
     /// these should generally not be accessed directly, but through scoped imports
-    pub imported_modules: IndexMap<String, Program<'a>>,
+    pub imported_modules: IndexMap<Symbol, Program<'a>>,
 
     /// Maps alias name => alias definition.
-    pub aliases: IndexMap<String, &'a Alias<'a>>,
+    pub aliases: IndexMap<Symbol, &'a Alias<'a>>,
 
     /// Maps function name => function code block.
-    pub functions: IndexMap<String, &'a Function<'a>>,
+    pub functions: IndexMap<Symbol, &'a Function<'a>>,
 
     /// Maps global constant name => global const code block.
-    pub global_consts: IndexMap<String, &'a DefinitionStatement<'a>>,
+    pub global_consts: IndexMap<Symbol, &'a DefinitionStatement<'a>>,
 
     /// Maps circuit name => circuit code block.
-    pub circuits: IndexMap<String, &'a Circuit<'a>>,
+    pub circuits: IndexMap<Symbol, &'a Circuit<'a>>,
 
     pub scope: &'a Scope<'a>,
 }
@@ -71,27 +72,27 @@ pub struct Program<'a> {
 #[derive(Clone)]
 enum ImportSymbol {
     /// Import the symbol by name.
-    Direct(String),
+    Direct(Symbol),
 
     /// Import the symbol by name and store it under an alias.
-    Alias(String, String), // from remote -> to local
+    Alias(Symbol, Symbol), // from remote -> to local
 
     /// Import all symbols from the package.
     All,
 }
 
 fn resolve_import_package(
-    output: &mut Vec<(Vec<String>, ImportSymbol, Span)>,
-    mut package_segments: Vec<String>,
+    output: &mut Vec<(Vec<Symbol>, ImportSymbol, Span)>,
+    mut package_segments: Vec<Symbol>,
     package_or_packages: &PackageOrPackages,
 ) {
     match package_or_packages {
         PackageOrPackages::Package(package) => {
-            package_segments.push(package.name.name.to_string());
+            package_segments.push(package.name.name);
             resolve_import_package_access(output, package_segments, &package.access);
         }
         PackageOrPackages::Packages(packages) => {
-            package_segments.push(packages.name.name.to_string());
+            package_segments.push(packages.name.name);
             for access in packages.accesses.clone() {
                 resolve_import_package_access(output, package_segments.clone(), &access);
             }
@@ -100,8 +101,8 @@ fn resolve_import_package(
 }
 
 fn resolve_import_package_access(
-    output: &mut Vec<(Vec<String>, ImportSymbol, Span)>,
-    mut package_segments: Vec<String>,
+    output: &mut Vec<(Vec<Symbol>, ImportSymbol, Span)>,
+    mut package_segments: Vec<Symbol>,
     package: &PackageAccess,
 ) {
     match package {
@@ -118,14 +119,14 @@ fn resolve_import_package_access(
         PackageAccess::Symbol(symbol) => {
             let span = symbol.symbol.span.clone();
             let symbol = if let Some(alias) = symbol.alias.as_ref() {
-                ImportSymbol::Alias(symbol.symbol.name.to_string(), alias.name.to_string())
+                ImportSymbol::Alias(symbol.symbol.name, alias.name)
             } else {
-                ImportSymbol::Direct(symbol.symbol.name.to_string())
+                ImportSymbol::Direct(symbol.symbol.name)
             };
             output.push((package_segments, symbol, span));
         }
         PackageAccess::Multiple(packages) => {
-            package_segments.push(packages.name.name.to_string());
+            package_segments.push(packages.name.name);
             for subaccess in packages.accesses.iter() {
                 resolve_import_package_access(output, package_segments.clone(), subaccess);
             }
@@ -136,20 +137,20 @@ fn resolve_import_package_access(
 /// Checks whether a given string is found in any other global namespaces.
 /// If it is found it returns an error.
 fn check_top_level_namespaces<'a>(
-    name: &str,
+    name: Symbol,
     span: &Span,
-    aliases: &IndexMap<String, &'a Alias<'a>>,
-    functions: &IndexMap<String, &'a Function<'a>>,
-    circuits: &IndexMap<String, &'a Circuit<'a>>,
-    global_consts: &IndexMap<String, &'a DefinitionStatement<'a>>,
+    aliases: &IndexMap<Symbol, &'a Alias<'a>>,
+    functions: &IndexMap<Symbol, &'a Function<'a>>,
+    circuits: &IndexMap<Symbol, &'a Circuit<'a>>,
+    global_consts: &IndexMap<Symbol, &'a DefinitionStatement<'a>>,
 ) -> Result<()> {
-    if aliases.contains_key(name) {
+    if aliases.contains_key(&name) {
         Err(AsgError::duplicate_alias_definition(name, span).into())
-    } else if global_consts.contains_key(name) {
+    } else if global_consts.contains_key(&name) {
         Err(AsgError::duplicate_global_const_definition(name, span).into())
-    } else if functions.contains_key(name) {
+    } else if functions.contains_key(&name) {
         Err(AsgError::duplicate_function_definition(name, span).into())
-    } else if circuits.contains_key(name) {
+    } else if circuits.contains_key(&name) {
         Err(AsgError::duplicate_circuit_definition(name, span).into())
     } else {
         Ok(())
@@ -166,21 +167,19 @@ impl<'a> Program<'a> {
     /// 4. resolve all asg nodes
     ///
     pub fn new(context: AsgContext<'a>, program: &leo_ast::Program) -> Result<Program<'a>> {
-        let mut imported_aliases: IndexMap<String, &'a Alias<'a>> = IndexMap::new();
-        let mut imported_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
-        let mut imported_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
-        let mut imported_global_consts: IndexMap<String, &'a DefinitionStatement<'a>> = IndexMap::new();
+        let mut imported_aliases: IndexMap<Symbol, &'a Alias<'a>> = IndexMap::new();
+        let mut imported_functions: IndexMap<Symbol, &'a Function<'a>> = IndexMap::new();
+        let mut imported_circuits: IndexMap<Symbol, &'a Circuit<'a>> = IndexMap::new();
+        let mut imported_global_consts: IndexMap<Symbol, &'a DefinitionStatement<'a>> = IndexMap::new();
 
         // Convert each sub AST.
         // Import all prelude symbols on the way.
-        let mut imported_modules: IndexMap<Vec<String>, Program> = IndexMap::new();
+        let mut imported_modules: IndexMap<Vec<Symbol>, Program> = IndexMap::new();
         for (package, program) in program.imports.iter() {
             let sub_program = Program::new(context, program)?;
             imported_modules.insert(package.clone(), sub_program.clone());
 
-            let pretty_package = package.join(".");
-
-            if pretty_package.contains("std.prelude") {
+            if let [sym::std, sym::prelude, ..] = package.as_slice() {
                 imported_aliases.extend(sub_program.aliases.clone().into_iter());
                 imported_functions.extend(sub_program.functions.clone().into_iter());
                 imported_circuits.extend(sub_program.circuits.clone().into_iter());
@@ -188,18 +187,21 @@ impl<'a> Program<'a> {
             }
         }
 
-        let mut imported_symbols: Vec<(Vec<String>, ImportSymbol, Span)> = vec![];
+        let mut imported_symbols: Vec<(Vec<Symbol>, ImportSymbol, Span)> = vec![];
         for import_statement in program.import_statements.iter() {
             resolve_import_package(&mut imported_symbols, vec![], &import_statement.package_or_packages);
         }
 
-        let mut deduplicated_imports: IndexMap<Vec<String>, Span> = IndexMap::new();
+        let mut deduplicated_imports: IndexMap<Vec<Symbol>, Span> = IndexMap::new();
         for (package, _symbol, span) in imported_symbols.iter() {
             deduplicated_imports.insert(package.clone(), span.clone());
         }
 
         for (package, symbol, span) in imported_symbols.into_iter() {
-            let pretty_package = package.join(".");
+            let pretty_package = || {
+                let package = package.iter().map(|s| s.as_str().to_string()).collect::<Vec<_>>();
+                package.join(".")
+            };
 
             let resolved_package = imported_modules
                 .get_mut(&package)
@@ -214,28 +216,28 @@ impl<'a> Program<'a> {
                 }
                 ImportSymbol::Direct(name) => {
                     if let Some(alias) = resolved_package.aliases.get(&name) {
-                        imported_aliases.insert(name.clone(), *alias);
+                        imported_aliases.insert(name, *alias);
                     } else if let Some(function) = resolved_package.functions.get(&name) {
-                        imported_functions.insert(name.clone(), *function);
+                        imported_functions.insert(name, *function);
                     } else if let Some(circuit) = resolved_package.circuits.get(&name) {
-                        imported_circuits.insert(name.clone(), *circuit);
+                        imported_circuits.insert(name, *circuit);
                     } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
-                        imported_global_consts.insert(name.clone(), *global_const);
+                        imported_global_consts.insert(name, *global_const);
                     } else {
-                        return Err(AsgError::unresolved_import(pretty_package, &span).into());
+                        return Err(AsgError::unresolved_import(pretty_package(), &span).into());
                     }
                 }
                 ImportSymbol::Alias(name, alias) => {
                     if let Some(type_alias) = resolved_package.aliases.get(&name) {
-                        imported_aliases.insert(alias.clone(), *type_alias);
+                        imported_aliases.insert(alias, *type_alias);
                     } else if let Some(function) = resolved_package.functions.get(&name) {
-                        imported_functions.insert(alias.clone(), *function);
+                        imported_functions.insert(alias, *function);
                     } else if let Some(circuit) = resolved_package.circuits.get(&name) {
-                        imported_circuits.insert(alias.clone(), *circuit);
+                        imported_circuits.insert(alias, *circuit);
                     } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
-                        imported_global_consts.insert(alias.clone(), *global_const);
+                        imported_global_consts.insert(alias, *global_const);
                     } else {
-                        return Err(AsgError::unresolved_import(pretty_package, &span).into());
+                        return Err(AsgError::unresolved_import(pretty_package(), &span).into());
                     }
                 }
             }
@@ -275,7 +277,7 @@ impl<'a> Program<'a> {
             assert_eq!(name.name, circuit.circuit_name.name);
             let asg_circuit = Circuit::init(scope, circuit)?;
 
-            scope.circuits.borrow_mut().insert(name.name.to_string(), asg_circuit);
+            scope.circuits.borrow_mut().insert(name.name, asg_circuit);
         }
 
         // Have to do aliases after circuits but before members.
@@ -283,7 +285,7 @@ impl<'a> Program<'a> {
             assert_eq!(name.name, alias.name.name);
 
             let asg_alias = Alias::init(scope, alias)?;
-            scope.aliases.borrow_mut().insert(name.name.to_string(), asg_alias);
+            scope.aliases.borrow_mut().insert(name.name, asg_alias);
         }
 
         // Second pass for circuit members.
@@ -291,14 +293,14 @@ impl<'a> Program<'a> {
             assert_eq!(name.name, circuit.circuit_name.name);
             let asg_circuit = Circuit::init_member(scope, circuit)?;
 
-            scope.circuits.borrow_mut().insert(name.name.to_string(), asg_circuit);
+            scope.circuits.borrow_mut().insert(name.name, asg_circuit);
         }
 
         for (name, function) in program.functions.iter() {
             assert_eq!(name.name, function.identifier.name);
             let function = Function::init(scope, function)?;
 
-            scope.functions.borrow_mut().insert(name.name.to_string(), function);
+            scope.functions.borrow_mut().insert(name.name, function);
         }
 
         for (names, global_const) in program.global_consts.iter() {
@@ -314,50 +316,50 @@ impl<'a> Program<'a> {
                     .collect::<Vec<String>>()
                     .join(",");
 
-                scope.global_consts.borrow_mut().insert(name, def);
+                scope.global_consts.borrow_mut().insert(Symbol::intern(&name), def);
             }
         }
 
         // Load concrete definitions.
         let mut aliases = IndexMap::new();
         let mut functions = IndexMap::new();
-        let mut circuits = IndexMap::new();
+        let mut circuits = IndexMap::<Symbol, _>::new();
         let mut global_consts = IndexMap::new();
 
         for (name, alias) in program.aliases.iter() {
             assert_eq!(name.name, alias.name.name);
-            let asg_alias = *scope.aliases.borrow().get(name.name.as_ref()).unwrap();
+            let asg_alias = *scope.aliases.borrow().get(&name.name).unwrap();
 
-            let name = name.name.to_string();
+            let name = name.name;
 
-            check_top_level_namespaces(&name, &alias.span, &aliases, &functions, &circuits, &global_consts)?;
+            check_top_level_namespaces(name, &alias.span, &aliases, &functions, &circuits, &global_consts)?;
 
             aliases.insert(name, asg_alias);
         }
 
         for (name, function) in program.functions.iter() {
             assert_eq!(name.name, function.identifier.name);
-            let asg_function = *scope.functions.borrow().get(name.name.as_ref()).unwrap();
+            let asg_function = *scope.functions.borrow().get(&name.name).unwrap();
 
             asg_function.fill_from_ast(function)?;
 
-            let name = name.name.to_string();
+            let name = name.name;
 
-            check_top_level_namespaces(&name, &function.span, &aliases, &functions, &circuits, &global_consts)?;
+            check_top_level_namespaces(name, &function.span, &aliases, &functions, &circuits, &global_consts)?;
 
             functions.insert(name, asg_function);
         }
 
         for (name, circuit) in program.circuits.iter() {
             assert_eq!(name.name, circuit.circuit_name.name);
-            let asg_circuit = *scope.circuits.borrow().get(name.name.as_ref()).unwrap();
+            let asg_circuit = *scope.circuits.borrow().get(&name.name).unwrap();
 
             asg_circuit.fill_from_ast(circuit)?;
 
-            let name = name.name.to_string();
+            let name = name.name;
 
             check_top_level_namespaces(
-                &name,
+                name,
                 &circuit.circuit_name.span,
                 &aliases,
                 &functions,
@@ -374,11 +376,12 @@ impl<'a> Program<'a> {
                 .map(|name| name.name.to_string())
                 .collect::<Vec<String>>()
                 .join(",");
+            let name = Symbol::intern(&name);
 
             let asg_global_const = *scope.global_consts.borrow().get(&name).unwrap();
 
             check_top_level_namespaces(
-                &name,
+                name,
                 &global_const.span,
                 &aliases,
                 &functions,
@@ -386,7 +389,7 @@ impl<'a> Program<'a> {
                 &global_consts,
             )?;
 
-            global_consts.insert(name.clone(), asg_global_const);
+            global_consts.insert(name, asg_global_const);
         }
 
         Ok(Program {
@@ -399,7 +402,10 @@ impl<'a> Program<'a> {
             circuits,
             imported_modules: imported_modules
                 .into_iter()
-                .map(|(package, program)| (package.join("."), program))
+                .map(|(package, program)| {
+                    let package = package.into_iter().map(|s| s.as_str().to_string()).collect::<Vec<_>>();
+                    (Symbol::intern(&package.join(".")), program)
+                })
                 .collect(),
             scope,
         })

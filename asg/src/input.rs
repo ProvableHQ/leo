@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Circuit, CircuitMember, Identifier, Scope, Type, Variable};
-use leo_errors::Span;
+use leo_span::{sym, Span, Symbol};
 
 use indexmap::IndexMap;
 use std::cell::RefCell;
@@ -41,17 +41,11 @@ pub enum InputCategory {
     StateLeaf,
 }
 
-pub const CONTAINER_PSEUDO_CIRCUIT: &str = "$InputContainer";
-pub const REGISTERS_PSEUDO_CIRCUIT: &str = "$InputRegister";
-pub const RECORD_PSEUDO_CIRCUIT: &str = "$InputRecord";
-pub const STATE_PSEUDO_CIRCUIT: &str = "$InputState";
-pub const STATE_LEAF_PSEUDO_CIRCUIT: &str = "$InputStateLeaf";
-
 impl<'a> Input<'a> {
-    fn make_header(scope: &'a Scope<'a>, name: &str) -> &'a Circuit<'a> {
+    fn make_header(scope: &'a Scope<'a>, name: Symbol) -> &'a Circuit<'a> {
         scope.context.alloc_circuit(Circuit {
             id: scope.context.get_id(),
-            name: RefCell::new(Identifier::new(name.into())),
+            name: RefCell::new(Identifier::new(name)),
             members: RefCell::new(IndexMap::new()),
             scope,
             span: Some(Span::default()),
@@ -60,26 +54,20 @@ impl<'a> Input<'a> {
 
     pub fn new(scope: &'a Scope<'a>) -> Self {
         let input_scope = scope.make_subscope();
-        let registers = Self::make_header(input_scope, REGISTERS_PSEUDO_CIRCUIT);
-        let record = Self::make_header(input_scope, RECORD_PSEUDO_CIRCUIT);
-        let state = Self::make_header(input_scope, STATE_PSEUDO_CIRCUIT);
-        let state_leaf = Self::make_header(input_scope, STATE_LEAF_PSEUDO_CIRCUIT);
+        let registers = Self::make_header(input_scope, sym::REGISTERS_PSEUDO_CIRCUIT);
+        let record = Self::make_header(input_scope, sym::RECORD_PSEUDO_CIRCUIT);
+        let state = Self::make_header(input_scope, sym::STATE_PSEUDO_CIRCUIT);
+        let state_leaf = Self::make_header(input_scope, sym::STATE_LEAF_PSEUDO_CIRCUIT);
 
         let mut container_members = IndexMap::new();
-        container_members.insert(
-            "registers".to_string(),
-            CircuitMember::Variable(Type::Circuit(registers)),
-        );
-        container_members.insert("record".to_string(), CircuitMember::Variable(Type::Circuit(record)));
-        container_members.insert("state".to_string(), CircuitMember::Variable(Type::Circuit(state)));
-        container_members.insert(
-            "state_leaf".to_string(),
-            CircuitMember::Variable(Type::Circuit(state_leaf)),
-        );
+        container_members.insert(sym::registers, CircuitMember::Variable(Type::Circuit(registers)));
+        container_members.insert(sym::record, CircuitMember::Variable(Type::Circuit(record)));
+        container_members.insert(sym::state, CircuitMember::Variable(Type::Circuit(state)));
+        container_members.insert(sym::state_leaf, CircuitMember::Variable(Type::Circuit(state_leaf)));
 
         let container_circuit = input_scope.context.alloc_circuit(Circuit {
             id: scope.context.get_id(),
-            name: RefCell::new(Identifier::new(CONTAINER_PSEUDO_CIRCUIT.into())),
+            name: RefCell::new(Identifier::new(sym::CONTAINER_PSEUDO_CIRCUIT)),
             members: RefCell::new(container_members),
             scope: input_scope,
             span: Some(Span::default()),
@@ -93,7 +81,7 @@ impl<'a> Input<'a> {
             container_circuit,
             container: input_scope.context.alloc_variable(RefCell::new(crate::InnerVariable {
                 id: scope.context.get_id(),
-                name: Identifier::new("input".into()),
+                name: Identifier::new(sym::input),
                 type_: Type::Circuit(container_circuit),
                 mutable: false,
                 const_: false,
@@ -108,17 +96,20 @@ impl<'a> Input<'a> {
 impl<'a> Circuit<'a> {
     pub fn is_input_pseudo_circuit(&self) -> bool {
         matches!(
-            &*self.name.borrow().name,
-            REGISTERS_PSEUDO_CIRCUIT | RECORD_PSEUDO_CIRCUIT | STATE_PSEUDO_CIRCUIT | STATE_LEAF_PSEUDO_CIRCUIT
+            self.name.borrow().name,
+            sym::REGISTERS_PSEUDO_CIRCUIT
+                | sym::RECORD_PSEUDO_CIRCUIT
+                | sym::STATE_PSEUDO_CIRCUIT
+                | sym::STATE_LEAF_PSEUDO_CIRCUIT
         )
     }
 
     pub fn input_type(&self) -> Option<InputCategory> {
-        match self.name.borrow().name.as_ref() {
-            REGISTERS_PSEUDO_CIRCUIT => Some(InputCategory::Register),
-            RECORD_PSEUDO_CIRCUIT => Some(InputCategory::StateRecord),
-            STATE_PSEUDO_CIRCUIT => Some(InputCategory::PublicState),
-            STATE_LEAF_PSEUDO_CIRCUIT => Some(InputCategory::StateLeaf),
+        match self.name.borrow().name {
+            sym::REGISTERS_PSEUDO_CIRCUIT => Some(InputCategory::Register),
+            sym::RECORD_PSEUDO_CIRCUIT => Some(InputCategory::StateRecord),
+            sym::STATE_PSEUDO_CIRCUIT => Some(InputCategory::PublicState),
+            sym::STATE_LEAF_PSEUDO_CIRCUIT => Some(InputCategory::StateLeaf),
             _ => None,
         }
     }

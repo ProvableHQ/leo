@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 pub mod output_file;
-use std::fmt;
 
 pub use self::output_file::*;
 
@@ -23,12 +22,15 @@ pub mod output_bytes;
 pub use self::output_bytes::*;
 
 use crate::REGISTERS_VARIABLE_NAME;
-use indexmap::IndexMap;
-use leo_errors::{CompilerError, Result, Span};
-use snarkvm_eval::{ConstrainedValue, GroupType, PrimeField};
 
-use serde::{Deserialize, Serialize};
+use leo_errors::{CompilerError, Result};
+use leo_span::Span;
+use snarkvm_eval::{ConstrainedValue, GroupType, PrimeField};
 use snarkvm_ir::Input;
+
+use indexmap::IndexMap;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
 pub struct OutputRegister {

@@ -14,12 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{borrow::Cow, unimplemented};
-
 use crate::{assert_no_whitespace, tokenizer::*, Token, KEYWORD_TOKENS};
+
 use leo_ast::*;
 use leo_errors::emitter::Handler;
-use leo_errors::{LeoError, ParserError, Result, Span};
+use leo_errors::{LeoError, ParserError, Result};
+use leo_span::{Span, Symbol};
+
+use std::{borrow::Cow, unimplemented};
 use tendril::format_tendril;
 
 /// Stores a program in tokenized format plus additional context.
@@ -168,6 +170,7 @@ impl<'a> ParserContext<'a> {
                 span,
             } = self.bump().unwrap()
             {
+                let name = Symbol::intern(&name);
                 return Some(Identifier { name, span });
             } else {
                 unimplemented!()
@@ -369,19 +372,18 @@ impl<'a> ParserContext<'a> {
     pub fn expect_loose_identifier(&mut self) -> Result<Identifier> {
         if let Some(token) = self.eat_any(KEYWORD_TOKENS) {
             return Ok(Identifier {
-                name: token.token.to_string().into(),
+                name: Symbol::intern(&token.token.to_string()),
                 span: token.span,
             });
         }
         if let Some((int, span)) = self.eat_int() {
-            return Ok(Identifier { name: int.value, span });
+            let name = Symbol::intern(&int.value);
+            return Ok(Identifier { name, span });
         }
         self.expect_ident()
     }
 
-    ///
     /// Returns the [`Identifier`] of the next token if it is an [`Identifier`], or error.
-    ///
     pub fn expect_ident(&mut self) -> Result<Identifier> {
         if let Some(SpannedToken { token: inner, span }) = self.curr() {
             if let Token::Ident(_) = inner {
@@ -390,6 +392,7 @@ impl<'a> ParserContext<'a> {
                     span,
                 } = self.bump().unwrap()
                 {
+                    let name = Symbol::intern(&name);
                     Ok(Identifier { name, span })
                 } else {
                     unimplemented!()

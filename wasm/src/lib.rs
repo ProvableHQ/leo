@@ -19,6 +19,8 @@
 
 use leo_ast::AstPass;
 use leo_errors::emitter::{ErrBuffer, Handler};
+use leo_span::symbol::create_session_if_not_set_then;
+
 use serde_json::json;
 use wasm_bindgen::prelude::*;
 
@@ -31,7 +33,7 @@ export interface LeoError { text: string, code: string, exitCode: number }
 /// Parse the code and return an AST as JSON or an error object.
 #[wasm_bindgen(method, catch)]
 pub fn parse(program: &str) -> Result<String, JsValue> {
-    Handler::with(|h| parse_program(h, program)).map_err(error_to_value)
+    create_session_if_not_set_then(|_| Handler::with(|h| parse_program(h, program)).map_err(error_to_value))
 }
 
 /// Parse the program and pass the Canonicalization phase;

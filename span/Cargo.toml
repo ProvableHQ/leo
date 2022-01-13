@@ -1,0 +1,32 @@
+[package]
+name = "leo-span"
+version = "1.5.3"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
+description = "Span handling in the Leo programming language"
+homepage = "https://aleo.org"
+repository = "https://github.com/AleoHQ/leo"
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
+]
+categories = [ "cryptography::cryptocurrencies", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2018"
+
+[dependencies]
+fxhash = "0.2.1"
+scoped-tls = "1.0.0"
+pest = "2.0"
+tendril = "0.4.2"
+
+[dependencies.indexmap]
+version = "1.7"
+features = ["serde"]
+
+[dependencies.serde]
+version = "1.0.130"
+features = [ "derive", "rc" ]

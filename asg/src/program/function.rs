@@ -21,7 +21,8 @@ use crate::{
 use indexmap::IndexMap;
 pub use leo_ast::Annotation;
 use leo_ast::{FunctionInput, Node};
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{AsgError, Result};
+use leo_span::{sym, Span, Symbol};
 
 use std::{
     cell::{Cell, RefCell},
@@ -41,20 +42,20 @@ pub struct Function<'a> {
     pub id: AsgId,
     pub name: RefCell<Identifier>,
     pub output: Type<'a>,
-    pub arguments: IndexMap<String, Cell<&'a Variable<'a>>>,
+    pub arguments: IndexMap<Symbol, Cell<&'a Variable<'a>>>,
     pub circuit: Cell<Option<&'a Circuit<'a>>>,
     pub span: Option<Span>,
     pub body: Cell<Option<&'a Statement<'a>>>,
-    pub core_mapping: RefCell<Option<String>>,
+    pub core_mapping: Cell<Option<Symbol>>,
     pub scope: &'a Scope<'a>,
     pub qualifier: FunctionQualifier,
-    pub annotations: IndexMap<String, Annotation>,
+    pub annotations: IndexMap<Symbol, Annotation>,
     pub const_: bool,
 }
 
 impl<'a> fmt::Display for Function<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ASG Function '{}'", self.name.borrow().name.as_ref())
+        write!(f, "ASG Function '{}'", self.name.borrow().name)
     }
 }
 
@@ -100,9 +101,9 @@ impl<'a> Function<'a> {
                         qualifier = FunctionQualifier::MutSelfRef;
                     }
                     FunctionInput::Variable(input_variable) => {
-                        if arguments.contains_key(input_variable.identifier.name.as_ref()) {
+                        if arguments.contains_key(&input_variable.identifier.name) {
                             return Err(AsgError::duplicate_function_input_definition(
-                                input_variable.identifier.name.as_ref(),
+                                input_variable.identifier.name,
                                 &input_variable.identifier.span,
                             )
                             .into());
@@ -118,7 +119,7 @@ impl<'a> Function<'a> {
                             references: vec![],
                             assignments: vec![],
                         }));
-                        arguments.insert(input_variable.identifier.name.to_string(), Cell::new(&*variable));
+                        arguments.insert(input_variable.identifier.name, Cell::new(&*variable));
                     }
                 }
             }
@@ -147,7 +148,7 @@ impl<'a> Function<'a> {
             let circuit = self.circuit.get();
             let self_variable = self.scope.context.alloc_variable(RefCell::new(crate::InnerVariable {
                 id: self.scope.context.get_id(),
-                name: Identifier::new("self".into()),
+                name: Identifier::new(sym::SelfLower),
                 type_: Type::Circuit(circuit.as_ref().unwrap()),
                 mutable: self.qualifier == FunctionQualifier::MutSelfRef,
                 const_: false,
@@ -155,10 +156,7 @@ impl<'a> Function<'a> {
                 references: vec![],
                 assignments: vec![],
             }));
-            self.scope
-                .variables
-                .borrow_mut()
-                .insert("self".to_string(), self_variable);
+            self.scope.variables.borrow_mut().insert(sym::SelfLower, self_variable);
         }
 
         if value.is_main() {
@@ -196,7 +194,7 @@ impl<'a> Function<'a> {
         }
 
         for (name, argument) in self.arguments.iter() {
-            if self.scope.resolve_global_const(name).is_some() {
+            if self.scope.resolve_global_const(*name).is_some() {
                 return Err(AsgError::function_input_cannot_shadow_global_const(
                     name,
                     &argument.get().borrow().name.span,
@@ -204,7 +202,7 @@ impl<'a> Function<'a> {
                 .into());
             }
 
-            self.scope.variables.borrow_mut().insert(name.clone(), argument.get());
+            self.scope.variables.borrow_mut().insert(*name, argument.get());
         }
 
         let main_block = BlockStatement::from_ast(self.scope, &value.block, None)?;
@@ -225,7 +223,7 @@ impl<'a> Function<'a> {
     }
 
     pub fn is_test(&self) -> bool {
-        self.annotations.contains_key("test")
+        self.annotations.contains_key(&sym::test)
     }
 }
 

@@ -18,8 +18,11 @@
 //! asg nodes and saving relevant information.
 
 use crate::*;
+
+use leo_errors::{AstError, Result};
+use leo_span::{Span, Symbol};
+
 use indexmap::IndexMap;
-use leo_errors::{AstError, Result, Span};
 
 pub struct ReconstructingDirector<R: ReconstructingReducer> {
     reducer: R,
@@ -516,7 +519,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_import_statement(import, package_or_packages)
     }
 
-    pub fn reduce_import(&mut self, identifier: &[String], import: &Program) -> Result<(Vec<String>, Program)> {
+    pub fn reduce_import(&mut self, identifier: &[Symbol], import: &Program) -> Result<(Vec<Symbol>, Program)> {
         let new_identifer = identifier.to_vec();
         let new_import = self.reduce_program(import)?;
         self.reducer.reduce_import(new_identifer, new_import)
@@ -563,7 +566,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
         let mut annotations = IndexMap::new();
         for (name, annotation) in function.annotations.iter() {
-            annotations.insert(name.clone(), self.reduce_annotation(annotation)?);
+            annotations.insert(*name, self.reduce_annotation(annotation)?);
         }
 
         let mut inputs = vec![];

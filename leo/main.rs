@@ -27,6 +27,7 @@ use commands::{
     Build, Clean, Command, Deploy, Init, Lint, New, Prove, Run, Setup, Test, Update, Watch,
 };
 use leo_errors::{emitter::Handler, Result};
+use leo_span::symbol::create_session_if_not_set_then;
 use std::path::PathBuf;
 use structopt::{clap::AppSettings, StructOpt};
 
@@ -193,7 +194,7 @@ fn run_with_args(handler: &Handler, opt: Opt) -> Result<()> {
     }
 
     let context = create_context(handler, opt.path, opt.api)?;
-    try_execute_command(opt.command, context)
+    create_session_if_not_set_then(|_| try_execute_command(opt.command, context))
 }
 
 /// Returns custom root folder and creates a context for it.

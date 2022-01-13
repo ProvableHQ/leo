@@ -14,9 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::Span;
 use leo_input::common::Identifier as InputIdentifier;
-use tendril::StrTendril;
+use leo_span::{Span, Symbol};
 
 use crate::Node;
 use serde::{
@@ -38,7 +37,7 @@ use std::{
 /// to reflect the new struct instantiation.
 #[derive(Clone)]
 pub struct Identifier {
-    pub name: StrTendril,
+    pub name: Symbol,
     pub span: Span,
 }
 
@@ -53,17 +52,10 @@ impl Node for Identifier {
 }
 
 impl Identifier {
-    pub fn new(name: StrTendril) -> Self {
+    pub fn new(name: Symbol) -> Self {
         Self {
             name,
             span: Span::default(),
-        }
-    }
-
-    pub fn new_with_span(name: &str, span: Span) -> Self {
-        Self {
-            name: name.into(),
-            span,
         }
     }
 
@@ -76,7 +68,7 @@ impl Identifier {
 impl<'ast> From<InputIdentifier<'ast>> for Identifier {
     fn from(identifier: InputIdentifier<'ast>) -> Self {
         Self {
-            name: identifier.value.into(),
+            name: Symbol::intern(&identifier.value),
             span: Span::from(identifier.span),
         }
     }
@@ -149,7 +141,7 @@ impl<'de> Deserialize<'de> for Identifier {
                 let key: BTreeMap<String, String> = to_json_string(value)?;
 
                 let name = match key.get("name") {
-                    Some(name) => name.clone(),
+                    Some(name) => Symbol::intern(name),
                     None => return Err(E::custom("missing 'name' in serialized Identifier struct")),
                 };
 
@@ -158,10 +150,7 @@ impl<'de> Deserialize<'de> for Identifier {
                     None => return Err(E::custom("missing 'span' in serialized Identifier struct")),
                 };
 
-                Ok(Identifier {
-                    name: name.into(),
-                    span,
-                })
+                Ok(Identifier { name, span })
             }
         }
 

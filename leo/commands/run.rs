@@ -17,9 +17,9 @@
 use super::{build::BuildOptions, prove::Prove};
 use crate::{commands::Command, context::Context, wrapper::CompilerWrapper};
 use leo_errors::{Result, SnarkVMError};
-
 use snarkvm_algorithms::{snark::groth16::Groth16, traits::SNARK};
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
+
 use structopt::StructOpt;
 use tracing::span::Span;
 

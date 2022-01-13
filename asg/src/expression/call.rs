@@ -19,7 +19,8 @@ use crate::{
     PartialType, Scope, Type,
 };
 pub use leo_ast::{BinaryOperation, Node as AstNode};
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{AsgError, Result};
+use leo_span::{sym, Span, Symbol};
 
 use std::cell::Cell;
 
@@ -88,7 +89,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
             leo_ast::Expression::Identifier(name) => (
                 None,
                 scope
-                    .resolve_function(&name.name)
+                    .resolve_function(name.name)
                     .ok_or_else(|| AsgError::unresolved_function(&name.name, &name.span))?,
             ),
             leo_ast::Expression::Access(access) => match access {
@@ -113,16 +114,18 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                             .into());
                         }
                         Some(Type::Array(_, _)) | Some(Type::ArrayWithoutSize(_)) => {
-                            scope.resolve_circuit("array").unwrap()
+                            scope.resolve_circuit(sym::array).unwrap()
                         }
                         Some(Type::Circuit(circuit)) => circuit,
-                        Some(Type::Integer(int_type)) => scope.resolve_circuit(&int_type.to_string()).unwrap(),
-                        Some(type_) => scope.resolve_circuit(&type_.to_string()).unwrap(),
+                        Some(Type::Integer(int_type)) => {
+                            scope.resolve_circuit(Symbol::intern(&int_type.to_string())).unwrap()
+                        }
+                        Some(type_) => scope.resolve_circuit(Symbol::intern(&type_.to_string())).unwrap(),
                     };
-                    let circuit_name = circuit.name.borrow().name.clone();
+                    let circuit_name = circuit.name.borrow().name;
                     let member = circuit.members.borrow();
                     let member = member
-                        .get(name.name.as_ref())
+                        .get(&name.name)
                         .ok_or_else(|| AsgError::unresolved_circuit_member(&circuit_name, &name.name, span))?;
                     match member {
                         CircuitMember::Const(_) => {
@@ -153,16 +156,16 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                 }) => {
                     let circuit = if let leo_ast::Expression::Identifier(circuit_name) = &**ast_value {
                         scope
-                            .resolve_circuit(&circuit_name.name)
+                            .resolve_circuit(circuit_name.name)
                             .ok_or_else(|| AsgError::unresolved_circuit(&circuit_name.name, &circuit_name.span))?
                     } else {
                         return Err(AsgError::unexpected_type("circuit", "unknown", span).into());
                     };
-                    let circuit_name = circuit.name.borrow().name.clone();
+                    let circuit_name = circuit.name.borrow().name;
 
                     let member = circuit.members.borrow();
                     let member = member
-                        .get(name.name.as_ref())
+                        .get(&name.name)
                         .ok_or_else(|| AsgError::unresolved_circuit_member(&circuit_name, &name.name, span))?;
                     match member {
                         CircuitMember::Const(_) => {

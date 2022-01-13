@@ -15,33 +15,31 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Identifier;
-use leo_errors::Span;
+use leo_span::{sym, Span, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use tendril::StrTendril;
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Annotation {
     pub span: Span,
     pub name: Identifier,
-    #[serde(with = "crate::common::vec_tendril_json")]
-    pub arguments: Vec<StrTendril>,
+    pub arguments: Vec<Symbol>,
 }
 
-const ALLOWED_ANNOTATIONS: &[&str] = &["test"];
+const ALLOWED_ANNOTATIONS: &[Symbol] = &[sym::test];
 
 impl Annotation {
     pub fn is_valid_annotation(&self) -> bool {
-        ALLOWED_ANNOTATIONS.iter().any(|name| self.name.name.as_ref() == *name)
+        ALLOWED_ANNOTATIONS.iter().any(|name| self.name.name == *name)
     }
 }
 
 impl fmt::Display for Annotation {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "@{:}(", self.name)?;
-        for tendril in &self.arguments {
-            write!(f, "{:},", tendril)?;
+        for arg in &self.arguments {
+            write!(f, "{:},", arg)?;
         }
         write!(f, ")")
     }

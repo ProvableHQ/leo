@@ -186,7 +186,8 @@ impl Handler {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{ParserError, Span};
+    use crate::ParserError;
+    use leo_span::Span;
 
     #[test]
     fn fresh_no_errors() {

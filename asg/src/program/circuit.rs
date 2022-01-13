@@ -14,8 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgId, Expression, ExpressionNode, FromAst, Function, Identifier, Node, Scope, Type};
-use leo_errors::{AsgError, Result, Span};
+use crate::{AsgId, Expression, ExpressionNode as _, FromAst as _, Function, Identifier, Node, Scope, Type};
+
+use leo_errors::{AsgError, Result};
+use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
 use std::cell::RefCell;
@@ -45,10 +47,10 @@ pub struct Circuit<'a> {
     pub name: RefCell<Identifier>,
     pub scope: &'a Scope<'a>,
     pub span: Option<Span>,
-    pub members: RefCell<IndexMap<String, CircuitMember<'a>>>,
+    pub members: RefCell<IndexMap<Symbol, CircuitMember<'a>>>,
 }
 
-impl<'a> PartialEq for Circuit<'a> {
+impl PartialEq for Circuit<'_> {
     fn eq(&self, other: &Circuit) -> bool {
         if self.name != other.name {
             return false;
@@ -57,9 +59,9 @@ impl<'a> PartialEq for Circuit<'a> {
     }
 }
 
-impl<'a> Eq for Circuit<'a> {}
+impl Eq for Circuit<'_> {}
 
-impl<'a> Node for Circuit<'a> {
+impl Node for Circuit<'_> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
@@ -88,14 +90,14 @@ impl<'a> Circuit<'a> {
         let new_scope = scope.make_subscope();
         let circuits = scope.circuits.borrow();
 
-        let circuit = circuits.get(value.circuit_name.name.as_ref()).unwrap();
+        let circuit = circuits.get(&value.circuit_name.name).unwrap();
 
         let mut members = circuit.members.borrow_mut();
 
         for member in value.members.iter() {
             match member {
                 leo_ast::CircuitMember::CircuitConst(name, type_, const_value) => {
-                    if members.contains_key(name.name.as_ref()) {
+                    if members.contains_key(&name.name) {
                         return Err(AsgError::redefined_circuit_member(
                             &value.circuit_name.name,
                             &name.name,
@@ -105,12 +107,12 @@ impl<'a> Circuit<'a> {
                     }
                     let type_ = new_scope.resolve_ast_type(type_, &name.span)?;
                     members.insert(
-                        name.name.to_string(),
+                        name.name,
                         CircuitMember::Const(<&Expression<'a>>::from_ast(new_scope, const_value, Some(type_.into()))?),
                     );
                 }
                 leo_ast::CircuitMember::CircuitFunction(function) => {
-                    if members.contains_key(function.identifier.name.as_ref()) {
+                    if members.contains_key(&function.identifier.name) {
                         return Err(AsgError::redefined_circuit_member(
                             &value.circuit_name.name,
                             &function.identifier.name,
@@ -123,13 +125,10 @@ impl<'a> Circuit<'a> {
                     if asg_function.is_test() {
                         return Err(AsgError::circuit_test_function(&function.identifier.span).into());
                     }
-                    members.insert(
-                        function.identifier.name.to_string(),
-                        CircuitMember::Function(asg_function),
-                    );
+                    members.insert(function.identifier.name, CircuitMember::Function(asg_function));
                 }
                 leo_ast::CircuitMember::CircuitVariable(name, type_) => {
-                    if members.contains_key(name.name.as_ref()) {
+                    if members.contains_key(&name.name) {
                         return Err(AsgError::redefined_circuit_member(
                             &value.circuit_name.name,
                             &name.name,
@@ -138,7 +137,7 @@ impl<'a> Circuit<'a> {
                         .into());
                     }
                     members.insert(
-                        name.name.to_string(),
+                        name.name,
                         CircuitMember::Variable(new_scope.resolve_ast_type(type_, &name.span)?),
                     );
                 }
@@ -157,7 +156,7 @@ impl<'a> Circuit<'a> {
                     let asg_function = match *self
                         .members
                         .borrow()
-                        .get(function.identifier.name.as_ref())
+                        .get(&function.identifier.name)
                         .expect("missing header for defined circuit function")
                     {
                         CircuitMember::Function(f) => f,
@@ -179,12 +178,12 @@ impl<'a> Into<leo_ast::Circuit> for &Circuit<'a> {
             .iter()
             .map(|(name, member)| match &member {
                 CircuitMember::Const(value) => leo_ast::CircuitMember::CircuitConst(
-                    Identifier::new((&**name).into()),
+                    Identifier::new(*name),
                     value.get_type().as_ref().unwrap().into(),
                     (*value).into(),
                 ),
                 CircuitMember::Variable(type_) => {
-                    leo_ast::CircuitMember::CircuitVariable(Identifier::new((&**name).into()), type_.into())
+                    leo_ast::CircuitMember::CircuitVariable(Identifier::new(*name), type_.into())
                 }
                 CircuitMember::Function(func) => leo_ast::CircuitMember::CircuitFunction(Box::new((*func).into())),
             })

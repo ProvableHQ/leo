@@ -21,6 +21,10 @@ rust-version = "1.56"
 [dependencies]
 colored = "2.0.0"
 
+[dependencies.leo-span]
+path = "../span"
+version = "1.5.3"
+
 [dependencies.leo-input]
 path = "../input"
 version = "1.5.3"

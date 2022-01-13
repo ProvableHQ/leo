@@ -39,6 +39,7 @@ members = [
   "linter",
   "package",
   "parser",
+  "span",
   "state",
   "stdlib",
   "synthesizer",
@@ -72,6 +73,10 @@ version = "1.5.3"
 
 [dependencies.leo-parser]
 path = "./parser"
+version = "1.5.3"
+
+[dependencies.leo-span]
+path = "./span"
 version = "1.5.3"
 
 [dependencies.leo-state]

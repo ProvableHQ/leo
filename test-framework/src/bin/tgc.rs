@@ -20,6 +20,7 @@ use leo_compiler::{compiler::thread_leaked_context, TypeInferencePhase};
 use leo_errors::emitter::Handler;
 use leo_errors::LeoError;
 use leo_imports::ImportParser;
+use leo_span::symbol::create_session_if_not_set_then;
 use leo_test_framework::{
     fetch::find_tests,
     test::{extract_test_config, TestExpectationMode as Expectation},
@@ -116,7 +117,9 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
             // Do this to match test-framework ast bc of spans
             let text = &text[end_of_header + 2..];
             // Write all files into the directory.
-            Handler::with(|h| generate_asts(h, cwd, target, text)).map_err(|b| b.to_string())?;
+            create_session_if_not_set_then(|_| {
+                Handler::with(|h| generate_asts(h, cwd, target, text)).map_err(|b| b.to_string())
+            })?
         }
     }
 

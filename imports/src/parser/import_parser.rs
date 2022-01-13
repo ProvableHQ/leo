@@ -17,7 +17,8 @@
 use leo_ast::Program;
 use leo_ast_passes::ImportResolver;
 use leo_errors::emitter::Handler;
-use leo_errors::{ImportError, LeoError, Result, Span};
+use leo_errors::{ImportError, LeoError, Result};
+use leo_span::{Span, Symbol};
 
 use indexmap::{IndexMap, IndexSet};
 use std::path::PathBuf;
@@ -56,7 +57,13 @@ impl ImportResolver for ImportParser<'_> {
         self.handler
     }
 
-    fn resolve_package(&mut self, package_segments: &[&str], span: &Span) -> Result<Option<Program>> {
+    fn resolve_package(&mut self, package_segments: &[Symbol], span: &Span) -> Result<Option<Program>> {
+        let package_segments = package_segments
+            .iter()
+            .map(|s| s.as_str().to_string())
+            .collect::<Vec<_>>();
+        let package_segments = package_segments.iter().map(|s| &**s).collect::<Vec<_>>();
+
         let full_path = package_segments.join(".");
         if self.partial_imports.contains(&full_path) {
             return Err(ImportError::recursive_imports(full_path, span).into());
@@ -70,7 +77,7 @@ impl ImportResolver for ImportParser<'_> {
         self.partial_imports.insert(full_path.clone());
         let mut imports = self.clone(); // Self::default() was previously
         let program = imports
-            .parse_package(path, package_segments, span)
+            .parse_package(path, &package_segments, span)
             .map_err(|x| -> LeoError { x })?;
 
         self.partial_imports.remove(&full_path);

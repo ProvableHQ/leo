@@ -18,35 +18,32 @@
 
 use crate::{asg_group_coordinate_to_ir, decode_address, CompilerOptions, Output, OutputFile, Program};
 use crate::{OutputOptions, TypeInferencePhase};
+
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_asg::{Asg, AsgPass, CircuitMember, GroupValue, Program as AsgProgram};
 use leo_ast::AstPass;
 use leo_ast::{InputValue, IntegerType, Program as AstProgram};
 use leo_errors::emitter::Handler;
-use leo_errors::AsgError;
-use leo_errors::SnarkVMError;
-use leo_errors::StateError;
-use leo_errors::{CompilerError, Result, Span};
+use leo_errors::{AsgError, CompilerError, Result, SnarkVMError, StateError};
 use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_parser::parse_ast;
-
-use eyre::eyre;
-use leo_synthesizer::CircuitSynthesizer;
-use num_bigint::{BigInt, Sign};
-use sha2::{Digest, Sha256};
-
+use leo_span::{sym, Span, Symbol};
 use snarkvm_curves::bls12_377::Bls12_377;
 use snarkvm_eval::edwards_bls12::EdwardsGroupType;
 use snarkvm_eval::{Evaluator, GroupType, PrimeField};
 use snarkvm_ir::InputData;
 use snarkvm_ir::{Group, Integer, Type, Value};
 use snarkvm_r1cs::ConstraintSystem;
+
+use eyre::eyre;
+use indexmap::IndexMap;
+use leo_synthesizer::CircuitSynthesizer;
+use num_bigint::{BigInt, Sign};
+use sha2::{Digest, Sha256};
 use std::io::Write;
 use std::{convert::TryFrom, fs, path::PathBuf};
-
-use indexmap::IndexMap;
 
 thread_local! {
     static THREAD_GLOBAL_CONTEXT: AsgContext<'static> = {
@@ -358,11 +355,11 @@ impl<'a, 'b> Compiler<'a, 'b> {
         let program_name = program.asg.name.clone();
         let mut output_file_name = program_name.clone();
 
-        let input_file = function.annotations.get("test").unwrap().arguments.get(0);
+        let input_file = function.annotations.get(&sym::test).unwrap().arguments.get(0);
         // get input file name from annotation or use test_name
         let input_pair = match input_file {
             Some(file_id) => {
-                let file_name = file_id.clone();
+                let file_name = file_id;
                 let file_name_kebab = file_name.to_string().replace("_", "-");
 
                 // transform "test_name" into "test-name"
@@ -601,13 +598,13 @@ impl<'a, 'b> Compiler<'a, 'b> {
 
     pub fn process_input(&self, input: &leo_ast::Input, ir: &snarkvm_ir::Header) -> Result<InputData> {
         let program = self.asg.as_ref().unwrap();
-        let main_function = *program.functions.get("main").expect("missing main function");
+        let main_function = *program.functions.get(&sym::main).expect("missing main function");
         let span = main_function.span.clone().unwrap_or_default();
 
         let mut out = InputData::default();
         for ir_input in &ir.main_inputs {
             let value = input
-                .get(&*ir_input.name)
+                .get(Symbol::intern(&ir_input.name))
                 .flatten()
                 .ok_or_else(|| CompilerError::function_input_not_found("main", &ir_input.name, &span))?;
             out.main.insert(
@@ -617,7 +614,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
         }
         for ir_input in &ir.constant_inputs {
             let value = input
-                .get_constant(&*ir_input.name)
+                .get_constant(Symbol::intern(&ir_input.name))
                 .flatten()
                 .ok_or_else(|| CompilerError::function_input_not_found("main", &ir_input.name, &span))?;
             out.constants.insert(

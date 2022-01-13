@@ -17,6 +17,7 @@
 use std::cell::Cell;
 
 use leo_ast::Identifier;
+use leo_span::Symbol;
 
 use crate::{accesses::*, expression::*, program::*, statement::*, AsgContext};
 
@@ -430,11 +431,11 @@ pub trait ReconstructingReducerProgram<'a>: ReconstructingReducerStatement<'a> {
     fn reduce_program(
         &mut self,
         input: Program<'a>,
-        imported_modules: Vec<(String, Program<'a>)>,
-        aliases: Vec<(String, &'a Alias<'a>)>,
-        functions: Vec<(String, &'a Function<'a>)>,
-        circuits: Vec<(String, &'a Circuit<'a>)>,
-        global_consts: Vec<(String, &'a DefinitionStatement<'a>)>,
+        imported_modules: Vec<(Symbol, Program<'a>)>,
+        aliases: Vec<(Symbol, &'a Alias<'a>)>,
+        functions: Vec<(Symbol, &'a Function<'a>)>,
+        circuits: Vec<(Symbol, &'a Circuit<'a>)>,
+        global_consts: Vec<(Symbol, &'a DefinitionStatement<'a>)>,
     ) -> Program<'a> {
         Program {
             context: input.context,

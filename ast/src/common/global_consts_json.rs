@@ -16,6 +16,8 @@
 
 use crate::{DefinitionStatement, Identifier};
 
+use leo_span::Symbol;
+
 use indexmap::IndexMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -46,7 +48,7 @@ pub fn deserialize<'de, D: Deserializer<'de>>(
             (
                 name.split(',')
                     .map(|ident_name| Identifier {
-                        name: ident_name.into(),
+                        name: Symbol::intern(ident_name),
                         span: Default::default(),
                     })
                     .collect::<Vec<Identifier>>(),

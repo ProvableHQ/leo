@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2022 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,15 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use serde::{Deserialize, Deserializer, Serializer};
-use tendril::StrTendril;
+mod dropless;
 
-/// Serialization for the StrTendril type.
-pub fn serialize<S: Serializer>(tendril: &StrTendril, serializer: S) -> Result<S::Ok, S::Error> {
-    serializer.serialize_str(&tendril[..])
-}
+pub mod symbol;
+pub use symbol::{sym, Symbol};
 
-/// Deserialization for the StrTendril type.
-pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<StrTendril, D::Error> {
-    Ok(String::deserialize(deserializer)?.into())
-}
+pub mod span;
+pub use span::Span;
+
+pub mod span_json;
+
+pub mod tendril_json;

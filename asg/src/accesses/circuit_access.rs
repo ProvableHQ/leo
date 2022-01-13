@@ -19,7 +19,8 @@ use crate::{
     Scope, Type,
 };
 
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{AsgError, Result};
+use leo_span::Span;
 
 use std::cell::Cell;
 
@@ -60,7 +61,7 @@ impl<'a> ExpressionNode<'a> for CircuitAccess<'a> {
 
     fn get_type(&self) -> Option<Type<'a>> {
         let members = self.circuit.get().members.borrow();
-        let member = members.get(self.member.name.as_ref())?;
+        let member = members.get(&self.member.name)?;
         match member {
             CircuitMember::Const(value) => value.get_type(),
             CircuitMember::Variable(type_) => Some(type_.clone()),
@@ -79,7 +80,7 @@ impl<'a> ExpressionNode<'a> for CircuitAccess<'a> {
     fn const_value(&self) -> Option<ConstValue<'a>> {
         match self.target.get()?.const_value()? {
             ConstValue::Circuit(_, members) => {
-                let (_, const_value) = members.get(&self.member.name.to_string())?.clone();
+                let (_, const_value) = members.get(&self.member.name)?.clone();
                 Some(const_value)
             }
             _ => None,
@@ -112,7 +113,7 @@ impl<'a> FromAst<'a, leo_ast::accesses::MemberAccess> for CircuitAccess<'a> {
 
         // scoping refcell reference
         let found_member = {
-            if let Some(member) = circuit.members.borrow().get(value.name.name.as_ref()) {
+            if let Some(member) = circuit.members.borrow().get(&value.name.name) {
                 if let Some(expected_type) = &expected_type {
                     if let CircuitMember::Variable(type_) = &member {
                         let type_: Type = type_.clone();
@@ -132,10 +133,10 @@ impl<'a> FromAst<'a, leo_ast::accesses::MemberAccess> for CircuitAccess<'a> {
         } else if circuit.is_input_pseudo_circuit() {
             // add new member to implicit input
             if let Some(expected_type) = expected_type.map(PartialType::full).flatten() {
-                circuit.members.borrow_mut().insert(
-                    value.name.name.to_string(),
-                    CircuitMember::Variable(expected_type.clone()),
-                );
+                circuit
+                    .members
+                    .borrow_mut()
+                    .insert(value.name.name, CircuitMember::Variable(expected_type.clone()));
             } else {
                 return Err(
                     AsgError::input_ref_needs_type(&circuit.name.borrow().name, &value.name.name, &value.span).into(),
@@ -169,7 +170,7 @@ impl<'a> FromAst<'a, leo_ast::accesses::StaticAccess> for CircuitAccess<'a> {
     ) -> Result<CircuitAccess<'a>> {
         let circuit = match &*value.inner {
             leo_ast::Expression::Identifier(name) => scope
-                .resolve_circuit(&name.name)
+                .resolve_circuit(name.name)
                 .ok_or_else(|| AsgError::unresolved_circuit(&name.name, &name.span))?,
             _ => {
                 return Err(AsgError::unexpected_type("circuit", "unknown", &value.span).into());
@@ -179,7 +180,7 @@ impl<'a> FromAst<'a, leo_ast::accesses::StaticAccess> for CircuitAccess<'a> {
         let member_type = circuit
             .members
             .borrow()
-            .get(value.name.name.as_ref())
+            .get(&value.name.name)
             .map(|m| m.get_type())
             .flatten();
         match (expected_type, member_type) {

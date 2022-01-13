@@ -19,6 +19,7 @@ use leo_ast::AstPass;
 use leo_errors::emitter::{ErrBuffer, Handler};
 use leo_errors::LeoError;
 use leo_parser::parse_ast;
+use leo_span::symbol::create_session_if_not_set_then;
 
 mod fail;
 mod pass;
@@ -26,7 +27,7 @@ mod pass;
 const TESTING_FILEPATH: &str = "input.leo";
 
 fn load_asg(program_string: &str) -> Result<Program<'static>, ErrBuffer> {
-    Handler::with(|h| load_asg_imports(h, make_test_context(), program_string))
+    create_session_if_not_set_then(|_| Handler::with(|h| load_asg_imports(h, make_test_context(), program_string)))
 }
 
 fn load_asg_imports<'a>(

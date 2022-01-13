@@ -16,7 +16,8 @@
 
 //! Enforces a logical `!` operator in a resolved Leo program.
 
-use leo_errors::{CompilerError, Result, Span};
+use leo_errors::{CompilerError, Result};
+use leo_span::Span;
 use snarkvm_ir::Value;
 
 pub fn evaluate_bit_not(value: Value, span: &Span) -> Result<Value> {

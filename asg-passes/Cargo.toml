@@ -25,6 +25,10 @@ path = "src/lib.rs"
 path = "../asg"
 version = "1.5.3"
 
+[dependencies.leo-span]
+path = "../span"
+version = "1.5.3"
+
 [dependencies.leo-errors]
 path = "../errors"
 version = "1.5.3"
@@ -34,4 +38,3 @@ version = "0.1.4"
 
 [dependencies.petgraph]
 version = "0.6.0"
-
