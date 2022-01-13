@@ -134,7 +134,7 @@ version = "0.15.0"
 version = "0.3.1"
 
 [dependencies.indexmap]
-version = "1.7"
+version = "1.8"
 features = ["serde"]
 
 [dependencies.lazy_static]

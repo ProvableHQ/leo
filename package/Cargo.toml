@@ -23,7 +23,7 @@ path = "../errors"
 version = "1.5.3"
 
 [dependencies.indexmap]
-version = "1.7"
+version = "1.8"
 features = ["serde"]
 
 [dependencies.serde]

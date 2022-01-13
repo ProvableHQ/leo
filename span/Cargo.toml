@@ -24,7 +24,7 @@ pest = "2.0"
 tendril = "0.4.2"
 
 [dependencies.indexmap]
-version = "1.7"
+version = "1.8"
 features = ["serde"]
 
 [dependencies.serde]

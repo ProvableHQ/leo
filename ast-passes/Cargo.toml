@@ -22,7 +22,7 @@ rust-version = "1.56"
 path = "src/lib.rs"
 
 [dependencies]
-indexmap = "1.7.0"
+indexmap = "1.8.0"
 
 [dependencies.leo-ast]
 path = "../ast"

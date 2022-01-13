@@ -45,7 +45,7 @@ features = [ "testnet1" ]
 version = "0.7.9"
 
 [dependencies.indexmap]
-version = "1.7.0"
+version = "1.8.0"
 features = [ "serde-1" ]
 
 [dependencies.rand]
