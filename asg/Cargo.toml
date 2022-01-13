@@ -25,7 +25,7 @@ version = "1.0"
 version = "1.0"
 
 [dependencies.indexmap]
-version = "1.7"
+version = "1.8"
 
 [dependencies.leo-ast]
 version = "1.5.3"

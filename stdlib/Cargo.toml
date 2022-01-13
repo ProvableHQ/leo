@@ -38,7 +38,7 @@ path = "../parser"
 version = "1.5.3"
 
 [dependencies.indexmap]
-version = "1.7.0"
+version = "1.8.0"
 
 [dependencies.lazy_static]
 version = "1.4.0"

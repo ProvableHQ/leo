@@ -31,7 +31,7 @@ path = "../span"
 version = "1.5.3"
 
 [dependencies.indexmap]
-version = "1.7.0"
+version = "1.8.0"
 features = [ "serde-1" ]
 
 [dependencies.pest]
