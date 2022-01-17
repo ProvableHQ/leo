@@ -170,7 +170,6 @@ impl<'a> ParserContext<'a> {
                 span,
             } = self.bump().unwrap()
             {
-                let name = Symbol::intern(&name);
                 return Some(Identifier { name, span });
             } else {
                 unimplemented!()
@@ -372,7 +371,7 @@ impl<'a> ParserContext<'a> {
     pub fn expect_loose_identifier(&mut self) -> Result<Identifier> {
         if let Some(token) = self.eat_any(KEYWORD_TOKENS) {
             return Ok(Identifier {
-                name: Symbol::intern(&token.token.to_string()),
+                name: token.token.keyword_to_symbol().unwrap(),
                 span: token.span,
             });
         }
@@ -392,7 +391,6 @@ impl<'a> ParserContext<'a> {
                     span,
                 } = self.bump().unwrap()
                 {
-                    let name = Symbol::intern(&name);
                     Ok(Identifier { name, span })
                 } else {
                     unimplemented!()

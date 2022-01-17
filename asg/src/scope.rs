@@ -174,7 +174,7 @@ impl<'a> Scope<'a> {
             leo_ast::Type::Field => Type::Field,
             leo_ast::Type::Group => Type::Group,
             leo_ast::Type::Err => Type::Err,
-            leo_ast::Type::IntegerType(int_type) => Type::Integer(int_type.clone()),
+            leo_ast::Type::IntegerType(int_type) => Type::Integer(*int_type),
             leo_ast::Type::Array(sub_type, dimensions) => {
                 let item = Box::new(self.resolve_ast_type(&*sub_type, span)?);
 

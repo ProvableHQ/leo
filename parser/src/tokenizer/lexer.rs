@@ -15,7 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::tokenizer::{Char, Token};
-use leo_span::Span;
+use leo_span::{Span, Symbol};
+
 use serde::{Deserialize, Serialize};
 use tendril::StrTendril;
 
@@ -523,7 +524,7 @@ impl Token {
                     "u32" => Token::U32,
                     "u64" => Token::U64,
                     "u128" => Token::U128,
-                    _ => Token::Ident(ident),
+                    _ => Token::Ident(Symbol::intern(&ident)),
                 }),
             );
         }

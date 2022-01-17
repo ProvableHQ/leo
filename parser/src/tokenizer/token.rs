@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_span::{sym, Symbol};
+
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use tendril::StrTendril;
@@ -51,7 +53,7 @@ pub enum Token {
     CommentLine(#[serde(with = "leo_span::tendril_json")] StrTendril),
     CommentBlock(#[serde(with = "leo_span::tendril_json")] StrTendril),
     StringLit(Vec<leo_ast::Char>),
-    Ident(#[serde(with = "leo_span::tendril_json")] StrTendril),
+    Ident(Symbol),
     Int(#[serde(with = "leo_span::tendril_json")] StrTendril),
     True,
     False,
@@ -206,11 +208,52 @@ pub const KEYWORD_TOKENS: &[Token] = &[
 ];
 
 impl Token {
-    ///
     /// Returns `true` if the `self` token equals a Leo keyword.
-    ///
     pub fn is_keyword(&self) -> bool {
-        KEYWORD_TOKENS.iter().any(|x| x == self)
+        KEYWORD_TOKENS.contains(self)
+    }
+
+    /// Converts `self` to the corresponding `Symbol` if it `is_keyword`.
+    pub fn keyword_to_symbol(&self) -> Option<Symbol> {
+        Some(match self {
+            Token::Address => sym::address,
+            Token::As => sym::As,
+            Token::Bool => sym::bool,
+            Token::Char => sym::char,
+            Token::Circuit => sym::circuit,
+            Token::Console => sym::console,
+            Token::Const => sym::Const,
+            Token::Else => sym::Else,
+            Token::False => sym::False,
+            Token::Field => sym::field,
+            Token::For => sym::For,
+            Token::Function => sym::function,
+            Token::Group => sym::group,
+            Token::I8 => sym::i8,
+            Token::I16 => sym::i16,
+            Token::I32 => sym::i32,
+            Token::I64 => sym::i64,
+            Token::I128 => sym::i128,
+            Token::If => sym::If,
+            Token::Import => sym::import,
+            Token::In => sym::In,
+            Token::Input => sym::input,
+            Token::Let => sym::Let,
+            Token::Mut => sym::Mut,
+            Token::Ampersand => sym::Ampersand,
+            Token::Return => sym::Return,
+            Token::BigSelf => sym::SelfUpper,
+            Token::LittleSelf => sym::SelfLower,
+            Token::Static => sym::Static,
+            Token::True => sym::True,
+            Token::Type => sym::Type,
+            Token::U8 => sym::u8,
+            Token::U16 => sym::u16,
+            Token::U32 => sym::u32,
+            Token::U64 => sym::u64,
+            Token::U128 => sym::u128,
+            _ => return None,
+        })
     }
 }
 

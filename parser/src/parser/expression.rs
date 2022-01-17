@@ -17,7 +17,7 @@
 use super::*;
 
 use leo_errors::{ParserError, Result};
-use leo_span::{sym, Symbol};
+use leo_span::sym;
 
 use tendril::format_tendril;
 
@@ -652,7 +652,6 @@ impl ParserContext<'_> {
             Token::LeftParen => self.parse_tuple_expression(&span)?,
             Token::LeftSquare => self.parse_array_expression(&span)?,
             Token::Ident(name) => {
-                let name = Symbol::intern(&name);
                 let ident = Identifier { name, span };
                 if !self.fuzzy_struct_state && self.peek_token().as_ref() == &Token::LeftCurly {
                     self.parse_circuit_expression(ident)?
@@ -671,16 +670,13 @@ impl ParserContext<'_> {
                     Expression::Identifier(ident)
                 }
             }
-            Token::LittleSelf => {
-                let name = sym::SelfLower;
-                Expression::Identifier(Identifier { name, span })
-            }
-            Token::Input => {
-                let name = Symbol::intern(&token.to_string());
-                Expression::Identifier(Identifier { name, span })
-            }
+            Token::LittleSelf => Expression::Identifier(Identifier {
+                name: sym::SelfLower,
+                span,
+            }),
+            Token::Input => Expression::Identifier(Identifier { name: sym::input, span }),
             t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
-                name: Symbol::intern(&t.to_string()),
+                name: t.keyword_to_symbol().unwrap(),
                 span,
             }),
             token => {

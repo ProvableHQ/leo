@@ -117,9 +117,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                             scope.resolve_circuit(sym::array).unwrap()
                         }
                         Some(Type::Circuit(circuit)) => circuit,
-                        Some(Type::Integer(int_type)) => {
-                            scope.resolve_circuit(Symbol::intern(&int_type.to_string())).unwrap()
-                        }
+                        Some(Type::Integer(int_type)) => scope.resolve_circuit(int_type.symbol()).unwrap(),
                         Some(type_) => scope.resolve_circuit(Symbol::intern(&type_.to_string())).unwrap(),
                     };
                     let circuit_name = circuit.name.borrow().name;

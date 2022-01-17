@@ -43,9 +43,9 @@ impl ParserContext<'_> {
                     let (id, circuit) = self.parse_circuit()?;
                     circuits.insert(id, circuit);
                 }
-                Token::Ident(ident) => match ident.as_ref() {
-                    "test" => return Err(ParserError::test_function(&token.span).into()),
-                    kw @ ("struct" | "class") => {
+                Token::Ident(ident) => match *ident {
+                    sym::test => return Err(ParserError::test_function(&token.span).into()),
+                    kw @ (sym::Struct | sym::Class) => {
                         self.emit_err(ParserError::unexpected(kw, "circuit", &token.span));
                         self.bump().unwrap();
                         let (id, circuit) = self.parse_circuit()?;
@@ -92,7 +92,7 @@ impl ParserContext<'_> {
                 Token::Import,
                 Token::Circuit,
                 Token::Function,
-                Token::Ident("test".into()),
+                Token::Ident(sym::test),
                 Token::At,
             ]
             .iter()
@@ -180,7 +180,7 @@ impl ParserContext<'_> {
 
             if self.peek_token().as_ref() == &Token::Dot {
                 self.backtrack(SpannedToken {
-                    token: Token::Ident((&*name.name.as_str()).into()),
+                    token: Token::Ident(name.name),
                     span: name.span,
                 });
                 Ok(match self.parse_package_path()? {
@@ -239,7 +239,7 @@ impl ParserContext<'_> {
         }
 
         // Return an error if the package name contains a keyword.
-        if let Some(token) = KEYWORD_TOKENS.iter().find(|x| *x.to_string() == *base.name.as_str()) {
+        if let Some(token) = KEYWORD_TOKENS.iter().find(|x| x.keyword_to_symbol() == Some(base.name)) {
             self.emit_err(ParserError::unexpected_str(token, "package name", &base.span));
         }
 
@@ -419,7 +419,7 @@ impl ParserContext<'_> {
             ident
         } else if let Some(scalar_type) = self.eat_any(crate::type_::TYPE_TOKENS) {
             Identifier {
-                name: Symbol::intern(&scalar_type.token.to_string()),
+                name: scalar_type.token.keyword_to_symbol().unwrap(),
                 span: scalar_type.span,
             }
         } else {

@@ -19,7 +19,7 @@
 use leo_ast::Program;
 use leo_errors::emitter::Handler;
 use leo_errors::{ImportError, Result};
-use leo_span::Symbol;
+use leo_span::{sym, Symbol};
 
 use std::sync::Mutex;
 
@@ -146,7 +146,7 @@ pub fn resolve_prelude_modules(handler: &Handler) -> Result<IndexMap<Vec<Symbol>
         let program = resolve_file(handler, path)?;
 
         let removed_extension = path.replace(".leo", "");
-        let mut parts: Vec<Symbol> = vec![Symbol::intern("std")];
+        let mut parts: Vec<Symbol> = vec![sym::std];
         parts.append(&mut removed_extension.split('/').map(Symbol::intern).collect::<Vec<_>>());
         preludes.insert(parts, program);
     }
