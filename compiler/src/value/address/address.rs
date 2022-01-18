@@ -233,13 +233,9 @@ impl<F: PrimeField> CondSelectGadget<F> for Address {
         if let Boolean::Constant(cond) = *cond {
             Ok(cond_select_helper(first, second, cond))
         } else {
-            let result_val = cond.get_value().and_then(|c| {
-                if c {
-                    first.address.clone()
-                } else {
-                    second.address.clone()
-                }
-            });
+            let result_val = cond
+                .get_value()
+                .and_then(|c| if c { first.address } else { second.address });
 
             let result = Self::alloc(cs.ns(|| "cond_select_result"), || {
                 result_val.get().map(|v| v.to_string())

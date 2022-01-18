@@ -31,6 +31,7 @@ static START: Once = Once::new();
 #[derive(Debug, Clone)]
 pub struct Format<F = Full, T = SystemTime> {
     format: F,
+    #[allow(dead_code)] // todo: revisit this after merging span module
     pub(crate) timer: T,
     pub(crate) ansi: bool,
     pub(crate) display_target: bool,

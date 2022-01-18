@@ -38,7 +38,7 @@ members = [
   "linter",
   "package",
   "parser",
-  "state",
+#  "state",
   "stdlib",
   "synthesizer",
   "test-framework",

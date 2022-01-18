@@ -19,7 +19,7 @@ use leo_errors::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
-
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AssigneeAccess {
     ArrayRange(Option<Expression>, Option<Expression>),

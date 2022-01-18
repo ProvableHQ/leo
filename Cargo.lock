@@ -1530,23 +1530,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "leo-state"
-version = "1.5.3"
-dependencies = [
- "indexmap",
- "leo-ast",
- "leo-errors",
- "leo-input",
- "rand 0.8.4",
- "rand_core 0.6.3",
- "rand_xorshift",
- "snarkvm-algorithms",
- "snarkvm-curves",
- "snarkvm-dpc",
- "snarkvm-utilities",
-]
-
-[[package]]
 name = "leo-stdlib"
 version = "1.5.3"
 dependencies = [

@@ -77,6 +77,7 @@ use leo_errors::Result;
 /// A new [`Asg`] can be created from an [`Ast`] generated in the `ast` module.
 #[derive(Clone)]
 pub struct Asg<'a> {
+    #[allow(dead_code)] // todo: revisit this during asg refactor
     context: AsgContext<'a>,
     asg: Program<'a>,
 }
