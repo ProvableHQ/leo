@@ -87,26 +87,26 @@ version = "1.5.3"
 
 [dependencies.snarkvm-algorithms]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "2af7756"
+rev = "435f112"
 
 [dependencies.snarkvm-curves]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "2af7756"
+rev = "435f112"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "2af7756"
+rev = "435f112"
 default-features = false
 
 [dependencies.snarkvm-r1cs]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "2af7756"
+rev = "435f112"
 default-features = false
 
 [dependencies.snarkvm-utilities]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "2af7756"
+rev = "435f112"
 
 [dependencies.structopt]
 version = "0.3"
@@ -167,7 +167,7 @@ version = "0.5"
 version = "0.1"
 
 [dependencies.tracing-subscriber]
-version = "0.3.1"
+version = "0.3"
 features = [ "fmt" ]
 
 [dependencies.zip]

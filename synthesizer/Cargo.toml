@@ -19,7 +19,7 @@ edition = "2018"
 
 [dependencies.snarkvm-curves]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "2af7756"
+rev = "435f112"
 default-features = false
 
 [dependencies.leo-errors]
@@ -32,16 +32,16 @@ default-features = false
 
 [dependencies.snarkvm-fields]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "2af7756"
+rev = "435f112"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "2af7756"
+rev = "435f112"
 
 [dependencies.snarkvm-r1cs]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "2af7756"
+rev = "435f112"
 default-features = false
 
 [dependencies.num-bigint]
