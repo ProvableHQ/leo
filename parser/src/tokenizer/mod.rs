@@ -113,29 +113,31 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
 #[cfg(test)]
 mod tests {
     use super::*;
+    use leo_span::symbol::create_session_if_not_set_then;
 
     #[test]
     fn test_tokenizer() {
-        // &=
-        // |
-        // |=
-        // ^
-        // ^=
-        // ~
-        // <<
-        // <<=
-        // >>
-        // >>=
-        // >>>
-        // >>>=
-        // %
-        // %=
-        // ||=
-        // &&=
+        create_session_if_not_set_then(|_| {
+            // &=
+            // |
+            // |=
+            // ^
+            // ^=
+            // ~
+            // <<
+            // <<=
+            // >>
+            // >>=
+            // >>>
+            // >>>=
+            // %
+            // %=
+            // ||=
+            // &&=
 
-        let tokens = tokenize(
-            "test_path",
-            r#"
+            let tokens = tokenize(
+                "test_path",
+                r#"
         "test"
         "test{}test"
         "test{}"
@@ -224,25 +226,27 @@ mod tests {
         // test
         /* test */
         //"#
-            .into(),
-        )
-        .unwrap();
-        let mut output = String::new();
-        for SpannedToken { token, .. } in tokens.iter() {
-            output += &format!("{} ", token.to_string());
-        }
+                .into(),
+            )
+            .unwrap();
+            let mut output = String::new();
+            for SpannedToken { token, .. } in tokens.iter() {
+                output += &format!("{} ", token.to_string());
+            }
 
-        // & &= | |= ^ ^= ~ << <<= >> >>= >>> >>>= % %= ||= &&=
-        assert_eq!(
-            output,
-            r#""test" "test{}test" "test{}" "{}test" "test{" "test}" "test{test" "test}test" "te{{}}" aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8 test_ident 12345 address as bool circuit const else false field for function group i128 i64 i32 i16 i8 if import in input let mut & return static string test true u128 u64 u32 u16 u8 self Self console ! != && ( ) * ** **= *= + += , - -= -> _ . .. ... / /= : :: ; < <= = == > >= @ [ ] { { } } || ? // test
+            // & &= | |= ^ ^= ~ << <<= >> >>= >>> >>>= % %= ||= &&=
+            assert_eq!(
+                output,
+                r#""test" "test{}test" "test{}" "{}test" "test{" "test}" "test{test" "test}test" "te{{}}" aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8 test_ident 12345 address as bool circuit const else false field for function group i128 i64 i32 i16 i8 if import in input let mut & return static string test true u128 u64 u32 u16 u8 self Self console ! != && ( ) * ** **= *= + += , - -= -> _ . .. ... / /= : :: ; < <= = == > >= @ [ ] { { } } || ? // test
  /* test */ // "#
-        );
+            );
+        });
     }
 
     #[test]
     fn test_spans() {
-        let raw = r#"
+        create_session_if_not_set_then(|_| {
+            let raw = r#"
             test
             // test
             test
@@ -252,20 +256,21 @@ mod tests {
             test */
             test
             "#;
-        let tokens = tokenize("test_path", raw.into()).unwrap();
-        let mut line_indicies = vec![0];
-        for (i, c) in raw.chars().enumerate() {
-            if c == '\n' {
-                line_indicies.push(i + 1);
+            let tokens = tokenize("test_path", raw.into()).unwrap();
+            let mut line_indicies = vec![0];
+            for (i, c) in raw.chars().enumerate() {
+                if c == '\n' {
+                    line_indicies.push(i + 1);
+                }
             }
-        }
-        for token in tokens.iter() {
-            let token_raw = token.token.to_string();
-            let start = line_indicies.get(token.span.line_start - 1).unwrap();
-            let stop = line_indicies.get(token.span.line_stop - 1).unwrap();
-            let original = &raw[*start + token.span.col_start - 1..*stop + token.span.col_stop - 1];
-            assert_eq!(original, &token_raw);
-        }
-        // println!("{}", serde_json::to_string_pretty(&tokens).unwrap());
+            for token in tokens.iter() {
+                let token_raw = token.token.to_string();
+                let start = line_indicies.get(token.span.line_start - 1).unwrap();
+                let stop = line_indicies.get(token.span.line_stop - 1).unwrap();
+                let original = &raw[*start + token.span.col_start - 1..*stop + token.span.col_stop - 1];
+                assert_eq!(original, &token_raw);
+            }
+            // println!("{}", serde_json::to_string_pretty(&tokens).unwrap());
+        })
     }
 }

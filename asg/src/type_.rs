@@ -229,7 +229,7 @@ impl<'a> Into<leo_ast::Type> for &Type<'a> {
             Char => leo_ast::Type::Char,
             Field => leo_ast::Type::Field,
             Group => leo_ast::Type::Group,
-            Integer(int_type) => leo_ast::Type::IntegerType(int_type.clone()),
+            Integer(int_type) => leo_ast::Type::IntegerType(*int_type),
             Array(type_, len) => leo_ast::Type::Array(
                 Box::new(type_.as_ref().into()),
                 leo_ast::ArrayDimensions::Multi(vec![leo_ast::ArrayDimensions::Number(leo_ast::PositiveNumber {
