@@ -27,7 +27,7 @@ path = "../errors"
 version = "1.5.3"
 
 [dependencies.eyre]
-version = "0.6.5"
+version = "0.6.6"
 default-features = false
 
 [dependencies.snarkvm-fields]
