@@ -1531,6 +1531,8 @@ dependencies = [
  "lazy_static",
  "leo-ast",
  "leo-errors",
+ "leo-input",
+ "leo-span",
  "leo-test-framework",
  "serde",
  "serde_json",
