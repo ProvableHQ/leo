@@ -14,12 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_span::Span;
+use super::*;
 
-pub trait Node:
-    std::fmt::Debug + std::fmt::Display + Clone + PartialEq + Eq + serde::Serialize + serde::de::DeserializeOwned
-{
-    fn span(&self) -> &Span;
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ToBitsExpression {
+    pub value: Box<Expression>,
+    pub span: Span,
+}
 
-    fn set_span(&mut self, span: Span);
+impl fmt::Display for ToBitsExpression {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}.to_bits()", self.value)
+    }
+}
+
+impl Node for ToBitsExpression {
+    fn span(&self) -> &Span {
+        &self.span
+    }
+
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
+    }
 }

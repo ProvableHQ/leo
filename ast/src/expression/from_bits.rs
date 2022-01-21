@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,19 +17,19 @@
 use super::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct TupleAccessExpression {
-    pub tuple: Box<Expression>,
-    pub index: PositiveNumber,
+pub struct FromBitsExpression {
+    pub named_type: Box<Expression>,
+    pub arg: Box<Expression>,
     pub span: Span,
 }
 
-impl fmt::Display for TupleAccessExpression {
+impl fmt::Display for FromBitsExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}", self.tuple, self.index)
+        write!(f, "{}.from_bits({})", self.named_type, self.arg)
     }
 }
 
-impl Node for TupleAccessExpression {
+impl Node for FromBitsExpression {
     fn span(&self) -> &Span {
         &self.span
     }

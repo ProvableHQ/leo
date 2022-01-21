@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -18,5 +18,5 @@ use crate::{Ast, Program};
 use leo_errors::Result;
 
 pub trait AstPass {
-    fn do_pass(asg: Program) -> Result<Ast>;
+    fn do_pass(self, ast: Program) -> Result<Ast>;
 }

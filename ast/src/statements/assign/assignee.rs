@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,16 +15,17 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Expression, Identifier, PositiveNumber};
-use leo_errors::Span;
+use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
+
 #[allow(clippy::large_enum_variant)]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AssigneeAccess {
     ArrayRange(Option<Expression>, Option<Expression>),
     ArrayIndex(Expression),
-    Tuple(PositiveNumber, #[serde(with = "leo_errors::common::span_json")] Span),
+    Tuple(PositiveNumber, #[serde(with = "leo_span::span_json")] Span),
     Member(Identifier),
 }
 

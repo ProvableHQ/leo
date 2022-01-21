@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -18,12 +18,13 @@ use leo_input::types::{
     IntegerType as InputIntegerType, SignedIntegerType as InputSignedIntegerType,
     UnsignedIntegerType as InputUnsignedIntegerType,
 };
+use leo_span::{sym, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Explicit integer type.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum IntegerType {
     U8,
     U16,
@@ -42,6 +43,21 @@ impl IntegerType {
     pub fn is_signed(&self) -> bool {
         use IntegerType::*;
         matches!(self, I8 | I16 | I32 | I64 | I128)
+    }
+
+    pub fn symbol(self) -> Symbol {
+        match self {
+            Self::I8 => sym::i8,
+            Self::I16 => sym::i16,
+            Self::I32 => sym::i32,
+            Self::I64 => sym::i64,
+            Self::I128 => sym::i128,
+            Self::U8 => sym::u8,
+            Self::U16 => sym::u16,
+            Self::U32 => sym::u32,
+            Self::U64 => sym::u64,
+            Self::U128 => sym::u128,
+        }
     }
 }
 

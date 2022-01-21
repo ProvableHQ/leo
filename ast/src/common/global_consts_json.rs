@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,6 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{DefinitionStatement, Identifier};
+
+use leo_span::Symbol;
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -46,7 +48,7 @@ pub fn deserialize<'de, D: Deserializer<'de>>(
             (
                 name.split(',')
                     .map(|ident_name| Identifier {
-                        name: ident_name.into(),
+                        name: Symbol::intern(ident_name),
                         span: Default::default(),
                     })
                     .collect::<Vec<Identifier>>(),

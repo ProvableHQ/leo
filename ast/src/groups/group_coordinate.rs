@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::Span;
 use leo_input::values::{
     GroupCoordinate as InputGroupCoordinate, Inferred as InputInferred, NumberValue as InputNumberValue,
     SignHigh as InputSignHigh, SignLow as InputSignLow,
 };
+use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -27,8 +27,8 @@ use tendril::StrTendril;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GroupCoordinate {
     Number(
-        #[serde(with = "leo_errors::common::tendril_json")] StrTendril,
-        #[serde(with = "leo_errors::common::span_json")] Span,
+        #[serde(with = "leo_span::tendril_json")] StrTendril,
+        #[serde(with = "leo_span::span_json")] Span,
     ),
     SignHigh,
     SignLow,

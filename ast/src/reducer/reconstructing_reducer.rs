@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,8 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::*;
+
+use leo_errors::Result;
+use leo_span::{Span, Symbol};
+
 use indexmap::IndexMap;
-use leo_errors::{Result, Span};
 
 // Needed to fix clippy bug.
 #[allow(clippy::redundant_closure)]
@@ -35,7 +38,7 @@ pub trait ReconstructingReducer {
 
     fn reduce_identifier(&mut self, identifier: &Identifier) -> Result<Identifier> {
         Ok(Identifier {
-            name: identifier.name.clone(),
+            name: identifier.name,
             span: identifier.span.clone(),
         })
     }
@@ -114,6 +117,72 @@ pub trait ReconstructingReducer {
         })
     }
 
+    fn reduce_array_access(
+        &mut self,
+        array_access: &ArrayAccess,
+        array: Expression,
+        index: Expression,
+    ) -> Result<ArrayAccess> {
+        Ok(ArrayAccess {
+            array: Box::new(array),
+            index: Box::new(index),
+            span: array_access.span.clone(),
+        })
+    }
+
+    fn reduce_array_range_access(
+        &mut self,
+        array_rage_access: &ArrayRangeAccess,
+        array: Expression,
+        left: Option<Expression>,
+        right: Option<Expression>,
+    ) -> Result<ArrayRangeAccess> {
+        Ok(ArrayRangeAccess {
+            array: Box::new(array),
+            left: left.map(|expr| Box::new(expr)),
+            right: right.map(|expr| Box::new(expr)),
+            span: array_rage_access.span.clone(),
+        })
+    }
+
+    fn reduce_member_access(
+        &mut self,
+        member_access: &MemberAccess,
+        inner: Expression,
+        name: Identifier,
+        type_: Option<Type>,
+    ) -> Result<MemberAccess> {
+        Ok(MemberAccess {
+            inner: Box::new(inner),
+            name,
+            span: member_access.span.clone(),
+            type_,
+        })
+    }
+
+    fn reduce_tuple_access(&mut self, tuple_access: &TupleAccess, tuple: Expression) -> Result<TupleAccess> {
+        Ok(TupleAccess {
+            tuple: Box::new(tuple),
+            index: tuple_access.index.clone(),
+            span: tuple_access.span.clone(),
+        })
+    }
+
+    fn reduce_static_access(
+        &mut self,
+        static_access: &StaticAccess,
+        value: Expression,
+        type_: Option<Type>,
+        name: Identifier,
+    ) -> Result<StaticAccess> {
+        Ok(StaticAccess {
+            inner: Box::new(value),
+            name,
+            type_,
+            span: static_access.span.clone(),
+        })
+    }
+
     fn reduce_array_inline(
         &mut self,
         array_inline: &ArrayInlineExpression,
@@ -137,34 +206,6 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_array_access(
-        &mut self,
-        array_access: &ArrayAccessExpression,
-        array: Expression,
-        index: Expression,
-    ) -> Result<ArrayAccessExpression> {
-        Ok(ArrayAccessExpression {
-            array: Box::new(array),
-            index: Box::new(index),
-            span: array_access.span.clone(),
-        })
-    }
-
-    fn reduce_array_range_access(
-        &mut self,
-        array_rage_access: &ArrayRangeAccessExpression,
-        array: Expression,
-        left: Option<Expression>,
-        right: Option<Expression>,
-    ) -> Result<ArrayRangeAccessExpression> {
-        Ok(ArrayRangeAccessExpression {
-            array: Box::new(array),
-            left: left.map(|expr| Box::new(expr)),
-            right: right.map(|expr| Box::new(expr)),
-            span: array_rage_access.span.clone(),
-        })
-    }
-
     fn reduce_tuple_init(
         &mut self,
         tuple_init: &TupleInitExpression,
@@ -173,18 +214,6 @@ pub trait ReconstructingReducer {
         Ok(TupleInitExpression {
             elements,
             span: tuple_init.span.clone(),
-        })
-    }
-
-    fn reduce_tuple_access(
-        &mut self,
-        tuple_access: &TupleAccessExpression,
-        tuple: Expression,
-    ) -> Result<TupleAccessExpression> {
-        Ok(TupleAccessExpression {
-            tuple: Box::new(tuple),
-            index: tuple_access.index.clone(),
-            span: tuple_access.span.clone(),
         })
     }
 
@@ -207,34 +236,6 @@ pub trait ReconstructingReducer {
             name,
             members,
             span: circuit_init.span.clone(),
-        })
-    }
-
-    fn reduce_circuit_member_access(
-        &mut self,
-        circuit_member_access: &CircuitMemberAccessExpression,
-        circuit: Expression,
-        name: Identifier,
-        type_: Option<Type>,
-    ) -> Result<CircuitMemberAccessExpression> {
-        Ok(CircuitMemberAccessExpression {
-            circuit: Box::new(circuit),
-            name,
-            span: circuit_member_access.span.clone(),
-            type_,
-        })
-    }
-
-    fn reduce_circuit_static_fn_access(
-        &mut self,
-        circuit_static_fn_access: &CircuitStaticFunctionAccessExpression,
-        circuit: Expression,
-        name: Identifier,
-    ) -> Result<CircuitStaticFunctionAccessExpression> {
-        Ok(CircuitStaticFunctionAccessExpression {
-            circuit: Box::new(circuit),
-            name,
-            span: circuit_static_fn_access.span.clone(),
         })
     }
 
@@ -383,7 +384,7 @@ pub trait ReconstructingReducer {
         program: &Program,
         expected_input: Vec<FunctionInput>,
         import_statements: Vec<ImportStatement>,
-        imports: IndexMap<Vec<String>, Program>,
+        imports: IndexMap<Vec<Symbol>, Program>,
         aliases: IndexMap<Identifier, Alias>,
         circuits: IndexMap<Identifier, Circuit>,
         functions: IndexMap<Identifier, Function>,
@@ -439,7 +440,7 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_import(&mut self, identifier: Vec<String>, import: Program) -> Result<(Vec<String>, Program)> {
+    fn reduce_import(&mut self, identifier: Vec<Symbol>, import: Program) -> Result<(Vec<Symbol>, Program)> {
         Ok((identifier, import))
     }
 
@@ -449,15 +450,11 @@ pub trait ReconstructingReducer {
 
     fn reduce_circuit(
         &mut self,
-        circuit: &Circuit,
+        _circuit: &Circuit,
         circuit_name: Identifier,
         members: Vec<CircuitMember>,
     ) -> Result<Circuit> {
-        Ok(Circuit {
-            circuit_name,
-            core_mapping: circuit.core_mapping.clone(),
-            members,
-        })
+        Ok(Circuit { circuit_name, members })
     }
 
     fn reduce_annotation(&mut self, annotation: &Annotation, name: Identifier) -> Result<Annotation> {
@@ -473,8 +470,9 @@ pub trait ReconstructingReducer {
         &mut self,
         function: &Function,
         identifier: Identifier,
-        annotations: Vec<Annotation>,
+        annotations: IndexMap<Symbol, Annotation>,
         input: Vec<FunctionInput>,
+        const_: bool,
         output: Option<Type>,
         block: Block,
     ) -> Result<Function> {
@@ -482,8 +480,10 @@ pub trait ReconstructingReducer {
             identifier,
             annotations,
             input,
+            const_,
             output,
             block,
+            core_mapping: function.core_mapping.clone(),
             span: function.span.clone(),
         })
     }

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,23 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-// use crate::Type;
+use crate::{Expression, Identifier, Node};
+use leo_span::Span;
 
-use super::*;
+use std::fmt;
+
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct LengthOfExpression {
+pub struct MemberAccess {
     pub inner: Box<Expression>,
+    pub name: Identifier,
     pub span: Span,
+    pub type_: Option<crate::Type>,
 }
 
-impl fmt::Display for LengthOfExpression {
+impl fmt::Display for MemberAccess {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.len()", self.inner)
+        write!(f, "{}.{}", self.inner, self.name)
     }
 }
 
-impl Node for LengthOfExpression {
+impl Node for MemberAccess {
     fn span(&self) -> &Span {
         &self.span
     }

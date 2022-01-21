@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,25 +15,25 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Identifier, Node};
-use leo_errors::Span;
+use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// The `mut self` keyword can view and modify circuit values inside of a circuit function.
+/// The `&self` keyword can view and modify circuit values inside of a circuit function.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq)]
 #[serde(transparent)]
-pub struct MutSelfKeyword {
+pub struct RefSelfKeyword {
     pub identifier: Identifier,
 }
 
-impl fmt::Display for MutSelfKeyword {
+impl fmt::Display for RefSelfKeyword {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "mut self")
+        write!(f, "&self")
     }
 }
 
-impl Node for MutSelfKeyword {
+impl Node for RefSelfKeyword {
     fn span(&self) -> &Span {
         &self.identifier.span
     }

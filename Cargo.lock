@@ -1361,6 +1361,7 @@ dependencies = [
  "indexmap",
  "leo-errors",
  "leo-input",
+ "leo-span",
  "pest",
  "serde",
  "serde_json",

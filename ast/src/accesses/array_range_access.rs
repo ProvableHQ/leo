@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,17 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::*;
+use crate::{Expression, Node};
+use leo_span::Span;
+
+use std::fmt;
+
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ArrayRangeAccessExpression {
+pub struct ArrayRangeAccess {
     pub array: Box<Expression>,
     pub left: Option<Box<Expression>>,
     pub right: Option<Box<Expression>>,
     pub span: Span,
 }
 
-impl fmt::Display for ArrayRangeAccessExpression {
+impl fmt::Display for ArrayRangeAccess {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -36,7 +41,7 @@ impl fmt::Display for ArrayRangeAccessExpression {
     }
 }
 
-impl Node for ArrayRangeAccessExpression {
+impl Node for ArrayRangeAccess {
     fn span(&self) -> &Span {
         &self.span
     }

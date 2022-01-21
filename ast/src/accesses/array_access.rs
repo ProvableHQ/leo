@@ -14,12 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::{Expression, Node};
 use leo_span::Span;
 
-pub trait Node:
-    std::fmt::Debug + std::fmt::Display + Clone + PartialEq + Eq + serde::Serialize + serde::de::DeserializeOwned
-{
-    fn span(&self) -> &Span;
+use std::fmt;
 
-    fn set_span(&mut self, span: Span);
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ArrayAccess {
+    pub array: Box<Expression>,
+    pub index: Box<Expression>,
+    pub span: Span,
+}
+
+impl fmt::Display for ArrayAccess {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}[{}]", self.array, self.index)
+    }
+}
+
+impl Node for ArrayAccess {
+    fn span(&self) -> &Span {
+        &self.span
+    }
+
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
+    }
 }

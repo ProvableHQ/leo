@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -22,7 +22,6 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Circuit {
     pub circuit_name: Identifier,
-    pub core_mapping: std::cell::RefCell<Option<String>>,
     pub members: Vec<CircuitMember>,
 }
 

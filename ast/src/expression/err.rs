@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,19 +17,17 @@
 use super::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CircuitStaticFunctionAccessExpression {
-    pub circuit: Box<Expression>,
-    pub name: Identifier,
+pub struct ErrExpression {
     pub span: Span,
 }
 
-impl fmt::Display for CircuitStaticFunctionAccessExpression {
+impl fmt::Display for ErrExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}", self.circuit, self.name)
+        f.write_str("error")
     }
 }
 
-impl Node for CircuitStaticFunctionAccessExpression {
+impl Node for ErrExpression {
     fn span(&self) -> &Span {
         &self.span
     }

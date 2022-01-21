@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -19,6 +19,7 @@ use leo_input::{
     sections::{Header, Section},
     InputParserError,
 };
+use leo_span::Symbol;
 
 #[derive(Clone, PartialEq, Eq, Default)]
 pub struct ProgramInput {
@@ -74,12 +75,12 @@ impl ProgramInput {
 
     /// Returns the main function input value with the given `name`
     #[allow(clippy::ptr_arg)]
-    pub fn get(&self, name: &str) -> Option<Option<InputValue>> {
+    pub fn get(&self, name: Symbol) -> Option<Option<InputValue>> {
         self.main.get(name)
     }
 
     #[allow(clippy::ptr_arg)]
-    pub fn get_constant(&self, name: &str) -> Option<Option<InputValue>> {
+    pub fn get_constant(&self, name: Symbol) -> Option<Option<InputValue>> {
         self.constants.get(name)
     }
 
