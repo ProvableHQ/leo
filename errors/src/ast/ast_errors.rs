@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -38,7 +38,7 @@ create_errors!(
     @backtraced
     failed_to_create_ast_json_file {
         args: (path: impl Debug, error: impl ErrorArg),
-        msg: format!("failed to creat ast json file `{:?}` {}", path, error),
+        msg: format!("failed to create ast json file `{:?}` {}", path, error),
         help: None,
     }
 
@@ -130,5 +130,4 @@ create_errors!(
         msg: format!("failed to convert ast to a json value {}", error),
         help: None,
     }
-
 );

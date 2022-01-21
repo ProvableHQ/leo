@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -28,7 +28,7 @@ macro_rules! create_errors {
     };
     ($(#[$error_type_docs:meta])* $error_type:ident, exit_code_mask: $exit_code_mask:expr, error_code_prefix: $error_code_prefix:expr, $($(#[$docs:meta])* @$formatted_or_backtraced_list:ident $names:ident { args: ($($arg_names:ident: $arg_types:ty$(,)?)*), msg: $messages:expr, help: $helps:expr, })*) => {
         #[allow(unused_imports)] // Allow unused for errors that only use formatted or backtraced errors.
-        use crate::{BacktracedError, FormattedError, LeoErrorCode, Span};
+        use crate::{BacktracedError, FormattedError, LeoErrorCode};
 
         use backtrace::Backtrace;
 
@@ -83,7 +83,7 @@ macro_rules! create_errors {
         // Formatted errors always takes a span.
         $(#[$error_func_docs])*
         // Expands additional arguments for the error defining function.
-        pub fn $error_name($($arg_names: $arg_types,)* span: &Span) -> Self {
+        pub fn $error_name($($arg_names: $arg_types,)* span: &leo_span::Span) -> Self {
             Self::FormattedError(
                 FormattedError::new_from_span(
                     $message,

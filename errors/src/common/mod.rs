@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -26,20 +26,6 @@ pub use self::formatted::*;
 #[macro_use]
 pub mod macros;
 pub use self::macros::*;
-
-/// This module contains the common span object for Leo crates.
-pub mod span;
-pub use self::span::Span;
-
-/// This module contains a custome serialize/deserialize
-/// implementation for Span.
-pub mod span_json;
-pub use self::span_json::*;
-
-/// This module contains information on how to serialize and
-/// deserialze StrTendril type.
-pub mod tendril_json;
-pub use self::tendril_json::*;
 
 /// This module contains traits for making errors easily.
 pub mod traits;

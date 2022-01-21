@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,6 +16,9 @@
 
 #![deny(clippy::all, clippy::missing_docs_in_private_items)]
 #![doc = include_str!("../README.md")]
+
+/// Contains traits and types for channels through which errors go.
+pub mod emitter;
 
 /// Contains the ASG error definitions.
 pub mod asg;
@@ -127,7 +130,7 @@ impl LeoError {
         }
     }
 
-    /// Implment exit code for each type of Error, even the ones that don't have one.
+    /// Implement exit code for each type of Error, even the ones that don't have one.
     pub fn exit_code(&self) -> i32 {
         use LeoError::*;
 

@@ -1427,6 +1427,7 @@ dependencies = [
  "derivative",
  "eyre",
  "leo-input",
+ "leo-span",
  "pest",
  "serde",
  "tendril",
