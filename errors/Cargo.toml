@@ -46,7 +46,7 @@ version = "0.3.62"
 version = "2.0"
 
 [dependencies.serde]
-version = "1.0.133"
+version = "1.0.134"
 features = [ "derive", "rc" ]
 
 [dependencies.tendril]
