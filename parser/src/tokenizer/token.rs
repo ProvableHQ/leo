@@ -145,24 +145,6 @@ pub enum Token {
     Static,
     Type,
 
-    // Not yet in ABNF
-    // BitAndEq,
-    // BitOr,
-    // BitOrEq,
-    // BitXor,
-    // BitXorEq,
-    // BitNot,
-    // Shl,
-    // ShlEq,
-    // Shr,
-    // ShrEq,
-    // ShrSigned,
-    // ShrSignedEq,
-    // Mod,
-    // ModEq,
-    // OrEq,
-    // AndEq,
-
     // Meta Tokens
     Eof,
 }
@@ -354,22 +336,6 @@ impl fmt::Display for Token {
             Static => write!(f, "static"),
             Type => write!(f, "type"),
             Eof => write!(f, ""),
-            // BitAndEq => write!(f, "&="),
-            // BitOr => write!(f, "|"),
-            // BitOrEq => write!(f, "|="),
-            // BitXor => write!(f, "^"),
-            // BitXorEq => write!(f, "^="),
-            // BitNot => write!(f, "~"),
-            // Shl => write!(f, "<<"),
-            // ShlEq => write!(f, "<<="),
-            // Shr => write!(f, ">>"),
-            // ShrEq => write!(f, ">>="),
-            // ShrSigned => write!(f, ">>>"),
-            // ShrSignedEq => write!(f, ">>>="),
-            // Mod => write!(f, "%"),
-            // ModEq => write!(f, "%="),
-            // OrEq => write!(f, "||="),
-            // AndEq => write!(f, "&&="),
         }
     }
 }
