@@ -26,10 +26,6 @@ default-features = false
 path = "../errors"
 version = "1.5.3"
 
-[dependencies.eyre]
-version = "0.6.5"
-default-features = false
-
 [dependencies.snarkvm-fields]
 git = "https://github.com/AleoHQ/snarkVM.git"
 rev = "435f112"
@@ -44,6 +40,10 @@ git = "https://github.com/AleoHQ/snarkVM.git"
 rev = "435f112"
 default-features = false
 
+[dependencies.eyre]
+version = "0.6.6"
+default-features = false
+
 [dependencies.num-bigint]
 version = "0.4"
 
@@ -55,7 +55,7 @@ features = [ "derive" ]
 version = "1.0"
 
 [dependencies.sha2]
-version = "0.9"
+version = "0.10"
 
 [dependencies.hex]
 version = "0.4"

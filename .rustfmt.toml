@@ -1,7 +1,7 @@
 # https://github.com/rust-lang/rustfmt/blob/master/Configurations.md
 
 # Stable configurations
-edition = "2018"
+edition = "2021"
 max_width = 120
 merge_derives = true
 use_field_init_shorthand = true

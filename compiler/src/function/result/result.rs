@@ -47,8 +47,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             if !expected_return.is_assignable_from(&result_type) {
                 panic!(
                     "failed type resolution for function return: expected '{}', got '{}'",
-                    expected_return.to_string(),
-                    result_type.to_string()
+                    expected_return, result_type,
                 );
             }
 
