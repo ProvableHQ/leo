@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,7 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::Ast;
-use leo_errors::Result;
+use leo_errors::{emitter::Handler, Result};
+use leo_span::symbol::create_session_if_not_set_then;
+
 use std::{env, fs, path::Path};
 
 fn to_leo_tree(filepath: &Path) -> Result<String> {
@@ -23,12 +25,12 @@ fn to_leo_tree(filepath: &Path) -> Result<String> {
     let program_filepath = filepath.to_path_buf();
     let program_string = fs::read_to_string(&program_filepath).expect("failed to open input file");
 
-    // Parses the Leo file and constructs an ast.
-    let ast = leo_parser::parse_ast(filepath.to_str().unwrap(), &program_string)?;
-
-    let serialized_leo_ast = Ast::to_json_string(&ast).expect("serialization failed");
-
-    Ok(serialized_leo_ast)
+    // Parses the Leo file constructing an ast which is then serialized.
+    create_session_if_not_set_then(|_| {
+        let handler = Handler::default();
+        let ast = leo_parser::parse_ast(&handler, filepath.to_str().unwrap(), &program_string)?;
+        Ok(Ast::to_json_string(&ast).expect("serialization failed"))
+    })
 }
 
 fn main() -> Result<()> {

@@ -16,7 +16,7 @@ categories = [ "cryptography::cryptocurrencies", "web-programming" ]
 include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2021"
-rust-version = "1.56.1"
+rust-version = "1.56"
 
 [[bench]]
 name = "leo_ast"
@@ -29,6 +29,14 @@ version = "1.5.3"
 
 [dependencies.leo-errors]
 path = "../errors"
+version = "1.5.3"
+
+[dependencies.leo-input]
+path = "../input"
+version = "1.5.1"
+
+[dependencies.leo-span]
+path = "../span"
 version = "1.5.3"
 
 [dependencies.lazy_static]
