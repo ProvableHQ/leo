@@ -34,6 +34,7 @@ impl<'a> Program<'a> {
 
         let inner_type = match &context.input_type {
             Type::Array(inner_type, _) => &**inner_type,
+            Type::ArrayWithoutSize(inner_type) => &**inner_type,
             _ => panic!("illegal type in array index assignment"),
         };
 

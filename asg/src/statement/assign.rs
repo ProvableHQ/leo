@@ -141,6 +141,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                 AstAssigneeAccess::ArrayIndex(index) => {
                     target_type = match target_type.clone() {
                         Some(PartialType::Array(item, _)) => item.map(|x| *x),
+                        Some(PartialType::Type(Type::ArrayWithoutSize(item))) => Some(item.partial()),
                         _ => return Err(AsgError::index_into_non_array(name, &statement.span).into()),
                     };
                     AssignAccess::ArrayIndex(Cell::new(<&Expression<'a>>::from_ast(
