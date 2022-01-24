@@ -40,8 +40,13 @@ fn parse_excluded_names(src: &str) -> Box<str> {
     Box::from(src)
 }
 
-// Compiler Options wrapper for Build command. Also used by other commands which
-// require Build command output as their input.
+#[cfg_attr(
+    doc,
+    doc = r#"
+/// Compiler Options wrapper for Build command. Also used by other commands which
+/// require Build command output as their input.
+"#
+)]
 #[derive(StructOpt, Clone, Debug)]
 pub struct BuildOptions {
     #[structopt(long, help = "Disable constant folding compiler optimization.")]
