@@ -144,6 +144,7 @@ struct ImportNamespace;
 struct OutputItem {
     pub input_file: String,
     pub output: Output,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub console_output: Option<String>,
 }
 
