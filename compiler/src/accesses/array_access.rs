@@ -43,6 +43,10 @@ impl<'a> Program<'a> {
     ) -> Result<Value> {
         let full_length = match array.get_type() {
             Some(Type::Array(_, length)) => length,
+            // TODO: change this to either resolving an array reference or
+            // restrict the usage of ranges with open bounds on arrays with
+            // unknown size.
+            Some(Type::ArrayWithoutSize(_)) => 0,
             _ => panic!("invalid array type for index"),
         };
 
