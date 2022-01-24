@@ -1359,6 +1359,7 @@ dependencies = [
  "tempfile",
  "tendril",
  "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]
