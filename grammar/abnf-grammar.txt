@@ -299,7 +299,7 @@
 ; As another example, the sequence or characters `<CR><LF>`
 ; (i.e. carriage return followed by line feed)
 ; could be equally parsed as two line terminators or one
-; (see rule for `newline`).
+; (see rule for `line-terminator`).
 
 ; Thus, as often done in language syntax definitions,
 ; the lexical grammar is disambiguated by
@@ -354,11 +354,11 @@ not-single-quote-or-backslash = %x0-26 / %x28-5B / %x5D-10FFFF
 ; according to the extra-grammatical requirement of the longest sequence,
 ; described above.
 
-newline = line-feed / carriage-return / carriage-return line-feed
+line-terminator = line-feed / carriage-return / carriage-return line-feed
 
 ; Line terminators form whitespace, along with spaces and horizontal tabs.
 
-whitespace = space / horizontal-tab / newline
+whitespace = space / horizontal-tab / line-terminator
 
 ; There are two kinds of comments in Leo, as in other languages.
 ; One is block comments of the form `/* ... */`,

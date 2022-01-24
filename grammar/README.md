@@ -369,7 +369,7 @@ could be equally parsed as two `*` symbol tokens or one `**` symbol token
 As another example, the sequence or characters `<CR><LF>`
 (i.e. carriage return followed by line feed)
 could be equally parsed as two line terminators or one
-(see rule for `newline`).
+(see rule for `line-terminator`).
 
 Thus, as often done in language syntax definitions,
 the lexical grammar is disambiguated by
@@ -460,9 +460,9 @@ Note that the latter combination constitutes a single line terminator,
 according to the extra-grammatical requirement of the longest sequence,
 described above.
 
-<a name="newline"></a>
+<a name="line-terminator"></a>
 ```abnf
-newline = line-feed / carriage-return / carriage-return line-feed
+line-terminator = line-feed / carriage-return / carriage-return line-feed
 ```
 
 Go to: _[carriage-return](#user-content-carriage-return), [line-feed](#user-content-line-feed)_;
@@ -472,10 +472,10 @@ Line terminators form whitespace, along with spaces and horizontal tabs.
 
 <a name="whitespace"></a>
 ```abnf
-whitespace = space / horizontal-tab / newline
+whitespace = space / horizontal-tab / line-terminator
 ```
 
-Go to: _[horizontal-tab](#user-content-horizontal-tab), [newline](#user-content-newline), [space](#user-content-space)_;
+Go to: _[horizontal-tab](#user-content-horizontal-tab), [line-terminator](#user-content-line-terminator), [space](#user-content-space)_;
 
 
 There are two kinds of comments in Leo, as in other languages.
