@@ -1,8 +1,8 @@
 [package]
-name = "leo-input"
+name = "leo-span"
 version = "1.5.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
-description = "Input parser of the Leo programming language"
+description = "Span handling in the Leo programming language"
 homepage = "https://aleo.org"
 repository = "https://github.com/AleoHQ/leo"
 keywords = [
@@ -18,20 +18,16 @@ license = "GPL-3.0"
 edition = "2021"
 rust-version = "1.56.1"
 
-[dependencies.from-pest]
-version = "0.3.1"
+[dependencies]
+fxhash = "0.2.1"
+scoped-tls = "1.0.0"
+pest = "2.0"
+tendril = "0.4.2"
 
-[dependencies.pest]
-version = "2.0"
+[dependencies.indexmap]
+version = "1.8"
+features = ["serde"]
 
-[dependencies.pest-ast]
-version = "0.3.3"
-
-[dependencies.pest_derive]
-version = "2.0"
-
-[dependencies.thiserror]
-version = "1.0"
-
-[dependencies.tracing]
-version = "0.1"
+[dependencies.serde]
+version = "1.0.133"
+features = [ "derive", "rc" ]

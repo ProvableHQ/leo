@@ -236,7 +236,7 @@ jobs:
         
       - name: Stop sccache server
         run: sccache --stop-server || true
-  
+
   codecov:
     name: Code Coverage
     runs-on: ubuntu-latest

@@ -15,7 +15,8 @@ keywords = [
 categories = [ "cryptography::cryptocurrencies", "web-programming" ]
 include = [ "Cargo.toml", "leo", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
-edition = "2018"
+edition = "2021"
+rust-version = "1.56.1"
 
 [lib]
 path = "leo/lib.rs"
@@ -38,6 +39,7 @@ members = [
   "linter",
   "package",
   "parser",
+  "span",
 #  "state",
   "stdlib",
   "synthesizer",
@@ -112,10 +114,10 @@ rev = "435f112"
 version = "0.3"
 
 [dependencies.clap]
-version = "2.33.3"
+version = "3.0.10"
 
-[dependencies]
-color-backtrace = "0.5.1"
+[dependencies.color-backtrace]
+version = "0.5.1"
 
 [dependencies.colored]
 version = "2.0"
@@ -130,7 +132,7 @@ version = "0.15.0"
 version = "0.3.1"
 
 [dependencies.indexmap]
-version = "1.7"
+version = "1.8"
 features = ["serde"]
 
 [dependencies.lazy_static]
@@ -146,11 +148,11 @@ version = "0.8"
 version = "0.6.3"
 
 [dependencies.reqwest]
-version = "0.11.6"
+version = "0.11.9"
 features = [ "blocking", "json", "multipart" ]
 
 [dependencies.self_update]
-version = "0.27.0"
+version = "0.28.0"
 features = [ "archive-zip" ]
 
 [dependencies.serde]
@@ -167,7 +169,7 @@ version = "0.5"
 version = "0.1"
 
 [dependencies.tracing-subscriber]
-version = "0.3"
+version = "0.3.6"
 features = [ "fmt" ]
 
 [dependencies.zip]
@@ -180,7 +182,7 @@ version = "0.12.1"
 version = "0.11.2"
 
 [dev-dependencies.assert_cmd]
-version = "2.0.2"
+version = "2.0.4"
 
 [dev-dependencies.test_dir]
 version = "0.1.0"

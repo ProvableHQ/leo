@@ -17,7 +17,7 @@
 use std::{fs, path::Path};
 
 pub fn find_tests<T: AsRef<Path>>(path: T, out: &mut Vec<(String, String)>) {
-    for entry in fs::read_dir(path).expect("fail to read tests").into_iter() {
+    for entry in fs::read_dir(path).expect("fail to read tests") {
         let entry = entry.expect("fail to read tests").path();
         if entry.is_dir() {
             find_tests(entry.as_path(), out);

@@ -48,7 +48,7 @@ impl SourceDirectory {
         let directory = fs::read_dir(&path).map_err(PackageError::failed_to_read_inputs_directory)?;
 
         let mut file_paths = Vec::new();
-        for file_entry in directory.into_iter() {
+        for file_entry in directory {
             let file_entry = file_entry.map_err(PackageError::failed_to_get_source_file_entry)?;
             let file_path = file_entry.path();
 

@@ -53,7 +53,7 @@ impl InputsDirectory {
 }
 
 fn parse_file_paths(directory: ReadDir, file_paths: &mut Vec<PathBuf>) -> Result<()> {
-    for file_entry in directory.into_iter() {
+    for file_entry in directory {
         let file_entry = file_entry.map_err(PackageError::failed_to_get_input_file_entry)?;
         let file_path = file_entry.path();
 
