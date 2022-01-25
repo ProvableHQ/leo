@@ -516,27 +516,14 @@ impl ReconstructingReducer for Canonicalizer {
 
     fn reduce_type(&mut self, _type_: &Type, new: Type, span: &Span) -> Result<Type> {
         match new.clone() {
-            Type::Array(type_, array_dimensions) => {
-                // The goal of this part is to reduce `ArrayDimensions::Multi` into nested Array type.
-                Ok(match &array_dimensions {
-                    ArrayDimensions::Unspecified | ArrayDimensions::Number(_) => Type::Array(type_, array_dimensions),
-
-                    // Only canonicalize multidimensional Arrays
-                    ArrayDimensions::Multi(dimensions) => {
-                        let mut iter = dimensions.iter().rev();
-
-                        // Get the last Array dimension to place it inside others.
-                        if let Some(last) = iter.next() {
-                            let mut prev = Type::Array(type_, last.clone());
-                            for next in iter {
-                                prev = Type::Array(Box::new(prev), next.clone());
-                            }
-                            prev
-                        } else {
-                            Type::Array(type_, array_dimensions)
-                        }
-                    }
-                })
+            Type::Array(base, dims) if dims.is_empty() => Ok(Type::Array(base, dims)),
+            // Reduce `ArrayDimensions` into nested `Array` types.
+            Type::Array(base, dims) => {
+                let mut iter = dims.0.into_iter().rev();
+                let ctor = |ty, dim| Type::Array(ty, ArrayDimensions::single(dim));
+                let dim = iter.next().unwrap();
+                let base = ctor(base, dim);
+                Ok(iter.fold(base, |ty, dim| ctor(Box::new(ty), dim)))
             }
             Type::SelfType if !self.in_circuit => Err(AstError::big_self_outside_of_circuit(span).into()),
             _ => Ok(new),
@@ -607,43 +594,16 @@ impl ReconstructingReducer for Canonicalizer {
             return Err(AstError::invalid_array_dimension_size(&array_init.span).into());
         }
 
-        let element = Box::new(element);
-        let mut dimensions = array_init.dimensions.flatten();
-
-        if dimensions.len() == 1 {
-            return Ok(ArrayInitExpression {
-                element,
-                dimensions: dimensions.get(0).unwrap().clone(),
-                span: array_init.span.clone(),
-            });
+        let mk_expr = |element, dim| ArrayInitExpression {
+            element,
+            dimensions: ArrayDimensions::single(dim),
+            span: array_init.span.clone(),
         };
 
-        let mut next = Expression::ArrayInit(ArrayInitExpression {
-            element,
-            dimensions: dimensions.pop().unwrap(),
-            span: array_init.span.clone(),
-        });
-
-        let mut outer_element = Box::new(next.clone());
-        for (index, dimension) in dimensions.iter().rev().enumerate() {
-            if index == dimensions.len() - 1 {
-                break;
-            }
-
-            next = Expression::ArrayInit(ArrayInitExpression {
-                element: outer_element,
-                dimensions: dimension.clone(),
-                span: array_init.span.clone(),
-            });
-
-            outer_element = Box::new(next.clone());
-        }
-
-        Ok(ArrayInitExpression {
-            element: outer_element,
-            dimensions: dimensions.remove(0),
-            span: array_init.span.clone(),
-        })
+        let mut iter = array_init.dimensions.iter().rev().cloned();
+        // We know the array has non-zero dimensions.
+        let init = mk_expr(Box::new(element), iter.next().unwrap());
+        Ok(iter.fold(init, |elem, dim| mk_expr(Box::new(Expression::ArrayInit(elem)), dim)))
     }
 
     fn reduce_assign(

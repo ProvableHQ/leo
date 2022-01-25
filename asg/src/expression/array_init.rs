@@ -86,10 +86,9 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
         };
         let dimensions = value
             .dimensions
-            .flatten()
             .iter()
             .map(|x| {
-                Ok(x.number()
+                Ok(x.as_specified()
                     .ok_or_else(|| AsgError::parse_dimension_error(&value.span))?
                     .value
                     .parse::<u32>()
@@ -158,11 +157,9 @@ impl<'a> Into<leo_ast::ArrayInitExpression> for &ArrayInitExpression<'a> {
     fn into(self) -> leo_ast::ArrayInitExpression {
         leo_ast::ArrayInitExpression {
             element: Box::new(self.element.get().into()),
-            dimensions: leo_ast::ArrayDimensions::Multi(vec![leo_ast::ArrayDimensions::Number(
-                leo_ast::PositiveNumber {
-                    value: self.len.to_string().into(),
-                },
-            )]),
+            dimensions: leo_ast::ArrayDimensions::single(leo_ast::Dimension::Number(leo_ast::PositiveNumber {
+                value: self.len.to_string().into(),
+            })),
             span: self.span.clone().unwrap_or_default(),
         }
     }

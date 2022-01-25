@@ -41,7 +41,7 @@ use leo_ast::{
     Circuit as AstCircuit, CircuitInitExpression as AstCircuitInitExpression, CircuitMember as AstCircuitMember,
     CircuitVarInit, ConditionalStatement as AstConditionalStatement, ConsoleArgs as AstConsoleArgs,
     ConsoleFunction as AstConsoleFunction, ConsoleStatement as AstConsoleStatement,
-    DefinitionStatement as AstDefinitionStatement, Expression as AstExpression,
+    DefinitionStatement as AstDefinitionStatement, Dimension, Expression as AstExpression,
     ExpressionStatement as AstExpressionStatement, Function as AstFunction, GroupTuple, GroupValue as AstGroupValue,
     IterationStatement as AstIterationStatement, MemberAccess, PositiveNumber, ReconstructingReducer,
     ReturnStatement as AstReturnStatement, SpreadOrExpression, Statement as AstStatement, StaticAccess,
@@ -77,9 +77,9 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                 if self.options.type_inference_enabled() {
                     AstType::Array(
                         Box::new(self.reduce_type(ast_type, asg_type, span)?),
-                        ArrayDimensions::Number(PositiveNumber {
+                        ArrayDimensions::single(Dimension::Number(PositiveNumber {
                             value: StrTendril::from(format!("{}", asg_dimensions)),
-                        }),
+                        })),
                     )
                 } else {
                     AstType::Array(

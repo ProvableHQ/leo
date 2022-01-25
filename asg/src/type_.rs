@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Circuit;
+use leo_ast::ArrayDimensions;
 pub use leo_ast::IntegerType;
 
 use std::fmt;
@@ -232,13 +233,14 @@ impl<'a> Into<leo_ast::Type> for &Type<'a> {
             Integer(int_type) => leo_ast::Type::IntegerType(*int_type),
             Array(type_, len) => leo_ast::Type::Array(
                 Box::new(type_.as_ref().into()),
-                leo_ast::ArrayDimensions::Multi(vec![leo_ast::ArrayDimensions::Number(leo_ast::PositiveNumber {
+                leo_ast::ArrayDimensions::single(leo_ast::Dimension::Number(leo_ast::PositiveNumber {
                     value: len.to_string().into(),
-                })]),
+                })),
             ),
-            ArrayWithoutSize(type_) => {
-                leo_ast::Type::Array(Box::new(type_.as_ref().into()), leo_ast::ArrayDimensions::Unspecified)
-            }
+            ArrayWithoutSize(type_) => leo_ast::Type::Array(
+                Box::new(type_.as_ref().into()),
+                ArrayDimensions::single(leo_ast::Dimension::Unspecified),
+            ),
             Tuple(subtypes) => leo_ast::Type::Tuple(subtypes.iter().map(Into::into).collect()),
             Circuit(circuit) => leo_ast::Type::Identifier(circuit.name.borrow().clone()),
             Err => leo_ast::Type::Err,
