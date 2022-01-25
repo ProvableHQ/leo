@@ -19,9 +19,17 @@ use crate::{CircuitMember, Identifier};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// A record type definition, e.g., `circuit Foo { my_field: Bar }`.
+/// In some languages these are called `struct`s.
+///
+/// Type identity is decided by the full path including `circuit_name`,
+/// as the record is nominal, not structural.
+/// The fields are named so `circuit Foo(u8, u16)` is not allowed.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Circuit {
+    /// The name of the type in the type system in this module.
     pub circuit_name: Identifier,
+    /// The fields, constant variables, and functions of this structure.
     pub members: Vec<CircuitMember>,
 }
 

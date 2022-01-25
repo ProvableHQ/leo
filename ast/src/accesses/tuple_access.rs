@@ -21,10 +21,14 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
+/// An tuple access expression, e.g., `tuple.index`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TupleAccess {
+    /// An expression evaluating to some tuple type, e.g., `(5, 2)`.
     pub tuple: Box<Expression>,
+    /// The index to access in the tuple expression. E.g., `0` for `(5, 2)` would yield `5`.
     pub index: PositiveNumber,
+    /// The span for the entire expression `tuple.index`.
     pub span: Span,
 }
 

@@ -38,8 +38,8 @@ use leo_ast::{
     ArrayRangeAccess as AstArrayRangeAccess, AssignStatement as AstAssignStatement, Assignee,
     AssigneeAccess as AstAssignAccess, BinaryExpression as AstBinaryExpression, Block as AstBlockStatement,
     CallExpression as AstCallExpression, CastExpression as AstCastExpression, Char, CharValue as AstCharValue,
-    Circuit as AstCircuit, CircuitImpliedVariableDefinition, CircuitInitExpression as AstCircuitInitExpression,
-    CircuitMember as AstCircuitMember, ConditionalStatement as AstConditionalStatement, ConsoleArgs as AstConsoleArgs,
+    Circuit as AstCircuit, CircuitInitExpression as AstCircuitInitExpression, CircuitMember as AstCircuitMember,
+    CircuitVarInit, ConditionalStatement as AstConditionalStatement, ConsoleArgs as AstConsoleArgs,
     ConsoleFunction as AstConsoleFunction, ConsoleStatement as AstConsoleStatement,
     DefinitionStatement as AstDefinitionStatement, Expression as AstExpression,
     ExpressionStatement as AstExpressionStatement, Function as AstFunction, GroupTuple, GroupValue as AstGroupValue,
@@ -306,11 +306,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         }
     }
 
-    pub fn reduce_circuit_implied_variable_definition(
-        &mut self,
-        ast: &CircuitImpliedVariableDefinition,
-        asg: &AsgExpression,
-    ) -> Result<CircuitImpliedVariableDefinition> {
+    pub fn reduce_circuit_var_init(&mut self, ast: &CircuitVarInit, asg: &AsgExpression) -> Result<CircuitVarInit> {
         let expression = ast
             .expression
             .as_ref()
@@ -318,7 +314,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             .transpose()?;
 
         self.ast_reducer
-            .reduce_circuit_implied_variable_definition(ast, ast.identifier.clone(), expression)
+            .reduce_circuit_var_init(ast, ast.identifier.clone(), expression)
     }
 
     pub fn reduce_circuit_init(
@@ -328,7 +324,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
     ) -> Result<AstCircuitInitExpression> {
         let mut members = vec![];
         for (ast_member, asg_member) in ast.members.iter().zip(asg.values.iter()) {
-            members.push(self.reduce_circuit_implied_variable_definition(ast_member, asg_member.1.get())?);
+            members.push(self.reduce_circuit_var_init(ast_member, asg_member.1.get())?);
         }
 
         self.ast_reducer.reduce_circuit_init(ast, ast.name.clone(), members)
@@ -371,10 +367,8 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
 
         if self.options.type_inference_enabled() {
             if let ValueExpression::Implicit(tendril, span) = ast {
-                match &asg.value {
-                    ConstValue::Int(int) => {
-                        new = ValueExpression::Integer(int.get_int_type(), tendril.clone(), span.clone());
-                    }
+                new = match &asg.value {
+                    ConstValue::Int(int) => ValueExpression::Integer(int.get_int_type(), tendril.clone(), span.clone()),
                     ConstValue::Group(group) => {
                         let group_value = match group {
                             AsgGroupValue::Single(_) => AstGroupValue::Single(tendril.clone(), span.clone()),
@@ -384,29 +378,21 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                                 span: span.clone(),
                             }),
                         };
-                        new = ValueExpression::Group(Box::new(group_value));
+                        ValueExpression::Group(Box::new(group_value))
                     }
-                    ConstValue::Field(_) => {
-                        new = ValueExpression::Field(tendril.clone(), span.clone());
-                    }
-                    ConstValue::Address(_) => {
-                        new = ValueExpression::Address(tendril.clone(), span.clone());
-                    }
-                    ConstValue::Boolean(_) => {
-                        new = ValueExpression::Boolean(tendril.clone(), span.clone());
-                    }
-                    ConstValue::Char(asg_char) => {
-                        new = match asg_char {
-                            AsgCharValue::Scalar(scalar) => ValueExpression::Char(AstCharValue {
-                                character: Char::Scalar(*scalar),
-                                span: span.clone(),
-                            }),
-                            AsgCharValue::NonScalar(non_scalar) => ValueExpression::Char(AstCharValue {
-                                character: Char::NonScalar(*non_scalar),
-                                span: span.clone(),
-                            }),
-                        }
-                    }
+                    ConstValue::Field(_) => ValueExpression::Field(tendril.clone(), span.clone()),
+                    ConstValue::Address(_) => ValueExpression::Address(tendril.clone(), span.clone()),
+                    ConstValue::Boolean(_) => ValueExpression::Boolean(tendril.clone(), span.clone()),
+                    ConstValue::Char(asg_char) => match asg_char {
+                        AsgCharValue::Scalar(scalar) => ValueExpression::Char(AstCharValue {
+                            character: Char::Scalar(*scalar),
+                            span: span.clone(),
+                        }),
+                        AsgCharValue::NonScalar(non_scalar) => ValueExpression::Char(AstCharValue {
+                            character: Char::NonScalar(*non_scalar),
+                            span: span.clone(),
+                        }),
+                    },
                     _ => unimplemented!(), // impossible?
                 }
             }

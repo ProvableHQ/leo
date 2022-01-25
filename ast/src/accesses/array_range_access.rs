@@ -21,11 +21,18 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
+/// An access to a certain range of elements in an `array`.
+///
+/// Examples include `array[0..3]`, `array[3..]`, `array[..3]`, and `array[..]`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ArrayRangeAccess {
+    /// The array to extract a range of elements from.
     pub array: Box<Expression>,
+    /// The lower bound of the index-range, or the start of the array when `None`.
     pub left: Option<Box<Expression>>,
+    /// The higher bound of the index-range, or the end of the array when `None`.
     pub right: Option<Box<Expression>>,
+    /// A span for the entire expression `array[<range>]`.
     pub span: Span,
 }
 

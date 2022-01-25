@@ -490,7 +490,7 @@ impl ParserContext<'_> {
     /// circuit initialization expression.
     pub fn parse_circuit_expression(&mut self, identifier: Identifier) -> Result<Expression> {
         let (members, _, span) = self.parse_list(Token::LeftCurly, Token::RightCurly, Token::Comma, |p| {
-            Ok(Some(CircuitImpliedVariableDefinition {
+            Ok(Some(CircuitVarInit {
                 identifier: p.expect_ident()?,
                 expression: p.eat(Token::Colon).map(|_| p.parse_expression()).transpose()?,
             }))

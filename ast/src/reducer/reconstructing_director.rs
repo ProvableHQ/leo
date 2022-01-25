@@ -238,10 +238,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_tuple_init(tuple_init, elements)
     }
 
-    pub fn reduce_circuit_implied_variable_definition(
-        &mut self,
-        variable: &CircuitImpliedVariableDefinition,
-    ) -> Result<CircuitImpliedVariableDefinition> {
+    pub fn reduce_circuit_var_init(&mut self, variable: &CircuitVarInit) -> Result<CircuitVarInit> {
         let identifier = self.reduce_identifier(&variable.identifier)?;
         let expression = variable
             .expression
@@ -249,8 +246,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             .map(|expr| self.reduce_expression(expr))
             .transpose()?;
 
-        self.reducer
-            .reduce_circuit_implied_variable_definition(variable, identifier, expression)
+        self.reducer.reduce_circuit_var_init(variable, identifier, expression)
     }
 
     pub fn reduce_circuit_init(&mut self, circuit_init: &CircuitInitExpression) -> Result<CircuitInitExpression> {
@@ -258,7 +254,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
         let mut members = vec![];
         for member in circuit_init.members.iter() {
-            members.push(self.reduce_circuit_implied_variable_definition(member)?);
+            members.push(self.reduce_circuit_var_init(member)?);
         }
 
         self.reducer.reduce_circuit_init(circuit_init, name, members)
