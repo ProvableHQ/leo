@@ -1,39 +1,39 @@
-name: WASM 
-on:
-  pull_request:
-    push:
-      branches:
-        - master
-        - staging
-        - trying
-      paths-ignore:
-        - 'docs/**'
-        - 'documentation/**'
-env:
-  RUST_BACKTRACE: 1
-
-jobs:
-  test-wasm-parser:
-    name: Test on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        working-directory: wasm
-    strategy:
-      matrix:
-        os: [windows-latest]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Install Rust Stable
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - name: Install wasm-pack
-        run: cargo install wasm-pack
-      - name: Run wasm-pack
-        run: wasm-pack build --dev --target nodejs
-      - name: Install dependencies and run tests
-        run: cd tests && npm ci && npm test
+#name: WASM
+#on:
+#  pull_request:
+#    push:
+#      branches:
+#        - master
+#        - staging
+#        - trying
+#      paths-ignore:
+#        - 'docs/**'
+#        - 'documentation/**'
+#env:
+#  RUST_BACKTRACE: 1
+#
+#jobs:
+#  test-wasm-parser:
+#    name: Test on ${{ matrix.os }}
+#    runs-on: ${{ matrix.os }}
+#    defaults:
+#      run:
+#        working-directory: wasm
+#    strategy:
+#      matrix:
+#        os: [windows-latest]
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v2
+#      - name: Install Rust Stable
+#        uses: actions-rs/toolchain@v1
+#        with:
+#          profile: minimal
+#          toolchain: stable
+#          override: true
+#      - name: Install wasm-pack
+#        run: cargo install wasm-pack
+#      - name: Run wasm-pack
+#        run: wasm-pack build --dev --target nodejs
+#      - name: Install dependencies and run tests
+#        run: cd tests && npm ci && npm test
