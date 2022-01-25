@@ -1,0 +1,23 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 25
+      num_constraints: 20
+      at: 3c5ee1d6a560079fe36ee2262439cc9d5bd2f38e6f811ec8614c759184b5f8e9
+      bt: dca6ae6e268c5e2d253735e48982ea82324032f9b87b799e5becc488a4886770
+      ct: a8f785b5f5dcd5431e55c4f9cfa2f16443cb883380fd7a88f1194f86630735df
+    output:
+      - input_file: hello.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"
+    initial_ast: ffa46f7a6e14409f06ac550d4a8a2ae4ebdfabe18f0ce00ca492aea3c4b7ce5b
+    ir: 728ad7e061a76f80256bcc96d8ca1ec6075f22290ba2470f317d4e97e19f05a5
+    imports_resolved_ast: 655a79751ee587d15a4f87fa120a1f7f095639026e4bef783e079b9d6c54f42e
+    canonicalized_ast: baa061249c9bf6867f04c055e4065ca188df49d51d22c0ef085d78bd9b156516
+    type_inferenced_ast: 62dc97b7df536c5832404effa10a719f6eda68385d92ba49b3107d87a13b7a9b

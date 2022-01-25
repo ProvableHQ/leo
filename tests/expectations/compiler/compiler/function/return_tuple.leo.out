@@ -21,6 +21,6 @@ outputs:
               value: "103"
     initial_ast: 1edb048526ed397a97aa28d7ff5ed9b41e193f8a66bb6e1e1b101400de85d054
     ir: 283fd919edc8361e8bb713f0a31fd6ad64098186332eb689d029d98b0abce00b
-    imports_resolved_ast: 0c49d8b23c8fae4589d3c262e2095696f2b484a79e1c933944760c939f72fdc5
-    canonicalized_ast: 0c49d8b23c8fae4589d3c262e2095696f2b484a79e1c933944760c939f72fdc5
-    type_inferenced_ast: f05b6ed7eebe350e148379dbe74ddb3f30e2eb9e2ace9f384a97a080e3cee7d2
+    imports_resolved_ast: 88d8a3104580d1b33802ac99003886acbc68e59b217183de62935db1eefa0fab
+    canonicalized_ast: 88d8a3104580d1b33802ac99003886acbc68e59b217183de62935db1eefa0fab
+    type_inferenced_ast: 023f0442f62f7992e577358dae5461c5c4604d465a6f052b88992fa73aaa9b84

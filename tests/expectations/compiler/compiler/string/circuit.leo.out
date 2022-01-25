@@ -18,6 +18,6 @@ outputs:
               value: "Hello, World!"
     initial_ast: 041d491135929df77cab0ad3ceadaad8ca9566650423326ea4850cae5915f842
     ir: 0c67820c0ce45bbd3e31a0de0b74bd04463b96c8571ac8214541082f98d8c3e7
-    imports_resolved_ast: f35940107a137733142b7587b2c648db935b2a46f7403d32fc54fd71a508456f
-    canonicalized_ast: 7b9c4b41e4f1553dd888a1d265d8b4550431110b0d65db0ff2ed64ee0c9772b6
-    type_inferenced_ast: 5f582b0b5d31848c2541ef98a7685b9cca0d1ff629a8754edd06bd9fb60e5b35
+    imports_resolved_ast: e22d8036c38ca09ef4edecca1860596f491d9e2033a629e23cee032d94ad9036
+    canonicalized_ast: 3f5f12bc5c175c2fe676a196ac24648e973ae07c96942cc80b86b9cfa3c0784a
+    type_inferenced_ast: 00d56b34159ddad56ca3a20191687ea5f72446930a132ab2f8a2197f450d79f7

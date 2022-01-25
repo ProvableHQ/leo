@@ -102,6 +102,6 @@ outputs:
               value: "\\u{1f62d}"
     initial_ast: ef30402d8ec5d61944979aa106f18dc2fc19f4cb72093634be3a6c16fd2397d2
     ir: 0dfff6861a136cdc4ee3c3d31e6ff7b1d9ea4be1a9971a7780aaf614f5149f47
-    imports_resolved_ast: e672f64a8eff581f45c335f181a21f620002e30620d6a3150b859d05fd1f04a2
-    canonicalized_ast: e672f64a8eff581f45c335f181a21f620002e30620d6a3150b859d05fd1f04a2
-    type_inferenced_ast: e7739f5a3965081baabbcba2213e38a6431e9ac9684c80fd4cffd3f8d9219863
+    imports_resolved_ast: 7bae01ff7d97313473b584dab590cefb30827afdeafe1f818293dc00ea942c47
+    canonicalized_ast: 7bae01ff7d97313473b584dab590cefb30827afdeafe1f818293dc00ea942c47
+    type_inferenced_ast: ba5664bc675b9b8f5a23262e2df65c633a5760d686caf9115108fa23cfb03a48
