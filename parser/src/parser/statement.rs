@@ -115,7 +115,7 @@ impl ParserContext<'_> {
                     Token::MulEq => AssignOperation::Mul,
                     Token::DivEq => AssignOperation::Div,
                     Token::ExpEq => AssignOperation::Pow,
-                    _ => unreachable!(),
+                    _ => unreachable!("Impossible to reach area, unless a change broke the parser."),
                 },
                 value,
             })))
@@ -317,7 +317,7 @@ impl ParserContext<'_> {
             declaration_type: match declare.token {
                 Token::Let => Declare::Let,
                 Token::Const => Declare::Const,
-                _ => unreachable!(),
+                _ => unreachable!("Impossible to reach area, unless a change broke the parser."),
             },
             variable_names,
             type_,

@@ -156,7 +156,7 @@ impl<'a> ParserContext<'a> {
             {
                 return Some(Identifier { name, span });
             } else {
-                unreachable!()
+                unreachable!("Impossible to reach area, unless a change broke the parser.")
             }
         }
         None
@@ -294,7 +294,7 @@ impl<'a> ParserContext<'a> {
             {
                 return Some((PositiveNumber { value }, span));
             } else {
-                unreachable!()
+                unreachable!("Impossible to reach area, unless a change broke the parser.")
             }
         }
         None
@@ -377,7 +377,7 @@ impl<'a> ParserContext<'a> {
                 {
                     Ok(Identifier { name, span })
                 } else {
-                    unreachable!()
+                    unreachable!("Impossible to reach area, unless a change broke the parser.")
                 }
             } else {
                 Err(ParserError::unexpected_str(inner, "ident", span).into())
