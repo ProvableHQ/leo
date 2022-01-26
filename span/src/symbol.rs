@@ -29,7 +29,7 @@ use std::intrinsics::transmute;
 use std::marker::PhantomData;
 
 /// A helper for `symbols` defined below.
-/// The macro's job is to bind conventiently usable `const` items to the symbol names provided.
+/// The macro's job is to bind conveniently  usable `const` items to the symbol names provided.
 /// For example, with `symbol { a, b }` you'd have `sym::a` and `sym::b`.
 macro_rules! consts {
     ($val: expr, $sym:ident $(,)?) => {
