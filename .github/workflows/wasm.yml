@@ -37,6 +37,3 @@ jobs:
         run: wasm-pack build --dev --target nodejs
       - name: Install dependencies and run tests
         run: cd tests && npm ci && npm test
-      
-
-  
