@@ -115,7 +115,7 @@ impl ParserContext<'_> {
                     Token::MulEq => AssignOperation::Mul,
                     Token::DivEq => AssignOperation::Div,
                     Token::ExpEq => AssignOperation::Pow,
-                    _ => unimplemented!(),
+                    _ => unreachable!(),
                 },
                 value,
             })))
@@ -317,7 +317,7 @@ impl ParserContext<'_> {
             declaration_type: match declare.token {
                 Token::Let => Declare::Let,
                 Token::Const => Declare::Const,
-                _ => unimplemented!(),
+                _ => unreachable!(),
             },
             variable_names,
             type_,

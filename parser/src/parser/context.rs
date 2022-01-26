@@ -21,7 +21,7 @@ use leo_errors::emitter::Handler;
 use leo_errors::{LeoError, ParserError, Result};
 use leo_span::{Span, Symbol};
 
-use std::{borrow::Cow, unimplemented};
+use std::{borrow::Cow, unreachable};
 use tendril::format_tendril;
 
 /// Stores a program in tokenized format plus additional context.
@@ -156,7 +156,7 @@ impl<'a> ParserContext<'a> {
             {
                 return Some(Identifier { name, span });
             } else {
-                unimplemented!()
+                unreachable!()
             }
         }
         None
@@ -294,7 +294,7 @@ impl<'a> ParserContext<'a> {
             {
                 return Some((PositiveNumber { value }, span));
             } else {
-                unimplemented!()
+                unreachable!()
             }
         }
         None
@@ -377,7 +377,7 @@ impl<'a> ParserContext<'a> {
                 {
                     Ok(Identifier { name, span })
                 } else {
-                    unimplemented!()
+                    unreachable!()
                 }
             } else {
                 Err(ParserError::unexpected_str(inner, "ident", span).into())

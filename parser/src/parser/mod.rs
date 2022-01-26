@@ -27,7 +27,7 @@ use leo_errors::{ParserError, Result};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
-use std::unimplemented;
+use std::unreachable;
 
 mod context;
 pub use context::*;

@@ -134,7 +134,7 @@ impl ParserContext<'_> {
             let op = match op {
                 Token::Eq => BinaryOperation::Eq,
                 Token::NotEq => BinaryOperation::Ne,
-                _ => unimplemented!(),
+                _ => unreachable!(),
             };
             expr = Self::bin_expr(expr, right, op);
         }
@@ -155,7 +155,7 @@ impl ParserContext<'_> {
                 Token::LtEq => BinaryOperation::Le,
                 Token::Gt => BinaryOperation::Gt,
                 Token::GtEq => BinaryOperation::Ge,
-                _ => unimplemented!(),
+                _ => unreachable!(),
             };
             expr = Self::bin_expr(expr, right, op);
         }
@@ -173,7 +173,7 @@ impl ParserContext<'_> {
             let op = match op {
                 Token::Add => BinaryOperation::Add,
                 Token::Minus => BinaryOperation::Sub,
-                _ => unimplemented!(),
+                _ => unreachable!(),
             };
             expr = Self::bin_expr(expr, right, op);
         }
@@ -191,8 +191,7 @@ impl ParserContext<'_> {
             let op = match op {
                 Token::Mul => BinaryOperation::Mul,
                 Token::Div => BinaryOperation::Div,
-                // Token::Mod => BinaryOperation::Mod,
-                _ => unimplemented!(),
+                _ => unreachable!(),
             };
             expr = Self::bin_expr(expr, right, op);
         }
@@ -250,7 +249,7 @@ impl ParserContext<'_> {
                 Token::Not => UnaryOperation::Not,
                 Token::Minus => UnaryOperation::Negate,
                 // Token::BitNot => UnaryOperation::BitNot,
-                _ => unimplemented!(),
+                _ => unreachable!(),
             };
             // hack for const signed integer overflow issues
             if matches!(operation, UnaryOperation::Negate) {
@@ -381,7 +380,7 @@ impl ParserContext<'_> {
                         name: ident,
                     }));
                 }
-                _ => unimplemented!(),
+                _ => unreachable!(),
             }
         }
         Ok(expr)
