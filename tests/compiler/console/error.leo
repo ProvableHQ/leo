@@ -1,6 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
+capture_console: true
 input_file: input/dummy.in
 */
 

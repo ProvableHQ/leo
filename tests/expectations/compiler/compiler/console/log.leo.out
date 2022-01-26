@@ -16,6 +16,7 @@ outputs:
             r0:
               type: bool
               value: "true"
+        console_output: " INFO hello world\n"
     initial_ast: dd45ce755b9ab52355b28728b35c425aab79c1f1065c54b8c18c70323724cac0
     ir: 5e6cf52688df8d9a37610888d6a3b236549225616260ccdd815950b0ad0228c7
     imports_resolved_ast: 4a44f0d2d27878b390fa57d61cc607ca11860bc1632820840e6af7101e46ce2a
