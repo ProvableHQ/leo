@@ -9,7 +9,7 @@ root: [u8; 32] = [0u8; 32];
 [record]
 serial_number: [u8; 32] = [0u8; 32];
 commitment: [u8; 32] = [0u8; 32];
-owner: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;
+owner: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9;
 value: u64 = 5;
 payload: [u8; 32] = [0u8; 32];
 birth_program_id: [u8; 32] = [0u8; 32];
