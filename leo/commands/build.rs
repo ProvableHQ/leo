@@ -42,10 +42,7 @@ fn parse_excluded_names(src: &str) -> Box<str> {
 
 #[cfg_attr(
     doc,
-    doc = r#"
-/// Compiler Options wrapper for Build command. Also used by other commands which
-/// require Build command output as their input.
-"#
+    doc = "Compiler Options wrapper for Build command. Also used by other commands whichrequire Build command output as their input."
 )]
 #[derive(StructOpt, Clone, Debug)]
 pub struct BuildOptions {
