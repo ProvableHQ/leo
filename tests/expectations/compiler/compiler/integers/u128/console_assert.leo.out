@@ -18,6 +18,6 @@ outputs:
               value: "true"
     initial_ast: dd23f6a81b63202f9f3d4b84ab1be12f8b4ca25fe2bff21aff3b836f42e3ba7c
     ir: 2dc962ef8472c9672906380c741780ffb5d6111be10f4d170f6478419bdd3aed
-    imports_resolved_ast: d96c787c614518cf9e0327211740ba62ca2abe3ce1cd94abe9c1d536ddd82da2
-    canonicalized_ast: d96c787c614518cf9e0327211740ba62ca2abe3ce1cd94abe9c1d536ddd82da2
-    type_inferenced_ast: 46b7d57723ee597b0679cd4691942d1b795b790d84e4f74a2948d98b954b37fc
+    imports_resolved_ast: 555b09132c11628f6868ef609a2c804985b110427a434f4a8eefd30dac0e0dbf
+    canonicalized_ast: 555b09132c11628f6868ef609a2c804985b110427a434f4a8eefd30dac0e0dbf
+    type_inferenced_ast: fc981f527fcf189ebdff6e7c5bbd4d7028abda39952d099c2a4ab9ed98cc17f2

@@ -44,6 +44,7 @@ static PRELUDE: &[&str] = &[
     "prelude/i32.leo",
     "prelude/i64.leo",
     "prelude/i128.leo",
+    "prelude/string.leo",
     "prelude/u8.leo",
     "prelude/u16.leo",
     "prelude/u32.leo",
@@ -97,6 +98,10 @@ pub fn static_include_stdlib() {
     stdlib.insert(
         "prelude/i128.leo".to_string(),
         include_str!("./../prelude/i128.leo").to_string(),
+    );
+    stdlib.insert(
+        "prelude/string.leo".to_string(),
+        include_str!("./../prelude/string.leo").to_string(),
     );
     stdlib.insert(
         "prelude/u8.leo".to_string(),
