@@ -17,14 +17,14 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
+[dependencies.leo-errors]
+path = "../errors"
+version = "1.5.3"
+
 [dependencies.snarkvm-curves]
 git = "https://github.com/AleoHQ/snarkVM.git"
 rev = "435f112"
 default-features = false
-
-[dependencies.leo-errors]
-path = "../errors"
-version = "1.5.3"
 
 [dependencies.snarkvm-fields]
 git = "https://github.com/AleoHQ/snarkVM.git"
@@ -44,6 +44,9 @@ default-features = false
 version = "0.6.6"
 default-features = false
 
+[dependencies.hex]
+version = "0.4"
+
 [dependencies.num-bigint]
 version = "0.4"
 
@@ -56,6 +59,3 @@ version = "1.0"
 
 [dependencies.sha2]
 version = "0.10"
-
-[dependencies.hex]
-version = "0.4"

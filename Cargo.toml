@@ -110,9 +110,6 @@ default-features = false
 git = "https://github.com/AleoHQ/snarkVM.git"
 rev = "435f112"
 
-[dependencies.structopt]
-version = "0.3"
-
 [dependencies.clap]
 version = "3.0.10"
 
@@ -162,6 +159,9 @@ features = [ "derive" ]
 [dependencies.serde_json]
 version = "1.0"
 
+[dependencies.structopt]
+version = "0.3"
+
 [dependencies.toml]
 version = "0.5"
 
@@ -178,11 +178,11 @@ version = "0.5"
 [target."cfg(windows)".dependencies.ansi_term]
 version = "0.12.1"
 
-[dev-dependencies.rusty-hook]
-version = "0.11.2"
-
 [dev-dependencies.assert_cmd]
 version = "2.0.4"
+
+[dev-dependencies.rusty-hook]
+version = "0.11.2"
 
 [dev-dependencies.test_dir]
 version = "0.1.0"

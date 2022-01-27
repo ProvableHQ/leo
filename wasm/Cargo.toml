@@ -21,14 +21,6 @@ license = "GPL-3.0"
 [lib]
 crate-type = ["cdylib", "rlib"]
 
-[dependencies.leo-parser]
-version = "1.5.3"
-path = "../parser"
-
-[dependencies.leo-errors]
-version = "1.5.3"
-path = "../errors"
-
 [dependencies.leo-asg]
 version = "1.5.3"
 path = "../asg"
@@ -40,6 +32,14 @@ path = "../ast"
 [dependencies.leo-ast-passes]
 version = "1.5.3"
 path = "../ast-passes"
+
+[dependencies.leo-errors]
+version = "1.5.3"
+path = "../errors"
+
+[dependencies.leo-parser]
+version = "1.5.3"
+path = "../parser"
 
 [dependencies.serde]
 version = "1.0"
