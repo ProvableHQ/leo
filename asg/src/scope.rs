@@ -190,7 +190,7 @@ impl<'a> Scope<'a> {
                             .parse::<u32>()
                             .map_err(|_| AsgError::parse_index_error(span))?,
                     ),
-                    _ => unimplemented!("multi array type should not exist at asg level"),
+                    _ => unreachable!("multi array type should not exist at asg level"),
                 }
             }
             leo_ast::Type::Tuple(sub_types) => Type::Tuple(

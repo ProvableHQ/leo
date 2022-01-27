@@ -393,7 +393,10 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                             span: span.clone(),
                         }),
                     },
-                    _ => unimplemented!(), // impossible?
+                    ConstValue::Tuple(..) | ConstValue::Array(..) | ConstValue::Circuit(..) | ConstValue::Err => {
+                        // impossible?
+                        unreachable!()
+                    }
                 }
             }
         }
