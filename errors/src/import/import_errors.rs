@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -111,6 +111,14 @@ create_errors!(
     failed_to_read_stdlib_file {
         args: (import: impl Display),
         msg: format!("failed to read the stdlib import file `{}`", import),
+        help: None,
+    }
+
+    /// For when directory name matches file name in the same source folder.
+    @formatted
+    conflicting_local_imports {
+        args: (names: impl Debug),
+        msg: format!("unable to select import location, conflicting paths are found: `{:?}`", names),
         help: None,
     }
 );

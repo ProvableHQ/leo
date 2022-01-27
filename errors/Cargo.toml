@@ -16,10 +16,14 @@ categories = [ "cryptography::cryptocurrencies", "web-programming" ]
 include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2021"
-rust-version = "1.56.1"
+rust-version = "1.56"
 
 [dependencies]
 colored = "2.0.0"
+
+[dependencies.leo-span]
+path = "../span"
+version = "1.5.3"
 
 [dependencies.leo-input]
 path = "../input"
