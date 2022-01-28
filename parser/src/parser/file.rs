@@ -559,19 +559,12 @@ impl ParserContext<'_> {
     /// const definition statement and assignment.
     ///
     pub fn parse_type_alias(&mut self) -> Result<(Identifier, Alias)> {
-        self.expect(Token::Type)?;
+        let start = self.expect(Token::Type)?;
         let name = self.expect_ident()?;
         self.expect(Token::Assign)?;
-        let (type_, _) = self.parse_type()?;
-        self.expect(Token::Semicolon)?;
+        let (represents, _) = self.parse_type()?;
+        let span = start + self.expect(Token::Semicolon)?;
 
-        Ok((
-            name.clone(),
-            Alias {
-                represents: type_,
-                span: name.span.clone(),
-                name,
-            },
-        ))
+        Ok((name.clone(), Alias { represents, span, name }))
     }
 }

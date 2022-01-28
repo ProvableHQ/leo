@@ -17,6 +17,8 @@
 use super::*;
 use leo_errors::{ParserError, Result};
 
+use smallvec::smallvec;
+
 pub(crate) const TYPE_TOKENS: &[Token] = &[
     Token::I8,
     Token::I16,
@@ -58,7 +60,7 @@ impl ParserContext<'_> {
     /// Returns an [`ArrayDimensions`] AST node if the next tokens represent dimensions for an array type.
     pub fn parse_array_dimensions(&mut self) -> Result<ArrayDimensions> {
         Ok(if let Some(dim) = self.parse_array_dimension() {
-            dim
+            ArrayDimensions(smallvec![dim])
         } else {
             let mut had_item_err = false;
             let (dims, _, span) = self.parse_paren_comma_list(|p| {
@@ -74,16 +76,16 @@ impl ParserContext<'_> {
             if dims.is_empty() && !had_item_err {
                 self.emit_err(ParserError::array_tuple_dimensions_empty(&span));
             }
-            ArrayDimensions::Multi(dims)
+            ArrayDimensions(dims.into())
         })
     }
 
     /// Parses a basic array dimension, i.e., an integer or `_`.
-    fn parse_array_dimension(&mut self) -> Option<ArrayDimensions> {
+    fn parse_array_dimension(&mut self) -> Option<Dimension> {
         if let Some((int, _)) = self.eat_int() {
-            Some(ArrayDimensions::Number(int))
+            Some(Dimension::Number(int))
         } else if self.eat(Token::Underscore).is_some() {
-            Some(ArrayDimensions::Unspecified)
+            Some(Dimension::Unspecified)
         } else {
             None
         }
