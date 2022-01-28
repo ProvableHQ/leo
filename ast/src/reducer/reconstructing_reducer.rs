@@ -219,18 +219,18 @@ pub trait ReconstructingReducer {
 
     fn reduce_circuit_var_init(
         &mut self,
-        _variable: &CircuitVarInit,
+        _variable: &CircuitVariableInitializer,
         identifier: Identifier,
         expression: Option<Expression>,
-    ) -> Result<CircuitVarInit> {
-        Ok(CircuitVarInit { identifier, expression })
+    ) -> Result<CircuitVariableInitializer> {
+        Ok(CircuitVariableInitializer { identifier, expression })
     }
 
     fn reduce_circuit_init(
         &mut self,
         circuit_init: &CircuitInitExpression,
         name: Identifier,
-        members: Vec<CircuitVarInit>,
+        members: Vec<CircuitVariableInitializer>,
     ) -> Result<CircuitInitExpression> {
         Ok(CircuitInitExpression {
             name,

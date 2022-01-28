@@ -238,7 +238,10 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_tuple_init(tuple_init, elements)
     }
 
-    pub fn reduce_circuit_var_init(&mut self, variable: &CircuitVarInit) -> Result<CircuitVarInit> {
+    pub fn reduce_circuit_var_init(
+        &mut self,
+        variable: &CircuitVariableInitializer,
+    ) -> Result<CircuitVariableInitializer> {
         let identifier = self.reduce_identifier(&variable.identifier)?;
         let expression = variable
             .expression

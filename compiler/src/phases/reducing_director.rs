@@ -39,7 +39,7 @@ use leo_ast::{
     AssigneeAccess as AstAssignAccess, BinaryExpression as AstBinaryExpression, Block as AstBlockStatement,
     CallExpression as AstCallExpression, CastExpression as AstCastExpression, Char, CharValue as AstCharValue,
     Circuit as AstCircuit, CircuitInitExpression as AstCircuitInitExpression, CircuitMember as AstCircuitMember,
-    CircuitVarInit, ConditionalStatement as AstConditionalStatement, ConsoleArgs as AstConsoleArgs,
+    CircuitVariableInitializer, ConditionalStatement as AstConditionalStatement, ConsoleArgs as AstConsoleArgs,
     ConsoleFunction as AstConsoleFunction, ConsoleStatement as AstConsoleStatement,
     DefinitionStatement as AstDefinitionStatement, Dimension, Expression as AstExpression,
     ExpressionStatement as AstExpressionStatement, Function as AstFunction, GroupTuple, GroupValue as AstGroupValue,
@@ -306,7 +306,11 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         }
     }
 
-    pub fn reduce_circuit_var_init(&mut self, ast: &CircuitVarInit, asg: &AsgExpression) -> Result<CircuitVarInit> {
+    pub fn reduce_circuit_var_init(
+        &mut self,
+        ast: &CircuitVariableInitializer,
+        asg: &AsgExpression,
+    ) -> Result<CircuitVariableInitializer> {
         let expression = ast
             .expression
             .as_ref()

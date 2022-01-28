@@ -19,7 +19,7 @@ use super::*;
 /// An initializer for a single field / variable of a circuit initializer expression.
 /// That is, in `Foo { bar: 42, baz }`, this is either `bar: 42`, or `baz`.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CircuitVarInit {
+pub struct CircuitVariableInitializer {
     /// The name of the field / variable to be initialized.
     pub identifier: Identifier,
     /// The expression to initialize the field with.
@@ -27,7 +27,7 @@ pub struct CircuitVarInit {
     pub expression: Option<Expression>,
 }
 
-impl fmt::Display for CircuitVarInit {
+impl fmt::Display for CircuitVariableInitializer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(expr) = &self.expression {
             write!(f, "{}: {}", self.identifier, expr)
@@ -46,7 +46,7 @@ pub struct CircuitInitExpression {
     ///
     /// N.B. Any functions or member constants in the circuit definition
     /// are excluded from this list.
-    pub members: Vec<CircuitVarInit>,
+    pub members: Vec<CircuitVariableInitializer>,
     /// A span from `name` to `}`.
     pub span: Span,
 }
