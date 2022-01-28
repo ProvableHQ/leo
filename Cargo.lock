@@ -1585,13 +1585,7 @@ dependencies = [
 name = "leo-test-framework"
 version = "1.5.3"
 dependencies = [
- "leo-asg",
- "leo-ast",
- "leo-ast-passes",
- "leo-compiler",
  "leo-errors",
- "leo-imports",
- "leo-parser",
  "regex",
  "serde",
  "serde_json",
