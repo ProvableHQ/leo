@@ -1,9 +1,8 @@
 /*
-namespace: Parse
+namespace: ParseStatement
 expectation: Fail
 */
 
-x::try_to_hit_expect_ident_unreachable
 x::;
 x::.
 x::import
@@ -16,7 +15,11 @@ x::[
 x::]
 x::{
 x::}
-x::-
+x::(
+x::)
+x:::
+x::::
+x::?
 x::_
 x::=
 x::==
@@ -48,7 +51,7 @@ x::u128
 x::&
 x::return
 x::self
-x::self
+x::Self
 x::true
 x::false
 x::0

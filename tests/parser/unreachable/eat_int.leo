@@ -1,9 +1,8 @@
 /*
-namespace: Parse
+namespace: ParseStatement
 expectation: Fail
 */
 
-x.0_try_to_hit_hit_eat_int_unreachable
 x.-12
 x.0_;
 x.0_.
@@ -17,7 +16,11 @@ x.0_[
 x.0_]
 x.0_{
 x.0_}
-x.0_-
+x.0_(
+x.0_)
+x.0_:
+x.0_::
+x.0_?
 x.0__
 x.0_=
 x.0_==
@@ -49,6 +52,6 @@ x.0_u128
 x.0_&
 x.0_return
 x.0_self
-x.0_self
+x.0_Self
 x.0_true
 x.0_false

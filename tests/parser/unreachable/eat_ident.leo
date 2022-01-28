@@ -3,7 +3,6 @@ namespace: Parse
 expectation: Fail
 */
 
-circuit try_to_hit_eat_ident_unreachable
 circuit ;
 circuit .
 circuit import
@@ -16,7 +15,11 @@ circuit [
 circuit ]
 circuit {
 circuit }
-circuit -
+circuit (
+circuit )
+circuit :
+circuit ::
+circuit ?
 circuit _
 circuit =
 circuit ==
@@ -48,7 +51,7 @@ circuit u128
 circuit &
 circuit return
 circuit self
-circuit self
+circuit Self
 circuit true
 circuit false
 circuit 0
