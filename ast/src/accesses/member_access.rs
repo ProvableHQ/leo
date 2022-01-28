@@ -21,11 +21,19 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
+/// A field access expression `inner.name` to some structure with *named fields*.
+///
+/// For accesses to a positional fields in e.g., a tuple, see `TupleAccess`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MemberAccess {
+    /// The structure that the field `name` is being extracted from.
     pub inner: Box<Expression>,
+    /// The name of the field to extract in `inner`.
     pub name: Identifier,
+    /// The span covering all of `inner.name`.
     pub span: Span,
+    // FIXME(Centril): Type information shouldn't be injected into an AST,
+    // so this field should eventually be removed.
     pub type_: Option<crate::Type>,
 }
 

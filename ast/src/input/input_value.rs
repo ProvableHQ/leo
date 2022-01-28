@@ -341,20 +341,16 @@ impl InputValue {
     }
 }
 
-///
 /// Returns a new vector of usize values from an [`ArrayDimensions`] type.
 ///
 /// Attempts to parse each dimension in the array from a `String` to a `usize` value. If parsing
 /// is successful, the `usize` value is appended to the return vector. If parsing fails, an error
 /// is returned.
-///
-fn parse_array_dimensions(array_dimensions_type: ArrayDimensions, span: &Span) -> Result<Vec<usize>, InputParserError> {
-    let dimensions = array_dimensions_type.flatten();
-
+fn parse_array_dimensions(dimensions: ArrayDimensions, span: &Span) -> Result<Vec<usize>, InputParserError> {
     // Convert the array dimensions to usize.
     let mut result_array_dimensions = Vec::with_capacity(dimensions.len());
 
-    for dimension in dimensions {
+    for dimension in dimensions.iter() {
         // Convert the dimension to a string.
         let dimension_string = dimension.to_string();
 

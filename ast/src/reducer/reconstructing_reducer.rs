@@ -217,20 +217,20 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_circuit_implied_variable_definition(
+    fn reduce_circuit_variable_initializer(
         &mut self,
-        _variable: &CircuitImpliedVariableDefinition,
+        _variable: &CircuitVariableInitializer,
         identifier: Identifier,
         expression: Option<Expression>,
-    ) -> Result<CircuitImpliedVariableDefinition> {
-        Ok(CircuitImpliedVariableDefinition { identifier, expression })
+    ) -> Result<CircuitVariableInitializer> {
+        Ok(CircuitVariableInitializer { identifier, expression })
     }
 
     fn reduce_circuit_init(
         &mut self,
         circuit_init: &CircuitInitExpression,
         name: Identifier,
-        members: Vec<CircuitImpliedVariableDefinition>,
+        members: Vec<CircuitVariableInitializer>,
     ) -> Result<CircuitInitExpression> {
         Ok(CircuitInitExpression {
             name,
