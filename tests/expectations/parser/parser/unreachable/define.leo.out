@@ -1,0 +1,5 @@
+---
+namespace: ParseStatement
+expectation: Fail
+outputs:
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got ';'\n    --> test:1:1\n     |\n   1 | ; x = 10u8;\n     | ^"
