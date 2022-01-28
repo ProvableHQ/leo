@@ -18,6 +18,9 @@ license = "GPL-3.0"
 edition = "2021"
 rust-version = "1.56"
 
+[dependencies]
+smallvec = { version = "1.8.0", features = ["serde"] }
+
 [dependencies.leo-input]
 path = "../input"
 version = "1.5.3"

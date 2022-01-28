@@ -74,23 +74,19 @@ impl Type {
             (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(right),
             (Type::Identifier(left), Type::Identifier(right)) => left.eq(right),
             (Type::SelfType, Type::SelfType) => true,
-            (Type::Array(left_type, left_dim), Type::Array(right_type, right_dim)) => {
+            (Type::Array(left_type, left_dims), Type::Array(right_type, right_dims)) => {
                 // Convert array dimensions to owned.
-                let left_dim_owned = left_dim.to_owned();
-                let right_dim_owned = right_dim.to_owned();
+                let mut left_dims = left_dims.to_owned();
+                let mut right_dims = right_dims.to_owned();
 
                 // Unable to compare arrays with unspecified sizes.
-                if !left_dim_owned.is_specified() || !right_dim_owned.is_specified() {
+                if !left_dims.is_specified() || !right_dims.is_specified() {
                     return false;
                 }
 
-                // We know that values are Some, safe to unwrap.
-                let mut left_dim_owned = left_dim_owned;
-                let mut right_dim_owned = right_dim_owned;
-
                 // Remove the first element from both dimensions.
-                let left_first = left_dim_owned.remove_first();
-                let right_first = right_dim_owned.remove_first();
+                let left_first = left_dims.remove_first();
+                let right_first = right_dims.remove_first();
 
                 // Compare the first dimensions.
                 if left_first.ne(&right_first) {
@@ -98,8 +94,8 @@ impl Type {
                 }
 
                 // Create a new array type from the remaining array dimensions.
-                let left_new_type = inner_array_type(*left_type.to_owned(), left_dim_owned);
-                let right_new_type = inner_array_type(*right_type.to_owned(), right_dim_owned);
+                let left_new_type = inner_array_type(*left_type.to_owned(), left_dims);
+                let right_new_type = inner_array_type(*right_type.to_owned(), right_dims);
 
                 // Call eq_flat() on the new left and right types.
                 left_new_type.eq_flat(&right_new_type)

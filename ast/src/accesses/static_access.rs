@@ -21,12 +21,19 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// An access expression to a static member, e.g., a constant in a circuit.
+/// An example would be `Foo::Const` or `Foo::function` in `Foo::function()`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct StaticAccess {
+    /// Represents the container for the static member to access.
+    /// Usually this is a circuit.
     pub inner: Box<Expression>,
+    /// The static member in `inner` that is being accessed.
     pub name: Identifier,
     /// An optional type initially None, it is later assigned during type inference snapshot if necessary.
+    // FIXME(Centril): Shouldn't be in an AST. Remove it as part of an architectural revamp.
     pub type_: Option<Type>,
+    /// The span for the entire expression `inner::name`.
     pub span: Span,
 }
 

@@ -21,10 +21,17 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
+/// A type alias `type name = represents;`.
+///
+/// That is, `name` will become another name for `represents`.
+/// This does not create a new type, that is, `name` is the same type as `represents`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Alias {
+    /// The new name for `represents`.
     pub name: Identifier,
+    /// A span for the entire `type name = represents;`.
     pub span: Span,
+    /// The type that `name` will evaluate and is equal to.
     pub represents: Type,
 }
 
