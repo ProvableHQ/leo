@@ -120,7 +120,10 @@ impl Canonicalizer {
         }
     }
 
-    fn canonicalize_circuit_var_init(&mut self, member: &CircuitVariableInitializer) -> CircuitVariableInitializer {
+    fn canonicalize_circuit_variable_initializer(
+        &mut self,
+        member: &CircuitVariableInitializer,
+    ) -> CircuitVariableInitializer {
         CircuitVariableInitializer {
             identifier: member.identifier.clone(),
             expression: member
@@ -286,7 +289,7 @@ impl Canonicalizer {
                     members: circuit_init
                         .members
                         .iter()
-                        .map(|member| self.canonicalize_circuit_var_init(member))
+                        .map(|member| self.canonicalize_circuit_variable_initializer(member))
                         .collect(),
                     span: circuit_init.span.clone(),
                 });

@@ -217,7 +217,7 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_circuit_var_init(
+    fn reduce_circuit_variable_initializer(
         &mut self,
         _variable: &CircuitVariableInitializer,
         identifier: Identifier,

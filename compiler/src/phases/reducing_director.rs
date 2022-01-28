@@ -306,7 +306,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         }
     }
 
-    pub fn reduce_circuit_var_init(
+    pub fn reduce_circuit_variable_initializer(
         &mut self,
         ast: &CircuitVariableInitializer,
         asg: &AsgExpression,
@@ -318,7 +318,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             .transpose()?;
 
         self.ast_reducer
-            .reduce_circuit_var_init(ast, ast.identifier.clone(), expression)
+            .reduce_circuit_variable_initializer(ast, ast.identifier.clone(), expression)
     }
 
     pub fn reduce_circuit_init(
@@ -328,7 +328,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
     ) -> Result<AstCircuitInitExpression> {
         let mut members = vec![];
         for (ast_member, asg_member) in ast.members.iter().zip(asg.values.iter()) {
-            members.push(self.reduce_circuit_var_init(ast_member, asg_member.1.get())?);
+            members.push(self.reduce_circuit_variable_initializer(ast_member, asg_member.1.get())?);
         }
 
         self.ast_reducer.reduce_circuit_init(ast, ast.name.clone(), members)
