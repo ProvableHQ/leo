@@ -21,10 +21,14 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
+/// An array element access expression `array[index]`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ArrayAccess {
+    /// The expression, evaluating to an array, that is being indexed.
     pub array: Box<Expression>,
+    /// The index in `array` that is being accessed.
     pub index: Box<Expression>,
+    /// The span of the entire expression `array[index]`.
     pub span: Span,
 }
 

@@ -165,7 +165,7 @@ impl<'a> Into<leo_ast::CircuitInitExpression> for &CircuitInitExpression<'a> {
             members: self
                 .values
                 .iter()
-                .map(|(name, value)| leo_ast::CircuitImpliedVariableDefinition {
+                .map(|(name, value)| leo_ast::CircuitVariableInitializer {
                     identifier: name.clone(),
                     expression: Some(value.get().into()),
                 })

@@ -19,6 +19,7 @@ use crate::{Expression, Function, Identifier, Type};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// A member of a circuit definition.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CircuitMember {
     /// A static constant in a circuit.

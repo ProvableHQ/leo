@@ -23,6 +23,9 @@ name = "leo_ast"
 path = "benches/leo_ast.rs"
 harness = false
 
+[dependencies]
+smallvec = "1.8"
+
 [dependencies.leo-ast]
 path = "../ast"
 version = "1.5.3"

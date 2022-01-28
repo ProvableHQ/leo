@@ -16,11 +16,15 @@
 
 use crate::{Alias, AsgContext, AsgId, Circuit, DefinitionStatement, Function, Input, Type, Variable};
 
+use leo_ast::Dimension;
 use leo_errors::{AsgError, Result};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
-use std::cell::{Cell, RefCell};
+use std::{
+    cell::{Cell, RefCell},
+    ops::Deref,
+};
 
 /// An abstract data type that track the current bindings for variables, functions, and circuits.
 #[derive(Clone)]
@@ -178,16 +182,15 @@ impl<'a> Scope<'a> {
             leo_ast::Type::Array(sub_type, dimensions) => {
                 let item = Box::new(self.resolve_ast_type(&*sub_type, span)?);
 
-                use leo_ast::ArrayDimensions::*;
-                match dimensions {
-                    Unspecified => Type::ArrayWithoutSize(item),
-                    Number(num) => Type::Array(
+                match dimensions.deref() {
+                    [Dimension::Unspecified] => Type::ArrayWithoutSize(item),
+                    [Dimension::Number(num)] => Type::Array(
                         item,
                         num.to_string()
                             .parse::<u32>()
                             .map_err(|_| AsgError::parse_index_error(span))?,
                     ),
-                    Multi(_) => unimplemented!("multi array type should not exist at asg level"),
+                    _ => unreachable!("multi array type should not exist at asg level"),
                 }
             }
             leo_ast::Type::Tuple(sub_types) => Type::Tuple(

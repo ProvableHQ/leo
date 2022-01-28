@@ -30,7 +30,7 @@ pub struct TupleAccess<'a> {
     pub index: usize,
 }
 
-impl<'a> Node for TupleAccess<'a> {
+impl Node for TupleAccess<'_> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
@@ -116,7 +116,7 @@ impl<'a> FromAst<'a, leo_ast::TupleAccess> for TupleAccess<'a> {
     }
 }
 
-impl<'a> Into<leo_ast::TupleAccess> for &TupleAccess<'a> {
+impl Into<leo_ast::TupleAccess> for &TupleAccess<'_> {
     fn into(self) -> leo_ast::TupleAccess {
         leo_ast::TupleAccess {
             tuple: Box::new(self.tuple_ref.get().into()),
