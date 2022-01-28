@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected 'import', 'circuit', 'function', 'test', '@' -- got 'x'\n    --> test:3:1\n     |\n   3 | x.0_try_to_hit_hit_eat_int_unreachable\n     | ^"

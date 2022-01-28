@@ -11,4 +11,5 @@ circuit X {
 circuit X {
     x: u32,
     y: u32;
+    , // recovery witness
 }
