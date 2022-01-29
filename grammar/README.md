@@ -1456,12 +1456,10 @@ Finally we have conditional expressions.
 <a name="conditional-expression"></a>
 ```abnf
 conditional-expression = disjunctive-expression
-                       / disjunctive-expression
-                         "?" expression
-                         ":" conditional-expression
+                       / disjunctive-expression "?" expression ":" expression
 ```
 
-Go to: _[conditional-expression](#user-content-conditional-expression), [disjunctive-expression](#user-content-disjunctive-expression), [expression](#user-content-expression)_;
+Go to: _[disjunctive-expression](#user-content-disjunctive-expression), [expression](#user-content-expression)_;
 
 
 Those above are all the expressions.
