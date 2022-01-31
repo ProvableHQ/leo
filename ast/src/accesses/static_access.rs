@@ -14,25 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Node};
+use crate::{Expression, Identifier, Node, Type};
+
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
-pub struct ExpressionStatement {
-    pub expression: Expression,
+/// An access expression to a static member, e.g., a constant in a circuit.
+/// An example would be `Foo::Const` or `Foo::function` in `Foo::function()`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct StaticAccess {
+    /// Represents the container for the static member to access.
+    /// Usually this is a circuit.
+    pub inner: Box<Expression>,
+    /// The static member in `inner` that is being accessed.
+    pub name: Identifier,
+    /// An optional type initially None, it is later assigned during type inference snapshot if necessary.
+    // FIXME(Centril): Shouldn't be in an AST. Remove it as part of an architectural revamp.
+    pub type_: Option<Type>,
+    /// The span for the entire expression `inner::name`.
     pub span: Span,
 }
 
-impl fmt::Display for ExpressionStatement {
+impl fmt::Display for StaticAccess {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{};", self.expression)
+        write!(f, "{}::{}", self.inner, self.name)
     }
 }
 
-impl Node for ExpressionStatement {
+impl Node for StaticAccess {
     fn span(&self) -> &Span {
         &self.span
     }

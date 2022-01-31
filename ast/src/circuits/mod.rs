@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,12 +16,6 @@
 
 pub mod circuit;
 pub use circuit::*;
-
-pub mod circuit_variable_definition;
-pub use circuit_variable_definition::*;
-
-pub mod circuit_implied_variable_definition;
-pub use circuit_implied_variable_definition::*;
 
 pub mod circuit_member;
 pub use circuit_member::*;

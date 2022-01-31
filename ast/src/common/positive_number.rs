@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -23,7 +23,7 @@ use tendril::StrTendril;
 /// A number string guaranteed to be positive by the pest grammar.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
 pub struct PositiveNumber {
-    #[serde(with = "leo_errors::common::tendril_json")]
+    #[serde(with = "leo_span::tendril_json")]
     pub value: StrTendril,
 }
 

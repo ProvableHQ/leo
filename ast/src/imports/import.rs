@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::PackageOrPackages;
-use leo_errors::Span;
+use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -28,13 +28,11 @@ pub struct ImportStatement {
 }
 
 impl ImportStatement {
-    ///
     /// Returns the the package file name of the self import statement.
-    ///
-    pub fn get_file_name(&self) -> &str {
+    pub fn get_file_name(&self) -> Symbol {
         match self.package_or_packages {
-            PackageOrPackages::Package(ref package) => &package.name.name,
-            PackageOrPackages::Packages(ref packages) => &packages.name.name,
+            PackageOrPackages::Package(ref package) => package.name.name,
+            PackageOrPackages::Packages(ref packages) => packages.name.name,
         }
     }
 }

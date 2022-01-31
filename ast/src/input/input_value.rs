@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,17 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArrayDimensions, Char, CharValue, GroupValue};
-use leo_errors::Span as AstSpan;
+use crate::{ArrayDimensions, Char, CharValue, GroupValue, IntegerType};
 use leo_input::{
     errors::InputParserError,
     expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression, StringExpression, TupleExpression},
-    types::{ArrayType, CharType, DataType, IntegerType, TupleType, Type},
+    types::{ArrayType, CharType, DataType, IntegerType as InputIntegerType, TupleType, Type},
     values::{
         Address, AddressValue, BooleanValue, CharValue as InputCharValue, FieldValue, GroupValue as InputGroupValue,
         IntegerValue, NumberValue, Value,
     },
 };
+use leo_span::Span as AstSpan;
 use pest::Span;
 
 use std::fmt;
@@ -68,8 +68,8 @@ impl InputValue {
         Ok(InputValue::Char(CharValue { character, span }))
     }
 
-    fn from_number(integer_type: IntegerType, number: String) -> Self {
-        InputValue::Integer(integer_type, number)
+    fn from_number(integer_type: InputIntegerType, number: String) -> Self {
+        InputValue::Integer(integer_type.into(), number)
     }
 
     fn from_group(group: InputGroupValue) -> Self {
@@ -99,24 +99,24 @@ impl InputValue {
             (DataType::Integer(integer_type), Value::Integer(integer)) => {
                 match integer.clone() {
                     IntegerValue::Signed(signed) => {
-                        if let IntegerType::Signed(inner) = integer_type.clone() {
+                        if let InputIntegerType::Signed(inner) = integer_type.clone() {
                             let singed_type = signed.clone().type_;
                             if std::mem::discriminant(&inner) != std::mem::discriminant(&singed_type) {
                                 return Err(InputParserError::integer_type_mismatch(
                                     integer_type,
-                                    IntegerType::Signed(singed_type),
+                                    InputIntegerType::Signed(singed_type),
                                     integer.span(),
                                 ));
                             }
                         }
                     }
                     IntegerValue::Unsigned(unsigned) => {
-                        if let IntegerType::Unsigned(inner) = integer_type.clone() {
+                        if let InputIntegerType::Unsigned(inner) = integer_type.clone() {
                             let unsinged_type = unsigned.clone().type_;
                             if std::mem::discriminant(&inner) != std::mem::discriminant(&unsinged_type) {
                                 return Err(InputParserError::integer_type_mismatch(
                                     integer_type,
-                                    IntegerType::Unsigned(unsinged_type),
+                                    InputIntegerType::Unsigned(unsinged_type),
                                     integer.span(),
                                 ));
                             }
@@ -341,18 +341,16 @@ impl InputValue {
     }
 }
 
-///
 /// Returns a new vector of usize values from an [`ArrayDimensions`] type.
 ///
 /// Attempts to parse each dimension in the array from a `String` to a `usize` value. If parsing
 /// is successful, the `usize` value is appended to the return vector. If parsing fails, an error
 /// is returned.
-///
-fn parse_array_dimensions(array_dimensions_type: ArrayDimensions, span: &Span) -> Result<Vec<usize>, InputParserError> {
+fn parse_array_dimensions(dimensions: ArrayDimensions, span: &Span) -> Result<Vec<usize>, InputParserError> {
     // Convert the array dimensions to usize.
-    let mut array_dimensions = Vec::with_capacity(array_dimensions_type.0.len());
+    let mut result_array_dimensions = Vec::with_capacity(dimensions.len());
 
-    for dimension in array_dimensions_type.0 {
+    for dimension in dimensions.iter() {
         // Convert the dimension to a string.
         let dimension_string = dimension.to_string();
 
@@ -363,10 +361,10 @@ fn parse_array_dimensions(array_dimensions_type: ArrayDimensions, span: &Span) -
         };
 
         // Collect dimension usize values.
-        array_dimensions.push(dimension_usize);
+        result_array_dimensions.push(dimension_usize);
     }
 
-    Ok(array_dimensions)
+    Ok(result_array_dimensions)
 }
 
 ///

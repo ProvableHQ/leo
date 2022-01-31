@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,7 +17,9 @@
 //! A Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of ast statements and expressions.
 
-use crate::{Alias, Circuit, DefinitionStatement, Function, FunctionInput, Identifier, ImportStatement};
+use crate::{Alias, Circuit, CircuitMember, DefinitionStatement, Function, FunctionInput, Identifier, ImportStatement};
+
+use leo_span::{sym, Symbol};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -30,7 +32,7 @@ pub struct Program {
     pub expected_input: Vec<FunctionInput>,
     pub import_statements: Vec<ImportStatement>,
     #[serde(with = "crate::common::imported_modules")]
-    pub imports: IndexMap<Vec<String>, Program>,
+    pub imports: IndexMap<Vec<Symbol>, Program>,
     pub aliases: IndexMap<Identifier, Alias>,
     pub circuits: IndexMap<Identifier, Circuit>,
     #[serde(with = "crate::common::global_consts_json")]
@@ -88,10 +90,35 @@ impl Program {
         }
     }
 
-    pub fn set_core_mapping(&self, mapping: Option<&str>) {
-        for (_, circuit) in self.circuits.iter() {
-            circuit.core_mapping.replace(mapping.map(str::to_string));
-        }
+    pub fn handle_internal_annotations(&mut self) {
+        self.circuits
+            .iter_mut()
+            .flat_map(|(_, circuit)| &mut circuit.members)
+            .filter_map(|member| {
+                if let CircuitMember::CircuitFunction(function) = member {
+                    Some(function)
+                } else {
+                    None
+                }
+            })
+            .for_each(|function| {
+                function.annotations.retain(|name, core_map| {
+                    match *name {
+                        sym::CoreFunction => {
+                            let new = core_map.arguments.get(0).copied().or(Some(function.identifier.name));
+                            function.core_mapping.replace(new);
+                            false
+                        }
+                        sym::AlwaysConst => {
+                            function.const_ = true;
+                            false
+                        }
+                        // Could still be a valid annotation.
+                        // Carry on and let ASG handle.
+                        _ => true,
+                    }
+                })
+            });
     }
 
     pub fn get_name(&self) -> String {

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,22 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::*;
+use crate::{Expression, Node, PositiveNumber};
+use leo_span::Span;
 
+use std::fmt;
+
+use serde::{Deserialize, Serialize};
+
+/// An tuple access expression, e.g., `tuple.index`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ArrayAccessExpression {
-    pub array: Box<Expression>,
-    pub index: Box<Expression>,
+pub struct TupleAccess {
+    /// An expression evaluating to some tuple type, e.g., `(5, 2)`.
+    pub tuple: Box<Expression>,
+    /// The index to access in the tuple expression. E.g., `0` for `(5, 2)` would yield `5`.
+    pub index: PositiveNumber,
+    /// The span for the entire expression `tuple.index`.
     pub span: Span,
 }
 
-impl fmt::Display for ArrayAccessExpression {
+impl fmt::Display for TupleAccess {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}[{}]", self.array, self.index)
+        write!(f, "{}.{}", self.tuple, self.index)
     }
 }
 
-impl Node for ArrayAccessExpression {
+impl Node for TupleAccess {
     fn span(&self) -> &Span {
         &self.span
     }

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,11 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{InputValue, MainInput, ProgramInput, ProgramState, Record, Registers, State, StateLeaf};
+use crate::{ConstantInput, InputValue, MainInput, ProgramInput, ProgramState, Record, Registers, State, StateLeaf};
 use leo_input::{
     files::{File, TableOrSection},
     InputParserError,
 };
+use leo_span::Symbol;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct Input {
@@ -96,14 +97,24 @@ impl Input {
 
     /// Returns the main function input value with the given `name`.
     #[allow(clippy::ptr_arg)]
-    pub fn get(&self, name: &str) -> Option<Option<InputValue>> {
+    pub fn get(&self, name: Symbol) -> Option<Option<InputValue>> {
         self.program_input.get(name)
     }
 
     /// Returns the constant input value with the given `name`.
     #[allow(clippy::ptr_arg)]
-    pub fn get_constant(&self, name: &str) -> Option<Option<InputValue>> {
+    pub fn get_constant(&self, name: Symbol) -> Option<Option<InputValue>> {
         self.program_input.get_constant(name)
+    }
+
+    /// Returns the main input values
+    pub fn get_main_inputs(&self) -> &MainInput {
+        &self.program_input.main
+    }
+
+    /// Returns the main input values
+    pub fn get_constant_inputs(&self) -> &ConstantInput {
+        &self.program_input.constants
     }
 
     /// Returns the runtime register input values

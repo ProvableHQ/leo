@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -21,6 +21,9 @@
 //! of the Leo compiler. The Leo compiler can generate a set of R1CS constraints from any [`Ast`].
 
 #![doc = include_str!("../README.md")]
+
+pub mod accesses;
+pub use self::accesses::*;
 
 pub mod aliases;
 pub use self::aliases::*;

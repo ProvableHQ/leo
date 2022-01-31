@@ -14,29 +14,41 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Type};
+use crate::{Expression, Identifier, Node};
 use leo_span::Span;
 
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
-/// A type alias `type name = represents;`.
+/// A field access expression `inner.name` to some structure with *named fields*.
 ///
-/// That is, `name` will become another name for `represents`.
-/// This does not create a new type, that is, `name` is the same type as `represents`.
+/// For accesses to a positional fields in e.g., a tuple, see `TupleAccess`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct Alias {
-    /// The new name for `represents`.
+pub struct MemberAccess {
+    /// The structure that the field `name` is being extracted from.
+    pub inner: Box<Expression>,
+    /// The name of the field to extract in `inner`.
     pub name: Identifier,
-    /// A span for the entire `type name = represents;`.
+    /// The span covering all of `inner.name`.
     pub span: Span,
-    /// The type that `name` will evaluate and is equal to.
-    pub represents: Type,
+    // FIXME(Centril): Type information shouldn't be injected into an AST,
+    // so this field should eventually be removed.
+    pub type_: Option<crate::Type>,
 }
 
-impl fmt::Display for Alias {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} : {}", self.name.name, self.represents)
+impl fmt::Display for MemberAccess {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}.{}", self.inner, self.name)
+    }
+}
+
+impl Node for MemberAccess {
+    fn span(&self) -> &Span {
+        &self.span
+    }
+
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
     }
 }

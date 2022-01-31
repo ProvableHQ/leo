@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,17 +15,21 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Annotation, Block, FunctionInput, Identifier, Node, Type};
-use leo_errors::Span;
+use leo_span::{sym, Span, Symbol};
 
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
+use std::cell::Cell;
 use std::fmt;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Function {
-    pub annotations: Vec<Annotation>,
+    pub annotations: IndexMap<Symbol, Annotation>,
     pub identifier: Identifier,
     pub input: Vec<FunctionInput>,
+    pub const_: bool,
     pub output: Option<Type>,
+    pub core_mapping: Cell<Option<Symbol>>,
     pub block: Block,
     pub span: Span,
 }
@@ -39,8 +43,14 @@ impl PartialEq for Function {
 impl Eq for Function {}
 
 impl Function {
-    pub fn get_name(&self) -> &str {
-        &self.identifier.name
+    /// Returns function name.
+    pub fn name(&self) -> Symbol {
+        self.identifier.name
+    }
+
+    /// Returns `true` if the function name is `main`.
+    pub fn is_main(&self) -> bool {
+        self.name() == sym::main
     }
 
     ///
@@ -66,6 +76,9 @@ impl Function {
         self.input.iter().filter(|input| !input.is_self())
     }
 
+    ///
+    /// Private formatting method used for optimizing [fmt::Debug] and [fmt::Display] implementations.
+    ///
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "function {}", self.identifier)?;
 

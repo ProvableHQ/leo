@@ -14,29 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Type};
+use crate::{Expression, Node};
 use leo_span::Span;
 
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
-/// A type alias `type name = represents;`.
-///
-/// That is, `name` will become another name for `represents`.
-/// This does not create a new type, that is, `name` is the same type as `represents`.
+/// An array element access expression `array[index]`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct Alias {
-    /// The new name for `represents`.
-    pub name: Identifier,
-    /// A span for the entire `type name = represents;`.
+pub struct ArrayAccess {
+    /// The expression, evaluating to an array, that is being indexed.
+    pub array: Box<Expression>,
+    /// The index in `array` that is being accessed.
+    pub index: Box<Expression>,
+    /// The span of the entire expression `array[index]`.
     pub span: Span,
-    /// The type that `name` will evaluate and is equal to.
-    pub represents: Type,
 }
 
-impl fmt::Display for Alias {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} : {}", self.name.name, self.represents)
+impl fmt::Display for ArrayAccess {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}[{}]", self.array, self.index)
+    }
+}
+
+impl Node for ArrayAccess {
+    fn span(&self) -> &Span {
+        &self.span
+    }
+
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
     }
 }

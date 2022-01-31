@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,7 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Identifier;
-use leo_errors::Span;
+
+use leo_span::{sym, Span};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -52,7 +53,7 @@ impl ImportSymbol {
     pub fn star(span: &Span) -> Self {
         Self {
             symbol: Identifier {
-                name: "*".into(),
+                name: sym::Star,
                 span: span.clone(),
             },
             alias: None,
@@ -61,6 +62,6 @@ impl ImportSymbol {
     }
 
     pub fn is_star(&self) -> bool {
-        self.symbol.name.as_ref().eq("*")
+        self.symbol.name == sym::Star
     }
 }

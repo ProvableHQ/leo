@@ -28,10 +28,10 @@ It stores the path to an import and what is being imported.
 #### [Circuits](./src/circuits/circuit.rs)
 
 A circuit node represents a defined Circuit in a Leo Program.
-A order preserving map of these are stored on the Program.
-Contains the Circuit's name, as well as it's members.
-The members are a function, or a variable.
-For both of them the Circuit preserves their names.
+An order-preserving map of these are stored on the Program.
+Contains the Circuit's name, as well as its members.
+The members are a function, or a variable, or a constant.
+For all of them the Circuit preserves their names.
 
 #### [Decorators](./src/annotation.rs)
 
@@ -42,7 +42,7 @@ The node stores the name of the annotation, as well as any args passed to it.
 #### [Functions](./src/functions/function.rs)
 
 A function node represents a defined function in a Leo Program.
-A order preserving map of these are stored on the Program.
+An order-preserving map of these are stored on the Program.
 A function node stores the following information:
 
 - The annotations applied to the function.
@@ -54,7 +54,7 @@ A function node stores the following information:
 #### [Global Consts](./src/program.rs)
 
 A global const is a bit special and has no special node for itself, but rather is a definition statement.
-A order preserving map of these are stored on the Program.
+An order-preserving map of these are stored on the Program.
 
 ### [Types](./src/types/type_.rs)
 
@@ -75,7 +75,7 @@ The char type resents a character from the inclusive range [0, 10FFFF].
 
 #### Field
 
-The field type an unsigned number up to the modulus length of the field.
+The field type an unsigned number less than the modulus of the field.
 
 #### Group
 
@@ -127,15 +127,20 @@ A integer in the inclusive range [-170141183460469231731687303715884105728, 1701
 
 #### Array
 
-The array type contains another type, then the number of elements of that type greater than 0.
+The array type contains another type,
+then the number of elements of that type greater than 0
+for monodimensional arrays,
+or a list of such numbers of elements
+for multidimensional arrays.
 
 #### Tuple
 
 The tuple type contains n types, where n is greater than or equal to 0.
 
-#### Circuit
+#### Identifier
 
-The circuit type, every circuit represents a different type.
+An identifier type is either a circuit type or a type alias;
+every circuit type represents a different type.
 
 #### SelfType
 
@@ -153,9 +158,9 @@ An assignment statement node stores the following:
   - **=**
   - **+=**
   - **-=**
-  - **=**
+  - **\*=**
   - **/=**
-  - **=**
+  - **\*\*=**
   - **&&=**
   - **||=**
 - The assignee which is a variable that has context of any access expressions on it.
@@ -188,7 +193,7 @@ A definition statement node stores the following:
 - The declaration type:
   - `let` for mutable definitions.
   - `const` for cosntant definitions.
-- The names of the varaibles defined.
+- The names of the variables defined.
 - The optional type.
 - The values to be assigned to the varaibles.
 
@@ -204,7 +209,8 @@ A iteration statement node stores the following:
 
 - The loop iterator variable name.
 - The expression to define the starting loop value.
-- The expression to define the stoping loop value.
+- The expression to define the stopping loop value.
+- A flag indicating whether the stopping value is inclusive or not.
 - The block to run for the loop.
 
 #### [Return Statements](./src/statements/return_statement.rs)
@@ -213,11 +219,11 @@ A return statement node stores the following:
 
 - The expression that is being returned.
 
-### Expressions
+### [Expressions](./src/expressions/mod.rs)
 
 The expression nodes in a Leo Program.
 
-#### [ArrayAccess Expressions](./src/expression/array_acces.rs)
+#### [ArrayAccess Expressions](./src/accesses/array_access.rs)
 
 An array access expression node stores the following:
 
@@ -235,9 +241,9 @@ An array init expression node stores the following:
 
 An array inline expression node stores the following:
 
-- The elments of an array which is either an spread or an expression.
+- The elements of an array, each of which is either a spread or an expression.
 
-#### [ArrayRangeAccess Expressions](./src/expression/array_range_access.rs)
+#### [ArrayRangeAccess Expressions](./src/accesses/array_range_access.rs)
 
 An array range access expression node stores the following:
 
@@ -278,21 +284,23 @@ A call expression node stores the following:
 A circuit init expression node stores the following:
 
 - The name of the circuit expression being initialized.
-- The aruments a list of expressions.
+- The arguments a list of expressions.
 
-#### [CircuitMemberAccess Expressions](./src/expression/circuit_member_access.rs)
+#### [MemberAccess Expressions](./src/accesses/member_access.rs)
 
-A circuit member access expression node stores the following:
+A member access expression node stores the following:
 
-- The circut expression being accessed.
-- The name of the expression being accessed from the circuit.
+- The expression being accessed.
+- The name of the member being accessed.
+- The optional inferred type.
 
-#### [CircuitStaticFunctionAccess Expressions](./src/expression/circuit_static_function_access.rs)
+#### [StaticAccess Expressions](./src/accesses/static_access.rs)
 
-A circuit static function access expression node stores the following:
+A static function access expression node stores the following:
 
-- The circut expression being accessed.
-- The name of the expression being statically accessed from the circuit.
+- The expression being accessed.
+- The name of the member being statically accessed.
+- The optional inferred type.
 
 #### [Identifier Expressions](./src/common/identifier.rs)
 
@@ -308,7 +316,7 @@ A ternary expression node stores the following:
 - The expression returned if the condition is true.
 - The expression returned if the condition is false.
 
-#### [TupleAccess Expressions](./src/expression/tuple_access.rs)
+#### [TupleAccess Expressions](./src/accesses/tuple_access.rs)
 
 A tuple access expression node stores the following:
 
