@@ -1559,6 +1559,7 @@ dependencies = [
  "leo-imports",
  "leo-parser",
  "leo-span",
+ "leo-stdlib",
  "regex",
  "serde",
  "serde_json",
