@@ -134,7 +134,7 @@ impl ParserContext<'_> {
             let op = match op {
                 Token::Eq => BinaryOperation::Eq,
                 Token::NotEq => BinaryOperation::Ne,
-                _ => unreachable!("Impossible to reach area, unless a change broke the parser."),
+                _ => unreachable!("parse_equality_expression_ shouldn't produce this"),
             };
             expr = Self::bin_expr(expr, right, op);
         }
@@ -155,7 +155,7 @@ impl ParserContext<'_> {
                 Token::LtEq => BinaryOperation::Le,
                 Token::Gt => BinaryOperation::Gt,
                 Token::GtEq => BinaryOperation::Ge,
-                _ => unreachable!("Impossible to reach area, unless a change broke the parser."),
+                _ => unreachable!("parse_ordering_expression_ shouldn't produce this"),
             };
             expr = Self::bin_expr(expr, right, op);
         }
@@ -173,7 +173,7 @@ impl ParserContext<'_> {
             let op = match op {
                 Token::Add => BinaryOperation::Add,
                 Token::Minus => BinaryOperation::Sub,
-                _ => unreachable!("Impossible to reach area, unless a change broke the parser."),
+                _ => unreachable!("parse_additive_expression_ shouldn't produce this"),
             };
             expr = Self::bin_expr(expr, right, op);
         }
@@ -191,7 +191,7 @@ impl ParserContext<'_> {
             let op = match op {
                 Token::Mul => BinaryOperation::Mul,
                 Token::Div => BinaryOperation::Div,
-                _ => unreachable!("Impossible to reach area, unless a change broke the parser."),
+                _ => unreachable!("parse_multiplicative_expression_ shouldn't produce this"),
             };
             expr = Self::bin_expr(expr, right, op);
         }
@@ -248,7 +248,7 @@ impl ParserContext<'_> {
             let operation = match op.token {
                 Token::Not => UnaryOperation::Not,
                 Token::Minus => UnaryOperation::Negate,
-                _ => unreachable!("Impossible to reach area, unless a change broke the parser."),
+                _ => unreachable!("parse_unary_expression_ shouldn't produce this"),
             };
             // hack for const signed integer overflow issues
             if matches!(operation, UnaryOperation::Negate) {
@@ -379,7 +379,7 @@ impl ParserContext<'_> {
                         name: ident,
                     }));
                 }
-                _ => unreachable!("Impossible to reach area, unless a change broke the parser."),
+                _ => unreachable!("parse_postfix_expression_ shouldn't produce this"),
             }
         }
         Ok(expr)

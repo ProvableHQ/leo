@@ -67,7 +67,7 @@ impl<'a> ParserContext<'a> {
     }
 
     /// Returns the current token if there is one.
-    pub fn curr(&self) -> Option<&SpannedToken> {
+    pub fn peek_option(&self) -> Option<&SpannedToken> {
         self.tokens.last()
     }
 
@@ -84,25 +84,24 @@ impl<'a> ParserContext<'a> {
     }
 
     ///
-    /// Returns a reference to the next next token or error if it does not exist.
+    /// Returns a reference to the next SpannedToken or error if it does not exist.
     ///
     pub fn peek_next(&self) -> Result<&SpannedToken> {
         self.tokens.get(self.tokens.len() - 2).ok_or_else(|| self.eof())
     }
 
     ///
-    /// Returns a reference to the next SpannedToken or error if it does not exist.
+    /// Returns a reference to the current SpannedToken or error if it does not exist.
     ///
     pub fn peek(&self) -> Result<&SpannedToken> {
-        self.curr().ok_or_else(|| self.eof())
+        self.tokens.last().ok_or_else(|| self.eof())
     }
 
     ///
     /// Returns a reference to the next Token.
     ///
     pub fn peek_token(&self) -> Cow<'_, Token> {
-        self.tokens
-            .last()
+        self.peek_option()
             .map(|x| &x.token)
             .map(Cow::Borrowed)
             .unwrap_or_else(|| Cow::Owned(Token::Eof))
@@ -125,7 +124,7 @@ impl<'a> ParserContext<'a> {
     /// the next token does not exist.
     ///
     pub fn eat(&mut self, token: Token) -> Option<SpannedToken> {
-        if let Some(SpannedToken { token: inner, .. }) = self.curr() {
+        if let Some(SpannedToken { token: inner, .. }) = self.peek_option() {
             if &token == inner {
                 return self.bump();
             }
@@ -147,7 +146,7 @@ impl<'a> ParserContext<'a> {
     pub fn eat_identifier(&mut self) -> Option<Identifier> {
         if let Some(SpannedToken {
             token: Token::Ident(_), ..
-        }) = self.curr()
+        }) = self.peek_option()
         {
             if let SpannedToken {
                 token: Token::Ident(name),
@@ -156,7 +155,7 @@ impl<'a> ParserContext<'a> {
             {
                 return Some(Identifier { name, span });
             } else {
-                unreachable!("Impossible to reach area, unless a change broke the parser.")
+                unreachable!("eat_identifier_ shouldn't produce this")
             }
         }
         None
@@ -285,7 +284,7 @@ impl<'a> ParserContext<'a> {
     pub fn eat_int(&mut self) -> Option<(PositiveNumber, Span)> {
         if let Some(SpannedToken {
             token: Token::Int(_), ..
-        }) = self.curr()
+        }) = self.peek_option()
         {
             if let SpannedToken {
                 token: Token::Int(value),
@@ -294,7 +293,7 @@ impl<'a> ParserContext<'a> {
             {
                 return Some((PositiveNumber { value }, span));
             } else {
-                unreachable!("Impossible to reach area, unless a change broke the parser.")
+                unreachable!("eat_int_ shouldn't produce this")
             }
         }
         None
@@ -305,7 +304,7 @@ impl<'a> ParserContext<'a> {
     /// the next token  does not exist.
     ///
     pub fn eat_any(&mut self, token: &[Token]) -> Option<SpannedToken> {
-        if let Some(SpannedToken { token: inner, .. }) = self.curr() {
+        if let Some(SpannedToken { token: inner, .. }) = self.peek_option() {
             if token.iter().any(|x| x == inner) {
                 return self.bump();
             }
@@ -317,7 +316,7 @@ impl<'a> ParserContext<'a> {
     /// Returns the span of the next token if it is equal to the given [`Token`], or error.
     ///
     pub fn expect(&mut self, token: Token) -> Result<Span> {
-        if let Some(SpannedToken { token: inner, span }) = self.curr() {
+        if let Some(SpannedToken { token: inner, span }) = self.peek_option() {
             if &token == inner {
                 Ok(self.bump().unwrap().span)
             } else {
@@ -332,7 +331,7 @@ impl<'a> ParserContext<'a> {
     /// Returns the span of the next token if it is equal to one of the given [`Token`]s, or error.
     ///
     pub fn expect_oneof(&mut self, token: &[Token]) -> Result<SpannedToken> {
-        if let Some(SpannedToken { token: inner, span }) = self.curr() {
+        if let Some(SpannedToken { token: inner, span }) = self.peek_option() {
             if token.iter().any(|x| x == inner) {
                 Ok(self.bump().unwrap())
             } else {
@@ -368,7 +367,7 @@ impl<'a> ParserContext<'a> {
 
     /// Returns the [`Identifier`] of the next token if it is an [`Identifier`], or error.
     pub fn expect_ident(&mut self) -> Result<Identifier> {
-        if let Some(SpannedToken { token: inner, span }) = self.curr() {
+        if let Some(SpannedToken { token: inner, span }) = self.peek_option() {
             if let Token::Ident(_) = inner {
                 if let SpannedToken {
                     token: Token::Ident(name),
@@ -377,7 +376,7 @@ impl<'a> ParserContext<'a> {
                 {
                     Ok(Identifier { name, span })
                 } else {
-                    unreachable!("Impossible to reach area, unless a change broke the parser.")
+                    unreachable!("expect_ident_ shouldn't produce this")
                 }
             } else {
                 Err(ParserError::unexpected_str(inner, "ident", span).into())
@@ -444,6 +443,6 @@ impl<'a> ParserContext<'a> {
 
     /// Returns true if the current token is `(`.
     pub(super) fn peek_is_left_par(&self) -> bool {
-        matches!(self.curr().map(|t| &t.token), Some(Token::LeftParen))
+        matches!(self.peek_option().map(|t| &t.token), Some(Token::LeftParen))
     }
 }
