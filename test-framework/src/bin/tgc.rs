@@ -52,6 +52,9 @@ fn main() {
 }
 
 fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
+    // Load static stdlib files.
+    leo_stdlib::static_include_stdlib();
+
     // Variable that stores all the tests.
     let mut tests = Vec::new();
     let mut test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
