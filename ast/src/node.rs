@@ -16,10 +16,13 @@
 
 use leo_span::Span;
 
+/// A node in the AST.
 pub trait Node:
     std::fmt::Debug + std::fmt::Display + Clone + PartialEq + Eq + serde::Serialize + serde::de::DeserializeOwned
 {
+    /// Returns the span of the node.
     fn span(&self) -> &Span;
 
+    /// Sets the span of the node.
     fn set_span(&mut self, span: Span);
 }

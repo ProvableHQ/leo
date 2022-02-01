@@ -26,17 +26,30 @@ use std::fmt;
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Type {
     // Data types
+    /// The `address` type.
     Address,
+    /// The `bool` type.
     Boolean,
+    /// The `char` type.
     Char,
+    /// The `field` type.
     Field,
+    /// The `group` type.
     Group,
+    /// An integer type.
     IntegerType(IntegerType),
 
     // Data type wrappers
+    /// An array type `[element; dimensions]`.
     Array(Box<Type>, ArrayDimensions),
+
+    /// A tuple type `(T_0, T_1, ...)` made up of a list of types.
     Tuple(Vec<Type>),
-    Identifier(Identifier), // ex Circuit or Alias
+
+    /// A reference to either a nominal type (e.g., a `circuit`) or a type alias.
+    Identifier(Identifier),
+
+    /// The `Self` type, allowed within `circuit` definitions.
     SelfType,
 
     /// Placeholder for a type that could not be resolved or was not well-formed.

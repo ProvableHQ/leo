@@ -16,10 +16,18 @@
 
 use super::*;
 
+/// An array initializer expression, e.g., `[42; 5]`.
+/// constructing an array of `element` repeated according to `dimensions`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ArrayInitExpression {
+    /// The expression that all elements in the array will evaluate to.
     pub element: Box<Expression>,
+    /// The dimensions of the array.
+    ///
+    /// This could be a multi-dimensional array,
+    /// e.g., `[42; (2, 2)]`, giving you a matrix `[[42, 42], [42, 42]]`.
     pub dimensions: ArrayDimensions,
+    /// The span of the entire expression from `[` to `]`.
     pub span: Span,
 }
 

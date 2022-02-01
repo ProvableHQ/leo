@@ -22,9 +22,19 @@ use std::fmt;
 
 #[derive(Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub enum PackageAccess {
-    Star { span: Span },
+    /// A glob import `*`.
+    Star {
+        /// The span for the `*`.
+        span: Span,
+    },
+    /// A subpackage to import.
     SubPackage(Box<Package>),
+    /// A leaf package to import.
     Symbol(ImportSymbol),
+    /// Several subpackages to import.
+    // FIXME(Centril): This structure seems convoluted and unclear.
+    // Refactor and simplify the types to:
+    // https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast/ast/struct.UseTree.html.
     Multiple(Packages),
 }
 
@@ -49,6 +59,7 @@ impl Node for PackageAccess {
 }
 
 impl PackageAccess {
+    /// Formats `self` to `f`.
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             PackageAccess::Star { .. } => write!(f, "*"),

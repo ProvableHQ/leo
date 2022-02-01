@@ -67,6 +67,7 @@ impl Deref for ArrayDimensions {
 }
 
 impl ArrayDimensions {
+    /// Returns a single-dimensional array dimension.
     pub fn single(dim: Dimension) -> Self {
         Self(smallvec![dim])
     }

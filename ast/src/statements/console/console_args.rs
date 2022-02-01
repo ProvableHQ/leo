@@ -20,10 +20,14 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// The arguments `args` passed to `console.log(args)` or `console.error(args)`.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct ConsoleArgs {
+    /// The formatting string with `parameters` interpolated into it.
     pub string: Vec<Char>,
+    /// Parameters to interpolate in `string`.
     pub parameters: Vec<Expression>,
+    /// The span from `(` to `)`.
     pub span: Span,
 }
 

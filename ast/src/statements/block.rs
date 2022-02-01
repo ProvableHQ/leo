@@ -20,9 +20,12 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// A block `{ [stmt]* }` consisting of a list of statements to execute in order.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct Block {
+    /// The list of statements to execute.
     pub statements: Vec<Statement>,
+    /// The span from `{` to `}`.
     pub span: Span,
 }
 

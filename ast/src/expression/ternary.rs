@@ -16,11 +16,16 @@
 
 use super::*;
 
+/// A ternary conditional expression, that is, `condition ? if_true : if_false`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TernaryExpression {
+    /// The condition determining which branch to pick.
     pub condition: Box<Expression>,
+    /// The branch the expression evaluates to if `condition` evaluates to true.
     pub if_true: Box<Expression>,
+    /// The branch the expression evaluates to if `condition` evaluates to false.
     pub if_false: Box<Expression>,
+    /// The span from `condition` to `if_false`.
     pub span: Span,
 }
 

@@ -16,10 +16,15 @@
 
 use super::*;
 
+/// A function call expression, e.g., `foo(args)` or `Foo::bar(args)`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CallExpression {
+    /// An expression evaluating to a callable function,
+    /// either a member of a structure or a free function.
     pub function: Box<Expression>, // todo: make this identifier?
+    /// Expressions for the arguments passed to the functions parameters.
     pub arguments: Vec<Expression>,
+    /// Span of the entire call `function(arguments)`.
     pub span: Span,
 }
 

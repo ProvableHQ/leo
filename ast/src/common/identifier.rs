@@ -37,7 +37,9 @@ use std::{
 /// to reflect the new struct instantiation.
 #[derive(Clone)]
 pub struct Identifier {
+    /// The symbol that the user wrote, e.g., `foo`.
     pub name: Symbol,
+    /// A span locating where the identifier occured in the source.
     pub span: Span,
 }
 
@@ -52,6 +54,7 @@ impl Node for Identifier {
 }
 
 impl Identifier {
+    /// Constructs a new identifier with `name` and a default span.
     pub fn new(name: Symbol) -> Self {
         Self {
             name,
@@ -59,7 +62,7 @@ impl Identifier {
         }
     }
 
-    /// Check if the Identifier name matches the other name
+    /// Check if the Identifier name matches the other name.
     pub fn matches(&self, other: &Self) -> bool {
         self.name == other.name
     }
@@ -121,7 +124,7 @@ impl<'de> Deserialize<'de> for Identifier {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         struct IdentifierVisitor;
 
-        impl<'de> Visitor<'de> for IdentifierVisitor {
+        impl Visitor<'_> for IdentifierVisitor {
             type Value = Identifier;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {

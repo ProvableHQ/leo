@@ -16,9 +16,13 @@
 
 use super::*;
 
+/// A tuple construction expression, e.g., `(foo, false, 42)`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TupleInitExpression {
+    /// The elements of the tuple.
+    /// In the example above, it would be `foo`, `false`, and `42`.
     pub elements: Vec<Expression>,
+    /// The span from `(` to `)`.
     pub span: Span,
 }
 

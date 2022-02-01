@@ -20,14 +20,19 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// A package import specification.
 #[derive(Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Package {
+    /// The base package to import `access` from.
     pub name: Identifier,
+    /// A specification of what to import from `name`.
     pub access: PackageAccess,
+    /// The span including the `name` and the `access`.
     pub span: Span,
 }
 
 impl Package {
+    /// Formats `self` to `f`.
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}.{}", self.name, self.access)
     }

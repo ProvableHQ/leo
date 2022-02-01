@@ -20,13 +20,21 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// A bounded `for` loop statement `for variable in start .. =? stop block`.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct IterationStatement {
+    /// The binding / variable to introduce in the body `block`.
     pub variable: Identifier,
+    /// The start of the iteration.
     pub start: Expression,
+    /// The end of the iteration, possibly `inclusive`.
     pub stop: Expression,
+    /// Whether `stop` is inclusive or not.
+    /// Signified with `=` when parsing.
     pub inclusive: bool,
+    /// The block to run on each iteration.
     pub block: Block,
+    /// The span from `for` to `block`.
     pub span: Span,
 }
 

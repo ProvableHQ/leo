@@ -25,6 +25,7 @@ use std::fmt;
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq)]
 #[serde(transparent)]
 pub struct SelfKeyword {
+    /// Always just `self`.
     pub identifier: Identifier,
 }
 

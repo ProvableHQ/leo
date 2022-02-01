@@ -46,26 +46,34 @@ pub use cast::*;
 mod err;
 pub use err::*;
 
-/// Expression that evaluates to a value
+/// Expression that evaluates to a value.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Expression {
+    /// An identifier expression.
     Identifier(Identifier),
+    /// A literal expression.
     Value(ValueExpression),
+    /// A binary expression, e.g., `42 + 24`.
     Binary(BinaryExpression),
+    /// An unary expression.
     Unary(UnaryExpression),
+    /// A ternary conditional expression `cond ? if_expr : else_expr`.
     Ternary(TernaryExpression),
+    /// A cast expression `expr as type`.
     Cast(CastExpression),
+    /// An access expression of some sort, e.g., `array[idx]` or `foo.bar`.
     Access(AccessExpression),
-
+    /// An array expression where individual elements are listed inline,
+    /// for example `[4, 6, ...[5, 7], 2]`.
     ArrayInline(ArrayInlineExpression),
+    /// An array-repeat expression, e.g., `[42; 3]` yielding `[42, 42, 42]`.
     ArrayInit(ArrayInitExpression),
-
+    /// A tuple expression e.g., `(foo, 42, true)`.
     TupleInit(TupleInitExpression),
-
+    /// An expression constructing a structure like `Foo { bar: 42, baz }`.
     CircuitInit(CircuitInitExpression),
-
+    /// A call expression like `my_fun(args)`.
     Call(CallExpression),
-
     /// An expression of type "error".
     /// Will result in a compile error eventually.
     Err(ErrExpression),

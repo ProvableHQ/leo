@@ -20,12 +20,18 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// A function parameter.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FunctionInputVariable {
+    /// The name the parameter is accessible as in the function's body.
     pub identifier: Identifier,
+    /// Is it a const parameter?
     pub const_: bool,
+    /// Is it a mutable parameter?
     pub mutable: bool,
+    /// What's the parameter's type?
     pub type_: Type,
+    /// The parameters span from any annotations to its type.
     pub span: Span,
 }
 

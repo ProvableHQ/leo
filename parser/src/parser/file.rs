@@ -148,14 +148,14 @@ impl ParserContext<'_> {
 
     /// Returns a vector of [`PackageAccess`] AST nodes if the next tokens represent package access
     /// expressions within an import statement.
-    pub fn parse_package_accesses(&mut self, span: &Span) -> Result<Vec<PackageAccess>> {
-        let (out, ..) = self.parse_paren_comma_list(|p| p.parse_package_access().map(Some))?;
+    pub fn parse_package_accesses(&mut self, start: &Span) -> Result<(Vec<PackageAccess>, Span)> {
+        let (out, _, end) = self.parse_paren_comma_list(|p| p.parse_package_access().map(Some))?;
 
         if out.is_empty() {
-            self.emit_err(ParserError::invalid_import_list(span));
+            self.emit_err(ParserError::invalid_import_list(&end));
         }
 
-        Ok(out)
+        Ok((out, start + &end))
     }
 
     ///
@@ -262,22 +262,15 @@ impl ParserContext<'_> {
     /// with accesses.
     ///
     pub fn parse_package_path(&mut self) -> Result<PackageOrPackages> {
-        let package_name = self.parse_package_name()?;
+        let name = self.parse_package_name()?;
         self.expect(Token::Dot)?;
         if self.peek_is_left_par() {
-            let accesses = self.parse_package_accesses(&package_name.span)?;
-            Ok(PackageOrPackages::Packages(Packages {
-                span: &package_name.span + accesses.last().map(|x| x.span()).unwrap_or(&package_name.span),
-                name: package_name,
-                accesses,
-            }))
+            let (accesses, span) = self.parse_package_accesses(&name.span)?;
+            Ok(PackageOrPackages::Packages(Packages { span, name, accesses }))
         } else {
             let access = self.parse_package_access()?;
-            Ok(PackageOrPackages::Package(Package {
-                span: &package_name.span + access.span(),
-                name: package_name,
-                access,
-            }))
+            let span = &name.span + access.span();
+            Ok(PackageOrPackages::Package(Package { span, name, access }))
         }
     }
 

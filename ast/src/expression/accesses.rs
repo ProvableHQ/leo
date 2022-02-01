@@ -17,12 +17,18 @@
 use super::*;
 use crate::accesses::*;
 
+/// An access expressions, extracting a smaller part out of a whole.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AccessExpression {
+    /// An `array[index]` expression.
     Array(ArrayAccess),
+    /// An expression accessing a range of an array.
     ArrayRange(ArrayRangeAccess),
+    /// An expression accessing a field in a structure, e.g., `circuit_var.field`.
     Member(MemberAccess),
+    /// Access to a tuple field using its position, e.g., `tuple.1`.
     Tuple(TupleAccess),
+    /// Access to a member constant or a static function of a circuit.
     Static(StaticAccess),
 }
 
