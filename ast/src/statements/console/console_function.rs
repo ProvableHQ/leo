@@ -20,10 +20,17 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// A console logging function to invoke.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum ConsoleFunction {
+    /// A `console.assert(expr)` call to invoke,
+    /// asserting that the expression evaluates to `true`.
     Assert(Expression),
+    /// A `console.error(args)` call to invoke,
+    /// resulting in an error at runtime.
     Error(ConsoleArgs),
+    /// A `console.log(args)` call to invoke,
+    /// resulting in a log message at runtime.
     Log(ConsoleArgs),
 }
 

@@ -24,12 +24,15 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use tendril::StrTendril;
 
+/// A group literal.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GroupValue {
+    /// Single group literal, e.g., `42group`.
     Single(
         #[serde(with = "leo_span::tendril_json")] StrTendril,
         #[serde(with = "leo_span::span_json")] Span,
     ),
+    /// A tuple group literal with (x, y) coordinates.
     Tuple(GroupTuple),
 }
 
@@ -69,10 +72,14 @@ impl fmt::Display for GroupValue {
     }
 }
 
+/// A group tuple literal, e.g., `(42, 24)group`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct GroupTuple {
+    /// The left component of the type, e.g., `42` in the case above.
     pub x: GroupCoordinate,
+    /// The right component of the type, e.g., `24` in the case above.
     pub y: GroupCoordinate,
+    /// The span from `(` to `)`.
     pub span: Span,
 }
 

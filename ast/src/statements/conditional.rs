@@ -20,11 +20,16 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// An `if condition block (else next)?` statement.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct ConditionalStatement {
+    /// The `bool`-typed condition deciding what to evaluate.
     pub condition: Expression,
+    /// The block to evaluate in case `condition` yields `true`.
     pub block: Block,
+    /// The statement, if any, to evaluate when `condition` yields `false`.
     pub next: Option<Box<Statement>>,
+    /// The span from `if` to `next` or to `block`.
     pub span: Span,
 }
 

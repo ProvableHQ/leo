@@ -21,10 +21,17 @@ use leo_span::{sym, Span};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// An import of `symbol` possibly renamed to `alias`,
+/// e.g., `symbol` or `symbol as alias`.
+///
+/// This is the leaf of an import tree.
 #[derive(Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ImportSymbol {
     pub symbol: Identifier,
+    /// The name, if any, to import `symbol` as.
+    /// If not specified, `symbol` is the name it is imported under.
     pub alias: Option<Identifier>,
+    /// The span including `symbol` and possibly `as alias`.
     pub span: Span,
 }
 
@@ -50,6 +57,7 @@ impl fmt::Debug for ImportSymbol {
 }
 
 impl ImportSymbol {
+    /// Creates a glob `*` import.
     pub fn star(span: &Span) -> Self {
         Self {
             symbol: Identifier {
@@ -61,6 +69,7 @@ impl ImportSymbol {
         }
     }
 
+    /// Is this a glob import?
     pub fn is_star(&self) -> bool {
         self.symbol.name == sym::Star
     }
