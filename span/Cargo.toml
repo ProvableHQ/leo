@@ -18,11 +18,8 @@ license = "GPL-3.0"
 edition = "2021"
 rust-version = "1.56.1"
 
-[dependencies]
-fxhash = "0.2.1"
-scoped-tls = "1.0.0"
-pest = "2.0"
-tendril = "0.4.2"
+[dependencies.fxhash]
+version = "0.2.1"
 
 [dependencies.indexmap]
 version = "1.8"
@@ -31,3 +28,13 @@ features = ["serde"]
 [dependencies.serde]
 version = "1.0.133"
 features = [ "derive", "rc" ]
+
+[dependencies.scoped-tls]
+version = "1.0.0"
+
+[dependencies.pest]
+version = "2.0"
+
+[dependencies.tendril]
+version = "0.4.2"
+

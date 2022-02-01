@@ -18,8 +18,8 @@ license = "GPL-3.0"
 edition = "2021"
 rust-version = "1.56"
 
-[dependencies]
-colored = "2.0.0"
+[dependencies.backtrace]
+version = "0.3.62"
 
 [dependencies.leo-span]
 path = "../span"
@@ -28,6 +28,9 @@ version = "1.5.3"
 [dependencies.leo-input]
 path = "../input"
 version = "1.5.3"
+
+[dependencies.colored]
+version = "2.0.0"
 
 [dependencies.color-backtrace]
 version = "0.5.1"
@@ -38,9 +41,6 @@ version = "2.2.0"
 [dependencies.eyre]
 version = "0.6.6"
 default-features = false
-
-[dependencies.backtrace]
-version = "0.3.62"
 
 [dependencies.pest]
 version = "2.0"

@@ -14,9 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-// pub mod blake2s;
-// pub use blake2s::*;
-
 use crate::{ConstrainedValue, GroupType};
 use leo_asg::Function;
 use leo_errors::{Result, Span};

@@ -58,6 +58,7 @@ version = "0.8"
 version = "0.3"
 
 # List of dependencies for errcov
+
 [dependencies.leo-errors]
 path = "../errors"
 version = "1.5.3"

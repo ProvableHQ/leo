@@ -4,11 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 1
-      num_constraints: 1
-      at: 042610d0fd1fe6d6ac112138f8755752f44c7d2a00f1b5960574d6da5cda393f
-      bt: e97756698880ab7555a959a5fb5c6b4e15bd64612aa677adbfe2d0bd91f0a83c
-      ct: cf1cbb66a638b4860a516671fb74850e6ccf787fe6c4c8d29e9c04efe880bd05
+      num_private_variables: 13
+      num_constraints: 17
+      at: cb933482c3e31654992014a6382c2d8c813651daddca53e2ddb30d62b4a7619b
+      bt: be851053d35028476633a81957d2f12dc4b49a7000c438c9b04708f6424bc27d
+      ct: d81046dae7b01d28a390bfa9f361de8410e930ce7d7e2eb1e8b5829c70a63606
     output:
       - input_file: "../input/dummy.in"
         output:

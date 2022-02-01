@@ -1,4 +1,4 @@
-name: WASM 
+name: WASM
 on:
   pull_request:
     push:
