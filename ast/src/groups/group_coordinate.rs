@@ -24,7 +24,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use tendril::StrTendril;
 
-/// A coordinate in a tuple group literal.
+/// A coordinate in a affine group literal.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GroupCoordinate {
     /// A number, e.g., `42`.

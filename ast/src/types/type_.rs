@@ -28,13 +28,13 @@ pub enum Type {
     // Data types
     /// The `address` type.
     Address,
-    /// The boolean `bool` type.
+    /// The `bool` type.
     Boolean,
     /// The `char` type.
     Char,
     /// The `field` type.
     Field,
-    /// The `group` type for expressions like `(42, 24)group`.
+    /// The `group` type.
     Group,
     /// An integer type.
     IntegerType(IntegerType),

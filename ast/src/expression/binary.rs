@@ -47,11 +47,11 @@ pub enum BinaryOperation {
     Le,
     /// Lesser-than relation, i.e. `<`.
     Lt,
-    /// Bitwise-or, i.e., `|`.
+    /// Bitwise-or inclusive, i.e., `|`.
     BitOr,
     /// Bitwise-and, i.e., `&`.
     BitAnd,
-    /// Bitwise-or, i.e., `^`.
+    /// Bitwise-or exclusive, i.e., `^`.
     BitXor,
     /// Shift-right, i.e `>>`.
     Shr,

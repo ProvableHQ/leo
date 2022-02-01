@@ -31,7 +31,7 @@ pub struct Function {
     pub identifier: Identifier,
     /// The function's parameters.
     pub input: Vec<FunctionInput>,
-    /// WHether the function is `const`.
+    /// The function returns a constant value.
     pub const_: bool,
     /// The function return type, if explicitly specified, or `()` if not.
     pub output: Option<Type>,

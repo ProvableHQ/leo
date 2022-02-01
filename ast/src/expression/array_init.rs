@@ -25,7 +25,7 @@ pub struct ArrayInitExpression {
     /// The dimensions of the array.
     ///
     /// This could be a multi-dimensional array,
-    /// e.g., `[42; (2, 2)]`, giving you a matrix `[[2, 2], [2, 2]]`.
+    /// e.g., `[42; (2, 2)]`, giving you a matrix `[[42, 42], [42, 42]]`.
     pub dimensions: ArrayDimensions,
     /// The span of the entire expression from `[` to `]`.
     pub span: Span,

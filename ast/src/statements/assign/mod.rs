@@ -29,15 +29,15 @@ pub use assignee::*;
 pub enum AssignOperation {
     /// Plain assignment, `=`.
     Assign,
-    /// Add-assignment, `+=`.
+    /// Adding assignment, `+=`.
     Add,
     /// Subtracting assignment, `-=`.
     Sub,
-    /// Multiplicating assignment, `*=`.
+    /// Multiplying assignment, `*=`.
     Mul,
-    /// Divising-assignment, `/=`.
+    /// Dividing-assignment, `/=`.
     Div,
-    /// Exponentating assignment `**=`.
+    /// Exponentiating assignment `**=`.
     Pow,
     /// Logical or assignment.
     Or,

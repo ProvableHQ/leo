@@ -16,15 +16,15 @@
 
 use super::*;
 
-/// The unary operator for an unary expression.
+/// A unary operator for a unary expression.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum UnaryOperation {
-    /// The logical not operator, i.e., `!`.
+    /// The logical negation operator, i.e., `!`.
     /// For example, it transforms `true` to `false`.
     Not,
-    /// The negation operator, i.e., `-`.
+    /// The arithmetic negation operator, i.e., `-`.
     Negate,
-    /// The bitwise not operator, i.e., `~`.
+    /// The bitwise negation operator, i.e., `~`.
     /// For example, it transforms `1010` to `0101`.
     BitNot,
 }

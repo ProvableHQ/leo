@@ -36,12 +36,12 @@ pub enum ValueExpression {
     /// A char literal, e.g., `'a'`, representing a single unicode code point.
     Char(CharValue),
     /// A field literal, e.g., `42field`.
-    /// That is, an unsigned number followed by the keyword `field`.
+    /// That is, a signed number followed by the keyword `field`.
     Field(
         #[serde(with = "leo_span::tendril_json")] StrTendril,
         #[serde(with = "leo_span::span_json")] Span,
     ),
-    /// A group literal, either single or tuple.
+    /// A group literal, either product or affine.
     /// For example, `42group` or `(12, 52)group`.
     Group(Box<GroupValue>),
     /// A negated non-integer literal, e.g., `-4.2`.

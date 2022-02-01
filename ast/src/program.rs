@@ -31,7 +31,7 @@ pub struct Program {
     /// The name of the program.
     /// Empty after parsing.
     pub name: String,
-    /// Expected function inputs.
+    /// Expected main function inputs.
     /// Empty after parsing.
     pub expected_input: Vec<FunctionInput>,
     /// The collected import statements.
