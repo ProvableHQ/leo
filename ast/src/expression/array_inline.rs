@@ -16,9 +16,14 @@
 
 use super::*;
 
+/// An expression constructing an array by listing the individual elements inline,
+/// for example `[4, 6, 5, 2]`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ArrayInlineExpression {
+    /// A list, where a part can be either an element,
+    /// or list of elements to construct the array with.
     pub elements: Vec<SpreadOrExpression>,
+    /// The span of the entire expression from `[` to `]`.
     pub span: Span,
 }
 

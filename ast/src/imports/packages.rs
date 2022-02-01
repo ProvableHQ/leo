@@ -20,14 +20,19 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// Import of `name.(accesses)`, that is, several sub-packages or items within `name`.
 #[derive(Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Packages {
+    /// The common package that `accesses` are contained within.
     pub name: Identifier,
+    /// The packages or items to import within the package `name`.
     pub accesses: Vec<PackageAccess>,
+    /// The entire span for `name.(accesses)`.
     pub span: Span,
 }
 
 impl Packages {
+    /// Formats `self` to `f`.
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}.(", self.name)?;
         for (i, access) in self.accesses.iter().enumerate() {

@@ -17,6 +17,7 @@
 use crate::{Ast, Program};
 use leo_errors::Result;
 
+/// A pass consuming a `Program` and possibly returning an `Ast`.
 pub trait AstPass {
     fn do_pass(self, ast: Program) -> Result<Ast>;
 }

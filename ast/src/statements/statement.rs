@@ -24,13 +24,22 @@ use std::fmt;
 /// Program statement that defines some action (or expression) to be carried out.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum Statement {
+    /// A return statement `return expr;`.
     Return(ReturnStatement),
+    /// A binding or set of bindings / variables to declare.
     Definition(DefinitionStatement),
+    /// An assignment statement.
     Assign(Box<AssignStatement>),
+    /// An `if` statement.
     Conditional(ConditionalStatement),
+    /// A `for` statement.
     Iteration(Box<IterationStatement>),
+    /// A console logging statement.
     Console(ConsoleStatement),
+    /// An expression statement turning an expression into a statement,
+    /// using the expression only for its side-effects.
     Expression(ExpressionStatement),
+    /// A block statement.
     Block(Block),
 }
 

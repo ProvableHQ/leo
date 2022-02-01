@@ -16,8 +16,10 @@
 
 use super::*;
 
+/// Represents a syntactically invalid expression.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ErrExpression {
+    /// The span of the invalid expression.
     pub span: Span,
 }
 

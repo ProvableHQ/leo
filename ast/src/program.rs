@@ -28,15 +28,25 @@ use std::fmt;
 /// Stores the Leo program abstract syntax tree.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Program {
+    /// The name of the program.
+    /// Empty after parsing.
     pub name: String,
+    /// Expected function inputs.
+    /// Empty after parsing.
     pub expected_input: Vec<FunctionInput>,
+    /// The collected import statements.
     pub import_statements: Vec<ImportStatement>,
     #[serde(with = "crate::common::imported_modules")]
+    /// A map from paths to injected programs.
     pub imports: IndexMap<Vec<Symbol>, Program>,
+    /// A map from alias names to type aliases.
     pub aliases: IndexMap<Identifier, Alias>,
+    /// A map from circuit names to circuit definitions.
     pub circuits: IndexMap<Identifier, Circuit>,
+    /// A map from constant names to their definitions.
     #[serde(with = "crate::common::global_consts_json")]
     pub global_consts: IndexMap<Vec<Identifier>, DefinitionStatement>,
+    /// A map from function names to their definitions.
     pub functions: IndexMap<Identifier, Function>,
 }
 
@@ -77,6 +87,7 @@ impl fmt::Display for Program {
 }
 
 impl Program {
+    /// Constructs an empty program with `name`.
     pub fn new(name: String) -> Self {
         Self {
             name,
@@ -90,6 +101,7 @@ impl Program {
         }
     }
 
+    /// Handles all internal annotations like `@CoreFunction` and `@AlwaysConst`.
     pub fn handle_internal_annotations(&mut self) {
         self.circuits
             .iter_mut()
@@ -121,10 +133,12 @@ impl Program {
             });
     }
 
+    /// Extract the name of the program.
     pub fn get_name(&self) -> String {
         self.name.to_string()
     }
 
+    /// Sets the name of the program.
     pub fn name(mut self, name: String) -> Self {
         self.name = name;
         self

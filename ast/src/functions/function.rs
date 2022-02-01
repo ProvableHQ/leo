@@ -22,15 +22,25 @@ use serde::{Deserialize, Serialize};
 use std::cell::Cell;
 use std::fmt;
 
+/// A function definition.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Function {
+    /// A map of all the annotations from their base names to the whole.
     pub annotations: IndexMap<Symbol, Annotation>,
+    /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
     pub identifier: Identifier,
+    /// The function's parameters.
     pub input: Vec<FunctionInput>,
+    /// WHether the function is `const`.
     pub const_: bool,
+    /// The function return type, if explicitly specified, or `()` if not.
     pub output: Option<Type>,
+    /// Any mapping to the core library.
+    /// Always `None` when initially parsed.
     pub core_mapping: Cell<Option<Symbol>>,
+    /// The body of the function.
     pub block: Block,
+    /// The entire span of the function definition.
     pub span: Span,
 }
 

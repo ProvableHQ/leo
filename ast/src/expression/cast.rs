@@ -18,10 +18,14 @@ use crate::Type;
 
 use super::*;
 
+/// A cast expression `e as U`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CastExpression {
+    /// The expression `e` of a type `T` that is being cast to `U`.
     pub inner: Box<Expression>,
+    /// The type `U` to cast `e` to.
     pub target_type: Type,
+    /// Span for the entire expression `e as U` to.
     pub span: Span,
 }
 

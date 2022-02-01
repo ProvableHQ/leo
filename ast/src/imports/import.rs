@@ -23,7 +23,9 @@ use std::fmt;
 /// Represents an import statement in a Leo program.
 #[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ImportStatement {
+    /// The package or packages to import.
     pub package_or_packages: PackageOrPackages,
+    /// The span, excluding the `;`.
     pub span: Span,
 }
 

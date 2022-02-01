@@ -20,9 +20,12 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// A console logging statement like `console.log(...);`.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ConsoleStatement {
+    /// The logging function to run.
     pub function: ConsoleFunction,
+    /// The span excluding the semicolon.
     pub span: Span,
 }
 

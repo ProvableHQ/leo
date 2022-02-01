@@ -20,16 +20,22 @@ use leo_span::{sym, Span, Symbol};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// An annotation `@name (arguments)?`.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Annotation {
+    /// The span including `name ( arguments )`.
     pub span: Span,
+    /// The name of the annotation.
     pub name: Identifier,
+    /// Arguments for the annotation, if any.
     pub arguments: Vec<Symbol>,
 }
 
+/// The set of allowed annotations.
 const ALLOWED_ANNOTATIONS: &[Symbol] = &[sym::test];
 
 impl Annotation {
+    /// Is the annotation valid?
     pub fn is_valid_annotation(&self) -> bool {
         ALLOWED_ANNOTATIONS.iter().any(|name| self.name.name == *name)
     }

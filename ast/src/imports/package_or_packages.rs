@@ -20,13 +20,17 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// A specification of what packages to import.
 #[derive(Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub enum PackageOrPackages {
+    /// Instruction to import a single package or item.
     Package(Package),
+    /// Instruction to import a packages or items with a common prefix.
     Packages(Packages),
 }
 
 impl PackageOrPackages {
+    /// Formats `self` to `f`.
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             PackageOrPackages::Package(ref package) => write!(f, "{}", package),

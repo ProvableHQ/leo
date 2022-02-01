@@ -40,11 +40,13 @@ pub enum IntegerType {
 }
 
 impl IntegerType {
+    /// Is the integer type a signed one?
     pub fn is_signed(&self) -> bool {
         use IntegerType::*;
         matches!(self, I8 | I16 | I32 | I64 | I128)
     }
 
+    /// Returns the symbol for the integer type.
     pub fn symbol(self) -> Symbol {
         match self {
             Self::I8 => sym::i8,
