@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected { -- got 'circuit'\n    --> test:4:1\n     |\n   4 | circuit ;\n     | ^^^^^^^"

@@ -20,9 +20,12 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// A return statement `return expression;`.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct ReturnStatement {
+    /// The expression to return to the function caller.
     pub expression: Expression,
+    /// The span of `return expression` excluding the semicolon.
     pub span: Span,
 }
 

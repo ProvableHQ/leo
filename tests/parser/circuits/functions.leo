@@ -10,4 +10,7 @@ circuit X {
     function y() {
         return ();
     }
+    const function z() {
+        return ();
+    }
 }

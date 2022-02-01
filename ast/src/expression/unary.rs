@@ -16,10 +16,16 @@
 
 use super::*;
 
+/// A unary operator for a unary expression.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum UnaryOperation {
+    /// The logical negation operator, i.e., `!`.
+    /// For example, it transforms `true` to `false`.
     Not,
+    /// The arithmetic negation operator, i.e., `-`.
     Negate,
+    /// The bitwise negation operator, i.e., `~`.
+    /// For example, it transforms `1010` to `0101`.
     BitNot,
 }
 
@@ -33,10 +39,14 @@ impl AsRef<str> for UnaryOperation {
     }
 }
 
+/// An unary expression applying an operator to an inner expression.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct UnaryExpression {
+    /// The inner expression `op` is applied to.
     pub inner: Box<Expression>,
+    /// The unary operator to apply to `inner`.
     pub op: UnaryOperation,
+    /// The span covering `op inner`.
     pub span: Span,
 }
 

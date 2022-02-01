@@ -24,22 +24,38 @@ use std::fmt;
 mod assignee;
 pub use assignee::*;
 
+/// The assignment operator.
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum AssignOperation {
+    /// Plain assignment, `=`.
     Assign,
+    /// Adding assignment, `+=`.
     Add,
+    /// Subtracting assignment, `-=`.
     Sub,
+    /// Multiplying assignment, `*=`.
     Mul,
+    /// Dividing-assignment, `/=`.
     Div,
+    /// Exponentiating assignment `**=`.
     Pow,
+    /// Logical or assignment.
     Or,
+    /// Logical and assignment.
     And,
+    /// Bitwise or assignment.
     BitOr,
+    /// Bitwise and assignment.
     BitAnd,
+    /// Bitwise xor assignment.
     BitXor,
+    /// Shift right assignment.
     Shr,
+    /// Signed shift right assignment.
     ShrSigned,
+    /// Shift left assignment.
     Shl,
+    /// Modulus / remainder assignment.
     Mod,
 }
 
@@ -65,11 +81,17 @@ impl AsRef<str> for AssignOperation {
     }
 }
 
+/// An assignment statement, `assignee operation? = value`.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct AssignStatement {
+    /// The assignment operation.
+    /// For plain assignment, use `AssignOperation::Assign`.
     pub operation: AssignOperation,
+    /// The place to assign to.
     pub assignee: Assignee,
+    /// The value to assign to the `assignee`.
     pub value: Expression,
+    /// The span, excluding the semicolon.
     pub span: Span,
 }
 

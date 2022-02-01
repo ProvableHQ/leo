@@ -2,133 +2,171 @@
 namespace: ParseExpression
 expectation: Pass
 outputs:
-  - ArrayRangeAccess:
-      array:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[..]\\\"}\"}"
-      left: ~
-      right: ~
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 6
-        path: ""
-        content: "x[..]"
-  - ArrayRangeAccess:
-      array:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[1..]\\\"}\"}"
-      left:
-        Value:
-          Implicit:
-            - "1"
-            - span:
+  - Access:
+      ArrayRange:
+        array:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[..]\\\"}\"}"
+        left: ~
+        right: ~
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 6
+          path: ""
+          content: "x[..]"
+  - Access:
+      ArrayRange:
+        array:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[1..]\\\"}\"}"
+        left:
+          Value:
+            Implicit:
+              - "1"
+              - span:
+                  line_start: 1
+                  line_stop: 1
+                  col_start: 3
+                  col_stop: 4
+                  path: ""
+                  content: "x[1..]"
+        right: ~
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: ""
+          content: "x[1..]"
+  - Access:
+      ArrayRange:
+        array:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[..1]\\\"}\"}"
+        left: ~
+        right:
+          Value:
+            Implicit:
+              - "1"
+              - span:
+                  line_start: 1
+                  line_stop: 1
+                  col_start: 5
+                  col_stop: 6
+                  path: ""
+                  content: "x[..1]"
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: ""
+          content: "x[..1]"
+  - Access:
+      ArrayRange:
+        array:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[1..1]\\\"}\"}"
+        left:
+          Value:
+            Implicit:
+              - "1"
+              - span:
+                  line_start: 1
+                  line_stop: 1
+                  col_start: 3
+                  col_stop: 4
+                  path: ""
+                  content: "x[1..1]"
+        right:
+          Value:
+            Implicit:
+              - "1"
+              - span:
+                  line_start: 1
+                  line_stop: 1
+                  col_start: 6
+                  col_stop: 7
+                  path: ""
+                  content: "x[1..1]"
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 8
+          path: ""
+          content: "x[1..1]"
+  - Access:
+      ArrayRange:
+        array:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[0..100]\\\"}\"}"
+        left:
+          Value:
+            Implicit:
+              - "0"
+              - span:
+                  line_start: 1
+                  line_stop: 1
+                  col_start: 3
+                  col_stop: 4
+                  path: ""
+                  content: "x[0..100]"
+        right:
+          Value:
+            Implicit:
+              - "100"
+              - span:
+                  line_start: 1
+                  line_stop: 1
+                  col_start: 6
+                  col_stop: 9
+                  path: ""
+                  content: "x[0..100]"
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 10
+          path: ""
+          content: "x[0..100]"
+  - Access:
+      Array:
+        array:
+          Access:
+            Array:
+              array:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[323452345.2345234523453453][323452345.2345234523453453]\\\"}\"}"
+              index:
+                Access:
+                  Tuple:
+                    tuple:
+                      Value:
+                        Implicit:
+                          - "323452345"
+                          - span:
+                              line_start: 1
+                              line_stop: 1
+                              col_start: 3
+                              col_stop: 12
+                              path: ""
+                              content: "x[323452345.2345234523453453][323452345.2345234523453453]"
+                    index:
+                      value: "2345234523453453"
+                    span:
+                      line_start: 1
+                      line_stop: 1
+                      col_start: 3
+                      col_stop: 29
+                      path: ""
+                      content: "x[323452345.2345234523453453][323452345.2345234523453453]"
+              span:
                 line_start: 1
                 line_stop: 1
-                col_start: 3
-                col_stop: 4
+                col_start: 1
+                col_stop: 30
                 path: ""
-                content: "x[1..]"
-      right: ~
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 7
-        path: ""
-        content: "x[1..]"
-  - ArrayRangeAccess:
-      array:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[..1]\\\"}\"}"
-      left: ~
-      right:
-        Value:
-          Implicit:
-            - "1"
-            - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 5
-                col_stop: 6
-                path: ""
-                content: "x[..1]"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 7
-        path: ""
-        content: "x[..1]"
-  - ArrayRangeAccess:
-      array:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[1..1]\\\"}\"}"
-      left:
-        Value:
-          Implicit:
-            - "1"
-            - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 3
-                col_stop: 4
-                path: ""
-                content: "x[1..1]"
-      right:
-        Value:
-          Implicit:
-            - "1"
-            - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 6
-                col_stop: 7
-                path: ""
-                content: "x[1..1]"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 8
-        path: ""
-        content: "x[1..1]"
-  - ArrayRangeAccess:
-      array:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[0..100]\\\"}\"}"
-      left:
-        Value:
-          Implicit:
-            - "0"
-            - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 3
-                col_stop: 4
-                path: ""
-                content: "x[0..100]"
-      right:
-        Value:
-          Implicit:
-            - "100"
-            - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 6
-                col_stop: 9
-                path: ""
-                content: "x[0..100]"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 10
-        path: ""
-        content: "x[0..100]"
-  - ArrayAccess:
-      array:
-        ArrayAccess:
-          array:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[323452345.2345234523453453][323452345.2345234523453453]\\\"}\"}"
-          index:
-            TupleAccess:
+                content: "x[323452345.2345234523453453][323452345.2345234523453453]"
+        index:
+          Access:
+            Tuple:
               tuple:
                 Value:
                   Implicit:
@@ -136,8 +174,8 @@ outputs:
                     - span:
                         line_start: 1
                         line_stop: 1
-                        col_start: 3
-                        col_stop: 12
+                        col_start: 31
+                        col_stop: 40
                         path: ""
                         content: "x[323452345.2345234523453453][323452345.2345234523453453]"
               index:
@@ -145,277 +183,264 @@ outputs:
               span:
                 line_start: 1
                 line_stop: 1
-                col_start: 3
-                col_stop: 29
+                col_start: 31
+                col_stop: 57
                 path: ""
                 content: "x[323452345.2345234523453453][323452345.2345234523453453]"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 30
-            path: ""
-            content: "x[323452345.2345234523453453][323452345.2345234523453453]"
-      index:
-        TupleAccess:
-          tuple:
-            Value:
-              Implicit:
-                - "323452345"
-                - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 31
-                    col_stop: 40
-                    path: ""
-                    content: "x[323452345.2345234523453453][323452345.2345234523453453]"
-          index:
-            value: "2345234523453453"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 31
-            col_stop: 57
-            path: ""
-            content: "x[323452345.2345234523453453][323452345.2345234523453453]"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 58
-        path: ""
-        content: "x[323452345.2345234523453453][323452345.2345234523453453]"
-  - ArrayRangeAccess:
-      array:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[0u8..1u8]\\\"}\"}"
-      left:
-        Value:
-          Integer:
-            - U8
-            - "0"
-            - span:
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 58
+          path: ""
+          content: "x[323452345.2345234523453453][323452345.2345234523453453]"
+  - Access:
+      ArrayRange:
+        array:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[0u8..1u8]\\\"}\"}"
+        left:
+          Value:
+            Integer:
+              - U8
+              - "0"
+              - span:
+                  line_start: 1
+                  line_stop: 1
+                  col_start: 3
+                  col_stop: 6
+                  path: ""
+                  content: "x[0u8..1u8]"
+        right:
+          Value:
+            Integer:
+              - U8
+              - "1"
+              - span:
+                  line_start: 1
+                  line_stop: 1
+                  col_start: 8
+                  col_stop: 11
+                  path: ""
+                  content: "x[0u8..1u8]"
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 12
+          path: ""
+          content: "x[0u8..1u8]"
+  - Access:
+      ArrayRange:
+        array:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[0u8..]\\\"}\"}"
+        left:
+          Value:
+            Integer:
+              - U8
+              - "0"
+              - span:
+                  line_start: 1
+                  line_stop: 1
+                  col_start: 3
+                  col_stop: 6
+                  path: ""
+                  content: "x[0u8..]"
+        right: ~
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 9
+          path: ""
+          content: "x[0u8..]"
+  - Access:
+      ArrayRange:
+        array:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[..0u8]\\\"}\"}"
+        left: ~
+        right:
+          Value:
+            Integer:
+              - U8
+              - "0"
+              - span:
+                  line_start: 1
+                  line_stop: 1
+                  col_start: 5
+                  col_stop: 8
+                  path: ""
+                  content: "x[..0u8]"
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 9
+          path: ""
+          content: "x[..0u8]"
+  - Access:
+      ArrayRange:
+        array:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[..]\\\"}\"}"
+        left: ~
+        right: ~
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 6
+          path: ""
+          content: "x[..]"
+  - Access:
+      ArrayRange:
+        array:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y..]\\\"}\"}"
+        left:
+          Access:
+            Member:
+              inner:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y..]\\\"}\"}"
+              name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y..]\\\"}\"}"
+              span:
                 line_start: 1
                 line_stop: 1
                 col_start: 3
                 col_stop: 6
                 path: ""
-                content: "x[0u8..1u8]"
-      right:
-        Value:
-          Integer:
-            - U8
-            - "1"
-            - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 8
-                col_stop: 11
-                path: ""
-                content: "x[0u8..1u8]"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 12
-        path: ""
-        content: "x[0u8..1u8]"
-  - ArrayRangeAccess:
-      array:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[0u8..]\\\"}\"}"
-      left:
-        Value:
-          Integer:
-            - U8
-            - "0"
-            - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 3
-                col_stop: 6
-                path: ""
-                content: "x[0u8..]"
-      right: ~
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 9
-        path: ""
-        content: "x[0u8..]"
-  - ArrayRangeAccess:
-      array:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[..0u8]\\\"}\"}"
-      left: ~
-      right:
-        Value:
-          Integer:
-            - U8
-            - "0"
-            - span:
+                content: "x[x.y..]"
+              type_: ~
+        right: ~
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 9
+          path: ""
+          content: "x[x.y..]"
+  - Access:
+      ArrayRange:
+        array:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[..y.x]\\\"}\"}"
+        left: ~
+        right:
+          Access:
+            Member:
+              inner:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[..y.x]\\\"}\"}"
+              name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[..y.x]\\\"}\"}"
+              span:
                 line_start: 1
                 line_stop: 1
                 col_start: 5
                 col_stop: 8
                 path: ""
-                content: "x[..0u8]"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 9
-        path: ""
-        content: "x[..0u8]"
-  - ArrayRangeAccess:
-      array:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[..]\\\"}\"}"
-      left: ~
-      right: ~
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 6
-        path: ""
-        content: "x[..]"
-  - ArrayRangeAccess:
-      array:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y..]\\\"}\"}"
-      left:
-        CircuitMemberAccess:
-          circuit:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y..]\\\"}\"}"
-          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y..]\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 3
-            col_stop: 6
-            path: ""
-            content: "x[x.y..]"
-          type_: ~
-      right: ~
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 9
-        path: ""
-        content: "x[x.y..]"
-  - ArrayRangeAccess:
-      array:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[..y.x]\\\"}\"}"
-      left: ~
-      right:
-        CircuitMemberAccess:
-          circuit:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[..y.x]\\\"}\"}"
-          name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[..y.x]\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 8
-            path: ""
-            content: "x[..y.x]"
-          type_: ~
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 9
-        path: ""
-        content: "x[..y.x]"
-  - ArrayRangeAccess:
-      array:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y..y.x]\\\"}\"}"
-      left:
-        CircuitMemberAccess:
-          circuit:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y..y.x]\\\"}\"}"
-          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y..y.x]\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 3
-            col_stop: 6
-            path: ""
-            content: "x[x.y..y.x]"
-          type_: ~
-      right:
-        CircuitMemberAccess:
-          circuit:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y..y.x]\\\"}\"}"
-          name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y..y.x]\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 8
-            col_stop: 11
-            path: ""
-            content: "x[x.y..y.x]"
-          type_: ~
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 12
-        path: ""
-        content: "x[x.y..y.x]"
-  - ArrayRangeAccess:
-      array:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y.x..y.x.y]\\\"}\"}"
-      left:
-        CircuitMemberAccess:
-          circuit:
-            CircuitMemberAccess:
-              circuit:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y.x..y.x.y]\\\"}\"}"
-              name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y.x..y.x.y]\\\"}\"}"
+                content: "x[..y.x]"
+              type_: ~
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 9
+          path: ""
+          content: "x[..y.x]"
+  - Access:
+      ArrayRange:
+        array:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y..y.x]\\\"}\"}"
+        left:
+          Access:
+            Member:
+              inner:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y..y.x]\\\"}\"}"
+              name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y..y.x]\\\"}\"}"
               span:
                 line_start: 1
                 line_stop: 1
                 col_start: 3
                 col_stop: 6
                 path: ""
+                content: "x[x.y..y.x]"
+              type_: ~
+        right:
+          Access:
+            Member:
+              inner:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y..y.x]\\\"}\"}"
+              name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y..y.x]\\\"}\"}"
+              span:
+                line_start: 1
+                line_stop: 1
+                col_start: 8
+                col_stop: 11
+                path: ""
+                content: "x[x.y..y.x]"
+              type_: ~
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 12
+          path: ""
+          content: "x[x.y..y.x]"
+  - Access:
+      ArrayRange:
+        array:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y.x..y.x.y]\\\"}\"}"
+        left:
+          Access:
+            Member:
+              inner:
+                Access:
+                  Member:
+                    inner:
+                      Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y.x..y.x.y]\\\"}\"}"
+                    name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y.x..y.x.y]\\\"}\"}"
+                    span:
+                      line_start: 1
+                      line_stop: 1
+                      col_start: 3
+                      col_stop: 6
+                      path: ""
+                      content: "x[x.y.x..y.x.y]"
+                    type_: ~
+              name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y.x..y.x.y]\\\"}\"}"
+              span:
+                line_start: 1
+                line_stop: 1
+                col_start: 3
+                col_stop: 8
+                path: ""
                 content: "x[x.y.x..y.x.y]"
               type_: ~
-          name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y.x..y.x.y]\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 3
-            col_stop: 8
-            path: ""
-            content: "x[x.y.x..y.x.y]"
-          type_: ~
-      right:
-        CircuitMemberAccess:
-          circuit:
-            CircuitMemberAccess:
-              circuit:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y.x..y.x.y]\\\"}\"}"
-              name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y.x..y.x.y]\\\"}\"}"
+        right:
+          Access:
+            Member:
+              inner:
+                Access:
+                  Member:
+                    inner:
+                      Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y.x..y.x.y]\\\"}\"}"
+                    name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y.x..y.x.y]\\\"}\"}"
+                    span:
+                      line_start: 1
+                      line_stop: 1
+                      col_start: 10
+                      col_stop: 13
+                      path: ""
+                      content: "x[x.y.x..y.x.y]"
+                    type_: ~
+              name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y.x..y.x.y]\\\"}\"}"
               span:
                 line_start: 1
                 line_stop: 1
                 col_start: 10
-                col_stop: 13
+                col_stop: 15
                 path: ""
                 content: "x[x.y.x..y.x.y]"
               type_: ~
-          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y.x..y.x.y]\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 10
-            col_stop: 15
-            path: ""
-            content: "x[x.y.x..y.x.y]"
-          type_: ~
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 16
-        path: ""
-        content: "x[x.y.x..y.x.y]"
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 16
+          path: ""
+          content: "x[x.y.x..y.x.y]"

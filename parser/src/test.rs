@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,16 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::{tokenizer, ParserContext, SpannedToken};
 use leo_ast::{Expression, ExpressionStatement, Statement, ValueExpression};
-use leo_errors::Span;
+use leo_errors::{emitter::Handler, LeoError};
+use leo_span::{symbol::create_session_if_not_set_then, Span};
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
     Test,
 };
+use serde::Serialize;
 use serde_yaml::Value;
 use tokenizer::Token;
-
-use crate::{tokenizer, ParserContext};
 
 struct TokenNamespace;
 
@@ -33,18 +34,19 @@ impl Namespace for TokenNamespace {
     }
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
-        let output = tokenizer::tokenize("test", test.content.into());
-        output
-            .map(|tokens| {
-                Value::String(
-                    tokens
-                        .into_iter()
-                        .map(|x| x.to_string())
-                        .collect::<Vec<String>>()
-                        .join(","),
-                )
-            })
-            .map_err(|x| x.to_string())
+        create_session_if_not_set_then(|_| {
+            tokenizer::tokenize("test", test.content.into())
+                .map(|tokens| {
+                    Value::String(
+                        tokens
+                            .into_iter()
+                            .map(|x| x.to_string())
+                            .collect::<Vec<String>>()
+                            .join(","),
+                    )
+                })
+                .map_err(|x| x.to_string())
+        })
     }
 }
 
@@ -60,6 +62,37 @@ fn not_fully_consumed(tokens: &mut ParserContext) -> Result<(), String> {
     Err(out)
 }
 
+fn with_handler<T>(
+    tokens: Vec<SpannedToken>,
+    logic: impl FnOnce(&mut ParserContext<'_>) -> Result<T, LeoError>,
+) -> Result<T, String> {
+    let (handler, buf) = Handler::new_with_buf();
+    let mut tokens = ParserContext::new(&handler, tokens);
+    let parsed = handler
+        .extend_if_error(logic(&mut tokens))
+        .map_err(|_| buf.extract().to_string())?;
+    not_fully_consumed(&mut tokens)?;
+    Ok(parsed)
+}
+
+fn implcit_value_expr() -> Expression {
+    Expression::Value(ValueExpression::Implicit("".into(), Span::default()))
+}
+
+fn tokenize(test: Test) -> Result<Vec<SpannedToken>, String> {
+    tokenizer::tokenize("test", test.content.into()).map_err(|x| x.to_string())
+}
+
+fn all_are_comments(tokens: &[SpannedToken]) -> bool {
+    tokens
+        .iter()
+        .all(|x| matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)))
+}
+
+fn yaml_or_fail<T: Serialize>(value: T) -> Value {
+    serde_yaml::to_value(value).expect("serialization failed")
+}
+
 struct ParseExpressionNamespace;
 
 impl Namespace for ParseExpressionNamespace {
@@ -68,23 +101,13 @@ impl Namespace for ParseExpressionNamespace {
     }
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
-        let tokenizer = tokenizer::tokenize("test", test.content.into()).map_err(|x| x.to_string())?;
-        if tokenizer
-            .iter()
-            .all(|x| matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)))
-        {
-            return Ok(serde_yaml::to_value(&Expression::Value(ValueExpression::Implicit(
-                "".into(),
-                Span::default(),
-            )))
-            .expect("serialization failed"));
-        }
-        let mut tokens = ParserContext::new(tokenizer);
-
-        let parsed = tokens.parse_expression().map_err(|x| x.to_string())?;
-        not_fully_consumed(&mut tokens)?;
-
-        Ok(serde_yaml::to_value(&parsed).expect("serialization failed"))
+        create_session_if_not_set_then(|_| {
+            let tokenizer = tokenize(test)?;
+            if all_are_comments(&tokenizer) {
+                return Ok(yaml_or_fail(implcit_value_expr()));
+            }
+            with_handler(tokenizer, |p| p.parse_expression()).map(yaml_or_fail)
+        })
     }
 }
 
@@ -96,23 +119,16 @@ impl Namespace for ParseStatementNamespace {
     }
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
-        let tokenizer = tokenizer::tokenize("test", test.content.into()).map_err(|x| x.to_string())?;
-        if tokenizer
-            .iter()
-            .all(|x| matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)))
-        {
-            return Ok(serde_yaml::to_value(&Statement::Expression(ExpressionStatement {
-                expression: Expression::Value(ValueExpression::Implicit("".into(), Span::default())),
-                span: Span::default(),
-            }))
-            .expect("serialization failed"));
-        }
-        let mut tokens = ParserContext::new(tokenizer);
-
-        let parsed = tokens.parse_statement().map_err(|x| x.to_string())?;
-        not_fully_consumed(&mut tokens)?;
-
-        Ok(serde_yaml::to_value(&parsed).expect("serialization failed"))
+        create_session_if_not_set_then(|_| {
+            let tokenizer = tokenize(test)?;
+            if all_are_comments(&tokenizer) {
+                return Ok(yaml_or_fail(Statement::Expression(ExpressionStatement {
+                    expression: implcit_value_expr(),
+                    span: Span::default(),
+                })));
+            }
+            with_handler(tokenizer, |p| p.parse_statement()).map(yaml_or_fail)
+        })
     }
 }
 
@@ -124,13 +140,72 @@ impl Namespace for ParseNamespace {
     }
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
-        let tokenizer = tokenizer::tokenize("test", test.content.into()).map_err(|x| x.to_string())?;
-        let mut tokens = ParserContext::new(tokenizer);
+        create_session_if_not_set_then(|_| with_handler(tokenize(test)?, |p| p.parse_program()).map(yaml_or_fail))
+    }
+}
 
-        let parsed = tokens.parse_program().map_err(|x| x.to_string())?;
-        not_fully_consumed(&mut tokens)?;
+struct SerializeNamespace;
 
-        Ok(serde_yaml::to_value(&parsed).expect("serialization failed"))
+// Helper functions to recursively filter keys from AST JSON.
+// Redeclaring here since we don't want to make this public.
+fn remove_key_from_json(value: &mut serde_json::Value, key: &str) {
+    match value {
+        serde_json::value::Value::Object(map) => {
+            map.remove(key);
+            for val in map.values_mut() {
+                remove_key_from_json(val, key);
+            }
+        }
+        serde_json::value::Value::Array(values) => {
+            for val in values.iter_mut() {
+                remove_key_from_json(val, key);
+            }
+        }
+        _ => (),
+    }
+}
+
+// Helper function to normalize AST
+// Redeclaring here because we don't want to make this public
+fn normalize_json_value(value: serde_json::Value) -> serde_json::Value {
+    match value {
+        serde_json::Value::Array(vec) => {
+            let orig_length = vec.len();
+            let mut new_vec: Vec<serde_json::Value> = vec
+                .into_iter()
+                .filter(|v| !matches!(v, serde_json::Value::Object(map) if map.is_empty()))
+                .map(normalize_json_value)
+                .collect();
+
+            if orig_length == 2 && new_vec.len() == 1 {
+                new_vec.pop().unwrap()
+            } else {
+                serde_json::Value::Array(new_vec)
+            }
+        }
+        serde_json::Value::Object(map) => {
+            serde_json::Value::Object(map.into_iter().map(|(k, v)| (k, normalize_json_value(v))).collect())
+        }
+        _ => value,
+    }
+}
+
+impl Namespace for SerializeNamespace {
+    fn parse_type(&self) -> ParseType {
+        ParseType::Whole
+    }
+
+    fn run_test(&self, test: Test) -> Result<Value, String> {
+        create_session_if_not_set_then(|_| {
+            let tokenizer = tokenize(test)?;
+            let parsed = with_handler(tokenizer, |p| p.parse_program())?;
+
+            let mut json = serde_json::to_value(parsed).expect("failed to convert to json value");
+            remove_key_from_json(&mut json, "span");
+            json = normalize_json_value(json);
+
+            Ok(serde_json::from_value::<serde_yaml::Value>(json).expect("failed serialization"))
+        })
     }
 }
 
@@ -143,6 +218,7 @@ impl Runner for TestRunner {
             "ParseStatement" => Box::new(ParseStatementNamespace),
             "ParseExpression" => Box::new(ParseExpressionNamespace),
             "Token" => Box::new(TokenNamespace),
+            "Serialize" => Box::new(SerializeNamespace),
             _ => return None,
         })
     }

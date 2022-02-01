@@ -1,0 +1,5 @@
+---
+namespace: ParseStatement
+expectation: Fail
+outputs:
+  - "Error [EPAR0370009]: unexpected string: expected 'ident', got ';'\n    --> test:1:4\n     |\n   1 | x::;\n     |    ^"

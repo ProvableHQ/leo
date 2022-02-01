@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,7 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::tokenizer::{Char, Token};
-use leo_errors::Span;
+use leo_span::{Span, Symbol};
+
 use serde::{Deserialize, Serialize};
 use tendril::StrTendril;
 
@@ -344,15 +345,9 @@ impl Token {
             }
             b'&' => {
                 if let Some(len) = eat(input, "&&") {
-                    // if let Some(inner_len) = eat(&input[len..], "=") {
-                    //     return (len + inner_len, Some(Token::AndEq));
-                    // }
                     return (len, Some(Token::And));
                 }
-                // else if let Some(len) = eat(input, "&=") {
-                //     return (len, Some(Token::BitAndEq));
-                // }
-                // return (1, Some(Token::BitAnd));
+                return (1, Some(Token::Ampersand));
             }
             b'(' => return (1, Some(Token::LeftParen)),
             b')' => return (1, Some(Token::RightParen)),
@@ -388,9 +383,6 @@ impl Token {
                     return (len, Some(Token::DotDotDot));
                 } else if let Some(len) = eat(input, "..") {
                     return (len, Some(Token::DotDot));
-                } else if let Some(len) = eat(input, ".len()") {
-                    // FIXME: remove this code once we allow method calls
-                    return (len, Some(Token::LengthOf));
                 }
                 return (1, Some(Token::Dot));
             }
@@ -423,29 +415,12 @@ impl Token {
                 if let Some(len) = eat(input, "<=") {
                     return (len, Some(Token::LtEq));
                 }
-                // else if let Some(len) = eat(input, "<<") {
-                //     if let Some(inner_len) = eat(&input[len..], "=") {
-                //         return (len + inner_len, Some(Token::ShlEq));
-                //     }
-                //     return (len, Some(Token::Shl));
-                // }
                 return (1, Some(Token::Lt));
             }
             b'>' => {
                 if let Some(len) = eat(input, ">=") {
                     return (len, Some(Token::GtEq));
                 }
-                // else if let Some(len) = eat(input, ">>") {
-                //     if let Some(inner_len) = eat(&input[len..], "=") {
-                //         return (len + inner_len, Some(Token::ShrEq));
-                //     } else if let Some(inner_len) = eat(&input[len..], ">") {
-                //         if let Some(eq_len) = eat(&input[len + inner_len..], "=") {
-                //             return (len + inner_len + eq_len, Some(Token::ShrSignedEq));
-                //         }
-                //         return (len + inner_len, Some(Token::ShrSigned));
-                //     }
-                //     return (len, Some(Token::Shr));
-                // }
                 return (1, Some(Token::Gt));
             }
             b'=' => {
@@ -461,29 +436,9 @@ impl Token {
             b'}' => return (1, Some(Token::RightCurly)),
             b'|' => {
                 if let Some(len) = eat(input, "||") {
-                    // if let Some(inner_len) = eat(&input[len..], "=") {
-                    //     return (len + inner_len, Some(Token::OrEq));
-                    // }
                     return (len, Some(Token::Or));
                 }
-                // else if let Some(len) = eat(input, "|=") {
-                //     return (len, Some(Token::BitOrEq));
-                // }
-                // return (1, Some(Token::BitOr));
             }
-            // b'^' => {
-            //     if let Some(len) = eat(input, "^=") {
-            //         return (len, Some(Token::BitXorEq));
-            //     }
-            //     return (1, Some(Token::BitXor));
-            // }
-            // b'~' => return (1, Some(Token::BitNot)),
-            // b'%' => {
-            //     if let Some(len) = eat(input, "%=") {
-            //         return (len, Some(Token::ModEq));
-            //     }
-            //     return (1, Some(Token::Mod));
-            // }
             _ => (),
         }
         if let Some(ident) = eat_identifier(&input_tendril) {
@@ -526,7 +481,7 @@ impl Token {
                     "u32" => Token::U32,
                     "u64" => Token::U64,
                     "u128" => Token::U128,
-                    _ => Token::Ident(ident),
+                    _ => Token::Ident(Symbol::intern(&ident)),
                 }),
             );
         }

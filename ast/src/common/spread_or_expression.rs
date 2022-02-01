@@ -20,10 +20,12 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// Spread or expression
+/// Either a spread expression or a normal expression.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SpreadOrExpression {
+    /// A spread expression, i.e., `...other_array`.
     Spread(Expression),
+    /// A normal element expression.
     Expression(Expression),
 }
 

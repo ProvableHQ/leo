@@ -1,0 +1,5 @@
+---
+namespace: ParseStatement
+expectation: Fail
+outputs:
+  - "Error [EPAR0370009]: unexpected string: expected 'int or ident', got '-'\n    --> test:1:3\n     |\n   1 | x.-12\n     |   ^"

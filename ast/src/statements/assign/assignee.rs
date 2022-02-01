@@ -21,24 +21,31 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[allow(clippy::large_enum_variant)]
+/// A sub-place in a variable to assign to.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AssigneeAccess {
+    /// Assignment to a range in an array.
     ArrayRange(Option<Expression>, Option<Expression>),
+    /// Assignment to an element of an array identified by its index.
     ArrayIndex(Expression),
+    /// Assignment to a tuple field by its position, e.g., `2`.
     Tuple(PositiveNumber, #[serde(with = "leo_span::span_json")] Span),
+    /// Assignment to a field in a structure.
     Member(Identifier),
 }
 
-/// Definition assignee: v, arr[0..2], Point p.x
+/// Definition assignee, e.g., `v`, `arr[0..2]`, `p.x`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Assignee {
+    /// The base variable to assign to.
     pub identifier: Identifier,
+    /// Sub-places within `identifier` to assign to, if any.
     pub accesses: Vec<AssigneeAccess>,
     pub span: Span,
 }
 
 impl Assignee {
-    /// Returns the name of the variable being assigned to
+    /// Returns the name of the variable being assigned to.
     pub fn identifier(&self) -> &Identifier {
         &self.identifier
     }

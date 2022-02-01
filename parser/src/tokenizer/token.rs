@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -13,6 +13,8 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use leo_span::{sym, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -48,14 +50,14 @@ impl fmt::Display for Char {
 pub enum Token {
     // Lexical Grammar
     // Literals
-    CommentLine(#[serde(with = "leo_errors::common::tendril_json")] StrTendril),
-    CommentBlock(#[serde(with = "leo_errors::common::tendril_json")] StrTendril),
+    CommentLine(#[serde(with = "leo_span::tendril_json")] StrTendril),
+    CommentBlock(#[serde(with = "leo_span::tendril_json")] StrTendril),
     StringLit(Vec<leo_ast::Char>),
-    Ident(#[serde(with = "leo_errors::common::tendril_json")] StrTendril),
-    Int(#[serde(with = "leo_errors::common::tendril_json")] StrTendril),
+    Ident(Symbol),
+    Int(#[serde(with = "leo_span::tendril_json")] StrTendril),
     True,
     False,
-    AddressLit(#[serde(with = "leo_errors::common::tendril_json")] StrTendril),
+    AddressLit(#[serde(with = "leo_span::tendril_json")] StrTendril),
     CharLit(Char),
 
     // Symbols
@@ -127,6 +129,7 @@ pub enum Token {
     As,
     Circuit,
     Console,
+    /// Const variable and a const function.
     Const,
     Else,
     For,
@@ -135,32 +138,12 @@ pub enum Token {
     In,
     Let,
     Mut,
+    /// Represents `&`.
+    /// Used for `Reference` and `BitAnd`.
+    Ampersand,
     Return,
     Static,
     Type,
-
-    // Not yet in ABNF
-    // arr.len() token - hacky zone
-    LengthOf,
-
-    // Not yet in ABNF
-    // BitAnd,
-    // BitAndEq,
-    // BitOr,
-    // BitOrEq,
-    // BitXor,
-    // BitXorEq,
-    // BitNot,
-    // Shl,
-    // ShlEq,
-    // Shr,
-    // ShrEq,
-    // ShrSigned,
-    // ShrSignedEq,
-    // Mod,
-    // ModEq,
-    // OrEq,
-    // AndEq,
 
     // Meta Tokens
     Eof,
@@ -192,13 +175,13 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Input,
     Token::Let,
     Token::Mut,
+    Token::Ampersand,
     Token::Return,
     Token::BigSelf,
     Token::LittleSelf,
     Token::Static,
     Token::True,
     Token::Type,
-    Token::LengthOf,
     Token::U8,
     Token::U16,
     Token::U32,
@@ -207,11 +190,52 @@ pub const KEYWORD_TOKENS: &[Token] = &[
 ];
 
 impl Token {
-    ///
     /// Returns `true` if the `self` token equals a Leo keyword.
-    ///
     pub fn is_keyword(&self) -> bool {
-        KEYWORD_TOKENS.iter().any(|x| x == self)
+        KEYWORD_TOKENS.contains(self)
+    }
+
+    /// Converts `self` to the corresponding `Symbol` if it `is_keyword`.
+    pub fn keyword_to_symbol(&self) -> Option<Symbol> {
+        Some(match self {
+            Token::Address => sym::address,
+            Token::As => sym::As,
+            Token::Bool => sym::bool,
+            Token::Char => sym::char,
+            Token::Circuit => sym::circuit,
+            Token::Console => sym::console,
+            Token::Const => sym::Const,
+            Token::Else => sym::Else,
+            Token::False => sym::False,
+            Token::Field => sym::field,
+            Token::For => sym::For,
+            Token::Function => sym::function,
+            Token::Group => sym::group,
+            Token::I8 => sym::i8,
+            Token::I16 => sym::i16,
+            Token::I32 => sym::i32,
+            Token::I64 => sym::i64,
+            Token::I128 => sym::i128,
+            Token::If => sym::If,
+            Token::Import => sym::import,
+            Token::In => sym::In,
+            Token::Input => sym::input,
+            Token::Let => sym::Let,
+            Token::Mut => sym::Mut,
+            Token::Ampersand => sym::Ampersand,
+            Token::Return => sym::Return,
+            Token::BigSelf => sym::SelfUpper,
+            Token::LittleSelf => sym::SelfLower,
+            Token::Static => sym::Static,
+            Token::True => sym::True,
+            Token::Type => sym::Type,
+            Token::U8 => sym::u8,
+            Token::U16 => sym::u16,
+            Token::U32 => sym::u32,
+            Token::U64 => sym::u64,
+            Token::U128 => sym::u128,
+            _ => return None,
+        })
     }
 }
 
@@ -307,28 +331,11 @@ impl fmt::Display for Token {
             In => write!(f, "in"),
             Let => write!(f, "let"),
             Mut => write!(f, "mut"),
+            Ampersand => write!(f, "&"), // Used for `Reference` and `BitAnd`
             Return => write!(f, "return"),
             Static => write!(f, "static"),
             Type => write!(f, "type"),
-            LengthOf => write!(f, ".len()"), // FIXME
             Eof => write!(f, ""),
-            // BitAnd => write!(f, "&"),
-            // BitAndEq => write!(f, "&="),
-            // BitOr => write!(f, "|"),
-            // BitOrEq => write!(f, "|="),
-            // BitXor => write!(f, "^"),
-            // BitXorEq => write!(f, "^="),
-            // BitNot => write!(f, "~"),
-            // Shl => write!(f, "<<"),
-            // ShlEq => write!(f, "<<="),
-            // Shr => write!(f, ">>"),
-            // ShrEq => write!(f, ">>="),
-            // ShrSigned => write!(f, ">>>"),
-            // ShrSignedEq => write!(f, ">>>="),
-            // Mod => write!(f, "%"),
-            // ModEq => write!(f, "%="),
-            // OrEq => write!(f, "||="),
-            // AndEq => write!(f, "&&="),
         }
     }
 }

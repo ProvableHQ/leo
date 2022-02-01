@@ -20,9 +20,12 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// An expression statement `expr;`.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct ExpressionStatement {
+    /// The expression to evaluate purely for its side-effects.
     pub expression: Expression,
+    /// The span excluding the semicolon.
     pub span: Span,
 }
 

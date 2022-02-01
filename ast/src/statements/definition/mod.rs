@@ -26,12 +26,18 @@ pub use variable_name::*;
 mod declare;
 pub use declare::*;
 
+/// A `let` or `const` declaration statement.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct DefinitionStatement {
+    /// What sort of declaration is this? `let` or `const`?.
     pub declaration_type: Declare,
+    /// The bindings / variable names to declare.
     pub variable_names: Vec<VariableName>,
+    /// The types of the bindings, if specified, or inferred otherwise.
     pub type_: Option<Type>,
+    /// An initializer value for the bindings.
     pub value: Expression,
+    /// The span excluding the semicolon.
     pub span: Span,
 }
 

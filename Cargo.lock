@@ -1532,10 +1532,13 @@ dependencies = [
  "lazy_static",
  "leo-ast",
  "leo-errors",
+ "leo-input",
+ "leo-span",
  "leo-test-framework",
  "serde",
  "serde_json",
  "serde_yaml",
+ "smallvec",
  "tendril",
  "tracing",
 ]
@@ -1584,13 +1587,7 @@ dependencies = [
 name = "leo-test-framework"
 version = "1.5.3"
 dependencies = [
- "leo-asg",
- "leo-ast",
- "leo-ast-passes",
- "leo-compiler",
  "leo-errors",
- "leo-imports",
- "leo-parser",
  "regex",
  "serde",
  "serde_json",

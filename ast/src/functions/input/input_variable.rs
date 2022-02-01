@@ -23,9 +23,13 @@ use std::fmt;
 /// Enumerates the possible inputs to a function.
 #[derive(Clone, Serialize, Deserialize)]
 pub enum FunctionInput {
+    /// A `self` parameter.
     SelfKeyword(SelfKeyword),
+    /// A `const self` parameter.
     ConstSelfKeyword(ConstSelfKeyword),
+    /// A `&self` parameter.
     RefSelfKeyword(RefSelfKeyword),
+    /// A normal function parameter.
     Variable(FunctionInputVariable),
 }
 
@@ -81,6 +85,7 @@ impl FunctionInput {
         }
     }
 
+    /// Formats the parameter to `f`.
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             FunctionInput::SelfKeyword(keyword) => write!(f, "{}", keyword),

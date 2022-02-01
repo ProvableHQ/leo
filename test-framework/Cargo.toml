@@ -29,29 +29,30 @@ features = [ "preserve_order" ]
 version = "0.8"
 
 # List of dependencies for tgc binary;
-[dependencies.leo-asg]
-path = "../asg"
-version = "1.5.2"
+# disabled for now while porting modules from staging
+# [dependencies.leo-ast]
+# path = "../ast"
+# version = "1.5.2"
 
-[dependencies.leo-ast]
-path = "../ast"
-version = "1.5.2"
+# [dependencies.leo-ast-passes]
+# path = "../ast-passes"
+# version = "1.5.2"
 
-[dependencies.leo-ast-passes]
-path = "../ast-passes"
-version = "1.5.2"
+# [dependencies.leo-parser]
+# path = "../parser"
+# version = "1.5.2"
 
-[dependencies.leo-compiler]
-path = "../compiler"
-version = "1.5.2"
+# [dependencies.leo-imports]
+# path = "../imports"
+# version = "1.5.2"
 
-[dependencies.leo-imports]
-path = "../imports"
-version = "1.5.2"
+# [dependencies.leo-asg]
+# path = "../asg"
+# version = "1.5.2"
 
-[dependencies.leo-parser]
-path = "../parser"
-version = "1.5.2"
+# [dependencies.leo-compiler]
+# path = "../compiler"
+# version = "1.5.2"
 
 [dependencies.structopt]
 version = "0.3"
