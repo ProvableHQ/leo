@@ -44,7 +44,7 @@ impl fmt::Display for ImportStatement {
 
 impl fmt::Debug for ImportStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Debug::fmt(self, f)
+        fmt::Display::fmt(self, f)
     }
 }
 
@@ -73,7 +73,7 @@ impl fmt::Display for ImportTree {
         }
 
         // Format the kind.
-        match self.kind {
+        match &self.kind {
             ImportTreeKind::Glob { .. } => write!(f, ".*"),
             ImportTreeKind::Leaf { alias: None } => Ok(()),
             ImportTreeKind::Leaf { alias: Some(alias) } => write!(f, "as {}", alias),
@@ -93,7 +93,7 @@ impl fmt::Display for ImportTree {
 
 impl fmt::Debug for ImportTree {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Debug::fmt(self, f)
+        fmt::Display::fmt(self, f)
     }
 }
 
