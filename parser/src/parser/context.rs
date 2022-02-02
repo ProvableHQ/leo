@@ -425,6 +425,8 @@ impl<'a> ParserContext<'a> {
                 trailing = false;
                 break;
             }
+
+            trailing = true;
         }
 
         // Parse closing delimiter.
