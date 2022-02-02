@@ -1,4 +1,4 @@
-Copyright (C) 2019-2021 Aleo Systems Inc.
+Copyright (C) 2019-2022 Aleo Systems Inc.
 This file is part of the Leo library.
 
 The Leo library is free software: you can redistribute it and/or modify
@@ -369,7 +369,7 @@ could be equally parsed as two `*` symbol tokens or one `**` symbol token
 As another example, the sequence or characters `<CR><LF>`
 (i.e. carriage return followed by line feed)
 could be equally parsed as two line terminators or one
-(see rule for `newline`).
+(see rule for `line-terminator`).
 
 Thus, as often done in language syntax definitions,
 the lexical grammar is disambiguated by
@@ -431,8 +431,7 @@ not-star = %x0-29 / %x2B-10FFFF   ; anything but *
 
 <a name="not-star-or-slash"></a>
 ```abnf
-not-star-or-slash = %x0-29 / %x2B-2E / %x30-10FFFF
-                    ; anything but * or /
+not-star-or-slash = %x0-29 / %x2B-2E / %x30-10FFFF   ; anything but * or /
 ```
 
 <a name="not-line-feed-or-carriage-return"></a>
@@ -461,9 +460,9 @@ Note that the latter combination constitutes a single line terminator,
 according to the extra-grammatical requirement of the longest sequence,
 described above.
 
-<a name="newline"></a>
+<a name="line-terminator"></a>
 ```abnf
-newline = line-feed / carriage-return / carriage-return line-feed
+line-terminator = line-feed / carriage-return / carriage-return line-feed
 ```
 
 Go to: _[carriage-return](#user-content-carriage-return), [line-feed](#user-content-line-feed)_;
@@ -473,10 +472,10 @@ Line terminators form whitespace, along with spaces and horizontal tabs.
 
 <a name="whitespace"></a>
 ```abnf
-whitespace = space / horizontal-tab / newline
+whitespace = space / horizontal-tab / line-terminator
 ```
 
-Go to: _[horizontal-tab](#user-content-horizontal-tab), [newline](#user-content-newline), [space](#user-content-space)_;
+Go to: _[horizontal-tab](#user-content-horizontal-tab), [line-terminator](#user-content-line-terminator), [space](#user-content-space)_;
 
 
 There are two kinds of comments in Leo, as in other languages.
@@ -526,11 +525,8 @@ Go to: _[not-star-or-slash](#user-content-not-star-or-slash), [rest-of-block-com
 
 <a name="end-of-line-comment"></a>
 ```abnf
-end-of-line-comment = "//" *not-line-feed-or-carriage-return newline
+end-of-line-comment = "//" *not-line-feed-or-carriage-return
 ```
-
-Go to: _[newline](#user-content-newline)_;
-
 
 Below are the keywords in the Leo language.
 They cannot be used as identifiers.
@@ -559,7 +555,6 @@ keyword = %s"address"
         / %s"in"
         / %s"input"
         / %s"let"
-        / %s"mut"
         / %s"return"
         / %s"Self"
         / %s"self"
@@ -902,7 +897,7 @@ particularly since it starts with a proper symbol.
 
 <a name="symbol"></a>
 ```abnf
-symbol = "!" / "&&" / "||"
+symbol = "!" / "&" / "&&" / "||"
        / "==" / "!="
        / "<" / "<=" / ">" / ">="
        / "+" / "-" / "*" / "/" / "**"
@@ -1060,7 +1055,7 @@ Go to: _[natural](#user-content-natural)_;
 ```abnf
 array-type-dimensions = array-type-dimension
                       / "(" array-type-dimension
-                            *( "," array-type-dimension ) ")"
+                            *( "," array-type-dimension ) [","] ")"
 ```
 
 Go to: _[array-type-dimension](#user-content-array-type-dimension)_;
@@ -1101,6 +1096,17 @@ identifier-or-self-type = identifier / self-type
 ```
 
 Go to: _[identifier](#user-content-identifier), [self-type](#user-content-self-type)_;
+
+
+A named type is an identifier, the `Self` type, or a scalar type.
+These are types that are named by identifiers or keywords.
+
+<a name="named-type"></a>
+```abnf
+named-type = identifier / self-type / scalar-type
+```
+
+Go to: _[identifier](#user-content-identifier), [scalar-type](#user-content-scalar-type), [self-type](#user-content-self-type)_;
 
 
 The lexical grammar given earlier defines product group literals.
@@ -1315,6 +1321,10 @@ instance (i.e. non-static) member function calls, and
 static member function calls.
 What changes is the start, but they all end in an argument list.
 
+Accesses to static constants are also postfix expressions.
+They consist of a named type followed by the constant name,
+as static constants are associated to named types.
+
 <a name="function-arguments"></a>
 ```abnf
 function-arguments = "(" [ expression *( "," expression ) ] ")"
@@ -1330,12 +1340,13 @@ postfix-expression = primary-expression
                    / postfix-expression "." identifier
                    / identifier function-arguments
                    / postfix-expression "." identifier function-arguments
-                   / identifier-or-self-type "::" identifier function-arguments
+                   / named-type "::" identifier function-arguments
+                   / named-type "::" identifier
                    / postfix-expression "[" expression "]"
                    / postfix-expression "[" [expression] ".." [expression] "]"
 ```
 
-Go to: _[expression](#user-content-expression), [function-arguments](#user-content-function-arguments), [identifier-or-self-type](#user-content-identifier-or-self-type), [identifier](#user-content-identifier), [natural](#user-content-natural), [postfix-expression](#user-content-postfix-expression), [primary-expression](#user-content-primary-expression)_;
+Go to: _[expression](#user-content-expression), [function-arguments](#user-content-function-arguments), [identifier](#user-content-identifier), [named-type](#user-content-named-type), [natural](#user-content-natural), [postfix-expression](#user-content-postfix-expression), [primary-expression](#user-content-primary-expression)_;
 
 
 Unary operators have the highest operator precedence.
@@ -1659,12 +1670,11 @@ Go to: _[print-arguments](#user-content-print-arguments), [print-function](#user
 
 An annotation consists of an annotation name (which starts with `@`)
 with optional annotation arguments, which are identifiers.
-Note that no parentheses are used if there are no arguments.
 
 <a name="annotation"></a>
 ```abnf
 annotation = annotation-name
-             [ "(" identifier *( "," identifier ) ")" ]
+             [ "(" *( identifier "," ) [ identifier ] ")" ]
 ```
 
 Go to: _[annotation-name](#user-content-annotation-name), [identifier](#user-content-identifier)_;
@@ -1675,11 +1685,11 @@ The output type is optional, defaulting to the empty tuple type.
 In general, a function input consists of an identifier and a type,
 with an optional 'const' modifier.
 Additionally, functions inside circuits
-may start with a `mut self` or `const self` or `self` parameter.
+may start with a `&self` or `const self` or `self` parameter.
 
 <a name="function-declaration"></a>
 ```abnf
-function-declaration = *annotation %s"function" identifier
+function-declaration = *annotation [ %s"const" ] %s"function" identifier
                        "(" [ function-parameters ] ")" [ "->" type ]
                        block
 ```
@@ -1699,7 +1709,7 @@ Go to: _[function-inputs](#user-content-function-inputs), [self-parameter](#user
 
 <a name="self-parameter"></a>
 ```abnf
-self-parameter = [ %s"mut" / %s"const" ] %s"self"
+self-parameter = [ %s"&" / %s"const" ] %s"self"
 ```
 
 <a name="function-inputs"></a>
@@ -1716,6 +1726,20 @@ function-input = [ %s"const" ] identifier ":" type
 ```
 
 Go to: _[identifier](#user-content-identifier), [type](#user-content-type)_;
+
+
+A circuit member constant declaration consists of
+the `static` and `const` keywords followed by
+an identifier and a type, then an initializer
+with a literal terminated by semicolon.
+
+<a name="member-constant-declaration"></a>
+```abnf
+member-constant-declaration = %s"static" %s"const" identifier ":" type
+                              "=" literal ";"
+```
+
+Go to: _[identifier](#user-content-identifier), [literal](#user-content-literal), [type](#user-content-type)_;
 
 
 A circuit member variable declaration consists of
@@ -1749,7 +1773,9 @@ Go to: _[function-declaration](#user-content-function-declaration)_;
 
 
 A circuit declaration defines a circuit type,
-as consisting of member variables and functions.
+as consisting of member constants, variables and functions.
+A circuit member constant declaration
+as consisting of member constants, member variables, and member functions.
 To more simply accommodate the backward compatibility
 described for the rule `member-variable-declarations`,
 all the member variables must precede all the member functions;
@@ -1759,7 +1785,8 @@ allowing member variables and member functions to be intermixed.
 <a name="circuit-declaration"></a>
 ```abnf
 circuit-declaration = %s"circuit" identifier
-                      "{" [ member-variable-declarations ]
+                      "{" *member-constant-declaration
+                      [ member-variable-declarations ]
                       *member-function-declaration "}"
 ```
 
