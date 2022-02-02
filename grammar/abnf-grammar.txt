@@ -890,9 +890,7 @@ disjunctive-expression = conjunctive-expression
 ; Finally we have conditional expressions.
 
 conditional-expression = disjunctive-expression
-                       / disjunctive-expression
-                         "?" expression
-                         ":" conditional-expression
+                       / disjunctive-expression "?" expression ":" expression
 
 ; Those above are all the expressions.
 ; Recall that conditional expressions
