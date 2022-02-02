@@ -116,7 +116,7 @@ version = "0.7.9"
 version = "0.3"
 
 [dependencies.clap]
-version = "3.0.10"
+version = "3.0.14"
 
 [dependencies]
 color-backtrace = "0.5.1"
