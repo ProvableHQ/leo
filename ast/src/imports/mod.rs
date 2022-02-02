@@ -14,20 +14,106 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod import;
-pub use import::*;
+use crate::Identifier;
+use leo_span::{Span, Symbol};
 
-pub mod import_symbol;
-pub use import_symbol::*;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-pub mod package;
-pub use package::*;
+/// Represents an import statement in a Leo program.
+#[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct ImportStatement {
+    /// The tree specifying what items or packages to import.
+    pub tree: ImportTree,
+    /// The span, excluding the `;`.
+    pub span: Span,
+}
 
-pub mod packages;
-pub use packages::*;
+impl ImportStatement {
+    /// Returns the the package file name of the self import statement.
+    pub fn get_file_name(&self) -> Symbol {
+        self.tree.base.first().unwrap().name
+    }
+}
 
-pub mod package_or_packages;
-pub use package_or_packages::*;
+impl fmt::Display for ImportStatement {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "import {};", self.tree)
+    }
+}
 
-pub mod package_access;
-pub use package_access::*;
+impl fmt::Debug for ImportStatement {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(self, f)
+    }
+}
+
+/// An import tree specifies item(s) to import.
+#[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct ImportTree {
+    /// A path to the base item or package to import or import from.
+    /// The list is always non-empty.
+    pub base: Vec<Identifier>,
+    /// Specifies the kind of import and the meaning of `base`.
+    /// This includes plain imports, renames, globs (`*`), and nested imports.
+    pub kind: ImportTreeKind,
+    /// The span for the import excluding `import` and `;`.
+    pub span: Span,
+}
+
+impl fmt::Display for ImportTree {
+    /// Formats `self` to `f`.
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // Format the path.
+        for (i, part) in self.base.iter().enumerate() {
+            write!(f, "{}", part)?;
+            if i < self.base.len() - 1 {
+                write!(f, ".")?;
+            }
+        }
+
+        // Format the kind.
+        match &self.kind {
+            ImportTreeKind::Glob { .. } => write!(f, ".*"),
+            ImportTreeKind::Leaf { alias: None } => Ok(()),
+            ImportTreeKind::Leaf { alias: Some(alias) } => write!(f, "as {}", alias),
+            ImportTreeKind::Nested { tree } => {
+                write!(f, ".(")?;
+                for (i, node) in tree.iter().enumerate() {
+                    write!(f, "{}", node)?;
+                    if i < tree.len() - 1 {
+                        write!(f, ", ")?;
+                    }
+                }
+                write!(f, ")")
+            }
+        }
+    }
+}
+
+impl fmt::Debug for ImportTree {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(self, f)
+    }
+}
+
+/// Specifies the import kind and the meaning of `base`.
+#[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub enum ImportTreeKind {
+    /// A glob import `*`.
+    Glob {
+        /// The span for the `*`.
+        span: Span,
+    },
+    /// A leaf package to import.
+    Leaf {
+        /// When specified, the package is imported under a different name.
+        /// Otherwise, the `base` name is used as in the `ImportTree`.
+        alias: Option<Identifier>,
+    },
+    /// A nested import of items or sub-packages.
+    Nested {
+        /// The sub-tree specifying what to import from the `base`.
+        tree: Vec<ImportTree>,
+    },
+}

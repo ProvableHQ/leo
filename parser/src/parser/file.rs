@@ -18,7 +18,7 @@ use super::*;
 use crate::KEYWORD_TOKENS;
 
 use leo_errors::{ParserError, Result};
-use leo_span::{sym, Span};
+use leo_span::sym;
 
 impl ParserContext<'_> {
     ///
@@ -146,64 +146,6 @@ impl ParserContext<'_> {
         Ok(name)
     }
 
-    /// Returns a vector of [`PackageAccess`] AST nodes if the next tokens represent package access
-    /// expressions within an import statement.
-    pub fn parse_package_accesses(&mut self, start: &Span) -> Result<(Vec<PackageAccess>, Span)> {
-        let (out, _, end) = self.parse_paren_comma_list(|p| p.parse_package_access().map(Some))?;
-
-        if out.is_empty() {
-            self.emit_err(ParserError::invalid_import_list(&end));
-        }
-
-        Ok((out, start + &end))
-    }
-
-    ///
-    /// Returns a [`PackageAccess`] AST node if the next tokens represent a package access expression
-    /// within an import statement.
-    ///
-    pub fn parse_package_access(&mut self) -> Result<PackageAccess> {
-        if let Some(SpannedToken { span, .. }) = self.eat(Token::Mul) {
-            Ok(PackageAccess::Star { span })
-        } else {
-            let mut name = self.expect_ident()?;
-
-            // Allow dashes in the accessed members (should only be used for directories).
-            // If imported member does not exist, code will fail on ASG level.
-            if let Token::Minus = self.peek_token().as_ref() {
-                let span = self.expect(Token::Minus)?;
-                name.span = name.span + span;
-                let next = self.expect_ident()?;
-                name.span = name.span + next.span;
-                name.name = Symbol::intern(&format!("{}-{}", name.name, next.name));
-            }
-
-            if self.peek_token().as_ref() == &Token::Dot {
-                self.backtrack(SpannedToken {
-                    token: Token::Ident(name.name),
-                    span: name.span,
-                });
-                Ok(match self.parse_package_path()? {
-                    PackageOrPackages::Package(p) => PackageAccess::SubPackage(Box::new(p)),
-                    PackageOrPackages::Packages(p) => PackageAccess::Multiple(p),
-                })
-            } else if self.eat(Token::As).is_some() {
-                let alias = self.expect_ident()?;
-                Ok(PackageAccess::Symbol(ImportSymbol {
-                    span: &name.span + &alias.span,
-                    symbol: name,
-                    alias: Some(alias),
-                }))
-            } else {
-                Ok(PackageAccess::Symbol(ImportSymbol {
-                    span: name.span.clone(),
-                    symbol: name,
-                    alias: None,
-                }))
-            }
-        }
-    }
-
     /// Returns an [`Identifier`] AST node if the next tokens represent a valid package name.
     pub fn parse_package_name(&mut self) -> Result<Identifier> {
         // Build the package name, starting with valid characters up to a dash `-` (Token::Minus).
@@ -257,33 +199,57 @@ impl ParserContext<'_> {
         Ok(base)
     }
 
-    ///
-    /// Returns a [`PackageOrPackages`] AST node if the next tokens represent a valid package import
+    /// Returns an [`ImportTree`] AST node if the next tokens represent a valid package import
     /// with accesses.
-    ///
-    pub fn parse_package_path(&mut self) -> Result<PackageOrPackages> {
-        let name = self.parse_package_name()?;
-        self.expect(Token::Dot)?;
-        if self.peek_is_left_par() {
-            let (accesses, span) = self.parse_package_accesses(&name.span)?;
-            Ok(PackageOrPackages::Packages(Packages { span, name, accesses }))
-        } else {
-            let access = self.parse_package_access()?;
-            let span = &name.span + access.span();
-            Ok(PackageOrPackages::Package(Package { span, name, access }))
+    fn parse_import_tree(&mut self) -> Result<ImportTree> {
+        // Parse the first part of the path.
+        let first_name = self.parse_package_name()?;
+        let start = first_name.span.clone();
+        let mut base = vec![first_name];
+
+        let make = |base, end, kind| {
+            let span = start + end;
+            ImportTree { base, span, kind }
+        };
+
+        // Paths are separated by `.`s.
+        while self.eat(Token::Dot).is_some() {
+            if self.peek_is_left_par() {
+                // Encountered `.(`, so we have a nested import. Recurse!
+                let (tree, _, end) = self.parse_paren_comma_list(|p| p.parse_import_tree().map(Some))?;
+
+                if tree.is_empty() {
+                    self.emit_err(ParserError::invalid_import_list(&end));
+                }
+
+                return Ok(make(base, end, ImportTreeKind::Nested { tree }));
+            } else if let Some(SpannedToken { span, .. }) = self.eat(Token::Mul) {
+                // Encountered `.*`, so we have a glob import.
+                return Ok(make(base, span.clone(), ImportTreeKind::Glob { span }));
+            }
+
+            // Parse another path segment.
+            base.push(self.parse_package_name()?);
         }
+
+        let (end, alias) = if self.eat(Token::As).is_some() {
+            // Encountered `as`, so interpret as `path as rename`.
+            let alias = self.expect_ident()?;
+            (alias.span.clone(), Some(alias))
+        } else {
+            (base.last().unwrap().span.clone(), None)
+        };
+        Ok(make(base, end, ImportTreeKind::Leaf { alias }))
     }
 
-    ///
     /// Returns a [`ImportStatement`] AST node if the next tokens represent an import statement.
-    ///
     pub fn parse_import_statement(&mut self) -> Result<ImportStatement> {
         self.expect(Token::Import)?;
-        let package_or_packages = self.parse_package_path()?;
+        let tree = self.parse_import_tree()?;
         self.expect(Token::Semicolon)?;
         Ok(ImportStatement {
-            span: package_or_packages.span().clone(),
-            package_or_packages,
+            span: tree.span.clone(),
+            tree,
         })
     }
 

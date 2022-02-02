@@ -496,27 +496,33 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_function_input(input, new)
     }
 
-    pub fn reduce_package_or_packages(&mut self, package_or_packages: &PackageOrPackages) -> Result<PackageOrPackages> {
-        let new = match package_or_packages {
-            PackageOrPackages::Package(package) => PackageOrPackages::Package(Package {
-                name: self.reduce_identifier(&package.name)?,
-                access: package.access.clone(),
-                span: package.span.clone(),
-            }),
-            PackageOrPackages::Packages(packages) => PackageOrPackages::Packages(Packages {
-                name: self.reduce_identifier(&packages.name)?,
-                accesses: packages.accesses.clone(),
-                span: packages.span.clone(),
-            }),
+    pub fn reduce_import_tree(&mut self, tree: &ImportTree) -> Result<ImportTree> {
+        let new = ImportTree {
+            base: tree
+                .base
+                .iter()
+                .map(|i| self.reduce_identifier(i))
+                .collect::<Result<_>>()?,
+
+            kind: match &tree.kind {
+                ImportTreeKind::Glob { .. } | ImportTreeKind::Leaf { alias: None } => tree.kind.clone(),
+                ImportTreeKind::Leaf { alias: Some(alias) } => {
+                    let alias = self.reduce_identifier(alias)?;
+                    ImportTreeKind::Leaf { alias: Some(alias) }
+                }
+                ImportTreeKind::Nested { tree } => ImportTreeKind::Nested {
+                    tree: tree.iter().map(|n| self.reduce_import_tree(n)).collect::<Result<_>>()?,
+                },
+            },
+            span: tree.span.clone(),
         };
 
-        self.reducer.reduce_package_or_packages(package_or_packages, new)
+        self.reducer.reduce_import_tree(tree, new)
     }
 
     pub fn reduce_import_statement(&mut self, import: &ImportStatement) -> Result<ImportStatement> {
-        let package_or_packages = self.reduce_package_or_packages(&import.package_or_packages)?;
-
-        self.reducer.reduce_import_statement(import, package_or_packages)
+        let tree = self.reduce_import_tree(&import.tree)?;
+        self.reducer.reduce_import_statement(import, tree)
     }
 
     pub fn reduce_import(&mut self, identifier: &[Symbol], import: &Program) -> Result<(Vec<Symbol>, Program)> {
