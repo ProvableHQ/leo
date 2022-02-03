@@ -22,45 +22,44 @@
 #![allow(clippy::upper_case_acronyms)]
 #![doc = include_str!("../README.md")]
 
-pub mod compiler;
+use leo_errors::emitter::Handler;
+use leo_errors::{CompilerError, Result};
 
-pub mod console;
-pub use console::*;
+use std::fs;
+use std::path::PathBuf;
 
-pub mod constraints;
-pub use constraints::*;
+/// The primary entry point of the Leo compiler.
+pub struct RunCompiler<'a> {
+    handler: &'a Handler,
+    main_file_path: PathBuf,
+}
 
-pub mod definition;
+impl<'a> RunCompiler<'a> {
+    ///
+    /// Returns a new Leo compiler.
+    ///
+    pub fn new(handler: &'a Handler, main_file_path: PathBuf) -> Self {
+        Self {
+            handler,
+            main_file_path,
+        }
+    }
 
-pub mod expression;
-pub use expression::*;
+    ///
+    /// Returns a compiled Leo program.
+    ///
+    pub fn run(self) -> Result<leo_ast::Ast> {
+        // Load the program file.
+        let program_string = fs::read_to_string(&self.main_file_path)
+            .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;
 
-pub mod function;
-pub use function::*;
+        // Use the parser to construct the abstract syntax tree (ast).
+        let ast: leo_ast::Ast = leo_parser::parse_ast(
+            self.handler,
+            self.main_file_path.to_str().unwrap_or_default(),
+            program_string,
+        )?;
 
-pub mod output;
-pub use output::*;
-
-pub mod program;
-pub use program::*;
-
-pub mod statement;
-pub use statement::*;
-
-pub mod prelude;
-pub use prelude::*;
-
-pub mod value;
-pub use value::*;
-
-pub mod phase;
-pub use phase::*;
-
-pub mod phases;
-pub use phases::*;
-
-pub mod option;
-pub use option::*;
-
-#[cfg(test)]
-mod test;
+        Ok(ast)
+    }
+}
