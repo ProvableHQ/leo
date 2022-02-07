@@ -215,6 +215,20 @@ fn collect_all_inputs(test: &Test) -> Result<Vec<Input>, String> {
     Ok(list)
 }
 
+/// Collect and return captured `console` output, if `capture_console` is enabled
+fn collect_console_output(test: &Test, console: CaptiveSubscriber) -> Option<String> {
+    let capture_console = match test.config.get("capture_console") {
+        Some(v) => v.as_bool().expect("`capture_console` is not bool"),
+        None => false, // Ignore the stdout by default
+    };
+
+    capture_console.then(|| {
+        std::str::from_utf8(&console.output())
+            .expect("failed to parse the console output")
+            .to_string()
+    })
+}
+
 fn read_state_file(test: &Test) -> String {
     if let Some(input) = test.config.get("state_file") {
         let mut input_file: PathBuf = test.path.parent().expect("no test parent dir").into();
@@ -350,16 +364,8 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
             last_circuit = Some(circuit);
         }
 
-        let capture_console = match test.config.get("capture_console") {
-            Some(v) => v.as_bool().expect("`capture_console` is not bool"),
-            None => false, // Ignore the stdout by default
-        };
-
-        let console_output = capture_console.then(|| {
-            std::str::from_utf8(&console.output())
-                .expect("failed to parse the console output")
-                .to_string()
-        });
+        // Fill out the `console_output` if `capture_console` is enabled
+        let console_output = collect_console_output(&test, console);
 
         // Set IR if not set yet.
         // Otherwise, if IR was changed, add an error.
