@@ -89,6 +89,7 @@ fn hash_file(path: &str) -> String {
     format!("{:x}", hash)
 }
 
+/// The tracing writer used to capture the log
 struct CaptiveWriter(Arc<Mutex<Vec<u8>>>);
 
 impl io::Write for &CaptiveWriter {
@@ -100,17 +101,19 @@ impl io::Write for &CaptiveWriter {
     }
 }
 
-// `tracing` has harsh requirements on a custom writer.
-// All of the Arc, Mutex stuff is to make `tracing` happy
+/// The tracing subscriber used to capture the log
 #[derive(Default)]
 struct CaptiveSubscriber {
+    // `tracing` has harsh requirements on a custom writer.
+    // All of the Arc, Mutex stuff is to make `tracing` happy
     output: Arc<Mutex<Vec<u8>>>,
 }
 
 impl CaptiveSubscriber {
-    /// Output of tracing will be captured during the period that the guard is hold
+    /// Returns a guard that, while live, captures the output of tracing.
+    /// The output can then be retrieved using `captive_subscriber.output()`.
     fn capture(&self) -> subscriber::DefaultGuard {
-        // Use a minimal format
+        // Use a minimal format. e.g. "INFO hello"
         let fmt = tracing_subscriber::fmt::format()
             .with_target(false)
             .without_time()
@@ -126,7 +129,7 @@ impl CaptiveSubscriber {
         tracing::subscriber::set_default(s)
     }
 
-    /// Get the captured output
+    /// Returns the captured output thus far.
     fn output(&self) -> Vec<u8> {
         self.output.lock().unwrap().clone()
     }
@@ -317,6 +320,8 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
                 .map_err(|e| e.to_string()),
         )?;
 
+        // Drop the guard early to prevent unintended logging.
+        // All `console` functions should have been evaluated before this point.
         drop(console_guard);
 
         let registers: Vec<_> = compiled.header.register_inputs.to_vec();
