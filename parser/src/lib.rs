@@ -23,7 +23,7 @@
 #![doc = include_str!("../README.md")]
 
 pub(crate) mod tokenizer;
-use leo_input::LeoInputParser;
+// use leo_input::LeoInputParser;
 pub use tokenizer::KEYWORD_TOKENS;
 pub(crate) use tokenizer::*;
 
@@ -46,59 +46,64 @@ pub fn parse_ast<T: AsRef<str>, Y: AsRef<str>>(handler: &Handler, path: T, sourc
 pub fn parse_program_input<T: AsRef<str>, Y: AsRef<str>, T2: AsRef<str>, Y2: AsRef<str>>(
     input_string: T,
     input_path: Y,
-    state_string: T2,
-    state_path: Y2,
+    _state_string: T2,
+    _state_path: Y2,
 ) -> Result<Input> {
-    let input_syntax_tree = LeoInputParser::parse_file(input_string.as_ref()).map_err(|mut e| {
-        e.set_path(
-            input_path.as_ref(),
-            &input_string
-                .as_ref()
-                .lines()
-                .map(|x| x.to_string())
-                .collect::<Vec<String>>()[..],
-        );
+    
+    
+    
+    Ok(Input::default())
 
-        e
-    })?;
-    let state_syntax_tree = LeoInputParser::parse_file(state_string.as_ref()).map_err(|mut e| {
-        e.set_path(
-            state_path.as_ref(),
-            &state_string
-                .as_ref()
-                .lines()
-                .map(|x| x.to_string())
-                .collect::<Vec<String>>()[..],
-        );
+    // let input_syntax_tree = LeoInputParser::parse_file(input_string.as_ref()).map_err(|mut e| {
+    //     e.set_path(
+    //         input_path.as_ref(),
+    //         &input_string
+    //             .as_ref()
+    //             .lines()
+    //             .map(|x| x.to_string())
+    //             .collect::<Vec<String>>()[..],
+    //     );
 
-        e
-    })?;
+    //     e
+    // })?;
+    // let state_syntax_tree = LeoInputParser::parse_file(state_string.as_ref()).map_err(|mut e| {
+    //     e.set_path(
+    //         state_path.as_ref(),
+    //         &state_string
+    //             .as_ref()
+    //             .lines()
+    //             .map(|x| x.to_string())
+    //             .collect::<Vec<String>>()[..],
+    //     );
 
-    let mut input = Input::new();
-    input.parse_input(input_syntax_tree).map_err(|mut e| {
-        e.set_path(
-            input_path.as_ref(),
-            &input_string
-                .as_ref()
-                .lines()
-                .map(|x| x.to_string())
-                .collect::<Vec<String>>()[..],
-        );
+    //     e
+    // })?;
 
-        e
-    })?;
-    input.parse_state(state_syntax_tree).map_err(|mut e| {
-        e.set_path(
-            state_path.as_ref(),
-            &state_string
-                .as_ref()
-                .lines()
-                .map(|x| x.to_string())
-                .collect::<Vec<String>>()[..],
-        );
+    // let mut input = Input::new();
+    // input.parse_input(input_syntax_tree).map_err(|mut e| {
+    //     e.set_path(
+    //         input_path.as_ref(),
+    //         &input_string
+    //             .as_ref()
+    //             .lines()
+    //             .map(|x| x.to_string())
+    //             .collect::<Vec<String>>()[..],
+    //     );
 
-        e
-    })?;
+    //     e
+    // })?;
+    // input.parse_state(state_syntax_tree).map_err(|mut e| {
+    //     e.set_path(
+    //         state_path.as_ref(),
+    //         &state_string
+    //             .as_ref()
+    //             .lines()
+    //             .map(|x| x.to_string())
+    //             .collect::<Vec<String>>()[..],
+    //     );
 
-    Ok(input)
+    //     e
+    // })?;
+
+    // Ok(input)
 }
