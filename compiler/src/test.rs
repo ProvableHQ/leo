@@ -350,14 +350,11 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
             None => false, // Ignore the stdout by default
         };
 
-        let console_output = match capture_console {
-            true => Some(
-                std::str::from_utf8(&console.output())
-                    .expect("failed to parse the console output")
-                    .to_string(),
-            ),
-            false => None,
-        };
+        let console_output = capture_console.then(|| {
+            std::str::from_utf8(&console.output())
+                .expect("failed to parse the console output")
+                .to_string()
+        });
 
         // Set IR if not set yet.
         // Otherwise, if IR was changed, add an error.
