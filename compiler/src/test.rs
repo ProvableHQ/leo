@@ -102,17 +102,12 @@ impl io::Write for &CaptiveWriter {
 
 // `tracing` has harsh requirements on a custom writer.
 // All of the Arc, Mutex stuff is to make `tracing` happy
+#[derive(Default)]
 struct CaptiveSubscriber {
     output: Arc<Mutex<Vec<u8>>>,
 }
 
 impl CaptiveSubscriber {
-    fn new() -> CaptiveSubscriber {
-        CaptiveSubscriber {
-            output: Arc::new(Mutex::new(Vec::new())),
-        }
-    }
-
     /// Output of tracing will be captured during the period that the guard is hold
     fn capture(&self) -> subscriber::DefaultGuard {
         // Use a minimal format
@@ -308,7 +303,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     let mut last_circuit = None;
     let mut last_ir: Option<snarkvm_ir::Program> = None;
     for input in inputs {
-        let console = CaptiveSubscriber::new();
+        let console = CaptiveSubscriber::default();
         let console_guard = console.capture();
 
         let parsed = parsed.clone();
