@@ -14,15 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::common::ParserContext;
+mod context;
+use context::*;
+
+pub mod file;
 
 use leo_ast::*;
 use leo_errors::emitter::Handler;
-use leo_errors::Result;
+use leo_errors::{ParserError, Result};
+use leo_span::{Span, Symbol};
+
+use indexmap::IndexMap;
 
 /// Creates a new program from a given file path and source code text.
-pub fn parse(handler: &Handler, path: &str, source: &str) -> Result<Program> {
-    let mut tokens = ParserContext::new(handler, crate::tokenize(path, source.into())?);
+pub fn parse(handler: &Handler, path: &str, source: &str) -> Result<Input> {
+    let mut tokens = InputParserContext::new(handler, crate::tokenize(path, source.into())?);
 
-    tokens.parse_program()
+    tokens.parse_input()
 }
+
+pub(crate) use super::assert_no_whitespace;

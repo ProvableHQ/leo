@@ -30,6 +30,9 @@ pub(crate) use tokenizer::*;
 pub mod parser;
 pub use parser::*;
 
+pub mod input_parser;
+pub use input_parser::*;
+
 use leo_ast::{Ast, Input};
 use leo_errors::emitter::Handler;
 use leo_errors::Result;
@@ -44,15 +47,14 @@ pub fn parse_ast<T: AsRef<str>, Y: AsRef<str>>(handler: &Handler, path: T, sourc
 
 /// Parses program input from from the input file path and state file path
 pub fn parse_program_input<T: AsRef<str>, Y: AsRef<str>, T2: AsRef<str>, Y2: AsRef<str>>(
+    handler: &Handler,
     input_string: T,
     input_path: Y,
     _state_string: T2,
     _state_path: Y2,
 ) -> Result<Input> {
     
-    
-    
-    Ok(Input::default())
+    input_parser::parse(handler, input_path.as_ref(), input_string.as_ref())
 
     // let input_syntax_tree = LeoInputParser::parse_file(input_string.as_ref()).map_err(|mut e| {
     //     e.set_path(
