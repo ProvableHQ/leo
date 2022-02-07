@@ -44,16 +44,15 @@ pub fn format_event() -> Result<()> {
     Ok(())
 }
 
-#[test]
-pub fn build_pedersen_hash() -> Result<()> {
-    (Build {
-        compiler_options: Default::default(),
-    })
-    .apply(context()?, ())?;
-    Ok(())
-}
-
 // todo (collin): uncomment after refactor
+// #[test]
+// pub fn build_pedersen_hash() -> Result<()> {
+//     (Build {
+//         compiler_options: Default::default(),
+//     })
+//     .apply(context()?, ())?;
+//     Ok(())
+// }
 // #[test]
 // pub fn setup_pedersen_hash() -> Result<()> {
 //     let build = (Build {
