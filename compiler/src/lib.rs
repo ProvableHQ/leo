@@ -25,16 +25,17 @@
 use leo_errors::emitter::Handler;
 use leo_errors::{CompilerError, Result};
 
+use sha2::{Digest, Sha256};
 use std::fs;
 use std::path::PathBuf;
 
 /// The primary entry point of the Leo compiler.
-pub struct RunCompiler<'a> {
+pub struct Compiler<'a> {
     handler: &'a Handler,
     main_file_path: PathBuf,
 }
 
-impl<'a> RunCompiler<'a> {
+impl<'a> Compiler<'a> {
     ///
     /// Returns a new Leo compiler.
     ///
@@ -46,9 +47,25 @@ impl<'a> RunCompiler<'a> {
     }
 
     ///
+    /// Returns a SHA256 checksum of the program file.
+    ///
+    pub fn checksum(&self) -> Result<String> {
+        // Read in the main file as string
+        let unparsed_file = fs::read_to_string(&self.main_file_path)
+            .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;
+
+        // Hash the file contents
+        let mut hasher = Sha256::new();
+        hasher.update(unparsed_file.as_bytes());
+        let hash = hasher.finalize();
+
+        Ok(format!("{:x}", hash))
+    }
+
+    ///
     /// Returns a compiled Leo program.
     ///
-    pub fn run(self) -> Result<leo_ast::Ast> {
+    pub fn compile(self) -> Result<leo_ast::Ast> {
         // Load the program file.
         let program_string = fs::read_to_string(&self.main_file_path)
             .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;

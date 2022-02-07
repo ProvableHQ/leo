@@ -35,6 +35,14 @@ create_errors!(
         help: None,
     }
 
+    /// For when creating the imports directory failed.
+    @backtraced
+    failed_to_create_imports_directory {
+        args: (error: impl ErrorArg),
+        msg: format!("failed creating imports directory {}", error),
+        help: None,
+    }
+
     /// For when removing the imports directory failed.
     @backtraced
     failed_to_remove_imports_directory {
@@ -75,6 +83,22 @@ create_errors!(
         help: None,
     }
 
+    /// For when creating the inputs directory failed.
+    @backtraced
+    failed_to_create_inputs_directory {
+        args: (error: impl ErrorArg),
+        msg: format!("failed creating inputs directory {}", error),
+        help: None,
+    }
+
+    /// For when reading the circuit file failed.
+    @backtraced
+    failed_to_read_circuit_file {
+        args: (path: impl Debug),
+        msg: format!("Cannot read circuit file from the provided file path - {:?}", path),
+        help: None,
+    }
+
     /// For when reading the input directory failed.
     @backtraced
     failed_to_read_inputs_directory {
@@ -88,6 +112,39 @@ create_errors!(
     failed_to_read_input_file {
         args: (path: impl Debug),
         msg: format!("Cannot read input file from the provided file path - {:?}", path),
+        help: None,
+    }
+
+    /// For when reading the state file failed.
+    @backtraced
+    failed_to_read_state_file {
+        args: (path: impl Debug),
+        msg: format!("Cannot read state file from the provided file path - {:?}", path),
+        help: None,
+    }
+
+
+    /// For when reading the snapshot file failed.
+    @backtraced
+    failed_to_read_snapshot_file {
+        args: (path: impl Debug),
+        msg: format!("Cannot read snapshot file from the provided file path - {:?}", path),
+        help: None,
+    }
+
+    /// For when reading the checksum file failed.
+    @backtraced
+    failed_to_read_checksum_file {
+        args: (path: impl Debug),
+        msg: format!("Cannot read checksum file from the provided file path - {:?}", path),
+        help: None,
+    }
+
+    /// For when reading the proof file failed.
+    @backtraced
+    failed_to_read_proof_file {
+        args: (path: impl Debug),
+        msg: format!("Cannot read proof file from the provided file path - {:?}", path),
         help: None,
     }
 
@@ -107,11 +164,27 @@ create_errors!(
         help: None,
     }
 
+    /// For when creating the manifest file failed.
+    @backtraced
+    failed_to_create_manifest_file {
+        args: (filename: impl Display, error: impl ErrorArg),
+        msg: format!("failed creating manifest file `{}` {}", filename, error),
+        help: None,
+    }
+
     /// For when parsing the manifest file failed.
     @backtraced
     failed_to_parse_manifest_file {
         args: (filename: impl Display, error: impl ErrorArg),
         msg: format!("failed parsing manifest file `{}` {}", filename, error),
+        help: None,
+    }
+
+    /// For when opening the manifest file failed.
+    @backtraced
+    failed_to_open_manifest_file {
+        args: (filename: impl Display, error: impl ErrorArg),
+        msg: format!("failed openining manifest file `{}` {}", filename, error),
         help: None,
     }
 
@@ -122,6 +195,31 @@ create_errors!(
         msg: format!("failed reading manifest file `{}` {}", filename, error),
         help: None,
     }
+
+    /// For when writing the manifest file failed.
+    @backtraced
+    failed_to_write_manifest_file {
+        args: (filename: impl Display, error: impl ErrorArg),
+        msg: format!("failed writing manifest file `{}` {}", filename, error),
+        help: None,
+    }
+
+    /// For when the manifest file has an IO error.
+    @backtraced
+    io_error_manifest_file {
+        args: (error: impl ErrorArg),
+        msg: format!("IO error manifest file from the provided file path - {}", error),
+        help: None,
+    }
+
+    /// For when getting the manifest metadata file failed.
+    @backtraced
+    failed_to_get_manifest_metadata_file {
+        args: (filename: impl Display, error: impl ErrorArg),
+        msg: format!("failed getting manifest metadata file `{}` {}", filename, error),
+        help: None,
+    }
+
 
     /// For when creating the zip file failed.
     @backtraced
@@ -163,11 +261,149 @@ create_errors!(
         help: None,
     }
 
+    /// For when the circuit file has an IO error.
+    @backtraced
+    io_error_circuit_file {
+        args: (error: impl ErrorArg),
+        msg: format!("IO error circuit file from the provided file path - {}", error),
+        help: None,
+    }
+
+    /// For when the checksum file has an IO error.
+    @backtraced
+    io_error_checksum_file {
+        args: (error: impl ErrorArg),
+        msg: format!("IO error checksum file from the provided file path - {}", error),
+        help: None,
+    }
+
+    /// For when the proof file has an IO error.
+    @backtraced
+    io_error_proof_file {
+        args: (error: impl ErrorArg),
+        msg: format!("IO error proof file from the provided file path - {}", error),
+        help: None,
+    }
+
+    /// For when the readme file has an IO error.
+    @backtraced
+    io_error_readme_file {
+        args: (error: impl ErrorArg),
+        msg: format!("IO error readme file from the provided file path - {}", error),
+        help: None,
+    }
+
+    /// For when the main file has an IO error.
+    @backtraced
+    io_error_main_file {
+        args: (error: impl ErrorArg),
+        msg: format!("IO error main file from the provided file path - {}", error),
+        help: None,
+    }
+
+    /// For when removing the circuit file failed.
+    @backtraced
+    failed_to_remove_circuit_file {
+        args: (path: impl Debug),
+        msg: format!("failed removing circuit file from the provided file path - {:?}", path),
+        help: None,
+    }
+
+    /// For when removing the checksum file failed.
+    @backtraced
+    failed_to_remove_checksum_file {
+        args: (path: impl Debug),
+        msg: format!("failed removing checksum file from the provided file path - {:?}", path),
+        help: None,
+    }
+
     /// For when removing the zip file failed.
     @backtraced
     failed_to_remove_zip_file {
         args: (path: impl Debug),
         msg: format!("failed removing zip file from the provided file path - {:?}", path),
+        help: None,
+    }
+
+    /// For when removing the snapshot file failed.
+    @backtraced
+    failed_to_remove_snapshot_file {
+        args: (path: impl Debug),
+        msg: format!("failed removing snapshot file from the provided file path - {:?}", path),
+        help: None,
+    }
+
+
+    /// For when removing the proof file failed.
+    @backtraced
+    failed_to_remove_proof_file {
+        args: (path: impl Debug),
+        msg: format!("failed removing proof file from the provided file path - {:?}", path),
+        help: None,
+    }
+
+    /// For when removing the proving_key file failed.
+    @backtraced
+    failed_to_remove_proving_key_file {
+        args: (path: impl Debug),
+        msg: format!("failed removing proving_key file from the provided file path - {:?}", path),
+        help: None,
+    }
+
+    /// For when removing the verification_key file failed.
+    @backtraced
+    failed_to_remove_verification_key_file {
+        args: (path: impl Debug),
+        msg: format!("failed removing verification_key file from the provided file path - {:?}", path),
+        help: None,
+    }
+
+    /// For when the input file has an IO error.
+    @backtraced
+    io_error_input_file {
+        args: (error: impl ErrorArg),
+        msg: format!("IO error input file from the provided file path - {}", error),
+        help: None,
+    }
+
+
+    /// For when the state file has an IO error.
+    @backtraced
+    io_error_state_file {
+        args: (error: impl ErrorArg),
+        msg: format!("IO error state file from the provided file path - {}", error),
+        help: None,
+    }
+
+    /// For when the proving_key file has an IO error.
+    @backtraced
+    io_error_proving_key_file {
+        args: (error: impl ErrorArg),
+        msg: format!("IO error proving_key file from the provided file path - {}", error),
+        help: None,
+    }
+
+    /// For when the verification_key file has an IO error.
+    @backtraced
+    io_error_verification_key_file {
+        args: (error: impl ErrorArg),
+        msg: format!("IO error verification_key file from the provided file path - {}", error),
+        help: None,
+    }
+
+    /// For when the gitignore file has an IO error.
+    @backtraced
+    io_error_gitignore_file {
+        args: (error: impl ErrorArg),
+        msg: format!("IO error gitignore file from the provided file path - {}", error),
+        help: None,
+    }
+
+    /// For when creating the source directory failed.
+    @backtraced
+    failed_to_create_source_directory {
+        args: (error: impl ErrorArg),
+        msg: format!("failed creating source directory {}", error),
         help: None,
     }
 
@@ -230,7 +466,7 @@ create_errors!(
     @backtraced
     failed_to_create_lock_file {
         args: (filename: impl Display, error: impl ErrorArg),
-        msg: format!("failed creating manifest file `{}` {}", filename, error),
+        msg: format!("failed creating lock file `{}` {}", filename, error),
         help: None,
     }
 

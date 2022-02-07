@@ -30,6 +30,9 @@ version = "1.5.3"
 path = "../parser"
 version = "1.5.3"
 
+[dependencies.sha2]
+version = "0.10"
+
 [features]
 default = [ ]
 ci_skip = [ "leo-ast/ci_skip" ]

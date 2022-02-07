@@ -22,8 +22,11 @@ pub mod logger;
 pub mod updater;
 
 use commands::{
-    package::{Clone, Fetch, Login, Logout, Publish},
-    Build, Clean, Command, Deploy, Init, Lint, New, Prove, Run, Setup, Test, Update, Watch,
+    // package::{Clone, Fetch, Login, Logout, Publish},
+    Build,
+    // Clean,
+    Command,
+    // Deploy, Init, Lint, New, Prove, Run, Setup, Test, Update, Watch,
 };
 use leo_errors::Result;
 
@@ -59,117 +62,116 @@ struct Opt {
 #[derive(StructOpt, Debug)]
 #[structopt(setting = AppSettings::ColoredHelp)]
 enum CommandOpts {
-    #[structopt(about = "Create a new Leo package in an existing directory")]
-    Init {
-        #[structopt(flatten)]
-        command: Init,
-    },
-
-    #[structopt(about = "Create a new Leo package in a new directory")]
-    New {
-        #[structopt(flatten)]
-        command: New,
-    },
-
+    // #[structopt(about = "Create a new Leo package in an existing directory")]
+    // Init {
+    //     #[structopt(flatten)]
+    //     command: Init,
+    // },
+    //
+    // #[structopt(about = "Create a new Leo package in a new directory")]
+    // New {
+    //     #[structopt(flatten)]
+    //     command: New,
+    // },
     #[structopt(about = "Compile the current package as a program")]
     Build {
         #[structopt(flatten)]
         command: Build,
     },
-
-    #[structopt(about = "Run a program setup")]
-    Setup {
-        #[structopt(flatten)]
-        command: Setup,
-    },
-
-    #[structopt(about = "Run the program and produce a proof")]
-    Prove {
-        #[structopt(flatten)]
-        command: Prove,
-    },
-
-    #[structopt(about = "Run a program with input variables")]
-    Run {
-        #[structopt(flatten)]
-        command: Run,
-    },
-
-    #[structopt(about = "Clean the output directory")]
-    Clean {
-        #[structopt(flatten)]
-        command: Clean,
-    },
-
-    #[structopt(about = "Watch for changes of Leo source files")]
-    Watch {
-        #[structopt(flatten)]
-        command: Watch,
-    },
-
-    #[structopt(about = "Update Leo to the latest version")]
-    Update {
-        #[structopt(flatten)]
-        command: Update,
-    },
-
-    #[structopt(about = "Compile and run all tests in the current package")]
-    Test {
-        #[structopt(flatten)]
-        command: Test,
-    },
-
+    //
+    // #[structopt(about = "Run a program setup")]
+    // Setup {
+    //     #[structopt(flatten)]
+    //     command: Setup,
+    // },
+    //
+    // #[structopt(about = "Run the program and produce a proof")]
+    // Prove {
+    //     #[structopt(flatten)]
+    //     command: Prove,
+    // },
+    //
+    // #[structopt(about = "Run a program with input variables")]
+    // Run {
+    //     #[structopt(flatten)]
+    //     command: Run,
+    // },
+    //
+    // #[structopt(about = "Clean the output directory")]
+    // Clean {
+    //     #[structopt(flatten)]
+    //     command: Clean,
+    // },
+    //
+    // #[structopt(about = "Watch for changes of Leo source files")]
+    // Watch {
+    //     #[structopt(flatten)]
+    //     command: Watch,
+    // },
+    //
+    // #[structopt(about = "Update Leo to the latest version")]
+    // Update {
+    //     #[structopt(flatten)]
+    //     command: Update,
+    // },
+    //
+    // #[structopt(about = "Compile and run all tests in the current package")]
+    // Test {
+    //     #[structopt(flatten)]
+    //     command: Test,
+    // },
+    //
     // #[structopt(about = "Import a package from the Aleo Package Manager")]
     // Add {
     //     #[structopt(flatten)]
     //     command: Add,
     // },
-    #[structopt(about = "Pull dependencies from Aleo Package Manager")]
-    Fetch {
-        #[structopt(flatten)]
-        command: Fetch,
-    },
-
-    #[structopt(about = "Clone a package from the Aleo Package Manager")]
-    Clone {
-        #[structopt(flatten)]
-        command: Clone,
-    },
-
-    #[structopt(about = "Login to the Aleo Package Manager")]
-    Login {
-        #[structopt(flatten)]
-        command: Login,
-    },
-
-    #[structopt(about = "Logout of the Aleo Package Manager")]
-    Logout {
-        #[structopt(flatten)]
-        command: Logout,
-    },
-
-    #[structopt(about = "Publish the current package to the Aleo Package Manager")]
-    Publish {
-        #[structopt(flatten)]
-        command: Publish,
-    },
-
+    // #[structopt(about = "Pull dependencies from Aleo Package Manager")]
+    // Fetch {
+    //     #[structopt(flatten)]
+    //     command: Fetch,
+    // },
+    //
+    // #[structopt(about = "Clone a package from the Aleo Package Manager")]
+    // Clone {
+    //     #[structopt(flatten)]
+    //     command: Clone,
+    // },
+    //
+    // #[structopt(about = "Login to the Aleo Package Manager")]
+    // Login {
+    //     #[structopt(flatten)]
+    //     command: Login,
+    // },
+    //
+    // #[structopt(about = "Logout of the Aleo Package Manager")]
+    // Logout {
+    //     #[structopt(flatten)]
+    //     command: Logout,
+    // },
+    //
+    // #[structopt(about = "Publish the current package to the Aleo Package Manager")]
+    // Publish {
+    //     #[structopt(flatten)]
+    //     command: Publish,
+    // },
+    //
     // #[structopt(about = "Uninstall a package from the current package")]
     // Remove {
     //     #[structopt(flatten)]
     //     command: Remove,
     // },
-    #[structopt(about = "Lints the Leo files in the package (*)")]
-    Lint {
-        #[structopt(flatten)]
-        command: Lint,
-    },
-
-    #[structopt(about = "Deploy the current package as a program to the network (*)")]
-    Deploy {
-        #[structopt(flatten)]
-        command: Deploy,
-    },
+    // #[structopt(about = "Lints the Leo files in the package (*)")]
+    // Lint {
+    //     #[structopt(flatten)]
+    //     command: Lint,
+    // },
+    //
+    // #[structopt(about = "Deploy the current package as a program to the network (*)")]
+    // Deploy {
+    //     #[structopt(flatten)]
+    //     command: Deploy,
+    // },
 }
 
 fn main() {
@@ -197,26 +199,26 @@ fn run_with_args(opt: Opt) -> Result<()> {
     });
 
     match opt.command {
-        CommandOpts::Init { command } => command.try_execute(context),
-        CommandOpts::New { command } => command.try_execute(context),
+        // CommandOpts::Init { command } => command.try_execute(context),
+        // CommandOpts::New { command } => command.try_execute(context),
         CommandOpts::Build { command } => command.try_execute(context),
-        CommandOpts::Setup { command } => command.try_execute(context),
-        CommandOpts::Prove { command } => command.try_execute(context),
-        CommandOpts::Test { command } => command.try_execute(context),
-        CommandOpts::Run { command } => command.try_execute(context),
-        CommandOpts::Clean { command } => command.try_execute(context),
-        CommandOpts::Watch { command } => command.try_execute(context),
-        CommandOpts::Update { command } => command.try_execute(context),
-
-        // CommandOpts::Add { command } => command.try_execute(context),
-        CommandOpts::Fetch { command } => command.try_execute(context),
-        CommandOpts::Clone { command } => command.try_execute(context),
-        CommandOpts::Login { command } => command.try_execute(context),
-        CommandOpts::Logout { command } => command.try_execute(context),
-        CommandOpts::Publish { command } => command.try_execute(context),
-        // CommandOpts::Remove { command } => command.try_execute(context),
-        CommandOpts::Lint { command } => command.try_execute(context),
-        CommandOpts::Deploy { command } => command.try_execute(context),
+        // CommandOpts::Setup { command } => command.try_execute(context),
+        // CommandOpts::Prove { command } => command.try_execute(context),
+        // CommandOpts::Test { command } => command.try_execute(context),
+        // CommandOpts::Run { command } => command.try_execute(context),
+        // CommandOpts::Clean { command } => command.try_execute(context),
+        // CommandOpts::Watch { command } => command.try_execute(context),
+        // CommandOpts::Update { command } => command.try_execute(context),
+        //
+        // // CommandOpts::Add { command } => command.try_execute(context),
+        // CommandOpts::Fetch { command } => command.try_execute(context),
+        // CommandOpts::Clone { command } => command.try_execute(context),
+        // CommandOpts::Login { command } => command.try_execute(context),
+        // CommandOpts::Logout { command } => command.try_execute(context),
+        // CommandOpts::Publish { command } => command.try_execute(context),
+        // // CommandOpts::Remove { command } => command.try_execute(context),
+        // CommandOpts::Lint { command } => command.try_execute(context),
+        // CommandOpts::Deploy { command } => command.try_execute(context),
     }
 }
 
