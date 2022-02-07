@@ -29,6 +29,7 @@ use commands::{
     // Deploy, Init, Lint, New, Prove, Run, Setup, Test, Update, Watch,
 };
 use leo_errors::Result;
+use snarkvm_utilities::Write;
 
 use std::{path::PathBuf, process::exit};
 use structopt::{clap::AppSettings, StructOpt};

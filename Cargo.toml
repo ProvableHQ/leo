@@ -30,7 +30,7 @@ members = [
 #  "asg",
 #  "asg-passes",
   "ast",
-  "ast-passes",
+#  "ast-passes",
   "compiler",
   "errors",
   "grammar",
@@ -102,9 +102,9 @@ version = "1.5.3"
 #rev = "51633e2"
 #default-features = false
 #
-#[dependencies.snarkvm-utilities]
-#git = "https://github.com/AleoHQ/snarkVM.git"
-#rev = "51633e2"
+[dependencies.snarkvm-utilities]
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "51633e2"
 
 [dependencies.clap]
 version = "3.0.10"

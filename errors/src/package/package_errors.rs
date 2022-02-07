@@ -21,6 +21,8 @@ use std::{
     fmt::{Debug, Display},
 };
 
+// todo (collin): redo these after Mazdak finishes error indexing.
+
 create_errors!(
     /// PackageError enum that represents all the errors for the `leo-package` crate.
     PackageError,
