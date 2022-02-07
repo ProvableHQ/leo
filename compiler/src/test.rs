@@ -117,7 +117,7 @@ impl CaptiveSubscriber {
             .with_ansi(false)
             .compact();
 
-        // Build a subscriber that writes log into Vec<u8>
+        // Build a subscriber that writes logs into `self.output`.
         let s = tracing_subscriber::fmt()
             .event_format(fmt)
             .with_writer(Arc::new(CaptiveWriter(self.output.clone())))
