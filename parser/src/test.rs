@@ -75,7 +75,7 @@ fn with_handler<T>(
     Ok(parsed)
 }
 
-fn implcit_value_expr() -> Expression {
+fn implicit_value_expr() -> Expression {
     Expression::Value(ValueExpression::Implicit("".into(), Span::default()))
 }
 
@@ -104,7 +104,7 @@ impl Namespace for ParseExpressionNamespace {
         create_session_if_not_set_then(|_| {
             let tokenizer = tokenize(test)?;
             if all_are_comments(&tokenizer) {
-                return Ok(yaml_or_fail(implcit_value_expr()));
+                return Ok(yaml_or_fail(implicit_value_expr()));
             }
             with_handler(tokenizer, |p| p.parse_expression()).map(yaml_or_fail)
         })
@@ -123,7 +123,7 @@ impl Namespace for ParseStatementNamespace {
             let tokenizer = tokenize(test)?;
             if all_are_comments(&tokenizer) {
                 return Ok(yaml_or_fail(Statement::Expression(ExpressionStatement {
-                    expression: implcit_value_expr(),
+                    expression: implicit_value_expr(),
                     span: Span::default(),
                 })));
             }

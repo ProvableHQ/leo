@@ -27,7 +27,6 @@ use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_parser::parse_ast;
-// use leo_state::verify_local_data_commitment;
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::{ConstraintSynthesizer, ConstraintSystem, SynthesisError};

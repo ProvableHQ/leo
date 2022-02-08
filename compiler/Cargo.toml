@@ -26,128 +26,12 @@ version = "1.5.3"
 path = "../errors"
 version = "1.5.3"
 
-[dependencies.leo-imports]
-path = "../imports"
-version = "1.5.3"
-
-[dependencies.leo-input]
-path = "../input"
-version = "1.5.3"
-
-[dependencies.leo-package]
-path = "../package"
-version = "1.5.3"
-
-#[dependencies.leo-state]
-#path = "../state"
-#version = "1.5.3"
-
-[dependencies.leo-asg]
-path = "../asg"
-version = "1.5.3"
-
 [dependencies.leo-parser]
 path = "../parser"
 version = "1.5.3"
 
-[dependencies.leo-asg-passes]
-path = "../asg-passes"
-version = "1.5.3"
-
-[dependencies.leo-ast-passes]
-path = "../ast-passes"
-version = "1.5.3"
-
-[dependencies.leo-synthesizer]
-path = "../synthesizer"
-version = "1.5.3"
-
-[dev-dependencies.snarkvm-algorithms]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "51633e2"
-default-features = false
-
-[dependencies.snarkvm-curves]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "51633e2"
-default-features = false
-
-[dependencies.snarkvm-fields]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "51633e2"
-default-features = false
-
-[dependencies.snarkvm-dpc]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "51633e2"
-features = ["testnet2"]
-
-[dependencies.snarkvm-gadgets]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "51633e2"
-default-features = false
-features = [ "curves" ]
-
-[dependencies.snarkvm-r1cs]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "51633e2"
-default-features = false
-
-[dependencies.snarkvm-utilities]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "51633e2"
-
-[dependencies.bech32]
-version = "0.8"
-
-[dependencies.bincode]
-version = "1.3"
-
-[dependencies.indexmap]
-version = "1.8.0"
-features = [ "serde-1" ]
-
-[dependencies.num-bigint]
-version = "0.4"
-
-[dependencies.pest]
-version = "2.0"
-
-[dependencies.rand]
-version = "0.8"
-
-[dependencies.serde]
-version = "1.0"
-
-[dependencies.serde_json]
-version = "1.0"
-features = [ "preserve_order" ]
-
 [dependencies.sha2]
 version = "0.10"
-
-[dependencies.tendril]
-version = "0.4"
-
-[dependencies.tracing]
-version = "0.1"
-
-[dev-dependencies.leo-test-framework]
-path = "../test-framework"
-version = "1.4.0"
-
-[dev-dependencies.rand_core]
-version = "0.6.3"
-
-[dev-dependencies.rand_xorshift]
-version = "0.3"
-default-features = false
-
-[dev-dependencies.serde_yaml]
-version = "0.8"
-
-[dev-dependencies.tempfile]
-version = "3.3.0"
 
 [features]
 default = [ ]

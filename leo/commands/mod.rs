@@ -23,42 +23,42 @@ use tracing::span::Span;
 // local program commands
 pub mod build;
 pub use build::Build;
-
-pub mod clean;
-pub use clean::Clean;
-
-pub mod deploy;
-pub use deploy::Deploy;
-
-pub mod init;
-pub use init::Init;
-
-pub mod lint;
-pub use lint::Lint;
-
-pub mod new;
-pub use new::New;
-
-pub mod prove;
-pub use prove::Prove;
-
-pub mod run;
-pub use run::Run;
-
-pub mod setup;
-pub use setup::Setup;
-
-pub mod test;
-pub use test::Test;
-
-pub mod update;
-pub use update::{Automatic as UpdateAutomatic, Update};
-
-pub mod watch;
-pub use watch::Watch;
+//
+// pub mod clean;
+// pub use clean::Clean;
+//
+// pub mod deploy;
+// pub use deploy::Deploy;
+//
+// pub mod init;
+// pub use init::Init;
+//
+// pub mod lint;
+// pub use lint::Lint;
+//
+// pub mod new;
+// pub use new::New;
+//
+// pub mod prove;
+// pub use prove::Prove;
+//
+// pub mod run;
+// pub use run::Run;
+//
+// pub mod setup;
+// pub use setup::Setup;
+//
+// pub mod test;
+// pub use test::Test;
+//
+// pub mod update;
+// pub use update::{Automatic as UpdateAutomatic, Update};
+//
+// pub mod watch;
+// pub use watch::Watch;
 
 // Aleo PM related commands
-pub mod package;
+// pub mod package;
 
 /// Base trait for the Leo CLI, see methods and their documentation for details.
 pub trait Command {
