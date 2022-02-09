@@ -27,116 +27,42 @@ fn parse_ast(path: &str, input: &str) -> Ast {
     })
 }
 
-fn bench_big_if_else(c: &mut Criterion) {
-    let ast = parse_ast("./big_if_else.leo", include_str!("./big_if_else.leo"));
-    c.bench_function("Ast::big_if_else", |b| b.iter(|| &ast));
+macro_rules! bench {
+    ($func_name:ident, $file_name:expr) => {
+        fn $func_name(c: &mut Criterion) {
+            let ast = parse_ast(
+                concat!("./", $file_name, ".leo"),
+                include_str!(concat!("./", $file_name, ".leo"),),
+            );
+            c.bench_function(concat!("Ast::", $file_name), |b| b.iter(|| &ast));
+        }
+    };
 }
 
+bench!(bench_big_if_else, "big_if_else");
 // TODO have to figure out why this causes `thread 'main' has overflowed it's stack'
-/* fn bench_big_ternary(c: &mut Criterion) {
-    let ast = parse_ast("./big_ternary.leo", include_str!("./big_ternary.leo"));
-    c.bench_function("Ast::big_ternary", |b| b.iter(|| &ast));
-} */
-
-fn bench_big_circuit(c: &mut Criterion) {
-    let ast = parse_ast("./big_circuit.leo", include_str!("./big_circuit.leo"));
-    c.bench_function("Ast::big_circuit", |b| b.iter(|| &ast));
-}
-
-fn bench_long_expr(c: &mut Criterion) {
-    let ast = parse_ast("./long_expr.leo", include_str!("./long_expr.leo"));
-    c.bench_function("Ast::long_expr", |b| b.iter(|| &ast));
-}
-
-fn bench_long_array(c: &mut Criterion) {
-    let ast = parse_ast("./long_array.leo", include_str!("./long_array.leo"));
-    c.bench_function("Ast::long_array", |b| b.iter(|| &ast));
-}
-
-fn bench_many_foos(c: &mut Criterion) {
-    let ast = parse_ast("./many_foos.leo", include_str!("./many_foos.leo"));
-    c.bench_function("Ast::many_foos", |b| b.iter(|| &ast));
-}
-
-fn bench_many_assigns(c: &mut Criterion) {
-    let ast = parse_ast("./many_assigns.leo", include_str!("./many_assigns.leo"));
-    c.bench_function("Ast::many_assigns", |b| b.iter(|| &ast));
-}
-
-fn bench_small_1(c: &mut Criterion) {
-    let ast = parse_ast("./small_1.leo", include_str!("./small_1.leo"));
-    c.bench_function("Ast::small_1", |b| b.iter(|| &ast));
-}
-
-fn bench_small_2(c: &mut Criterion) {
-    let ast = parse_ast("./small_2.leo", include_str!("./small_2.leo"));
-    c.bench_function("Ast::small_2", |b| b.iter(|| &ast));
-}
-
-fn bench_small_3(c: &mut Criterion) {
-    let ast = parse_ast("./small_3.leo", include_str!("./small_3.leo"));
-    c.bench_function("Ast::small_3", |b| b.iter(|| &ast));
-}
-
-fn bench_small_4(c: &mut Criterion) {
-    let ast = parse_ast("./small_4.leo", include_str!("./small_4.leo"));
-    c.bench_function("Ast::small_4", |b| b.iter(|| &ast));
-}
-
-fn bench_small_5(c: &mut Criterion) {
-    let ast = parse_ast("./small_5.leo", include_str!("./small_5.leo"));
-    c.bench_function("Ast::small_5", |b| b.iter(|| &ast));
-}
-
-fn bench_medium_1(c: &mut Criterion) {
-    let ast = parse_ast("./medium_1.leo", include_str!("./medium_1.leo"));
-    c.bench_function("Ast::medium_1", |b| b.iter(|| &ast));
-}
-
-fn bench_medium_2(c: &mut Criterion) {
-    let ast = parse_ast("./medium_2.leo", include_str!("./medium_2.leo"));
-    c.bench_function("Ast::medium_2", |b| b.iter(|| &ast));
-}
-
-fn bench_medium_3(c: &mut Criterion) {
-    let ast = parse_ast("./medium_3.leo", include_str!("./medium_3.leo"));
-    c.bench_function("Ast::medium_3", |b| b.iter(|| &ast));
-}
-
-fn bench_medium_4(c: &mut Criterion) {
-    let ast = parse_ast("./medium_4.leo", include_str!("./medium_4.leo"));
-    c.bench_function("Ast::medium_4", |b| b.iter(|| &ast));
-}
-
-fn bench_medium_5(c: &mut Criterion) {
-    let ast = parse_ast("./medium_5.leo", include_str!("./medium_5.leo"));
-    c.bench_function("Ast::medium_5", |b| b.iter(|| &ast));
-}
-
-fn bench_large_1(c: &mut Criterion) {
-    let ast = parse_ast("./large_1.leo", include_str!("./large_1.leo"));
-    c.bench_function("Ast::large_1", |b| b.iter(|| &ast));
-}
-
-fn bench_large_2(c: &mut Criterion) {
-    let ast = parse_ast("./large_2.leo", include_str!("./large_2.leo"));
-    c.bench_function("Ast::large_2", |b| b.iter(|| &ast));
-}
-
-fn bench_large_3(c: &mut Criterion) {
-    let ast = parse_ast("./large_3.leo", include_str!("./large_3.leo"));
-    c.bench_function("Ast::large_3", |b| b.iter(|| &ast));
-}
-
-fn bench_large_4(c: &mut Criterion) {
-    let ast = parse_ast("./large_4.leo", include_str!("./large_4.leo"));
-    c.bench_function("Ast::large_4", |b| b.iter(|| &ast));
-}
-
-fn bench_large_5(c: &mut Criterion) {
-    let ast = parse_ast("./large_5.leo", include_str!("./large_5.leo"));
-    c.bench_function("Ast::large_5", |b| b.iter(|| &ast));
-}
+// bench!(bench_big_ternary, "big_ternary");
+bench!(bench_big_circuit, "big_circuit");
+bench!(bench_long_expr, "long_expr");
+bench!(bench_long_array, "long_array");
+bench!(bench_many_foos, "many_foos");
+bench!(bench_many_assigns, "many_assigns");
+bench!(bench_small_1, "small_1");
+bench!(bench_small_2, "small_2");
+bench!(bench_small_3, "small_3");
+bench!(bench_small_4, "small_4");
+bench!(bench_small_5, "small_5");
+bench!(bench_medium_1, "medium_1");
+bench!(bench_medium_2, "medium_2");
+bench!(bench_medium_3, "medium_3");
+bench!(bench_medium_4, "medium_4");
+bench!(bench_medium_5, "medium_5");
+bench!(bench_large_1, "large_1");
+bench!(bench_large_2, "large_2");
+bench!(bench_large_3, "large_3");
+bench!(bench_large_4, "large_4");
+bench!(bench_large_5, "large_5");
+bench!(bench_massive, "massive");
 
 criterion_group!(
     name = benches;
@@ -162,5 +88,6 @@ criterion_group!(
     bench_large_3,
     bench_large_4,
     bench_large_5,
+    bench_massive
 );
 criterion_main!(benches);
