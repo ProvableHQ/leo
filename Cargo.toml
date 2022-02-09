@@ -27,24 +27,24 @@ path = "leo/main.rs"
 
 [workspace]
 members = [
-  "asg",
-  "asg-passes",
+#  "asg",
+#  "asg-passes",
   "ast",
-  "ast-passes",
+#  "ast-passes",
   "compiler",
   "errors",
   "grammar",
-  "imports",
-  "input",
-  "linter",
+#  "imports",
+#  "input",
+#  "linter",
   "package",
   "parser",
   "span",
 #  "state",
-  "stdlib",
-  "synthesizer",
-  "test-framework",
-  "wasm"
+#  "stdlib",
+#  "synthesizer",
+#  "test-framework",
+#  "wasm"
 ]
 
 [dependencies.leo-ast]
@@ -59,13 +59,13 @@ version = "1.5.3"
 path = "./errors"
 version = "1.5.3"
 
-[dependencies.leo-imports]
-path = "./imports"
-version = "1.5.3"
-
-[dependencies.leo-input]
-path = "./input"
-version = "1.5.3"
+#[dependencies.leo-imports]
+#path = "./imports"
+#version = "1.5.3"
+#
+#[dependencies.leo-input]
+#path = "./input"
+#version = "1.5.3"
 
 [dependencies.leo-package]
 path = "./package"
@@ -79,36 +79,32 @@ version = "1.5.3"
 #path = "./state"
 #version = "1.5.3"
 
-[dependencies.leo-stdlib]
-path = "./stdlib"
-version = "1.5.3"
+#[dependencies.leo-stdlib]
+#path = "./stdlib"
+#version = "1.5.3"
 
-[dependencies.leo-synthesizer]
-path = "./synthesizer"
-version = "1.5.3"
-
-[dependencies.snarkvm-algorithms]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "435f112"
-
-[dependencies.snarkvm-curves]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "435f112"
-default-features = false
-
-[dependencies.snarkvm-gadgets]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "435f112"
-default-features = false
-
-[dependencies.snarkvm-r1cs]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "435f112"
-default-features = false
-
+#[dependencies.snarkvm-algorithms]
+#git = "https://github.com/AleoHQ/snarkVM.git"
+#rev = "51633e2"
+#
+#[dependencies.snarkvm-curves]
+#git = "https://github.com/AleoHQ/snarkVM.git"
+#rev = "51633e2"
+#default-features = false
+#
+#[dependencies.snarkvm-gadgets]
+#git = "https://github.com/AleoHQ/snarkVM.git"
+#rev = "51633e2"
+#default-features = false
+#
+#[dependencies.snarkvm-r1cs]
+#git = "https://github.com/AleoHQ/snarkVM.git"
+#rev = "51633e2"
+#default-features = false
+#
 [dependencies.snarkvm-utilities]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "435f112"
+rev = "51633e2"
 
 [dependencies.clap]
 version = "3.0.10"

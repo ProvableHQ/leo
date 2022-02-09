@@ -23,21 +23,21 @@ version = "1.5.3"
 
 [dependencies.snarkvm-curves]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "435f112"
+rev = "51633e2"
 default-features = false
 
 [dependencies.snarkvm-fields]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "435f112"
+rev = "51633e2"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "435f112"
+rev = "51633e2"
 
 [dependencies.snarkvm-r1cs]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "435f112"
+rev = "51633e2"
 default-features = false
 
 [dependencies.eyre]

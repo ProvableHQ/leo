@@ -421,21 +421,13 @@ pub trait ReconstructingReducer {
         Ok(new)
     }
 
-    fn reduce_package_or_packages(
-        &mut self,
-        _package_or_packages: &PackageOrPackages,
-        new: PackageOrPackages,
-    ) -> Result<PackageOrPackages> {
+    fn reduce_import_tree(&mut self, _tree: &ImportTree, new: ImportTree) -> Result<ImportTree> {
         Ok(new)
     }
 
-    fn reduce_import_statement(
-        &mut self,
-        import: &ImportStatement,
-        package_or_packages: PackageOrPackages,
-    ) -> Result<ImportStatement> {
+    fn reduce_import_statement(&mut self, import: &ImportStatement, tree: ImportTree) -> Result<ImportStatement> {
         Ok(ImportStatement {
-            package_or_packages,
+            tree,
             span: import.span.clone(),
         })
     }

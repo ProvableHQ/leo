@@ -15,21 +15,15 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{commands::Command, context::Context};
-use leo_compiler::{
-    compiler::{thread_leaked_context, Compiler},
-    group::targets::edwards_bls12::EdwardsGroupType,
-    AstSnapshotOptions, CompilerOptions,
-};
+use leo_compiler::Compiler;
 use leo_errors::{CliError, Result};
 use leo_package::{
     inputs::*,
     outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
-use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit};
 
-use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
-use snarkvm_r1cs::ConstraintSystem;
+use leo_ast::Ast;
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -57,43 +51,43 @@ pub struct BuildOptions {
     pub enable_type_inferenced_ast_snapshot: bool,
 }
 
-impl From<BuildOptions> for CompilerOptions {
-    fn from(options: BuildOptions) -> Self {
-        if options.disable_all_optimizations {
-            CompilerOptions {
-                constant_folding_enabled: false,
-                dead_code_elimination_enabled: false,
-            }
-        } else {
-            CompilerOptions {
-                constant_folding_enabled: !options.disable_constant_folding,
-                dead_code_elimination_enabled: !options.disable_code_elimination,
-            }
-        }
-    }
-}
+// impl From<BuildOptions> for CompilerOptions {
+//     fn from(options: BuildOptions) -> Self {
+//         if options.disable_all_optimizations {
+//             CompilerOptions {
+//                 constant_folding_enabled: false,
+//                 dead_code_elimination_enabled: false,
+//             }
+//         } else {
+//             CompilerOptions {
+//                 constant_folding_enabled: !options.disable_constant_folding,
+//                 dead_code_elimination_enabled: !options.disable_code_elimination,
+//             }
+//         }
+//     }
+// }
 
-impl From<BuildOptions> for AstSnapshotOptions {
-    fn from(options: BuildOptions) -> Self {
-        if options.enable_all_ast_snapshots {
-            AstSnapshotOptions {
-                spans_enabled: options.enable_spans,
-                initial: true,
-                imports_resolved: true,
-                canonicalized: true,
-                type_inferenced: true,
-            }
-        } else {
-            AstSnapshotOptions {
-                spans_enabled: options.enable_spans,
-                initial: options.enable_initial_ast_snapshot,
-                imports_resolved: options.enable_imports_resolved_ast_snapshot,
-                canonicalized: options.enable_canonicalized_ast_snapshot,
-                type_inferenced: options.enable_type_inferenced_ast_snapshot,
-            }
-        }
-    }
-}
+// impl From<BuildOptions> for AstSnapshotOptions {
+//     fn from(options: BuildOptions) -> Self {
+//         if options.enable_all_ast_snapshots {
+//             AstSnapshotOptions {
+//                 spans_enabled: options.enable_spans,
+//                 initial: true,
+//                 imports_resolved: true,
+//                 canonicalized: true,
+//                 type_inferenced: true,
+//             }
+//         } else {
+//             AstSnapshotOptions {
+//                 spans_enabled: options.enable_spans,
+//                 initial: options.enable_initial_ast_snapshot,
+//                 imports_resolved: options.enable_imports_resolved_ast_snapshot,
+//                 canonicalized: options.enable_canonicalized_ast_snapshot,
+//                 type_inferenced: options.enable_type_inferenced_ast_snapshot,
+//             }
+//         }
+//     }
+// }
 
 /// Compile and build program command.
 #[derive(StructOpt, Debug)]
@@ -105,7 +99,7 @@ pub struct Build {
 
 impl Command for Build {
     type Input = ();
-    type Output = (Compiler<'static, Fq, EdwardsGroupType>, bool);
+    type Output = (Ast, bool);
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Build")
@@ -152,60 +146,68 @@ impl Command for Build {
         main_file_path.push(MAIN_FILENAME);
 
         // Load the input file at `package_name.in`
-        let (input_string, input_path) = InputFile::new(&package_name).read_from(&path)?;
+        // let (input_string, input_path) = InputFile::new(&package_name).read_from(&path)?;
 
         // Load the state file at `package_name.in`
-        let (state_string, state_path) = StateFile::new(&package_name).read_from(&path)?;
+        // let (state_string, state_path) = StateFile::new(&package_name).read_from(&path)?;
 
         // Log compilation of files to console
         tracing::info!("Compiling main program... ({:?})", main_file_path);
 
-        let imports_map = if context.lock_file_exists()? {
-            context.lock_file()?.to_import_map()
-        } else {
-            Default::default()
-        };
+        // let imports_map = if context.lock_file_exists()? {
+        //     context.lock_file()?.to_import_map()
+        // } else {
+        //     Default::default()
+        // };
 
         // Load the program at `main_file_path`
-        let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_input(
-            package_name.clone(),
-            main_file_path,
-            output_directory,
-            &input_string,
-            &input_path,
-            &state_string,
-            &state_path,
-            thread_leaked_context(),
-            Some(self.compiler_options.clone().into()),
-            imports_map,
-            Some(self.compiler_options.into()),
-        )?;
+        // let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_input(
+        //     package_name.clone(),
+        //     main_file_path,
+        //     output_directory,
+        //     &input_string,
+        //     &input_path,
+        //     &state_string,
+        //     &state_path,
+        //     thread_leaked_context(),
+        //     Some(self.compiler_options.clone().into()),
+        //     imports_map,
+        //     Some(self.compiler_options.into()),
+        // )?;
+
+        // Initialize error handler
+        let handler = leo_errors::emitter::Handler::default();
+
+        let program = Compiler::new(&handler, main_file_path);
 
         // Compute the current program checksum
         let program_checksum = program.checksum()?;
 
+        // Compile the program
+        let program_compiled = program.compile()?;
+
         // Generate the program on the constraint system and verify correctness
         {
-            let mut cs = CircuitSynthesizer::<Bls12_377> {
-                constraints: Default::default(),
-                public_variables: Default::default(),
-                private_variables: Default::default(),
-                namespaces: Default::default(),
-            };
-            let temporary_program = program.clone();
-            let output = temporary_program.compile_constraints(&mut cs)?;
-
-            tracing::debug!("Compiled output - {:#?}", output);
-            tracing::info!("Number of constraints - {:#?}", cs.num_constraints());
+            // let mut cs = CircuitSynthesizer::<Bls12_377> {
+            //     constraints: Default::default(),
+            //     public_variables: Default::default(),
+            //     private_variables: Default::default(),
+            //     namespaces: Default::default(),
+            // };
+            // let temporary_program = program.clone();
+            // let output = temporary_program.compile_constraints(&mut cs)?;
+            //
+            // tracing::debug!("Compiled output - {:#?}", output);
+            // tracing::info!("Number of constraints - {:#?}", cs.num_constraints());
 
             // Serialize the circuit
-            let circuit_object = SerializedCircuit::from(cs);
-            let json = circuit_object.to_json_string().unwrap();
+            // let circuit_object = SerializedCircuit::from(cs);
+            // let json = circuit_object.to_json_string().unwrap();
             // println!("json: {}", json);
 
             // Write serialized circuit to circuit `.json` file.
-            let circuit_file = CircuitFile::new(&package_name);
-            circuit_file.write_to(&path, json)?;
+            // let circuit_file = CircuitFile::new(&package_name);
+            // circuit_file.write_to(&path, json)?;
 
             // Check that we can read the serialized circuit file
             // let serialized = circuit_file.read_from(&package_path)?;
@@ -236,6 +238,6 @@ impl Command for Build {
 
         tracing::info!("Complete");
 
-        Ok((program, checksum_differs))
+        Ok((program_compiled, checksum_differs))
     }
 }
