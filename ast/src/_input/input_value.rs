@@ -15,6 +15,15 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ArrayDimensions, Char, CharValue, GroupValue, IntegerType};
+use leo_input::{
+    errors::InputParserError,
+    expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression, StringExpression, TupleExpression},
+    types::{ArrayType, CharType, DataType, IntegerType as InputIntegerType, TupleType, Type},
+    values::{
+        Address, AddressValue, BooleanValue, CharValue as InputCharValue, FieldValue, GroupValue as InputGroupValue,
+        IntegerValue, NumberValue, Value,
+    },
+};
 use leo_span::Span as AstSpan;
 use pest::Span;
 
@@ -71,23 +80,23 @@ impl InputValue {
         InputValue::Field(field.number.to_string())
     }
 
-    fn from_implicit(data_type: Type, implicit: NumberValue) -> Result<Self, InputParserError> {
+    fn from_implicit(data_type: DataType, implicit: NumberValue) -> Result<Self, InputParserError> {
         match data_type {
-            Type::Address(_) => Err(InputParserError::implicit_type(data_type, implicit)),
-            Type::Boolean(_) => Err(InputParserError::implicit_type(data_type, implicit)),
-            Type::Char(_) => Err(InputParserError::implicit_type(data_type, implicit)),
-            Type::Integer(integer_type) => Ok(InputValue::from_number(integer_type, implicit.to_string())),
-            Type::Group(_) => Err(InputParserError::implicit_group(implicit)),
-            Type::Field(_) => Ok(InputValue::Field(implicit.to_string())),
+            DataType::Address(_) => Err(InputParserError::implicit_type(data_type, implicit)),
+            DataType::Boolean(_) => Err(InputParserError::implicit_type(data_type, implicit)),
+            DataType::Char(_) => Err(InputParserError::implicit_type(data_type, implicit)),
+            DataType::Integer(integer_type) => Ok(InputValue::from_number(integer_type, implicit.to_string())),
+            DataType::Group(_) => Err(InputParserError::implicit_group(implicit)),
+            DataType::Field(_) => Ok(InputValue::Field(implicit.to_string())),
         }
     }
 
-    fn from_value(data_type: Type, value: Value) -> Result<Self, InputParserError> {
+    fn from_value(data_type: DataType, value: Value) -> Result<Self, InputParserError> {
         match (data_type, value) {
-            (Type::Address(_), Value::Address(address)) => Ok(InputValue::from_address_value(address)),
-            (Type::Boolean(_), Value::Boolean(boolean)) => InputValue::from_boolean(boolean),
-            (Type::Char(_), Value::Char(character)) => InputValue::from_char(character),
-            (Type::Integer(integer_type), Value::Integer(integer)) => {
+            (DataType::Address(_), Value::Address(address)) => Ok(InputValue::from_address_value(address)),
+            (DataType::Boolean(_), Value::Boolean(boolean)) => InputValue::from_boolean(boolean),
+            (DataType::Char(_), Value::Char(character)) => InputValue::from_char(character),
+            (DataType::Integer(integer_type), Value::Integer(integer)) => {
                 match integer.clone() {
                     IntegerValue::Signed(signed) => {
                         if let InputIntegerType::Signed(inner) = integer_type.clone() {
@@ -116,8 +125,8 @@ impl InputValue {
                 }
                 Ok(InputValue::from_number(integer_type, integer.to_string()))
             }
-            (Type::Group(_), Value::Group(group)) => Ok(InputValue::from_group(group)),
-            (Type::Field(_), Value::Field(field)) => Ok(InputValue::from_field(field)),
+            (DataType::Group(_), Value::Group(group)) => Ok(InputValue::from_group(group)),
+            (DataType::Field(_), Value::Field(field)) => Ok(InputValue::from_field(field)),
             (data_type, Value::Implicit(implicit)) => InputValue::from_implicit(data_type, implicit),
             (data_type, value) => Err(InputParserError::data_type_mismatch(data_type, value)),
         }
@@ -146,7 +155,7 @@ impl InputValue {
     pub(crate) fn from_string(mut array_type: ArrayType, string: StringExpression) -> Result<Self, InputParserError> {
         // Create a new `ArrayDimensions` type from the input array_type dimensions.
         let array_dimensions_type = ArrayDimensions::from(array_type.dimensions.clone());
-        assert!(matches!(*array_type.type_, Type::Basic(Type::Char(CharType {}))));
+        assert!(matches!(*array_type.type_, Type::Basic(DataType::Char(CharType {}))));
 
         // Convert the array dimensions to usize.
         let array_dimensions = parse_array_dimensions(array_dimensions_type, &array_type.span)?;

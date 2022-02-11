@@ -53,8 +53,9 @@ pub fn parse_program_input<T: AsRef<str>, Y: AsRef<str>, T2: AsRef<str>, Y2: AsR
     _state_string: T2,
     _state_path: Y2,
 ) -> Result<Input> {
-    
-    input_parser::parse(handler, input_path.as_ref(), input_string.as_ref())
+    let input = input_parser::parse(handler, input_path.as_ref(), input_string.as_ref())?;
+
+    Ok(input)
 
     // let input_syntax_tree = LeoInputParser::parse_file(input_string.as_ref()).map_err(|mut e| {
     //     e.set_path(

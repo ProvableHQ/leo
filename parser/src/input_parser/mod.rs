@@ -21,8 +21,8 @@ pub mod file;
 
 use leo_ast::*;
 use leo_errors::emitter::Handler;
-use leo_errors::{ParserError, Result};
-use leo_span::{Span, Symbol};
+use leo_errors::Result;
+use leo_span::Span;
 
 use indexmap::IndexMap;
 

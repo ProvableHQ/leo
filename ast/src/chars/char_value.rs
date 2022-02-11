@@ -17,7 +17,6 @@
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
-// use serde::de::{Deserialize as SerDeserialize, Deserializer};
 use std::fmt;
 
 fn char_to_u32<S>(character: &char, serializer: S) -> Result<S::Ok, S::Error>

@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::Input;
 use leo_errors::{emitter::Handler, Result};
 use leo_span::symbol::create_session_if_not_set_then;
 
@@ -28,12 +27,12 @@ fn to_leo_tree(filepath: &Path) -> Result<String> {
     // Parses the Leo file constructing an ast which is then serialized.
     create_session_if_not_set_then(|_| {
         let handler = Handler::default();
-        let _ast = leo_parser::parse_program_input( 
+        let _ast = leo_parser::parse_program_input(
             &handler,
             program_string.clone(),
             filepath.to_str().unwrap(),
-            program_string, 
-            filepath.to_str().unwrap()
+            program_string,
+            filepath.to_str().unwrap(),
         )?;
         // Ok(Input::to_json_string(&ast).expect("serialization failed"))
         Ok("aa".to_string())

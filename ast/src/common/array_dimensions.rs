@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::PositiveNumber;
-use leo_input::types::ArrayDimensions as InputArrayDimensions;
 
 use serde::{ser::SerializeSeq, Deserialize, Serialize, Serializer};
 use smallvec::{smallvec, SmallVec};
@@ -111,24 +110,6 @@ impl Serialize for ArrayDimensions {
             }
         }
         seq.end()
-    }
-}
-
-/// Create a new [`ArrayDimensions`] from a [`InputArrayDimensions`] in a Leo program file.
-impl<'ast> From<InputArrayDimensions<'ast>> for ArrayDimensions {
-    fn from(dimensions: InputArrayDimensions<'ast>) -> Self {
-        match dimensions {
-            InputArrayDimensions::Single(single) => {
-                Self(smallvec![Dimension::Number(PositiveNumber::from(single.number))])
-            }
-            InputArrayDimensions::Multiple(multiple) => Self(
-                multiple
-                    .numbers
-                    .into_iter()
-                    .map(|num| Dimension::Number(PositiveNumber::from(num)))
-                    .collect(),
-            ),
-        }
     }
 }
 

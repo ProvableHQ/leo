@@ -18,8 +18,8 @@ use crate::{commands::Command, context::Context};
 use leo_compiler::Compiler;
 use leo_errors::{CliError, Result};
 use leo_package::{
-    inputs::*,
-    outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
+    // inputs::*,
+    outputs::{ChecksumFile, /* CircuitFile, */ OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
@@ -93,8 +93,8 @@ pub struct BuildOptions {
 #[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Build {
-    #[structopt(flatten)]
-    pub(crate) compiler_options: BuildOptions,
+    // #[structopt(flatten)]
+// pub(crate) compiler_options: BuildOptions,
 }
 
 impl Command for Build {

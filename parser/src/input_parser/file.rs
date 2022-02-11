@@ -15,13 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::KEYWORD_TOKENS;
+use crate::{SpannedToken, Token};
+use leo_errors::{ParserError, Result};
 
 use smallvec::smallvec;
-use leo_errors::{ParserError, Result};
-use leo_span::sym;
-use crate::{Token, SpannedToken};
-use tendril::format_tendril;
 
 const INT_TYPES: &[Token] = &[
     Token::I8,
@@ -57,7 +54,6 @@ pub(crate) const TYPE_TOKENS: &[Token] = &[
 ];
 
 impl InputParserContext<'_> {
-
     pub fn token_to_int_type(token: Token) -> Option<IntegerType> {
         Some(match token {
             Token::I8 => IntegerType::I8,
@@ -74,27 +70,25 @@ impl InputParserContext<'_> {
         })
     }
 
-    ///
-    /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
-    ///
+    /// Returns an [`Input`] struct filled with the data acquired in the file.
     pub fn parse_input(&mut self) -> Result<Input> {
-
+        let mut values = IndexMap::new();
         while self.has_next() {
             let token = self.peek()?;
-            
             match token.token {
                 Token::LeftSquare => {
                     let (section, definitions) = self.parse_section()?;
                     println!("Section: {}, Definitions (len): {}", section, definitions.len());
-                },
-                _ => ()
+                    values.insert(section, definitions);
+                }
+                _ => return Err(ParserError::unexpected_token(token.token.clone(), &token.span).into()),
             };
         }
 
-
-        Ok(Input::new())
+        Ok(Input::new(values))
     }
 
+    /// Parses particular section in the Input file or the State file.
     pub fn parse_section(&mut self) -> Result<(Identifier, IndexMap<Identifier, (Type, Expression)>)> {
         self.expect(Token::LeftSquare)?;
         let section = self.expect_ident()?;
@@ -110,8 +104,8 @@ impl InputParserContext<'_> {
                 break;
             }
         }
-        
-        Ok((section, assignments))   
+
+        Ok((section, assignments))
     }
 
     pub fn parse_assignment(&mut self) -> Result<(Identifier, (Type, Expression))> {
@@ -124,7 +118,6 @@ impl InputParserContext<'_> {
 
         Ok((var, (type_, value)))
     }
-
 
     /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a type.
     /// Also returns the span of the parsed token.
@@ -246,12 +239,12 @@ impl InputParserContext<'_> {
             Token::StringLit(value) => Expression::Value(ValueExpression::String(value, span)),
             Token::LeftParen => self.parse_tuple_expression(&span)?,
             Token::LeftSquare => self.parse_array_expression(&span)?,
-            Token::Ident(name) => Expression::Identifier(Identifier { name, span }),
-            Token::Input => Expression::Identifier(Identifier { name: sym::input, span }),
-            t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
-                name: t.keyword_to_symbol().unwrap(),
-                span,
-            }),
+            // Token::Ident(name) => Expression::Identifier(Identifier { name, span }),
+            // Token::Input => Expression::Identifier(Identifier { name: sym::input, span }),
+            // t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
+            //     name: t.keyword_to_symbol().unwrap(),
+            //     span,
+            // }),
             token => {
                 return Err(ParserError::unexpected_str(token, "expression", &span).into());
             }
@@ -337,7 +330,10 @@ impl InputParserContext<'_> {
                 }
             }
             Ok(Expression::ArrayInline(ArrayInlineExpression {
-                elements: elements.into_iter().map(|expr| SpreadOrExpression::Expression(expr)).collect(),
+                elements: elements
+                    .into_iter()
+                    .map(|expr| SpreadOrExpression::Expression(expr))
+                    .collect(),
                 span: span + &end_span,
             }))
         }

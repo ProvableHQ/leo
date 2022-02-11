@@ -15,9 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::groups::GroupCoordinate;
-use leo_input::values::{
-    GroupRepresentation as InputGroupRepresentation, GroupTuple as InputGroupTuple, GroupValue as InputGroupValue,
-};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -52,17 +49,6 @@ impl GroupValue {
     }
 }
 
-impl<'ast> From<InputGroupValue<'ast>> for GroupValue {
-    fn from(ast_group: InputGroupValue) -> Self {
-        let span = Span::from(ast_group.span);
-
-        match ast_group.value {
-            InputGroupRepresentation::Single(number) => GroupValue::Single(number.to_string().into(), span),
-            InputGroupRepresentation::Tuple(tuple) => GroupValue::Tuple(GroupTuple::from(tuple)),
-        }
-    }
-}
-
 impl fmt::Display for GroupValue {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
@@ -81,19 +67,6 @@ pub struct GroupTuple {
     pub y: GroupCoordinate,
     /// The span from `(` to `)`.
     pub span: Span,
-}
-
-impl<'ast> From<InputGroupTuple<'ast>> for GroupTuple {
-    fn from(ast_group: InputGroupTuple<'ast>) -> Self {
-        let ast_x = ast_group.x;
-        let ast_y = ast_group.y;
-
-        Self {
-            x: GroupCoordinate::from(ast_x),
-            y: GroupCoordinate::from(ast_y),
-            span: Span::from(ast_group.span),
-        }
-    }
 }
 
 impl fmt::Display for GroupTuple {
