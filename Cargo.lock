@@ -964,6 +964,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "include_dir"
+version = "0.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "482a2e29200b7eed25d7fdbd14423326760b7f6658d21a4cf12d55a50713c69f"
+dependencies = [
+ "include_dir_macros",
+]
+
+[[package]]
+name = "include_dir_macros"
+version = "0.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5e074c19deab2501407c91ba1860fa3d6820bfde307db6d8cb851b55a10be89b"
+dependencies = [
+ "proc-macro2 1.0.36",
+ "quote 1.0.15",
+]
+
+[[package]]
 name = "indenter"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1240,6 +1259,18 @@ dependencies = [
  "scoped-tls",
  "serde",
  "tendril",
+]
+
+[[package]]
+name = "leo-stdlib"
+version = "1.5.3"
+dependencies = [
+ "include_dir",
+ "indexmap",
+ "leo-ast",
+ "leo-errors",
+ "leo-parser",
+ "leo-span",
 ]
 
 [[package]]

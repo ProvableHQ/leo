@@ -17,7 +17,9 @@
 #![doc = include_str!("../README.md")]
 
 use leo_ast::Program;
+use leo_errors::emitter::Handler;
 use leo_errors::{ImportError, Result};
+use leo_span::{sym, Symbol};
 
 #[macro_use]
 extern crate include_dir;
@@ -27,34 +29,35 @@ use indexmap::IndexMap;
 
 static STDLIB: Dir = include_dir!(".");
 
-fn resolve_file(file: &str, mapping: Option<&str>) -> Result<Program> {
+fn resolve_file(handler: &Handler, file: &str) -> Result<Program> {
     let resolved = STDLIB
         .get_file(&file)
         .ok_or_else(|| ImportError::no_such_stdlib_file(file))?
         .contents_utf8()
         .ok_or_else(|| ImportError::failed_to_read_stdlib_file(file))?;
 
-    let ast = leo_parser::parse_ast(&file, resolved)?.into_repr();
-    ast.set_core_mapping(mapping);
+    let mut ast = leo_parser::parse_ast(handler, file, resolved)?.into_repr();
+    ast.handle_internal_annotations();
 
     Ok(ast)
 }
 
-pub fn resolve_prelude_modules() -> Result<IndexMap<Vec<String>, Program>> {
-    let mut preludes: IndexMap<Vec<String>, Program> = IndexMap::new();
+pub fn resolve_prelude_modules(handler: &Handler) -> Result<IndexMap<Vec<Symbol>, Program>> {
+    let mut preludes: IndexMap<Vec<Symbol>, Program> = IndexMap::new();
+    let prelude_dir = STDLIB.get_dir("prelude").unwrap();
 
-    for module in STDLIB.find("prelude/*.leo").unwrap() {
+    for module in prelude_dir.files() {
         // If on windows repalce \\ with / as all paths are stored in unix style.
         let path = module.path().to_str().unwrap_or("").replace("\\", "/");
-        let program = resolve_file(&path, None)?;
+        let program = resolve_file(handler, &path)?;
 
         let removed_extension = path.replace(".leo", "");
-        let mut parts: Vec<String> = vec![String::from("std")];
+        let mut parts: Vec<Symbol> = vec![sym::std];
         parts.append(
             &mut removed_extension
                 .split('/')
-                .map(str::to_string)
-                .collect::<Vec<String>>(),
+                .map(Symbol::intern)
+                .collect::<Vec<_>>(),
         );
         preludes.insert(parts, program);
     }
@@ -62,15 +65,9 @@ pub fn resolve_prelude_modules() -> Result<IndexMap<Vec<String>, Program>> {
     Ok(preludes)
 }
 
-pub fn resolve_stdlib_module(module: &str) -> Result<Program> {
+pub fn resolve_stdlib_module(handler: &Handler, module: &str) -> Result<Program> {
     let mut file_path = module.replace(".", "/");
     file_path.push_str(".leo");
 
-    let mapping = if module == "unstable.blake2s" {
-        Some("blake2s")
-    } else {
-        None
-    };
-
-    resolve_file(&file_path, mapping)
+    resolve_file(handler, &file_path)
 }

@@ -41,7 +41,7 @@ members = [
   "parser",
   "span",
 #  "state",
-#  "stdlib",
+  "stdlib",
 #  "synthesizer",
 #  "test-framework",
 #  "wasm"
