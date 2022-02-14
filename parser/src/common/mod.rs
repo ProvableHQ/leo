@@ -14,21 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod context;
-use context::*;
-
-pub mod file;
-
-use leo_ast::*;
-use leo_errors::emitter::Handler;
-use leo_errors::Result;
-use leo_span::Span;
-
-use indexmap::IndexMap;
-
-/// Creates a new program from a given file path and source code text.
-pub fn parse(handler: &Handler, path: &str, source: &str) -> Result<Input> {
-    let mut tokens = InputParserContext::new(handler, crate::tokenize(path, source.into())?);
-
-    tokens.parse_input()
-}
+pub mod context;
+pub use context::*;

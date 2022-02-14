@@ -33,6 +33,8 @@ pub use parser::*;
 pub mod input_parser;
 pub use input_parser::*;
 
+pub mod common;
+
 use leo_ast::{Ast, Input};
 use leo_errors::emitter::Handler;
 use leo_errors::Result;

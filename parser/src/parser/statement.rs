@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use crate::common::Context;
 
 use leo_errors::{ParserError, Result};
 use leo_span::sym;
