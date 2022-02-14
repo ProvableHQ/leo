@@ -27,7 +27,7 @@ extern crate include_dir;
 use include_dir::Dir;
 use indexmap::IndexMap;
 
-static STDLIB: Dir = include_dir!(".");
+static STDLIB: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR");
 
 fn resolve_file(handler: &Handler, file: &str) -> Result<Program> {
     let resolved = STDLIB
