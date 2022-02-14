@@ -19,7 +19,7 @@ use crate::{assert_no_whitespace, tokenizer::*, Token};
 use leo_ast::*;
 use leo_errors::emitter::Handler;
 use leo_errors::{LeoError, ParserError, Result};
-use leo_span::{Span, Symbol};
+use leo_span::Span;
 
 use std::unreachable;
 use tendril::format_tendril;
@@ -60,7 +60,6 @@ impl<'a> InputParserContext<'a> {
                 .map(|x| x.span.clone())
                 .unwrap_or_default(),
             tokens,
-            // fuzzy_struct_state: false,
         }
     }
 
@@ -82,28 +81,11 @@ impl<'a> InputParserContext<'a> {
     }
 
     ///
-    /// Returns a reference to the next SpannedToken or error if it does not exist.
-    ///
-    // pub fn peek_next(&self) -> Result<&SpannedToken> {
-    //     self.tokens.get(self.tokens.len() - 2).ok_or_else(|| self.eof())
-    // }
-
-    ///
     /// Returns a reference to the current SpannedToken or error if it does not exist.
     ///
     pub fn peek(&self) -> Result<&SpannedToken> {
         self.tokens.last().ok_or_else(|| self.eof())
     }
-
-    ///
-    /// Returns a reference to the next Token.
-    ///
-    // pub fn peek_token(&self) -> Cow<'_, Token> {
-    //     self.peek_option()
-    //         .map(|x| &x.token)
-    //         .map(Cow::Borrowed)
-    //         .unwrap_or_else(|| Cow::Owned(Token::Eof))
-    // }
 
     ///
     /// Returns true if the next token exists.
@@ -129,13 +111,6 @@ impl<'a> InputParserContext<'a> {
         }
         None
     }
-
-    ///
-    /// Appends a token to the back of the vector.
-    ///
-    // pub fn backtrack(&mut self, token: SpannedToken) {
-    //     self.tokens.push(token);
-    // }
 
     ///
     /// Removes the next token if it is a [`Token::Ident(_)`] and returns it, or [None] if
@@ -189,21 +164,6 @@ impl<'a> InputParserContext<'a> {
             _ => return None,
         })
     }
-
-    /// Returns `true` if the next token is Function or if it is a Const followed by Function.
-    /// Returns `false` otherwise.
-    // pub fn peek_is_function(&self) -> Result<bool> {
-    //     let first = &self.peek()?.token;
-    //     let next = if self.tokens.len() >= 2 {
-    //         &self.peek_next()?.token
-    //     } else {
-    //         return Ok(false);
-    //     };
-    //     Ok(matches!(
-    //         (first, next),
-    //         (Token::Function | Token::At, _) | (Token::Const, Token::Function)
-    //     ))
-    // }
 
     ///
     /// Removes the next two tokens if they are a pair of [`GroupCoordinate`] and returns them,
@@ -344,24 +304,6 @@ impl<'a> InputParserContext<'a> {
             Err(self.eof())
         }
     }
-
-    ///
-    /// Returns the [`Identifier`] of the next token if it is a keyword,
-    /// [`Token::Int(_)`], or an [`Identifier`], or error.
-    ///
-    // pub fn expect_loose_identifier(&mut self) -> Result<Identifier> {
-    //     if let Some(token) = self.eat_any(KEYWORD_TOKENS) {
-    //         return Ok(Identifier {
-    //             name: token.token.keyword_to_symbol().unwrap(),
-    //             span: token.span,
-    //         });
-    //     }
-    //     if let Some((int, span)) = self.eat_int() {
-    //         let name = Symbol::intern(&int.value);
-    //         return Ok(Identifier { name, span });
-    //     }
-    //     self.expect_ident()
-    // }
 
     /// Returns the [`Identifier`] of the next token if it is an [`Identifier`], or error.
     pub fn expect_ident(&mut self) -> Result<Identifier> {

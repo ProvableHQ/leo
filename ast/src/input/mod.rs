@@ -19,7 +19,6 @@ use crate::{
 };
 use indexmap::IndexMap;
 use leo_errors::{AstError, LeoError, ParserError, Result};
-use pest::Parser;
 
 #[derive(Clone, Debug)]
 pub struct Input {
@@ -28,22 +27,17 @@ pub struct Input {
 
 impl Input {
     pub fn new(values: IndexMap<Identifier, IndexMap<Identifier, (Type, Expression)>>) -> Self {
-        for (ident, definitions) in values.iter() {
+        for (_ident, definitions) in values.iter() {
             // println!("ident: {}", ident);
             for (_var, (type_, value)) in definitions.iter() {
-                let _ = InputValue::create(type_.clone(), value.clone())
+                let value = InputValue::try_from((type_.clone(), value.clone()))
                     .map_err(|_| ParserError::unexpected_eof(value.span()));
+
+                dbg!(value.unwrap());
             }
         }
 
         Input { values }
-    }
-}
-
-impl InputValue {
-    pub fn create(type_: Type, expression: Expression) -> Result<Self> {
-        dbg!(InputValue::try_from((type_, expression))?);
-        Ok(InputValue::Boolean(true))
     }
 }
 
@@ -57,15 +51,6 @@ pub enum InputValue {
     Integer(IntegerType, String),
     Array(Vec<InputValue>),
     Tuple(Vec<InputValue>),
-
-    // Should be removed later
-    Implicit(String),
-}
-
-impl InputValue {
-    fn verify_type(self, type_: Type) -> Result<Self> {
-        Ok(self)
-    }
 }
 
 impl TryFrom<(Type, Expression)> for InputValue {
@@ -73,86 +58,116 @@ impl TryFrom<(Type, Expression)> for InputValue {
     fn try_from(value: (Type, Expression)) -> Result<Self> {
         Ok(match value {
             (type_, Expression::Value(value)) => {
-                match value {
-                    ValueExpression::Address(value, _) => Self::Address(value.to_string()),
-                    ValueExpression::Boolean(value, span) => {
+                match (type_, value) {
+                    (Type::Address, ValueExpression::Address(value, _)) => Self::Address(value.to_string()),
+                    (Type::Boolean, ValueExpression::Boolean(value, span)) => {
                         let bool_value = value.parse::<bool>().map_err(|_| ParserError::unexpected_eof(&span))?; // TODO: change error
                         Self::Boolean(bool_value)
                     }
-                    ValueExpression::Char(value) => Self::Char(value),
-                    ValueExpression::Field(value, _) => Self::Field(value.to_string()),
-                    ValueExpression::Group(value) => Self::Group(*value),
-                    ValueExpression::Implicit(value, _) => Self::Implicit(value.to_string()),
-                    ValueExpression::Integer(type_, value, _) => Self::Integer(type_, value.to_string()),
-                    ValueExpression::String(string, span) => Self::Array(
-                        string
-                            .into_iter()
-                            .map(|c| {
-                                Self::Char(CharValue {
-                                    character: c,
-                                    span: span.clone(),
+                    (Type::Char, ValueExpression::Char(value)) => Self::Char(value),
+                    (Type::Field, ValueExpression::Field(value, _) | ValueExpression::Implicit(value, _)) => Self::Field(value.to_string()),
+                    (Type::Group, ValueExpression::Group(value)) => Self::Group(*value),
+                    (Type::IntegerType(type_), ValueExpression::Implicit(value, _)) => Self::Integer(type_, value.to_string()),
+                    (Type::IntegerType(expected), ValueExpression::Integer(actual, value, _)) => {
+                        if expected == actual {
+                            Self::Integer(expected, value.to_string())
+                        } else {
+                            todo!("make a decent error here");
+                        }
+                    },
+                    (Type::Array(type_, _), ValueExpression::String(string, span)) => {
+                        if !matches!(*type_, Type::Char) {
+                            todo!("string can only be used for arrays of chars");
+                        }
+                        
+                        Self::Array(
+                            string
+                                .into_iter()
+                                .map(|c| {
+                                    Self::Char(CharValue {
+                                        character: c,
+                                        span: span.clone(),
+                                    })
                                 })
-                            })
-                            .collect(),
-                    ),
+                                .collect(),
+                        )
+                    },
+                    (x, y) => {
+                        todo!("type mismatch, expected type {}, got {}", x, y);
+                    }
                 }
-                .verify_type(type_)?
             }
-            (Type::Array(type_, type_dimensions), Expression::ArrayInit(array_init)) => {
-                let mut dimensions = array_init.dimensions;
-                let expression = array_init.element;
+            (Type::Array(type_, type_dimensions), Expression::ArrayInit(mut array_init)) => {
+                // let mut dimensions = array_init.dimensions;
+                // let expression = array_init.element;
                 let span = array_init.span.clone();
 
-                if type_dimensions != dimensions || dimensions.is_zero() {
+                if type_dimensions != array_init.dimensions || array_init.dimensions.is_zero() {
                     return Err(AstError::invalid_array_dimension_size(&span).into());
                 }
 
-                if dimensions.len() > 1 {
-                    while let Some(dimension) = dimensions.remove_first() {
-                        if let Some(number) = dimension.as_specified() {
-                            let size = number.value.parse::<usize>().unwrap();
-                            // let elements = Vec::with_capacity(size);
-                            // for i in 0..size {
-                            //     // elements.push()
-                            // }
+                if let Some(dimension) = array_init.dimensions.remove_first() {
+                    if let Some(number) = dimension.as_specified() {
+                        let size = number.value.parse::<usize>().unwrap();
+                        let mut values = Vec::with_capacity(size);
+
+                        // For when Dimensions are specified in a canonical way: [[u8; 3], 2];
+                        // Else treat as math notation: [u8; (2, 3)];
+                        if array_init.dimensions.len() == 0 {
+                            for _ in 0..size {
+                                values.push(InputValue::try_from((*type_.clone(), *array_init.element.clone()))?);
+                            }   
+                            
+                        // Faking canonical array init is relatively easy: instead of using a straightforward
+                        // recursion, before each iteration we manually modify ArrayInitExpression cutting off
+                        // dimension by dimension.
                         } else {
-                            return Err(AstError::invalid_array_dimension_size(&span).into());
-                        }
+                            for _ in 0..size {
+                                values.push(InputValue::try_from((
+                                    Type::Array(type_.clone(), array_init.dimensions.clone()), 
+                                    Expression::ArrayInit(array_init.clone())
+                                ))?);
+                            }
+                        };
+                        
+                        Self::Array(values)
+                    } else {
+                        unreachable!("dimensions must be specified");
                     }
                 } else {
+                    unreachable!("dimensions are checked for zero");
+                }
+            }
+            (Type::Tuple(types), Expression::TupleInit(tuple_init)) => {
+                let size = tuple_init.elements.len();
+                let mut elements = Vec::with_capacity(size);
+                
+                if size != types.len() {
+                    todo!("tuple length mismatch, defined {} types, got {} values", size, types.len());
                 }
 
-                // let elements = Vec::with_capacity(dimensions.len());
-
-                dbg!(dimensions);
-                dbg!(expression);
-
-                // TBD
-
-                Self::Boolean(false).verify_type(*type_)?
-            }
-            (type_, Expression::TupleInit(tuple_init)) => {
-                let mut elements = Vec::with_capacity(tuple_init.elements.len());
-                for element in tuple_init.elements.into_iter() {
-                    elements.push(Self::try_from((type_.clone(), element))?);
+                for (i, element) in tuple_init.elements.into_iter().enumerate() {
+                    elements.push(Self::try_from((types[i].clone(), element))?);
                 }
-                Self::Tuple(elements).verify_type(type_)?
+
+                Self::Tuple(elements)
             }
-            (type_, Expression::ArrayInline(array_inline)) => {
+            (Type::Array(type_, _dimensions), Expression::ArrayInline(array_inline)) => {
                 let mut elements = Vec::with_capacity(array_inline.elements.len());
-                let span = array_inline.span().clone();
+                let _span = array_inline.span().clone(); // todo!: use for spanning the error
+
                 for element in array_inline.elements.into_iter() {
                     if let SpreadOrExpression::Expression(value_expression) = element {
-                        elements.push(Self::try_from((type_.clone(), value_expression))?);
+                        elements.push(Self::try_from((*type_.clone(), value_expression))?);
                     } else {
-                        return Err(ParserError::unexpected_eof(&span).into());
+                        todo!("make error that only expression is allowed in inline, no spread please");
                     }
                 }
-                Self::Array(elements).verify_type(type_)?
+                Self::Array(elements)
             }
             (_type_, expr) => {
                 dbg!(&expr);
-                return Err(ParserError::unexpected_eof(expr.span()).into());
+                todo!("forbidden expression in inputs");
             }
         })
     }
