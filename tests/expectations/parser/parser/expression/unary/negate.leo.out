@@ -122,3 +122,24 @@ outputs:
         col_stop: 4
         path: ""
         content: "-!x"
+  - Value:
+      Implicit:
+        - "-5"
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 3
+            path: ""
+            content: "-5"
+  - Value:
+      Integer:
+        - I8
+        - "-5"
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 5
+            path: ""
+            content: "-5i8"

@@ -25,3 +25,4 @@ outputs:
   - "Error [EPAR0370009]: unexpected string: expected 'ident', got ','\n    --> test:1:10\n     |\n   1 | let (x,y,,) = ();\n     |          ^"
   - "Error [EPAR0370009]: unexpected string: expected 'ident', got ','\n    --> test:1:6\n     |\n   1 | let (,x,y) = ();\n     |      ^"
   - "Error [EPAR0370009]: unexpected string: expected 'ident', got ','\n    --> test:1:8\n     |\n   1 | let (x,,y) = ();\n     |        ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'int', got ','\n    --> test:1:16\n     |\n   1 | let x: [u8; (2,,)] = [[0,0], [0,0]];\n     |                ^"
