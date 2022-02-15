@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArrayDimensions, Char, CharValue, GroupValue, IntegerType};
-use leo_span::Span as AstSpan;
-use pest::Span;
+use crate::{CharValue, Expression, GroupValue, IntegerType, Node, SpreadOrExpression, Type, ValueExpression};
+
+use leo_errors::{AstError, LeoError, ParserError, Result};
 
 use std::fmt;
 
@@ -32,350 +32,132 @@ pub enum InputValue {
     Tuple(Vec<InputValue>),
 }
 
-impl InputValue {
-    fn from_address(address: Address) -> Self {
-        InputValue::Address(address.value)
-    }
+type InputData = (Type, Expression);
 
-    fn from_address_value(value: AddressValue) -> Self {
-        match value {
-            AddressValue::Explicit(address) => Self::from_address(address.address),
-            AddressValue::Implicit(address) => Self::from_address(address),
-        }
-    }
-
-    fn from_boolean(boolean: BooleanValue) -> Result<Self, InputParserError> {
-        let boolean = boolean.value.parse::<bool>()?;
-        Ok(InputValue::Boolean(boolean))
-    }
-
-    fn from_char(input_character: InputCharValue) -> Result<Self, InputParserError> {
-        let character = match input_character.value.inner()? {
-            leo_input::values::Char::Scalar(scalar) => Char::Scalar(scalar),
-            leo_input::values::Char::NonScalar(non_scalar) => Char::NonScalar(non_scalar),
-        };
-
-        let span = AstSpan::from(input_character.span);
-        Ok(InputValue::Char(CharValue { character, span }))
-    }
-
-    fn from_number(integer_type: InputIntegerType, number: String) -> Self {
-        InputValue::Integer(integer_type.into(), number)
-    }
-
-    fn from_group(group: InputGroupValue) -> Self {
-        InputValue::Group(GroupValue::from(group))
-    }
-
-    fn from_field(field: FieldValue) -> Self {
-        InputValue::Field(field.number.to_string())
-    }
-
-    fn from_implicit(data_type: Type, implicit: NumberValue) -> Result<Self, InputParserError> {
-        match data_type {
-            Type::Address(_) => Err(InputParserError::implicit_type(data_type, implicit)),
-            Type::Boolean(_) => Err(InputParserError::implicit_type(data_type, implicit)),
-            Type::Char(_) => Err(InputParserError::implicit_type(data_type, implicit)),
-            Type::Integer(integer_type) => Ok(InputValue::from_number(integer_type, implicit.to_string())),
-            Type::Group(_) => Err(InputParserError::implicit_group(implicit)),
-            Type::Field(_) => Ok(InputValue::Field(implicit.to_string())),
-        }
-    }
-
-    fn from_value(data_type: Type, value: Value) -> Result<Self, InputParserError> {
-        match (data_type, value) {
-            (Type::Address(_), Value::Address(address)) => Ok(InputValue::from_address_value(address)),
-            (Type::Boolean(_), Value::Boolean(boolean)) => InputValue::from_boolean(boolean),
-            (Type::Char(_), Value::Char(character)) => InputValue::from_char(character),
-            (Type::Integer(integer_type), Value::Integer(integer)) => {
-                match integer.clone() {
-                    IntegerValue::Signed(signed) => {
-                        if let InputIntegerType::Signed(inner) = integer_type.clone() {
-                            let singed_type = signed.clone().type_;
-                            if std::mem::discriminant(&inner) != std::mem::discriminant(&singed_type) {
-                                return Err(InputParserError::integer_type_mismatch(
-                                    integer_type,
-                                    InputIntegerType::Signed(singed_type),
-                                    integer.span(),
-                                ));
-                            }
+impl TryFrom<InputData> for InputValue {
+    type Error = LeoError;
+    fn try_from(value: InputData) -> Result<Self> {
+        Ok(match value {
+            (type_, Expression::Value(value)) => {
+                match (type_, value) {
+                    (Type::Address, ValueExpression::Address(value, _)) => Self::Address(value.to_string()),
+                    (Type::Boolean, ValueExpression::Boolean(value, span)) => {
+                        let bool_value = value.parse::<bool>().map_err(|_| ParserError::unexpected_eof(&span))?; // TODO: change error
+                        Self::Boolean(bool_value)
+                    }
+                    (Type::Char, ValueExpression::Char(value)) => Self::Char(value),
+                    (Type::Field, ValueExpression::Field(value, _) | ValueExpression::Implicit(value, _)) => {
+                        Self::Field(value.to_string())
+                    }
+                    (Type::Group, ValueExpression::Group(value)) => Self::Group(*value),
+                    (Type::IntegerType(type_), ValueExpression::Implicit(value, _)) => {
+                        Self::Integer(type_, value.to_string())
+                    }
+                    (Type::IntegerType(expected), ValueExpression::Integer(actual, value, _)) => {
+                        if expected == actual {
+                            Self::Integer(expected, value.to_string())
+                        } else {
+                            todo!("make a decent error here");
                         }
                     }
-                    IntegerValue::Unsigned(unsigned) => {
-                        if let InputIntegerType::Unsigned(inner) = integer_type.clone() {
-                            let unsinged_type = unsigned.clone().type_;
-                            if std::mem::discriminant(&inner) != std::mem::discriminant(&unsinged_type) {
-                                return Err(InputParserError::integer_type_mismatch(
-                                    integer_type,
-                                    InputIntegerType::Unsigned(unsinged_type),
-                                    integer.span(),
-                                ));
-                            }
+                    (Type::Array(type_, _), ValueExpression::String(string, span)) => {
+                        if !matches!(*type_, Type::Char) {
+                            todo!("string can only be used for arrays of chars");
                         }
+
+                        Self::Array(
+                            string
+                                .into_iter()
+                                .map(|c| {
+                                    Self::Char(CharValue {
+                                        character: c,
+                                        span: span.clone(),
+                                    })
+                                })
+                                .collect(),
+                        )
+                    }
+                    (x, y) => {
+                        todo!("type mismatch, expected type {}, got {}", x, y);
                     }
                 }
-                Ok(InputValue::from_number(integer_type, integer.to_string()))
             }
-            (Type::Group(_), Value::Group(group)) => Ok(InputValue::from_group(group)),
-            (Type::Field(_), Value::Field(field)) => Ok(InputValue::from_field(field)),
-            (data_type, Value::Implicit(implicit)) => InputValue::from_implicit(data_type, implicit),
-            (data_type, value) => Err(InputParserError::data_type_mismatch(data_type, value)),
-        }
-    }
+            (Type::Array(type_, type_dimensions), Expression::ArrayInit(mut array_init)) => {
+                // let mut dimensions = array_init.dimensions;
+                // let expression = array_init.element;
+                let span = array_init.span.clone();
 
-    pub(crate) fn from_expression(type_: Type, expression: Expression) -> Result<Self, InputParserError> {
-        match (type_, expression) {
-            (Type::Basic(data_type), Expression::Value(value)) => InputValue::from_value(data_type, value),
-            (Type::Array(array_type), Expression::ArrayInline(inline)) => {
-                InputValue::from_array_inline(array_type, inline)
+                if type_dimensions != array_init.dimensions || array_init.dimensions.is_zero() {
+                    return Err(AstError::invalid_array_dimension_size(&span).into());
+                }
+
+                if let Some(dimension) = array_init.dimensions.remove_first() {
+                    if let Some(number) = dimension.as_specified() {
+                        let size = number.value.parse::<usize>().unwrap();
+                        let mut values = Vec::with_capacity(size);
+
+                        // For when Dimensions are specified in a canonical way: [[u8; 3], 2];
+                        // Else treat as math notation: [u8; (2, 3)];
+                        if array_init.dimensions.len() == 0 {
+                            for _ in 0..size {
+                                values.push(InputValue::try_from((*type_.clone(), *array_init.element.clone()))?);
+                            }
+                        // Faking canonical array init is relatively easy: instead of using a straightforward
+                        // recursion, with each iteration we manually modify ArrayInitExpression cutting off
+                        // dimension by dimension.
+                        } else {
+                            for _ in 0..size {
+                                values.push(InputValue::try_from((
+                                    Type::Array(type_.clone(), array_init.dimensions.clone()),
+                                    Expression::ArrayInit(array_init.clone()),
+                                ))?);
+                            }
+                        };
+
+                        Self::Array(values)
+                    } else {
+                        unreachable!("dimensions must be specified");
+                    }
+                } else {
+                    unreachable!("dimensions are checked for zero");
+                }
             }
-            (Type::Array(array_type), Expression::ArrayInitializer(initializer)) => {
-                InputValue::from_array_initializer(array_type, initializer)
+            (Type::Tuple(types), Expression::TupleInit(tuple_init)) => {
+                let size = tuple_init.elements.len();
+                let mut elements = Vec::with_capacity(size);
+
+                if size != types.len() {
+                    todo!(
+                        "tuple length mismatch, defined {} types, got {} values",
+                        size,
+                        types.len()
+                    );
+                }
+
+                for (i, element) in tuple_init.elements.into_iter().enumerate() {
+                    elements.push(Self::try_from((types[i].clone(), element))?);
+                }
+
+                Self::Tuple(elements)
             }
-            (Type::Array(array_type), Expression::StringExpression(string)) => {
-                InputValue::from_string(array_type, string)
+            (Type::Array(type_, _dimensions), Expression::ArrayInline(array_inline)) => {
+                let mut elements = Vec::with_capacity(array_inline.elements.len());
+                let _span = array_inline.span().clone(); // todo!: use for spanning the error
+
+                for element in array_inline.elements.into_iter() {
+                    if let SpreadOrExpression::Expression(value_expression) = element {
+                        elements.push(Self::try_from((*type_.clone(), value_expression))?);
+                    } else {
+                        todo!("make error that only expression is allowed in inline, no spread please");
+                    }
+                }
+                Self::Array(elements)
             }
-            (Type::Tuple(tuple_type), Expression::Tuple(tuple)) => InputValue::from_tuple(tuple_type, tuple),
-            (type_, expression) => Err(InputParserError::expression_type_mismatch(type_, expression)),
-        }
-    }
-
-    ///
-    /// Returns a new `InputValue` from the given `ArrayType` and `StringExpression`.
-    ///
-    pub(crate) fn from_string(mut array_type: ArrayType, string: StringExpression) -> Result<Self, InputParserError> {
-        // Create a new `ArrayDimensions` type from the input array_type dimensions.
-        let array_dimensions_type = ArrayDimensions::from(array_type.dimensions.clone());
-        assert!(matches!(*array_type.type_, Type::Basic(Type::Char(CharType {}))));
-
-        // Convert the array dimensions to usize.
-        let array_dimensions = parse_array_dimensions(array_dimensions_type, &array_type.span)?;
-
-        // Return an error if the outer array dimension does not equal the number of array elements.
-        if array_dimensions[0] != string.chars.len() {
-            return Err(InputParserError::invalid_string_length(
-                array_dimensions[0],
-                string.chars.len(),
-                &string.span,
-            ));
-        }
-
-        array_type.dimensions = array_type.dimensions.next_dimension();
-
-        let inner_array_type = if array_dimensions.len() == 1 {
-            // This is a single array
-            *array_type.type_
-        } else {
-            // This is a multi-dimensional array
-            return Err(InputParserError::invalid_string_dimensions(&array_type.span));
-        };
-
-        let mut elements = Vec::with_capacity(string.chars.len());
-        for character in string.chars.into_iter() {
-            let element = InputValue::from_expression(
-                inner_array_type.clone(),
-                Expression::Value(Value::Char(InputCharValue {
-                    value: character.clone(),
-                    span: character.span().clone(),
-                })),
-            )?;
-
-            elements.push(element)
-        }
-
-        Ok(InputValue::Array(elements))
-    }
-
-    ///
-    /// Returns a new `InputValue` from the given `ArrayType` and `ArrayInlineExpression`.
-    ///
-    pub(crate) fn from_array_inline(
-        mut array_type: ArrayType,
-        inline: ArrayInlineExpression,
-    ) -> Result<Self, InputParserError> {
-        // Create a new `ArrayDimensions` type from the input array_type dimensions.
-        let array_dimensions_type = ArrayDimensions::from(array_type.dimensions.clone());
-
-        // Convert the array dimensions to usize.
-        let array_dimensions = parse_array_dimensions(array_dimensions_type, &array_type.span)?;
-
-        // Return an error if the outer array dimension does not equal the number of array elements.
-        if array_dimensions[0] != inline.expressions.len() {
-            return Err(InputParserError::array_inline_length(array_dimensions[0], inline));
-        }
-
-        array_type.dimensions = array_type.dimensions.next_dimension();
-
-        let inner_array_type = if array_dimensions.len() == 1 {
-            // This is a single array
-            *array_type.type_
-        } else {
-            // This is a multi-dimensional array
-            Type::Array(array_type)
-        };
-
-        let mut elements = Vec::with_capacity(inline.expressions.len());
-        for expression in inline.expressions.into_iter() {
-            let element = InputValue::from_expression(inner_array_type.clone(), expression)?;
-
-            elements.push(element)
-        }
-
-        Ok(InputValue::Array(elements))
-    }
-
-    pub(crate) fn from_array_initializer(
-        array_type: ArrayType,
-        initializer: ArrayInitializerExpression,
-    ) -> Result<Self, InputParserError> {
-        let array_dimensions_type = ArrayDimensions::from(initializer.dimensions.clone());
-        let array_dimensions = parse_array_dimensions(array_dimensions_type, &array_type.span)?;
-
-        if array_dimensions.len() > 1 {
-            // The expression is an array initializer with tuple syntax
-            Self::from_array_initializer_tuple(array_type, initializer, array_dimensions)
-        } else {
-            // The expression is an array initializer with nested syntax
-            Self::from_array_initializer_nested(array_type, initializer, array_dimensions)
-        }
-    }
-
-    pub(crate) fn from_array_initializer_tuple(
-        array_type: ArrayType,
-        initializer: ArrayInitializerExpression,
-        initializer_dimensions: Vec<usize>,
-    ) -> Result<Self, InputParserError> {
-        let (array_dimensions, array_element_type) = fetch_nested_array_type_dimensions(array_type.clone(), vec![])?;
-
-        // Return an error if the dimensions of the array are incorrect.
-        if array_dimensions.ne(&initializer_dimensions) {
-            return Err(InputParserError::array_init_length(
-                array_dimensions,
-                initializer_dimensions,
-                &initializer.span,
-            ));
-        }
-
-        let value = InputValue::from_expression(array_element_type, *initializer.expression.clone())?;
-        let mut elements = vec![];
-
-        // Build the elements of the array using the `vec!` macro
-        for (i, dimension) in initializer_dimensions.into_iter().rev().enumerate() {
-            if i == 0 {
-                elements = vec![value.clone(); dimension];
-            } else {
-                let element = InputValue::Array(elements.clone());
-
-                elements = vec![element; dimension];
+            (_type_, expr) => {
+                dbg!(&expr);
+                todo!("forbidden expression in inputs");
             }
-        }
-
-        Ok(InputValue::Array(elements))
-    }
-
-    pub(crate) fn from_array_initializer_nested(
-        mut array_type: ArrayType,
-        initializer: ArrayInitializerExpression,
-        initializer_dimensions: Vec<usize>,
-    ) -> Result<Self, InputParserError> {
-        // Create a new `ArrayDimensions` type from the input array_type dimensions.
-        let array_dimensions_type = ArrayDimensions::from(array_type.dimensions.clone());
-
-        // Convert the array dimensions to usize.
-        let array_dimensions = parse_array_dimensions(array_dimensions_type, &array_type.span)?;
-
-        let current_array_dimension = array_dimensions[0];
-        let current_initializer_dimension = initializer_dimensions[0];
-
-        // Return an error if the outer array dimension does not equal the number of array elements.
-        if current_array_dimension.ne(&current_initializer_dimension) {
-            return Err(InputParserError::array_init_length(
-                array_dimensions,
-                initializer_dimensions,
-                &initializer.span,
-            ));
-        }
-
-        array_type.dimensions = array_type.dimensions.next_dimension();
-
-        let inner_array_type = if array_dimensions.len() == 1 {
-            // This is the innermost dimension
-            *array_type.type_
-        } else {
-            // This is an outer dimension of a multi-dimensional array
-            Type::Array(array_type)
-        };
-
-        // Evaluate the array initializer
-        let element = InputValue::from_expression(inner_array_type.clone(), *initializer.expression)?;
-        let elements = vec![element; current_initializer_dimension];
-
-        Ok(InputValue::Array(elements))
-    }
-
-    pub(crate) fn from_tuple(tuple_type: TupleType, tuple: TupleExpression) -> Result<Self, InputParserError> {
-        let num_types = tuple_type.types_.len();
-        let num_values = tuple.expressions.len();
-
-        if num_types != num_values {
-            return Err(InputParserError::tuple_length(num_types, num_values, &tuple_type.span));
-        }
-
-        let mut values = Vec::with_capacity(tuple_type.types_.len());
-        for (type_, value) in tuple_type.types_.into_iter().zip(tuple.expressions.into_iter()) {
-            let value = InputValue::from_expression(type_, value)?;
-
-            values.push(value)
-        }
-
-        Ok(InputValue::Tuple(values))
-    }
-}
-
-/// Returns a new vector of usize values from an [`ArrayDimensions`] type.
-///
-/// Attempts to parse each dimension in the array from a `String` to a `usize` value. If parsing
-/// is successful, the `usize` value is appended to the return vector. If parsing fails, an error
-/// is returned.
-fn parse_array_dimensions(dimensions: ArrayDimensions, span: &Span) -> Result<Vec<usize>, InputParserError> {
-    // Convert the array dimensions to usize.
-    let mut result_array_dimensions = Vec::with_capacity(dimensions.len());
-
-    for dimension in dimensions.iter() {
-        // Convert the dimension to a string.
-        let dimension_string = dimension.to_string();
-
-        // Convert the string to usize.
-        let dimension_usize = match dimension_string.parse::<usize>() {
-            Ok(dimension_usize) => dimension_usize,
-            Err(_) => return Err(InputParserError::array_index(dimension_string, span)),
-        };
-
-        // Collect dimension usize values.
-        result_array_dimensions.push(dimension_usize);
-    }
-
-    Ok(result_array_dimensions)
-}
-
-///
-/// Recursively fetch all dimensions from the array type.
-///
-fn fetch_nested_array_type_dimensions(
-    array_type: ArrayType,
-    mut array_dimensions: Vec<usize>,
-) -> Result<(Vec<usize>, Type), InputParserError> {
-    // Create a new `ArrayDimensions` type from the input array_type dimensions.
-    let array_dimensions_type = ArrayDimensions::from(array_type.dimensions.clone());
-
-    // Convert the array dimensions to usize.
-    let mut current_dimension = parse_array_dimensions(array_dimensions_type, &array_type.span)?;
-
-    array_dimensions.append(&mut current_dimension);
-
-    match *array_type.type_ {
-        Type::Array(next_array_type) => fetch_nested_array_type_dimensions(next_array_type, array_dimensions),
-        type_ => Ok((array_dimensions, type_)),
+        })
     }
 }
 
@@ -390,12 +172,10 @@ impl fmt::Display for InputValue {
             InputValue::Integer(ref type_, ref number) => write!(f, "{}{:?}", number, type_),
             InputValue::Array(ref array) => {
                 let values = array.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
-
                 write!(f, "array [{}]", values)
             }
             InputValue::Tuple(ref tuple) => {
                 let values = tuple.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
-
                 write!(f, "({})", values)
             }
         }

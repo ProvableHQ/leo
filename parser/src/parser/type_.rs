@@ -16,7 +16,6 @@
 
 use super::*;
 use leo_errors::{ParserError, Result};
-use crate::common::Context;
 
 use smallvec::smallvec;
 

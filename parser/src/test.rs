@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{common::Context, tokenizer, ParserContext, SpannedToken};
+use crate::{tokenizer, ParserContext, SpannedToken};
 use leo_ast::{Expression, ExpressionStatement, Statement, ValueExpression};
 use leo_errors::{emitter::Handler, LeoError};
 use leo_span::{symbol::create_session_if_not_set_then, Span};

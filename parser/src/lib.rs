@@ -30,12 +30,7 @@ pub(crate) use tokenizer::*;
 pub mod parser;
 pub use parser::*;
 
-pub mod input_parser;
-pub use input_parser::*;
-
-pub mod common;
-
-use leo_ast::{Ast, Input};
+use leo_ast::{Ast, Input, ProgramInput, ProgramState};
 use leo_errors::emitter::Handler;
 use leo_errors::Result;
 
@@ -52,12 +47,18 @@ pub fn parse_program_input<T: AsRef<str>, Y: AsRef<str>, T2: AsRef<str>, Y2: AsR
     handler: &Handler,
     input_string: T,
     input_path: Y,
-    _state_string: T2,
-    _state_path: Y2,
+    state_string: T2,
+    state_path: Y2,
 ) -> Result<Input> {
-    let input = input_parser::parse(handler, input_path.as_ref(), input_string.as_ref())?;
+    let program_input: ProgramInput = parser::parse_input(handler, input_path.as_ref(), input_string.as_ref())?.try_into()?;
+    let program_state: ProgramState = parser::parse_input(handler, state_path.as_ref(), state_string.as_ref())?.try_into()?;
+    
+    dbg!(&program_input);
 
-    Ok(input)
+    Ok(Input {
+        program_input,
+        program_state: ProgramState::default(), 
+    })
 
     // let input_syntax_tree = LeoInputParser::parse_file(input_string.as_ref()).map_err(|mut e| {
     //     e.set_path(
@@ -80,7 +81,6 @@ pub fn parse_program_input<T: AsRef<str>, Y: AsRef<str>, T2: AsRef<str>, Y2: AsR
     //             .map(|x| x.to_string())
     //             .collect::<Vec<String>>()[..],
     //     );
-
     //     e
     // })?;
 
@@ -94,7 +94,6 @@ pub fn parse_program_input<T: AsRef<str>, Y: AsRef<str>, T2: AsRef<str>, Y2: AsR
     //             .map(|x| x.to_string())
     //             .collect::<Vec<String>>()[..],
     //     );
-
     //     e
     // })?;
     // input.parse_state(state_syntax_tree).map_err(|mut e| {

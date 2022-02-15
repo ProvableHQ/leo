@@ -34,10 +34,6 @@ version = "1.5.3"
 path = "../errors"
 version = "1.5.3"
 
-[dependencies.leo-input]
-path = "../input"
-version = "1.5.1"
-
 [dependencies.leo-span]
 path = "../span"
 version = "1.5.3"

@@ -110,6 +110,7 @@ symbols! {
     circuit,
     Class: "class",
     context,
+    constants,
     CoreFunction,
     console,
     Const: "const",

@@ -16,7 +16,6 @@
 
 use super::*;
 use crate::KEYWORD_TOKENS;
-use crate::common::Context;
 
 use leo_errors::{ParserError, Result};
 use leo_span::sym;
