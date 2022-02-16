@@ -68,7 +68,7 @@ impl<'a> Compiler<'a> {
 
     ///
     /// Runs the compiler stages.
-    /// 
+    ///
     fn compiler_stages(self) -> Result<leo_ast::Ast> {
         // Load the program file.
         let program_string = fs::read_to_string(&self.main_file_path)
@@ -86,7 +86,7 @@ impl<'a> Compiler<'a> {
         // Canonicalize the AST.
         ast = leo_ast_passes::Canonicalizer::do_pass(Default::default(), ast.into_repr())?;
         // Write the AST snapshot post parsing
-        ast.to_json_file_without_keys(self.output_directory.clone(), "canonicalization_ast.json", &["span"])?;
+        ast.to_json_file_without_keys(self.output_directory, "canonicalization_ast.json", &["span"])?;
 
         Ok(ast)
     }
