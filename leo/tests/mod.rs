@@ -15,9 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_errors::Result;
-use std::path::PathBuf;
+// use std::path::PathBuf;
 
-use crate::{
+/* use crate::{
     commands::{
         // package::{Login, Logout},
         Build,
@@ -25,11 +25,11 @@ use crate::{
         // Prove, Run, Setup, Test,
     },
     context::{create_context, Context},
-};
+}; */
 
 /// Path to the only complex Leo program that we have
 /// - relative to source dir - where Cargo.toml is located
-const PEDERSEN_HASH_PATH: &str = "./examples/pedersen-hash/";
+// const PEDERSEN_HASH_PATH: &str = "./examples/pedersen-hash/";
 
 #[test]
 pub fn init_logger() -> Result<()> {
@@ -218,10 +218,10 @@ pub fn format_event() -> Result<()> {
 //     Ok(())
 // }
 
-/// Create context for Pedersen Hash example
-fn context() -> Result<Context> {
+// /// Create context for Pedersen Hash example
+/* fn context() -> Result<Context> {
     let path = PathBuf::from(&PEDERSEN_HASH_PATH);
     let context = create_context(path, None)?;
 
     Ok(context)
-}
+} */

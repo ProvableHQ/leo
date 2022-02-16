@@ -28,9 +28,9 @@ path = "leo/main.rs"
 [workspace]
 members = [
 #  "asg",
-  "asg-passes",
+#  "asg-passes",
   "ast",
-#  "ast-passes",
+  "ast-passes",
   "compiler",
   "errors",
   "grammar",
