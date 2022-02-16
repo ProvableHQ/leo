@@ -178,7 +178,7 @@ impl Command for Build {
         // Initialize error handler
         let handler = leo_errors::emitter::Handler::default();
 
-        let program = Compiler::new(&handler, main_file_path);
+        let program = Compiler::new(&handler, main_file_path, output_directory);
 
         // Compute the current program checksum
         let program_checksum = program.checksum()?;
