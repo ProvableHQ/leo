@@ -625,23 +625,39 @@ identifier = letter *( letter / decimal-digit / "_" )
 Go to: _[letter](#user-content-letter)_;
 
 
-A package name consists of one or more segments separated by single dashes,
+An external identifier consists of
+one or more segments separated by single dashes,
 where each segment is a non-empty sequence of
-lowercase letters and (decimal) digits.
-Similarly to an identifier, a package name must not be a keyword
+lowercase letters and (decimal) digits;
+the first segment must start with a a letter.
+Similarly to an identifier, an external identifier
+must not be a keyword or a boolean literal
 and must not be or start with `aleo1`.
 
-<a name="package-name"></a>
+<a name="external-identifier"></a>
 ```abnf
-package-name = lowercase-letter *( lowercase-letter / decimal-digit )
-               *( "-" 1*( lowercase-letter / decimal-digit ) )
-               ; but not a keyword or a boolean literal or aleo1...
+external-identifier = lowercase-letter *( lowercase-letter / decimal-digit )
+                      *( "-" 1*( lowercase-letter / decimal-digit ) )
+                      ; but not a keyword or a boolean literal or aleo1...
 ```
 
 Go to: _[lowercase-letter](#user-content-lowercase-letter)_;
 
 
-Note that, grammatically, identifiers are also package names.
+External identifiers are used to name
+packages, directories, files, and other entities
+that exist (i.e. are defined) outside of Leo files, so to speak.
+In contrast, (plain) identifiers are used to name
+entities that exist inside of Leo files, e.g. types and functions.
+In natural language, we consistently use
+the unqualified term 'identifier' for plain identifiers
+as defined by the rule `identifier`
+(including the extra-grammatical requirement in the ABNF comment),
+and the qualified term 'external identifier' for external identifiers
+as defined by the rule `external-identifier`
+(including the extra-grammatical requirement in the ABNF comment).
+
+Note that, grammatically, identifiers are also external identifiers.
 They are disambiguated from context, based on the syntactic grammar.
 
 Annotations have names, which are identifiers immediately preceded by `@`.
@@ -918,12 +934,12 @@ is a token, as defined by the following rule.
 token = keyword
       / identifier
       / atomic-literal
-      / package-name
+      / external-identifier
       / annotation-name
       / symbol
 ```
 
-Go to: _[annotation-name](#user-content-annotation-name), [atomic-literal](#user-content-atomic-literal), [identifier](#user-content-identifier), [keyword](#user-content-keyword), [package-name](#user-content-package-name), [symbol](#user-content-symbol)_;
+Go to: _[annotation-name](#user-content-annotation-name), [atomic-literal](#user-content-atomic-literal), [external-identifier](#user-content-external-identifier), [identifier](#user-content-identifier), [keyword](#user-content-keyword), [symbol](#user-content-symbol)_;
 
 
 Tokens, comments, and whitespace are lexemes, i.e. lexical units.
@@ -1795,33 +1811,33 @@ An import declaration consists of the `import` keyword
 followed by a package path, which may be one of the following:
 a single wildcard;
 an identifier, optionally followed by a local renamer;
-a package name followed by a path, recursively;
+an external identifier followed by a package path, recursively;
 or a parenthesized list of package paths,
 which are "fan out" of the initial path.
 Note that we allow the last element of the parenthesized list
 to be followed by a comma, for convenience.
-The package path in the import declaration must start with a package name
-(e.g. it cannot be a `*`):
-the rule for import declaration expresses this requirement
-by using an explicit package name before the package path.
+The package path in the import declaration
+must start with an external identifier (e.g. it cannot be a `*`):
+the rule for import declarations expresses this requirement
+by using an explicit external identifier before the package path.
 
 <a name="import-declaration"></a>
 ```abnf
-import-declaration = %s"import" package-name "." package-path ";"
+import-declaration = %s"import" external-identifier "." package-path ";"
 ```
 
-Go to: _[package-name](#user-content-package-name), [package-path](#user-content-package-path)_;
+Go to: _[external-identifier](#user-content-external-identifier), [package-path](#user-content-package-path)_;
 
 
 <a name="package-path"></a>
 ```abnf
 package-path = "*"
              / identifier [ %s"as" identifier ]
-             / package-name "." package-path
+             / external-identifier "." package-path
              / "(" package-path *( "," package-path ) [","] ")"
 ```
 
-Go to: _[identifier](#user-content-identifier), [package-name](#user-content-package-name), [package-path](#user-content-package-path)_;
+Go to: _[external-identifier](#user-content-external-identifier), [identifier](#user-content-identifier), [package-path](#user-content-package-path)_;
 
 
 A type alias declaration defines an identifier to stand for a type.
