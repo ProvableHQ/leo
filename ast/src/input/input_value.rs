@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{CharValue, Expression, GroupValue, IntegerType, Node, SpreadOrExpression, Type, ValueExpression};
-
 use leo_errors::{AstError, LeoError, ParserError, Result};
 
 use std::fmt;
@@ -32,11 +31,9 @@ pub enum InputValue {
     Tuple(Vec<InputValue>),
 }
 
-type InputData = (Type, Expression);
-
-impl TryFrom<InputData> for InputValue {
+impl TryFrom<(Type, Expression)> for InputValue {
     type Error = LeoError;
-    fn try_from(value: InputData) -> Result<Self> {
+    fn try_from(value: (Type, Expression)) -> Result<Self> {
         Ok(match value {
             (type_, Expression::Value(value)) => {
                 match (type_, value) {

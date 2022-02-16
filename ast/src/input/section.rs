@@ -14,29 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod definition;
-pub use definition::*;
+use super::*;
 
-pub mod input;
-pub use input::*;
-
-pub mod input_value;
-pub use input_value::*;
-
-pub mod parameter;
-pub use parameter::*;
-
-pub mod program_input;
-pub use program_input::*;
-
-pub mod program_state;
-pub use program_state::*;
-
-pub mod section;
-pub use section::*;
-
-use indexmap::IndexMap;
-use leo_errors::{LeoError, Result};
-use leo_span::{sym, Span, Symbol};
-
-type Definitions = IndexMap<Parameter, InputValue>;
+/// A single section in an input or a state file.
+/// Example of a section would be: `[main]`.
+#[derive(Debug, Clone)]
+pub struct Section {
+    pub name: Symbol,
+    pub definitions: Vec<Definition>,
+    pub is_public: bool,
+    pub span: Span,
+}

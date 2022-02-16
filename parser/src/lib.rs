@@ -50,64 +50,13 @@ pub fn parse_program_input<T: AsRef<str>, Y: AsRef<str>, T2: AsRef<str>, Y2: AsR
     state_string: T2,
     state_path: Y2,
 ) -> Result<Input> {
-    let program_input: ProgramInput = parser::parse_input(handler, input_path.as_ref(), input_string.as_ref())?.try_into()?;
-    let program_state: ProgramState = parser::parse_input(handler, state_path.as_ref(), state_string.as_ref())?.try_into()?;
-    
-    dbg!(&program_input);
+    let program_input: ProgramInput =
+        parser::parse_input(handler, input_path.as_ref(), input_string.as_ref())?.try_into()?;
+    let program_state: ProgramState =
+        parser::parse_input(handler, state_path.as_ref(), state_string.as_ref())?.try_into()?;
 
     Ok(Input {
         program_input,
-        program_state: ProgramState::default(), 
+        program_state,
     })
-
-    // let input_syntax_tree = LeoInputParser::parse_file(input_string.as_ref()).map_err(|mut e| {
-    //     e.set_path(
-    //         input_path.as_ref(),
-    //         &input_string
-    //             .as_ref()
-    //             .lines()
-    //             .map(|x| x.to_string())
-    //             .collect::<Vec<String>>()[..],
-    //     );
-
-    //     e
-    // })?;
-    // let state_syntax_tree = LeoInputParser::parse_file(state_string.as_ref()).map_err(|mut e| {
-    //     e.set_path(
-    //         state_path.as_ref(),
-    //         &state_string
-    //             .as_ref()
-    //             .lines()
-    //             .map(|x| x.to_string())
-    //             .collect::<Vec<String>>()[..],
-    //     );
-    //     e
-    // })?;
-
-    // let mut input = Input::new();
-    // input.parse_input(input_syntax_tree).map_err(|mut e| {
-    //     e.set_path(
-    //         input_path.as_ref(),
-    //         &input_string
-    //             .as_ref()
-    //             .lines()
-    //             .map(|x| x.to_string())
-    //             .collect::<Vec<String>>()[..],
-    //     );
-    //     e
-    // })?;
-    // input.parse_state(state_syntax_tree).map_err(|mut e| {
-    //     e.set_path(
-    //         state_path.as_ref(),
-    //         &state_string
-    //             .as_ref()
-    //             .lines()
-    //             .map(|x| x.to_string())
-    //             .collect::<Vec<String>>()[..],
-    //     );
-
-    //     e
-    // })?;
-
-    // Ok(input)
 }

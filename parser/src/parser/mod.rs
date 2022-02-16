@@ -34,9 +34,9 @@ pub use context::*;
 
 pub mod expression;
 pub mod file;
+pub mod input;
 pub mod statement;
 pub mod type_;
-pub mod input;
 
 pub(crate) fn assert_no_whitespace(left_span: &Span, right_span: &Span, left: &str, right: &str) -> Result<()> {
     if left_span.col_stop != right_span.col_start {
