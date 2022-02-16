@@ -1162,8 +1162,10 @@ name = "leo-compiler"
 version = "1.5.3"
 dependencies = [
  "leo-ast",
+ "leo-ast-passes",
  "leo-errors",
  "leo-parser",
+ "leo-span",
  "sha2",
 ]
 

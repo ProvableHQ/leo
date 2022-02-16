@@ -22,12 +22,20 @@ rust-version = "1.56.1"
 path = "../ast"
 version = "1.5.3"
 
+[dependencies.leo-ast-passes]
+path = "../ast-passes"
+version = "1.5.3"
+
 [dependencies.leo-errors]
 path = "../errors"
 version = "1.5.3"
 
 [dependencies.leo-parser]
 path = "../parser"
+version = "1.5.3"
+
+[dependencies.leo-span]
+path = "../span"
 version = "1.5.3"
 
 [dependencies.sha2]

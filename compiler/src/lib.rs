@@ -24,6 +24,7 @@
 
 use leo_errors::emitter::Handler;
 use leo_errors::{CompilerError, Result};
+use leo_span::symbol::create_session_if_not_set_then;
 
 use sha2::{Digest, Sha256};
 use std::fs;
@@ -63,9 +64,9 @@ impl<'a> Compiler<'a> {
     }
 
     ///
-    /// Returns a compiled Leo program.
-    ///
-    pub fn compile(self) -> Result<leo_ast::Ast> {
+    /// Runs the compiler stages.
+    /// 
+    fn compiler_stages(self) -> Result<leo_ast::Ast> {
         // Load the program file.
         let program_string = fs::read_to_string(&self.main_file_path)
             .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;
@@ -78,5 +79,12 @@ impl<'a> Compiler<'a> {
         )?;
 
         Ok(ast)
+    }
+
+    ///
+    /// Returns a compiled Leo program.
+    ///
+    pub fn compile(self) -> Result<leo_ast::Ast> {
+        create_session_if_not_set_then(|_| self.compiler_stages())
     }
 }
