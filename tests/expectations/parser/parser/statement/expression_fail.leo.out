@@ -1,0 +1,10 @@
+---
+namespace: ParseStatement
+expectation: Fail
+outputs:
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got ']'\n    --> test:1:2\n     |\n   1 | (];\n     |  ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got ')'\n    --> test:1:2\n     |\n   1 | [);\n     |  ^"
+  - "Error [EPAR0370000]: \\\n    --> test:1:2\n     |\n   1 | x\\y;\n     |  ^"
+  - "Error [EPAR0370000]: |\n    --> test:1:5\n     |\n   1 | (x,y|;\n     |     ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got '}'\n    --> test:1:3\n     |\n   1 | x[};\n     |   ^"
+  - "Error [EPAR0370005]: expected ) -- got ']'\n    --> test:1:6\n     |\n   1 | (x, y];\n     |      ^"

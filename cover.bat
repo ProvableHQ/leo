@@ -1,4 +1,3 @@
-set CLEAR_LEO_TEST_EXPECTATIONS=
 cargo clean
 cd parser
 set RUSTFLAGS=-Cinstrument-coverage

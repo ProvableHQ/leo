@@ -339,7 +339,7 @@ impl<'a> ParserContext<'a> {
             });
         }
         if let Some((int, span)) = self.eat_int() {
-            let name = Symbol::intern(&int.value);
+            let name = Symbol::intern(&int.value); //todo 0rphon: covered by unused import tests
             return Ok(Identifier { name, span });
         }
         self.expect_ident()

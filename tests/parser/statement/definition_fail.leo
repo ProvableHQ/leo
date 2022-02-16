@@ -54,3 +54,18 @@ let (,x,y) = ();
 let (x,,y) = ();
 
 let x: [u8; (2,,)] = [[0,0], [0,0]];
+
+
+let x: const = expr;
+
+const x: let = expr;
+
+let x: mut = expr;
+
+let
+
+let x
+
+let x:
+
+let x = (a, y]);
