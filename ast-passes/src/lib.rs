@@ -19,5 +19,7 @@
 pub mod canonicalization;
 pub use canonicalization::*;
 
-pub mod import_resolution;
-pub use import_resolution::*;
+// Temporarily disable import resolution
+// until we migrate stdlib and then import resolution.
+/* pub mod import_resolution;
+pub use import_resolution::*; */

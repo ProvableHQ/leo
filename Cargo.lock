@@ -1106,6 +1106,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-asg"
+version = "1.5.3"
+dependencies = [
+ "criterion",
+ "indexmap",
+ "leo-ast",
+ "leo-ast-passes",
+ "leo-errors",
+ "leo-parser",
+ "num-bigint",
+ "serde",
+ "serde_json",
+ "tendril",
+ "typed-arena",
+]
+
+[[package]]
+name = "leo-asg-passes"
+version = "1.5.3"
+dependencies = [
+ "leo-asg",
+ "leo-errors",
+]
+
+[[package]]
 name = "leo-ast"
 version = "1.5.3"
 dependencies = [
@@ -1119,6 +1144,17 @@ dependencies = [
  "serde_json",
  "smallvec",
  "tendril",
+]
+
+[[package]]
+name = "leo-ast-passes"
+version = "1.5.3"
+dependencies = [
+ "indexmap",
+ "leo-ast",
+ "leo-errors",
+ "leo-parser",
+ "leo-span",
 ]
 
 [[package]]
@@ -2624,6 +2660,12 @@ name = "try-lock"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "59547bce71d9c38b83d9c0e92b6066c4253371f15005def0c30d9657f50c7642"
+
+[[package]]
+name = "typed-arena"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0685c84d5d54d1c26f7d3eb96cd41550adb97baed141a761cf335d3d33bcd0ae"
 
 [[package]]
 name = "typenum"
