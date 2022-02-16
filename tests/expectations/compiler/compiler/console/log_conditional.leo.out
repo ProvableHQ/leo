@@ -16,12 +16,14 @@ outputs:
             r0:
               type: bool
               value: "false"
+        console_output: " INFO 1==0\n"
       - input_file: input/input_equal.in
         output:
           registers:
             r0:
               type: bool
               value: "true"
+        console_output: " INFO 1==1\n"
     initial_ast: 1265f36712ac28ba61c19b341e37bfa9f82691298eab2cf7dad4e827af7a62f6
     ir: b1e8dc441405c36714289478f15992593d68efec1d9156144dc481a0e4a95a7b
     imports_resolved_ast: 0c71ceff1dbee625a3ec5155d2a6cc83128336e30ccb7ab7d0c28ef373c058b8

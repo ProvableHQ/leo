@@ -1,6 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
+capture_console: true
 input_file: 
  - input/input_unequal.in
  - input/input_equal.in

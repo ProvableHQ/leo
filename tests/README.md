@@ -148,3 +148,27 @@ function main(a: bool) -> bool {
     return a == input.registers.b;
 }
 ```
+
+### capture_console (Compile)
+
+```
+- Mandatory: no
+- Namespace: Compile
+- Values: whether to capture the output of console functions
+```
+
+This setting allows you to capture the output of console functions for testing
+
+```
+/*
+namespace: Compile
+expectation: Pass
+capture_console: true
+input_file: input/dummy.in
+*/
+
+function main(y: bool) -> bool {
+    console.log("hello world");
+    return y == true;
+}
+```

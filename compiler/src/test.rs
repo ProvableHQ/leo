@@ -30,14 +30,16 @@ use leo_test_framework::{
 use snarkvm_curves::bls12_377::Bls12_377;
 use snarkvm_eval::Evaluator;
 use snarkvm_ir::InputData;
+use tracing::subscriber;
 
 use core::fmt;
 use indexmap::IndexMap;
 use serde_yaml::Value;
 use std::cell::RefCell;
-use std::fs;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
+use std::sync::{Arc, Mutex};
+use std::{fs, io};
 
 pub type TestCompiler<'a> = Compiler<'static, 'a>;
 
@@ -87,6 +89,52 @@ fn hash_file(path: &str) -> String {
     format!("{:x}", hash)
 }
 
+/// The tracing writer used to capture the log
+struct CaptiveWriter(Arc<Mutex<Vec<u8>>>);
+
+impl io::Write for &CaptiveWriter {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        self.0.lock().unwrap().write(buf)
+    }
+    fn flush(&mut self) -> std::io::Result<()> {
+        self.0.lock().unwrap().flush()
+    }
+}
+
+/// The tracing subscriber used to capture the log
+#[derive(Default)]
+struct CaptiveSubscriber {
+    // `tracing` has harsh requirements on a custom writer.
+    // All of the Arc, Mutex stuff is to make `tracing` happy
+    output: Arc<Mutex<Vec<u8>>>,
+}
+
+impl CaptiveSubscriber {
+    /// Returns a guard that, while live, captures the output of tracing.
+    /// The output can then be retrieved using `captive_subscriber.output()`.
+    fn capture(&self) -> subscriber::DefaultGuard {
+        // Use a minimal format. e.g. "INFO hello"
+        let fmt = tracing_subscriber::fmt::format()
+            .with_target(false)
+            .without_time()
+            .with_ansi(false)
+            .compact();
+
+        // Build a subscriber that writes logs into `self.output`.
+        let s = tracing_subscriber::fmt()
+            .event_format(fmt)
+            .with_writer(Arc::new(CaptiveWriter(self.output.clone())))
+            .finish();
+
+        tracing::subscriber::set_default(s)
+    }
+
+    /// Returns the captured output thus far.
+    fn output(&self) -> Vec<u8> {
+        self.output.lock().unwrap().clone()
+    }
+}
+
 struct CompileNamespace;
 struct ImportNamespace;
 
@@ -94,6 +142,8 @@ struct ImportNamespace;
 struct OutputItem {
     pub input_file: String,
     pub output: Output,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub console_output: Option<String>,
 }
 
 #[derive(serde::Deserialize, serde::Serialize, PartialEq)]
@@ -163,6 +213,20 @@ fn collect_all_inputs(test: &Test) -> Result<Vec<Input>, String> {
         list.push(("empty".to_string(), "".to_string()));
     }
     Ok(list)
+}
+
+/// Collect and return captured `console` output, if `capture_console` is enabled
+fn collect_console_output(test: &Test, console: CaptiveSubscriber) -> Option<String> {
+    let capture_console = match test.config.get("capture_console") {
+        Some(v) => v.as_bool().expect("`capture_console` is not bool"),
+        None => false, // Ignore the stdout by default
+    };
+
+    capture_console.then(|| {
+        std::str::from_utf8(&console.output())
+            .expect("failed to parse the console output")
+            .to_string()
+    })
 }
 
 fn read_state_file(test: &Test) -> String {
@@ -256,6 +320,9 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     let mut last_circuit = None;
     let mut last_ir: Option<snarkvm_ir::Program> = None;
     for input in inputs {
+        let console = CaptiveSubscriber::default();
+        let console_guard = console.capture();
+
         let parsed = parsed.clone();
         let (compiled, input_data) = handler.extend_if_error(compile_and_process(parsed, &input, &state))?;
 
@@ -266,6 +333,10 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
                 .evaluate(&compiled, &input_data)
                 .map_err(|e| e.to_string()),
         )?;
+
+        // Drop the guard early to prevent unintended logging.
+        // All `console` functions should have been evaluated before this point.
+        drop(console_guard);
 
         let registers: Vec<_> = compiled.header.register_inputs.to_vec();
         let output = handler.extend_if_error(Output::new(&registers[..], output, &Span::default()))?;
@@ -293,6 +364,9 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
             last_circuit = Some(circuit);
         }
 
+        // Fill out the `console_output` if `capture_console` is enabled
+        let console_output = collect_console_output(&test, console);
+
         // Set IR if not set yet.
         // Otherwise, if IR was changed, add an error.
         if let Some(last_ir) = last_ir.as_ref() {
@@ -307,6 +381,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         output_items.push(OutputItem {
             input_file: input.0,
             output,
+            console_output,
         });
     }
 

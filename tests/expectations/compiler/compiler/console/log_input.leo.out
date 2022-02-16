@@ -16,6 +16,7 @@ outputs:
             r0:
               type: bool
               value: "true"
+        console_output: " INFO a = true\n"
     initial_ast: 59f6eabffa3a50e4ccc0439eed8295eb33733ffa595a1b83176c21c47007c264
     ir: ad565e1b733e062dd4ef24489100897e8db130bc9107e5706ae3d3a4c1c6c8fd
     imports_resolved_ast: d72d91cf6c556dd1d16e77b89a6649b86d3704a9a5897875866db333f49bda6b

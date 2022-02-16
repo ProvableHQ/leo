@@ -16,6 +16,7 @@ outputs:
             r0:
               type: bool
               value: "true"
+        console_output: "ERROR hello error\n"
     initial_ast: 8d1ff9d65180c39aaa0651dca2b11e374d20a2a5264f1ce09e9b0c4758de746e
     ir: e4069390e70c683f0cfd0eee18e2431b511793d999c076f1bf965f7ac4cd06f4
     imports_resolved_ast: 6308a879eee28a3ab5fab0bc352e55a8c08d6a7777c0f364d7dde6b7763d868b
