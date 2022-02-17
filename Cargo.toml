@@ -30,7 +30,7 @@ members = [
 #  "asg",
 #  "asg-passes",
   "ast",
-#  "ast-passes",
+  "ast-passes",
   "compiler",
   "errors",
   "grammar",
