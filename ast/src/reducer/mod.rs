@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! This module contains both a Director to reconstruct the AST
+//! which maps over ever node of the AST and calls a reducer.
+//! The Trait for a reducer are methods that can be overridden
+//! to make changes to how AST nodes are rebuilt.
+
 pub mod reconstructing_reducer;
 pub use reconstructing_reducer::*;
 

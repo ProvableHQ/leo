@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! Creates a struct that implements a ReconstructingReducer
+//! such that it applies changes to the AST nodes for canonicalization.
+//! An example of these changes are transforming Self -> to the circuit name.
+
 use leo_ast::*;
 use leo_errors::{AstError, Result};
 use leo_span::{sym, Span, Symbol};

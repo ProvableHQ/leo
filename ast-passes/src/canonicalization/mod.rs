@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! Implements the AstPass trait for the Canonicalizer
+//! which is a ReconstructingReducer trait to canonicalize AST nodes.
+//! This allows for easy calling of the Canonicalization pass.
+
 pub mod canonicalizer;
 pub use canonicalizer::*;
 
