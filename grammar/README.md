@@ -625,25 +625,6 @@ identifier = letter *( letter / decimal-digit / "_" )
 Go to: _[letter](#user-content-letter)_;
 
 
-A package name consists of one or more segments separated by single dashes,
-where each segment is a non-empty sequence of
-lowercase letters and (decimal) digits.
-Similarly to an identifier, a package name must not be a keyword
-and must not be or start with `aleo1`.
-
-<a name="package-name"></a>
-```abnf
-package-name = lowercase-letter *( lowercase-letter / decimal-digit )
-               *( "-" 1*( lowercase-letter / decimal-digit ) )
-               ; but not a keyword or a boolean literal or aleo1...
-```
-
-Go to: _[lowercase-letter](#user-content-lowercase-letter)_;
-
-
-Note that, grammatically, identifiers are also package names.
-They are disambiguated from context, based on the syntactic grammar.
-
 Annotations have names, which are identifiers immediately preceded by `@`.
 
 <a name="annotation-name"></a>
@@ -918,12 +899,11 @@ is a token, as defined by the following rule.
 token = keyword
       / identifier
       / atomic-literal
-      / package-name
       / annotation-name
       / symbol
 ```
 
-Go to: _[annotation-name](#user-content-annotation-name), [atomic-literal](#user-content-atomic-literal), [identifier](#user-content-identifier), [keyword](#user-content-keyword), [package-name](#user-content-package-name), [symbol](#user-content-symbol)_;
+Go to: _[annotation-name](#user-content-annotation-name), [atomic-literal](#user-content-atomic-literal), [identifier](#user-content-identifier), [keyword](#user-content-keyword), [symbol](#user-content-symbol)_;
 
 
 Tokens, comments, and whitespace are lexemes, i.e. lexical units.
@@ -1795,33 +1775,33 @@ An import declaration consists of the `import` keyword
 followed by a package path, which may be one of the following:
 a single wildcard;
 an identifier, optionally followed by a local renamer;
-a package name followed by a path, recursively;
+an identifier followed by a path, recursively;
 or a parenthesized list of package paths,
 which are "fan out" of the initial path.
 Note that we allow the last element of the parenthesized list
 to be followed by a comma, for convenience.
-The package path in the import declaration must start with a package name
+The package path in the import declaration must start with an identifier
 (e.g. it cannot be a `*`):
 the rule for import declaration expresses this requirement
-by using an explicit package name before the package path.
+by using an explicit identifier before the package path.
 
 <a name="import-declaration"></a>
 ```abnf
-import-declaration = %s"import" package-name "." package-path ";"
+import-declaration = %s"import" identifier "." package-path ";"
 ```
 
-Go to: _[package-name](#user-content-package-name), [package-path](#user-content-package-path)_;
+Go to: _[identifier](#user-content-identifier), [package-path](#user-content-package-path)_;
 
 
 <a name="package-path"></a>
 ```abnf
 package-path = "*"
              / identifier [ %s"as" identifier ]
-             / package-name "." package-path
+             / identifier "." package-path
              / "(" package-path *( "," package-path ) [","] ")"
 ```
 
-Go to: _[identifier](#user-content-identifier), [package-name](#user-content-package-name), [package-path](#user-content-package-path)_;
+Go to: _[identifier](#user-content-identifier), [package-path](#user-content-package-path)_;
 
 
 A type alias declaration defines an identifier to stand for a type.
