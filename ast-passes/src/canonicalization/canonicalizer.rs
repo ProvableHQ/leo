@@ -376,6 +376,7 @@ impl Canonicalizer {
                 Statement::Definition(DefinitionStatement {
                     declaration_type: definition.declaration_type.clone(),
                     variable_names: definition.variable_names.clone(),
+                    parened: definition.parened,
                     type_,
                     value,
                     span: definition.span.clone(),
@@ -614,7 +615,32 @@ impl ReconstructingReducer for Canonicalizer {
         let init = mk_expr(Box::new(element), iter.next().unwrap());
         Ok(iter.fold(init, |elem, dim| mk_expr(Box::new(Expression::ArrayInit(elem)), dim)))
     }
-    
+
+    fn reduce_definition(
+        &mut self,
+        definition: &DefinitionStatement,
+        variable_names: Vec<VariableName>,
+        type_: Option<Type>,
+        value: Expression,
+    ) -> Result<DefinitionStatement> {
+        match &type_ {
+            Some(Type::Tuple(elements)) if elements.len() != 1 => {}
+            _ if definition.parened => {
+                return Err(AstError::invalid_parens_around_single_variable(&definition.span).into());
+            }
+            _ => {}
+        }
+
+        Ok(DefinitionStatement {
+            declaration_type: definition.declaration_type.clone(),
+            variable_names,
+            parened: definition.parened,
+            type_,
+            value,
+            span: definition.span.clone(),
+        })
+    }
+
     fn reduce_assign(
         &mut self,
         assign: &AssignStatement,

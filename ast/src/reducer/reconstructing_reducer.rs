@@ -286,6 +286,7 @@ pub trait ReconstructingReducer {
         Ok(DefinitionStatement {
             declaration_type: definition.declaration_type.clone(),
             variable_names,
+            parened: definition.parened,
             type_,
             value,
             span: definition.span.clone(),
