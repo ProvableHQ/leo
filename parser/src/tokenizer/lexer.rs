@@ -76,17 +76,17 @@ impl Token {
 
             if escaped.len() != 1 {
                 return None;
-            }
-
-            return match escaped.chars().next().unwrap() {
-                '0' => Some(Char::Scalar(0 as char)),
-                't' => Some(Char::Scalar(9 as char)),
-                'n' => Some(Char::Scalar(10 as char)),
-                'r' => Some(Char::Scalar(13 as char)),
-                '\"' => Some(Char::Scalar(34 as char)),
-                '\'' => Some(Char::Scalar(39 as char)),
-                '\\' => Some(Char::Scalar(92 as char)),
-                _ => None,
+            } else {
+                return match escaped.chars().next().unwrap() {
+                    '0' => Some(Char::Scalar(0 as char)),
+                    't' => Some(Char::Scalar(9 as char)),
+                    'n' => Some(Char::Scalar(10 as char)),
+                    'r' => Some(Char::Scalar(13 as char)),
+                    '\"' => Some(Char::Scalar(34 as char)),
+                    '\'' => Some(Char::Scalar(39 as char)),
+                    '\\' => Some(Char::Scalar(92 as char)),
+                    _ => None,
+                };
             };
         }
 
@@ -96,15 +96,13 @@ impl Token {
 
             if hex_string.len() != 2 {
                 return None;
-            }
-
-            if let Ok(ascii_number) = u8::from_str_radix(hex_string, 16) {
+            } else if let Ok(ascii_number) = u8::from_str_radix(hex_string, 16) {
                 // According to RFC, we allow only values less than 128.
                 if ascii_number > 127 {
                     return None;
+                } else {
+                    return Some(Char::Scalar(ascii_number as char));
                 }
-
-                return Some(Char::Scalar(ascii_number as char));
             }
         }
 
@@ -118,9 +116,7 @@ impl Token {
             let len = unicode_number.len();
             if !(1..=6).contains(&len) {
                 return None;
-            }
-
-            if let Ok(hex) = u32::from_str_radix(unicode_number, 16) {
+            } else if let Ok(hex) = u32::from_str_radix(unicode_number, 16) {
                 if let Some(character) = std::char::from_u32(hex) {
                     // scalar
                     return Some(Char::Scalar(character));
