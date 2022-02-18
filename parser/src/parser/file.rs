@@ -149,36 +149,7 @@ impl ParserContext<'_> {
     /// Returns an [`Identifier`] AST node if the next tokens represent a valid package name.
     pub fn parse_package_name(&mut self) -> Result<Identifier> {
         // Build the package name, starting with valid characters up to a dash `-` (Token::Minus).
-        let mut base = self.expect_loose_identifier()?;
-
-        // Build the rest of the package name including dashes.
-        loop {
-            match &self.peek_token().as_ref() {
-                Token::Minus => {
-                    let span = self.expect(Token::Minus)?;
-                    base.span = base.span + span;
-                    let next = self.expect_loose_identifier()?;
-                    base.name = Symbol::intern(&format!("{}-{}", base.name, next.name));
-                    base.span = base.span + next.span;
-                }
-                Token::Int(_) => {
-                    let (num, span) = self.eat_int().unwrap();
-                    base.name = Symbol::intern(&format!("{}{}", base.name, num.value));
-                    base.span = base.span + span;
-                }
-                Token::Ident(_) => {
-                    let next = self.expect_ident()?;
-                    base.name = Symbol::intern(&format!("{}{}", base.name, next.name));
-                    base.span = base.span + next.span;
-                }
-                x if KEYWORD_TOKENS.contains(x) => {
-                    let next = self.expect_loose_identifier()?;
-                    base.name = Symbol::intern(&format!("{}{}", base.name, next.name));
-                    base.span = base.span + next.span;
-                }
-                _ => break,
-            }
-        }
+        let base = self.expect_loose_identifier()?;
 
         // Return an error if the package name contains a keyword.
         if let Some(token) = KEYWORD_TOKENS.iter().find(|x| x.keyword_to_symbol() == Some(base.name)) {
@@ -190,7 +161,7 @@ impl ParserContext<'_> {
             .name
             .as_str()
             .chars()
-            .all(|x| x.is_ascii_lowercase() || x.is_ascii_digit() || x == '-' || x == '_')
+            .all(|x| x.is_ascii_lowercase() || x.is_ascii_digit() || x == '_')
         {
             self.emit_err(ParserError::invalid_package_name(&base.span));
         }
