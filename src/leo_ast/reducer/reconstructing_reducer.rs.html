@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `ast&#x2F;src&#x2F;reducer&#x2F;reconstructing_reducer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>reconstructing_reducer.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../leo_ast/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `ast&#x2F;src&#x2F;reducer&#x2F;reconstructing_reducer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>reconstructing_reducer.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../leo_ast/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -512,25 +513,25 @@
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::redundant_closure</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ReconstructingReducer</span> {
     <span class="kw">fn</span> <span class="ident">in_circuit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
-    <span class="kw">fn</span> <span class="ident">swap_in_circuit</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>);
+    <span class="kw">fn</span> <span class="ident">swap_in_circuit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>);
 
-    <span class="kw">fn</span> <span class="ident">reduce_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_type_</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>, <span class="ident">new</span>: <span class="ident">Type</span>, <span class="ident">_span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_type_</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>, <span class="ident">new</span>: <span class="ident">Type</span>, <span class="ident">_span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">new</span>)
     }
 
     <span class="comment">// Expressions</span>
-    <span class="kw">fn</span> <span class="ident">reduce_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_expression</span>: <span class="kw-2">&amp;</span><span class="ident">Expression</span>, <span class="ident">new</span>: <span class="ident">Expression</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_expression</span>: <span class="kw-2">&amp;</span><span class="ident">Expression</span>, <span class="ident">new</span>: <span class="ident">Expression</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">new</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_identifier</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">identifier</span>: <span class="kw-2">&amp;</span><span class="ident">Identifier</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Identifier</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_identifier</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">identifier</span>: <span class="kw-2">&amp;</span><span class="ident">Identifier</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Identifier</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Identifier</span> {
             <span class="ident">name</span>: <span class="ident">identifier</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
             <span class="ident">span</span>: <span class="ident">identifier</span>.<span class="ident">span</span>.<span class="ident">clone</span>(),
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_group_tuple</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">group_tuple</span>: <span class="kw-2">&amp;</span><span class="ident">GroupTuple</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">GroupTuple</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_group_tuple</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">group_tuple</span>: <span class="kw-2">&amp;</span><span class="ident">GroupTuple</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">GroupTuple</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">GroupTuple</span> {
             <span class="ident">x</span>: <span class="ident">group_tuple</span>.<span class="ident">x</span>.<span class="ident">clone</span>(),
             <span class="ident">y</span>: <span class="ident">group_tuple</span>.<span class="ident">y</span>.<span class="ident">clone</span>(),
@@ -538,23 +539,23 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_group_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_group_value</span>: <span class="kw-2">&amp;</span><span class="ident">GroupValue</span>, <span class="ident">new</span>: <span class="ident">GroupValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">GroupValue</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_group_value</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_group_value</span>: <span class="kw-2">&amp;</span><span class="ident">GroupValue</span>, <span class="ident">new</span>: <span class="ident">GroupValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">GroupValue</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">new</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">string</span>: <span class="kw-2">&amp;</span>[<span class="ident">Char</span>], <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_string</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">string</span>: <span class="kw-2">&amp;</span>[<span class="ident">Char</span>], <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Expression::Value</span>(<span class="ident">ValueExpression::String</span>(
             <span class="ident">string</span>.<span class="ident">to_vec</span>(),
             <span class="ident">span</span>.<span class="ident">clone</span>(),
         )))
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_value</span>: <span class="kw-2">&amp;</span><span class="ident">ValueExpression</span>, <span class="ident">new</span>: <span class="ident">Expression</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_value</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_value</span>: <span class="kw-2">&amp;</span><span class="ident">ValueExpression</span>, <span class="ident">new</span>: <span class="ident">Expression</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">new</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_binary</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">binary</span>: <span class="kw-2">&amp;</span><span class="ident">BinaryExpression</span>,
         <span class="ident">left</span>: <span class="ident">Expression</span>,
         <span class="ident">right</span>: <span class="ident">Expression</span>,
@@ -569,7 +570,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_unary</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">unary</span>: <span class="kw-2">&amp;</span><span class="ident">UnaryExpression</span>,
         <span class="ident">inner</span>: <span class="ident">Expression</span>,
         <span class="ident">op</span>: <span class="ident">UnaryOperation</span>,
@@ -582,7 +583,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_ternary</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">ternary</span>: <span class="kw-2">&amp;</span><span class="ident">TernaryExpression</span>,
         <span class="ident">condition</span>: <span class="ident">Expression</span>,
         <span class="ident">if_true</span>: <span class="ident">Expression</span>,
@@ -596,7 +597,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_cast</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cast</span>: <span class="kw-2">&amp;</span><span class="ident">CastExpression</span>, <span class="ident">inner</span>: <span class="ident">Expression</span>, <span class="ident">target_type</span>: <span class="ident">Type</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CastExpression</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_cast</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">cast</span>: <span class="kw-2">&amp;</span><span class="ident">CastExpression</span>, <span class="ident">inner</span>: <span class="ident">Expression</span>, <span class="ident">target_type</span>: <span class="ident">Type</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CastExpression</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">CastExpression</span> {
             <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="ident">inner</span>),
             <span class="ident">target_type</span>,
@@ -605,7 +606,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_array_inline</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">array_inline</span>: <span class="kw-2">&amp;</span><span class="ident">ArrayInlineExpression</span>,
         <span class="ident">elements</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SpreadOrExpression</span><span class="op">&gt;</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ArrayInlineExpression</span><span class="op">&gt;</span> {
@@ -616,7 +617,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_array_init</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">array_init</span>: <span class="kw-2">&amp;</span><span class="ident">ArrayInitExpression</span>,
         <span class="ident">element</span>: <span class="ident">Expression</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ArrayInitExpression</span><span class="op">&gt;</span> {
@@ -628,7 +629,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_array_access</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">array_access</span>: <span class="kw-2">&amp;</span><span class="ident">ArrayAccessExpression</span>,
         <span class="ident">array</span>: <span class="ident">Expression</span>,
         <span class="ident">index</span>: <span class="ident">Expression</span>,
@@ -641,7 +642,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_array_range_access</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">array_rage_access</span>: <span class="kw-2">&amp;</span><span class="ident">ArrayRangeAccessExpression</span>,
         <span class="ident">array</span>: <span class="ident">Expression</span>,
         <span class="ident">left</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
@@ -656,7 +657,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_tuple_init</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">tuple_init</span>: <span class="kw-2">&amp;</span><span class="ident">TupleInitExpression</span>,
         <span class="ident">elements</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TupleInitExpression</span><span class="op">&gt;</span> {
@@ -667,7 +668,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_tuple_access</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">tuple_access</span>: <span class="kw-2">&amp;</span><span class="ident">TupleAccessExpression</span>,
         <span class="ident">tuple</span>: <span class="ident">Expression</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TupleAccessExpression</span><span class="op">&gt;</span> {
@@ -679,7 +680,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_circuit_implied_variable_definition</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">_variable</span>: <span class="kw-2">&amp;</span><span class="ident">CircuitImpliedVariableDefinition</span>,
         <span class="ident">identifier</span>: <span class="ident">Identifier</span>,
         <span class="ident">expression</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
@@ -688,7 +689,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_circuit_init</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">circuit_init</span>: <span class="kw-2">&amp;</span><span class="ident">CircuitInitExpression</span>,
         <span class="ident">name</span>: <span class="ident">Identifier</span>,
         <span class="ident">members</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CircuitImpliedVariableDefinition</span><span class="op">&gt;</span>,
@@ -701,7 +702,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_circuit_member_access</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">circuit_member_access</span>: <span class="kw-2">&amp;</span><span class="ident">CircuitMemberAccessExpression</span>,
         <span class="ident">circuit</span>: <span class="ident">Expression</span>,
         <span class="ident">name</span>: <span class="ident">Identifier</span>,
@@ -716,7 +717,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_circuit_static_fn_access</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">circuit_static_fn_access</span>: <span class="kw-2">&amp;</span><span class="ident">CircuitStaticFunctionAccessExpression</span>,
         <span class="ident">circuit</span>: <span class="ident">Expression</span>,
         <span class="ident">name</span>: <span class="ident">Identifier</span>,
@@ -729,7 +730,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_call</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">call</span>: <span class="kw-2">&amp;</span><span class="ident">CallExpression</span>,
         <span class="ident">function</span>: <span class="ident">Expression</span>,
         <span class="ident">arguments</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
@@ -742,18 +743,18 @@
     }
 
     <span class="comment">// Statements</span>
-    <span class="kw">fn</span> <span class="ident">reduce_statement</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_statement</span>: <span class="kw-2">&amp;</span><span class="ident">Statement</span>, <span class="ident">new</span>: <span class="ident">Statement</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_statement</span>: <span class="kw-2">&amp;</span><span class="ident">Statement</span>, <span class="ident">new</span>: <span class="ident">Statement</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">new</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_return</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">return_statement</span>: <span class="kw-2">&amp;</span><span class="ident">ReturnStatement</span>, <span class="ident">expression</span>: <span class="ident">Expression</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ReturnStatement</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_return</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">return_statement</span>: <span class="kw-2">&amp;</span><span class="ident">ReturnStatement</span>, <span class="ident">expression</span>: <span class="ident">Expression</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ReturnStatement</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">ReturnStatement</span> {
             <span class="ident">expression</span>,
             <span class="ident">span</span>: <span class="ident">return_statement</span>.<span class="ident">span</span>.<span class="ident">clone</span>(),
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_variable_name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">variable_name</span>: <span class="kw-2">&amp;</span><span class="ident">VariableName</span>, <span class="ident">identifier</span>: <span class="ident">Identifier</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">VariableName</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_variable_name</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">variable_name</span>: <span class="kw-2">&amp;</span><span class="ident">VariableName</span>, <span class="ident">identifier</span>: <span class="ident">Identifier</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">VariableName</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">VariableName</span> {
             <span class="ident">mutable</span>: <span class="ident">variable_name</span>.<span class="ident">mutable</span>,
             <span class="ident">identifier</span>,
@@ -762,7 +763,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_definition</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">definition</span>: <span class="kw-2">&amp;</span><span class="ident">DefinitionStatement</span>,
         <span class="ident">variable_names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">VariableName</span><span class="op">&gt;</span>,
         <span class="ident">type_</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>,
@@ -777,12 +778,12 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_assignee_access</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_access</span>: <span class="kw-2">&amp;</span><span class="ident">AssigneeAccess</span>, <span class="ident">new</span>: <span class="ident">AssigneeAccess</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AssigneeAccess</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_assignee_access</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_access</span>: <span class="kw-2">&amp;</span><span class="ident">AssigneeAccess</span>, <span class="ident">new</span>: <span class="ident">AssigneeAccess</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AssigneeAccess</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">new</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_assignee</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">assignee</span>: <span class="kw-2">&amp;</span><span class="ident">Assignee</span>,
         <span class="ident">identifier</span>: <span class="ident">Identifier</span>,
         <span class="ident">accesses</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AssigneeAccess</span><span class="op">&gt;</span>,
@@ -795,7 +796,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_assign</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">assign</span>: <span class="kw-2">&amp;</span><span class="ident">AssignStatement</span>,
         <span class="ident">assignee</span>: <span class="ident">Assignee</span>,
         <span class="ident">value</span>: <span class="ident">Expression</span>,
@@ -809,7 +810,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_conditional</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">conditional</span>: <span class="kw-2">&amp;</span><span class="ident">ConditionalStatement</span>,
         <span class="ident">condition</span>: <span class="ident">Expression</span>,
         <span class="ident">block</span>: <span class="ident">Block</span>,
@@ -824,7 +825,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_iteration</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">iteration</span>: <span class="kw-2">&amp;</span><span class="ident">IterationStatement</span>,
         <span class="ident">variable</span>: <span class="ident">Identifier</span>,
         <span class="ident">start</span>: <span class="ident">Expression</span>,
@@ -841,7 +842,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_console</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">console</span>: <span class="kw-2">&amp;</span><span class="ident">ConsoleStatement</span>, <span class="ident">function</span>: <span class="ident">ConsoleFunction</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConsoleStatement</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_console</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">console</span>: <span class="kw-2">&amp;</span><span class="ident">ConsoleStatement</span>, <span class="ident">function</span>: <span class="ident">ConsoleFunction</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConsoleStatement</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">ConsoleStatement</span> {
             <span class="ident">function</span>,
             <span class="ident">span</span>: <span class="ident">console</span>.<span class="ident">span</span>.<span class="ident">clone</span>(),
@@ -849,7 +850,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_expression_statement</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">expression_statement</span>: <span class="kw-2">&amp;</span><span class="ident">ExpressionStatement</span>,
         <span class="ident">expression</span>: <span class="ident">Expression</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ExpressionStatement</span><span class="op">&gt;</span> {
@@ -859,7 +860,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_block</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">block</span>: <span class="kw-2">&amp;</span><span class="ident">Block</span>, <span class="ident">statements</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Block</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">block</span>: <span class="kw-2">&amp;</span><span class="ident">Block</span>, <span class="ident">statements</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Block</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Block</span> {
             <span class="ident">statements</span>,
             <span class="ident">span</span>: <span class="ident">block</span>.<span class="ident">span</span>.<span class="ident">clone</span>(),
@@ -869,7 +870,7 @@
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
     <span class="comment">// Program</span>
     <span class="kw">fn</span> <span class="ident">reduce_program</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="ident">Program</span>,
         <span class="ident">expected_input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FunctionInput</span><span class="op">&gt;</span>,
         <span class="ident">import_statements</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ImportStatement</span><span class="op">&gt;</span>,
@@ -892,7 +893,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_function_input_variable</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">variable</span>: <span class="kw-2">&amp;</span><span class="ident">FunctionInputVariable</span>,
         <span class="ident">identifier</span>: <span class="ident">Identifier</span>,
         <span class="ident">type_</span>: <span class="ident">Type</span>,
@@ -906,12 +907,12 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_function_input</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="kw-2">&amp;</span><span class="ident">FunctionInput</span>, <span class="ident">new</span>: <span class="ident">FunctionInput</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">FunctionInput</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_function_input</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="kw-2">&amp;</span><span class="ident">FunctionInput</span>, <span class="ident">new</span>: <span class="ident">FunctionInput</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">FunctionInput</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">new</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_package_or_packages</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">_package_or_packages</span>: <span class="kw-2">&amp;</span><span class="ident">PackageOrPackages</span>,
         <span class="ident">new</span>: <span class="ident">PackageOrPackages</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PackageOrPackages</span><span class="op">&gt;</span> {
@@ -919,7 +920,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_import_statement</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">import</span>: <span class="kw-2">&amp;</span><span class="ident">ImportStatement</span>,
         <span class="ident">package_or_packages</span>: <span class="ident">PackageOrPackages</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ImportStatement</span><span class="op">&gt;</span> {
@@ -929,16 +930,16 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_import</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">identifier</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">import</span>: <span class="ident">Program</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">Program</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_import</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">identifier</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">import</span>: <span class="ident">Program</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">Program</span>)<span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>((<span class="ident">identifier</span>, <span class="ident">import</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_circuit_member</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_circuit_member</span>: <span class="kw-2">&amp;</span><span class="ident">CircuitMember</span>, <span class="ident">new</span>: <span class="ident">CircuitMember</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CircuitMember</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_circuit_member</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_circuit_member</span>: <span class="kw-2">&amp;</span><span class="ident">CircuitMember</span>, <span class="ident">new</span>: <span class="ident">CircuitMember</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CircuitMember</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">new</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">reduce_circuit</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">circuit</span>: <span class="kw-2">&amp;</span><span class="ident">Circuit</span>,
         <span class="ident">circuit_name</span>: <span class="ident">Identifier</span>,
         <span class="ident">members</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CircuitMember</span><span class="op">&gt;</span>,
@@ -950,7 +951,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">reduce_annotation</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">annotation</span>: <span class="kw-2">&amp;</span><span class="ident">Annotation</span>, <span class="ident">name</span>: <span class="ident">Identifier</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Annotation</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reduce_annotation</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">annotation</span>: <span class="kw-2">&amp;</span><span class="ident">Annotation</span>, <span class="ident">name</span>: <span class="ident">Identifier</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Annotation</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Annotation</span> {
             <span class="ident">span</span>: <span class="ident">annotation</span>.<span class="ident">span</span>.<span class="ident">clone</span>(),
             <span class="ident">name</span>,
@@ -960,7 +961,7 @@
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
     <span class="kw">fn</span> <span class="ident">reduce_function</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">function</span>: <span class="kw-2">&amp;</span><span class="ident">Function</span>,
         <span class="ident">identifier</span>: <span class="ident">Identifier</span>,
         <span class="ident">annotations</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Annotation</span><span class="op">&gt;</span>,
@@ -980,5 +981,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_ast" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
-    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>
