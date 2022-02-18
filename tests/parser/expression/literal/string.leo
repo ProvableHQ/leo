@@ -1,9 +1,7 @@
 /*
-namespace: Token
+namespace: ParseExpression
 expectation: Pass
 */
-
-""
 
 "string"
 
@@ -22,7 +20,7 @@ expectation: Pass
 
 "\x7F"
 
-"aa \\ \"  \n aa \t \r  \0"
+"aa \\ \" \' \n aa \t \r  \0"
 
 "test 😒€"
 "😭😂😘"

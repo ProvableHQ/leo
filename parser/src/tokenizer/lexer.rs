@@ -78,20 +78,16 @@ impl Token {
                 return None;
             }
 
-            if let Some(character) = escaped.chars().next() {
-                return match character {
-                    '0' => Some(Char::Scalar(0 as char)),
-                    't' => Some(Char::Scalar(9 as char)),
-                    'n' => Some(Char::Scalar(10 as char)),
-                    'r' => Some(Char::Scalar(13 as char)),
-                    '\"' => Some(Char::Scalar(34 as char)),
-                    '\'' => Some(Char::Scalar(39 as char)),
-                    '\\' => Some(Char::Scalar(92 as char)),
-                    _ => None,
-                };
-            } else {
-                return None;
-            }
+            return match escaped.chars().next().unwrap() {
+                '0' => Some(Char::Scalar(0 as char)),
+                't' => Some(Char::Scalar(9 as char)),
+                'n' => Some(Char::Scalar(10 as char)),
+                'r' => Some(Char::Scalar(13 as char)),
+                '\"' => Some(Char::Scalar(34 as char)),
+                '\'' => Some(Char::Scalar(39 as char)),
+                '\\' => Some(Char::Scalar(92 as char)),
+                _ => None,
+            };
         }
 
         if hex {

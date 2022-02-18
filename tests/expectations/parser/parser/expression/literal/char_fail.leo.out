@@ -5,6 +5,7 @@ outputs:
   - "Error [EPAR0370000]: '\n    --> test:1:1\n     |\n   1 | '\\'\n     | ^"
   - "Error [EPAR0370000]: '\n    --> test:1:1\n     |\n   1 | 'a\n     | ^"
   - "Error [EPAR0370000]: '\n    --> test:1:1\n     |\n   1 | ''\n     | ^"
+  - "Error [EPAR0370000]: '\n    --> test:1:1\n     |\n   1 | '\\\n     | ^"
   - "Error [EPAR0370000]: '\n    --> test:1:1\n     |\n   1 | '\\x9A'\n     | ^"
   - "Error [EPAR0370000]: '\n    --> test:1:1\n     |\n   1 | '\\x7'\n     | ^"
   - "Error [EPAR0370000]: '\n    --> test:1:1\n     |\n   1 | '\\x7g'\n     | ^"

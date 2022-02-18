@@ -1,11 +1,12 @@
 /*
-namespace: Token
+namespace: ParseExpression
 expectation: Pass
 */
 
 'a'
 'Z'
 '\"'
+'\''
 '\t'
 '\r'
 '\0'

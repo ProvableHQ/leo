@@ -9,6 +9,8 @@ expectation: Fail
 
 ''
 
+'\
+
 '\x9A'
 '\x7'
 '\x7g'
