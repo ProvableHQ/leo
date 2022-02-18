@@ -2,5 +2,5 @@
 namespace: ParseImport
 expectation: Fail
 outputs:
-  - "Error [EPAR0370009]: unexpected string: expected 'package name', got 'import'\n    --> test:1:1\n     |\n   1 | import a.();\n     | ^^^^^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'package name', got 'import'\n    --> test:1:1\n     |\n   1 | import a.();\n     | ^^^^^^"
+  - "Error [EPAR0370002]: Cannot import empty list\n    --> test:1:10\n     |\n   1 | import a.();\n     |          ^^"
+  - "Error [EPAR0370002]: Cannot import empty list\n    --> test:1:10\n     |\n   1 | import a.();\n     |          ^^"
