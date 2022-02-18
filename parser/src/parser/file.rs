@@ -156,23 +156,14 @@ impl ParserContext<'_> {
             self.emit_err(ParserError::unexpected_str(token, "package name", &base.span));
         }
 
-        // Return an error if the package name contains invalid characters.
-        if !base
-            .name
-            .as_str()
-            .chars()
-            .all(|x| x.is_ascii_lowercase() || x.is_ascii_digit() || x == '_')
-        {
-            self.emit_err(ParserError::invalid_package_name(&base.span));
-        }
-
         // Return the package name.
         Ok(base)
     }
 
     /// Returns an [`ImportTree`] AST node if the next tokens represent a valid package import
     /// with accesses.
-    fn parse_import_tree(&mut self) -> Result<ImportTree> {
+    // Public soely foro writing import parsing tests.
+    pub fn parse_import_tree(&mut self) -> Result<ImportTree> {
         // Parse the first part of the path.
         let first_name = self.parse_package_name()?;
         let start = first_name.span.clone();
