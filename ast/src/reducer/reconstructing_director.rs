@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! This module contains the reducer which iterates through ast nodes - converting them into
-//! asg nodes and saving relevant information.
+//! This module contains a Director for how to map over the AST
+//! and applies a reducer call to each node.
 
 use crate::*;
 

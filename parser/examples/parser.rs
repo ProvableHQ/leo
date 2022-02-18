@@ -15,25 +15,29 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::Ast;
-use leo_errors::{emitter::Handler, Result};
+use leo_errors::emitter::Handler;
 use leo_span::symbol::create_session_if_not_set_then;
 
 use std::{env, fs, path::Path};
 
-fn to_leo_tree(filepath: &Path) -> Result<String> {
+fn to_leo_tree(filepath: &Path) -> Result<String, String> {
     // Loads the Leo code as a string from the given file path.
     let program_filepath = filepath.to_path_buf();
-    let program_string = fs::read_to_string(&program_filepath).expect("failed to open input file");
+    let code = fs::read_to_string(&program_filepath).expect("failed to open input file");
 
     // Parses the Leo file constructing an ast which is then serialized.
     create_session_if_not_set_then(|_| {
-        let handler = Handler::default();
-        let ast = leo_parser::parse_ast(&handler, filepath.to_str().unwrap(), &program_string)?;
-        Ok(Ast::to_json_string(&ast).expect("serialization failed"))
+        Handler::with(|h| {
+            let ast = leo_parser::parse_ast(&h, filepath.to_str().unwrap(), &code)?;
+            let json = Ast::to_json_string(&ast)?;
+            println!("{}", json);
+            Ok(json)
+        })
+        .map_err(|b| b.to_string())
     })
 }
 
-fn main() -> Result<()> {
+fn main() -> Result<(), String> {
     // Parse the command-line arguments as strings.
     let cli_arguments = env::args().collect::<Vec<String>>();
 
@@ -51,7 +55,6 @@ fn main() -> Result<()> {
 
     // Construct the serialized syntax tree.
     let serialized_leo_tree = to_leo_tree(input_filepath)?;
-    println!("{}", serialized_leo_tree);
 
     // Determine the output directory.
     let output_directory = match cli_arguments.len() == 3 {
