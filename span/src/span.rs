@@ -38,18 +38,18 @@ pub struct Span {
     /// The path to the Leo file containing the error.
     pub path: Arc<String>,
     #[serde(with = "crate::tendril_json")]
-    /// The content of the file between the above boundries.
+    /// The content of the file between the above boundaries.
     pub content: StrTendril,
 }
 
 impl Span {
-    /// Generate a new span from where:
-    /// - the Leo line starts.
-    /// - the Leo line stops.
-    /// - the Leo column starts.
-    /// - the Leo column stops.
-    /// - the path to the Leo file.
-    /// - the content of those specified bounds.
+    /// Generate a new span from:
+    /// - Where the Leo line starts.
+    /// - Where the Leo line stops.
+    /// - Where the Leo column starts.
+    /// - Where the Leo column stops.
+    /// - The path to the Leo file.
+    /// - The content of those specified bounds.
     pub fn new(
         line_start: usize,
         line_stop: usize,
@@ -96,7 +96,6 @@ impl Serialize for Span {
     }
 }
 
-/// Conversion from a pest span where the leo-input library uses these.
 impl fmt::Display for Span {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.line_start == self.line_stop {
@@ -111,6 +110,7 @@ impl fmt::Display for Span {
     }
 }
 
+/// Conversion from a pest span where the leo-input library uses these.
 impl<'ast> From<PestSpan<'ast>> for Span {
     fn from(span: PestSpan) -> Self {
         let start = span.start_pos().line_col();
