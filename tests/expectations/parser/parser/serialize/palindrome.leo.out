@@ -56,6 +56,7 @@ outputs:
                 variable_names:
                   - mutable: false
                     identifier: "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":11,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const str_len = 20u32; // saving const for convenience\\\"}\"}"
+                parened: false
                 type_: ~
                 value:
                   Value:
@@ -67,6 +68,7 @@ outputs:
                 variable_names:
                   - mutable: true
                     identifier: "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = true;\\\"}\"}"
+                parened: false
                 type_: ~
                 value:
                   Value:
@@ -76,6 +78,7 @@ outputs:
                 variable_names:
                   - mutable: true
                     identifier: "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":9,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let processed = 0u8;\\\"}\"}"
+                parened: false
                 type_: ~
                 value:
                   Value:
@@ -103,6 +106,7 @@ outputs:
                         variable_names:
                           - mutable: true
                             identifier: "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":13,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let start_sym = str[start];\\\"}\"}"
+                        parened: false
                         type_: ~
                         value:
                           Access:
@@ -129,6 +133,7 @@ outputs:
                                 variable_names:
                                   - mutable: true
                                     identifier: "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":17,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            let skipped = 0u8;\\\"}\"}"
+                                parened: false
                                 type_: ~
                                 value:
                                   Value:
@@ -140,6 +145,7 @@ outputs:
                                 variable_names:
                                   - mutable: true
                                     identifier: "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":17,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            let end_empty = 0u8;\\\"}\"}"
+                                parened: false
                                 type_: ~
                                 value:
                                   Value:
@@ -151,6 +157,7 @@ outputs:
                                 variable_names:
                                   - mutable: true
                                     identifier: "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":17,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            let end_sym = ' ';\\\"}\"}"
+                                parened: false
                                 type_: ~
                                 value:
                                   Value:

@@ -376,6 +376,7 @@ impl Canonicalizer {
                 Statement::Definition(DefinitionStatement {
                     declaration_type: definition.declaration_type.clone(),
                     variable_names: definition.variable_names.clone(),
+                    parened: definition.parened,
                     type_,
                     value,
                     span: definition.span.clone(),
@@ -524,6 +525,7 @@ impl ReconstructingReducer for Canonicalizer {
     fn reduce_type(&mut self, _type_: &Type, new: Type, span: &Span) -> Result<Type> {
         match new.clone() {
             Type::Array(base, dims) if dims.is_empty() => Ok(Type::Array(base, dims)),
+            Type::Array(_, dims) if dims.is_zero() => Err(AstError::invalid_array_dimension_size(span).into()),
             // Reduce `ArrayDimensions` into nested `Array` types.
             Type::Array(base, dims) => {
                 let mut iter = dims.0.into_iter().rev();
@@ -533,6 +535,7 @@ impl ReconstructingReducer for Canonicalizer {
                 Ok(iter.fold(base, |ty, dim| ctor(Box::new(ty), dim)))
             }
             Type::SelfType if !self.in_circuit => Err(AstError::big_self_outside_of_circuit(span).into()),
+            Type::Tuple(types) if types.len() == 1 => Err(AstError::invalid_tuple_dimension_size(span).into()),
             _ => Ok(new),
         }
     }
@@ -586,6 +589,10 @@ impl ReconstructingReducer for Canonicalizer {
             )));
         }
 
+        if elements.is_empty() {
+            return Err(AstError::invalid_array_dimension_size(span).into());
+        }
+
         Ok(Expression::ArrayInline(ArrayInlineExpression {
             elements,
             span: span.clone(),
@@ -597,10 +604,6 @@ impl ReconstructingReducer for Canonicalizer {
         array_init: &ArrayInitExpression,
         element: Expression,
     ) -> Result<ArrayInitExpression> {
-        if array_init.dimensions.is_zero() {
-            return Err(AstError::invalid_array_dimension_size(&array_init.span).into());
-        }
-
         let mk_expr = |element, dim| ArrayInitExpression {
             element,
             dimensions: ArrayDimensions::single(dim),
@@ -611,6 +614,31 @@ impl ReconstructingReducer for Canonicalizer {
         // We know the array has non-zero dimensions.
         let init = mk_expr(Box::new(element), iter.next().unwrap());
         Ok(iter.fold(init, |elem, dim| mk_expr(Box::new(Expression::ArrayInit(elem)), dim)))
+    }
+
+    fn reduce_definition(
+        &mut self,
+        definition: &DefinitionStatement,
+        variable_names: Vec<VariableName>,
+        type_: Option<Type>,
+        value: Expression,
+    ) -> Result<DefinitionStatement> {
+        match &type_ {
+            Some(Type::Tuple(elements)) if elements.len() != 1 => {}
+            _ if definition.parened => {
+                return Err(AstError::invalid_parens_around_single_variable(&definition.span).into());
+            }
+            _ => {}
+        }
+
+        Ok(DefinitionStatement {
+            declaration_type: definition.declaration_type.clone(),
+            variable_names,
+            parened: definition.parened,
+            type_,
+            value,
+            span: definition.span.clone(),
+        })
     }
 
     fn reduce_assign(

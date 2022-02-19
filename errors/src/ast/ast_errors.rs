@@ -130,4 +130,20 @@ create_errors!(
         msg: format!("failed to convert ast to a json value {}", error),
         help: None,
     }
+
+    /// For when a user tries to define a tuple dimension of 1.
+    @formatted
+    invalid_tuple_dimension_size {
+        args: (),
+        msg: "tuples of 1 element are not allowed",
+        help: None,
+    }
+
+    /// For when a user puts parens around a single defined variable.
+    @formatted
+    invalid_parens_around_single_variable {
+        args: (),
+        msg: "do not put parens around single variable names",
+        help: None,
+    }
 );
