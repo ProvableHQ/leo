@@ -1,14 +1,14 @@
 /*
-namespace: Parse
+namespace: ParseImport
 expectation: Pass
 */
 
-import test-import.( // local import
+import tes_import.(
     Point,
     foo,
 );
 
-import bar.( // imports directory import
+import bar.(
     Bar,
     baz.(Baz, Bazzar),
     bat.bat.Bat,

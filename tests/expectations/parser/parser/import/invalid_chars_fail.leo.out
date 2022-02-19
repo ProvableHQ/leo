@@ -1,5 +1,6 @@
 ---
-namespace: Parse
+namespace: ParseImport
 expectation: Fail
 outputs:
-  - "Error [EPAR0370012]: package names must be lowercase alphanumeric ascii with underscores and singular dashes\n    --> test:3:8\n     |\n   3 | import AB.c;\n     |        ^^\nError [EPAR0370012]: package names must be lowercase alphanumeric ascii with underscores and singular dashes\n    --> test:5:8\n     |\n   5 | import AB.c;\n     |        ^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'package name', got 'import'\n    --> test:1:1\n     |\n   1 | import AB.c;\n     | ^^^^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'package name', got 'import'\n    --> test:1:1\n     |\n   1 | import AB.c;\n     | ^^^^^^"

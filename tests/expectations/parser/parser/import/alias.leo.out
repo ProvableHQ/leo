@@ -1,0 +1,25 @@
+---
+namespace: ParseImport
+expectation: Pass
+outputs:
+  - tree:
+      base:
+        - "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a.b as bar;\\\"}\"}"
+        - "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a.b as bar;\\\"}\"}"
+      kind:
+        Leaf:
+          alias: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a.b as bar;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 8
+        col_stop: 18
+        path: ""
+        content: import a.b as bar;
+    span:
+      line_start: 1
+      line_stop: 1
+      col_start: 8
+      col_stop: 18
+      path: ""
+      content: import a.b as bar;

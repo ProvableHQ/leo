@@ -1,0 +1,67 @@
+---
+namespace: ParseImport
+expectation: Pass
+outputs:
+  - tree:
+      base:
+        - "{\"name\":\"a0_f\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a0_f.foo;\\\"}\"}"
+        - "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a0_f.foo;\\\"}\"}"
+      kind:
+        Leaf:
+          alias: ~
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 8
+        col_stop: 16
+        path: ""
+        content: import a0_f.foo;
+    span:
+      line_start: 1
+      line_stop: 1
+      col_start: 8
+      col_stop: 16
+      path: ""
+      content: import a0_f.foo;
+  - tree:
+      base:
+        - "{\"name\":\"a_9\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a_9.bar;\\\"}\"}"
+        - "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a_9.bar;\\\"}\"}"
+      kind:
+        Leaf:
+          alias: ~
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 8
+        col_stop: 15
+        path: ""
+        content: import a_9.bar;
+    span:
+      line_start: 1
+      line_stop: 1
+      col_start: 8
+      col_stop: 15
+      path: ""
+      content: import a_9.bar;
+  - tree:
+      base:
+        - "{\"name\":\"hello_world\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import hello_world.hello;\\\"}\"}"
+        - "{\"name\":\"hello\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":20,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import hello_world.hello;\\\"}\"}"
+      kind:
+        Leaf:
+          alias: ~
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 8
+        col_stop: 25
+        path: ""
+        content: import hello_world.hello;
+    span:
+      line_start: 1
+      line_stop: 1
+      col_start: 8
+      col_stop: 25
+      path: ""
+      content: import hello_world.hello;
