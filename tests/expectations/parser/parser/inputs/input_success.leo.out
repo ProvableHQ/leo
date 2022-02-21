@@ -1,0 +1,767 @@
+---
+namespace: Input
+expectation: Pass
+outputs:
+  - sections:
+      - name: main
+        definitions:
+          - type_: Boolean
+            name: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"a: bool  = true;                 // booleans\\\"}\"}"
+            value:
+              Value:
+                Boolean:
+                  - "true"
+                  - span:
+                      line_start: 4
+                      line_stop: 4
+                      col_start: 12
+                      col_stop: 16
+                      path: ""
+                      content: "a: bool  = true;                 // booleans"
+            span:
+              line_start: 4
+              line_stop: 4
+              col_start: 4
+              col_stop: 8
+              path: ""
+              content: "a: bool  = true;                 // booleans"
+          - type_:
+              IntegerType: U8
+            name: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"b: u8    = 2;                    // integers\\\"}\"}"
+            value:
+              Value:
+                Implicit:
+                  - "2"
+                  - span:
+                      line_start: 5
+                      line_stop: 5
+                      col_start: 12
+                      col_stop: 13
+                      path: ""
+                      content: "b: u8    = 2;                    // integers"
+            span:
+              line_start: 5
+              line_stop: 5
+              col_start: 4
+              col_stop: 6
+              path: ""
+              content: "b: u8    = 2;                    // integers"
+          - type_: Field
+            name: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c: field = 0;                    // fields\\\"}\"}"
+            value:
+              Value:
+                Implicit:
+                  - "0"
+                  - span:
+                      line_start: 6
+                      line_stop: 6
+                      col_start: 12
+                      col_stop: 13
+                      path: ""
+                      content: "c: field = 0;                    // fields"
+            span:
+              line_start: 6
+              line_stop: 6
+              col_start: 4
+              col_stop: 9
+              path: ""
+              content: "c: field = 0;                    // fields"
+          - type_: Group
+            name: "{\"name\":\"d\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"d: group = (0, 1)group;           // group elements\\\"}\"}"
+            value:
+              Value:
+                Group:
+                  Tuple:
+                    x:
+                      Number:
+                        - "0"
+                        - span:
+                            line_start: 7
+                            line_stop: 7
+                            col_start: 13
+                            col_stop: 14
+                            path: ""
+                            content: "d: group = (0, 1)group;           // group elements"
+                    y:
+                      Number:
+                        - "1"
+                        - span:
+                            line_start: 7
+                            line_stop: 7
+                            col_start: 16
+                            col_stop: 17
+                            path: ""
+                            content: "d: group = (0, 1)group;           // group elements"
+                    span:
+                      line_start: 7
+                      line_stop: 7
+                      col_start: 13
+                      col_stop: 23
+                      path: ""
+                      content: "d: group = (0, 1)group;           // group elements"
+            span:
+              line_start: 7
+              line_stop: 7
+              col_start: 4
+              col_stop: 9
+              path: ""
+              content: "d: group = (0, 1)group;           // group elements"
+          - type_: Address
+            name: "{\"name\":\"e\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;\\\"}\"}"
+            value:
+              Value:
+                Address:
+                  - aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8
+                  - span:
+                      line_start: 8
+                      line_stop: 8
+                      col_start: 14
+                      col_stop: 77
+                      path: ""
+                      content: "e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;"
+            span:
+              line_start: 8
+              line_stop: 8
+              col_start: 4
+              col_stop: 11
+              path: ""
+              content: "e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;"
+          - type_:
+              Array:
+                - IntegerType: U8
+                - - value: "32"
+            name: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"f: [u8; 32] = [0; 32];            // arrays\\\"}\"}"
+            value:
+              ArrayInit:
+                element:
+                  Value:
+                    Implicit:
+                      - "0"
+                      - span:
+                          line_start: 9
+                          line_stop: 9
+                          col_start: 16
+                          col_stop: 17
+                          path: ""
+                          content: "f: [u8; 32] = [0; 32];            // arrays"
+                dimensions:
+                  - value: "32"
+                span:
+                  line_start: 9
+                  line_stop: 9
+                  col_start: 15
+                  col_stop: 22
+                  path: ""
+                  content: "f: [u8; 32] = [0; 32];            // arrays"
+            span:
+              line_start: 9
+              line_stop: 9
+              col_start: 4
+              col_stop: 12
+              path: ""
+              content: "f: [u8; 32] = [0; 32];            // arrays"
+          - type_:
+              Array:
+                - Array:
+                    - IntegerType: U8
+                    - - value: "2"
+                - - value: "3"
+            name: "{\"name\":\"g\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"g: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays\\\"}\"}"
+            value:
+              ArrayInit:
+                element:
+                  ArrayInit:
+                    element:
+                      Value:
+                        Implicit:
+                          - "0"
+                          - span:
+                              line_start: 10
+                              line_stop: 10
+                              col_start: 21
+                              col_stop: 22
+                              path: ""
+                              content: "g: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+                    dimensions:
+                      - value: "2"
+                    span:
+                      line_start: 10
+                      line_stop: 10
+                      col_start: 20
+                      col_stop: 26
+                      path: ""
+                      content: "g: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+                dimensions:
+                  - value: "3"
+                span:
+                  line_start: 10
+                  line_stop: 10
+                  col_start: 19
+                  col_stop: 30
+                  path: ""
+                  content: "g: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+            span:
+              line_start: 10
+              line_stop: 10
+              col_start: 4
+              col_stop: 16
+              path: ""
+              content: "g: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+          - type_:
+              Tuple:
+                - Boolean
+                - Boolean
+            name: "{\"name\":\"h\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"h: (bool, bool) = (true, false);  // tuples\\\"}\"}"
+            value:
+              TupleInit:
+                elements:
+                  - Value:
+                      Boolean:
+                        - "true"
+                        - span:
+                            line_start: 11
+                            line_stop: 11
+                            col_start: 20
+                            col_stop: 24
+                            path: ""
+                            content: "h: (bool, bool) = (true, false);  // tuples"
+                  - Value:
+                      Boolean:
+                        - "false"
+                        - span:
+                            line_start: 11
+                            line_stop: 11
+                            col_start: 26
+                            col_stop: 31
+                            path: ""
+                            content: "h: (bool, bool) = (true, false);  // tuples"
+                span:
+                  line_start: 11
+                  line_stop: 11
+                  col_start: 19
+                  col_stop: 32
+                  path: ""
+                  content: "h: (bool, bool) = (true, false);  // tuples"
+            span:
+              line_start: 11
+              line_stop: 11
+              col_start: 4
+              col_stop: 16
+              path: ""
+              content: "h: (bool, bool) = (true, false);  // tuples"
+        is_public: true
+        span:
+          line_start: 3
+          line_stop: 3
+          col_start: 2
+          col_stop: 6
+          path: ""
+          content: "[main]"
+      - name: registers
+        definitions:
+          - type_: Boolean
+            name: "{\"name\":\"r0\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r0: bool  = true;                 // booleans\\\"}\"}"
+            value:
+              Value:
+                Boolean:
+                  - "true"
+                  - span:
+                      line_start: 14
+                      line_stop: 14
+                      col_start: 13
+                      col_stop: 17
+                      path: ""
+                      content: "r0: bool  = true;                 // booleans"
+            span:
+              line_start: 14
+              line_stop: 14
+              col_start: 5
+              col_stop: 9
+              path: ""
+              content: "r0: bool  = true;                 // booleans"
+          - type_:
+              IntegerType: U8
+            name: "{\"name\":\"r1\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r1: u8    = 2;                    // integers\\\"}\"}"
+            value:
+              Value:
+                Implicit:
+                  - "2"
+                  - span:
+                      line_start: 15
+                      line_stop: 15
+                      col_start: 13
+                      col_stop: 14
+                      path: ""
+                      content: "r1: u8    = 2;                    // integers"
+            span:
+              line_start: 15
+              line_stop: 15
+              col_start: 5
+              col_stop: 7
+              path: ""
+              content: "r1: u8    = 2;                    // integers"
+          - type_: Field
+            name: "{\"name\":\"r2\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r2: field = 0;                    // fields\\\"}\"}"
+            value:
+              Value:
+                Implicit:
+                  - "0"
+                  - span:
+                      line_start: 16
+                      line_stop: 16
+                      col_start: 13
+                      col_stop: 14
+                      path: ""
+                      content: "r2: field = 0;                    // fields"
+            span:
+              line_start: 16
+              line_stop: 16
+              col_start: 5
+              col_stop: 10
+              path: ""
+              content: "r2: field = 0;                    // fields"
+          - type_: Group
+            name: "{\"name\":\"r3\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r3: group = (0, 1)group;           // group elements\\\"}\"}"
+            value:
+              Value:
+                Group:
+                  Tuple:
+                    x:
+                      Number:
+                        - "0"
+                        - span:
+                            line_start: 17
+                            line_stop: 17
+                            col_start: 14
+                            col_stop: 15
+                            path: ""
+                            content: "r3: group = (0, 1)group;           // group elements"
+                    y:
+                      Number:
+                        - "1"
+                        - span:
+                            line_start: 17
+                            line_stop: 17
+                            col_start: 17
+                            col_stop: 18
+                            path: ""
+                            content: "r3: group = (0, 1)group;           // group elements"
+                    span:
+                      line_start: 17
+                      line_stop: 17
+                      col_start: 14
+                      col_stop: 24
+                      path: ""
+                      content: "r3: group = (0, 1)group;           // group elements"
+            span:
+              line_start: 17
+              line_stop: 17
+              col_start: 5
+              col_stop: 10
+              path: ""
+              content: "r3: group = (0, 1)group;           // group elements"
+          - type_: Address
+            name: "{\"name\":\"r4\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r4: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;\\\"}\"}"
+            value:
+              Value:
+                Address:
+                  - aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8
+                  - span:
+                      line_start: 18
+                      line_stop: 18
+                      col_start: 15
+                      col_stop: 78
+                      path: ""
+                      content: "r4: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;"
+            span:
+              line_start: 18
+              line_stop: 18
+              col_start: 5
+              col_stop: 12
+              path: ""
+              content: "r4: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;"
+          - type_:
+              Array:
+                - IntegerType: U8
+                - - value: "32"
+            name: "{\"name\":\"r5\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r5: [u8; 32] = [0; 32];            // arrays\\\"}\"}"
+            value:
+              ArrayInit:
+                element:
+                  Value:
+                    Implicit:
+                      - "0"
+                      - span:
+                          line_start: 19
+                          line_stop: 19
+                          col_start: 17
+                          col_stop: 18
+                          path: ""
+                          content: "r5: [u8; 32] = [0; 32];            // arrays"
+                dimensions:
+                  - value: "32"
+                span:
+                  line_start: 19
+                  line_stop: 19
+                  col_start: 16
+                  col_stop: 23
+                  path: ""
+                  content: "r5: [u8; 32] = [0; 32];            // arrays"
+            span:
+              line_start: 19
+              line_stop: 19
+              col_start: 5
+              col_stop: 13
+              path: ""
+              content: "r5: [u8; 32] = [0; 32];            // arrays"
+          - type_:
+              Array:
+                - Array:
+                    - IntegerType: U8
+                    - - value: "2"
+                - - value: "3"
+            name: "{\"name\":\"r6\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays\\\"}\"}"
+            value:
+              ArrayInit:
+                element:
+                  ArrayInit:
+                    element:
+                      Value:
+                        Implicit:
+                          - "0"
+                          - span:
+                              line_start: 20
+                              line_stop: 20
+                              col_start: 22
+                              col_stop: 23
+                              path: ""
+                              content: "r6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+                    dimensions:
+                      - value: "2"
+                    span:
+                      line_start: 20
+                      line_stop: 20
+                      col_start: 21
+                      col_stop: 27
+                      path: ""
+                      content: "r6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+                dimensions:
+                  - value: "3"
+                span:
+                  line_start: 20
+                  line_stop: 20
+                  col_start: 20
+                  col_stop: 31
+                  path: ""
+                  content: "r6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+            span:
+              line_start: 20
+              line_stop: 20
+              col_start: 5
+              col_stop: 17
+              path: ""
+              content: "r6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+          - type_:
+              Tuple:
+                - Boolean
+                - Boolean
+            name: "{\"name\":\"r7\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r7: (bool, bool) = (true, false);  // tuples\\\"}\"}"
+            value:
+              TupleInit:
+                elements:
+                  - Value:
+                      Boolean:
+                        - "true"
+                        - span:
+                            line_start: 21
+                            line_stop: 21
+                            col_start: 21
+                            col_stop: 25
+                            path: ""
+                            content: "r7: (bool, bool) = (true, false);  // tuples"
+                  - Value:
+                      Boolean:
+                        - "false"
+                        - span:
+                            line_start: 21
+                            line_stop: 21
+                            col_start: 27
+                            col_stop: 32
+                            path: ""
+                            content: "r7: (bool, bool) = (true, false);  // tuples"
+                span:
+                  line_start: 21
+                  line_stop: 21
+                  col_start: 20
+                  col_stop: 33
+                  path: ""
+                  content: "r7: (bool, bool) = (true, false);  // tuples"
+            span:
+              line_start: 21
+              line_stop: 21
+              col_start: 5
+              col_stop: 17
+              path: ""
+              content: "r7: (bool, bool) = (true, false);  // tuples"
+        is_public: true
+        span:
+          line_start: 13
+          line_stop: 13
+          col_start: 2
+          col_stop: 11
+          path: ""
+          content: "[registers]"
+      - name: constants
+        definitions:
+          - type_: Boolean
+            name: "{\"name\":\"c0\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c0: bool  = true;                 // booleans\\\"}\"}"
+            value:
+              Value:
+                Boolean:
+                  - "true"
+                  - span:
+                      line_start: 24
+                      line_stop: 24
+                      col_start: 13
+                      col_stop: 17
+                      path: ""
+                      content: "c0: bool  = true;                 // booleans"
+            span:
+              line_start: 24
+              line_stop: 24
+              col_start: 5
+              col_stop: 9
+              path: ""
+              content: "c0: bool  = true;                 // booleans"
+          - type_:
+              IntegerType: U8
+            name: "{\"name\":\"c1\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c1: u8    = 2;                    // integers\\\"}\"}"
+            value:
+              Value:
+                Implicit:
+                  - "2"
+                  - span:
+                      line_start: 25
+                      line_stop: 25
+                      col_start: 13
+                      col_stop: 14
+                      path: ""
+                      content: "c1: u8    = 2;                    // integers"
+            span:
+              line_start: 25
+              line_stop: 25
+              col_start: 5
+              col_stop: 7
+              path: ""
+              content: "c1: u8    = 2;                    // integers"
+          - type_: Field
+            name: "{\"name\":\"c2\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c2: field = 0;                    // fields\\\"}\"}"
+            value:
+              Value:
+                Implicit:
+                  - "0"
+                  - span:
+                      line_start: 26
+                      line_stop: 26
+                      col_start: 13
+                      col_stop: 14
+                      path: ""
+                      content: "c2: field = 0;                    // fields"
+            span:
+              line_start: 26
+              line_stop: 26
+              col_start: 5
+              col_stop: 10
+              path: ""
+              content: "c2: field = 0;                    // fields"
+          - type_: Group
+            name: "{\"name\":\"c3\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c3: group = (0, 1)group;           // group elements\\\"}\"}"
+            value:
+              Value:
+                Group:
+                  Tuple:
+                    x:
+                      Number:
+                        - "0"
+                        - span:
+                            line_start: 27
+                            line_stop: 27
+                            col_start: 14
+                            col_stop: 15
+                            path: ""
+                            content: "c3: group = (0, 1)group;           // group elements"
+                    y:
+                      Number:
+                        - "1"
+                        - span:
+                            line_start: 27
+                            line_stop: 27
+                            col_start: 17
+                            col_stop: 18
+                            path: ""
+                            content: "c3: group = (0, 1)group;           // group elements"
+                    span:
+                      line_start: 27
+                      line_stop: 27
+                      col_start: 14
+                      col_stop: 24
+                      path: ""
+                      content: "c3: group = (0, 1)group;           // group elements"
+            span:
+              line_start: 27
+              line_stop: 27
+              col_start: 5
+              col_stop: 10
+              path: ""
+              content: "c3: group = (0, 1)group;           // group elements"
+          - type_: Address
+            name: "{\"name\":\"c4\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c4: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;\\\"}\"}"
+            value:
+              Value:
+                Address:
+                  - aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8
+                  - span:
+                      line_start: 28
+                      line_stop: 28
+                      col_start: 15
+                      col_stop: 78
+                      path: ""
+                      content: "c4: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;"
+            span:
+              line_start: 28
+              line_stop: 28
+              col_start: 5
+              col_stop: 12
+              path: ""
+              content: "c4: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;"
+          - type_:
+              Array:
+                - IntegerType: U8
+                - - value: "32"
+            name: "{\"name\":\"c5\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c5: [u8; 32] = [0; 32];            // arrays\\\"}\"}"
+            value:
+              ArrayInit:
+                element:
+                  Value:
+                    Implicit:
+                      - "0"
+                      - span:
+                          line_start: 29
+                          line_stop: 29
+                          col_start: 17
+                          col_stop: 18
+                          path: ""
+                          content: "c5: [u8; 32] = [0; 32];            // arrays"
+                dimensions:
+                  - value: "32"
+                span:
+                  line_start: 29
+                  line_stop: 29
+                  col_start: 16
+                  col_stop: 23
+                  path: ""
+                  content: "c5: [u8; 32] = [0; 32];            // arrays"
+            span:
+              line_start: 29
+              line_stop: 29
+              col_start: 5
+              col_stop: 13
+              path: ""
+              content: "c5: [u8; 32] = [0; 32];            // arrays"
+          - type_:
+              Array:
+                - Array:
+                    - IntegerType: U8
+                    - - value: "2"
+                - - value: "3"
+            name: "{\"name\":\"c6\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays\\\"}\"}"
+            value:
+              ArrayInit:
+                element:
+                  ArrayInit:
+                    element:
+                      Value:
+                        Implicit:
+                          - "0"
+                          - span:
+                              line_start: 30
+                              line_stop: 30
+                              col_start: 22
+                              col_stop: 23
+                              path: ""
+                              content: "c6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+                    dimensions:
+                      - value: "2"
+                    span:
+                      line_start: 30
+                      line_stop: 30
+                      col_start: 21
+                      col_stop: 27
+                      path: ""
+                      content: "c6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+                dimensions:
+                  - value: "3"
+                span:
+                  line_start: 30
+                  line_stop: 30
+                  col_start: 20
+                  col_stop: 31
+                  path: ""
+                  content: "c6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+            span:
+              line_start: 30
+              line_stop: 30
+              col_start: 5
+              col_stop: 17
+              path: ""
+              content: "c6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+          - type_:
+              Tuple:
+                - Boolean
+                - Boolean
+            name: "{\"name\":\"c7\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c7: (bool, bool) = (true, false);  // tuples\\\"}\"}"
+            value:
+              TupleInit:
+                elements:
+                  - Value:
+                      Boolean:
+                        - "true"
+                        - span:
+                            line_start: 31
+                            line_stop: 31
+                            col_start: 21
+                            col_stop: 25
+                            path: ""
+                            content: "c7: (bool, bool) = (true, false);  // tuples"
+                  - Value:
+                      Boolean:
+                        - "false"
+                        - span:
+                            line_start: 31
+                            line_stop: 31
+                            col_start: 27
+                            col_stop: 32
+                            path: ""
+                            content: "c7: (bool, bool) = (true, false);  // tuples"
+                span:
+                  line_start: 31
+                  line_stop: 31
+                  col_start: 20
+                  col_stop: 33
+                  path: ""
+                  content: "c7: (bool, bool) = (true, false);  // tuples"
+            span:
+              line_start: 31
+              line_stop: 31
+              col_start: 5
+              col_stop: 17
+              path: ""
+              content: "c7: (bool, bool) = (true, false);  // tuples"
+        is_public: true
+        span:
+          line_start: 23
+          line_stop: 23
+          col_start: 2
+          col_stop: 11
+          path: ""
+          content: "[constants]"
