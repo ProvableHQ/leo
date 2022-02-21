@@ -17,6 +17,7 @@
 use super::*;
 
 use leo_errors::{ParserError, Result};
+use leo_span::sym;
 
 impl ParserContext<'_> {
     /// Returns a [`ParsedInputFile`] struct filled with the data acquired in the file.
@@ -54,8 +55,8 @@ impl ParserContext<'_> {
         self.expect(Token::RightSquare)?;
 
         Ok(match visiblity.name {
-            x if x == Symbol::intern("public") => true,
-            x if x == Symbol::intern("private") => false,
+            sym::public => true,
+            sym::private => false,
             _ => todo!("illegal visibility modifier"),
         })
     }
@@ -72,13 +73,9 @@ impl ParserContext<'_> {
         self.expect(Token::RightSquare)?;
 
         let mut definitions = Vec::new();
-        while self.has_next() {
-            let token = &self.peek()?.token;
-            if let Token::Ident(_) = token {
-                definitions.push(self.parse_input_definition()?);
-            } else {
-                break;
-            }
+        
+        while let Some(SpannedToken{ token: Token::Ident(_), .. }) = self.peek_option() {
+            definitions.push(self.parse_input_definition()?);
         }
 
         Ok(Section {
