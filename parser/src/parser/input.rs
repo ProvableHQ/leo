@@ -50,14 +50,21 @@ impl ParserContext<'_> {
     pub fn parse_visibility(&mut self) -> Result<bool> {
         self.expect(Token::LeftSquare)?;
         self.expect(Token::LeftSquare)?;
-        let visiblity = self.expect_ident()?;
+        let visibility = self.expect_ident()?;
         self.expect(Token::RightSquare)?;
         self.expect(Token::RightSquare)?;
 
-        Ok(match visiblity.name {
+        Ok(match visibility.name {
             sym::public => true,
             sym::private => false,
-            _ => todo!("illegal visibility modifier"),
+            _ => {
+                self.emit_err(ParserError::unexpected_ident(
+                    visibility.name,
+                    &["public", "private"],
+                    visibility.span(),
+                ));
+                true
+            }
         })
     }
 
@@ -73,8 +80,11 @@ impl ParserContext<'_> {
         self.expect(Token::RightSquare)?;
 
         let mut definitions = Vec::new();
-        
-        while let Some(SpannedToken{ token: Token::Ident(_), .. }) = self.peek_option() {
+
+        while let Some(SpannedToken {
+            token: Token::Ident(_), ..
+        }) = self.peek_option()
+        {
             definitions.push(self.parse_input_definition()?);
         }
 

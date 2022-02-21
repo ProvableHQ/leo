@@ -42,8 +42,8 @@ impl fmt::Display for Parameter {
     }
 }
 
-/// Parameter is a key, so for allowing its JSON representation, 
-/// we need to make a string. 
+/// Parameter is a key, so for allowing its JSON representation,
+/// we need to make a string.
 impl Serialize for Parameter {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where

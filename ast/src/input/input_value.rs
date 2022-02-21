@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{CharValue, Expression, GroupValue, IntegerType, Node, SpreadOrExpression, Type, ValueExpression};
-use leo_errors::{AstError, LeoError, ParserError, Result};
+use leo_errors::{InputError, LeoError, ParserError, Result};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -51,16 +51,16 @@ impl TryFrom<(Type, Expression)> for InputValue {
                     (Type::IntegerType(type_), ValueExpression::Implicit(value, _)) => {
                         Self::Integer(type_, value.to_string())
                     }
-                    (Type::IntegerType(expected), ValueExpression::Integer(actual, value, _)) => {
+                    (Type::IntegerType(expected), ValueExpression::Integer(actual, value, span)) => {
                         if expected == actual {
                             Self::Integer(expected, value.to_string())
                         } else {
-                            todo!("make a decent error here");
+                            return Err(InputError::unexpected_type(expected.to_string(), actual, &span).into());
                         }
                     }
                     (Type::Array(type_, _), ValueExpression::String(string, span)) => {
                         if !matches!(*type_, Type::Char) {
-                            todo!("string can only be used for arrays of chars");
+                            return Err(InputError::string_is_array_of_chars(type_, &span).into());
                         }
 
                         Self::Array(
@@ -76,17 +76,15 @@ impl TryFrom<(Type, Expression)> for InputValue {
                         )
                     }
                     (x, y) => {
-                        todo!("type mismatch, expected type {}, got {}", x, y);
+                        return Err(InputError::unexpected_type(x, &y, y.span()).into());
                     }
                 }
             }
             (Type::Array(type_, type_dimensions), Expression::ArrayInit(mut array_init)) => {
-                // let mut dimensions = array_init.dimensions;
-                // let expression = array_init.element;
                 let span = array_init.span.clone();
 
                 if type_dimensions != array_init.dimensions || array_init.dimensions.is_zero() {
-                    return Err(AstError::invalid_array_dimension_size(&span).into());
+                    return Err(InputError::invalid_array_dimension_size(&span).into());
                 }
 
                 if let Some(dimension) = array_init.dimensions.remove_first() {
@@ -125,11 +123,7 @@ impl TryFrom<(Type, Expression)> for InputValue {
                 let mut elements = Vec::with_capacity(size);
 
                 if size != types.len() {
-                    todo!(
-                        "tuple length mismatch, defined {} types, got {} values",
-                        size,
-                        types.len()
-                    );
+                    return Err(InputError::tuple_length_mismatch(size, types.len(), tuple_init.span()).into());
                 }
 
                 for (i, element) in tuple_init.elements.into_iter().enumerate() {
@@ -138,23 +132,24 @@ impl TryFrom<(Type, Expression)> for InputValue {
 
                 Self::Tuple(elements)
             }
-            (Type::Array(type_, _dimensions), Expression::ArrayInline(array_inline)) => {
+            (Type::Array(element_type, dimensions), Expression::ArrayInline(array_inline)) => {
                 let mut elements = Vec::with_capacity(array_inline.elements.len());
-                let _span = array_inline.span().clone(); // todo!: use for spanning the error
+                let span = array_inline.span().clone();
+
+                if !dimensions.is_specified() {
+                    return Err(InputError::array_dimensions_must_be_specified(&span).into());
+                }
 
                 for element in array_inline.elements.into_iter() {
                     if let SpreadOrExpression::Expression(value_expression) = element {
-                        elements.push(Self::try_from((*type_.clone(), value_expression))?);
+                        elements.push(Self::try_from((*element_type.clone(), value_expression))?);
                     } else {
-                        todo!("make error that only expression is allowed in inline, no spread please");
+                        return Err(InputError::array_spread_is_not_allowed(&span).into());
                     }
                 }
                 Self::Array(elements)
             }
-            (_type_, expr) => {
-                dbg!(&expr);
-                todo!("forbidden expression in inputs");
-            }
+            (_type_, expr) => return Err(InputError::illegal_expression(&expr, expr.span()).into()),
         })
     }
 }

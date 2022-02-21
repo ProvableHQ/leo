@@ -19,9 +19,9 @@ use super::*;
 /// Processed Program input.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ProgramInput {
-    main: Definitions,
-    registers: Definitions,
-    constants: Definitions,
+    pub main: Definitions,
+    pub registers: Definitions,
+    pub constants: Definitions,
 }
 
 impl TryFrom<ParsedInputFile> for ProgramInput {
@@ -36,7 +36,14 @@ impl TryFrom<ParsedInputFile> for ProgramInput {
                 sym::main => &mut main,
                 sym::registers => &mut registers,
                 sym::constants => &mut constants,
-                _ => todo!("throw an error for illegal section"),
+                _ => {
+                    return Err(InputError::unexpected_section(
+                        &["main", "registers", "constants"],
+                        section.name,
+                        &section.span,
+                    )
+                    .into())
+                }
             };
 
             for definition in section.definitions {

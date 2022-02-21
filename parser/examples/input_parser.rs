@@ -37,7 +37,8 @@ fn to_leo_tree(input_filepath: &Path, state_filepath: &Path) -> Result<String, S
 
             let json = input.to_json_string()?;
             Ok(json)
-        }).map_err(|e| e.to_string())
+        })
+        .map_err(|e| e.to_string())
     })
 }
 

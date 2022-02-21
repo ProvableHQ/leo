@@ -19,9 +19,9 @@ use super::*;
 /// Processed Program state.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ProgramState {
-    state: Definitions,
-    record: Definitions,
-    state_leaf: Definitions,
+    pub state: Definitions,
+    pub record: Definitions,
+    pub state_leaf: Definitions,
 }
 
 impl TryFrom<ParsedInputFile> for ProgramState {
@@ -36,7 +36,14 @@ impl TryFrom<ParsedInputFile> for ProgramState {
                 sym::state => &mut state,
                 sym::record => &mut record,
                 sym::state_leaf => &mut state_leaf,
-                _ => todo!("throw an error for illegal section"),
+                _ => {
+                    return Err(InputError::unexpected_section(
+                        &["state", "record", "state_leaf"],
+                        section.name,
+                        &section.span,
+                    )
+                    .into())
+                }
             };
 
             for definition in section.definitions {
