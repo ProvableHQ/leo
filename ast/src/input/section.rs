@@ -22,6 +22,5 @@ use super::*;
 pub struct Section {
     pub name: Symbol,
     pub definitions: Vec<Definition>,
-    pub is_public: bool,
     pub span: Span,
 }

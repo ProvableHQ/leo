@@ -19,10 +19,9 @@ use leo_span::symbol::create_session_if_not_set_then;
 
 use std::{env, fs, path::Path};
 
-fn to_leo_tree(input_filepath: &Path, state_filepath: &Path) -> Result<String, String> {
+fn to_leo_tree(input_filepath: &Path) -> Result<String, String> {
     // Loads the inputs a string from the given file path.
     let input_string = fs::read_to_string(&input_filepath.to_path_buf()).expect("failed to open an input file");
-    let state_string = fs::read_to_string(&state_filepath.to_path_buf()).expect("failed to open a state file");
 
     // Parses the Leo file constructing an ast which is then serialized.
     create_session_if_not_set_then(|_| {
@@ -31,8 +30,6 @@ fn to_leo_tree(input_filepath: &Path, state_filepath: &Path) -> Result<String, S
                 &handler,
                 input_string.clone(),
                 input_filepath.to_str().unwrap(),
-                state_string,
-                state_filepath.to_str().unwrap(),
             )?;
 
             let json = input.to_json_string()?;
@@ -47,7 +44,7 @@ fn main() -> Result<(), String> {
     let cli_arguments = env::args().collect::<Vec<String>>();
 
     // Check that the correct number of command-line arguments were passed in.
-    if cli_arguments.len() < 3 || cli_arguments.len() > 4 {
+    if cli_arguments.len() < 2 || cli_arguments.len() > 3 {
         eprintln!("Warning - an invalid number of command-line arguments were provided.");
         println!(
             "\nCommand-line usage:\n\n\tleo_ast {{PATH/TO/INPUT_FILENAME}}.in {{PATH/TO/STATE_FILENAME}}.in {{PATH/TO/OUTPUT_DIRECTORY (optional)}}\n"
@@ -57,10 +54,9 @@ fn main() -> Result<(), String> {
 
     // Construct the input filepath.
     let input_filepath = Path::new(&cli_arguments[1]);
-    let state_filepath = Path::new(&cli_arguments[2]);
 
     // Construct the serialized syntax tree.
-    let serialized_leo_tree = to_leo_tree(input_filepath, state_filepath)?;
+    let serialized_leo_tree = to_leo_tree(input_filepath)?;
     println!("{}", serialized_leo_tree);
 
     // Determine the output directory.

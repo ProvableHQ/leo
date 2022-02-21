@@ -17,55 +17,22 @@
 use super::*;
 
 use leo_errors::{ParserError, Result};
-use leo_span::sym;
 
 impl ParserContext<'_> {
     /// Returns a [`ParsedInputFile`] struct filled with the data acquired in the file.
     pub fn parse_input(&mut self) -> Result<ParsedInputFile> {
         let mut sections = Vec::new();
-        let mut is_public = true;
 
         while self.has_next() {
             let token = self.peek()?;
             if matches!(token.token, Token::LeftSquare) {
-                // For visibility modifiers: [[public]] or [[private]]
-                if self.peek_next()?.token == Token::LeftSquare {
-                    is_public = self.parse_visibility()?;
-                }
-
-                let mut section = self.parse_section()?;
-                section.is_public = is_public;
-                sections.push(section);
+                sections.push(self.parse_section()?);
             } else {
                 return Err(ParserError::unexpected_token(token.token.clone(), &token.span).into());
             }
         }
 
         Ok(ParsedInputFile { sections })
-    }
-
-    /// Parses visibility tables in the State or Input file.
-    /// Expects: [[<public>]] or [[<private>]], returns true
-    /// if visibility is set to public, returns else otherwise.
-    pub fn parse_visibility(&mut self) -> Result<bool> {
-        self.expect(Token::LeftSquare)?;
-        self.expect(Token::LeftSquare)?;
-        let visibility = self.expect_ident()?;
-        self.expect(Token::RightSquare)?;
-        self.expect(Token::RightSquare)?;
-
-        Ok(match visibility.name {
-            sym::public => true,
-            sym::private => false,
-            _ => {
-                self.emit_err(ParserError::unexpected_ident(
-                    visibility.name,
-                    &["public", "private"],
-                    visibility.span(),
-                ));
-                true
-            }
-        })
     }
 
     /// Parses particular section in the Input or State file.
@@ -89,7 +56,6 @@ impl ParserContext<'_> {
         }
 
         Ok(Section {
-            is_public: true,
             name: section.name,
             span: section.span.clone(),
             definitions,

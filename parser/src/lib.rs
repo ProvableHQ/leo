@@ -43,20 +43,16 @@ pub fn parse_ast<T: AsRef<str>, Y: AsRef<str>>(handler: &Handler, path: T, sourc
 }
 
 /// Parses program inputs from from the input file path and state file path
-pub fn parse_program_inputs<T: AsRef<str>, Y: AsRef<str>, T2: AsRef<str>, Y2: AsRef<str>>(
+pub fn parse_program_inputs<T: AsRef<str>, Y: AsRef<str>>(
     handler: &Handler,
     input_string: T,
     input_path: Y,
-    state_string: T2,
-    state_path: Y2,
 ) -> Result<Input> {
     let program_input: ProgramInput =
         parser::parse_input(handler, input_path.as_ref(), input_string.as_ref())?.try_into()?;
-    let program_state: ProgramState =
-        parser::parse_input(handler, state_path.as_ref(), state_string.as_ref())?.try_into()?;
 
     Ok(Input {
         program_input,
-        program_state,
+        program_state: ProgramState::default(),
     })
 }
