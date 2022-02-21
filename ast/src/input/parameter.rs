@@ -19,7 +19,7 @@ use crate::{Identifier, Type};
 
 /// A set of properties for a single definition in an input file.
 /// Used as a key in [`ProgramInput`] and [`ProgramState`].
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
 pub struct Parameter {
     pub variable: Identifier,
     pub type_: Type,
@@ -33,5 +33,22 @@ impl From<Definition> for Parameter {
             type_: definition.type_,
             span: definition.span,
         }
+    }
+}
+
+impl fmt::Display for Parameter {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}: {}", self.variable, self.type_)
+    }
+}
+
+/// Parameter is a key, so for allowing its JSON representation, 
+/// we need to make a string. 
+impl Serialize for Parameter {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
     }
 }

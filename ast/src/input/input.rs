@@ -15,9 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use leo_errors::AstError;
 
 /// Input data which includes [`ProgramInput`] and [`ProgramState`].
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Input {
     pub program_input: ProgramInput,
     pub program_state: ProgramState,
@@ -25,7 +26,14 @@ pub struct Input {
 
 /// A raw unprocessed input or state file data. Used for future conversion
 /// into [`ProgramInput`] or [`ProgramState`].
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ParsedInputFile {
     pub sections: Vec<Section>,
+}
+
+impl Input {
+    /// Serializes the ast into a JSON string.
+    pub fn to_json_string(&self) -> Result<String> {
+        Ok(serde_json::to_string_pretty(&self).map_err(|e| AstError::failed_to_convert_ast_to_json_string(&e))?)
+    }
 }

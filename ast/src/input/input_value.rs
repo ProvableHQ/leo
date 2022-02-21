@@ -17,9 +17,10 @@
 use crate::{CharValue, Expression, GroupValue, IntegerType, Node, SpreadOrExpression, Type, ValueExpression};
 use leo_errors::{AstError, LeoError, ParserError, Result};
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum InputValue {
     Address(String),
     Boolean(bool),

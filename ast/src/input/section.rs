@@ -18,7 +18,7 @@ use super::*;
 
 /// A single section in an input or a state file.
 /// Example of a section would be: `[main]`.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Section {
     pub name: Symbol,
     pub definitions: Vec<Definition>,

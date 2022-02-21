@@ -17,7 +17,7 @@
 use super::*;
 
 /// Processed Program state.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ProgramState {
     state: Definitions,
     record: Definitions,

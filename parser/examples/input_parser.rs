@@ -19,7 +19,7 @@ use leo_span::symbol::create_session_if_not_set_then;
 
 use std::{env, fs, path::Path};
 
-fn to_leo_tree(filepath: &Path) -> Result<String> {
+fn to_leo_tree(filepath: &Path) -> Result<String, String> {
     // Loads the Leo code as a string from the given file path.
     let program_filepath = filepath.to_path_buf();
     let program_string = fs::read_to_string(&program_filepath).expect("failed to open input file");
@@ -27,20 +27,22 @@ fn to_leo_tree(filepath: &Path) -> Result<String> {
     // Parses the Leo file constructing an ast which is then serialized.
     create_session_if_not_set_then(|_| {
         Handler::with(|handler| {
-            let _ast = leo_parser::parse_program_input(
+            let input = leo_parser::parse_program_input(
                 &handler,
                 program_string.clone(),
                 filepath.to_str().unwrap(),
                 program_string,
                 filepath.to_str().unwrap(),
             )?;
-            // Ok(Input::to_json_string(&ast).expect("serialization failed"))
-            Ok("aa".to_string())
-        });
+
+            let json = input.to_json_string()?;
+            println!("{}", json);
+            Ok(json)
+        }).map_err(|e| e.to_string())
     })
 }
 
-fn main() -> Result<()> {
+fn main() -> Result<(), String> {
     // Parse the command-line arguments as strings.
     let cli_arguments = env::args().collect::<Vec<String>>();
 

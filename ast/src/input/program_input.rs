@@ -17,7 +17,7 @@
 use super::*;
 
 /// Processed Program input.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ProgramInput {
     main: Definitions,
     registers: Definitions,

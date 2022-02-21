@@ -161,6 +161,9 @@ symbols! {
     record,
     state,
     state_leaf,
+
+    public,
+    private,
 }
 
 /// An interned string.

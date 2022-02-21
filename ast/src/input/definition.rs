@@ -19,7 +19,7 @@ use crate::{Expression, Identifier, Type};
 
 /// A single definition inside a section in a state or an input file.
 /// Structure of a definition would be: `<name>: <type_> = <value>;`
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Definition {
     pub type_: Type,
     pub name: Identifier,

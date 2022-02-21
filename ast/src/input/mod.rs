@@ -38,5 +38,7 @@ pub use section::*;
 use indexmap::IndexMap;
 use leo_errors::{LeoError, Result};
 use leo_span::{sym, Span, Symbol};
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
 type Definitions = IndexMap<Parameter, InputValue>;
