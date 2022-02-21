@@ -20,44 +20,31 @@ use super::*;
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ProgramState {
     pub state: Definitions,
-    pub record: Definitions,
-    pub state_leaf: Definitions,
 }
 
 impl TryFrom<ParsedInputFile> for ProgramState {
     type Error = LeoError;
     fn try_from(input: ParsedInputFile) -> Result<Self> {
         let mut state = IndexMap::new();
-        let mut record = IndexMap::new();
-        let mut state_leaf = IndexMap::new();
 
         for section in input.sections {
-            let target = match section.name {
-                sym::state => &mut state,
-                sym::record => &mut record,
-                sym::state_leaf => &mut state_leaf,
-                _ => {
-                    return Err(InputError::unexpected_section(
-                        &["state", "record", "state_leaf"],
-                        section.name,
-                        &section.span,
-                    )
-                    .into())
+            if matches!(section.name, sym::state | sym::record | sym::state_leaf) {
+                for definition in section.definitions {
+                    state.insert(
+                        definition.name.name,
+                        InputValue::try_from((definition.type_, definition.value))?,
+                    );
                 }
-            };
-
-            for definition in section.definitions {
-                target.insert(
-                    Parameter::from(definition.clone()),
-                    InputValue::try_from((definition.type_, definition.value))?,
-                );
+            } else {
+                return Err(InputError::unexpected_section(
+                    &["state", "record", "state_leaf"],
+                    section.name,
+                    &section.span,
+                )
+                .into());
             }
         }
 
-        Ok(ProgramState {
-            state,
-            record,
-            state_leaf,
-        })
+        Ok(ProgramState { state })
     }
 }

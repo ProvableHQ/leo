@@ -48,7 +48,7 @@ impl TryFrom<ParsedInputFile> for ProgramInput {
 
             for definition in section.definitions {
                 target.insert(
-                    Parameter::from(definition.clone()),
+                    definition.name.name,
                     InputValue::try_from((definition.type_, definition.value))?,
                 );
             }

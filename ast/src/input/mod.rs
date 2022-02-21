@@ -23,8 +23,8 @@ pub use input::*;
 pub mod input_value;
 pub use input_value::*;
 
-pub mod parameter;
-pub use parameter::*;
+// pub mod parameter;
+// pub use parameter::*;
 
 pub mod program_input;
 pub use program_input::*;
@@ -39,6 +39,6 @@ use indexmap::IndexMap;
 use leo_errors::{InputError, LeoError, Result};
 use leo_span::{sym, Span, Symbol};
 use serde::{Deserialize, Serialize};
-use std::fmt;
+// use std::fmt;
 
-type Definitions = IndexMap<Parameter, InputValue>;
+type Definitions = IndexMap<Symbol, InputValue>;

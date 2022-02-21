@@ -15,10 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::create_errors;
-use std::{
-    error::Error as ErrorArg,
-    fmt::{Debug, Display},
-};
+use std::fmt::{Debug, Display};
 
 create_errors!(
     /// InputError enum that represents all the errors for the inputs part of `leo-ast` crate.
