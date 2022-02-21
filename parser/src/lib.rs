@@ -42,8 +42,8 @@ pub fn parse_ast<T: AsRef<str>, Y: AsRef<str>>(handler: &Handler, path: T, sourc
     Ok(Ast::new(parser::parse(handler, path.as_ref(), source.as_ref())?))
 }
 
-/// Parses program input from from the input file path and state file path
-pub fn parse_program_input<T: AsRef<str>, Y: AsRef<str>, T2: AsRef<str>, Y2: AsRef<str>>(
+/// Parses program inputs from from the input file path and state file path
+pub fn parse_program_inputs<T: AsRef<str>, Y: AsRef<str>, T2: AsRef<str>, Y2: AsRef<str>>(
     handler: &Handler,
     input_string: T,
     input_path: Y,
