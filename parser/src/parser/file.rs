@@ -149,50 +149,11 @@ impl ParserContext<'_> {
     /// Returns an [`Identifier`] AST node if the next tokens represent a valid package name.
     pub fn parse_package_name(&mut self) -> Result<Identifier> {
         // Build the package name, starting with valid characters up to a dash `-` (Token::Minus).
-        let mut base = self.expect_loose_identifier()?;
-
-        // Build the rest of the package name including dashes.
-        loop {
-            match &self.peek_token().as_ref() {
-                Token::Minus => {
-                    let span = self.expect(Token::Minus)?;
-                    base.span = base.span + span;
-                    let next = self.expect_loose_identifier()?;
-                    base.name = Symbol::intern(&format!("{}-{}", base.name, next.name));
-                    base.span = base.span + next.span;
-                }
-                Token::Int(_) => {
-                    let (num, span) = self.eat_int().unwrap();
-                    base.name = Symbol::intern(&format!("{}{}", base.name, num.value));
-                    base.span = base.span + span;
-                }
-                Token::Ident(_) => {
-                    let next = self.expect_ident()?;
-                    base.name = Symbol::intern(&format!("{}{}", base.name, next.name));
-                    base.span = base.span + next.span;
-                }
-                x if KEYWORD_TOKENS.contains(x) => {
-                    let next = self.expect_loose_identifier()?;
-                    base.name = Symbol::intern(&format!("{}{}", base.name, next.name));
-                    base.span = base.span + next.span;
-                }
-                _ => break,
-            }
-        }
+        let base = self.expect_loose_identifier()?;
 
         // Return an error if the package name contains a keyword.
         if let Some(token) = KEYWORD_TOKENS.iter().find(|x| x.keyword_to_symbol() == Some(base.name)) {
             self.emit_err(ParserError::unexpected_str(token, "package name", &base.span));
-        }
-
-        // Return an error if the package name contains invalid characters.
-        if !base
-            .name
-            .as_str()
-            .chars()
-            .all(|x| x.is_ascii_lowercase() || x.is_ascii_digit() || x == '-' || x == '_')
-        {
-            self.emit_err(ParserError::invalid_package_name(&base.span));
         }
 
         // Return the package name.
@@ -201,7 +162,8 @@ impl ParserContext<'_> {
 
     /// Returns an [`ImportTree`] AST node if the next tokens represent a valid package import
     /// with accesses.
-    fn parse_import_tree(&mut self) -> Result<ImportTree> {
+    // Public soely foro writing import parsing tests.
+    pub fn parse_import_tree(&mut self) -> Result<ImportTree> {
         // Parse the first part of the path.
         let first_name = self.parse_package_name()?;
         let start = first_name.span.clone();

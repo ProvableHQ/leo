@@ -1,0 +1,5 @@
+---
+namespace: ParseImport
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected ; -- got '-'\n    --> test:1:12\n     |\n   1 | import test-import.*;\n     |            ^"

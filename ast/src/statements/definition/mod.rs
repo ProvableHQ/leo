@@ -33,6 +33,8 @@ pub struct DefinitionStatement {
     pub declaration_type: Declare,
     /// The bindings / variable names to declare.
     pub variable_names: Vec<VariableName>,
+    /// Tracks whether the variable(s) are in parens.
+    pub parened: bool,
     /// The types of the bindings, if specified, or inferred otherwise.
     pub type_: Option<Type>,
     /// An initializer value for the bindings.

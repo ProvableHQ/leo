@@ -1,0 +1,5 @@
+---
+namespace: ParseImport
+expectation: Fail
+outputs:
+  - "did not consume all input: 'import' @ 2:1-7\n'*' @ 2:8-9\n';' @ 2:9-10\n"

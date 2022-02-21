@@ -396,7 +396,11 @@ impl Token {
                         return (0, None);
                     }
                     let eol = input.windows(2).skip(2).position(|x| x[0] == b'*' && x[1] == b'/');
-                    let len = if let Some(eol) = eol { eol + 4 } else { input.len() };
+                    let len = if let Some(eol) = eol {
+                        eol + 4
+                    } else {
+                        return (0, None);
+                    };
                     return (len, Some(Token::CommentBlock(input_tendril.subtendril(0, len as u32))));
                 } else if let Some(len) = eat(input, "/=") {
                     return (len, Some(Token::DivEq));

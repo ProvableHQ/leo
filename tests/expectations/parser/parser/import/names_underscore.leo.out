@@ -1,0 +1,25 @@
+---
+namespace: ParseImport
+expectation: Pass
+outputs:
+  - tree:
+      base:
+        - "{\"name\":\"hello_world\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import hello_world.foo;\\\"}\"}"
+        - "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":20,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import hello_world.foo;\\\"}\"}"
+      kind:
+        Leaf:
+          alias: ~
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 8
+        col_stop: 23
+        path: ""
+        content: import hello_world.foo;
+    span:
+      line_start: 1
+      line_stop: 1
+      col_start: 8
+      col_stop: 23
+      path: ""
+      content: import hello_world.foo;

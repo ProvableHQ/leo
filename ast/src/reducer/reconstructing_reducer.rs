@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! This module contains a Reducer Trait for the AST.
+//! It implements default methods for each node to be made
+//! given the information of the old node.
+
 use crate::*;
 
 use leo_errors::Result;
@@ -282,6 +286,7 @@ pub trait ReconstructingReducer {
         Ok(DefinitionStatement {
             declaration_type: definition.declaration_type.clone(),
             variable_names,
+            parened: definition.parened,
             type_,
             value,
             span: definition.span.clone(),

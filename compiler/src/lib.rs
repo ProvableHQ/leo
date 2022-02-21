@@ -22,8 +22,10 @@
 #![allow(clippy::upper_case_acronyms)]
 #![doc = include_str!("../README.md")]
 
+use leo_ast::AstPass;
 use leo_errors::emitter::Handler;
 use leo_errors::{CompilerError, Result};
+use leo_span::symbol::create_session_if_not_set_then;
 
 use sha2::{Digest, Sha256};
 use std::fs;
@@ -33,16 +35,18 @@ use std::path::PathBuf;
 pub struct Compiler<'a> {
     handler: &'a Handler,
     main_file_path: PathBuf,
+    output_directory: PathBuf,
 }
 
 impl<'a> Compiler<'a> {
     ///
     /// Returns a new Leo compiler.
     ///
-    pub fn new(handler: &'a Handler, main_file_path: PathBuf) -> Self {
+    pub fn new(handler: &'a Handler, main_file_path: PathBuf, output_directory: PathBuf) -> Self {
         Self {
             handler,
             main_file_path,
+            output_directory,
         }
     }
 
@@ -63,20 +67,34 @@ impl<'a> Compiler<'a> {
     }
 
     ///
-    /// Returns a compiled Leo program.
+    /// Runs the compiler stages.
     ///
-    pub fn compile(self) -> Result<leo_ast::Ast> {
+    fn compiler_stages(self) -> Result<leo_ast::Ast> {
         // Load the program file.
         let program_string = fs::read_to_string(&self.main_file_path)
             .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;
 
         // Use the parser to construct the abstract syntax tree (ast).
-        let ast: leo_ast::Ast = leo_parser::parse_ast(
+        let mut ast: leo_ast::Ast = leo_parser::parse_ast(
             self.handler,
             self.main_file_path.to_str().unwrap_or_default(),
             program_string,
         )?;
+        // Write the AST snapshot post parsing.
+        ast.to_json_file_without_keys(self.output_directory.clone(), "inital_ast.json", &["span"])?;
+
+        // Canonicalize the AST.
+        ast = leo_ast_passes::Canonicalizer::do_pass(Default::default(), ast.into_repr())?;
+        // Write the AST snapshot post parsing
+        ast.to_json_file_without_keys(self.output_directory, "canonicalization_ast.json", &["span"])?;
 
         Ok(ast)
+    }
+
+    ///
+    /// Returns a compiled Leo program.
+    ///
+    pub fn compile(self) -> Result<leo_ast::Ast> {
+        create_session_if_not_set_then(|_| self.compiler_stages())
     }
 }

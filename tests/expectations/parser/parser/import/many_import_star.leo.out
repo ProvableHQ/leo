@@ -1,0 +1,137 @@
+---
+namespace: ParseImport
+expectation: Pass
+outputs:
+  - tree:
+      base:
+        - "{\"name\":\"test_import\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import test_import.*; // local import\\\"}\"}"
+      kind:
+        Glob:
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 20
+            col_stop: 21
+            path: ""
+            content: import test_import.*; // local import
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 8
+        col_stop: 21
+        path: ""
+        content: import test_import.*; // local import
+    span:
+      line_start: 1
+      line_stop: 1
+      col_start: 8
+      col_stop: 21
+      path: ""
+      content: import test_import.*; // local import
+  - tree:
+      base:
+        - "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.*;         // imports directory import\\\"}\"}"
+      kind:
+        Glob:
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 12
+            col_stop: 13
+            path: ""
+            content: import bar.*;         // imports directory import
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 8
+        col_stop: 13
+        path: ""
+        content: import bar.*;         // imports directory import
+    span:
+      line_start: 1
+      line_stop: 1
+      col_start: 8
+      col_stop: 13
+      path: ""
+      content: import bar.*;         // imports directory import
+  - tree:
+      base:
+        - "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.baz.*;     // imports directory import\\\"}\"}"
+        - "{\"name\":\"baz\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.baz.*;     // imports directory import\\\"}\"}"
+      kind:
+        Glob:
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 16
+            col_stop: 17
+            path: ""
+            content: import bar.baz.*;     // imports directory import
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 8
+        col_stop: 17
+        path: ""
+        content: import bar.baz.*;     // imports directory import
+    span:
+      line_start: 1
+      line_stop: 1
+      col_start: 8
+      col_stop: 17
+      path: ""
+      content: import bar.baz.*;     // imports directory import
+  - tree:
+      base:
+        - "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.bat.bat.*; // imports directory import\\\"}\"}"
+        - "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.bat.bat.*; // imports directory import\\\"}\"}"
+        - "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":16,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.bat.bat.*; // imports directory import\\\"}\"}"
+      kind:
+        Glob:
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 20
+            col_stop: 21
+            path: ""
+            content: import bar.bat.bat.*; // imports directory import
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 8
+        col_stop: 21
+        path: ""
+        content: import bar.bat.bat.*; // imports directory import
+    span:
+      line_start: 1
+      line_stop: 1
+      col_start: 8
+      col_stop: 21
+      path: ""
+      content: import bar.bat.bat.*; // imports directory import
+  - tree:
+      base:
+        - "{\"name\":\"car\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import car.*;         // imports directory import\\\"}\"}"
+      kind:
+        Glob:
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 12
+            col_stop: 13
+            path: ""
+            content: import car.*;         // imports directory import
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 8
+        col_stop: 13
+        path: ""
+        content: import car.*;         // imports directory import
+    span:
+      line_start: 1
+      line_stop: 1
+      col_start: 8
+      col_stop: 13
+      path: ""
+      content: import car.*;         // imports directory import

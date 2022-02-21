@@ -27,40 +27,42 @@ fn parse_ast(path: &str, input: &str) -> Ast {
     })
 }
 
-fn bench_big_if_else(c: &mut Criterion) {
-    let ast = parse_ast("./big_if_else.leo", include_str!("./big_if_else.leo"));
-    c.bench_function("Ast::big_if_else", |b| b.iter(|| &ast));
+macro_rules! bench {
+    ($func_name:ident, $file_name:expr) => {
+        fn $func_name(c: &mut Criterion) {
+            let ast = parse_ast(
+                concat!("./", $file_name, ".leo"),
+                include_str!(concat!("./", $file_name, ".leo"),),
+            );
+            c.bench_function(concat!("Ast::", $file_name), |b| b.iter(|| &ast));
+        }
+    };
 }
 
-fn bench_big_ternary(c: &mut Criterion) {
-    let ast = parse_ast("./big_ternary.leo", include_str!("./big_ternary.leo"));
-    c.bench_function("Ast::big_ternary", |b| b.iter(|| &ast));
-}
-
-fn bench_big_circuit(c: &mut Criterion) {
-    let ast = parse_ast("./big_circuit.leo", include_str!("./big_circuit.leo"));
-    c.bench_function("Ast::big_circuit", |b| b.iter(|| &ast));
-}
-
-fn bench_long_expr(c: &mut Criterion) {
-    let ast = parse_ast("./long_expr.leo", include_str!("./long_expr.leo"));
-    c.bench_function("Ast::long_expr", |b| b.iter(|| &ast));
-}
-
-fn bench_long_array(c: &mut Criterion) {
-    let ast = parse_ast("./long_array.leo", include_str!("./long_array.leo"));
-    c.bench_function("Ast::long_array", |b| b.iter(|| &ast));
-}
-
-fn bench_many_foos(c: &mut Criterion) {
-    let ast = parse_ast("./many_foos.leo", include_str!("./many_foos.leo"));
-    c.bench_function("Ast::many_foos", |b| b.iter(|| &ast));
-}
-
-fn bench_many_assigns(c: &mut Criterion) {
-    let ast = parse_ast("./many_assigns.leo", include_str!("./many_assigns.leo"));
-    c.bench_function("Ast::many_assigns", |b| b.iter(|| &ast));
-}
+bench!(bench_big_if_else, "big_if_else");
+// TODO have to figure out why this causes `thread 'main' has overflowed it's stack'
+// bench!(bench_big_ternary, "big_ternary");
+bench!(bench_big_circuit, "big_circuit");
+bench!(bench_long_expr, "long_expr");
+bench!(bench_long_array, "long_array");
+bench!(bench_many_foos, "many_foos");
+bench!(bench_many_assigns, "many_assigns");
+bench!(bench_small_1, "small_1");
+bench!(bench_small_2, "small_2");
+bench!(bench_small_3, "small_3");
+bench!(bench_small_4, "small_4");
+bench!(bench_small_5, "small_5");
+bench!(bench_medium_1, "medium_1");
+bench!(bench_medium_2, "medium_2");
+bench!(bench_medium_3, "medium_3");
+bench!(bench_medium_4, "medium_4");
+bench!(bench_medium_5, "medium_5");
+bench!(bench_large_1, "large_1");
+bench!(bench_large_2, "large_2");
+bench!(bench_large_3, "large_3");
+bench!(bench_large_4, "large_4");
+bench!(bench_large_5, "large_5");
+bench!(bench_massive, "massive");
 
 criterion_group!(
     name = benches;
@@ -68,9 +70,24 @@ criterion_group!(
     targets = bench_big_circuit,
     bench_long_expr,
     bench_big_if_else,
-    bench_big_ternary,
     bench_long_array,
     bench_many_assigns,
     bench_many_foos,
+    bench_small_1,
+    bench_small_2,
+    bench_small_3,
+    bench_small_4,
+    bench_small_5,
+    bench_medium_1,
+    bench_medium_2,
+    bench_medium_3,
+    bench_medium_4,
+    bench_medium_5,
+    bench_large_1,
+    bench_large_2,
+    bench_large_3,
+    bench_large_4,
+    bench_large_5,
+    bench_massive
 );
 criterion_main!(benches);

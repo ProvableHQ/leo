@@ -1,5 +1,5 @@
 /*
-namespace: Parse
+namespace: ParseImport
 expectation: Pass
 */
 
