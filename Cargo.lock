@@ -1129,6 +1129,7 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "smallvec",
+ "structopt",
  "tendril",
  "tracing",
 ]

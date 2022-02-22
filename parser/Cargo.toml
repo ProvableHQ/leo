@@ -68,6 +68,9 @@ features = [ "preserve_order" ]
 [dev-dependencies.serde_yaml]
 version = "0.8"
 
+[dev-dependencies.structopt]
+version = "0.3"
+
 [features]
 default = [ ]
 ci_skip = [ ]

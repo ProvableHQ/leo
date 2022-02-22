@@ -17,57 +17,52 @@
 use leo_errors::{emitter::Handler, Result};
 use leo_span::symbol::create_session_if_not_set_then;
 
-use std::{env, fs, path::Path};
+use std::{fs, path::{Path, PathBuf}};
+use structopt::StructOpt;
 
-fn to_input_tree(input_filepath: &Path) -> Result<String, String> {
-    // Loads the inputs a string from the given file path.
-    let input_string = fs::read_to_string(&input_filepath.to_path_buf()).expect("failed to open an input file");
+#[derive(Debug, StructOpt)]
+#[structopt(name = "input parser", about = "Parse an Input file and save its JSON representation")]
+struct Opt {
+    /// Path to the input file.
+    #[structopt(parse(from_os_str))]
+    input_path: PathBuf,
+    
+    /// Optional path to the output directory.
+    #[structopt(parse(from_os_str))]
+    out_dir_path: Option<PathBuf>,
 
-    // Parses the Leo file constructing an ast which is then serialized.
-    create_session_if_not_set_then(|_| {
-        Handler::with(|handler| {
-            let input =
-                leo_parser::parse_program_inputs(&handler, input_string.clone(), input_filepath.to_str().unwrap())?;
-
-            let json = input.to_json_string()?;
-            Ok(json)
-        })
-        .map_err(|e| e.to_string())
-    })
+    /// Whether to print result to STDOUT.
+    #[structopt(short, long)]
+    print_stdout: bool
 }
 
 fn main() -> Result<(), String> {
-    // Parse the command-line arguments as strings.
-    let cli_arguments = env::args().collect::<Vec<String>>();
+    let opt = Opt::from_args(); 
+    let input_string = fs::read_to_string(&opt.input_path).expect("failed to open an input file");
+    let input_tree = create_session_if_not_set_then(|_| {
+        Handler::with(|handler| {
+            let input =
+                leo_parser::parse_program_inputs(&handler, input_string.clone(), opt.input_path.to_str().unwrap())?;
+            Ok(input.to_json_string()?)
+        })
+        .map_err(|e| e.to_string())
+    })?;
 
-    // Check that the correct number of command-line arguments were passed in.
-    if cli_arguments.len() < 2 || cli_arguments.len() > 3 {
-        eprintln!("Warning - an invalid number of command-line arguments were provided.");
-        println!(
-            "\nCommand-line usage:\n\n\tleo_ast {{PATH/TO/INPUT_FILENAME}}.in {{PATH/TO/OUTPUT_DIRECTORY (optional)}}\n"
-        );
-        return Ok(()); // Exit innocently
+    if opt.print_stdout {
+        println!("{}", input_tree);
     }
 
-    // Construct the input filepath.
-    let input_filepath = Path::new(&cli_arguments[1]);
-
-    // Construct the serialized syntax tree.
-    let serialized_leo_tree = to_input_tree(input_filepath)?;
-    println!("{}", serialized_leo_tree);
-
-    // Determine the output directory.
-    let output_directory = match cli_arguments.len() == 4 {
-        true => format!(
+    let out_path = if let Some(out_dir) = opt.out_dir_path {
+        format!(
             "{}/{}.json",
-            cli_arguments[2],
-            input_filepath.file_stem().unwrap().to_str().unwrap()
-        ),
-        false => format!("./{}.json", input_filepath.file_stem().unwrap().to_str().unwrap()),
+            out_dir.as_path().display(),
+            opt.input_path.file_stem().unwrap().to_str().unwrap()
+        )
+    } else {
+        format!("./{}.json", opt.input_path.file_stem().unwrap().to_str().unwrap())
     };
 
-    // Write the serialized syntax tree to the output directory.
-    fs::write(Path::new(&output_directory), serialized_leo_tree).expect("failed to write output");
-
+    fs::write(Path::new(&out_path), input_tree).expect("failed to write output");
+    
     Ok(())
 }
