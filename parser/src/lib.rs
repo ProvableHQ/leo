@@ -23,7 +23,6 @@
 #![doc = include_str!("../README.md")]
 
 pub(crate) mod tokenizer;
-// use leo_input::LeoInputParser;
 pub use tokenizer::KEYWORD_TOKENS;
 pub(crate) use tokenizer::*;
 

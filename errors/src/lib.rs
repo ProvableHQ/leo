@@ -68,8 +68,6 @@ pub use self::state::*;
 #[macro_use]
 extern crate thiserror;
 
-// use leo_input::InputParserError;
-
 /// The LeoError type that contains all sub error types.
 /// This allows a unified error type throughout the Leo crates.
 #[derive(Debug, Error)]
@@ -126,7 +124,7 @@ impl LeoError {
             CliError(error) => error.error_code(),
             CompilerError(error) => error.error_code(),
             ImportError(error) => error.error_code(),
-            InputError(error) => error.error_code(), // TODO migrate me, or not cause we want inputs to have 0 deps.
+            InputError(error) => error.error_code(),
             PackageError(error) => error.error_code(),
             ParserError(error) => error.error_code(),
             SnarkVMError(_error) => Default::default(), // TODO update once snarkvm implments a global top level error similar to LeoError.
@@ -144,7 +142,7 @@ impl LeoError {
             CliError(error) => error.exit_code(),
             CompilerError(error) => error.exit_code(),
             ImportError(error) => error.exit_code(),
-            InputError(error) => error.exit_code(), // TODO migrate me, or not cause we want inputs to have 0 deps.
+            InputError(error) => error.exit_code(),
             PackageError(error) => error.exit_code(),
             ParserError(error) => error.exit_code(),
             SnarkVMError(_error) => 1, // TODO update once snarkvm implments a global top level error similar to LeoError.

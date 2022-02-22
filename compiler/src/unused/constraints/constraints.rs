@@ -20,7 +20,6 @@ use crate::{ConstrainedProgram, GroupType, Output, OutputFile};
 use leo_asg::Program;
 use leo_ast::Input;
 use leo_errors::{CompilerError, Result};
-use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 
 use snarkvm_fields::PrimeField;

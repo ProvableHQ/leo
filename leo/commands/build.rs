@@ -94,14 +94,9 @@ pub struct BuildOptions {
 #[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Build {
-<<<<<<< HEAD
-    // #[structopt(flatten)]
-// pub(crate) compiler_options: BuildOptions,
-=======
     #[allow(dead_code)]
     #[structopt(flatten)]
     pub(crate) compiler_options: BuildOptions,
->>>>>>> testnet3
 }
 
 impl Command for Build {

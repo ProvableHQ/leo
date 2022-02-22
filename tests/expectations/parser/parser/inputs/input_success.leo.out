@@ -6,7 +6,7 @@ outputs:
       - name: main
         definitions:
           - type_: Boolean
-            name: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"a: bool  = true;                 // booleans\\\"}\"}"
+            name: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"a: bool  = true;                 \\\"}\"}"
             value:
               Value:
                 Boolean:
@@ -17,17 +17,17 @@ outputs:
                       col_start: 12
                       col_stop: 16
                       path: ""
-                      content: "a: bool  = true;                 // booleans"
+                      content: "a: bool  = true;                 "
             span:
               line_start: 4
               line_stop: 4
               col_start: 4
               col_stop: 8
               path: ""
-              content: "a: bool  = true;                 // booleans"
+              content: "a: bool  = true;                 "
           - type_:
               IntegerType: U8
-            name: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"b: u8    = 2;                    // integers\\\"}\"}"
+            name: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"b: u8    = 2;                    \\\"}\"}"
             value:
               Value:
                 Implicit:
@@ -38,16 +38,16 @@ outputs:
                       col_start: 12
                       col_stop: 13
                       path: ""
-                      content: "b: u8    = 2;                    // integers"
+                      content: "b: u8    = 2;                    "
             span:
               line_start: 5
               line_stop: 5
               col_start: 4
               col_stop: 6
               path: ""
-              content: "b: u8    = 2;                    // integers"
+              content: "b: u8    = 2;                    "
           - type_: Field
-            name: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c: field = 0;                    // fields\\\"}\"}"
+            name: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c: field = 0;                    \\\"}\"}"
             value:
               Value:
                 Implicit:
@@ -58,16 +58,16 @@ outputs:
                       col_start: 12
                       col_stop: 13
                       path: ""
-                      content: "c: field = 0;                    // fields"
+                      content: "c: field = 0;                    "
             span:
               line_start: 6
               line_stop: 6
               col_start: 4
               col_stop: 9
               path: ""
-              content: "c: field = 0;                    // fields"
+              content: "c: field = 0;                    "
           - type_: Group
-            name: "{\"name\":\"d\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"d: group = (0, 1)group;           // group elements\\\"}\"}"
+            name: "{\"name\":\"d\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"d: group = (0, 1)group;          \\\"}\"}"
             value:
               Value:
                 Group:
@@ -81,7 +81,7 @@ outputs:
                             col_start: 13
                             col_stop: 14
                             path: ""
-                            content: "d: group = (0, 1)group;           // group elements"
+                            content: "d: group = (0, 1)group;          "
                     y:
                       Number:
                         - "1"
@@ -91,21 +91,21 @@ outputs:
                             col_start: 16
                             col_stop: 17
                             path: ""
-                            content: "d: group = (0, 1)group;           // group elements"
+                            content: "d: group = (0, 1)group;          "
                     span:
                       line_start: 7
                       line_stop: 7
                       col_start: 13
                       col_stop: 23
                       path: ""
-                      content: "d: group = (0, 1)group;           // group elements"
+                      content: "d: group = (0, 1)group;          "
             span:
               line_start: 7
               line_stop: 7
               col_start: 4
               col_stop: 9
               path: ""
-              content: "d: group = (0, 1)group;           // group elements"
+              content: "d: group = (0, 1)group;          "
           - type_: Address
             name: "{\"name\":\"e\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;\\\"}\"}"
             value:
@@ -130,7 +130,7 @@ outputs:
               Array:
                 - IntegerType: U8
                 - - value: "32"
-            name: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"f: [u8; 32] = [0; 32];            // arrays\\\"}\"}"
+            name: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"f: [u8; 32] = [0; 32];           \\\"}\"}"
             value:
               ArrayInit:
                 element:
@@ -143,7 +143,7 @@ outputs:
                           col_start: 16
                           col_stop: 17
                           path: ""
-                          content: "f: [u8; 32] = [0; 32];            // arrays"
+                          content: "f: [u8; 32] = [0; 32];           "
                 dimensions:
                   - value: "32"
                 span:
@@ -152,21 +152,21 @@ outputs:
                   col_start: 15
                   col_stop: 22
                   path: ""
-                  content: "f: [u8; 32] = [0; 32];            // arrays"
+                  content: "f: [u8; 32] = [0; 32];           "
             span:
               line_start: 9
               line_stop: 9
               col_start: 4
               col_stop: 12
               path: ""
-              content: "f: [u8; 32] = [0; 32];            // arrays"
+              content: "f: [u8; 32] = [0; 32];           "
           - type_:
               Array:
                 - Array:
                     - IntegerType: U8
                     - - value: "2"
                 - - value: "3"
-            name: "{\"name\":\"g\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"g: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays\\\"}\"}"
+            name: "{\"name\":\"g\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"g: [[u8; 2]; 3] = [[0; 2]; 3]; \\\"}\"}"
             value:
               ArrayInit:
                 element:
@@ -181,7 +181,7 @@ outputs:
                               col_start: 21
                               col_stop: 22
                               path: ""
-                              content: "g: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+                              content: "g: [[u8; 2]; 3] = [[0; 2]; 3]; "
                     dimensions:
                       - value: "2"
                     span:
@@ -190,7 +190,7 @@ outputs:
                       col_start: 20
                       col_stop: 26
                       path: ""
-                      content: "g: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+                      content: "g: [[u8; 2]; 3] = [[0; 2]; 3]; "
                 dimensions:
                   - value: "3"
                 span:
@@ -199,19 +199,19 @@ outputs:
                   col_start: 19
                   col_stop: 30
                   path: ""
-                  content: "g: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+                  content: "g: [[u8; 2]; 3] = [[0; 2]; 3]; "
             span:
               line_start: 10
               line_stop: 10
               col_start: 4
               col_stop: 16
               path: ""
-              content: "g: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+              content: "g: [[u8; 2]; 3] = [[0; 2]; 3]; "
           - type_:
               Tuple:
                 - Boolean
                 - Boolean
-            name: "{\"name\":\"h\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"h: (bool, bool) = (true, false);  // tuples\\\"}\"}"
+            name: "{\"name\":\"h\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"h: (bool, bool) = (true, false); \\\"}\"}"
             value:
               TupleInit:
                 elements:
@@ -224,7 +224,7 @@ outputs:
                             col_start: 20
                             col_stop: 24
                             path: ""
-                            content: "h: (bool, bool) = (true, false);  // tuples"
+                            content: "h: (bool, bool) = (true, false); "
                   - Value:
                       Boolean:
                         - "false"
@@ -234,22 +234,21 @@ outputs:
                             col_start: 26
                             col_stop: 31
                             path: ""
-                            content: "h: (bool, bool) = (true, false);  // tuples"
+                            content: "h: (bool, bool) = (true, false); "
                 span:
                   line_start: 11
                   line_stop: 11
                   col_start: 19
                   col_stop: 32
                   path: ""
-                  content: "h: (bool, bool) = (true, false);  // tuples"
+                  content: "h: (bool, bool) = (true, false); "
             span:
               line_start: 11
               line_stop: 11
               col_start: 4
               col_stop: 16
               path: ""
-              content: "h: (bool, bool) = (true, false);  // tuples"
-        is_public: true
+              content: "h: (bool, bool) = (true, false); "
         span:
           line_start: 3
           line_stop: 3
@@ -260,7 +259,7 @@ outputs:
       - name: registers
         definitions:
           - type_: Boolean
-            name: "{\"name\":\"r0\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r0: bool  = true;                 // booleans\\\"}\"}"
+            name: "{\"name\":\"r0\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r0: bool  = true;                 \\\"}\"}"
             value:
               Value:
                 Boolean:
@@ -271,17 +270,17 @@ outputs:
                       col_start: 13
                       col_stop: 17
                       path: ""
-                      content: "r0: bool  = true;                 // booleans"
+                      content: "r0: bool  = true;                 "
             span:
               line_start: 14
               line_stop: 14
               col_start: 5
               col_stop: 9
               path: ""
-              content: "r0: bool  = true;                 // booleans"
+              content: "r0: bool  = true;                 "
           - type_:
               IntegerType: U8
-            name: "{\"name\":\"r1\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r1: u8    = 2;                    // integers\\\"}\"}"
+            name: "{\"name\":\"r1\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r1: u8    = 2;                    \\\"}\"}"
             value:
               Value:
                 Implicit:
@@ -292,16 +291,16 @@ outputs:
                       col_start: 13
                       col_stop: 14
                       path: ""
-                      content: "r1: u8    = 2;                    // integers"
+                      content: "r1: u8    = 2;                    "
             span:
               line_start: 15
               line_stop: 15
               col_start: 5
               col_stop: 7
               path: ""
-              content: "r1: u8    = 2;                    // integers"
+              content: "r1: u8    = 2;                    "
           - type_: Field
-            name: "{\"name\":\"r2\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r2: field = 0;                    // fields\\\"}\"}"
+            name: "{\"name\":\"r2\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r2: field = 0;                    \\\"}\"}"
             value:
               Value:
                 Implicit:
@@ -312,16 +311,16 @@ outputs:
                       col_start: 13
                       col_stop: 14
                       path: ""
-                      content: "r2: field = 0;                    // fields"
+                      content: "r2: field = 0;                    "
             span:
               line_start: 16
               line_stop: 16
               col_start: 5
               col_stop: 10
               path: ""
-              content: "r2: field = 0;                    // fields"
+              content: "r2: field = 0;                    "
           - type_: Group
-            name: "{\"name\":\"r3\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r3: group = (0, 1)group;           // group elements\\\"}\"}"
+            name: "{\"name\":\"r3\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r3: group = (0, 1)group;          \\\"}\"}"
             value:
               Value:
                 Group:
@@ -335,7 +334,7 @@ outputs:
                             col_start: 14
                             col_stop: 15
                             path: ""
-                            content: "r3: group = (0, 1)group;           // group elements"
+                            content: "r3: group = (0, 1)group;          "
                     y:
                       Number:
                         - "1"
@@ -345,21 +344,21 @@ outputs:
                             col_start: 17
                             col_stop: 18
                             path: ""
-                            content: "r3: group = (0, 1)group;           // group elements"
+                            content: "r3: group = (0, 1)group;          "
                     span:
                       line_start: 17
                       line_stop: 17
                       col_start: 14
                       col_stop: 24
                       path: ""
-                      content: "r3: group = (0, 1)group;           // group elements"
+                      content: "r3: group = (0, 1)group;          "
             span:
               line_start: 17
               line_stop: 17
               col_start: 5
               col_stop: 10
               path: ""
-              content: "r3: group = (0, 1)group;           // group elements"
+              content: "r3: group = (0, 1)group;          "
           - type_: Address
             name: "{\"name\":\"r4\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r4: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;\\\"}\"}"
             value:
@@ -384,7 +383,7 @@ outputs:
               Array:
                 - IntegerType: U8
                 - - value: "32"
-            name: "{\"name\":\"r5\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r5: [u8; 32] = [0; 32];            // arrays\\\"}\"}"
+            name: "{\"name\":\"r5\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r5: [u8; 32] = [0; 32];           \\\"}\"}"
             value:
               ArrayInit:
                 element:
@@ -397,7 +396,7 @@ outputs:
                           col_start: 17
                           col_stop: 18
                           path: ""
-                          content: "r5: [u8; 32] = [0; 32];            // arrays"
+                          content: "r5: [u8; 32] = [0; 32];           "
                 dimensions:
                   - value: "32"
                 span:
@@ -406,21 +405,21 @@ outputs:
                   col_start: 16
                   col_stop: 23
                   path: ""
-                  content: "r5: [u8; 32] = [0; 32];            // arrays"
+                  content: "r5: [u8; 32] = [0; 32];           "
             span:
               line_start: 19
               line_stop: 19
               col_start: 5
               col_stop: 13
               path: ""
-              content: "r5: [u8; 32] = [0; 32];            // arrays"
+              content: "r5: [u8; 32] = [0; 32];           "
           - type_:
               Array:
                 - Array:
                     - IntegerType: U8
                     - - value: "2"
                 - - value: "3"
-            name: "{\"name\":\"r6\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays\\\"}\"}"
+            name: "{\"name\":\"r6\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r6: [[u8; 2]; 3] = [[0; 2]; 3]; \\\"}\"}"
             value:
               ArrayInit:
                 element:
@@ -435,7 +434,7 @@ outputs:
                               col_start: 22
                               col_stop: 23
                               path: ""
-                              content: "r6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+                              content: "r6: [[u8; 2]; 3] = [[0; 2]; 3]; "
                     dimensions:
                       - value: "2"
                     span:
@@ -444,7 +443,7 @@ outputs:
                       col_start: 21
                       col_stop: 27
                       path: ""
-                      content: "r6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+                      content: "r6: [[u8; 2]; 3] = [[0; 2]; 3]; "
                 dimensions:
                   - value: "3"
                 span:
@@ -453,19 +452,19 @@ outputs:
                   col_start: 20
                   col_stop: 31
                   path: ""
-                  content: "r6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+                  content: "r6: [[u8; 2]; 3] = [[0; 2]; 3]; "
             span:
               line_start: 20
               line_stop: 20
               col_start: 5
               col_stop: 17
               path: ""
-              content: "r6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+              content: "r6: [[u8; 2]; 3] = [[0; 2]; 3]; "
           - type_:
               Tuple:
                 - Boolean
                 - Boolean
-            name: "{\"name\":\"r7\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r7: (bool, bool) = (true, false);  // tuples\\\"}\"}"
+            name: "{\"name\":\"r7\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r7: (bool, bool) = (true, false); \\\"}\"}"
             value:
               TupleInit:
                 elements:
@@ -478,7 +477,7 @@ outputs:
                             col_start: 21
                             col_stop: 25
                             path: ""
-                            content: "r7: (bool, bool) = (true, false);  // tuples"
+                            content: "r7: (bool, bool) = (true, false); "
                   - Value:
                       Boolean:
                         - "false"
@@ -488,22 +487,21 @@ outputs:
                             col_start: 27
                             col_stop: 32
                             path: ""
-                            content: "r7: (bool, bool) = (true, false);  // tuples"
+                            content: "r7: (bool, bool) = (true, false); "
                 span:
                   line_start: 21
                   line_stop: 21
                   col_start: 20
                   col_stop: 33
                   path: ""
-                  content: "r7: (bool, bool) = (true, false);  // tuples"
+                  content: "r7: (bool, bool) = (true, false); "
             span:
               line_start: 21
               line_stop: 21
               col_start: 5
               col_stop: 17
               path: ""
-              content: "r7: (bool, bool) = (true, false);  // tuples"
-        is_public: true
+              content: "r7: (bool, bool) = (true, false); "
         span:
           line_start: 13
           line_stop: 13
@@ -514,7 +512,7 @@ outputs:
       - name: constants
         definitions:
           - type_: Boolean
-            name: "{\"name\":\"c0\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c0: bool  = true;                 // booleans\\\"}\"}"
+            name: "{\"name\":\"c0\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c0: bool  = true;                 \\\"}\"}"
             value:
               Value:
                 Boolean:
@@ -525,17 +523,17 @@ outputs:
                       col_start: 13
                       col_stop: 17
                       path: ""
-                      content: "c0: bool  = true;                 // booleans"
+                      content: "c0: bool  = true;                 "
             span:
               line_start: 24
               line_stop: 24
               col_start: 5
               col_stop: 9
               path: ""
-              content: "c0: bool  = true;                 // booleans"
+              content: "c0: bool  = true;                 "
           - type_:
               IntegerType: U8
-            name: "{\"name\":\"c1\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c1: u8    = 2;                    // integers\\\"}\"}"
+            name: "{\"name\":\"c1\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c1: u8    = 2;                    \\\"}\"}"
             value:
               Value:
                 Implicit:
@@ -546,16 +544,16 @@ outputs:
                       col_start: 13
                       col_stop: 14
                       path: ""
-                      content: "c1: u8    = 2;                    // integers"
+                      content: "c1: u8    = 2;                    "
             span:
               line_start: 25
               line_stop: 25
               col_start: 5
               col_stop: 7
               path: ""
-              content: "c1: u8    = 2;                    // integers"
+              content: "c1: u8    = 2;                    "
           - type_: Field
-            name: "{\"name\":\"c2\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c2: field = 0;                    // fields\\\"}\"}"
+            name: "{\"name\":\"c2\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c2: field = 0;                    \\\"}\"}"
             value:
               Value:
                 Implicit:
@@ -566,16 +564,16 @@ outputs:
                       col_start: 13
                       col_stop: 14
                       path: ""
-                      content: "c2: field = 0;                    // fields"
+                      content: "c2: field = 0;                    "
             span:
               line_start: 26
               line_stop: 26
               col_start: 5
               col_stop: 10
               path: ""
-              content: "c2: field = 0;                    // fields"
+              content: "c2: field = 0;                    "
           - type_: Group
-            name: "{\"name\":\"c3\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c3: group = (0, 1)group;           // group elements\\\"}\"}"
+            name: "{\"name\":\"c3\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c3: group = (0, 1)group;          \\\"}\"}"
             value:
               Value:
                 Group:
@@ -589,7 +587,7 @@ outputs:
                             col_start: 14
                             col_stop: 15
                             path: ""
-                            content: "c3: group = (0, 1)group;           // group elements"
+                            content: "c3: group = (0, 1)group;          "
                     y:
                       Number:
                         - "1"
@@ -599,21 +597,21 @@ outputs:
                             col_start: 17
                             col_stop: 18
                             path: ""
-                            content: "c3: group = (0, 1)group;           // group elements"
+                            content: "c3: group = (0, 1)group;          "
                     span:
                       line_start: 27
                       line_stop: 27
                       col_start: 14
                       col_stop: 24
                       path: ""
-                      content: "c3: group = (0, 1)group;           // group elements"
+                      content: "c3: group = (0, 1)group;          "
             span:
               line_start: 27
               line_stop: 27
               col_start: 5
               col_stop: 10
               path: ""
-              content: "c3: group = (0, 1)group;           // group elements"
+              content: "c3: group = (0, 1)group;          "
           - type_: Address
             name: "{\"name\":\"c4\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c4: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;\\\"}\"}"
             value:
@@ -638,7 +636,7 @@ outputs:
               Array:
                 - IntegerType: U8
                 - - value: "32"
-            name: "{\"name\":\"c5\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c5: [u8; 32] = [0; 32];            // arrays\\\"}\"}"
+            name: "{\"name\":\"c5\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c5: [u8; 32] = [0; 32];           \\\"}\"}"
             value:
               ArrayInit:
                 element:
@@ -651,7 +649,7 @@ outputs:
                           col_start: 17
                           col_stop: 18
                           path: ""
-                          content: "c5: [u8; 32] = [0; 32];            // arrays"
+                          content: "c5: [u8; 32] = [0; 32];           "
                 dimensions:
                   - value: "32"
                 span:
@@ -660,21 +658,21 @@ outputs:
                   col_start: 16
                   col_stop: 23
                   path: ""
-                  content: "c5: [u8; 32] = [0; 32];            // arrays"
+                  content: "c5: [u8; 32] = [0; 32];           "
             span:
               line_start: 29
               line_stop: 29
               col_start: 5
               col_stop: 13
               path: ""
-              content: "c5: [u8; 32] = [0; 32];            // arrays"
+              content: "c5: [u8; 32] = [0; 32];           "
           - type_:
               Array:
                 - Array:
                     - IntegerType: U8
                     - - value: "2"
                 - - value: "3"
-            name: "{\"name\":\"c6\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays\\\"}\"}"
+            name: "{\"name\":\"c6\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c6: [[u8; 2]; 3] = [[0; 2]; 3]; \\\"}\"}"
             value:
               ArrayInit:
                 element:
@@ -689,7 +687,7 @@ outputs:
                               col_start: 22
                               col_stop: 23
                               path: ""
-                              content: "c6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+                              content: "c6: [[u8; 2]; 3] = [[0; 2]; 3]; "
                     dimensions:
                       - value: "2"
                     span:
@@ -698,7 +696,7 @@ outputs:
                       col_start: 21
                       col_stop: 27
                       path: ""
-                      content: "c6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+                      content: "c6: [[u8; 2]; 3] = [[0; 2]; 3]; "
                 dimensions:
                   - value: "3"
                 span:
@@ -707,19 +705,19 @@ outputs:
                   col_start: 20
                   col_stop: 31
                   path: ""
-                  content: "c6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+                  content: "c6: [[u8; 2]; 3] = [[0; 2]; 3]; "
             span:
               line_start: 30
               line_stop: 30
               col_start: 5
               col_stop: 17
               path: ""
-              content: "c6: [[u8; 2]; 3] = [[0; 2]; 3]; // arrays of arrays"
+              content: "c6: [[u8; 2]; 3] = [[0; 2]; 3]; "
           - type_:
               Tuple:
                 - Boolean
                 - Boolean
-            name: "{\"name\":\"c7\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c7: (bool, bool) = (true, false);  // tuples\\\"}\"}"
+            name: "{\"name\":\"c7\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c7: (bool, bool) = (true, false); \\\"}\"}"
             value:
               TupleInit:
                 elements:
@@ -732,7 +730,7 @@ outputs:
                             col_start: 21
                             col_stop: 25
                             path: ""
-                            content: "c7: (bool, bool) = (true, false);  // tuples"
+                            content: "c7: (bool, bool) = (true, false); "
                   - Value:
                       Boolean:
                         - "false"
@@ -742,22 +740,21 @@ outputs:
                             col_start: 27
                             col_stop: 32
                             path: ""
-                            content: "c7: (bool, bool) = (true, false);  // tuples"
+                            content: "c7: (bool, bool) = (true, false); "
                 span:
                   line_start: 31
                   line_stop: 31
                   col_start: 20
                   col_stop: 33
                   path: ""
-                  content: "c7: (bool, bool) = (true, false);  // tuples"
+                  content: "c7: (bool, bool) = (true, false); "
             span:
               line_start: 31
               line_stop: 31
               col_start: 5
               col_stop: 17
               path: ""
-              content: "c7: (bool, bool) = (true, false);  // tuples"
-        is_public: true
+              content: "c7: (bool, bool) = (true, false); "
         span:
           line_start: 23
           line_stop: 23

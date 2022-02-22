@@ -595,16 +595,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "from-pest"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aba9389cedcba1fb3a2aa2ed00f584f2606bce8e0106614a17327a24513bc60f"
-dependencies = [
- "pest",
- "void",
-]
-
-[[package]]
 name = "fsevent"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1031,7 +1021,6 @@ dependencies = [
  "indexmap",
  "leo-errors",
  "leo-span",
- "pest",
  "serde",
  "serde_json",
  "smallvec",
@@ -1071,7 +1060,6 @@ dependencies = [
  "derivative",
  "eyre",
  "leo-span",
- "pest",
  "serde",
  "tendril",
  "thiserror",
@@ -1088,7 +1076,6 @@ dependencies = [
  "colored",
  "console",
  "dirs",
- "from-pest",
  "indexmap",
  "lazy_static",
  "leo-ast",
@@ -1152,7 +1139,6 @@ version = "1.5.3"
 dependencies = [
  "fxhash",
  "indexmap",
- "pest",
  "scoped-tls",
  "serde",
  "tendril",
@@ -2509,12 +2495,6 @@ name = "version_check"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
-
-[[package]]
-name = "void"
-version = "1.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 
 [[package]]
 name = "wait-timeout"

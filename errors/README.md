@@ -41,11 +41,6 @@ The errors for the `leo-compiler` crate. Its error codes will range from 6_000-6
 
 The errors for the `leo-imports` crate. Its error codes will range from 4_000-4_999 and be prefixed with the characters `IMP`.
 
-### Input
-
-The errors for the `leo-input` crate. For right now, they have an exit code of 1, as they aren't ported.
-The reason they aren't ported is due to a desire for 0 deps in case this crate moves to SnarkVM.
-
 ### Package
 
 The errors for the `leo-package` crate. Its error codes will range from 5_000-5_999 and be prefixed with the characters `PAK`.
