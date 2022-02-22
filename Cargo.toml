@@ -27,81 +27,24 @@ path = "leo/main.rs"
 
 [workspace]
 members = [
-#  "asg",
-#  "asg-passes",
-  "ast",
-  "ast-passes",
-  "compiler",
-  "errors",
-  "grammar",
-#  "imports",
-#  "input",
-#  "linter",
-  "package",
-  "parser",
-  "span",
-#  "state",
-#  "stdlib",
-#  "synthesizer",
-#  "test-framework",
-#  "wasm"
+  "compiler/compiler",
+  "docs/grammar",
+  "leo/errors",
+  "leo/package",
 ]
 
-[dependencies.leo-ast]
-path = "./ast"
-version = "1.5.3"
-
 [dependencies.leo-compiler]
-path = "./compiler"
+path = "./compiler/compiler"
 version = "1.5.3"
 
 [dependencies.leo-errors]
-path = "./errors"
+path = "./leo/errors"
 version = "1.5.3"
-
-#[dependencies.leo-imports]
-#path = "./imports"
-#version = "1.5.3"
-#
-#[dependencies.leo-input]
-#path = "./input"
-#version = "1.5.3"
 
 [dependencies.leo-package]
-path = "./package"
+path = "./leo/package"
 version = "1.5.3"
 
-[dependencies.leo-parser]
-path = "./parser"
-version = "1.5.3"
-
-#[dependencies.leo-state]
-#path = "./state"
-#version = "1.5.3"
-
-#[dependencies.leo-stdlib]
-#path = "./stdlib"
-#version = "1.5.3"
-
-#[dependencies.snarkvm-algorithms]
-#git = "https://github.com/AleoHQ/snarkVM.git"
-#rev = "51633e2"
-#
-#[dependencies.snarkvm-curves]
-#git = "https://github.com/AleoHQ/snarkVM.git"
-#rev = "51633e2"
-#default-features = false
-#
-#[dependencies.snarkvm-gadgets]
-#git = "https://github.com/AleoHQ/snarkVM.git"
-#rev = "51633e2"
-#default-features = false
-#
-#[dependencies.snarkvm-r1cs]
-#git = "https://github.com/AleoHQ/snarkVM.git"
-#rev = "51633e2"
-#default-features = false
-#
 [dependencies.snarkvm-utilities]
 git = "https://github.com/AleoHQ/snarkVM.git"
 rev = "51633e2"
