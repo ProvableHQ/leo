@@ -23,7 +23,7 @@ create_errors!(
     exit_code_mask: 8000i32,
     error_code_prefix: "INP",
 
-    /// For when the AST fails to be represented as a JSON string.
+    /// For when declared variable type mismatches actual type.
     @formatted
     unexpected_type {
         args: (expected: impl Display, received: impl Display),
@@ -35,6 +35,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when string value is assigned to an array of non Char type.
     @formatted
     string_is_array_of_chars {
         args: (expected: impl Display),
@@ -45,6 +46,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when [`ArrayDimensions`] are not specified.
     @formatted
     array_dimensions_must_be_specified {
         args: (),
@@ -52,6 +54,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when array init is using spread.
     @formatted
     array_spread_is_not_allowed {
         args: (),
@@ -59,6 +62,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when any of the array dimensions is zero.
     @formatted
     invalid_array_dimension_size {
         args: (),
@@ -66,6 +70,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the expression is not allowed in an input file.
     @formatted
     illegal_expression {
         args: (expr: impl Display),
@@ -73,6 +78,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when section name is not an allowed one.
     @formatted
     unexpected_section {
         args: (expected: &[impl Display], received: impl Display),
@@ -88,6 +94,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when declared tuple length is not equal to the value's.
     @formatted
     tuple_length_mismatch {
         args: (expected: impl Display, received: impl Display),
