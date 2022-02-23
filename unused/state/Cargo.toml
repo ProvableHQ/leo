@@ -25,10 +25,6 @@ version = "1.5.3"
 path = "../errors"
 version = "1.5.3"
 
-[dependencies.leo-input]
-path = "../input"
-version = "1.5.3"
-
 [dependencies.snarkvm-algorithms]
 git = "https://github.com/AleoHQ/snarkVM.git"
 rev = "51633e2"

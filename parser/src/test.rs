@@ -111,6 +111,27 @@ impl Namespace for ParseExpressionNamespace {
     }
 }
 
+struct ParseImportNamespace;
+
+impl Namespace for ParseImportNamespace {
+    fn parse_type(&self) -> ParseType {
+        ParseType::ContinuousLines
+    }
+
+    fn run_test(&self, test: Test) -> Result<Value, String> {
+        create_session_if_not_set_then(|_| {
+            let tokenizer = tokenize(test)?;
+            if all_are_comments(&tokenizer) {
+                return Ok(yaml_or_fail(Statement::Expression(ExpressionStatement {
+                    expression: implicit_value_expr(),
+                    span: Span::default(),
+                })));
+            }
+            with_handler(tokenizer, |p| p.parse_import_statement()).map(yaml_or_fail)
+        })
+    }
+}
+
 struct ParseStatementNamespace;
 
 impl Namespace for ParseStatementNamespace {
@@ -209,16 +230,30 @@ impl Namespace for SerializeNamespace {
     }
 }
 
+struct InputNamespace;
+
+impl Namespace for InputNamespace {
+    fn parse_type(&self) -> ParseType {
+        ParseType::Whole
+    }
+
+    fn run_test(&self, test: Test) -> Result<Value, String> {
+        create_session_if_not_set_then(|_| with_handler(tokenize(test)?, |p| p.parse_input()).map(yaml_or_fail))
+    }
+}
+
 struct TestRunner;
 
 impl Runner for TestRunner {
     fn resolve_namespace(&self, name: &str) -> Option<Box<dyn Namespace>> {
         Some(match name {
             "Parse" => Box::new(ParseNamespace),
-            "ParseStatement" => Box::new(ParseStatementNamespace),
+            "ParseImport" => Box::new(ParseImportNamespace),
             "ParseExpression" => Box::new(ParseExpressionNamespace),
-            "Token" => Box::new(TokenNamespace),
+            "ParseStatement" => Box::new(ParseStatementNamespace),
             "Serialize" => Box::new(SerializeNamespace),
+            "Input" => Box::new(InputNamespace),
+            "Token" => Box::new(TokenNamespace),
             _ => return None,
         })
     }

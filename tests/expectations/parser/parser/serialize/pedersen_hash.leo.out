@@ -64,6 +64,7 @@ outputs:
                       variable_names:
                         - mutable: true
                           identifier: "{\"name\":\"digest\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let digest: group = 0group;\\\"}\"}"
+                      parened: false
                       type_: Group
                       value:
                         Value:
@@ -143,6 +144,7 @@ outputs:
                 variable_names:
                   - mutable: false
                     identifier: "{\"name\":\"pedersen\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":11,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
+                parened: false
                 type_: ~
                 value:
                   Call:

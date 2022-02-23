@@ -30,7 +30,7 @@ members = [
 #  "asg",
 #  "asg-passes",
   "ast",
-#  "ast-passes",
+  "ast-passes",
   "compiler",
   "errors",
   "grammar",
@@ -63,9 +63,6 @@ version = "1.5.3"
 #path = "./imports"
 #version = "1.5.3"
 #
-#[dependencies.leo-input]
-#path = "./input"
-#version = "1.5.3"
 
 [dependencies.leo-package]
 path = "./package"
@@ -107,7 +104,7 @@ git = "https://github.com/AleoHQ/snarkVM.git"
 rev = "51633e2"
 
 [dependencies.clap]
-version = "3.0.10"
+version = "3.1"
 
 [dependencies.color-backtrace]
 version = "0.5.1"
@@ -120,9 +117,6 @@ version = "4.0.0"
 
 [dependencies.console]
 version = "0.15.0"
-
-[dependencies.from-pest]
-version = "0.3.1"
 
 [dependencies.indexmap]
 version = "1.8"

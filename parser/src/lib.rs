@@ -23,14 +23,13 @@
 #![doc = include_str!("../README.md")]
 
 pub(crate) mod tokenizer;
-use leo_input::LeoInputParser;
 pub use tokenizer::KEYWORD_TOKENS;
 pub(crate) use tokenizer::*;
 
 pub mod parser;
 pub use parser::*;
 
-use leo_ast::{Ast, Input};
+use leo_ast::{Ast, Input, ProgramInput, ProgramState};
 use leo_errors::emitter::Handler;
 use leo_errors::Result;
 
@@ -42,63 +41,17 @@ pub fn parse_ast<T: AsRef<str>, Y: AsRef<str>>(handler: &Handler, path: T, sourc
     Ok(Ast::new(parser::parse(handler, path.as_ref(), source.as_ref())?))
 }
 
-/// Parses program input from from the input file path and state file path
-pub fn parse_program_input<T: AsRef<str>, Y: AsRef<str>, T2: AsRef<str>, Y2: AsRef<str>>(
+/// Parses program inputs from from the input file path and state file path
+pub fn parse_program_inputs<T: AsRef<str>, Y: AsRef<str>>(
+    handler: &Handler,
     input_string: T,
     input_path: Y,
-    state_string: T2,
-    state_path: Y2,
 ) -> Result<Input> {
-    let input_syntax_tree = LeoInputParser::parse_file(input_string.as_ref()).map_err(|mut e| {
-        e.set_path(
-            input_path.as_ref(),
-            &input_string
-                .as_ref()
-                .lines()
-                .map(|x| x.to_string())
-                .collect::<Vec<String>>()[..],
-        );
+    let program_input: ProgramInput =
+        parser::parse_input(handler, input_path.as_ref(), input_string.as_ref())?.try_into()?;
 
-        e
-    })?;
-    let state_syntax_tree = LeoInputParser::parse_file(state_string.as_ref()).map_err(|mut e| {
-        e.set_path(
-            state_path.as_ref(),
-            &state_string
-                .as_ref()
-                .lines()
-                .map(|x| x.to_string())
-                .collect::<Vec<String>>()[..],
-        );
-
-        e
-    })?;
-
-    let mut input = Input::new();
-    input.parse_input(input_syntax_tree).map_err(|mut e| {
-        e.set_path(
-            input_path.as_ref(),
-            &input_string
-                .as_ref()
-                .lines()
-                .map(|x| x.to_string())
-                .collect::<Vec<String>>()[..],
-        );
-
-        e
-    })?;
-    input.parse_state(state_syntax_tree).map_err(|mut e| {
-        e.set_path(
-            state_path.as_ref(),
-            &state_string
-                .as_ref()
-                .lines()
-                .map(|x| x.to_string())
-                .collect::<Vec<String>>()[..],
-        );
-
-        e
-    })?;
-
-    Ok(input)
+    Ok(Input {
+        program_input,
+        program_state: ProgramState::default(),
+    })
 }

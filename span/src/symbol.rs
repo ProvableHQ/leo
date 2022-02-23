@@ -110,6 +110,7 @@ symbols! {
     circuit,
     Class: "class",
     context,
+    constants,
     CoreFunction,
     console,
     Const: "const",
@@ -160,6 +161,9 @@ symbols! {
     record,
     state,
     state_leaf,
+
+    public,
+    private,
 }
 
 /// An interned string.

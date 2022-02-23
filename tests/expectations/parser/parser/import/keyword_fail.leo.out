@@ -1,5 +1,6 @@
 ---
-namespace: Parse
+namespace: ParseImport
 expectation: Fail
 outputs:
-  - "Error [EPAR0370009]: unexpected string: expected 'package name', got 'function'\n    --> test:3:8\n     |\n   3 | import function.a;\n     |        ^^^^^^^^\nError [EPAR0370009]: unexpected string: expected 'package name', got 'import'\n    --> test:5:8\n     |\n   5 | import import.a;\n     |        ^^^^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'package name', got 'function'\n    --> test:1:8\n     |\n   1 | import function.a;\n     |        ^^^^^^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'package name', got 'import'\n    --> test:1:8\n     |\n   1 | import import.a;\n     |        ^^^^^^"

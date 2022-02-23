@@ -13,7 +13,7 @@ The common section of this crate contains a few sub files:
 - [Backtraced Error](./src/common/backtraced.rs): Which contains the information needed to create a backtraceable error for Leo.
 - [Formatted Error](./src/common/formatted.rs): Which contains the information needed to create a formatted error for Leo.
 - [Macros](./src/common/macros.rs): Which contains the logic to make creating errors easy through a DSL. It also figures out the error codes for each error via a **top down** method. Meaning all new errors should be added to the bottom of the file. You can specify whether an error is formatted or backtraced through a decorator above a function name, where the formatted ones require a Span as an argument by default. The body takes any additional arguments you want provided to the function, the message, and the optional help message for the error. The additional arguments are just specified to implement traits to avoid as many type conversions in other Leo crates.
-- [Span](./src/common/span.rs): Which contains the span object used throughout the other Leo crates(with the exception of the Input crate see more [below](#input)).
+- [Span](./src/common/span.rs): Which contains the span object used throughout the other Leo crates (with the exception of the Input crate see more [below](#input)).
 - [Tendril JSON](./src/common/tendril_json.rs): Which contains the common logic for how to searlize a StrTendril from the tendril crate.
 - [Traits](./src/common/traits.rs): Which contains the common traits in errors to make defining errors easier.
 
@@ -41,10 +41,9 @@ The errors for the `leo-compiler` crate. Its error codes will range from 6_000-6
 
 The errors for the `leo-imports` crate. Its error codes will range from 4_000-4_999 and be prefixed with the characters `IMP`.
 
-### Input
+## Input
 
-The errors for the `leo-input` crate. For right now, they have an exit code of 1, as they aren't ported.
-The reason they aren't ported is due to a desire for 0 deps in case this crate moves to SnarkVM.
+The errors for the `leo-ast` crate. Its error codes will range from 8_000-8_999 and be prefixed with the characters `INP`.
 
 ### Package
 

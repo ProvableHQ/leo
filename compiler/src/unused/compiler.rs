@@ -24,7 +24,6 @@ use leo_asg::{Asg, AsgPass, Program as AsgProgram};
 use leo_ast::{AstPass, Input, MainInput, Program as AstProgram};
 use leo_errors::{CompilerError, Result};
 use leo_imports::ImportParser;
-use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_parser::parse_ast;
 

@@ -14,6 +14,7 @@ outputs:
             col_stop: 6
             path: ""
             content: let x = expr;
+      parened: false
       type_: ~
       value:
         Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = expr;\\\"}\"}"
@@ -36,6 +37,7 @@ outputs:
             col_stop: 6
             path: ""
             content: let x = ();
+      parened: false
       type_: ~
       value:
         TupleInit:
@@ -66,6 +68,7 @@ outputs:
             col_stop: 6
             path: ""
             content: let x = x+y;
+      parened: false
       type_: ~
       value:
         Binary:
@@ -100,6 +103,7 @@ outputs:
             col_stop: 6
             path: ""
             content: "let x = (x,y);"
+      parened: false
       type_: ~
       value:
         TupleInit:
@@ -132,6 +136,7 @@ outputs:
             col_stop: 6
             path: ""
             content: let x = x();
+      parened: false
       type_: ~
       value:
         Call:
@@ -164,6 +169,7 @@ outputs:
             col_stop: 8
             path: ""
             content: const x = expr;
+      parened: false
       type_: ~
       value:
         Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":11,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x = expr;\\\"}\"}"
@@ -186,6 +192,7 @@ outputs:
             col_stop: 8
             path: ""
             content: const x = ();
+      parened: false
       type_: ~
       value:
         TupleInit:
@@ -216,6 +223,7 @@ outputs:
             col_stop: 8
             path: ""
             content: const x = x+y;
+      parened: false
       type_: ~
       value:
         Binary:
@@ -250,6 +258,7 @@ outputs:
             col_stop: 8
             path: ""
             content: "const x = (x,y);"
+      parened: false
       type_: ~
       value:
         TupleInit:
@@ -282,6 +291,7 @@ outputs:
             col_stop: 8
             path: ""
             content: const x = x();
+      parened: false
       type_: ~
       value:
         Call:
@@ -314,6 +324,7 @@ outputs:
             col_stop: 6
             path: ""
             content: "let x: u32 = expr;"
+      parened: false
       type_:
         IntegerType: U32
       value:
@@ -337,6 +348,7 @@ outputs:
             col_stop: 6
             path: ""
             content: "let x: u32 = ();"
+      parened: false
       type_:
         IntegerType: U32
       value:
@@ -368,6 +380,7 @@ outputs:
             col_stop: 6
             path: ""
             content: "let x: u32 = x+y;"
+      parened: false
       type_:
         IntegerType: U32
       value:
@@ -403,6 +416,7 @@ outputs:
             col_stop: 6
             path: ""
             content: "let x: u32 = (x,y);"
+      parened: false
       type_:
         IntegerType: U32
       value:
@@ -436,6 +450,7 @@ outputs:
             col_stop: 6
             path: ""
             content: "let x: u32 = x();"
+      parened: false
       type_:
         IntegerType: U32
       value:
@@ -469,6 +484,7 @@ outputs:
             col_stop: 8
             path: ""
             content: "const x: u32 = expr;"
+      parened: false
       type_:
         IntegerType: U32
       value:
@@ -492,6 +508,7 @@ outputs:
             col_stop: 8
             path: ""
             content: "const x: u32 = ();"
+      parened: false
       type_:
         IntegerType: U32
       value:
@@ -523,6 +540,7 @@ outputs:
             col_stop: 8
             path: ""
             content: "const x: u32 = x+y;"
+      parened: false
       type_:
         IntegerType: U32
       value:
@@ -558,6 +576,7 @@ outputs:
             col_stop: 8
             path: ""
             content: "const x: u32 = (x,y);"
+      parened: false
       type_:
         IntegerType: U32
       value:
@@ -591,6 +610,7 @@ outputs:
             col_stop: 8
             path: ""
             content: "const x: u32 = x();"
+      parened: false
       type_:
         IntegerType: U32
       value:
@@ -633,6 +653,7 @@ outputs:
             col_stop: 10
             path: ""
             content: "let (x, y) = expr;"
+      parened: true
       type_: ~
       value:
         Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let (x, y) = expr;\\\"}\"}"
@@ -664,6 +685,7 @@ outputs:
             col_stop: 10
             path: ""
             content: "let (x, y) = ();"
+      parened: true
       type_: ~
       value:
         TupleInit:
@@ -703,6 +725,7 @@ outputs:
             col_stop: 10
             path: ""
             content: "let (x, y) = x+y;"
+      parened: true
       type_: ~
       value:
         Binary:
@@ -746,6 +769,7 @@ outputs:
             col_stop: 10
             path: ""
             content: "let (x, y) = (x,y);"
+      parened: true
       type_: ~
       value:
         TupleInit:
@@ -787,6 +811,7 @@ outputs:
             col_stop: 10
             path: ""
             content: "let (x, y) = x();"
+      parened: true
       type_: ~
       value:
         Call:
@@ -828,6 +853,7 @@ outputs:
             col_stop: 12
             path: ""
             content: "const (x, y) = expr;"
+      parened: true
       type_: ~
       value:
         Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const (x, y) = expr;\\\"}\"}"
@@ -859,6 +885,7 @@ outputs:
             col_stop: 12
             path: ""
             content: "const (x, y) = ();"
+      parened: true
       type_: ~
       value:
         TupleInit:
@@ -898,6 +925,7 @@ outputs:
             col_stop: 12
             path: ""
             content: "const (x, y) = x+y;"
+      parened: true
       type_: ~
       value:
         Binary:
@@ -941,6 +969,7 @@ outputs:
             col_stop: 12
             path: ""
             content: "const (x, y) = (x,y);"
+      parened: true
       type_: ~
       value:
         TupleInit:
@@ -982,6 +1011,7 @@ outputs:
             col_stop: 12
             path: ""
             content: "const (x, y) = x();"
+      parened: true
       type_: ~
       value:
         Call:
@@ -1023,6 +1053,7 @@ outputs:
             col_stop: 10
             path: ""
             content: "let (x, y): u32 = expr;"
+      parened: true
       type_:
         IntegerType: U32
       value:
@@ -1055,6 +1086,7 @@ outputs:
             col_stop: 10
             path: ""
             content: "let (x, y): u32 = ();"
+      parened: true
       type_:
         IntegerType: U32
       value:
@@ -1095,6 +1127,7 @@ outputs:
             col_stop: 10
             path: ""
             content: "let (x, y): u32 = x+y;"
+      parened: true
       type_:
         IntegerType: U32
       value:
@@ -1139,6 +1172,7 @@ outputs:
             col_stop: 10
             path: ""
             content: "let (x, y): u32 = (x,y);"
+      parened: true
       type_:
         IntegerType: U32
       value:
@@ -1181,6 +1215,7 @@ outputs:
             col_stop: 10
             path: ""
             content: "let (x, y): u32 = x();"
+      parened: true
       type_:
         IntegerType: U32
       value:
@@ -1223,6 +1258,7 @@ outputs:
             col_stop: 12
             path: ""
             content: "const (x, y): u32 = expr;"
+      parened: true
       type_:
         IntegerType: U32
       value:
@@ -1255,6 +1291,7 @@ outputs:
             col_stop: 12
             path: ""
             content: "const (x, y): u32 = ();"
+      parened: true
       type_:
         IntegerType: U32
       value:
@@ -1295,6 +1332,7 @@ outputs:
             col_stop: 12
             path: ""
             content: "const (x, y): u32 = x+y;"
+      parened: true
       type_:
         IntegerType: U32
       value:
@@ -1339,6 +1377,7 @@ outputs:
             col_stop: 12
             path: ""
             content: "const (x, y): u32 = (x,y);"
+      parened: true
       type_:
         IntegerType: U32
       value:
@@ -1381,6 +1420,7 @@ outputs:
             col_stop: 12
             path: ""
             content: "const (x, y): u32 = x();"
+      parened: true
       type_:
         IntegerType: U32
       value:
@@ -1423,6 +1463,7 @@ outputs:
             col_stop: 9
             path: ""
             content: "let (x,y,) = ();"
+      parened: true
       type_: ~
       value:
         TupleInit:
@@ -1453,6 +1494,7 @@ outputs:
             col_stop: 7
             path: ""
             content: "let (x,) = ();"
+      parened: true
       type_: ~
       value:
         TupleInit:
@@ -1483,6 +1525,7 @@ outputs:
             col_stop: 6
             path: ""
             content: "let x: [char; _] = \"Hello, World!\";"
+      parened: false
       type_:
         Array:
           - Char
@@ -1529,6 +1572,7 @@ outputs:
             col_stop: 6
             path: ""
             content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
+      parened: false
       type_:
         Array:
           - Array:

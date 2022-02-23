@@ -295,11 +295,14 @@ impl ParserContext<'_> {
         let declare = self.expect_oneof(&[Token::Let, Token::Const])?;
 
         // Parse variable names.
-        let variable_names = if self.peek_is_left_par() {
-            self.parse_paren_comma_list(|p| p.parse_variable_name(&declare).map(Some))
-                .map(|(vars, ..)| vars)?
+        let (variable_names, parened) = if self.peek_is_left_par() {
+            (
+                self.parse_paren_comma_list(|p| p.parse_variable_name(&declare).map(Some))
+                    .map(|(vars, ..)| vars)?,
+                true,
+            )
         } else {
-            vec![self.parse_variable_name(&declare)?]
+            (vec![self.parse_variable_name(&declare)?], false)
         };
 
         // Parse an optional type ascription.
@@ -320,6 +323,7 @@ impl ParserContext<'_> {
                 _ => unreachable!("parse_definition_statement_ shouldn't produce this"),
             },
             variable_names,
+            parened,
             type_,
             value: expr,
         })

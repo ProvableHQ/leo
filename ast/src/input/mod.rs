@@ -14,11 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![allow(clippy::module_inception)]
-
-#[macro_use]
-pub mod macros;
-pub use macros::*;
+pub mod definition;
+pub use definition::*;
 
 pub mod input;
 pub use input::*;
@@ -26,11 +23,18 @@ pub use input::*;
 pub mod input_value;
 pub use input_value::*;
 
-pub mod parameters;
-pub use parameters::*;
-
 pub mod program_input;
 pub use program_input::*;
 
 pub mod program_state;
 pub use program_state::*;
+
+pub mod section;
+pub use section::*;
+
+use indexmap::IndexMap;
+use leo_errors::{InputError, LeoError, Result};
+use leo_span::{sym, Span, Symbol};
+use serde::{Deserialize, Serialize};
+
+type Definitions = IndexMap<Symbol, InputValue>;

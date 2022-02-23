@@ -21,10 +21,6 @@ rust-version = "1.56"
 [dependencies]
 smallvec = { version = "1.8.0", features = ["serde"] }
 
-[dependencies.leo-input]
-path = "../input"
-version = "1.5.3"
-
 [dependencies.leo-errors]
 path = "../errors"
 version = "1.5.3"
@@ -36,9 +32,6 @@ version = "1.5.3"
 [dependencies.indexmap]
 version = "1.8.0"
 features = [ "serde-1" ]
-
-[dependencies.pest]
-version = "2.0"
 
 [dependencies.serde]
 version = "1.0"
