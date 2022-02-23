@@ -162,7 +162,7 @@ impl ParserContext<'_> {
 
     /// Returns an [`ImportTree`] AST node if the next tokens represent a valid package import
     /// with accesses.
-    // Public soely foro writing import parsing tests.
+    // Public solely for writing import parsing tests.
     pub fn parse_import_tree(&mut self) -> Result<ImportTree> {
         // Parse the first part of the path.
         let first_name = self.parse_package_name()?;
@@ -216,7 +216,7 @@ impl ParserContext<'_> {
     }
 
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
-    /// or circuit member function.
+    /// or circuit member function or circuit member constant.
     pub fn parse_circuit_declaration(&mut self) -> Result<Vec<CircuitMember>> {
         let mut members = Vec::new();
 
@@ -462,7 +462,7 @@ impl ParserContext<'_> {
 
     ///
     /// Returns an [`(String, DefinitionStatement)`] AST node if the next tokens represent a global
-    /// const definition statement and assignment.
+    /// constant declaration.
     ///
     pub fn parse_global_const_declaration(&mut self) -> Result<(Vec<Identifier>, DefinitionStatement)> {
         let statement = self.parse_definition_statement()?;
@@ -476,8 +476,7 @@ impl ParserContext<'_> {
     }
 
     ///
-    /// Returns an [`(String, Alias)`] AST node if the next tokens represent a global
-    /// const definition statement and assignment.
+    /// Returns a [`(String, Alias)`] AST node if the next tokens represent a type alias declaration.
     ///
     pub fn parse_type_alias(&mut self) -> Result<(Identifier, Alias)> {
         let start = self.expect(Token::Type)?;

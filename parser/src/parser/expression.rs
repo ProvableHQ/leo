@@ -386,10 +386,10 @@ impl ParserContext<'_> {
     }
 
     ///
-    /// Returns a [`SpreadOrExpression`] AST node if the next tokens represent an
+    /// Returns a [`SpreadOrExpression`] AST node if the next tokens represent a
     /// spread or expression.
     ///
-    /// This method should only be called in the context of an array access expression.
+    /// This method should only be called in the context of an array construction expression.
     ///
     pub fn parse_spread_or_expression(&mut self) -> Result<SpreadOrExpression> {
         Ok(if self.eat(Token::DotDotDot).is_some() {
@@ -416,8 +416,8 @@ impl ParserContext<'_> {
     }
 
     ///
-    /// Returns an [`Expression`] AST node if the next tokens represent an
-    /// tuple initialization expression.
+    /// Returns an [`Expression`] AST node if the next tokens represent a
+    /// tuple initialization expression or an affine group literal.
     ///
     pub fn parse_tuple_expression(&mut self, span: &Span) -> Result<Expression> {
         if let Some((left, right, span)) = self.eat_group_partial().transpose()? {
