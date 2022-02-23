@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::Ast;
-use leo_errors::emitter::Handler;
+use leo_errors::{emitter::Handler, Result};
 use leo_span::symbol::create_session_if_not_set_then;
 
 use std::{
@@ -25,9 +24,12 @@ use std::{
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
-#[structopt(name = "leo parser", about = "Parse Leo AST and store it as a JSON")]
+#[structopt(
+    name = "input parser",
+    about = "Parse an Input file and save its JSON representation"
+)]
 struct Opt {
-    /// Path to the Leo file.
+    /// Path to the input file.
     #[structopt(parse(from_os_str))]
     input_path: PathBuf,
 
@@ -42,21 +44,18 @@ struct Opt {
 
 fn main() -> Result<(), String> {
     let opt = Opt::from_args();
-    let code = fs::read_to_string(&opt.input_path).expect("failed to open file");
-
-    // Parses the Leo file constructing an ast which is then serialized.
-    let serialized_leo_tree = create_session_if_not_set_then(|_| {
-        Handler::with(|h| {
-            let ast = leo_parser::parse_ast(&h, opt.input_path.to_str().unwrap(), &code)?;
-            let json = Ast::to_json_string(&ast)?;
-            println!("{}", json);
-            Ok(json)
+    let input_string = fs::read_to_string(&opt.input_path).expect("failed to open an input file");
+    let input_tree = create_session_if_not_set_then(|_| {
+        Handler::with(|handler| {
+            let input =
+                leo_parser::parse_program_inputs(&handler, input_string.clone(), opt.input_path.to_str().unwrap())?;
+            Ok(input.to_json_string()?)
         })
-        .map_err(|b| b.to_string())
+        .map_err(|e| e.to_string())
     })?;
 
     if opt.print_stdout {
-        println!("{}", serialized_leo_tree);
+        println!("{}", input_tree);
     }
 
     let out_path = if let Some(out_dir) = opt.out_dir_path {
@@ -69,7 +68,7 @@ fn main() -> Result<(), String> {
         format!("./{}.json", opt.input_path.file_stem().unwrap().to_str().unwrap())
     };
 
-    fs::write(Path::new(&out_path), serialized_leo_tree).expect("failed to write output");
+    fs::write(Path::new(&out_path), input_tree).expect("failed to write output");
 
     Ok(())
 }

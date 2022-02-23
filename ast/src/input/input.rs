@@ -14,126 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConstantInput, InputValue, MainInput, ProgramInput, ProgramState, Record, Registers, State, StateLeaf};
-use leo_input::{
-    files::{File, TableOrSection},
-    InputParserError,
-};
-use leo_span::Symbol;
+use super::*;
+use leo_errors::AstError;
 
-#[derive(Clone, PartialEq, Eq)]
+/// Input data which includes [`ProgramInput`] and [`ProgramState`].
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Input {
-    name: String,
-    program_input: ProgramInput,
-    program_state: ProgramState,
+    pub program_input: ProgramInput,
+    pub program_state: ProgramState,
 }
 
-impl Default for Input {
-    fn default() -> Self {
-        Self {
-            name: "default".to_owned(),
-            program_input: ProgramInput::new(),
-            program_state: ProgramState::new(),
-        }
-    }
+/// A raw unprocessed input or state file data. Used for future conversion
+/// into [`ProgramInput`] or [`ProgramState`].
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ParsedInputFile {
+    pub sections: Vec<Section>,
 }
 
-#[allow(clippy::len_without_is_empty)]
 impl Input {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// Returns an empty version of this struct with `None` values.
-    /// Called during constraint synthesis to provide private input variables.
-    pub fn empty(&self) -> Self {
-        let input = self.program_input.empty();
-        let state = self.program_state.empty();
-
-        Self {
-            name: self.name.clone(),
-            program_input: input,
-            program_state: state,
-        }
-    }
-
-    /// Returns the number of input variables to pass into the `main` program function
-    pub fn len(&self) -> usize {
-        self.program_input.len() + self.program_state.len()
-    }
-
-    /// Manually set the input variables to the `main` program function
-    pub fn set_main_input(&mut self, input: MainInput) {
-        self.program_input.main = input;
-    }
-
-    /// Parse all input variables included in a file and store them in `self`.
-    pub fn parse_input(&mut self, file: File) -> Result<(), InputParserError> {
-        for entry in file.entries.into_iter() {
-            match entry {
-                TableOrSection::Section(section) => {
-                    self.program_input.parse(section)?;
-                }
-                TableOrSection::Table(table) => return Err(InputParserError::table(table)),
-            }
-        }
-
-        Ok(())
-    }
-
-    /// Parse all state variables included in a file and store them in `self`.
-    pub fn parse_state(&mut self, file: File) -> Result<(), InputParserError> {
-        for entry in file.entries.into_iter() {
-            match entry {
-                TableOrSection::Section(section) => return Err(InputParserError::section(section.header)),
-                TableOrSection::Table(table) => {
-                    self.program_state.parse(table)?;
-                }
-            }
-        }
-
-        Ok(())
-    }
-
-    /// Returns the main function input value with the given `name`.
-    #[allow(clippy::ptr_arg)]
-    pub fn get(&self, name: Symbol) -> Option<Option<InputValue>> {
-        self.program_input.get(name)
-    }
-
-    /// Returns the constant input value with the given `name`.
-    #[allow(clippy::ptr_arg)]
-    pub fn get_constant(&self, name: Symbol) -> Option<Option<InputValue>> {
-        self.program_input.get_constant(name)
-    }
-
-    /// Returns the main input values
-    pub fn get_main_inputs(&self) -> &MainInput {
-        &self.program_input.main
-    }
-
-    /// Returns the main input values
-    pub fn get_constant_inputs(&self) -> &ConstantInput {
-        &self.program_input.constants
-    }
-
-    /// Returns the runtime register input values
-    pub fn get_registers(&self) -> &Registers {
-        self.program_input.get_registers()
-    }
-
-    /// Returns the runtime record input values
-    pub fn get_record(&self) -> &Record {
-        self.program_state.get_record()
-    }
-
-    /// Returns the runtime state input values
-    pub fn get_state(&self) -> &State {
-        self.program_state.get_state()
-    }
-
-    /// Returns the runtime state leaf input values
-    pub fn get_state_leaf(&self) -> &StateLeaf {
-        self.program_state.get_state_leaf()
+    /// Serializes the ast into a JSON string.
+    pub fn to_json_string(&self) -> Result<String> {
+        Ok(serde_json::to_string_pretty(&self).map_err(|e| AstError::failed_to_convert_ast_to_json_string(&e))?)
     }
 }

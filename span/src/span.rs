@@ -18,7 +18,6 @@
 
 use std::{fmt, sync::Arc, usize};
 
-use pest::Span as PestSpan;
 use serde::ser::{Serialize, SerializeStruct, Serializer};
 use serde::Deserialize;
 use tendril::StrTendril;
@@ -107,23 +106,6 @@ impl fmt::Display for Span {
                 self.line_start, self.col_start, self.line_stop, self.col_stop
             )
         }
-    }
-}
-
-/// Conversion from a pest span where the leo-input library uses these.
-impl<'ast> From<PestSpan<'ast>> for Span {
-    fn from(span: PestSpan) -> Self {
-        let start = span.start_pos().line_col();
-        let end = span.end_pos().line_col();
-
-        Span::new(
-            start.0,
-            end.0,
-            start.1,
-            end.1,
-            Arc::new(String::new()),
-            span.as_str().into(),
-        )
     }
 }
 

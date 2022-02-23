@@ -14,28 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use serde::{Deserialize, Serialize};
-use std::fmt;
-use tendril::StrTendril;
+use super::*;
 
-/// A number string guaranteed to be positive by the pest grammar.
-#[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
-pub struct PositiveNumber {
-    /// The string representation of the positive number.
-    // FIXME(Centril): This should become an `u128`.
-    #[serde(with = "leo_span::tendril_json")]
-    pub value: StrTendril,
-}
-
-impl PositiveNumber {
-    /// Returns `true` if this number is zero.
-    pub fn is_zero(&self) -> bool {
-        self.value.as_ref().eq("0")
-    }
-}
-
-impl fmt::Display for PositiveNumber {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.value)
-    }
+/// A single section in an input or a state file.
+/// An example of a section would be: `[main]`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Section {
+    pub name: Symbol,
+    pub definitions: Vec<Definition>,
+    pub span: Span,
 }

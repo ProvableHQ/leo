@@ -15,9 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ArrayDimensions, Identifier, IntegerType};
-use leo_input::types::{
-    ArrayType as InputArrayType, DataType as InputDataType, TupleType as InputTupleType, Type as InputType,
-};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -118,48 +115,6 @@ impl Type {
                 .zip(right)
                 .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
             _ => false,
-        }
-    }
-}
-
-/// input pest ast -> Explicit Type
-
-impl From<InputDataType> for Type {
-    fn from(data_type: InputDataType) -> Self {
-        match data_type {
-            InputDataType::Address(_type) => Type::Address,
-            InputDataType::Boolean(_type) => Type::Boolean,
-            InputDataType::Char(_type) => Type::Char,
-            InputDataType::Field(_type) => Type::Field,
-            InputDataType::Group(_type) => Type::Group,
-            InputDataType::Integer(type_) => Type::IntegerType(IntegerType::from(type_)),
-        }
-    }
-}
-
-impl<'ast> From<InputArrayType<'ast>> for Type {
-    fn from(array_type: InputArrayType<'ast>) -> Self {
-        let element_type = Box::new(Type::from(*array_type.type_));
-        let dimensions = ArrayDimensions::from(array_type.dimensions);
-
-        Type::Array(element_type, dimensions)
-    }
-}
-
-impl<'ast> From<InputTupleType<'ast>> for Type {
-    fn from(tuple_type: InputTupleType<'ast>) -> Self {
-        let types = tuple_type.types_.into_iter().map(Type::from).collect();
-
-        Type::Tuple(types)
-    }
-}
-
-impl<'ast> From<InputType<'ast>> for Type {
-    fn from(type_: InputType<'ast>) -> Self {
-        match type_ {
-            InputType::Basic(type_) => Type::from(type_),
-            InputType::Array(type_) => Type::from(type_),
-            InputType::Tuple(type_) => Type::from(type_),
         }
     }
 }

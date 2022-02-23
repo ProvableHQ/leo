@@ -63,9 +63,6 @@ version = "1.5.3"
 #path = "./imports"
 #version = "1.5.3"
 #
-#[dependencies.leo-input]
-#path = "./input"
-#version = "1.5.3"
 
 [dependencies.leo-package]
 path = "./package"
@@ -120,9 +117,6 @@ version = "4.0.0"
 
 [dependencies.console]
 version = "0.15.0"
-
-[dependencies.from-pest]
-version = "0.3.1"
 
 [dependencies.indexmap]
 version = "1.8"

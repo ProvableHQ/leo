@@ -14,10 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_input::types::{
-    IntegerType as InputIntegerType, SignedIntegerType as InputSignedIntegerType,
-    UnsignedIntegerType as InputUnsignedIntegerType,
-};
 use leo_span::{sym, Symbol};
 
 use serde::{Deserialize, Serialize};
@@ -59,39 +55,6 @@ impl IntegerType {
             Self::U32 => sym::u32,
             Self::U64 => sym::u64,
             Self::U128 => sym::u128,
-        }
-    }
-}
-
-impl From<InputIntegerType> for IntegerType {
-    fn from(integer_type: InputIntegerType) -> Self {
-        match integer_type {
-            InputIntegerType::Signed(signed) => Self::from(signed),
-            InputIntegerType::Unsigned(unsigned) => Self::from(unsigned),
-        }
-    }
-}
-
-impl From<InputUnsignedIntegerType> for IntegerType {
-    fn from(integer_type: InputUnsignedIntegerType) -> Self {
-        match integer_type {
-            InputUnsignedIntegerType::U8Type(_type) => IntegerType::U8,
-            InputUnsignedIntegerType::U16Type(_type) => IntegerType::U16,
-            InputUnsignedIntegerType::U32Type(_type) => IntegerType::U32,
-            InputUnsignedIntegerType::U64Type(_type) => IntegerType::U64,
-            InputUnsignedIntegerType::U128Type(_type) => IntegerType::U128,
-        }
-    }
-}
-
-impl From<InputSignedIntegerType> for IntegerType {
-    fn from(integer_type: InputSignedIntegerType) -> Self {
-        match integer_type {
-            InputSignedIntegerType::I8Type(_type) => IntegerType::I8,
-            InputSignedIntegerType::I16Type(_type) => IntegerType::I16,
-            InputSignedIntegerType::I32Type(_type) => IntegerType::I32,
-            InputSignedIntegerType::I64Type(_type) => IntegerType::I64,
-            InputSignedIntegerType::I128Type(_type) => IntegerType::I128,
         }
     }
 }

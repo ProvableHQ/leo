@@ -230,6 +230,18 @@ impl Namespace for SerializeNamespace {
     }
 }
 
+struct InputNamespace;
+
+impl Namespace for InputNamespace {
+    fn parse_type(&self) -> ParseType {
+        ParseType::Whole
+    }
+
+    fn run_test(&self, test: Test) -> Result<Value, String> {
+        create_session_if_not_set_then(|_| with_handler(tokenize(test)?, |p| p.parse_input()).map(yaml_or_fail))
+    }
+}
+
 struct TestRunner;
 
 impl Runner for TestRunner {
@@ -240,6 +252,7 @@ impl Runner for TestRunner {
             "ParseExpression" => Box::new(ParseExpressionNamespace),
             "ParseStatement" => Box::new(ParseStatementNamespace),
             "Serialize" => Box::new(SerializeNamespace),
+            "Input" => Box::new(InputNamespace),
             "Token" => Box::new(TokenNamespace),
             _ => return None,
         })

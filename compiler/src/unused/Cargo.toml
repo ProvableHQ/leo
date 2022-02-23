@@ -30,9 +30,6 @@ version = "1.5.3"
 #path = "../imports"
 #version = "1.5.3"
 #
-#[dependencies.leo-input]
-#path = "../input"
-#version = "1.5.3"
 #
 #[dependencies.leo-package]
 #path = "../package"
@@ -101,9 +98,6 @@ features = [ "serde-1" ]
 
 [dependencies.num-bigint]
 version = "0.4"
-
-[dependencies.pest]
-version = "2.0"
 
 [dependencies.rand]
 version = "0.8"
