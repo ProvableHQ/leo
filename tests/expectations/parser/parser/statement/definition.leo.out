@@ -1672,6 +1672,7 @@ outputs:
             col_stop: 6
             path: ""
             content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
+      parened: false
       type_:
         Array:
           - IntegerType: U8
@@ -1770,6 +1771,7 @@ outputs:
             col_stop: 6
             path: ""
             content: "let x: address = aleo15u4r0gzjtqzepkgurgn7p3u5kkhs9p74rx6aun3uh2s5std6759svgmg53;"
+      parened: false
       type_: Address
       value:
         Value:
