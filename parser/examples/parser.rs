@@ -18,7 +18,10 @@ use leo_ast::Ast;
 use leo_errors::emitter::Handler;
 use leo_span::symbol::create_session_if_not_set_then;
 
-use std::{fs, path::{Path, PathBuf}};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -27,18 +30,18 @@ struct Opt {
     /// Path to the Leo file.
     #[structopt(parse(from_os_str))]
     input_path: PathBuf,
-    
+
     /// Optional path to the output directory.
     #[structopt(parse(from_os_str))]
     out_dir_path: Option<PathBuf>,
 
     /// Whether to print result to STDOUT.
     #[structopt(short, long)]
-    print_stdout: bool
+    print_stdout: bool,
 }
 
 fn main() -> Result<(), String> {
-    let opt = Opt::from_args(); 
+    let opt = Opt::from_args();
     let code = fs::read_to_string(&opt.input_path).expect("failed to open file");
 
     // Parses the Leo file constructing an ast which is then serialized.
@@ -67,6 +70,6 @@ fn main() -> Result<(), String> {
     };
 
     fs::write(Path::new(&out_path), serialized_leo_tree).expect("failed to write output");
-    
+
     Ok(())
 }

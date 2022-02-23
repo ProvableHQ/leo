@@ -17,27 +17,33 @@
 use leo_errors::{emitter::Handler, Result};
 use leo_span::symbol::create_session_if_not_set_then;
 
-use std::{fs, path::{Path, PathBuf}};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
-#[structopt(name = "input parser", about = "Parse an Input file and save its JSON representation")]
+#[structopt(
+    name = "input parser",
+    about = "Parse an Input file and save its JSON representation"
+)]
 struct Opt {
     /// Path to the input file.
     #[structopt(parse(from_os_str))]
     input_path: PathBuf,
-    
+
     /// Optional path to the output directory.
     #[structopt(parse(from_os_str))]
     out_dir_path: Option<PathBuf>,
 
     /// Whether to print result to STDOUT.
     #[structopt(short, long)]
-    print_stdout: bool
+    print_stdout: bool,
 }
 
 fn main() -> Result<(), String> {
-    let opt = Opt::from_args(); 
+    let opt = Opt::from_args();
     let input_string = fs::read_to_string(&opt.input_path).expect("failed to open an input file");
     let input_tree = create_session_if_not_set_then(|_| {
         Handler::with(|handler| {
@@ -63,6 +69,6 @@ fn main() -> Result<(), String> {
     };
 
     fs::write(Path::new(&out_path), input_tree).expect("failed to write output");
-    
+
     Ok(())
 }
