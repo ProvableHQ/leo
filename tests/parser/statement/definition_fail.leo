@@ -69,3 +69,23 @@ let x
 let x:
 
 let x = (a, y]);
+
+let = 1u8;
+
+let;
+
+let x 1u8;
+
+let x: u8;
+
+let x: u8
+
+let x: = 1;
+
+let x: [u8] = 1;
+
+let x: [u8;
+
+let x: [u8; 1u8] = [1,
+
+let dbg: u8 = ];
