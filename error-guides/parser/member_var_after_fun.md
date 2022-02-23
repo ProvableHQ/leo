@@ -1,4 +1,4 @@
-# Member variables after after circuit functions
+# Member variables after circuit functions
 
 ## Example
 

@@ -9,7 +9,7 @@ Erroneous code example:
 
 ```js
 function main() {
-  console.fail("Huston we have a problem!");
+  console.fail("Houston we have a problem!");
 }
 ```
 
@@ -19,7 +19,7 @@ The compiler will reject this code with:
 Error [EPAR0370007]: unexpected identifier: expected 'assert', 'error', 'log' -- got 'fail'
     --> test.leo:2:11
      |
-   2 |   console.fail("Huston we have a problem!");
+   2 |   console.fail("Houston we have a problem!");
      |           ^^^^
 ```
 
@@ -35,7 +35,7 @@ which `.error(...)` will achieve, so we use that instead...:
 
 ```js
 function main() {
-  console.error("Huston we have a problem!");
+  console.error("Houston we have a problem!");
 }
 ```
 
