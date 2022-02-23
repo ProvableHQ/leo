@@ -223,4 +223,84 @@ create_errors!(
         msg: "Array dimensions specified as a tuple cannot be empty.",
         help: None,
     }
+
+    /// When an empty input tendril was expected but not found.
+    @backtraced
+    lexer_empty_input_tendril {
+        args: (),
+        msg: "",
+        help: None,
+    }
+
+    /// When an integer is started with a leading zero.
+    @backtraced
+    lexer_eat_integer_leading_zero {
+	args: (),
+	msg: "",
+	help: None,
+    }
+
+    /// When an integer is started with a leading zero.
+    @backtraced
+     lexer_expected_valid_escaped_char {
+	args: (),
+	msg: "",
+	help: None,
+     }
+
+    /// When a string is not properly closed.
+    @backtraced
+    lexer_string_not_closed {
+	args: (),
+	msg: "",
+	help: None,
+    }
+
+    /// When an illegal escaped character is provided.
+    @backtraced
+    lexer_invalid_escaped_char {
+	args: (),
+	msg: "",
+	help: None,
+    }
+
+    /// When a string is not properly closed.
+    @backtraced
+    lexer_char_not_closed {
+	args: (),
+	msg: "",
+	help: None,
+    }
+
+    /// When a string is not properly closed.
+    @backtraced
+    lexer_invalid_char {
+	args: (),
+	msg: "",
+	help: None,
+    }
+
+    /// When a block comment is empty.
+    @backtraced
+    lexer_empty_block_comment {
+	args: (),
+	msg: "",
+	help: None,
+    }
+
+    /// When a block comment is not closed before end of file.
+    @backtraced
+    lexer_block_comment_does_not_close_before_eof {
+	args: (),
+	msg: "",
+	help: None,
+    }
+
+    /// When the lexer could not lex some text.
+    @backtraced
+    could_not_lex {
+	args: (),
+	msg: "",
+	help: None,
+    }
 );
