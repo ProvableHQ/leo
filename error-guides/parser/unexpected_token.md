@@ -37,4 +37,4 @@ Error [EPAR0370000]: ~
 
 What the solution to an unexpected token is depends on what you wanted to achieve.
 Most likely, you made a typo somewhere.
-For a more complete overview of valid Leo tokens, consult the Leo grammar.
+For a more complete overview of valid Leo tokens, consult the [Leo grammar](https://github.com/AleoHQ/leo/blob/master/grammar/README.md).
