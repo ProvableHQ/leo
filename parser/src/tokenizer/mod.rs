@@ -62,6 +62,11 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
                     )
                     .into());
                 }
+		if input.as_bytes()[index] == b'\n' {
+                    line_no += 1;
+                    line_start = index + token_len;
+                }
+                index += token_len;   
 	    }
             (token_len, token) => {
                 let mut span = Span::new(
@@ -100,14 +105,6 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
                 tokens.push(SpannedToken { token, span });
                 index += token_len;
             }
-            // (token_len, None) => {
-            //  if input.as_bytes()[index] == b'\n' {
-            //         line_no += 1;
-            //         line_start = index + token_len;
-            //     }
-            //     index += token_len;   
-                
-            // }
         }
     }
     Ok(tokens)
@@ -232,7 +229,7 @@ mod tests {
     fn test_spans() {
         create_session_if_not_set_then(|_| {
             let raw = r#"
-            test
+ppp            test
             // test
             test
             /* test */
