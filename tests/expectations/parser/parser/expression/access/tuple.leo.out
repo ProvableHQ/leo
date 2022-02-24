@@ -116,3 +116,16 @@ outputs:
           col_stop: 6
           path: ""
           content: x.2.2
+  - Access:
+      Tuple:
+        tuple:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.0x1\\\"}\"}"
+        index:
+          value: "0x1"
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 6
+          path: ""
+          content: x.0x1

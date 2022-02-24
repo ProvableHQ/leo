@@ -143,3 +143,24 @@ outputs:
             col_stop: 5
             path: ""
             content: "-5i8"
+  - Value:
+      Implicit:
+        - "-0xb"
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 5
+            path: ""
+            content: "-0xb"
+  - Value:
+      Integer:
+        - U8
+        - "-0xb"
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 7
+            path: ""
+            content: "-0xbu8"

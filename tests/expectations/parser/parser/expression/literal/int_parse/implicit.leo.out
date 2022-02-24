@@ -34,6 +34,16 @@ outputs:
             content: "456"
   - Value:
       Implicit:
+        - "0xb"
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 4
+            path: ""
+            content: "0xb"
+  - Value:
+      Implicit:
         - "87377802873778028737780287377802873778028737780287377802873778028737780287377802"
         - span:
             line_start: 1

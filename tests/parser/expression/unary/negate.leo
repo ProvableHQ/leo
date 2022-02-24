@@ -12,3 +12,6 @@ expectation: Pass
 
 -5
 -5i8
+
+-0xb
+-0xbu8
