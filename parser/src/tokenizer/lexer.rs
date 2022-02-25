@@ -154,7 +154,7 @@ impl Token {
         }
         let input = input_tendril[..].as_bytes();
         if !input[0].is_ascii_digit() {
-            return Err(ParserError::lexer_eat_integer_leading_zero().into());
+            return Err(ParserError::lexer_eat_integer_leading_zero(String::from_utf8_lossy(input)).into());
         }
         let mut i = 1;
         let mut is_hex = false;
@@ -271,7 +271,7 @@ impl Token {
                                 unicode = false;
                                 string.push(character.into());
                             }
-                            None => return Err(ParserError::lexer_expected_valid_escaped_char().into()),
+                            None => return Err(ParserError::lexer_expected_valid_escaped_char(input_tendril.subtendril(start as u32, len as u32)).into()),
                         }
                     }
 
@@ -283,7 +283,7 @@ impl Token {
                 }
 
                 if i == input.len() || !end {
-                    return Err(ParserError::lexer_string_not_closed().into());
+                    return Err(ParserError::lexer_string_not_closed(String::from_utf8_lossy(&input[0..i])).into());
                 }
 
                 return Ok((i + 1, Token::StringLit(string)));
@@ -311,7 +311,7 @@ impl Token {
                             if input[i + 1] == b'{' {
                                 unicode = true;
                             } else {
-                                return Err(ParserError::lexer_invalid_escaped_char().into());
+                                return Err(ParserError::lexer_expected_valid_escaped_char(input[i]).into());
                             }
                         } else {
                             escaped = true;
@@ -324,12 +324,12 @@ impl Token {
                 }
 
                 if !end {
-                    return Err(ParserError::lexer_string_not_closed().into());
+                    return Err(ParserError::lexer_char_not_closed(String::from_utf8_lossy(&input[0..i])).into());
                 }
 
                 return match Self::eat_char(input_tendril.subtendril(1, (i - 1) as u32), escaped, hex, unicode) {
                     Some(character) => Ok((i + 1, Token::CharLit(character))),
-                    None => Err(ParserError::lexer_invalid_char().into()),
+                    None => Err(ParserError::lexer_invalid_char(String::from_utf8_lossy(&input[0..i-1])).into()),
                 };
             }
             x if x.is_ascii_digit() => {
@@ -400,7 +400,7 @@ impl Token {
                     let len = if let Some(eol) = eol {
                         eol + 4
                     } else {
-                        return Err(ParserError::lexer_block_comment_does_not_close_before_eof().into());
+                        return Err(ParserError::lexer_block_comment_does_not_close_before_eof(String::from_utf8_lossy(&input[0..])).into());
                     };
                     return Ok((len, Token::CommentBlock(input_tendril.subtendril(0, len as u32))));
                 } else if let Some(len) = eat(input, "/=") {
@@ -491,7 +491,7 @@ impl Token {
             ));
         }
 
-        Err(ParserError::could_not_lex().into())
+        Err(ParserError::could_not_lex(String::from_utf8_lossy(&input[0..])).into())
     }
 }
 

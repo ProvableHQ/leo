@@ -2,10 +2,10 @@
 namespace: Token
 expectation: Fail
 outputs:
-  - "Error [EPAR0370027]: "
-  - "Error [EPAR0370027]: "
-  - "Error [EPAR0370026]: "
-  - "Error [EPAR0370027]: "
-  - "Error [EPAR0370027]: "
-  - "Error [EPAR0370026]: "
-  - "Error [EPAR0370027]: "
+  - "Error [EPAR0370027]: Expected a closed string but found \"Hello world!."
+  - "Error [EPAR0370027]: Expected a closed string but found \"\\\"."
+  - "Error [EPAR0370026]: Expected a valid escape character but found \\l."
+  - "Error [EPAR0370027]: Expected a closed string but found \"\\uaaa\"."
+  - "Error [EPAR0370027]: Expected a closed string but found \"\\u\"."
+  - "Error [EPAR0370026]: Expected a valid escape character but found \\xFF."
+  - "Error [EPAR0370027]: Expected a closed string but found \"\\x\"."

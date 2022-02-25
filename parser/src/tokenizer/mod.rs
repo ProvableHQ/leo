@@ -214,7 +214,7 @@ mod tests {
             .unwrap();
             let mut output = String::new();
             for SpannedToken { token, .. } in tokens.iter() {
-                output += &format!("{} ", token.to_string());
+                output += &format!("{} ", token);
             }
 
             assert_eq!(

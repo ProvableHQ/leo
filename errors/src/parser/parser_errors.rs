@@ -16,7 +16,7 @@
 
 use crate::create_errors;
 
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 
 create_errors!(
     /// ParserError enum that represents all the errors for the `leo-parser` crate.
@@ -228,55 +228,47 @@ create_errors!(
     @backtraced
     lexer_empty_input_tendril {
         args: (),
-        msg: "",
+        msg: "Expected more characters to lex but found none.",
         help: None,
     }
 
     /// When an integer is started with a leading zero.
     @backtraced
     lexer_eat_integer_leading_zero {
-	args: (),
-	msg: "",
+	args: (input: impl Display),
+	msg: format!("Tried to eat integer but found a leading zero on {}.", input),
 	help: None,
     }
 
     /// When an integer is started with a leading zero.
     @backtraced
      lexer_expected_valid_escaped_char {
-	args: (),
-	msg: "",
+	args: (input: impl Display),
+	msg: format!("Expected a valid escape character but found {}.", input),
 	help: None,
      }
 
     /// When a string is not properly closed.
     @backtraced
     lexer_string_not_closed {
-	args: (),
-	msg: "",
-	help: None,
-    }
-
-    /// When an illegal escaped character is provided.
-    @backtraced
-    lexer_invalid_escaped_char {
-	args: (),
-	msg: "",
+	args: (input: impl Display),
+	msg: format!("Expected a closed string but found {}.", input),
 	help: None,
     }
 
     /// When a string is not properly closed.
     @backtraced
     lexer_char_not_closed {
-	args: (),
-	msg: "",
+	args: (input: impl Display),
+	msg: format!("Expected a closed char but found {}.", input),
 	help: None,
     }
 
     /// When a string is not properly closed.
     @backtraced
     lexer_invalid_char {
-	args: (),
-	msg: "",
+	args: (input: impl Display),
+	msg: format!("Expected valid character but found {}.", input),
 	help: None,
     }
 
@@ -284,23 +276,23 @@ create_errors!(
     @backtraced
     lexer_empty_block_comment {
 	args: (),
-	msg: "",
+	msg: "Empty block comment.",
 	help: None,
     }
 
     /// When a block comment is not closed before end of file.
     @backtraced
     lexer_block_comment_does_not_close_before_eof {
-	args: (),
-	msg: "",
+	args: (input: impl Display),
+	msg: format!("Block comment does not close with content: {}.", input),
 	help: None,
     }
 
     /// When the lexer could not lex some text.
     @backtraced
     could_not_lex {
-	args: (),
-	msg: "",
+	args: (input: impl Display),
+	msg: format!("Could not lex the following content: {}.", input),
 	help: None,
     }
 );
