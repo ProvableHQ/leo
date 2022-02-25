@@ -223,7 +223,7 @@ impl Token {
             Token::Input => sym::input,
             Token::Let => sym::Let,
             Token::Mut => sym::Mut,
-            Token::Ampersand => sym::At,
+            Token::Ampersand => sym::Ampersand,
             Token::Return => sym::Return,
             Token::BigSelf => sym::SelfUpper,
             Token::LittleSelf => sym::SelfLower,
