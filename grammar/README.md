@@ -1598,7 +1598,7 @@ The latter takes either no argument,
 or a format string followed by expressions,
 whose number must match the number of containers `{}` in the format string.
 Note that the console function names are identifiers, not keywords.
-There are three kinds of print commands.
+There are two kinds of print commands.
 
 <a name="console-statement"></a>
 ```abnf
