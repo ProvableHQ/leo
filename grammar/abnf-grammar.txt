@@ -971,7 +971,7 @@ console-call = assert-call
 
 assert-call = %s"assert" "(" expression ")"
 
-print-function = %s"debug" / %s"error" / %s"log"
+print-function = %s"error" / %s"log"
 
 print-arguments = "(" string-literal  *( "," expression ) ")"
 

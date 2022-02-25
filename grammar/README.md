@@ -1627,7 +1627,7 @@ Go to: _[expression](#user-content-expression)_;
 
 <a name="print-function"></a>
 ```abnf
-print-function = %s"debug" / %s"error" / %s"log"
+print-function = %s"error" / %s"log"
 ```
 
 <a name="print-arguments"></a>
