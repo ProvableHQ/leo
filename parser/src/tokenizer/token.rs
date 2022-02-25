@@ -200,6 +200,7 @@ impl Token {
         Some(match self {
             Token::Address => sym::address,
             Token::As => sym::As,
+            Token::At => sym::At,
             Token::Bool => sym::bool,
             Token::Char => sym::char,
             Token::Circuit => sym::circuit,
@@ -222,7 +223,7 @@ impl Token {
             Token::Input => sym::input,
             Token::Let => sym::Let,
             Token::Mut => sym::Mut,
-            Token::Ampersand => sym::Ampersand,
+            Token::Ampersand => sym::At,
             Token::Return => sym::Return,
             Token::BigSelf => sym::SelfUpper,
             Token::LittleSelf => sym::SelfLower,

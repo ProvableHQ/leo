@@ -101,10 +101,11 @@ macro_rules! symbols {
 symbols! {
     address,
     AlwaysConst,
-    Ampersand: "@",
+    Ampersand: "&",
     array,
     As: "as",
     assert,
+    At: "@",
     bool,
     char,
     circuit,
