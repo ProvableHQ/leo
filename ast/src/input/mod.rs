@@ -17,8 +17,8 @@
 pub mod definition;
 pub use definition::*;
 
-pub mod input;
-pub use input::*;
+pub mod input_ast;
+pub use input_ast::*;
 
 pub mod input_value;
 pub use input_value::*;
