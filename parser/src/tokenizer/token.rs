@@ -259,7 +259,7 @@ impl fmt::Display for Token {
             False => write!(f, "false"),
             AddressLit(s) => write!(f, "{}", s),
             CharLit(s) => write!(f, "{}", s),
-	    WhiteSpace => write!(f, "whitespace"),
+            WhiteSpace => write!(f, "whitespace"),
 
             At => write!(f, "@"),
 

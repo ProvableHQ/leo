@@ -28,7 +28,7 @@ pub(crate) use self::token::*;
 pub(crate) mod lexer;
 pub(crate) use self::lexer::*;
 
-use leo_errors:: {ParserError, Result};
+use leo_errors::{ParserError, Result};
 use leo_span::Span;
 
 use tendril::StrTendril;
@@ -42,8 +42,8 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
     let mut line_start = 0usize;
     while input.len() > index {
         match Token::eat(input.subtendril(index as u32, (input.len() - index) as u32))? {
-	    (token_len, Token::WhiteSpace) => {
-		if token_len == 0 && index == input.len() {
+            (token_len, Token::WhiteSpace) => {
+                if token_len == 0 && index == input.len() {
                     break;
                 } else if token_len == 0 {
                     return Err(ParserError::unexpected_token(
@@ -62,12 +62,20 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
                     )
                     .into());
                 }
-		if input.as_bytes()[index] == b'\n' {
+
+                let bytes = input.as_bytes();
+                if bytes[index] == 0x000D && matches!(bytes.get(index + 1), Some(0x000A)) {
+                    // Check carriage return followed by newline.
+                    line_no += 1;
+                    line_start = index + token_len;
+                    index += token_len;
+                } else if matches!(bytes[index], 0x000A | 0x000D) {
+                    // Check new-line or carriage-return
                     line_no += 1;
                     line_start = index + token_len;
                 }
-                index += token_len;   
-	    }
+                index += token_len;
+            }
             (token_len, token) => {
                 let mut span = Span::new(
                     line_no,
