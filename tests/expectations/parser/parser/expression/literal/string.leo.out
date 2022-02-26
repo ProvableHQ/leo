@@ -199,3 +199,68 @@ outputs:
             col_stop: 15
             path: ""
             content: "\"😭😂😘\""
+  - Value:
+      String:
+        - - Scalar: 9995
+          - Scalar: 127999
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 10
+            path: ""
+            content: "\"✋🏿\""
+  - Value:
+      String:
+        - - Scalar: 65535
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 6
+            path: ""
+            content: "\"￿\""
+  - Value:
+      String:
+        - - Scalar: 65533
+          - Scalar: 65533
+          - Scalar: 65533
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 12
+            path: ""
+            content: "\"���\""
+  - Value:
+      String:
+        - - Scalar: 65288
+          - Scalar: 62
+          - Scalar: 65299
+          - Scalar: 60
+          - Scalar: 65289
+          - Scalar: 19977
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 17
+            path: ""
+            content: "\"（>３<）三\""
+  - Value:
+      String:
+        - - Scalar: 40
+          - Scalar: 9285
+          - Scalar: 8747
+          - Scalar: 176
+          - Scalar: 2570
+          - Scalar: 176
+          - Scalar: 41
+          - Scalar: 8747
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 21
+            path: ""
+            content: "\"(⑅∫°ਊ°)∫\""
