@@ -37,7 +37,7 @@ pub struct Span {
     /// The path to the Leo file containing the error.
     pub path: Arc<String>,
     #[serde(with = "crate::tendril_json")]
-    /// The content of the file between the above boundaries.
+    /// The content of the line(s) that the span is found on.
     pub content: StrTendril,
 }
 
