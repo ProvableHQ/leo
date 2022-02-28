@@ -56,7 +56,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
 
     let mut tests = Vec::new();
     let mut test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    test_dir.push("../tests/");
+    test_dir.push("../../tests/");
 
     let mut expectation_dir = test_dir.clone();
     expectation_dir.push("expectations");
