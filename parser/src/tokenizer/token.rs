@@ -201,6 +201,7 @@ impl Token {
         Some(match self {
             Token::Address => sym::address,
             Token::As => sym::As,
+            Token::At => sym::At,
             Token::Bool => sym::bool,
             Token::Char => sym::char,
             Token::Circuit => sym::circuit,

@@ -57,7 +57,7 @@ impl ParserContext<'_> {
 
         Ok(Section {
             name: section.name,
-            span: section.span.clone(),
+            span: section.span,
             definitions,
         })
     }
