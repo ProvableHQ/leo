@@ -236,23 +236,23 @@ create_errors!(
     @backtraced
     lexer_eat_integer_leading_zero {
     args: (input: impl Display),
-    msg: format!("Tried to eat integer but found a leading zero on {}.", input),
+    msg: format!("Tried to eat integer but found a leading zero on `{}`.", input),
     help: None,
     }
 
     /// When an integer is started with a leading zero.
     @backtraced
-     lexer_expected_valid_escaped_char {
+    lexer_expected_valid_escaped_char {
     args: (input: impl Display),
-    msg: format!("Expected a valid escape character but found {}.", input),
+    msg: format!("Expected a valid escape character but found `{}`.", input),
     help: None,
-     }
+    }
 
     /// When a string is not properly closed.
     @backtraced
     lexer_string_not_closed {
     args: (input: impl Display),
-    msg: format!("Expected a closed string but found {}.", input),
+    msg: format!("Expected a closed string but found `{}`.", input),
     help: None,
     }
 
@@ -260,7 +260,7 @@ create_errors!(
     @backtraced
     lexer_char_not_closed {
     args: (input: impl Display),
-    msg: format!("Expected a closed char but found {}.", input),
+    msg: format!("Expected a closed char but found `{}`.", input),
     help: None,
     }
 
@@ -268,7 +268,7 @@ create_errors!(
     @backtraced
     lexer_invalid_char {
     args: (input: impl Display),
-    msg: format!("Expected valid character but found {}.", input),
+    msg: format!("Expected valid character but found `{}`.", input),
     help: None,
     }
 
@@ -284,7 +284,7 @@ create_errors!(
     @backtraced
     lexer_block_comment_does_not_close_before_eof {
     args: (input: impl Display),
-    msg: format!("Block comment does not close with content: {}.", input),
+    msg: format!("Block comment does not close with content: `{}`.", input),
     help: None,
     }
 
@@ -292,7 +292,63 @@ create_errors!(
     @backtraced
     could_not_lex {
     args: (input: impl Display),
-    msg: format!("Could not lex the following content: {}.", input),
+    msg: format!("Could not lex the following content: `{}`.", input),
     help: None,
+    }
+
+    /// When a escaped character was given more than one char to escape.
+    @backtraced
+    lexer_escaped_char_incorrect_length {
+        args: (input: impl Display),
+        msg: format!("Could not lex the following escaped char due to being given more than one char: `{}`.", input),
+        help: None,
+    }
+
+    /// When a escape was given but no following character
+    @backtraced
+    lexer_unclosed_escaped_char {
+        args: (),
+        msg: "There was no escaped character following the escape char symbol `\\`.",
+        help: None,
+    }
+
+    /// When a escaped hex was given more than two chars to escape.
+    @backtraced
+    lexer_escaped_hex_incorrect_length {
+        args: (input: impl Display),
+        msg: format!("Could not lex the following escaped hex due to being given more than two chars: `{}`.", input),
+        help: None,
+    }
+
+    /// When a valid hex character was expected.
+    @backtraced
+    lexer_expected_valid_hex_char {
+    args: (input: impl Display),
+    msg: format!("Expected a valid hex character but found `{}`.", input),
+    help: None,
+    }
+
+    /// When a escaped unicode char was given but no following closing symbol.
+    @backtraced
+    lexer_unclosed_escaped_unicode_char {
+        args: (input: impl Display),
+        msg: format!("There was no closing `}}` after a escaped unicode `{}`.", input),
+        help: None,
+    }
+
+    /// When a escaped unicode char was given but it had an incorrect length.
+    @backtraced
+    lexer_invalid_escaped_unicode_length {
+        args: (input: impl Display),
+        msg: format!("The escaped unicode char `{}` is not within valid length of [1, 6].", input),
+        help: None,
+    }
+
+    /// When a escaped unicode char was given but exceeded maximum value.
+    @backtraced
+    lexer_invalid_character_exceeded_max_value {
+        args: (input: impl Display),
+        msg: format!("The escaped unicode char `{}` is greater than 0x10FFFF.", input),
+        help: None,
     }
 );

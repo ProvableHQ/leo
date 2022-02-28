@@ -114,8 +114,6 @@ impl ParserContext<'_> {
             let (args, _, span) = self.parse_paren_comma_list(|p| {
                 Ok(if let Some(ident) = p.eat_identifier() {
                     Some(ident.name)
-                } else if let Some((int, _)) = p.eat_int() {
-                    Some(Symbol::intern(&int.value))
                 } else {
                     let token = p.expect_any()?;
                     p.emit_err(ParserError::unexpected_str(&token.token, "ident or int", &token.span));
