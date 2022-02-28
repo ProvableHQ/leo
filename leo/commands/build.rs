@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{commands::Command, context::Context};
-use leo_compiler::Compiler;
+use leo_compiler::{Ast, Compiler};
 use leo_errors::{CliError, Result};
 use leo_package::{
     // inputs::*,
@@ -24,7 +24,6 @@ use leo_package::{
     source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
-use leo_ast::Ast;
 use structopt::StructOpt;
 use tracing::span::Span;
 

@@ -1,0 +1,52 @@
+[package]
+name = "leo-ast"
+version = "1.5.3"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
+description = "Core AST of the Leo programming language"
+homepage = "https://aleo.org"
+repository = "https://github.com/AleoHQ/leo"
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
+]
+categories = [ "cryptography::cryptocurrencies", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2021"
+rust-version = "1.56"
+
+[dependencies]
+smallvec = { version = "1.8.0", features = ["serde"] }
+
+[dependencies.leo-errors]
+path = "../../leo/errors"
+version = "1.5.3"
+
+[dependencies.leo-span]
+path = "../../leo/span"
+version = "1.5.3"
+
+[dependencies.indexmap]
+version = "1.8.0"
+features = [ "serde-1" ]
+
+[dependencies.serde]
+version = "1.0"
+features = [ "derive", "rc" ]
+
+[dependencies.serde_json]
+version = "1.0"
+features = [ "preserve_order" ]
+
+[dependencies.tendril]
+version = "0.4"
+
+[dev-dependencies.criterion]
+version = "0.3"
+
+[features]
+default = [ ]
+ci_skip = [ ]
