@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::tokenizer::{Char, Token};
+use leo_errors::{ParserError, Result};
 use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
@@ -147,13 +148,13 @@ impl Token {
     /// Returns a tuple: [(integer length, integer token)] if an integer can be eaten, otherwise returns [`None`].
     /// An integer can be eaten if its bytes are at the front of the given `input_tendril` string.
     ///
-    fn eat_integer(input_tendril: &StrTendril) -> (usize, Option<Token>) {
+    fn eat_integer(input_tendril: &StrTendril) -> Result<(usize, Token)> {
         if input_tendril.is_empty() {
-            return (0, None);
+            return Err(ParserError::lexer_empty_input_tendril().into());
         }
         let input = input_tendril[..].as_bytes();
         if !input[0].is_ascii_digit() {
-            return (0, None);
+            return Err(ParserError::lexer_eat_integer_leading_zero(String::from_utf8_lossy(input)).into());
         }
         let mut i = 1;
         let mut is_hex = false;
@@ -173,7 +174,7 @@ impl Token {
 
             i += 1;
         }
-        (i, Some(Token::Int(input_tendril.subtendril(0, i as u32))))
+        Ok((i, Token::Int(input_tendril.subtendril(0, i as u32))))
     }
 
     /// Returns the number of bytes in an emoji via a bit mask.
@@ -197,13 +198,13 @@ impl Token {
     /// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns [`None`].
     /// The next token can be eaten if the bytes at the front of the given `input_tendril` string can be scanned into a token.
     ///
-    pub(crate) fn eat(input_tendril: StrTendril) -> (usize, Option<Token>) {
+    pub(crate) fn eat(input_tendril: StrTendril) -> Result<(usize, Token)> {
         if input_tendril.is_empty() {
-            return (0, None);
+            return Err(ParserError::lexer_empty_input_tendril().into());
         }
         let input = input_tendril[..].as_bytes();
         match input[0] {
-            x if x.is_ascii_whitespace() => return (1, None),
+            x if x.is_ascii_whitespace() => return Ok((1, Token::WhiteSpace)),
             b'"' => {
                 let mut i = 1;
                 let mut len: u8 = 1;
@@ -270,7 +271,12 @@ impl Token {
                                 unicode = false;
                                 string.push(character.into());
                             }
-                            None => return (0, None),
+                            None => {
+                                return Err(ParserError::lexer_expected_valid_escaped_char(
+                                    input_tendril.subtendril(start as u32, len as u32),
+                                )
+                                .into())
+                            }
                         }
                     }
 
@@ -282,10 +288,10 @@ impl Token {
                 }
 
                 if i == input.len() || !end {
-                    return (0, None);
+                    return Err(ParserError::lexer_string_not_closed(String::from_utf8_lossy(&input[0..i])).into());
                 }
 
-                return (i + 1, Some(Token::StringLit(string)));
+                return Ok((i + 1, Token::StringLit(string)));
             }
             b'\'' => {
                 let mut i = 1;
@@ -310,7 +316,7 @@ impl Token {
                             if input[i + 1] == b'{' {
                                 unicode = true;
                             } else {
-                                return (0, None);
+                                return Err(ParserError::lexer_expected_valid_escaped_char(input[i]).into());
                             }
                         } else {
                             escaped = true;
@@ -323,12 +329,12 @@ impl Token {
                 }
 
                 if !end {
-                    return (0, None);
+                    return Err(ParserError::lexer_char_not_closed(String::from_utf8_lossy(&input[0..i])).into());
                 }
 
                 return match Self::eat_char(input_tendril.subtendril(1, (i - 1) as u32), escaped, hex, unicode) {
-                    Some(character) => (i + 1, Some(Token::CharLit(character))),
-                    None => (0, None),
+                    Some(character) => Ok((i + 1, Token::CharLit(character))),
+                    None => Err(ParserError::lexer_invalid_char(String::from_utf8_lossy(&input[0..i - 1])).into()),
                 };
             }
             x if x.is_ascii_digit() => {
@@ -336,119 +342,122 @@ impl Token {
             }
             b'!' => {
                 if let Some(len) = eat(input, "!=") {
-                    return (len, Some(Token::NotEq));
+                    return Ok((len, Token::NotEq));
                 }
-                return (1, Some(Token::Not));
+                return Ok((1, Token::Not));
             }
             b'?' => {
-                return (1, Some(Token::Question));
+                return Ok((1, Token::Question));
             }
             b'&' => {
                 if let Some(len) = eat(input, "&&") {
-                    return (len, Some(Token::And));
+                    return Ok((len, Token::And));
                 }
-                return (1, Some(Token::Ampersand));
+                return Ok((1, Token::Ampersand));
             }
-            b'(' => return (1, Some(Token::LeftParen)),
-            b')' => return (1, Some(Token::RightParen)),
-            b'_' => return (1, Some(Token::Underscore)),
+            b'(' => return Ok((1, Token::LeftParen)),
+            b')' => return Ok((1, Token::RightParen)),
+            b'_' => return Ok((1, Token::Underscore)),
             b'*' => {
                 if let Some(len) = eat(input, "**") {
                     if let Some(inner_len) = eat(&input[len..], "=") {
-                        return (len + inner_len, Some(Token::ExpEq));
+                        return Ok((len + inner_len, Token::ExpEq));
                     }
-                    return (len, Some(Token::Exp));
+                    return Ok((len, Token::Exp));
                 } else if let Some(len) = eat(input, "*=") {
-                    return (len, Some(Token::MulEq));
+                    return Ok((len, Token::MulEq));
                 }
-                return (1, Some(Token::Mul));
+                return Ok((1, Token::Mul));
             }
             b'+' => {
                 if let Some(len) = eat(input, "+=") {
-                    return (len, Some(Token::AddEq));
+                    return Ok((len, Token::AddEq));
                 }
-                return (1, Some(Token::Add));
+                return Ok((1, Token::Add));
             }
-            b',' => return (1, Some(Token::Comma)),
+            b',' => return Ok((1, Token::Comma)),
             b'-' => {
                 if let Some(len) = eat(input, "->") {
-                    return (len, Some(Token::Arrow));
+                    return Ok((len, Token::Arrow));
                 } else if let Some(len) = eat(input, "-=") {
-                    return (len, Some(Token::MinusEq));
+                    return Ok((len, Token::MinusEq));
                 }
-                return (1, Some(Token::Minus));
+                return Ok((1, Token::Minus));
             }
             b'.' => {
                 if let Some(len) = eat(input, "...") {
-                    return (len, Some(Token::DotDotDot));
+                    return Ok((len, Token::DotDotDot));
                 } else if let Some(len) = eat(input, "..") {
-                    return (len, Some(Token::DotDot));
+                    return Ok((len, Token::DotDot));
                 }
-                return (1, Some(Token::Dot));
+                return Ok((1, Token::Dot));
             }
             b'/' => {
                 if eat(input, "//").is_some() {
                     let eol = input.iter().position(|x| *x == b'\n');
                     let len = if let Some(eol) = eol { eol + 1 } else { input.len() };
-                    return (len, Some(Token::CommentLine(input_tendril.subtendril(0, len as u32))));
+                    return Ok((len, Token::CommentLine(input_tendril.subtendril(0, len as u32))));
                 } else if eat(input, "/*").is_some() {
                     if input.is_empty() {
-                        return (0, None);
+                        return Err(ParserError::lexer_empty_block_comment().into());
                     }
                     let eol = input.windows(2).skip(2).position(|x| x[0] == b'*' && x[1] == b'/');
                     let len = if let Some(eol) = eol {
                         eol + 4
                     } else {
-                        return (0, None);
+                        return Err(ParserError::lexer_block_comment_does_not_close_before_eof(
+                            String::from_utf8_lossy(&input[0..]),
+                        )
+                        .into());
                     };
-                    return (len, Some(Token::CommentBlock(input_tendril.subtendril(0, len as u32))));
+                    return Ok((len, Token::CommentBlock(input_tendril.subtendril(0, len as u32))));
                 } else if let Some(len) = eat(input, "/=") {
-                    return (len, Some(Token::DivEq));
+                    return Ok((len, Token::DivEq));
                 }
-                return (1, Some(Token::Div));
+                return Ok((1, Token::Div));
             }
             b':' => {
                 if let Some(len) = eat(input, "::") {
-                    return (len, Some(Token::DoubleColon));
+                    return Ok((len, Token::DoubleColon));
                 } else {
-                    return (1, Some(Token::Colon));
+                    return Ok((1, Token::Colon));
                 }
             }
-            b';' => return (1, Some(Token::Semicolon)),
+            b';' => return Ok((1, Token::Semicolon)),
             b'<' => {
                 if let Some(len) = eat(input, "<=") {
-                    return (len, Some(Token::LtEq));
+                    return Ok((len, Token::LtEq));
                 }
-                return (1, Some(Token::Lt));
+                return Ok((1, Token::Lt));
             }
             b'>' => {
                 if let Some(len) = eat(input, ">=") {
-                    return (len, Some(Token::GtEq));
+                    return Ok((len, Token::GtEq));
                 }
-                return (1, Some(Token::Gt));
+                return Ok((1, Token::Gt));
             }
             b'=' => {
                 if let Some(len) = eat(input, "==") {
-                    return (len, Some(Token::Eq));
+                    return Ok((len, Token::Eq));
                 }
-                return (1, Some(Token::Assign));
+                return Ok((1, Token::Assign));
             }
-            b'@' => return (1, Some(Token::At)),
-            b'[' => return (1, Some(Token::LeftSquare)),
-            b']' => return (1, Some(Token::RightSquare)),
-            b'{' => return (1, Some(Token::LeftCurly)),
-            b'}' => return (1, Some(Token::RightCurly)),
+            b'@' => return Ok((1, Token::At)),
+            b'[' => return Ok((1, Token::LeftSquare)),
+            b']' => return Ok((1, Token::RightSquare)),
+            b'{' => return Ok((1, Token::LeftCurly)),
+            b'}' => return Ok((1, Token::RightCurly)),
             b'|' => {
                 if let Some(len) = eat(input, "||") {
-                    return (len, Some(Token::Or));
+                    return Ok((len, Token::Or));
                 }
             }
             _ => (),
         }
         if let Some(ident) = eat_identifier(&input_tendril) {
-            return (
+            return Ok((
                 ident.len(),
-                Some(match &*ident {
+                match &*ident {
                     x if x.starts_with("aleo1") => Token::AddressLit(ident),
                     "address" => Token::Address,
                     "as" => Token::As,
@@ -486,11 +495,11 @@ impl Token {
                     "u64" => Token::U64,
                     "u128" => Token::U128,
                     _ => Token::Ident(Symbol::intern(&ident)),
-                }),
-            );
+                },
+            ));
         }
 
-        (0, None)
+        Err(ParserError::could_not_lex(String::from_utf8_lossy(&input[0..])).into())
     }
 }
 
