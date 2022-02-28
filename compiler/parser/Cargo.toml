@@ -55,7 +55,7 @@ version = "0.4"
 version = "0.1"
 
 [dev-dependencies.leo-test-framework]
-path = "../../tools/test-framework"
+path = "../../tests/test-framework"
 version = "1.4.0"
 
 [dev-dependencies.criterion]

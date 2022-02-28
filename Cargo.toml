@@ -31,6 +31,7 @@ members = [
   "docs/grammar",
   "leo/errors",
   "leo/package",
+  "tests/test-framework",
 ]
 
 [dependencies.leo-compiler]
