@@ -962,7 +962,7 @@ assignment-statement = expression assignment-operator expression ";"
 ; or a format string followed by expressions,
 ; whose number must match the number of containers `{}` in the format string.
 ; Note that the console function names are identifiers, not keywords.
-; There are three kinds of print commands.
+; There are two kinds of print commands.
 
 console-statement = %s"console" "." console-call ";"
 
@@ -971,7 +971,7 @@ console-call = assert-call
 
 assert-call = %s"assert" "(" expression ")"
 
-print-function = %s"debug" / %s"error" / %s"log"
+print-function = %s"error" / %s"log"
 
 print-arguments = "(" string-literal  *( "," expression ) ")"
 

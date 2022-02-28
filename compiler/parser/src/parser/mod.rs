@@ -34,6 +34,7 @@ pub use context::*;
 
 pub mod expression;
 pub mod file;
+pub mod input;
 pub mod statement;
 pub mod type_;
 
@@ -53,4 +54,11 @@ pub fn parse(handler: &Handler, path: &str, source: &str) -> Result<Program> {
     let mut tokens = ParserContext::new(handler, crate::tokenize(path, source.into())?);
 
     tokens.parse_program()
+}
+
+/// Parses an input file at the given file `path` and `source` code text.
+pub fn parse_input(handler: &Handler, path: &str, source: &str) -> Result<ParsedInputFile> {
+    let mut tokens = ParserContext::new(handler, crate::tokenize(path, source.into())?);
+
+    tokens.parse_input()
 }

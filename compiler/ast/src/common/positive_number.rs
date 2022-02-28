@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_input::values::PositiveNumber as InputPositiveNumber;
-
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use tendril::StrTendril;
@@ -33,15 +31,6 @@ impl PositiveNumber {
     /// Returns `true` if this number is zero.
     pub fn is_zero(&self) -> bool {
         self.value.as_ref().eq("0")
-    }
-}
-
-/// Create a new [`PositiveNumber`] from an [`InputPositiveNumber`]  in a Leo input file.
-impl<'ast> From<InputPositiveNumber<'ast>> for PositiveNumber {
-    fn from(array: InputPositiveNumber<'ast>) -> Self {
-        Self {
-            value: array.value.into(),
-        }
     }
 }
 

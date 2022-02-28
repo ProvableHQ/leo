@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![allow(clippy::module_inception)]
+use super::*;
 
-pub mod private_state;
-pub use private_state::*;
-
-pub mod program_state;
-pub use program_state::*;
-
-pub mod public_state;
-pub use public_state::*;
+/// A single section in an input or a state file.
+/// An example of a section would be: `[main]`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Section {
+    pub name: Symbol,
+    pub definitions: Vec<Definition>,
+    pub span: Span,
+}

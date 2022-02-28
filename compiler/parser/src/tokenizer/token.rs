@@ -59,6 +59,7 @@ pub enum Token {
     False,
     AddressLit(#[serde(with = "leo_span::tendril_json")] StrTendril),
     CharLit(Char),
+    WhiteSpace,
 
     // Symbols
     At,
@@ -200,6 +201,7 @@ impl Token {
         Some(match self {
             Token::Address => sym::address,
             Token::As => sym::As,
+            Token::At => sym::At,
             Token::Bool => sym::bool,
             Token::Char => sym::char,
             Token::Circuit => sym::circuit,
@@ -258,6 +260,7 @@ impl fmt::Display for Token {
             False => write!(f, "false"),
             AddressLit(s) => write!(f, "{}", s),
             CharLit(s) => write!(f, "{}", s),
+            WhiteSpace => write!(f, "whitespace"),
 
             At => write!(f, "@"),
 

@@ -14,23 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Type};
-use leo_input::parameters::Parameter as GrammarParameter;
-use leo_span::Span;
+use super::*;
+use crate::{Expression, Identifier, Type};
 
-#[derive(Clone, PartialEq, Eq, Hash)]
-pub struct Parameter {
-    pub variable: Identifier,
+/// A single definition inside a section in a state or an input file.
+/// Definitions should be structured as: `<name>: <type_> = <value>;`
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Definition {
     pub type_: Type,
+    pub name: Identifier,
+    pub value: Expression,
     pub span: Span,
-}
-
-impl<'ast> From<GrammarParameter<'ast>> for Parameter {
-    fn from(parameter: GrammarParameter<'ast>) -> Self {
-        Self {
-            variable: Identifier::from(parameter.variable),
-            type_: Type::from(parameter.type_),
-            span: Span::from(parameter.span),
-        }
-    }
 }

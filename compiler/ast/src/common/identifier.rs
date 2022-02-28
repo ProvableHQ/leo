@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_input::common::Identifier as InputIdentifier;
 use leo_span::{Span, Symbol};
 
 use crate::Node;
@@ -65,15 +64,6 @@ impl Identifier {
     /// Check if the Identifier name matches the other name.
     pub fn matches(&self, other: &Self) -> bool {
         self.name == other.name
-    }
-}
-
-impl<'ast> From<InputIdentifier<'ast>> for Identifier {
-    fn from(identifier: InputIdentifier<'ast>) -> Self {
-        Self {
-            name: Symbol::intern(&identifier.value),
-            span: Span::from(identifier.span),
-        }
     }
 }
 

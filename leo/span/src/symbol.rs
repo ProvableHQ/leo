@@ -101,15 +101,17 @@ macro_rules! symbols {
 symbols! {
     address,
     AlwaysConst,
-    Ampersand: "@",
+    Ampersand: "&",
     array,
     As: "as",
     assert,
+    At: "@",
     bool,
     char,
     circuit,
     Class: "class",
     context,
+    constants,
     CoreFunction,
     console,
     Const: "const",
@@ -160,6 +162,9 @@ symbols! {
     record,
     state,
     state_leaf,
+
+    public,
+    private,
 }
 
 /// An interned string.

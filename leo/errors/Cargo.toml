@@ -25,10 +25,6 @@ version = "0.3.62"
 path = "../span"
 version = "1.5.3"
 
-[dependencies.leo-input]
-path = "../../compiler/input"
-version = "1.5.3"
-
 [dependencies.colored]
 version = "2.0.0"
 
@@ -39,11 +35,8 @@ version = "0.5.1"
 version = "2.2.0"
 
 [dependencies.eyre]
-version = "0.6.6"
+version = "0.6.7"
 default-features = false
-
-[dependencies.pest]
-version = "2.0"
 
 [dependencies.serde]
 version = "1.0.133"

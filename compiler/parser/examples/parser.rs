@@ -18,56 +18,58 @@ use leo_ast::Ast;
 use leo_errors::emitter::Handler;
 use leo_span::symbol::create_session_if_not_set_then;
 
-use std::{env, fs, path::Path};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
+use structopt::StructOpt;
 
-fn to_leo_tree(filepath: &Path) -> Result<String, String> {
-    // Loads the Leo code as a string from the given file path.
-    let program_filepath = filepath.to_path_buf();
-    let code = fs::read_to_string(&program_filepath).expect("failed to open input file");
+#[derive(Debug, StructOpt)]
+#[structopt(name = "leo parser", about = "Parse Leo AST and store it as a JSON")]
+struct Opt {
+    /// Path to the Leo file.
+    #[structopt(parse(from_os_str))]
+    input_path: PathBuf,
+
+    /// Optional path to the output directory.
+    #[structopt(parse(from_os_str))]
+    out_dir_path: Option<PathBuf>,
+
+    /// Whether to print result to STDOUT.
+    #[structopt(short, long)]
+    print_stdout: bool,
+}
+
+fn main() -> Result<(), String> {
+    let opt = Opt::from_args();
+    let code = fs::read_to_string(&opt.input_path).expect("failed to open file");
 
     // Parses the Leo file constructing an ast which is then serialized.
-    create_session_if_not_set_then(|_| {
+    let serialized_leo_tree = create_session_if_not_set_then(|_| {
         Handler::with(|h| {
-            let ast = leo_parser::parse_ast(&h, filepath.to_str().unwrap(), &code)?;
+            let ast = leo_parser::parse_ast(&h, opt.input_path.to_str().unwrap(), &code)?;
             let json = Ast::to_json_string(&ast)?;
             println!("{}", json);
             Ok(json)
         })
         .map_err(|b| b.to_string())
-    })
-}
+    })?;
 
-fn main() -> Result<(), String> {
-    // Parse the command-line arguments as strings.
-    let cli_arguments = env::args().collect::<Vec<String>>();
-
-    // Check that the correct number of command-line arguments were passed in.
-    if cli_arguments.len() < 2 || cli_arguments.len() > 3 {
-        eprintln!("Warning - an invalid number of command-line arguments were provided.");
-        println!(
-            "\nCommand-line usage:\n\n\tleo_ast {{PATH/TO/INPUT_FILENAME}}.leo {{PATH/TO/OUTPUT_DIRECTORY (optional)}}\n"
-        );
-        return Ok(()); // Exit innocently
+    if opt.print_stdout {
+        println!("{}", serialized_leo_tree);
     }
 
-    // Construct the input filepath.
-    let input_filepath = Path::new(&cli_arguments[1]);
-
-    // Construct the serialized syntax tree.
-    let serialized_leo_tree = to_leo_tree(input_filepath)?;
-
-    // Determine the output directory.
-    let output_directory = match cli_arguments.len() == 3 {
-        true => format!(
+    let out_path = if let Some(out_dir) = opt.out_dir_path {
+        format!(
             "{}/{}.json",
-            cli_arguments[2],
-            input_filepath.file_stem().unwrap().to_str().unwrap()
-        ),
-        false => format!("./{}.json", input_filepath.file_stem().unwrap().to_str().unwrap()),
+            out_dir.as_path().display(),
+            opt.input_path.file_stem().unwrap().to_str().unwrap()
+        )
+    } else {
+        format!("./{}.json", opt.input_path.file_stem().unwrap().to_str().unwrap())
     };
 
-    // Write the serialized syntax tree to the output directory.
-    fs::write(Path::new(&output_directory), serialized_leo_tree).expect("failed to write output");
+    fs::write(Path::new(&out_path), serialized_leo_tree).expect("failed to write output");
 
     Ok(())
 }

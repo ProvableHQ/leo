@@ -32,9 +32,5 @@ features = [ "derive", "rc" ]
 [dependencies.scoped-tls]
 version = "1.0.0"
 
-[dependencies.pest]
-version = "2.0"
-
 [dependencies.tendril]
 version = "0.4.2"
-
