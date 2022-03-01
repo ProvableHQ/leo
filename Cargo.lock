@@ -240,9 +240,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.1.1"
+version = "3.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6d76c22c9b9b215eeb8d016ad3a90417bd13cb24cf8142756e6472445876cab7"
+checksum = "5177fac1ab67102d8989464efd043c6ff44191b1557ec1ddd489b4f7e1447e77"
 dependencies = [
  "atty",
  "bitflags",
@@ -522,9 +522,9 @@ dependencies = [
 
 [[package]]
 name = "eyre"
-version = "0.6.6"
+version = "0.6.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc225d8f637923fe585089fcf03e705c222131232d2c1fb622e84ecf725d0eb8"
+checksum = "9289ed2c0440a6536e65119725cf91fc2c6b5e513bfd2e36e1134d7cca6ca12f"
 dependencies = [
  "indenter",
  "once_cell",
@@ -1071,18 +1071,16 @@ version = "1.5.3"
 dependencies = [
  "ansi_term",
  "assert_cmd",
- "clap 3.1.1",
+ "clap 3.1.2",
  "color-backtrace",
  "colored",
  "console",
  "dirs",
  "indexmap",
  "lazy_static",
- "leo-ast",
  "leo-compiler",
  "leo-errors",
  "leo-package",
- "leo-parser",
  "notify",
  "rand 0.8.4",
  "rand_core 0.6.3",
