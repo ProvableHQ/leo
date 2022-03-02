@@ -82,7 +82,7 @@ impl<'a> Compiler<'a> {
             program_string,
         )?;
         // Write the AST snapshot post parsing.
-        ast.to_json_file_without_keys(self.output_directory.clone(), "inital_ast.json", &["span"])?;
+        ast.to_json_file_without_keys(self.output_directory.clone(), "initial_ast.json", &["span"])?;
 
         // Canonicalize the AST.
         ast = leo_ast_passes::Canonicalizer::do_pass(Default::default(), ast.into_repr())?;
