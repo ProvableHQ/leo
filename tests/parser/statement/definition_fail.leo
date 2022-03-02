@@ -89,3 +89,5 @@ let x: [u8;
 let x: [u8; 1u8] = [1,
 
 let dbg: u8 = ];
+
+let 🦀: u8 = 0;

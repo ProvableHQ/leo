@@ -1,0 +1,15 @@
+---
+namespace: ParseExpression
+expectation: Fail
+outputs:
+  - "Error [EPAR0370031]: Block comment does not close with content: /*."
+  - "Error [EPAR0370031]: Block comment does not close with content: /* test."
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got '/'\n    --> test:1:1\n     |\n   1 | / /\n     | ^"
+  - "Error [EPAR0370031]: Block comment does not close with content: /*/."
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got '*'\n    --> test:1:1\n     |\n   1 | */\n     | ^"
+  - "Error [EPAR0370032]: Could not lex the following content: 🦀**/."
+  - "Error [EPAR0370032]: Could not lex the following content: 🦀*/."
+  - "Error [EPAR0370031]: Block comment does not close with content: /*🦀/."
+  - "Error [EPAR0370031]: Block comment does not close with content: /**🦀."
+  - "Error [EPAR0370031]: Block comment does not close with content: /*🦀."
+  - "Error [EPAR0370031]: Block comment does not close with content: /*/*."

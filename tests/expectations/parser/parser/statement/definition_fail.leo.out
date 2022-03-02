@@ -43,3 +43,4 @@ outputs:
   - "Error [EPAR0370003]: unexpected EOF\n    --> test:1:11\n     |\n   1 | let x: [u8;\n     |           ^"
   - "Error [EPAR0370005]: expected ] -- got 'u8'\n    --> test:1:14\n     |\n   1 | let x: [u8; 1u8] = [1,\n     |              ^^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got ']'\n    --> test:1:15\n     |\n   1 | let dbg: u8 = ];\n     |               ^"
+  - "Error [EPAR0370032]: Could not lex the following content: 🦀: u8 = 0;."

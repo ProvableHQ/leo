@@ -43,18 +43,15 @@ fn eat(input: &[u8], wanted: &str) -> Option<usize> {
 /// An identifier can be eaten if its bytes are at the front of the given `input_tendril` string.
 ///
 fn eat_identifier(input_tendril: &StrTendril) -> Option<StrTendril> {
-    if input_tendril.is_empty() {
-        return None;
-    }
-    let input = input_tendril[..].as_bytes();
+    let input = input_tendril.as_bytes();
 
-    if !input[0].is_ascii_alphabetic() {
+    if !input.get(0)?.is_ascii_alphabetic() {
         return None;
     }
 
     let mut i = 1usize;
     while i < input.len() {
-        if !input[i].is_ascii_alphanumeric() && input[i] != b'_' {
+        if !input.get(i)?.is_ascii_alphanumeric() && *input.get(i)? != b'_' {
             break;
         }
         i += 1;
@@ -133,6 +130,8 @@ impl Token {
             return Some(Char::Scalar(character));
         }
 
+        // 0rphon: should be impossible to hit if function is used correctly
+        panic!();
         None
     }
 
@@ -142,10 +141,12 @@ impl Token {
     ///
     fn eat_integer(input_tendril: &StrTendril) -> Result<(usize, Token)> {
         if input_tendril.is_empty() {
+            // impossible to hit if function is used correctly
             return Err(ParserError::lexer_empty_input_tendril().into());
         }
-        let input = input_tendril[..].as_bytes();
+        let input = input_tendril.as_bytes();
         if !input[0].is_ascii_digit() {
+            // impossible to hit if function is used correctly
             return Err(ParserError::lexer_eat_integer_leading_zero(String::from_utf8_lossy(input)).into());
         }
         let mut i = 1;
@@ -178,8 +179,10 @@ impl Token {
             mask >>= 1;
         }
         if result == 0 {
+            // impossible to hit if function is used correctly
             1
         } else if result > 4 {
+            // only possible if invalid chars were sent directly to parser
             4
         } else {
             result
@@ -192,9 +195,11 @@ impl Token {
     ///
     pub(crate) fn eat(input_tendril: StrTendril) -> Result<(usize, Token)> {
         if input_tendril.is_empty() {
+            // 0rphon
+            panic!();
             return Err(ParserError::lexer_empty_input_tendril().into());
         }
-        let input = input_tendril[..].as_bytes();
+        let input = input_tendril.as_bytes();
         match input[0] {
             x if x.is_ascii_whitespace() => return Ok((1, Token::WhiteSpace)),
             b'"' => {
@@ -390,9 +395,6 @@ impl Token {
                     let len = if let Some(eol) = eol { eol + 1 } else { input.len() };
                     return Ok((len, Token::CommentLine(input_tendril.subtendril(0, len as u32))));
                 } else if eat(input, "/*").is_some() {
-                    if input.is_empty() {
-                        return Err(ParserError::lexer_empty_block_comment().into());
-                    }
                     let eol = input.windows(2).skip(2).position(|x| x[0] == b'*' && x[1] == b'/');
                     let len = if let Some(eol) = eol {
                         eol + 4

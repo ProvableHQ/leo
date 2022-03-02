@@ -39,3 +39,6 @@ outputs:
   - "Error [EPAR0370026]: Expected a valid escape character but found 117."
   - "Error [EPAR0370029]: Expected valid character but found '\\u{110000."
   - "Error [EPAR0370029]: Expected valid character but found '😭😂�."
+  - "Error [EPAR0370028]: Expected a closed char but found '\u001d�x 9 i32."
+  - "Error [EPAR0370029]: Expected valid character but found ' //#1647."
+  - "Error [EPAR0370029]: Expected valid character but found ' //#1651."
