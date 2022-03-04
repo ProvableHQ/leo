@@ -438,8 +438,7 @@ impl ParserContext<'_> {
             let param = p.parse_function_parameters(first).map(Some);
             first = false;
             param
-        }
-        )?;
+        })?;
 
         // Parse return type.
         let output = if self.eat(Token::Arrow).is_some() {

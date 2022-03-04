@@ -176,7 +176,7 @@ impl Token {
     }
 
     /// Returns the number of bytes in an emoji via a bit mask.
-    fn utf8_byte_count(byte: u8) -> u8 {
+    fn utf8_byte_count(byte: u8) -> usize {
         let mut mask = 0x80;
         let mut result = 0;
         while byte & mask > 0 {
@@ -205,7 +205,7 @@ impl Token {
             x if x.is_ascii_whitespace() => return Ok((1, Token::WhiteSpace)),
             b'"' => {
                 let mut i = 1;
-                let mut len: u8 = 1;
+                let mut len = 1;
                 let mut start = 1;
                 let mut in_escape = false;
                 let mut escaped = false;
@@ -218,7 +218,7 @@ impl Token {
                     // If it's an emoji get the length.
                     if input[i] & 0x80 > 0 {
                         len = Self::utf8_byte_count(input[i]);
-                        i += (len as usize) - 1;
+                        i += len - 1;
                     }
 
                     if !in_escape {
@@ -287,14 +287,27 @@ impl Token {
                 let mut in_escape = false;
                 let mut escaped = false;
                 let mut hex = false;
-                let mut unicode = false;
+                let mut escaped_unicode = false;
+                let mut unicode_char = false;
                 let mut end = false;
 
                 while i < input.len() {
-                    if !in_escape {
+                    if input[i] & 0x80 > 0 && !unicode_char {
+                        i += Self::utf8_byte_count(input[i]);
+                        unicode_char = true;
+                        continue;
+                    } else if input[i] & 0x80 > 0 && unicode_char {
+                        i += Self::utf8_byte_count(input[i]);
+                        return Err(ParserError::lexer_invalid_char(&input_tendril[0..i]).into());
+                    } else if !in_escape || unicode_char {
                         if input[i] == b'\'' {
                             end = true;
                             break;
+                        } else if unicode_char {
+                            return Err(ParserError::lexer_invalid_char(
+                                &input_tendril[0..input_tendril[1..].find('\'').unwrap_or(i + 1)],
+                            )
+                            .into());
                         } else if input[i] == b'\\' {
                             in_escape = true;
                         }
@@ -303,7 +316,7 @@ impl Token {
                             hex = true;
                         } else if input[i] == b'u' {
                             if input[i + 1] == b'{' {
-                                unicode = true;
+                                escaped_unicode = true;
                             } else {
                                 return Err(ParserError::lexer_expected_valid_escaped_char(input[i]).into());
                             }
@@ -321,7 +334,12 @@ impl Token {
                     return Err(ParserError::lexer_char_not_closed(String::from_utf8_lossy(&input[0..i])).into());
                 }
 
-                let character = Self::eat_char(input_tendril.subtendril(1, (i - 1) as u32), escaped, hex, unicode)?;
+                let character = Self::eat_char(
+                    input_tendril.subtendril(1, (i - 1) as u32),
+                    escaped,
+                    hex,
+                    escaped_unicode,
+                )?;
                 return Ok((i + 1, Token::CharLit(character)));
             }
             x if x.is_ascii_digit() => {
