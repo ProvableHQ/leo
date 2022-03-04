@@ -22,7 +22,7 @@ pub fn find_tests<T: AsRef<Path>>(path: T, out: &mut Vec<(String, String)>) {
         if entry.is_dir() {
             find_tests(entry.as_path(), out);
             continue;
-        } else if entry.extension().map(|x| x.to_str()).flatten().unwrap_or_default() != "leo" {
+        } else if entry.extension().and_then(|x| x.to_str()).unwrap_or_default() != "leo" {
             continue;
         }
         let content = fs::read_to_string(entry.as_path()).expect("failed to read test");
