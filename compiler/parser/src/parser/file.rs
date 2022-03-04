@@ -361,7 +361,7 @@ impl ParserContext<'_> {
     ///
     /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
     ///
-    pub fn parse_function_parameters(&mut self) -> Result<FunctionInput> {
+    pub fn parse_function_parameters(&mut self, first: bool) -> Result<FunctionInput> {
         let const_ = self.eat(Token::Const);
         let mutable = self.eat(Token::Mut);
         let reference = self.eat(Token::Ampersand);
@@ -374,7 +374,9 @@ impl ParserContext<'_> {
             self.expect_ident()?
         };
         if name.name == sym::SelfLower {
-            if let Some(mutable) = &mutable {
+            if !first {
+                return Err(ParserError::parser_self_outside_first_argument().into());
+            } else if let Some(mutable) = &mutable {
                 self.emit_err(ParserError::mut_self_parameter(&(&mutable.span + &name.span)));
                 return Ok(Self::build_ref_self(name, mutable));
             } else if let Some(reference) = &reference {
@@ -431,7 +433,13 @@ impl ParserContext<'_> {
         let name = self.expect_ident()?;
 
         // Parse parameters.
-        let (inputs, ..) = self.parse_paren_comma_list(|p| p.parse_function_parameters().map(Some))?;
+        let mut first = true;
+        let (inputs, ..) = self.parse_paren_comma_list(|p| {
+            let param = p.parse_function_parameters(first).map(Some);
+            first = false;
+            param
+        }
+        )?;
 
         // Parse return type.
         let output = if self.eat(Token::Arrow).is_some() {

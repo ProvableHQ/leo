@@ -351,4 +351,12 @@ create_errors!(
         msg: format!("The escaped unicode char `{}` is greater than 0x10FFFF.", input),
         help: None,
     }
+
+    /// When a function recieved a self argument outside the first argument.
+    @backtraced
+    parser_self_outside_first_argument {
+        args: (),
+        msg: "A function received a self argument as not the first argument.",
+        help: None,
+    }
 );
