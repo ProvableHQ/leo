@@ -20,41 +20,12 @@ use serde::{ser::SerializeSeq, Deserialize, Serialize, Serializer};
 use smallvec::{smallvec, SmallVec};
 use std::{fmt, ops::Deref};
 
-/// A single array dimension.
-#[derive(Clone, Deserialize, Debug, PartialEq, Eq, Hash)]
-pub enum Dimension {
-    /// The dimension was specified, e.g., `5` elements.
-    Number(PositiveNumber),
-}
-
-impl fmt::Display for Dimension {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::Number(num) => write!(f, "{}", num),
-        }
-    }
-}
-
-impl Dimension {
-    /// } Returns `Some(n)` unless the dimension is [`Unspecified`].
-    pub fn as_specified(&self) -> Option<&PositiveNumber> {
-        match self {
-            Self::Number(n) => Some(n),
-        }
-    }
-
-    /// Returns true if the dimension is known to be zero.
-    fn is_zero(&self) -> bool {
-        self.as_specified().filter(|n| n.is_zero()).is_some()
-    }
-}
-
 /// Specifies array dimensions for array [`Type`]s or in array initializer [`Expression`]s.
 #[derive(Clone, Deserialize, Debug, PartialEq, Eq, Hash)]
-pub struct ArrayDimensions(pub SmallVec<[Dimension; 1]>);
+pub struct ArrayDimensions(pub SmallVec<[PositiveNumber; 1]>);
 
 impl Deref for ArrayDimensions {
-    type Target = [Dimension];
+    type Target = [PositiveNumber];
 
     fn deref(&self) -> &Self::Target {
         &*self.0
@@ -63,7 +34,7 @@ impl Deref for ArrayDimensions {
 
 impl ArrayDimensions {
     /// Returns a single-dimensional array dimension.
-    pub fn single(dim: Dimension) -> Self {
+    pub fn single(dim: PositiveNumber) -> Self {
         Self(smallvec![dim])
     }
 
@@ -73,7 +44,7 @@ impl ArrayDimensions {
     }
 
     /// Attempts to remove the first dimension from the array, or returns `None` if it doesn't.
-    pub fn remove_first(&mut self) -> Option<Dimension> {
+    pub fn remove_first(&mut self) -> Option<PositiveNumber> {
         if self.is_empty() {
             None
         } else {
@@ -82,7 +53,7 @@ impl ArrayDimensions {
     }
 
     /// Attempts to remove the last dimension from the array, or returns `None` if it doesn't.
-    pub fn remove_last(&mut self) -> Option<Dimension> {
+    pub fn remove_last(&mut self) -> Option<PositiveNumber> {
         self.0.pop()
     }
 }
@@ -95,9 +66,7 @@ impl Serialize for ArrayDimensions {
     {
         let mut seq = serializer.serialize_seq(Some(self.0.len()))?;
         for dim in self.0.iter() {
-            match dim {
-                Dimension::Number(num) => seq.serialize_element(&num)?,
-            }
+            seq.serialize_element(&dim)?;
         }
         seq.end()
     }

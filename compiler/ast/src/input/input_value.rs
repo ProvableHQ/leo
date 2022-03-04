@@ -88,32 +88,28 @@ impl TryFrom<(Type, Expression)> for InputValue {
                 }
 
                 if let Some(dimension) = array_init.dimensions.remove_first() {
-                    if let Some(number) = dimension.as_specified() {
-                        let size = number.value.parse::<usize>().unwrap();
-                        let mut values = Vec::with_capacity(size);
+                    let size = dimension.value.parse::<usize>().unwrap();
+                    let mut values = Vec::with_capacity(size);
 
-                        // For when Dimensions are specified in a canonical way: [[u8; 3], 2];
-                        // Else treat as math notation: [u8; (2, 3)];
-                        if array_init.dimensions.len() == 0 {
-                            for _ in 0..size {
-                                values.push(InputValue::try_from((*type_.clone(), *array_init.element.clone()))?);
-                            }
-                        // Faking canonical array init is relatively easy: instead of using a straightforward
-                        // recursion, with each iteration we manually modify ArrayInitExpression cutting off
-                        // dimension by dimension.
-                        } else {
-                            for _ in 0..size {
-                                values.push(InputValue::try_from((
-                                    Type::Array(type_.clone(), array_init.dimensions.clone()),
-                                    Expression::ArrayInit(array_init.clone()),
-                                ))?);
-                            }
-                        };
-
-                        Self::Array(values)
+                    // For when Dimensions are specified in a canonical way: [[u8; 3], 2];
+                    // Else treat as math notation: [u8; (2, 3)];
+                    if array_init.dimensions.len() == 0 {
+                        for _ in 0..size {
+                            values.push(InputValue::try_from((*type_.clone(), *array_init.element.clone()))?);
+                        }
+                    // Faking canonical array init is relatively easy: instead of using a straightforward
+                    // recursion, with each iteration we manually modify ArrayInitExpression cutting off
+                    // dimension by dimension.
                     } else {
-                        unreachable!("dimensions must be specified");
-                    }
+                        for _ in 0..size {
+                            values.push(InputValue::try_from((
+                                Type::Array(type_.clone(), array_init.dimensions.clone()),
+                                Expression::ArrayInit(array_init.clone()),
+                            ))?);
+                        }
+                    };
+
+                    Self::Array(values)
                 } else {
                     unreachable!("dimensions are checked for zero");
                 }
