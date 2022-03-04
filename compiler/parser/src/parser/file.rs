@@ -116,7 +116,7 @@ impl ParserContext<'_> {
                     Some(ident.name)
                 } else {
                     let token = p.expect_any()?;
-                    p.emit_err(ParserError::unexpected_str(&token.token, "ident or int", &token.span));
+                    p.emit_err(ParserError::unexpected_str(&token.token, "ident", &token.span));
                     None
                 })
             })?;
