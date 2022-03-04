@@ -161,7 +161,11 @@ impl Token {
             return Err(ParserError::lexer_eat_integer_leading_zero(String::from_utf8_lossy(input)).into());
         }
         let mut i = 1;
+
         while i < input.len() {
+            if i == 1 && input[0] == b'0' && input[i] == b'x' {
+                return Err(ParserError::lexer_hex_number_provided(&input_tendril[0..3]).into());
+            }
             if !input[i].is_ascii_digit() {
                 break;
             }

@@ -351,6 +351,13 @@ create_errors!(
         msg: format!("The escaped unicode char `{}` is greater than 0x10FFFF.", input),
         help: None,
     }
+    /// When a hex number is provided.
+    @backtraced
+    lexer_hex_number_provided {
+        args: (input: impl Display),
+        msg: format!("A hex number `{}..` was provided but hex is not allowed.", input),
+        help: None,
+    }
 
     /// When a function recieved a self argument outside the first argument.
     @backtraced
