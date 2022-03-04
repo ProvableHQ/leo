@@ -1013,7 +1013,7 @@ An array type consists of an element type
 and an indication of dimensions.
 There is either a single dimension,
 or a tuple of one or more dimensions.
-Each dimension is either a natural or is unspecified.
+Each dimension is natural.
 
 <a name="array-type"></a>
 ```abnf

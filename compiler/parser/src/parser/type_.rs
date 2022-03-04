@@ -84,8 +84,6 @@ impl ParserContext<'_> {
     fn parse_array_dimension(&mut self) -> Option<Dimension> {
         if let Some((int, _)) = self.eat_int() {
             Some(Dimension::Number(int))
-        } else if self.eat(Token::Underscore).is_some() {
-            Some(Dimension::Unspecified)
         } else {
             None
         }

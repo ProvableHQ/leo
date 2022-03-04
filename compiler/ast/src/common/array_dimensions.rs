@@ -23,8 +23,6 @@ use std::{fmt, ops::Deref};
 /// A single array dimension.
 #[derive(Clone, Deserialize, Debug, PartialEq, Eq, Hash)]
 pub enum Dimension {
-    /// The dimension is `_`, that is unspecified and syntactically unknown.
-    Unspecified,
     /// The dimension was specified, e.g., `5` elements.
     Number(PositiveNumber),
 }
@@ -32,7 +30,6 @@ pub enum Dimension {
 impl fmt::Display for Dimension {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Unspecified => write!(f, "_"),
             Self::Number(num) => write!(f, "{}", num),
         }
     }
@@ -42,7 +39,6 @@ impl Dimension {
     /// } Returns `Some(n)` unless the dimension is [`Unspecified`].
     pub fn as_specified(&self) -> Option<&PositiveNumber> {
         match self {
-            Self::Unspecified => None,
             Self::Number(n) => Some(n),
         }
     }
@@ -71,11 +67,6 @@ impl ArrayDimensions {
         Self(smallvec![dim])
     }
 
-    /// Returns true if the dimensions are not [`Unspecified`].
-    pub fn is_specified(&self) -> bool {
-        !self.contains(&Dimension::Unspecified)
-    }
-
     /// Returns `true` if there is an array dimension equal to zero.
     pub fn is_zero(&self) -> bool {
         self.iter().any(|d| d.is_zero())
@@ -96,7 +87,7 @@ impl ArrayDimensions {
     }
 }
 
-/// Custom Serializer for ArrayDimensios is required to ignore internal ArrayDimension nodes in the AST.
+/// Custom Serializer for ArrayDimensions is required to ignore internal ArrayDimension nodes in the AST.
 impl Serialize for ArrayDimensions {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -106,7 +97,6 @@ impl Serialize for ArrayDimensions {
         for dim in self.0.iter() {
             match dim {
                 Dimension::Number(num) => seq.serialize_element(&num)?,
-                Dimension::Unspecified => seq.serialize_element(&PositiveNumber { value: "0".into() })?,
             }
         }
         seq.end()

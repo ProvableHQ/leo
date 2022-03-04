@@ -132,13 +132,9 @@ impl TryFrom<(Type, Expression)> for InputValue {
 
                 Self::Tuple(elements)
             }
-            (Type::Array(element_type, dimensions), Expression::ArrayInline(array_inline)) => {
+            (Type::Array(element_type, _dimensions), Expression::ArrayInline(array_inline)) => {
                 let mut elements = Vec::with_capacity(array_inline.elements.len());
                 let span = array_inline.span().clone();
-
-                if !dimensions.is_specified() {
-                    return Err(InputError::array_dimensions_must_be_specified(&span).into());
-                }
 
                 for element in array_inline.elements.into_iter() {
                     if let SpreadOrExpression::Expression(value_expression) = element {
