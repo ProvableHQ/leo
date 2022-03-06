@@ -461,10 +461,6 @@ natural = 1*decimal-digit
 
 integer = [ "-" ] natural
 
-; An untyped literal is just an integer.
-
-untyped-literal = integer
-
 ; Unsigned literals are naturals followed by unsigned types.
 
 unsigned-literal = natural ( %s"u8" / %s"u16" / %s"u32" / %s"u64" / %s"u128" )
@@ -552,8 +548,7 @@ string-literal-element = not-double-quote-or-backslash
 ; (in the sense that they are tokens, without whitespace allowed in them),
 ; as defined by the following rule.
 
-atomic-literal = untyped-literal
-               / unsigned-literal
+atomic-literal = unsigned-literal
                / signed-literal
                / field-literal
                / product-group-literal
@@ -918,10 +913,10 @@ return-statement = %s"return" expression ";"
 ; in all cases, there is just one optional type
 ; and just one initializing expression.
 
-variable-declaration = %s"let" identifier-or-identifiers [ ":" type ]
+variable-declaration = %s"let" identifier-or-identifiers ":" type
                        "=" expression ";"
 
-constant-declaration = %s"const" identifier-or-identifiers [ ":" type ]
+constant-declaration = %s"const" identifier-or-identifiers ":" type
                        "=" expression ";"
 
 identifier-or-identifiers = identifier
@@ -943,7 +938,8 @@ conditional-statement = branch
 ; that goes from a starting value (inclusive) to an ending value (exclusive).
 ; The body is a block.
 
-loop-statement = %s"for" identifier %s"in" expression ".." [ "=" ] expression
+loop-statement = %s"for" identifier ":" type
+                 %s"in" expression ".." [ "=" ] expression
                  block
 
 ; An assignment statement is straightforward.
