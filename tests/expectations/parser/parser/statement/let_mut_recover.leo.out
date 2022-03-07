@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error [EPAR0370015]: let mut = ... is deprecated. `let` keyword implies mutabality by default.\n    --> test:4:5\n     |\n   4 |     let mut x = 0;\n     |     ^^^^^^^\nError [EPAR0370015]: let mut = ... is deprecated. `let` keyword implies mutabality by default.\n    --> test:5:5\n     |\n   5 |     let mut y = 0; // recovery witness\n     |     ^^^^^^^"
+  - "Error [EPAR0370015]: let mut = ... is deprecated. `let` keyword implies mutabality by default.\n    --> test:4:5\n     |\n   4 |     let mut x = 0;\n     |     ^^^^^^^\nError [EPAR0370005]: expected : -- got '='\n    --> test:4:15\n     |\n   4 |     let mut x = 0;\n     |               ^"

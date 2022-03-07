@@ -71,7 +71,8 @@ outputs:
                           Group:
                             Single: "0"
                   - Iteration:
-                      variable: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i in 0..256 {\\\"}\"}"
+                      variable: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i: group in 0..256 {\\\"}\"}"
+                      type_: Group
                       start:
                         Value:
                           Implicit: "0"
@@ -143,20 +144,21 @@ outputs:
                 declaration_type: Const
                 variable_names:
                   - mutable: false
-                    identifier: "{\"name\":\"pedersen\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":11,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
+                    identifier: "{\"name\":\"pedersen\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":11,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen: PerdesenHash = PedersenHash::new(parameters);\\\"}\"}"
                 parened: false
-                type_: ~
+                type_:
+                  Identifier: "{\"name\":\"PerdesenHash\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":21,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen: PerdesenHash = PedersenHash::new(parameters);\\\"}\"}"
                 value:
                   Call:
                     function:
                       Access:
                         Static:
                           inner:
-                            Identifier: "{\"name\":\"PedersenHash\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":22,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
-                          name: "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":36,\\\"col_stop\\\":39,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
+                            Identifier: "{\"name\":\"PedersenHash\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":36,\\\"col_stop\\\":48,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen: PerdesenHash = PedersenHash::new(parameters);\\\"}\"}"
+                          name: "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":50,\\\"col_stop\\\":53,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen: PerdesenHash = PedersenHash::new(parameters);\\\"}\"}"
                           type_: ~
                     arguments:
-                      - Identifier: "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":40,\\\"col_stop\\\":50,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
+                      - Identifier: "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":54,\\\"col_stop\\\":64,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen: PerdesenHash = PedersenHash::new(parameters);\\\"}\"}"
             - Return:
                 expression:
                   Call:

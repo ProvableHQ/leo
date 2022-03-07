@@ -11,20 +11,20 @@ function main(str: [char; 20]) -> bool {
 }
 
 function is_palindrome(str: [char; 20]) -> bool {
-    const str_len = 20u32; // saving const for convenience
+    const str_len: u32 = 20u32; // saving const for convenience
 
     // By default we assume that input is a palindrome.
-    let result = true;
-    let processed = 0u8;
+    let result: bool = true;
+    let processed: u8 = 0u8;
 
-    for start in 0..(str_len / 2) {
-        let start_sym = str[start];
+    for start: u32 in 0..(str_len / 2) {
+        let start_sym: char = str[start];
         if start_sym != ' ' {
-            let skipped = 0u8;
-            let end_empty = 0u8;
-            let end_sym = ' ';
+            let skipped: u8 = 0u8;
+            let end_empty: u8 = 0u8;
+            let end_sym: char = ' ';
 
-            for end in (str_len - 1)..start {
+            for end: u32 in (str_len - 1)..start {
                 if str[end] != ' ' && skipped == processed && end_sym == ' ' {
                     end_sym = str[end];
                 } else {

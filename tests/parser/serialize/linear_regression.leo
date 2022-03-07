@@ -23,30 +23,30 @@ circuit LinearRegression {
     // Return the slope of the linear regression.
     function slope(self) -> i32 { 
         
-        let num_points = 5i32;
+        let num_points: i32 = 5i32;
         // Calculate the sums.
-        let x_sum = 0i32; 
-        let y_sum = 0i32; 
-        let xy_sum = 0i32; 
-        let x2_sum = 0i32; 
-        for i in 0..5 {
+        let x_sum: i32 = 0i32; 
+        let y_sum: i32 = 0i32; 
+        let xy_sum: i32 = 0i32; 
+        let x2_sum: i32 = 0i32; 
+        for i: u32 in 0..5 {
             x_sum += self.points[i].x;
             y_sum += self.points[i].y;
             xy_sum += self.points[i].x * self.points[i].y;
             x2_sum += self.points[i].x * self.points[i].x;
         }
-        let numerator = (num_points * xy_sum) - (x_sum * y_sum); 
-        let denominator = (num_points * x2_sum) - (x_sum * x_sum);
-        let slope = numerator / denominator;
+        let numerator: i32 = (num_points * xy_sum) - (x_sum * y_sum); 
+        let denominator: i32 = (num_points * x2_sum) - (x_sum * x_sum);
+        let slope: i32 = numerator / denominator;
         return slope;
     }
     // Return the offset of the linear regression.
     function offset(self, slope: i32) -> i32 {
-        let num_points = 5i32; 
+        let num_points: i32 = 5i32; 
         // Calculate the sum. 
-        let x_sum = 0i32;
-        let y_sum = 0i32;
-        for i in 0..5 {
+        let x_sum: i32 = 0i32;
+        let y_sum: i32 = 0i32;
+        for i: u32 in 0..5 {
             x_sum += self.points[i].x;
             y_sum += self.points[i].y; 
         }
@@ -63,8 +63,8 @@ function main (x: i32, y: i32) -> [i32; 2] {
       Point{x: x + 4, y: y + 4},
       Point{x: x + 5, y: y + 5}
   ];
-  let reg = LinearRegression::new(points);
-  let slope = reg.slope();
-  let offset = reg.offset(slope);
+  let reg: LinearRegression = LinearRegression::new(points);
+  let slope: i32 = reg.slope();
+  let offset: i32 = reg.offset(slope);
   return [slope, offset];
 }

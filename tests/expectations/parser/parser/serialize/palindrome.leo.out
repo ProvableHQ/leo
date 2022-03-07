@@ -55,9 +55,10 @@ outputs:
                 declaration_type: Const
                 variable_names:
                   - mutable: false
-                    identifier: "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":11,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const str_len = 20u32; // saving const for convenience\\\"}\"}"
+                    identifier: "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":11,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const str_len: u32 = 20u32; // saving const for convenience\\\"}\"}"
                 parened: false
-                type_: ~
+                type_:
+                  IntegerType: U32
                 value:
                   Value:
                     Integer:
@@ -67,9 +68,9 @@ outputs:
                 declaration_type: Let
                 variable_names:
                   - mutable: true
-                    identifier: "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = true;\\\"}\"}"
+                    identifier: "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result: bool = true;\\\"}\"}"
                 parened: false
-                type_: ~
+                type_: Boolean
                 value:
                   Value:
                     Boolean: "true"
@@ -77,23 +78,26 @@ outputs:
                 declaration_type: Let
                 variable_names:
                   - mutable: true
-                    identifier: "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":9,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let processed = 0u8;\\\"}\"}"
+                    identifier: "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":9,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let processed: u8 = 0u8;\\\"}\"}"
                 parened: false
-                type_: ~
+                type_:
+                  IntegerType: U8
                 value:
                   Value:
                     Integer:
                       - U8
                       - "0"
             - Iteration:
-                variable: "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    for start in 0..(str_len / 2) {\\\"}\"}"
+                variable: "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    for start: u32 in 0..(str_len / 2) {\\\"}\"}"
+                type_:
+                  IntegerType: U32
                 start:
                   Value:
                     Implicit: "0"
                 stop:
                   Binary:
                     left:
-                      Identifier: "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":22,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    for start in 0..(str_len / 2) {\\\"}\"}"
+                      Identifier: "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":27,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    for start: u32 in 0..(str_len / 2) {\\\"}\"}"
                     right:
                       Value:
                         Implicit: "2"
@@ -105,16 +109,16 @@ outputs:
                         declaration_type: Let
                         variable_names:
                           - mutable: true
-                            identifier: "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":13,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let start_sym = str[start];\\\"}\"}"
+                            identifier: "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":13,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let start_sym: char = str[start];\\\"}\"}"
                         parened: false
-                        type_: ~
+                        type_: Char
                         value:
                           Access:
                             Array:
                               array:
-                                Identifier: "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":25,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let start_sym = str[start];\\\"}\"}"
+                                Identifier: "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":31,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let start_sym: char = str[start];\\\"}\"}"
                               index:
-                                Identifier: "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":29,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let start_sym = str[start];\\\"}\"}"
+                                Identifier: "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":35,\\\"col_stop\\\":40,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let start_sym: char = str[start];\\\"}\"}"
                     - Conditional:
                         condition:
                           Binary:
@@ -132,9 +136,10 @@ outputs:
                                 declaration_type: Let
                                 variable_names:
                                   - mutable: true
-                                    identifier: "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":17,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            let skipped = 0u8;\\\"}\"}"
+                                    identifier: "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":17,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            let skipped: u8 = 0u8;\\\"}\"}"
                                 parened: false
-                                type_: ~
+                                type_:
+                                  IntegerType: U8
                                 value:
                                   Value:
                                     Integer:
@@ -144,9 +149,10 @@ outputs:
                                 declaration_type: Let
                                 variable_names:
                                   - mutable: true
-                                    identifier: "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":17,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            let end_empty = 0u8;\\\"}\"}"
+                                    identifier: "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":17,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            let end_empty: u8 = 0u8;\\\"}\"}"
                                 parened: false
-                                type_: ~
+                                type_:
+                                  IntegerType: U8
                                 value:
                                   Value:
                                     Integer:
@@ -156,26 +162,28 @@ outputs:
                                 declaration_type: Let
                                 variable_names:
                                   - mutable: true
-                                    identifier: "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":17,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            let end_sym = ' ';\\\"}\"}"
+                                    identifier: "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":17,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            let end_sym: char = ' ';\\\"}\"}"
                                 parened: false
-                                type_: ~
+                                type_: Char
                                 value:
                                   Value:
                                     Char:
                                       character:
                                         Scalar: 32
                             - Iteration:
-                                variable: "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":17,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
+                                variable: "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":17,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end: u32 in (str_len - 1)..start {\\\"}\"}"
+                                type_:
+                                  IntegerType: U32
                                 start:
                                   Binary:
                                     left:
-                                      Identifier: "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":25,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
+                                      Identifier: "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":30,\\\"col_stop\\\":37,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end: u32 in (str_len - 1)..start {\\\"}\"}"
                                     right:
                                       Value:
                                         Implicit: "1"
                                     op: Sub
                                 stop:
-                                  Identifier: "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":39,\\\"col_stop\\\":44,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
+                                  Identifier: "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":44,\\\"col_stop\\\":49,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end: u32 in (str_len - 1)..start {\\\"}\"}"
                                 inclusive: false
                                 block:
                                   statements:

@@ -3,26 +3,26 @@ namespace: ParseStatement
 expectation: Pass
 */
 
-let x = expr;
+let x: u8 = expr;
 
-let x = ();
+let x: () = ();
 
-let x = x+y;
+let x: u16 = x+y;
 
-let x = (x,y);
+let x: (u32, u64) = (x,y);
 
-let x = x();
+let x: u8 = x();
 
 
-const x = expr;
+const x: i8 = expr;
 
-const x = ();
+const x: () = ();
 
-const x = x+y;
+const x: i16 = x+y;
 
-const x = (x,y);
+const x: (i32, i64) = (x,y);
 
-const x = x();
+const x: i8 = x();
 
 
 let x: u32 = expr;
@@ -51,26 +51,26 @@ const x: u32 = x();
 
 
 
-let (x, y) = expr;
+let (x, y): (field, group) = expr;
 
-let (x, y) = ();
+let (x, y): (u8, u16) = ();
 
-let (x, y) = x+y;
+let (x, y): (i8, i16) = x+y;
 
-let (x, y) = (x,y);
+let (x, y): (u32, u64) = (x,y);
 
-let (x, y) = x();
+let (x, y): (i32, i64) = x();
 
 
-const (x, y) = expr;
+const (x, y): (field, group)  = expr;
 
-const (x, y) = ();
+const (x, y): (u8, u16) = ();
 
-const (x, y) = x+y;
+const (x, y): (i8, i16) = x+y;
 
-const (x, y) = (x,y);
+const (x, y): (u32, u64) = (x,y);
 
-const (x, y) = x();
+const (x, y): (i32, i64) = x();
 
 
 let (x, y): u32 = expr;
@@ -95,9 +95,9 @@ const (x, y): u32 = (x,y);
 const (x, y): u32 = x();
 
 
-let (x,y,) = ();
+let (x,y,): () = ();
 
-let (x,) = ();
+let (x,): u8 = ();
 
 
 let x: [char; _] = "Hello, World!";

@@ -94,9 +94,10 @@ outputs:
                       declaration_type: Let
                       variable_names:
                         - mutable: true
-                          identifier: "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":13,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let num_points = 5i32;\\\"}\"}"
+                          identifier: "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":13,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let num_points: i32 = 5i32;\\\"}\"}"
                       parened: false
-                      type_: ~
+                      type_:
+                        IntegerType: I32
                       value:
                         Value:
                           Integer:
@@ -106,9 +107,10 @@ outputs:
                       declaration_type: Let
                       variable_names:
                         - mutable: true
-                          identifier: "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let x_sum = 0i32; \\\"}\"}"
+                          identifier: "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let x_sum: i32 = 0i32; \\\"}\"}"
                       parened: false
-                      type_: ~
+                      type_:
+                        IntegerType: I32
                       value:
                         Value:
                           Integer:
@@ -118,9 +120,10 @@ outputs:
                       declaration_type: Let
                       variable_names:
                         - mutable: true
-                          identifier: "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let y_sum = 0i32; \\\"}\"}"
+                          identifier: "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let y_sum: i32 = 0i32; \\\"}\"}"
                       parened: false
-                      type_: ~
+                      type_:
+                        IntegerType: I32
                       value:
                         Value:
                           Integer:
@@ -130,9 +133,10 @@ outputs:
                       declaration_type: Let
                       variable_names:
                         - mutable: true
-                          identifier: "{\"name\":\"xy_sum\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let xy_sum = 0i32; \\\"}\"}"
+                          identifier: "{\"name\":\"xy_sum\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let xy_sum: i32 = 0i32; \\\"}\"}"
                       parened: false
-                      type_: ~
+                      type_:
+                        IntegerType: I32
                       value:
                         Value:
                           Integer:
@@ -142,16 +146,19 @@ outputs:
                       declaration_type: Let
                       variable_names:
                         - mutable: true
-                          identifier: "{\"name\":\"x2_sum\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let x2_sum = 0i32; \\\"}\"}"
+                          identifier: "{\"name\":\"x2_sum\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let x2_sum: i32 = 0i32; \\\"}\"}"
                       parened: false
-                      type_: ~
+                      type_:
+                        IntegerType: I32
                       value:
                         Value:
                           Integer:
                             - I32
                             - "0"
                   - Iteration:
-                      variable: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i in 0..5 {\\\"}\"}"
+                      variable: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i: u32 in 0..5 {\\\"}\"}"
+                      type_:
+                        IntegerType: U32
                       start:
                         Value:
                           Implicit: "0"
@@ -293,63 +300,66 @@ outputs:
                       declaration_type: Let
                       variable_names:
                         - mutable: true
-                          identifier: "{\"name\":\"numerator\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":13,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
+                          identifier: "{\"name\":\"numerator\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":13,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator: i32 = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
                       parened: false
-                      type_: ~
+                      type_:
+                        IntegerType: I32
                       value:
                         Binary:
                           left:
                             Binary:
                               left:
-                                Identifier: "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":26,\\\"col_stop\\\":36,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
+                                Identifier: "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":31,\\\"col_stop\\\":41,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator: i32 = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
                               right:
-                                Identifier: "{\"name\":\"xy_sum\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":39,\\\"col_stop\\\":45,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
+                                Identifier: "{\"name\":\"xy_sum\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":44,\\\"col_stop\\\":50,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator: i32 = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
                               op: Mul
                           right:
                             Binary:
                               left:
-                                Identifier: "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":50,\\\"col_stop\\\":55,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
+                                Identifier: "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":55,\\\"col_stop\\\":60,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator: i32 = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
                               right:
-                                Identifier: "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":58,\\\"col_stop\\\":63,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
+                                Identifier: "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":63,\\\"col_stop\\\":68,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator: i32 = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
                               op: Mul
                           op: Sub
                   - Definition:
                       declaration_type: Let
                       variable_names:
                         - mutable: true
-                          identifier: "{\"name\":\"denominator\",\"span\":\"{\\\"line_start\\\":36,\\\"line_stop\\\":36,\\\"col_start\\\":13,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
+                          identifier: "{\"name\":\"denominator\",\"span\":\"{\\\"line_start\\\":36,\\\"line_stop\\\":36,\\\"col_start\\\":13,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator: i32 = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
                       parened: false
-                      type_: ~
+                      type_:
+                        IntegerType: I32
                       value:
                         Binary:
                           left:
                             Binary:
                               left:
-                                Identifier: "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":36,\\\"line_stop\\\":36,\\\"col_start\\\":28,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
+                                Identifier: "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":36,\\\"line_stop\\\":36,\\\"col_start\\\":33,\\\"col_stop\\\":43,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator: i32 = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
                               right:
-                                Identifier: "{\"name\":\"x2_sum\",\"span\":\"{\\\"line_start\\\":36,\\\"line_stop\\\":36,\\\"col_start\\\":41,\\\"col_stop\\\":47,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
+                                Identifier: "{\"name\":\"x2_sum\",\"span\":\"{\\\"line_start\\\":36,\\\"line_stop\\\":36,\\\"col_start\\\":46,\\\"col_stop\\\":52,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator: i32 = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
                               op: Mul
                           right:
                             Binary:
                               left:
-                                Identifier: "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":36,\\\"line_stop\\\":36,\\\"col_start\\\":52,\\\"col_stop\\\":57,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
+                                Identifier: "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":36,\\\"line_stop\\\":36,\\\"col_start\\\":57,\\\"col_stop\\\":62,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator: i32 = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
                               right:
-                                Identifier: "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":36,\\\"line_stop\\\":36,\\\"col_start\\\":60,\\\"col_stop\\\":65,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
+                                Identifier: "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":36,\\\"line_stop\\\":36,\\\"col_start\\\":65,\\\"col_stop\\\":70,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator: i32 = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
                               op: Mul
                           op: Sub
                   - Definition:
                       declaration_type: Let
                       variable_names:
                         - mutable: true
-                          identifier: "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let slope = numerator / denominator;\\\"}\"}"
+                          identifier: "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let slope: i32 = numerator / denominator;\\\"}\"}"
                       parened: false
-                      type_: ~
+                      type_:
+                        IntegerType: I32
                       value:
                         Binary:
                           left:
-                            Identifier: "{\"name\":\"numerator\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":21,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let slope = numerator / denominator;\\\"}\"}"
+                            Identifier: "{\"name\":\"numerator\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":26,\\\"col_stop\\\":35,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let slope: i32 = numerator / denominator;\\\"}\"}"
                           right:
-                            Identifier: "{\"name\":\"denominator\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":33,\\\"col_stop\\\":44,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let slope = numerator / denominator;\\\"}\"}"
+                            Identifier: "{\"name\":\"denominator\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":38,\\\"col_stop\\\":49,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let slope: i32 = numerator / denominator;\\\"}\"}"
                           op: Div
                   - Return:
                       expression:
@@ -375,9 +385,10 @@ outputs:
                       declaration_type: Let
                       variable_names:
                         - mutable: true
-                          identifier: "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":42,\\\"line_stop\\\":42,\\\"col_start\\\":13,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let num_points = 5i32; \\\"}\"}"
+                          identifier: "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":42,\\\"line_stop\\\":42,\\\"col_start\\\":13,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let num_points: i32 = 5i32; \\\"}\"}"
                       parened: false
-                      type_: ~
+                      type_:
+                        IntegerType: I32
                       value:
                         Value:
                           Integer:
@@ -387,9 +398,10 @@ outputs:
                       declaration_type: Let
                       variable_names:
                         - mutable: true
-                          identifier: "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":44,\\\"line_stop\\\":44,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let x_sum = 0i32;\\\"}\"}"
+                          identifier: "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":44,\\\"line_stop\\\":44,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let x_sum: i32 = 0i32;\\\"}\"}"
                       parened: false
-                      type_: ~
+                      type_:
+                        IntegerType: I32
                       value:
                         Value:
                           Integer:
@@ -399,16 +411,19 @@ outputs:
                       declaration_type: Let
                       variable_names:
                         - mutable: true
-                          identifier: "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let y_sum = 0i32;\\\"}\"}"
+                          identifier: "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let y_sum: i32 = 0i32;\\\"}\"}"
                       parened: false
-                      type_: ~
+                      type_:
+                        IntegerType: I32
                       value:
                         Value:
                           Integer:
                             - I32
                             - "0"
                   - Iteration:
-                      variable: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i in 0..5 {\\\"}\"}"
+                      variable: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i: u32 in 0..5 {\\\"}\"}"
+                      type_:
+                        IntegerType: U32
                       start:
                         Value:
                           Implicit: "0"
@@ -633,55 +648,58 @@ outputs:
                 declaration_type: Let
                 variable_names:
                   - mutable: true
-                    identifier: "{\"name\":\"reg\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":7,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
+                    identifier: "{\"name\":\"reg\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":7,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg: LinearRegression = LinearRegression::new(points);\\\"}\"}"
                 parened: false
-                type_: ~
+                type_:
+                  Identifier: "{\"name\":\"LinearRegression\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":12,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg: LinearRegression = LinearRegression::new(points);\\\"}\"}"
                 value:
                   Call:
                     function:
                       Access:
                         Static:
                           inner:
-                            Identifier: "{\"name\":\"LinearRegression\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":13,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
-                          name: "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":31,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
+                            Identifier: "{\"name\":\"LinearRegression\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":31,\\\"col_stop\\\":47,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg: LinearRegression = LinearRegression::new(points);\\\"}\"}"
+                          name: "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":49,\\\"col_stop\\\":52,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg: LinearRegression = LinearRegression::new(points);\\\"}\"}"
                           type_: ~
                     arguments:
-                      - Identifier: "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":35,\\\"col_stop\\\":41,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
+                      - Identifier: "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":53,\\\"col_stop\\\":59,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg: LinearRegression = LinearRegression::new(points);\\\"}\"}"
             - Definition:
                 declaration_type: Let
                 variable_names:
                   - mutable: true
-                    identifier: "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":64,\\\"line_stop\\\":64,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let slope = reg.slope();\\\"}\"}"
+                    identifier: "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":64,\\\"line_stop\\\":64,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let slope: i32 = reg.slope();\\\"}\"}"
                 parened: false
-                type_: ~
+                type_:
+                  IntegerType: I32
                 value:
                   Call:
                     function:
                       Access:
                         Member:
                           inner:
-                            Identifier: "{\"name\":\"reg\",\"span\":\"{\\\"line_start\\\":64,\\\"line_stop\\\":64,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let slope = reg.slope();\\\"}\"}"
-                          name: "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":64,\\\"line_stop\\\":64,\\\"col_start\\\":19,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let slope = reg.slope();\\\"}\"}"
+                            Identifier: "{\"name\":\"reg\",\"span\":\"{\\\"line_start\\\":64,\\\"line_stop\\\":64,\\\"col_start\\\":20,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let slope: i32 = reg.slope();\\\"}\"}"
+                          name: "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":64,\\\"line_stop\\\":64,\\\"col_start\\\":24,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let slope: i32 = reg.slope();\\\"}\"}"
                           type_: ~
                     arguments: []
             - Definition:
                 declaration_type: Let
                 variable_names:
                   - mutable: true
-                    identifier: "{\"name\":\"offset\",\"span\":\"{\\\"line_start\\\":65,\\\"line_stop\\\":65,\\\"col_start\\\":7,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let offset = reg.offset(slope);\\\"}\"}"
+                    identifier: "{\"name\":\"offset\",\"span\":\"{\\\"line_start\\\":65,\\\"line_stop\\\":65,\\\"col_start\\\":7,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let offset: i32 = reg.offset(slope);\\\"}\"}"
                 parened: false
-                type_: ~
+                type_:
+                  IntegerType: I32
                 value:
                   Call:
                     function:
                       Access:
                         Member:
                           inner:
-                            Identifier: "{\"name\":\"reg\",\"span\":\"{\\\"line_start\\\":65,\\\"line_stop\\\":65,\\\"col_start\\\":16,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let offset = reg.offset(slope);\\\"}\"}"
-                          name: "{\"name\":\"offset\",\"span\":\"{\\\"line_start\\\":65,\\\"line_stop\\\":65,\\\"col_start\\\":20,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let offset = reg.offset(slope);\\\"}\"}"
+                            Identifier: "{\"name\":\"reg\",\"span\":\"{\\\"line_start\\\":65,\\\"line_stop\\\":65,\\\"col_start\\\":21,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let offset: i32 = reg.offset(slope);\\\"}\"}"
+                          name: "{\"name\":\"offset\",\"span\":\"{\\\"line_start\\\":65,\\\"line_stop\\\":65,\\\"col_start\\\":25,\\\"col_stop\\\":31,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let offset: i32 = reg.offset(slope);\\\"}\"}"
                           type_: ~
                     arguments:
-                      - Identifier: "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":65,\\\"line_stop\\\":65,\\\"col_start\\\":27,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let offset = reg.offset(slope);\\\"}\"}"
+                      - Identifier: "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":65,\\\"line_stop\\\":65,\\\"col_start\\\":32,\\\"col_stop\\\":37,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let offset: i32 = reg.offset(slope);\\\"}\"}"
             - Return:
                 expression:
                   ArrayInline:
