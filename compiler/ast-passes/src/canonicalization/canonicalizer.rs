@@ -550,9 +550,7 @@ impl ReconstructingReducer for Canonicalizer {
         for (index, character) in string.iter().enumerate() {
             let col_start = span.col_start + index + 1 + col_adder; // account for open quote
             let bytes = span.content.clone().into_bytes();
-            let col_stop: usize;
-
-            if bytes[col_start - 1] == b'\\' {
+            let col_stop = if bytes[col_start - 1] == b'\\' {
                 let mut width = 0;
 
                 match bytes[col_start] {
@@ -569,10 +567,10 @@ impl ReconstructingReducer for Canonicalizer {
                     _ => width += 1,
                 }
                 col_adder += width;
-                col_stop = col_start + 1 + width;
+                col_start + 1 + width
             } else {
-                col_stop = col_start + 1;
-            }
+                col_start + 1
+            };
 
             elements.push(SpreadOrExpression::Expression(Expression::Value(
                 ValueExpression::Char(CharValue {

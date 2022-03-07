@@ -147,7 +147,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
 
         let mut expected_output = expectations.as_ref().map(|x| x.outputs.iter());
         for (i, test) in tests.into_iter().enumerate() {
-            let expected_output = expected_output.as_mut().map(|x| x.next()).flatten().cloned();
+            let expected_output = expected_output.as_mut().and_then(|x| x.next()).cloned();
             println!("running test {} @ '{}'", test_name, path.to_str().unwrap());
             let output = namespace.run_test(Test {
                 name: test_name.clone(),
