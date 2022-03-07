@@ -1517,53 +1517,6 @@ outputs:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: [char; _] = \\\\\\\"Hello, World!\\\\\\\";\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: [char; _] = \"Hello, World!\";"
-      parened: false
-      type_:
-        Array:
-          - Char
-          - - value: "0"
-      value:
-        Value:
-          String:
-            - - Scalar: 72
-              - Scalar: 101
-              - Scalar: 108
-              - Scalar: 108
-              - Scalar: 111
-              - Scalar: 44
-              - Scalar: 32
-              - Scalar: 87
-              - Scalar: 111
-              - Scalar: 114
-              - Scalar: 108
-              - Scalar: 100
-              - Scalar: 33
-            - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 20
-                col_stop: 35
-                path: ""
-                content: "let x: [char; _] = \"Hello, World!\";"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 35
-        path: ""
-        content: "let x: [char; _] = \"Hello, World!\";"
-  - Definition:
-      declaration_type: Let
-      variable_names:
-        - mutable: true
           identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: [[u8; 2]; 2] = [[0,0], [0,0]];\\\"}\"}"
           span:
             line_start: 1
