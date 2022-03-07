@@ -295,4 +295,12 @@ create_errors!(
     msg: format!("Could not lex the following content: {}.", input),
     help: None,
     }
+
+    /// When the user tries to pass an implicit value.
+    @formatted
+    implicit_values_not_allowed {
+    args: (input: impl Display),
+    msg: format!("Could not parse the implicit value: {}.", input),
+    help: None,
+    }
 );

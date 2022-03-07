@@ -551,7 +551,7 @@ impl ParserContext<'_> {
                             span + type_span,
                         ))
                     }
-                    None => Expression::Value(ValueExpression::Implicit(value, span)),
+                    None => return Err(ParserError::implicit_values_not_allowed(value, &span).into()),
                 }
             }
             Token::True => Expression::Value(ValueExpression::Boolean("true".into(), span)),
