@@ -654,16 +654,6 @@ integer = [ "-" ] natural
 Go to: _[natural](#user-content-natural)_;
 
 
-An untyped literal is just an integer.
-
-<a name="untyped-literal"></a>
-```abnf
-untyped-literal = integer
-```
-
-Go to: _[integer](#user-content-integer)_;
-
-
 Unsigned literals are naturals followed by unsigned types.
 
 <a name="unsigned-literal"></a>
@@ -849,8 +839,7 @@ as defined by the following rule.
 
 <a name="atomic-literal"></a>
 ```abnf
-atomic-literal = untyped-literal
-               / unsigned-literal
+atomic-literal = unsigned-literal
                / signed-literal
                / field-literal
                / product-group-literal
@@ -860,7 +849,7 @@ atomic-literal = untyped-literal
                / string-literal
 ```
 
-Go to: _[address-literal](#user-content-address-literal), [boolean-literal](#user-content-boolean-literal), [character-literal](#user-content-character-literal), [field-literal](#user-content-field-literal), [product-group-literal](#user-content-product-group-literal), [signed-literal](#user-content-signed-literal), [string-literal](#user-content-string-literal), [unsigned-literal](#user-content-unsigned-literal), [untyped-literal](#user-content-untyped-literal)_;
+Go to: _[address-literal](#user-content-address-literal), [boolean-literal](#user-content-boolean-literal), [character-literal](#user-content-character-literal), [field-literal](#user-content-field-literal), [product-group-literal](#user-content-product-group-literal), [signed-literal](#user-content-signed-literal), [string-literal](#user-content-string-literal), [unsigned-literal](#user-content-unsigned-literal)_;
 
 
 After defining the (mostly) alphanumeric tokens above,
@@ -1511,7 +1500,7 @@ and just one initializing expression.
 
 <a name="variable-declaration"></a>
 ```abnf
-variable-declaration = %s"let" identifier-or-identifiers [ ":" type ]
+variable-declaration = %s"let" identifier-or-identifiers ":" type
                        "=" expression ";"
 ```
 
@@ -1520,7 +1509,7 @@ Go to: _[expression](#user-content-expression), [identifier-or-identifiers](#use
 
 <a name="constant-declaration"></a>
 ```abnf
-constant-declaration = %s"const" identifier-or-identifiers [ ":" type ]
+constant-declaration = %s"const" identifier-or-identifiers ":" type
                        "=" expression ";"
 ```
 
@@ -1566,11 +1555,12 @@ The body is a block.
 
 <a name="loop-statement"></a>
 ```abnf
-loop-statement = %s"for" identifier %s"in" expression ".." [ "=" ] expression
+loop-statement = %s"for" identifier ":" type
+                 %s"in" expression ".." [ "=" ] expression
                  block
 ```
 
-Go to: _[block](#user-content-block), [expression](#user-content-expression), [identifier](#user-content-identifier)_;
+Go to: _[block](#user-content-block), [expression](#user-content-expression), [identifier](#user-content-identifier), [type](#user-content-type)_;
 
 
 An assignment statement is straightforward.
