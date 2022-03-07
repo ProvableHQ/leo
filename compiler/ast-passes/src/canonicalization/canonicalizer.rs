@@ -371,7 +371,7 @@ impl Canonicalizer {
             }
             Statement::Definition(definition) => {
                 let value = self.canonicalize_expression(&definition.value);
-                let type_ = self.canonicalize_self_type(definition.type_.as_ref());
+                let type_ = self.canonicalize_self_type(Some(&definition.type_)).unwrap();
 
                 Statement::Definition(DefinitionStatement {
                     declaration_type: definition.declaration_type.clone(),
@@ -550,9 +550,7 @@ impl ReconstructingReducer for Canonicalizer {
         for (index, character) in string.iter().enumerate() {
             let col_start = span.col_start + index + 1 + col_adder; // account for open quote
             let bytes = span.content.clone().into_bytes();
-            let col_stop: usize;
-
-            if bytes[col_start - 1] == b'\\' {
+            let col_stop = if bytes[col_start - 1] == b'\\' {
                 let mut width = 0;
 
                 match bytes[col_start] {
@@ -569,10 +567,10 @@ impl ReconstructingReducer for Canonicalizer {
                     _ => width += 1,
                 }
                 col_adder += width;
-                col_stop = col_start + 1 + width;
+                col_start + 1 + width
             } else {
-                col_stop = col_start + 1;
-            }
+                col_start + 1
+            };
 
             elements.push(SpreadOrExpression::Expression(Expression::Value(
                 ValueExpression::Char(CharValue {
@@ -620,11 +618,11 @@ impl ReconstructingReducer for Canonicalizer {
         &mut self,
         definition: &DefinitionStatement,
         variable_names: Vec<VariableName>,
-        type_: Option<Type>,
+        type_: Type,
         value: Expression,
     ) -> Result<DefinitionStatement> {
         match &type_ {
-            Some(Type::Tuple(elements)) if elements.len() != 1 => {}
+            Type::Tuple(elements) if elements.len() != 1 => {}
             _ if definition.parened => {
                 return Err(AstError::invalid_parens_around_single_variable(&definition.span).into());
             }

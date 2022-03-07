@@ -309,11 +309,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             variable_names.push(self.reduce_variable_name(variable_name)?);
         }
 
-        let type_ = definition
-            .type_
-            .as_ref()
-            .map(|type_| self.reduce_type(type_, &definition.span))
-            .transpose()?;
+        let type_ = self.reduce_type(&definition.type_, &definition.span)?;
 
         let value = self.reduce_expression(&definition.value)?;
 

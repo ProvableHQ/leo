@@ -305,11 +305,8 @@ impl ParserContext<'_> {
             (vec![self.parse_variable_name(&declare)?], false)
         };
 
-        // Parse an optional type ascription.
-        let type_ = self
-            .eat(Token::Colon)
-            .map(|_| self.parse_type().map(|t| t.0))
-            .transpose()?;
+        self.expect(Token::Colon)?;
+        let type_ = self.parse_type()?;
 
         self.expect(Token::Assign)?;
         let expr = self.parse_expression()?;
@@ -324,7 +321,7 @@ impl ParserContext<'_> {
             },
             variable_names,
             parened,
-            type_,
+            type_: type_.0,
             value: expr,
         })
     }

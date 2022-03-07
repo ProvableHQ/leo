@@ -280,7 +280,7 @@ pub trait ReconstructingReducer {
         &mut self,
         definition: &DefinitionStatement,
         variable_names: Vec<VariableName>,
-        type_: Option<Type>,
+        type_: Type,
         value: Expression,
     ) -> Result<DefinitionStatement> {
         Ok(DefinitionStatement {
