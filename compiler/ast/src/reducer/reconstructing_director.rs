@@ -364,11 +364,13 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
     pub fn reduce_iteration(&mut self, iteration: &IterationStatement) -> Result<IterationStatement> {
         let variable = self.reduce_identifier(&iteration.variable)?;
+        let type_ = self.reduce_type(&iteration.type_, iteration.span())?;
         let start = self.reduce_expression(&iteration.start)?;
         let stop = self.reduce_expression(&iteration.stop)?;
         let block = self.reduce_block(&iteration.block)?;
 
-        self.reducer.reduce_iteration(iteration, variable, start, stop, block)
+        self.reducer
+            .reduce_iteration(iteration, variable, type_, start, stop, block)
     }
 
     pub fn reduce_console(&mut self, console_function_call: &ConsoleStatement) -> Result<ConsoleStatement> {

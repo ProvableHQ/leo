@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, Expression, Identifier, Node};
+use crate::{Block, Expression, Identifier, Node, Type};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -25,6 +25,8 @@ use std::fmt;
 pub struct IterationStatement {
     /// The binding / variable to introduce in the body `block`.
     pub variable: Identifier,
+    /// The type of the iteration.
+    pub type_: Type,
     /// The start of the iteration.
     pub start: Expression,
     /// The end of the iteration, possibly `inclusive`.

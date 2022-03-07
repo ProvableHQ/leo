@@ -409,12 +409,14 @@ impl Canonicalizer {
                 })
             }
             Statement::Iteration(iteration) => {
+                let type_ = self.canonicalize_self_type(Some(&iteration.type_)).unwrap();
                 let start = self.canonicalize_expression(&iteration.start);
                 let stop = self.canonicalize_expression(&iteration.stop);
                 let block = self.canonicalize_block(&iteration.block);
 
                 Statement::Iteration(Box::new(IterationStatement {
                     variable: iteration.variable.clone(),
+                    type_,
                     start,
                     stop,
                     inclusive: iteration.inclusive,

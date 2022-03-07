@@ -343,12 +343,14 @@ pub trait ReconstructingReducer {
         &mut self,
         iteration: &IterationStatement,
         variable: Identifier,
+        type_: Type,
         start: Expression,
         stop: Expression,
         block: Block,
     ) -> Result<IterationStatement> {
         Ok(IterationStatement {
             variable,
+            type_,
             start,
             stop,
             inclusive: iteration.inclusive,

@@ -193,6 +193,8 @@ impl ParserContext<'_> {
     pub fn parse_loop_statement(&mut self) -> Result<IterationStatement> {
         let start_span = self.expect(Token::For)?;
         let ident = self.expect_ident()?;
+        self.expect(Token::Colon)?;
+        let type_ = self.parse_type()?;
         self.expect(Token::In)?;
 
         // Parse iteration range.
@@ -208,6 +210,7 @@ impl ParserContext<'_> {
         Ok(IterationStatement {
             span: start_span + block.span.clone(),
             variable: ident,
+            type_: type_.0,
             start,
             stop,
             inclusive,
