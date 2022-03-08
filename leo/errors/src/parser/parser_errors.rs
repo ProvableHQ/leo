@@ -335,7 +335,7 @@ create_errors!(
     msg: format!("Could not parse the implicit value: {}.", input),
     help: None,
     }
-    
+
     /// When a escaped unicode char was given but no following closing symbol.
     @backtraced
     lexer_unclosed_escaped_unicode_char {
