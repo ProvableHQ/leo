@@ -18,6 +18,8 @@
 //! It implements default methods for each node to be made
 //! given the information of the old node.
 
+use std::cell::RefCell;
+
 use crate::*;
 
 use leo_errors::Result;
@@ -176,13 +178,13 @@ pub trait ReconstructingReducer {
         &mut self,
         static_access: &StaticAccess,
         value: Expression,
-        type_: Option<Type>,
+        type_: Type,
         name: Identifier,
     ) -> Result<StaticAccess> {
         Ok(StaticAccess {
             inner: Box::new(value),
             name,
-            type_,
+            type_: RefCell::new(type_),
             span: static_access.span.clone(),
         })
     }
@@ -472,7 +474,7 @@ pub trait ReconstructingReducer {
         annotations: IndexMap<Symbol, Annotation>,
         input: Vec<FunctionInput>,
         const_: bool,
-        output: Option<Type>,
+        output: Type,
         block: Block,
     ) -> Result<Function> {
         Ok(Function {

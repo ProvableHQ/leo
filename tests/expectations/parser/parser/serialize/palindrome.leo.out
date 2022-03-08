@@ -401,7 +401,8 @@ outputs:
         identifier: "{\"name\":\"test_is_palindrome\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":10,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_is_palindrome() {\\\"}\"}"
         input: []
         const_: false
-        output: ~
+        output:
+          Tuple: []
         core_mapping: ~
         block:
           statements:

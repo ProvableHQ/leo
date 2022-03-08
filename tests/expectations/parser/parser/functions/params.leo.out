@@ -41,7 +41,8 @@ outputs:
                 path: ""
                 content: "function x(x: u32, y: i32) {"
         const_: false
-        output: ~
+        output:
+          Tuple: []
         core_mapping: ~
         block:
           statements:

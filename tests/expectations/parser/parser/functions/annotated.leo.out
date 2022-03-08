@@ -25,7 +25,8 @@ outputs:
         identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function a() {\\\"}\"}"
         input: []
         const_: false
-        output: ~
+        output:
+          Tuple: []
         core_mapping: ~
         block:
           statements:
@@ -77,7 +78,8 @@ outputs:
         identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function b() {\\\"}\"}"
         input: []
         const_: false
-        output: ~
+        output:
+          Tuple: []
         core_mapping: ~
         block:
           statements:
@@ -129,7 +131,8 @@ outputs:
         identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function c() {\\\"}\"}"
         input: []
         const_: false
-        output: ~
+        output:
+          Tuple: []
         core_mapping: ~
         block:
           statements:
@@ -180,7 +183,8 @@ outputs:
         identifier: "{\"name\":\"d\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function d() {\\\"}\"}"
         input: []
         const_: false
-        output: ~
+        output:
+          Tuple: []
         core_mapping: ~
         block:
           statements:

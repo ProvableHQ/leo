@@ -43,7 +43,8 @@ outputs:
             inner:
               Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":2,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"!x::y\\\"}\"}"
             name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"!x::y\\\"}\"}"
-            type_: ~
+            type_:
+              Tuple: []
             span:
               line_start: 1
               line_stop: 1

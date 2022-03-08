@@ -442,9 +442,9 @@ impl ParserContext<'_> {
 
         // Parse return type.
         let output = if self.eat(Token::Arrow).is_some() {
-            Some(self.parse_type()?.0)
+            self.parse_type()?.0
         } else {
-            None
+            Type::Tuple(Vec::new())
         };
 
         // Parse the function body.

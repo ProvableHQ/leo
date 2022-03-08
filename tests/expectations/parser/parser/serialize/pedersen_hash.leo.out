@@ -158,7 +158,8 @@ outputs:
                           inner:
                             Identifier: "{\"name\":\"PedersenHash\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":36,\\\"col_stop\\\":48,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen: PerdesenHash = PedersenHash::new(parameters);\\\"}\"}"
                           name: "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":50,\\\"col_stop\\\":53,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen: PerdesenHash = PedersenHash::new(parameters);\\\"}\"}"
-                          type_: ~
+                          type_:
+                            Tuple: []
                     arguments:
                       - Identifier: "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":54,\\\"col_stop\\\":64,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen: PerdesenHash = PedersenHash::new(parameters);\\\"}\"}"
             - Return:

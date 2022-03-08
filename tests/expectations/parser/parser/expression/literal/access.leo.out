@@ -51,7 +51,8 @@ outputs:
             inner:
               Identifier: "{\"name\":\"address\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"address::call()\\\"}\"}"
             name: "{\"name\":\"call\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"address::call()\\\"}\"}"
-            type_: ~
+            type_:
+              Tuple: []
             span:
               line_start: 1
               line_stop: 1
@@ -116,7 +117,8 @@ outputs:
             inner:
               Identifier: "{\"name\":\"bool\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"bool::call()\\\"}\"}"
             name: "{\"name\":\"call\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"bool::call()\\\"}\"}"
-            type_: ~
+            type_:
+              Tuple: []
             span:
               line_start: 1
               line_stop: 1
@@ -182,7 +184,8 @@ outputs:
             inner:
               Identifier: "{\"name\":\"char\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"char::call()\\\"}\"}"
             name: "{\"name\":\"call\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"char::call()\\\"}\"}"
-            type_: ~
+            type_:
+              Tuple: []
             span:
               line_start: 1
               line_stop: 1
@@ -247,7 +250,8 @@ outputs:
             inner:
               Identifier: "{\"name\":\"field\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"field::call()\\\"}\"}"
             name: "{\"name\":\"call\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"field::call()\\\"}\"}"
-            type_: ~
+            type_:
+              Tuple: []
             span:
               line_start: 1
               line_stop: 1
@@ -365,7 +369,8 @@ outputs:
             inner:
               Identifier: "{\"name\":\"group\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"group::call()\\\"}\"}"
             name: "{\"name\":\"call\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"group::call()\\\"}\"}"
-            type_: ~
+            type_:
+              Tuple: []
             span:
               line_start: 1
               line_stop: 1
@@ -563,7 +568,8 @@ outputs:
             inner:
               Identifier: "{\"name\":\"i8\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"i8::call()\\\"}\"}"
             name: "{\"name\":\"call\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"i8::call()\\\"}\"}"
-            type_: ~
+            type_:
+              Tuple: []
             span:
               line_start: 1
               line_stop: 1
@@ -586,7 +592,8 @@ outputs:
             inner:
               Identifier: "{\"name\":\"i16\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"i16::call()\\\"}\"}"
             name: "{\"name\":\"call\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"i16::call()\\\"}\"}"
-            type_: ~
+            type_:
+              Tuple: []
             span:
               line_start: 1
               line_stop: 1
@@ -609,7 +616,8 @@ outputs:
             inner:
               Identifier: "{\"name\":\"i32\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"i32::call()\\\"}\"}"
             name: "{\"name\":\"call\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"i32::call()\\\"}\"}"
-            type_: ~
+            type_:
+              Tuple: []
             span:
               line_start: 1
               line_stop: 1
@@ -632,7 +640,8 @@ outputs:
             inner:
               Identifier: "{\"name\":\"i64\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"i64::call()\\\"}\"}"
             name: "{\"name\":\"call\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"i64::call()\\\"}\"}"
-            type_: ~
+            type_:
+              Tuple: []
             span:
               line_start: 1
               line_stop: 1
@@ -655,7 +664,8 @@ outputs:
             inner:
               Identifier: "{\"name\":\"i128\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"i128::call()\\\"}\"}"
             name: "{\"name\":\"call\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"i128::call()\\\"}\"}"
-            type_: ~
+            type_:
+              Tuple: []
             span:
               line_start: 1
               line_stop: 1
@@ -853,7 +863,8 @@ outputs:
             inner:
               Identifier: "{\"name\":\"u8\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"u8::call()\\\"}\"}"
             name: "{\"name\":\"call\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"u8::call()\\\"}\"}"
-            type_: ~
+            type_:
+              Tuple: []
             span:
               line_start: 1
               line_stop: 1
@@ -876,7 +887,8 @@ outputs:
             inner:
               Identifier: "{\"name\":\"u16\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"u16::call()\\\"}\"}"
             name: "{\"name\":\"call\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"u16::call()\\\"}\"}"
-            type_: ~
+            type_:
+              Tuple: []
             span:
               line_start: 1
               line_stop: 1
@@ -899,7 +911,8 @@ outputs:
             inner:
               Identifier: "{\"name\":\"u32\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"u32::call()\\\"}\"}"
             name: "{\"name\":\"call\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"u32::call()\\\"}\"}"
-            type_: ~
+            type_:
+              Tuple: []
             span:
               line_start: 1
               line_stop: 1
@@ -922,7 +935,8 @@ outputs:
             inner:
               Identifier: "{\"name\":\"u64\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"u64::call()\\\"}\"}"
             name: "{\"name\":\"call\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"u64::call()\\\"}\"}"
-            type_: ~
+            type_:
+              Tuple: []
             span:
               line_start: 1
               line_stop: 1
@@ -945,7 +959,8 @@ outputs:
             inner:
               Identifier: "{\"name\":\"u128\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"u128::call()\\\"}\"}"
             name: "{\"name\":\"call\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"u128::call()\\\"}\"}"
-            type_: ~
+            type_:
+              Tuple: []
             span:
               line_start: 1
               line_stop: 1

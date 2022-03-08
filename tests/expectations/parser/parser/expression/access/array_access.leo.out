@@ -237,7 +237,8 @@ outputs:
                   path: ""
                   content: "x(y)::y(x)"
             name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x(y)::y(x)\\\"}\"}"
-            type_: ~
+            type_:
+              Tuple: []
             span:
               line_start: 1
               line_stop: 1

@@ -16,7 +16,8 @@ outputs:
         input:
           - ConstSelfKeyword: "{\"name\":\"const self\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":12,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const self) {\\\"}\"}"
         const_: false
-        output: ~
+        output:
+          Tuple: []
         core_mapping: ~
         block:
           statements:

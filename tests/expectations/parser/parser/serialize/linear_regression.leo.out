@@ -688,7 +688,8 @@ outputs:
                           inner:
                             Identifier: "{\"name\":\"LinearRegression\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":31,\\\"col_stop\\\":47,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg: LinearRegression = LinearRegression::new(points);\\\"}\"}"
                           name: "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":49,\\\"col_stop\\\":52,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg: LinearRegression = LinearRegression::new(points);\\\"}\"}"
-                          type_: ~
+                          type_:
+                            Tuple: []
                     arguments:
                       - Identifier: "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":53,\\\"col_stop\\\":59,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg: LinearRegression = LinearRegression::new(points);\\\"}\"}"
             - Definition:

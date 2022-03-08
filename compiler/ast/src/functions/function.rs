@@ -34,7 +34,7 @@ pub struct Function {
     /// The function returns a constant value.
     pub const_: bool,
     /// The function return type, if explicitly specified, or `()` if not.
-    pub output: Option<Type>,
+    pub output: Type,
     /// Any mapping to the core library.
     /// Always `None` when initially parsed.
     pub core_mapping: Cell<Option<Symbol>>,
@@ -93,12 +93,8 @@ impl Function {
         write!(f, "function {}", self.identifier)?;
 
         let parameters = self.input.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",");
-        let returns = self.output.as_ref().map(|type_| type_.to_string());
-        if returns.is_none() {
-            write!(f, "({}) {}", parameters, self.block)
-        } else {
-            write!(f, "({}) -> {} {}", parameters, returns.unwrap(), self.block)
-        }
+        let returns = self.output.to_string();
+        write!(f, "({}) -> {} {}", parameters, returns, self.block)
     }
 }
 

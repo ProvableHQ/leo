@@ -19,7 +19,8 @@ outputs:
               identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":20,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function x() { \\\"}\"}"
               input: []
               const_: true
-              output: ~
+              output:
+                Tuple: []
               core_mapping: ~
               block:
                 statements:
@@ -61,7 +62,8 @@ outputs:
               input:
                 - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":22,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function x(self) { \\\"}\"}"
               const_: true
-              output: ~
+              output:
+                Tuple: []
               core_mapping: ~
               block:
                 statements:
@@ -103,7 +105,8 @@ outputs:
               input:
                 - ConstSelfKeyword: "{\"name\":\"const self\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":22,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function c(const self) { \\\"}\"}"
               const_: true
-              output: ~
+              output:
+                Tuple: []
               core_mapping: ~
               block:
                 statements:
@@ -158,7 +161,8 @@ outputs:
                       path: ""
                       content: "    const function b(const self, x: u32) {"
               const_: true
-              output: ~
+              output:
+                Tuple: []
               core_mapping: ~
               block:
                 statements:
@@ -213,7 +217,8 @@ outputs:
                       path: ""
                       content: "    const function b(const self, const x: u32) {"
               const_: true
-              output: ~
+              output:
+                Tuple: []
               core_mapping: ~
               block:
                 statements:

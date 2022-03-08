@@ -28,7 +28,8 @@ outputs:
                 path: ""
                 content: "function x(x: MyCircuit) {"
         const_: false
-        output: ~
+        output:
+          Tuple: []
         core_mapping: ~
         block:
           statements:

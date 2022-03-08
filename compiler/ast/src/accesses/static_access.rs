@@ -19,7 +19,7 @@ use crate::{Expression, Identifier, Node, Type};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
-use std::fmt;
+use std::{cell::RefCell, fmt};
 
 /// An access expression to a static member, e.g., a constant in a circuit.
 /// An example would be `Foo::Const` or `Foo::function` in `Foo::function()`.
@@ -30,9 +30,9 @@ pub struct StaticAccess {
     pub inner: Box<Expression>,
     /// The static member in `inner` that is being accessed.
     pub name: Identifier,
-    /// An optional type initially None, it is later assigned during type inference snapshot if necessary.
+    /// A refcell type initially (), it is later assigned during type checking if necessary.
     // FIXME(Centril): Shouldn't be in an AST. Remove it as part of an architectural revamp.
-    pub type_: Option<Type>,
+    pub type_: RefCell<Type>,
     /// The span for the entire expression `inner::name`.
     pub span: Span,
 }

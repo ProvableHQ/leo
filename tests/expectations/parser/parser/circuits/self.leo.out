@@ -17,7 +17,8 @@ outputs:
               input:
                 - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x(self) {\\\"}\"}"
               const_: false
-              output: ~
+              output:
+                Tuple: []
               core_mapping: ~
               block:
                 statements:

@@ -36,7 +36,8 @@ outputs:
               identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x() {\\\"}\"}"
               input: []
               const_: false
-              output: ~
+              output:
+                Tuple: []
               core_mapping: ~
               block:
                 statements:
@@ -77,7 +78,8 @@ outputs:
               identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function y() {\\\"}\"}"
               input: []
               const_: false
-              output: ~
+              output:
+                Tuple: []
               core_mapping: ~
               block:
                 statements:

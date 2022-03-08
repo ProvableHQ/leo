@@ -18,6 +18,8 @@
 //! such that it applies changes to the AST nodes for canonicalization.
 //! An example of these changes are transforming Self -> to the circuit name.
 
+use std::cell::RefCell;
+
 use leo_ast::*;
 use leo_errors::{AstError, Result};
 use leo_span::{sym, Span, Symbol};
@@ -104,23 +106,14 @@ impl Canonicalizer {
         }
     }
 
-    fn canonicalize_self_type(&self, type_option: Option<&Type>) -> Option<Type> {
-        match type_option {
-            Some(type_) => match type_ {
-                Type::SelfType => Some(Type::Identifier(self.circuit_name.as_ref().unwrap().clone())),
-                Type::Array(type_, dimensions) => Some(Type::Array(
-                    Box::new(self.canonicalize_self_type(Some(type_)).unwrap()),
-                    dimensions.clone(),
-                )),
-                Type::Tuple(types) => Some(Type::Tuple(
-                    types
-                        .iter()
-                        .map(|type_| self.canonicalize_self_type(Some(type_)).unwrap())
-                        .collect(),
-                )),
-                _ => Some(type_.clone()),
-            },
-            None => None,
+    fn canonicalize_self_type(&self, type_: &Type) -> Type {
+        match type_ {
+            Type::SelfType => Type::Identifier(self.circuit_name.as_ref().unwrap().clone()),
+            Type::Array(type_, dimensions) => {
+                Type::Array(Box::new(self.canonicalize_self_type(type_)), dimensions.clone())
+            }
+            Type::Tuple(types) => Type::Tuple(types.iter().map(|type_| self.canonicalize_self_type(type_)).collect()),
+            _ => type_.clone(),
         }
     }
 
@@ -174,7 +167,7 @@ impl Canonicalizer {
 
             Expression::Cast(cast) => {
                 let inner = Box::new(self.canonicalize_expression(&cast.inner));
-                let target_type = self.canonicalize_self_type(Some(&cast.target_type)).unwrap();
+                let target_type = self.canonicalize_self_type(&cast.target_type);
 
                 return Expression::Cast(CastExpression {
                     inner,
@@ -231,7 +224,7 @@ impl Canonicalizer {
                     AccessExpression::Static(static_access) => AccessExpression::Static(StaticAccess {
                         inner: Box::new(self.canonicalize_expression(&static_access.inner)),
                         name: static_access.name.clone(),
-                        type_: self.canonicalize_self_type(static_access.type_.as_ref()),
+                        type_: RefCell::new(self.canonicalize_self_type(&static_access.type_.borrow())),
                         span: static_access.span.clone(),
                     }),
                 };
@@ -371,7 +364,7 @@ impl Canonicalizer {
             }
             Statement::Definition(definition) => {
                 let value = self.canonicalize_expression(&definition.value);
-                let type_ = self.canonicalize_self_type(Some(&definition.type_)).unwrap();
+                let type_ = self.canonicalize_self_type(&definition.type_);
 
                 Statement::Definition(DefinitionStatement {
                     declaration_type: definition.declaration_type.clone(),
@@ -409,7 +402,7 @@ impl Canonicalizer {
                 })
             }
             Statement::Iteration(iteration) => {
-                let type_ = self.canonicalize_self_type(Some(&iteration.type_)).unwrap();
+                let type_ = self.canonicalize_self_type(&iteration.type_);
                 let start = self.canonicalize_expression(&iteration.start);
                 let stop = self.canonicalize_expression(&iteration.stop);
                 let block = self.canonicalize_block(&iteration.block);
@@ -465,7 +458,7 @@ impl Canonicalizer {
 
     fn canonicalize_function_input(&mut self, input: &FunctionInput) -> FunctionInput {
         if let FunctionInput::Variable(variable) = input {
-            let type_ = self.canonicalize_self_type(Some(&variable.type_)).unwrap();
+            let type_ = self.canonicalize_self_type(&variable.type_);
 
             return FunctionInput::Variable(FunctionInputVariable {
                 identifier: variable.identifier.clone(),
@@ -495,7 +488,7 @@ impl Canonicalizer {
                     .iter()
                     .map(|input| self.canonicalize_function_input(input))
                     .collect();
-                let output = self.canonicalize_self_type(function.output.as_ref());
+                let output = self.canonicalize_self_type(&function.output);
                 let block = self.canonicalize_block(&function.block);
 
                 return CircuitMember::CircuitFunction(Box::new(Function {
@@ -687,20 +680,15 @@ impl ReconstructingReducer for Canonicalizer {
         annotations: IndexMap<Symbol, Annotation>,
         input: Vec<FunctionInput>,
         const_: bool,
-        output: Option<Type>,
+        output: Type,
         block: Block,
     ) -> Result<Function> {
-        let new_output = match output {
-            None => Some(Type::Tuple(vec![])),
-            _ => output,
-        };
-
         Ok(Function {
             identifier,
             annotations,
             input,
             const_,
-            output: new_output,
+            output,
             block,
             core_mapping: function.core_mapping.clone(),
             span: function.span.clone(),

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use std::cell::RefCell;
+
 use super::*;
 
 use leo_errors::{ParserError, Result};
@@ -375,7 +377,7 @@ impl ParserContext<'_> {
                     expr = Expression::Access(AccessExpression::Static(StaticAccess {
                         span: expr.span() + &ident.span,
                         inner: Box::new(expr),
-                        type_: None,
+                        type_: RefCell::new(Type::Tuple(Vec::new())),
                         name: ident,
                     }));
                 }
