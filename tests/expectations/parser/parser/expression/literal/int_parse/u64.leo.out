@@ -36,17 +36,6 @@ outputs:
             content: 456u32
   - Value:
       Integer:
-        - U64
-        - "0xb"
-        - span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 7
-            path: ""
-            content: "0xbu64"
-  - Value:
-      Integer:
         - U32
         - "87377802873778028737780287377802873778028737780287377802873778028737780287377802"
         - span:

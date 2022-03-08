@@ -69,6 +69,4 @@ expectation: Pass
 
 1group
 
-0xbgroup
-
 -1group

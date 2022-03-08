@@ -128,39 +128,6 @@ outputs:
           path: ""
           content: "x[0..100]"
   - Access:
-      ArrayRange:
-        array:
-          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[0xb1..0xb3]\\\"}\"}"
-        left:
-          Value:
-            Implicit:
-              - "0xb1"
-              - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 3
-                  col_stop: 7
-                  path: ""
-                  content: "x[0xb1..0xb3]"
-        right:
-          Value:
-            Implicit:
-              - "0xb3"
-              - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 9
-                  col_stop: 13
-                  path: ""
-                  content: "x[0xb1..0xb3]"
-        span:
-          line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 14
-          path: ""
-          content: "x[0xb1..0xb3]"
-  - Access:
       Array:
         array:
           Access:

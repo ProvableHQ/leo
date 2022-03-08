@@ -37,17 +37,6 @@ outputs:
   - Value:
       Integer:
         - U128
-        - "0xb"
-        - span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 8
-            path: ""
-            content: "0xbu128"
-  - Value:
-      Integer:
-        - U128
         - "87377802873778028737780287377802873778028737780287377802873778028737780287377802"
         - span:
             line_start: 1

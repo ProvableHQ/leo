@@ -37,17 +37,6 @@ outputs:
   - Value:
       Integer:
         - I32
-        - "0xb"
-        - span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 7
-            path: ""
-            content: "0xbi32"
-  - Value:
-      Integer:
-        - I32
         - "87377802873778028737780287377802873778028737780287377802873778028737780287377802"
         - span:
             line_start: 1
