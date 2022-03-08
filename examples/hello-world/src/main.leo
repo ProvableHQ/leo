@@ -1,5 +1,11 @@
 // The 'hello-world' main function.
-function main(a: u32, b: u32) -> u32 {
-    let c: u32 = a + b;
-    return c;
+type str = [char; _];
+
+function main(y: bool) -> bool {
+    let s = "abc";
+    return (first_el(s) == 'a') == y;
+}
+
+function first_el(s: str) -> char {
+    return s[0];
 }
