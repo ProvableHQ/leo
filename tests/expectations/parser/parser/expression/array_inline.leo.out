@@ -15,67 +15,71 @@ outputs:
                     col_start: 2
                     col_stop: 5
                     path: ""
-                    content: "[0u8, 1, 2, 3]"
+                    content: "[0u8, 1u8, 2u8, 3u8]"
         - Expression:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "1"
                 - span:
                     line_start: 1
                     line_stop: 1
                     col_start: 7
-                    col_stop: 8
+                    col_stop: 10
                     path: ""
-                    content: "[0u8, 1, 2, 3]"
+                    content: "[0u8, 1u8, 2u8, 3u8]"
         - Expression:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "2"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 10
-                    col_stop: 11
+                    col_start: 12
+                    col_stop: 15
                     path: ""
-                    content: "[0u8, 1, 2, 3]"
+                    content: "[0u8, 1u8, 2u8, 3u8]"
         - Expression:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "3"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 13
-                    col_stop: 14
+                    col_start: 17
+                    col_stop: 20
                     path: ""
-                    content: "[0u8, 1, 2, 3]"
+                    content: "[0u8, 1u8, 2u8, 3u8]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 15
+        col_stop: 21
         path: ""
-        content: "[0u8, 1, 2, 3]"
+        content: "[0u8, 1u8, 2u8, 3u8]"
   - ArrayInline:
       elements:
         - Expression:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "1"
                 - span:
                     line_start: 1
                     line_stop: 1
                     col_start: 2
-                    col_stop: 3
+                    col_stop: 5
                     path: ""
-                    content: "[1]"
+                    content: "[1u8]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 4
+        col_stop: 6
         path: ""
-        content: "[1]"
+        content: "[1u8]"
   - ArrayInline:
       elements:
         - Expression:
@@ -122,64 +126,68 @@ outputs:
       elements:
         - Expression:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "0"
                 - span:
                     line_start: 1
                     line_stop: 1
                     col_start: 2
-                    col_stop: 3
+                    col_stop: 5
                     path: ""
-                    content: "[0, 1,]"
+                    content: "[0u8, 1u8,]"
         - Expression:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "1"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 5
-                    col_stop: 6
+                    col_start: 7
+                    col_stop: 10
                     path: ""
-                    content: "[0, 1,]"
+                    content: "[0u8, 1u8,]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 8
+        col_stop: 12
         path: ""
-        content: "[0, 1,]"
+        content: "[0u8, 1u8,]"
   - ArrayInline:
       elements:
         - Expression:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "0"
                 - span:
                     line_start: 1
                     line_stop: 1
                     col_start: 2
-                    col_stop: 3
+                    col_stop: 5
                     path: ""
-                    content: "[0,1,]"
+                    content: "[0u8,1u8,]"
         - Expression:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "1"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 4
-                    col_stop: 5
+                    col_start: 6
+                    col_stop: 9
                     path: ""
-                    content: "[0,1,]"
+                    content: "[0u8,1u8,]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 7
+        col_stop: 11
         path: ""
-        content: "[0,1,]"
+        content: "[0u8,1u8,]"
   - ArrayInline:
       elements: []
       span:
@@ -196,94 +204,100 @@ outputs:
               elements:
                 - Expression:
                     Value:
-                      Implicit:
+                      Integer:
+                        - U8
                         - "1"
                         - span:
                             line_start: 1
                             line_stop: 1
                             col_start: 3
-                            col_stop: 4
+                            col_stop: 6
                             path: ""
-                            content: "[[1,2,3],[1,2,3]]"
+                            content: "[[1u8,2u8,3u8],[1u8,2u8,3u8]]"
                 - Expression:
                     Value:
-                      Implicit:
+                      Integer:
+                        - U8
                         - "2"
                         - span:
                             line_start: 1
                             line_stop: 1
-                            col_start: 5
-                            col_stop: 6
+                            col_start: 7
+                            col_stop: 10
                             path: ""
-                            content: "[[1,2,3],[1,2,3]]"
+                            content: "[[1u8,2u8,3u8],[1u8,2u8,3u8]]"
                 - Expression:
                     Value:
-                      Implicit:
+                      Integer:
+                        - U8
                         - "3"
                         - span:
                             line_start: 1
                             line_stop: 1
-                            col_start: 7
-                            col_stop: 8
+                            col_start: 11
+                            col_stop: 14
                             path: ""
-                            content: "[[1,2,3],[1,2,3]]"
+                            content: "[[1u8,2u8,3u8],[1u8,2u8,3u8]]"
               span:
                 line_start: 1
                 line_stop: 1
                 col_start: 2
-                col_stop: 9
+                col_stop: 15
                 path: ""
-                content: "[[1,2,3],[1,2,3]]"
+                content: "[[1u8,2u8,3u8],[1u8,2u8,3u8]]"
         - Expression:
             ArrayInline:
               elements:
                 - Expression:
                     Value:
-                      Implicit:
+                      Integer:
+                        - U8
                         - "1"
                         - span:
                             line_start: 1
                             line_stop: 1
-                            col_start: 11
-                            col_stop: 12
+                            col_start: 17
+                            col_stop: 20
                             path: ""
-                            content: "[[1,2,3],[1,2,3]]"
+                            content: "[[1u8,2u8,3u8],[1u8,2u8,3u8]]"
                 - Expression:
                     Value:
-                      Implicit:
+                      Integer:
+                        - U8
                         - "2"
                         - span:
                             line_start: 1
                             line_stop: 1
-                            col_start: 13
-                            col_stop: 14
+                            col_start: 21
+                            col_stop: 24
                             path: ""
-                            content: "[[1,2,3],[1,2,3]]"
+                            content: "[[1u8,2u8,3u8],[1u8,2u8,3u8]]"
                 - Expression:
                     Value:
-                      Implicit:
+                      Integer:
+                        - U8
                         - "3"
                         - span:
                             line_start: 1
                             line_stop: 1
-                            col_start: 15
-                            col_stop: 16
+                            col_start: 25
+                            col_stop: 28
                             path: ""
-                            content: "[[1,2,3],[1,2,3]]"
+                            content: "[[1u8,2u8,3u8],[1u8,2u8,3u8]]"
               span:
                 line_start: 1
                 line_stop: 1
-                col_start: 10
-                col_stop: 17
+                col_start: 16
+                col_stop: 29
                 path: ""
-                content: "[[1,2,3],[1,2,3]]"
+                content: "[[1u8,2u8,3u8],[1u8,2u8,3u8]]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 18
+        col_stop: 30
         path: ""
-        content: "[[1,2,3],[1,2,3]]"
+        content: "[[1u8,2u8,3u8],[1u8,2u8,3u8]]"
   - ArrayInline:
       elements:
         - Expression:

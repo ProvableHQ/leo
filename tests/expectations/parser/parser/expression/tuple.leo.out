@@ -52,32 +52,34 @@ outputs:
   - TupleInit:
       elements:
         - Value:
-            Implicit:
+            Integer:
+              - U32
               - "123"
               - span:
                   line_start: 1
                   line_stop: 1
                   col_start: 2
-                  col_stop: 5
+                  col_stop: 8
                   path: ""
-                  content: "(123,123)"
+                  content: "(123u32,123u8)"
         - Value:
-            Implicit:
+            Integer:
+              - U8
               - "123"
               - span:
                   line_start: 1
                   line_stop: 1
-                  col_start: 6
-                  col_stop: 9
+                  col_start: 9
+                  col_stop: 14
                   path: ""
-                  content: "(123,123)"
+                  content: "(123u32,123u8)"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 10
+        col_stop: 15
         path: ""
-        content: "(123,123)"
+        content: "(123u32,123u8)"
   - TupleInit:
       elements: []
       span:

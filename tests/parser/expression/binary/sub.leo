@@ -3,10 +3,10 @@ namespace: ParseExpression
 expectation: Pass
 */
 
-1 - 1
+1u8 - 1u8
 
-2-3
+2u16-3u64
 
-1 - 2 - 3
+1u32 - 2u32 - 3u32
 
-1 * 2 - 3 * 4
+1u8 * 2u16 - 3u32 * 4i64

@@ -12,7 +12,7 @@ expectation: Pass
 (x,)
 (x,y)
 (x,y,z)
-(123,123)
+(123u32,123u8)
 
 ()
 

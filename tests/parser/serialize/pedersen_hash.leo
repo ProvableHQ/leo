@@ -13,7 +13,7 @@ circuit PedersenHash {
 
     function hash(self, bits: [bool; 256]) -> group {
         let digest: group = 0group;
-        for i: group in 0..256 {
+        for i: u32 in u32..256u32 {
             if bits[i] {
                 digest += self.parameters[i];
             }

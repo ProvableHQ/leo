@@ -29,7 +29,7 @@ circuit LinearRegression {
         let y_sum: i32 = 0i32; 
         let xy_sum: i32 = 0i32; 
         let x2_sum: i32 = 0i32; 
-        for i: u32 in 0..5 {
+        for i: u32 in 0u32..5u32 {
             x_sum += self.points[i].x;
             y_sum += self.points[i].y;
             xy_sum += self.points[i].x * self.points[i].y;
@@ -46,7 +46,7 @@ circuit LinearRegression {
         // Calculate the sum. 
         let x_sum: i32 = 0i32;
         let y_sum: i32 = 0i32;
-        for i: u32 in 0..5 {
+        for i: u32 in 0u32..5u32 {
             x_sum += self.points[i].x;
             y_sum += self.points[i].y; 
         }
@@ -57,11 +57,11 @@ circuit LinearRegression {
 
 function main (x: i32, y: i32) -> [i32; 2] {
   let points: [Point; 5] = [
-      Point{x: x + 1, y: y + 1},
-      Point{x: x + 2, y: y + 2},
-      Point{x: x + 3, y: y + 3},
-      Point{x: x + 4, y: y + 4},
-      Point{x: x + 5, y: y + 5}
+      Point{x: x + 1i32, y: y + 1i32},
+      Point{x: x + 2i32, y: y + 2i32},
+      Point{x: x + 3i32, y: y + 3i32},
+      Point{x: x + 4i32, y: y + 4i32},
+      Point{x: x + 5i32, y: y + 5i32}
   ];
   let reg: LinearRegression = LinearRegression::new(points);
   let slope: i32 = reg.slope();

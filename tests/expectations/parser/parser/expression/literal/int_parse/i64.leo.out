@@ -14,15 +14,16 @@ outputs:
             path: ""
             content: 123i64
   - Value:
-      Implicit:
+      Integer:
+        - I64
         - "123"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 4
+            col_stop: 7
             path: ""
-            content: "123"
+            content: 123i64
   - Value:
       Integer:
         - I64

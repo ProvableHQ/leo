@@ -1610,14 +1610,14 @@ outputs:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: [[u8; 2]; 2] = [[0,0], [0,0]];\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: [[u8; 2]; 2] = [[0u8,0u8], [0u8,0u8]];\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 5
             col_stop: 6
             path: ""
-            content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
+            content: "let x: [[u8; 2]; 2] = [[0u8,0u8], [0u8,0u8]];"
       parened: false
       type_:
         Array:
@@ -1633,76 +1633,80 @@ outputs:
                   elements:
                     - Expression:
                         Value:
-                          Implicit:
+                          Integer:
+                            - U8
                             - "0"
                             - span:
                                 line_start: 1
                                 line_stop: 1
                                 col_start: 25
-                                col_stop: 26
+                                col_stop: 28
                                 path: ""
-                                content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
+                                content: "let x: [[u8; 2]; 2] = [[0u8,0u8], [0u8,0u8]];"
                     - Expression:
                         Value:
-                          Implicit:
+                          Integer:
+                            - U8
                             - "0"
                             - span:
                                 line_start: 1
                                 line_stop: 1
-                                col_start: 27
-                                col_stop: 28
+                                col_start: 29
+                                col_stop: 32
                                 path: ""
-                                content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
+                                content: "let x: [[u8; 2]; 2] = [[0u8,0u8], [0u8,0u8]];"
                   span:
                     line_start: 1
                     line_stop: 1
                     col_start: 24
-                    col_stop: 29
+                    col_stop: 33
                     path: ""
-                    content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
+                    content: "let x: [[u8; 2]; 2] = [[0u8,0u8], [0u8,0u8]];"
             - Expression:
                 ArrayInline:
                   elements:
                     - Expression:
                         Value:
-                          Implicit:
+                          Integer:
+                            - U8
                             - "0"
                             - span:
                                 line_start: 1
                                 line_stop: 1
-                                col_start: 32
-                                col_stop: 33
+                                col_start: 36
+                                col_stop: 39
                                 path: ""
-                                content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
+                                content: "let x: [[u8; 2]; 2] = [[0u8,0u8], [0u8,0u8]];"
                     - Expression:
                         Value:
-                          Implicit:
+                          Integer:
+                            - U8
                             - "0"
                             - span:
                                 line_start: 1
                                 line_stop: 1
-                                col_start: 34
-                                col_stop: 35
+                                col_start: 40
+                                col_stop: 43
                                 path: ""
-                                content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
+                                content: "let x: [[u8; 2]; 2] = [[0u8,0u8], [0u8,0u8]];"
                   span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 31
-                    col_stop: 36
+                    col_start: 35
+                    col_stop: 44
                     path: ""
-                    content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
+                    content: "let x: [[u8; 2]; 2] = [[0u8,0u8], [0u8,0u8]];"
           span:
             line_start: 1
             line_stop: 1
             col_start: 23
-            col_stop: 37
+            col_stop: 45
             path: ""
-            content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
+            content: "let x: [[u8; 2]; 2] = [[0u8,0u8], [0u8,0u8]];"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 37
+        col_stop: 45
         path: ""
-        content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
+        content: "let x: [[u8; 2]; 2] = [[0u8,0u8], [0u8,0u8]];"

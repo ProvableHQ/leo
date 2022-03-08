@@ -17,20 +17,20 @@ function is_palindrome(str: [char; 20]) -> bool {
     let result: bool = true;
     let processed: u8 = 0u8;
 
-    for start: u32 in 0..(str_len / 2) {
+    for start: u32 in 0u32..(str_len / 2u32) {
         let start_sym: char = str[start];
         if start_sym != ' ' {
             let skipped: u8 = 0u8;
             let end_empty: u8 = 0u8;
             let end_sym: char = ' ';
 
-            for end: u32 in (str_len - 1)..start {
+            for end: u32 in (str_len - 1u32)..start {
                 if str[end] != ' ' && skipped == processed && end_sym == ' ' {
                     end_sym = str[end];
                 } else {
-                    end_empty = end_empty + 1;
+                    end_empty = end_empty + 1u8;
                     if str[end] != ' ' {
-                        skipped = skipped + 1;
+                        skipped = skipped + 1u8;
                     }
                 }
             }
@@ -43,7 +43,7 @@ function is_palindrome(str: [char; 20]) -> bool {
                     result = (start_sym == end_sym);
                 }
 
-                processed = processed + 1;
+                processed = processed + 1u8;
             }
         }
     }

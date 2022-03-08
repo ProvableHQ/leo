@@ -93,19 +93,20 @@ outputs:
   - Return:
       expression:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "5"
             - span:
                 line_start: 2
                 line_stop: 2
                 col_start: 1
-                col_stop: 2
+                col_stop: 4
                 path: ""
-                content: 5;
+                content: 5u8;
       span:
         line_start: 1
         line_stop: 2
         col_start: 1
-        col_stop: 2
+        col_stop: 4
         path: ""
-        content: "return\n5;"
+        content: "return\n5u8;"

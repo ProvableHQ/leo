@@ -5,252 +5,264 @@ outputs:
   - Binary:
       left:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "1"
             - span:
                 line_start: 1
                 line_stop: 1
                 col_start: 1
-                col_stop: 2
+                col_stop: 4
                 path: ""
-                content: 1 ** 1
+                content: 1u8 ** 1u8
       right:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "1"
             - span:
                 line_start: 1
                 line_stop: 1
-                col_start: 6
-                col_stop: 7
+                col_start: 8
+                col_stop: 11
                 path: ""
-                content: 1 ** 1
+                content: 1u8 ** 1u8
       op: Pow
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 7
+        col_stop: 11
         path: ""
-        content: 1 ** 1
+        content: 1u8 ** 1u8
   - Binary:
       left:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "2"
             - span:
                 line_start: 1
                 line_stop: 1
                 col_start: 1
-                col_stop: 2
+                col_stop: 4
                 path: ""
-                content: 2**3
+                content: 2u8**3u8
       right:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "3"
             - span:
                 line_start: 1
                 line_stop: 1
-                col_start: 4
-                col_stop: 5
+                col_start: 6
+                col_stop: 9
                 path: ""
-                content: 2**3
+                content: 2u8**3u8
       op: Pow
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 5
+        col_stop: 9
         path: ""
-        content: 2**3
+        content: 2u8**3u8
   - Binary:
       left:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "1"
             - span:
                 line_start: 1
                 line_stop: 1
                 col_start: 1
-                col_stop: 2
+                col_stop: 4
                 path: ""
-                content: 1 ** 2 ** 3
+                content: 1u8 ** 2u8 ** 3u8
       right:
         Binary:
           left:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "2"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 6
-                    col_stop: 7
+                    col_start: 8
+                    col_stop: 11
                     path: ""
-                    content: 1 ** 2 ** 3
+                    content: 1u8 ** 2u8 ** 3u8
           right:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "3"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 11
-                    col_stop: 12
+                    col_start: 15
+                    col_stop: 18
                     path: ""
-                    content: 1 ** 2 ** 3
+                    content: 1u8 ** 2u8 ** 3u8
           op: Pow
           span:
             line_start: 1
             line_stop: 1
-            col_start: 6
-            col_stop: 12
+            col_start: 8
+            col_stop: 18
             path: ""
-            content: 1 ** 2 ** 3
+            content: 1u8 ** 2u8 ** 3u8
       op: Pow
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 12
+        col_stop: 18
         path: ""
-        content: 1 ** 2 ** 3
+        content: 1u8 ** 2u8 ** 3u8
   - Binary:
       left:
         Cast:
           inner:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "1"
                 - span:
                     line_start: 1
                     line_stop: 1
                     col_start: 1
-                    col_stop: 2
+                    col_stop: 4
                     path: ""
-                    content: 1 as i8 ** 3 as i8
+                    content: 1u8 as iu8 ** 3u8 as iu8
           target_type:
-            IntegerType: I8
+            Identifier: "{\"name\":\"iu8\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"1u8 as iu8 ** 3u8 as iu8\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 8
+            col_stop: 11
             path: ""
-            content: 1 as i8 ** 3 as i8
+            content: 1u8 as iu8 ** 3u8 as iu8
       right:
         Cast:
           inner:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "3"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 12
-                    col_stop: 13
+                    col_start: 15
+                    col_stop: 18
                     path: ""
-                    content: 1 as i8 ** 3 as i8
+                    content: 1u8 as iu8 ** 3u8 as iu8
           target_type:
-            IntegerType: I8
+            Identifier: "{\"name\":\"iu8\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":22,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"1u8 as iu8 ** 3u8 as iu8\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
-            col_start: 12
-            col_stop: 19
+            col_start: 15
+            col_stop: 25
             path: ""
-            content: 1 as i8 ** 3 as i8
+            content: 1u8 as iu8 ** 3u8 as iu8
       op: Pow
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 19
+        col_stop: 25
         path: ""
-        content: 1 as i8 ** 3 as i8
+        content: 1u8 as iu8 ** 3u8 as iu8
   - Binary:
       left:
         Cast:
           inner:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "1"
                 - span:
                     line_start: 1
                     line_stop: 1
                     col_start: 1
-                    col_stop: 2
+                    col_stop: 4
                     path: ""
-                    content: 1 as i8 ** 3 as i8 ** 5 as i8
+                    content: 1u8 as iu8 ** 3u8 as iu8 ** 5u8 as iu8
           target_type:
-            IntegerType: I8
+            Identifier: "{\"name\":\"iu8\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"1u8 as iu8 ** 3u8 as iu8 ** 5u8 as iu8\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 8
+            col_stop: 11
             path: ""
-            content: 1 as i8 ** 3 as i8 ** 5 as i8
+            content: 1u8 as iu8 ** 3u8 as iu8 ** 5u8 as iu8
       right:
         Binary:
           left:
             Cast:
               inner:
                 Value:
-                  Implicit:
+                  Integer:
+                    - U8
                     - "3"
                     - span:
                         line_start: 1
                         line_stop: 1
-                        col_start: 12
-                        col_stop: 13
+                        col_start: 15
+                        col_stop: 18
                         path: ""
-                        content: 1 as i8 ** 3 as i8 ** 5 as i8
+                        content: 1u8 as iu8 ** 3u8 as iu8 ** 5u8 as iu8
               target_type:
-                IntegerType: I8
+                Identifier: "{\"name\":\"iu8\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":22,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"1u8 as iu8 ** 3u8 as iu8 ** 5u8 as iu8\\\"}\"}"
               span:
                 line_start: 1
                 line_stop: 1
-                col_start: 12
-                col_stop: 19
+                col_start: 15
+                col_stop: 25
                 path: ""
-                content: 1 as i8 ** 3 as i8 ** 5 as i8
+                content: 1u8 as iu8 ** 3u8 as iu8 ** 5u8 as iu8
           right:
             Cast:
               inner:
                 Value:
-                  Implicit:
+                  Integer:
+                    - U8
                     - "5"
                     - span:
                         line_start: 1
                         line_stop: 1
-                        col_start: 23
-                        col_stop: 24
+                        col_start: 29
+                        col_stop: 32
                         path: ""
-                        content: 1 as i8 ** 3 as i8 ** 5 as i8
+                        content: 1u8 as iu8 ** 3u8 as iu8 ** 5u8 as iu8
               target_type:
-                IntegerType: I8
+                Identifier: "{\"name\":\"iu8\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":36,\\\"col_stop\\\":39,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"1u8 as iu8 ** 3u8 as iu8 ** 5u8 as iu8\\\"}\"}"
               span:
                 line_start: 1
                 line_stop: 1
-                col_start: 23
-                col_stop: 30
+                col_start: 29
+                col_stop: 39
                 path: ""
-                content: 1 as i8 ** 3 as i8 ** 5 as i8
+                content: 1u8 as iu8 ** 3u8 as iu8 ** 5u8 as iu8
           op: Pow
           span:
             line_start: 1
             line_stop: 1
-            col_start: 12
-            col_stop: 30
+            col_start: 15
+            col_stop: 39
             path: ""
-            content: 1 as i8 ** 3 as i8 ** 5 as i8
+            content: 1u8 as iu8 ** 3u8 as iu8 ** 5u8 as iu8
       op: Pow
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 30
+        col_stop: 39
         path: ""
-        content: 1 as i8 ** 3 as i8 ** 5 as i8
+        content: 1u8 as iu8 ** 3u8 as iu8 ** 5u8 as iu8

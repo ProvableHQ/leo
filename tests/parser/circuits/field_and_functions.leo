@@ -4,7 +4,7 @@ expectation: Pass
 */
 
 circuit X {
-    static const a: u8 = 10;
+    static const a: u8 = 10u8;
     x: u32,
     y: u32
     function x() {

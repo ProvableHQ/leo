@@ -4,1155 +4,1156 @@ expectation: Pass
 outputs:
   - Value:
       Integer:
-        - U8
+        - U16
         - "123"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 6
+            col_stop: 7
             path: ""
-            content: 123u8
-  - Value:
-      Implicit:
-        - "123"
-        - span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 4
-            path: ""
-            content: "123"
+            content: 123u16
   - Value:
       Integer:
-        - U8
+        - U16
+        - "123"
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 7
+            path: ""
+            content: 123u16
+  - Value:
+      Integer:
+        - U16
         - "456"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 6
+            col_stop: 7
             path: ""
-            content: 456u8
+            content: 456u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "87377802873778028737780287377802873778028737780287377802873778028737780287377802"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 83
+            col_stop: 84
             path: ""
-            content: 87377802873778028737780287377802873778028737780287377802873778028737780287377802u8
+            content: 87377802873778028737780287377802873778028737780287377802873778028737780287377802u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "8737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 403
+            col_stop: 404
             path: ""
-            content: 8737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802u8
+            content: 8737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "340130024"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 340130024u8
+            content: 340130024u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "158951116"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 158951116u8
+            content: 158951116u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "155529659"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 155529659u8
+            content: 155529659u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "642023166"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 642023166u8
+            content: 642023166u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "228481736"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 228481736u8
+            content: 228481736u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "469712960"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 469712960u8
+            content: 469712960u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "929437719"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 929437719u8
+            content: 929437719u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "721072814"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 721072814u8
+            content: 721072814u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "363254789"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 363254789u8
+            content: 363254789u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "906732565"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 906732565u8
+            content: 906732565u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "288246391"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 288246391u8
+            content: 288246391u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "724940549"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 724940549u8
+            content: 724940549u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "487101620"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 487101620u8
+            content: 487101620u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "261373583"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 261373583u8
+            content: 261373583u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "891163927"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 891163927u8
+            content: 891163927u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "743967544"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 743967544u8
+            content: 743967544u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "8372586"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 10
+            col_stop: 11
             path: ""
-            content: 8372586u8
+            content: 8372586u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "461793278"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 461793278u8
+            content: 461793278u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "806307045"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 806307045u8
+            content: 806307045u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "122764546"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 122764546u8
+            content: 122764546u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "356336181"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 356336181u8
+            content: 356336181u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "158370903"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 158370903u8
+            content: 158370903u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "774460877"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 774460877u8
+            content: 774460877u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "557174131"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 557174131u8
+            content: 557174131u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "492401267"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 492401267u8
+            content: 492401267u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "893445620"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 893445620u8
+            content: 893445620u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "957757048"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 957757048u8
+            content: 957757048u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "721540649"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 721540649u8
+            content: 721540649u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "390746493"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 390746493u8
+            content: 390746493u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "211251725"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 211251725u8
+            content: 211251725u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "938266114"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 938266114u8
+            content: 938266114u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "156985870"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 156985870u8
+            content: 156985870u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "703831126"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 703831126u8
+            content: 703831126u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "729964155"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 729964155u8
+            content: 729964155u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "988151305"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 988151305u8
+            content: 988151305u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "320872435"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 320872435u8
+            content: 320872435u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "719287167"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 719287167u8
+            content: 719287167u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "152289486"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 152289486u8
+            content: 152289486u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "740067975"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 740067975u8
+            content: 740067975u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "728627816"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 728627816u8
+            content: 728627816u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "385008978"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 385008978u8
+            content: 385008978u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "553967635"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 553967635u8
+            content: 553967635u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "71980713"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 11
+            col_stop: 12
             path: ""
-            content: 71980713u8
+            content: 71980713u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "519444716"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 519444716u8
+            content: 519444716u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "116499965"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 116499965u8
+            content: 116499965u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "717422268"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 717422268u8
+            content: 717422268u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "18966279"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 11
+            col_stop: 12
             path: ""
-            content: 18966279u8
+            content: 18966279u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "22458638"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 11
+            col_stop: 12
             path: ""
-            content: 22458638u8
+            content: 22458638u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "857282620"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 857282620u8
+            content: 857282620u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "920675898"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 920675898u8
+            content: 920675898u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "762235516"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 762235516u8
+            content: 762235516u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "469018377"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 469018377u8
+            content: 469018377u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "199986521"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 199986521u8
+            content: 199986521u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "536679358"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 536679358u8
+            content: 536679358u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "591399452"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 591399452u8
+            content: 591399452u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "83083158"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 11
+            col_stop: 12
             path: ""
-            content: 83083158u8
+            content: 83083158u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "599449051"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 599449051u8
+            content: 599449051u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "445442318"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 445442318u8
+            content: 445442318u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "585486590"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 585486590u8
+            content: 585486590u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "209278800"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 209278800u8
+            content: 209278800u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "873568117"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 873568117u8
+            content: 873568117u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "664470940"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 664470940u8
+            content: 664470940u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "465262783"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 465262783u8
+            content: 465262783u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "605652874"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 605652874u8
+            content: 605652874u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "376803940"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 376803940u8
+            content: 376803940u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "965247040"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 965247040u8
+            content: 965247040u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "598474509"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 598474509u8
+            content: 598474509u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "845119918"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 845119918u8
+            content: 845119918u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "648159133"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 648159133u8
+            content: 648159133u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "669051032"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 669051032u8
+            content: 669051032u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "800600261"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 800600261u8
+            content: 800600261u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "434689764"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 434689764u8
+            content: 434689764u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "520060080"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 520060080u8
+            content: 520060080u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "804659385"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 804659385u8
+            content: 804659385u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "537828058"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 537828058u8
+            content: 537828058u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "716600292"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 716600292u8
+            content: 716600292u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "387020273"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 387020273u8
+            content: 387020273u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "199375617"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 199375617u8
+            content: 199375617u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "680337189"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 680337189u8
+            content: 680337189u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "818479931"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 818479931u8
+            content: 818479931u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "893693281"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 893693281u8
+            content: 893693281u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "87377802"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 11
+            col_stop: 12
             path: ""
-            content: 87377802u8
+            content: 87377802u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "84699261"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 11
+            col_stop: 12
             path: ""
-            content: 84699261u8
+            content: 84699261u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "292826090"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 292826090u8
+            content: 292826090u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "569171405"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 569171405u8
+            content: 569171405u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "387436237"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 387436237u8
+            content: 387436237u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "150682190"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 150682190u8
+            content: 150682190u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "888770419"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 888770419u8
+            content: 888770419u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "824696431"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 824696431u8
+            content: 824696431u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "765659803"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 765659803u8
+            content: 765659803u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "270163693"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 270163693u8
+            content: 270163693u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "427940240"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 427940240u8
+            content: 427940240u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "504997332"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 504997332u8
+            content: 504997332u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "337808338"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 337808338u8
+            content: 337808338u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "907200008"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 907200008u8
+            content: 907200008u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "757177889"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 757177889u8
+            content: 757177889u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "696697188"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 696697188u8
+            content: 696697188u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "41376051"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 11
+            col_stop: 12
             path: ""
-            content: 41376051u8
+            content: 41376051u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "496293518"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 496293518u8
+            content: 496293518u16
   - Value:
       Integer:
-        - U8
+        - U16
         - "251218820"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 12
+            col_stop: 13
             path: ""
-            content: 251218820u8
+            content: 251218820u16

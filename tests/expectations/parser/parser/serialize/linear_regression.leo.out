@@ -156,15 +156,19 @@ outputs:
                             - I32
                             - "0"
                   - Iteration:
-                      variable: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i: u32 in 0..5 {\\\"}\"}"
+                      variable: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i: u32 in 0u32..5u32 {\\\"}\"}"
                       type_:
                         IntegerType: U32
                       start:
                         Value:
-                          Implicit: "0"
+                          Integer:
+                            - U32
+                            - "0"
                       stop:
                         Value:
-                          Implicit: "5"
+                          Integer:
+                            - U32
+                            - "5"
                       inclusive: false
                       block:
                         statements:
@@ -421,15 +425,19 @@ outputs:
                             - I32
                             - "0"
                   - Iteration:
-                      variable: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i: u32 in 0..5 {\\\"}\"}"
+                      variable: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i: u32 in 0u32..5u32 {\\\"}\"}"
                       type_:
                         IntegerType: U32
                       start:
                         Value:
-                          Implicit: "0"
+                          Integer:
+                            - U32
+                            - "0"
                       stop:
                         Value:
-                          Implicit: "5"
+                          Integer:
+                            - U32
+                            - "5"
                       inclusive: false
                       block:
                         statements:
@@ -536,113 +544,133 @@ outputs:
                     elements:
                       - Expression:
                           CircuitInit:
-                            name: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}"
+                            name: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1i32, y: y + 1i32},\\\"}\"}"
                             members:
-                              - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}"
+                              - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1i32, y: y + 1i32},\\\"}\"}"
                                 expression:
                                   Binary:
                                     left:
-                                      Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}"
+                                      Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1i32, y: y + 1i32},\\\"}\"}"
                                     right:
                                       Value:
-                                        Implicit: "1"
+                                        Integer:
+                                          - I32
+                                          - "1"
                                     op: Add
-                              - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}"
+                              - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1i32, y: y + 1i32},\\\"}\"}"
                                 expression:
                                   Binary:
                                     left:
-                                      Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}"
+                                      Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":29,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1i32, y: y + 1i32},\\\"}\"}"
                                     right:
                                       Value:
-                                        Implicit: "1"
+                                        Integer:
+                                          - I32
+                                          - "1"
                                     op: Add
                       - Expression:
                           CircuitInit:
-                            name: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}"
+                            name: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2i32, y: y + 2i32},\\\"}\"}"
                             members:
-                              - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}"
+                              - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2i32, y: y + 2i32},\\\"}\"}"
                                 expression:
                                   Binary:
                                     left:
-                                      Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}"
+                                      Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2i32, y: y + 2i32},\\\"}\"}"
                                     right:
                                       Value:
-                                        Implicit: "2"
+                                        Integer:
+                                          - I32
+                                          - "2"
                                     op: Add
-                              - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}"
+                              - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2i32, y: y + 2i32},\\\"}\"}"
                                 expression:
                                   Binary:
                                     left:
-                                      Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}"
+                                      Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":29,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2i32, y: y + 2i32},\\\"}\"}"
                                     right:
                                       Value:
-                                        Implicit: "2"
+                                        Integer:
+                                          - I32
+                                          - "2"
                                     op: Add
                       - Expression:
                           CircuitInit:
-                            name: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}"
+                            name: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3i32, y: y + 3i32},\\\"}\"}"
                             members:
-                              - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}"
+                              - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3i32, y: y + 3i32},\\\"}\"}"
                                 expression:
                                   Binary:
                                     left:
-                                      Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}"
+                                      Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3i32, y: y + 3i32},\\\"}\"}"
                                     right:
                                       Value:
-                                        Implicit: "3"
+                                        Integer:
+                                          - I32
+                                          - "3"
                                     op: Add
-                              - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}"
+                              - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3i32, y: y + 3i32},\\\"}\"}"
                                 expression:
                                   Binary:
                                     left:
-                                      Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}"
+                                      Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":29,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3i32, y: y + 3i32},\\\"}\"}"
                                     right:
                                       Value:
-                                        Implicit: "3"
+                                        Integer:
+                                          - I32
+                                          - "3"
                                     op: Add
                       - Expression:
                           CircuitInit:
-                            name: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}"
+                            name: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4i32, y: y + 4i32},\\\"}\"}"
                             members:
-                              - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}"
+                              - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4i32, y: y + 4i32},\\\"}\"}"
                                 expression:
                                   Binary:
                                     left:
-                                      Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}"
+                                      Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4i32, y: y + 4i32},\\\"}\"}"
                                     right:
                                       Value:
-                                        Implicit: "4"
+                                        Integer:
+                                          - I32
+                                          - "4"
                                     op: Add
-                              - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}"
+                              - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4i32, y: y + 4i32},\\\"}\"}"
                                 expression:
                                   Binary:
                                     left:
-                                      Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}"
+                                      Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":29,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4i32, y: y + 4i32},\\\"}\"}"
                                     right:
                                       Value:
-                                        Implicit: "4"
+                                        Integer:
+                                          - I32
+                                          - "4"
                                     op: Add
                       - Expression:
                           CircuitInit:
-                            name: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}"
+                            name: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5i32, y: y + 5i32}\\\"}\"}"
                             members:
-                              - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}"
+                              - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5i32, y: y + 5i32}\\\"}\"}"
                                 expression:
                                   Binary:
                                     left:
-                                      Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}"
+                                      Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5i32, y: y + 5i32}\\\"}\"}"
                                     right:
                                       Value:
-                                        Implicit: "5"
+                                        Integer:
+                                          - I32
+                                          - "5"
                                     op: Add
-                              - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}"
+                              - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5i32, y: y + 5i32}\\\"}\"}"
                                 expression:
                                   Binary:
                                     left:
-                                      Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}"
+                                      Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":29,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5i32, y: y + 5i32}\\\"}\"}"
                                     right:
                                       Value:
-                                        Implicit: "5"
+                                        Integer:
+                                          - I32
+                                          - "5"
                                     op: Add
             - Definition:
                 declaration_type: Let

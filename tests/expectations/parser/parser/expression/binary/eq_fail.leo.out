@@ -2,4 +2,4 @@
 namespace: ParseExpression
 expectation: Fail
 outputs:
-  - "did not consume all input: '==' @ 1:8-10\n'3' @ 1:11-12\n"
+  - "Error [EPAR0370033]: Could not parse the implicit value: 1.\n    --> test:1:1\n     |\n   1 | 1 == 2 == 3\n     | ^"

@@ -71,14 +71,16 @@ outputs:
                           Group:
                             Single: "0"
                   - Iteration:
-                      variable: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i: group in 0..256 {\\\"}\"}"
-                      type_: Group
+                      variable: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i: u32 in u32..256u32 {\\\"}\"}"
+                      type_:
+                        IntegerType: U32
                       start:
-                        Value:
-                          Implicit: "0"
+                        Identifier: "{\"name\":\"u32\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":23,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i: u32 in u32..256u32 {\\\"}\"}"
                       stop:
                         Value:
-                          Implicit: "256"
+                          Integer:
+                            - U32
+                            - "256"
                       inclusive: false
                       block:
                         statements:

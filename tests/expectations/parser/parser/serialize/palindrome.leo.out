@@ -88,19 +88,23 @@ outputs:
                       - U8
                       - "0"
             - Iteration:
-                variable: "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    for start: u32 in 0..(str_len / 2) {\\\"}\"}"
+                variable: "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    for start: u32 in 0u32..(str_len / 2u32) {\\\"}\"}"
                 type_:
                   IntegerType: U32
                 start:
                   Value:
-                    Implicit: "0"
+                    Integer:
+                      - U32
+                      - "0"
                 stop:
                   Binary:
                     left:
-                      Identifier: "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":27,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    for start: u32 in 0..(str_len / 2) {\\\"}\"}"
+                      Identifier: "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":30,\\\"col_stop\\\":37,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    for start: u32 in 0u32..(str_len / 2u32) {\\\"}\"}"
                     right:
                       Value:
-                        Implicit: "2"
+                        Integer:
+                          - U32
+                          - "2"
                     op: Div
                 inclusive: false
                 block:
@@ -171,19 +175,21 @@ outputs:
                                       character:
                                         Scalar: 32
                             - Iteration:
-                                variable: "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":17,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end: u32 in (str_len - 1)..start {\\\"}\"}"
+                                variable: "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":17,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end: u32 in (str_len - 1u32)..start {\\\"}\"}"
                                 type_:
                                   IntegerType: U32
                                 start:
                                   Binary:
                                     left:
-                                      Identifier: "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":30,\\\"col_stop\\\":37,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end: u32 in (str_len - 1)..start {\\\"}\"}"
+                                      Identifier: "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":30,\\\"col_stop\\\":37,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end: u32 in (str_len - 1u32)..start {\\\"}\"}"
                                     right:
                                       Value:
-                                        Implicit: "1"
+                                        Integer:
+                                          - U32
+                                          - "1"
                                     op: Sub
                                 stop:
-                                  Identifier: "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":44,\\\"col_stop\\\":49,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end: u32 in (str_len - 1)..start {\\\"}\"}"
+                                  Identifier: "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":47,\\\"col_stop\\\":52,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end: u32 in (str_len - 1u32)..start {\\\"}\"}"
                                 inclusive: false
                                 block:
                                   statements:
@@ -246,15 +252,17 @@ outputs:
                                               - Assign:
                                                   operation: Assign
                                                   assignee:
-                                                    identifier: "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":21,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    end_empty = end_empty + 1;\\\"}\"}"
+                                                    identifier: "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":21,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    end_empty = end_empty + 1u8;\\\"}\"}"
                                                     accesses: []
                                                   value:
                                                     Binary:
                                                       left:
-                                                        Identifier: "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":33,\\\"col_stop\\\":42,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    end_empty = end_empty + 1;\\\"}\"}"
+                                                        Identifier: "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":33,\\\"col_stop\\\":42,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    end_empty = end_empty + 1u8;\\\"}\"}"
                                                       right:
                                                         Value:
-                                                          Implicit: "1"
+                                                          Integer:
+                                                            - U8
+                                                            - "1"
                                                       op: Add
                                               - Conditional:
                                                   condition:
@@ -277,15 +285,17 @@ outputs:
                                                       - Assign:
                                                           operation: Assign
                                                           assignee:
-                                                            identifier: "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":25,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                        skipped = skipped + 1;\\\"}\"}"
+                                                            identifier: "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":25,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                        skipped = skipped + 1u8;\\\"}\"}"
                                                             accesses: []
                                                           value:
                                                             Binary:
                                                               left:
-                                                                Identifier: "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":35,\\\"col_stop\\\":42,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                        skipped = skipped + 1;\\\"}\"}"
+                                                                Identifier: "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":35,\\\"col_stop\\\":42,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                        skipped = skipped + 1u8;\\\"}\"}"
                                                               right:
                                                                 Value:
-                                                                  Implicit: "1"
+                                                                  Integer:
+                                                                    - U8
+                                                                    - "1"
                                                               op: Add
                                                   next: ~
                             - Conditional:
@@ -347,15 +357,17 @@ outputs:
                                     - Assign:
                                         operation: Assign
                                         assignee:
-                                          identifier: "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":43,\\\"line_stop\\\":43,\\\"col_start\\\":17,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                processed = processed + 1;\\\"}\"}"
+                                          identifier: "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":43,\\\"line_stop\\\":43,\\\"col_start\\\":17,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                processed = processed + 1u8;\\\"}\"}"
                                           accesses: []
                                         value:
                                           Binary:
                                             left:
-                                              Identifier: "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":43,\\\"line_stop\\\":43,\\\"col_start\\\":29,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                processed = processed + 1;\\\"}\"}"
+                                              Identifier: "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":43,\\\"line_stop\\\":43,\\\"col_start\\\":29,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                processed = processed + 1u8;\\\"}\"}"
                                             right:
                                               Value:
-                                                Implicit: "1"
+                                                Integer:
+                                                  - U8
+                                                  - "1"
                                             op: Add
                                 next: ~
                         next: ~

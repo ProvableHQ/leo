@@ -12,18 +12,19 @@ outputs:
         circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"
         members:
           - CircuitConst:
-              - "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const a: u8 = 10;\\\"}\"}"
+              - "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const a: u8 = 10u8;\\\"}\"}"
               - IntegerType: U8
               - Value:
-                  Implicit:
+                  Integer:
+                    - U8
                     - "10"
                     - span:
                         line_start: 4
                         line_stop: 4
                         col_start: 26
-                        col_stop: 28
+                        col_stop: 30
                         path: ""
-                        content: "    static const a: u8 = 10;"
+                        content: "    static const a: u8 = 10u8;"
           - CircuitVariable:
               - "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    x: u32,\\\"}\"}"
               - IntegerType: U32

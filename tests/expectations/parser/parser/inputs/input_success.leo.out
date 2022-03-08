@@ -27,45 +27,46 @@ outputs:
               content: "a: bool  = true;                 "
           - type_:
               IntegerType: U8
-            name: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"b: u8    = 2;                    \\\"}\"}"
+            name: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"b: u8    = 2u8;                    \\\"}\"}"
             value:
               Value:
-                Implicit:
+                Integer:
+                  - U8
                   - "2"
                   - span:
                       line_start: 5
                       line_stop: 5
                       col_start: 12
-                      col_stop: 13
+                      col_stop: 15
                       path: ""
-                      content: "b: u8    = 2;                    "
+                      content: "b: u8    = 2u8;                    "
             span:
               line_start: 5
               line_stop: 5
               col_start: 4
               col_stop: 6
               path: ""
-              content: "b: u8    = 2;                    "
+              content: "b: u8    = 2u8;                    "
           - type_: Field
-            name: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c: field = 0;                    \\\"}\"}"
+            name: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c: field = 0field;                    \\\"}\"}"
             value:
               Value:
-                Implicit:
+                Field:
                   - "0"
                   - span:
                       line_start: 6
                       line_stop: 6
                       col_start: 12
-                      col_stop: 13
+                      col_stop: 18
                       path: ""
-                      content: "c: field = 0;                    "
+                      content: "c: field = 0field;                    "
             span:
               line_start: 6
               line_stop: 6
               col_start: 4
               col_stop: 9
               path: ""
-              content: "c: field = 0;                    "
+              content: "c: field = 0field;                    "
           - type_: Group
             name: "{\"name\":\"d\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"d: group = (0, 1)group;          \\\"}\"}"
             value:
@@ -130,83 +131,85 @@ outputs:
               Array:
                 - IntegerType: U8
                 - - value: "32"
-            name: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"f: [u8; 32] = [0; 32];           \\\"}\"}"
+            name: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"f: [u8; 32] = [0u8; 32];           \\\"}\"}"
             value:
               ArrayInit:
                 element:
                   Value:
-                    Implicit:
+                    Integer:
+                      - U8
                       - "0"
                       - span:
                           line_start: 9
                           line_stop: 9
                           col_start: 16
-                          col_stop: 17
+                          col_stop: 19
                           path: ""
-                          content: "f: [u8; 32] = [0; 32];           "
+                          content: "f: [u8; 32] = [0u8; 32];           "
                 dimensions:
                   - value: "32"
                 span:
                   line_start: 9
                   line_stop: 9
                   col_start: 15
-                  col_stop: 22
+                  col_stop: 24
                   path: ""
-                  content: "f: [u8; 32] = [0; 32];           "
+                  content: "f: [u8; 32] = [0u8; 32];           "
             span:
               line_start: 9
               line_stop: 9
               col_start: 4
               col_stop: 12
               path: ""
-              content: "f: [u8; 32] = [0; 32];           "
+              content: "f: [u8; 32] = [0u8; 32];           "
           - type_:
               Array:
                 - Array:
                     - IntegerType: U8
                     - - value: "2"
                 - - value: "3"
-            name: "{\"name\":\"g\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"g: [[u8; 2]; 3] = [[0; 2]; 3]; \\\"}\"}"
+            name: "{\"name\":\"g\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"g: [[u8; 2]; 3] = [[0u8; 2]; 3]; \\\"}\"}"
             value:
               ArrayInit:
                 element:
                   ArrayInit:
                     element:
                       Value:
-                        Implicit:
+                        Integer:
+                          - U8
                           - "0"
                           - span:
                               line_start: 10
                               line_stop: 10
                               col_start: 21
-                              col_stop: 22
+                              col_stop: 24
                               path: ""
-                              content: "g: [[u8; 2]; 3] = [[0; 2]; 3]; "
+                              content: "g: [[u8; 2]; 3] = [[0u8; 2]; 3]; "
                     dimensions:
                       - value: "2"
                     span:
                       line_start: 10
                       line_stop: 10
                       col_start: 20
-                      col_stop: 26
+                      col_stop: 28
                       path: ""
-                      content: "g: [[u8; 2]; 3] = [[0; 2]; 3]; "
+                      content: "g: [[u8; 2]; 3] = [[0u8; 2]; 3]; "
                 dimensions:
                   - value: "3"
                 span:
                   line_start: 10
                   line_stop: 10
                   col_start: 19
-                  col_stop: 30
+                  col_stop: 32
                   path: ""
-                  content: "g: [[u8; 2]; 3] = [[0; 2]; 3]; "
+                  content: "g: [[u8; 2]; 3] = [[0u8; 2]; 3]; "
             span:
               line_start: 10
               line_stop: 10
               col_start: 4
               col_stop: 16
               path: ""
-              content: "g: [[u8; 2]; 3] = [[0; 2]; 3]; "
+              content: "g: [[u8; 2]; 3] = [[0u8; 2]; 3]; "
           - type_:
               Tuple:
                 - Boolean
@@ -280,45 +283,46 @@ outputs:
               content: "r0: bool  = true;                 "
           - type_:
               IntegerType: U8
-            name: "{\"name\":\"r1\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r1: u8    = 2;                    \\\"}\"}"
+            name: "{\"name\":\"r1\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r1: u8    = 2u8;                    \\\"}\"}"
             value:
               Value:
-                Implicit:
+                Integer:
+                  - U8
                   - "2"
                   - span:
                       line_start: 15
                       line_stop: 15
                       col_start: 13
-                      col_stop: 14
+                      col_stop: 16
                       path: ""
-                      content: "r1: u8    = 2;                    "
+                      content: "r1: u8    = 2u8;                    "
             span:
               line_start: 15
               line_stop: 15
               col_start: 5
               col_stop: 7
               path: ""
-              content: "r1: u8    = 2;                    "
+              content: "r1: u8    = 2u8;                    "
           - type_: Field
-            name: "{\"name\":\"r2\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r2: field = 0;                    \\\"}\"}"
+            name: "{\"name\":\"r2\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r2: field = 0field;                    \\\"}\"}"
             value:
               Value:
-                Implicit:
+                Field:
                   - "0"
                   - span:
                       line_start: 16
                       line_stop: 16
                       col_start: 13
-                      col_stop: 14
+                      col_stop: 19
                       path: ""
-                      content: "r2: field = 0;                    "
+                      content: "r2: field = 0field;                    "
             span:
               line_start: 16
               line_stop: 16
               col_start: 5
               col_stop: 10
               path: ""
-              content: "r2: field = 0;                    "
+              content: "r2: field = 0field;                    "
           - type_: Group
             name: "{\"name\":\"r3\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r3: group = (0, 1)group;          \\\"}\"}"
             value:
@@ -383,83 +387,85 @@ outputs:
               Array:
                 - IntegerType: U8
                 - - value: "32"
-            name: "{\"name\":\"r5\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r5: [u8; 32] = [0; 32];           \\\"}\"}"
+            name: "{\"name\":\"r5\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r5: [u8; 32] = [0u8; 32];           \\\"}\"}"
             value:
               ArrayInit:
                 element:
                   Value:
-                    Implicit:
+                    Integer:
+                      - U8
                       - "0"
                       - span:
                           line_start: 19
                           line_stop: 19
                           col_start: 17
-                          col_stop: 18
+                          col_stop: 20
                           path: ""
-                          content: "r5: [u8; 32] = [0; 32];           "
+                          content: "r5: [u8; 32] = [0u8; 32];           "
                 dimensions:
                   - value: "32"
                 span:
                   line_start: 19
                   line_stop: 19
                   col_start: 16
-                  col_stop: 23
+                  col_stop: 25
                   path: ""
-                  content: "r5: [u8; 32] = [0; 32];           "
+                  content: "r5: [u8; 32] = [0u8; 32];           "
             span:
               line_start: 19
               line_stop: 19
               col_start: 5
               col_stop: 13
               path: ""
-              content: "r5: [u8; 32] = [0; 32];           "
+              content: "r5: [u8; 32] = [0u8; 32];           "
           - type_:
               Array:
                 - Array:
                     - IntegerType: U8
                     - - value: "2"
                 - - value: "3"
-            name: "{\"name\":\"r6\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r6: [[u8; 2]; 3] = [[0; 2]; 3]; \\\"}\"}"
+            name: "{\"name\":\"r6\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r6: [[u8; 2]; 3] = [[0u8; 2]; 3]; \\\"}\"}"
             value:
               ArrayInit:
                 element:
                   ArrayInit:
                     element:
                       Value:
-                        Implicit:
+                        Integer:
+                          - U8
                           - "0"
                           - span:
                               line_start: 20
                               line_stop: 20
                               col_start: 22
-                              col_stop: 23
+                              col_stop: 25
                               path: ""
-                              content: "r6: [[u8; 2]; 3] = [[0; 2]; 3]; "
+                              content: "r6: [[u8; 2]; 3] = [[0u8; 2]; 3]; "
                     dimensions:
                       - value: "2"
                     span:
                       line_start: 20
                       line_stop: 20
                       col_start: 21
-                      col_stop: 27
+                      col_stop: 29
                       path: ""
-                      content: "r6: [[u8; 2]; 3] = [[0; 2]; 3]; "
+                      content: "r6: [[u8; 2]; 3] = [[0u8; 2]; 3]; "
                 dimensions:
                   - value: "3"
                 span:
                   line_start: 20
                   line_stop: 20
                   col_start: 20
-                  col_stop: 31
+                  col_stop: 33
                   path: ""
-                  content: "r6: [[u8; 2]; 3] = [[0; 2]; 3]; "
+                  content: "r6: [[u8; 2]; 3] = [[0u8; 2]; 3]; "
             span:
               line_start: 20
               line_stop: 20
               col_start: 5
               col_stop: 17
               path: ""
-              content: "r6: [[u8; 2]; 3] = [[0; 2]; 3]; "
+              content: "r6: [[u8; 2]; 3] = [[0u8; 2]; 3]; "
           - type_:
               Tuple:
                 - Boolean
@@ -533,45 +539,46 @@ outputs:
               content: "c0: bool  = true;                 "
           - type_:
               IntegerType: U8
-            name: "{\"name\":\"c1\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c1: u8    = 2;                    \\\"}\"}"
+            name: "{\"name\":\"c1\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c1: u8    = 2u8;                    \\\"}\"}"
             value:
               Value:
-                Implicit:
+                Integer:
+                  - U8
                   - "2"
                   - span:
                       line_start: 25
                       line_stop: 25
                       col_start: 13
-                      col_stop: 14
+                      col_stop: 16
                       path: ""
-                      content: "c1: u8    = 2;                    "
+                      content: "c1: u8    = 2u8;                    "
             span:
               line_start: 25
               line_stop: 25
               col_start: 5
               col_stop: 7
               path: ""
-              content: "c1: u8    = 2;                    "
+              content: "c1: u8    = 2u8;                    "
           - type_: Field
-            name: "{\"name\":\"c2\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c2: field = 0;                    \\\"}\"}"
+            name: "{\"name\":\"c2\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c2: field = 0field;                    \\\"}\"}"
             value:
               Value:
-                Implicit:
+                Field:
                   - "0"
                   - span:
                       line_start: 26
                       line_stop: 26
                       col_start: 13
-                      col_stop: 14
+                      col_stop: 19
                       path: ""
-                      content: "c2: field = 0;                    "
+                      content: "c2: field = 0field;                    "
             span:
               line_start: 26
               line_stop: 26
               col_start: 5
               col_stop: 10
               path: ""
-              content: "c2: field = 0;                    "
+              content: "c2: field = 0field;                    "
           - type_: Group
             name: "{\"name\":\"c3\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c3: group = (0, 1)group;          \\\"}\"}"
             value:
@@ -636,83 +643,85 @@ outputs:
               Array:
                 - IntegerType: U8
                 - - value: "32"
-            name: "{\"name\":\"c5\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c5: [u8; 32] = [0; 32];           \\\"}\"}"
+            name: "{\"name\":\"c5\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c5: [u8; 32] = [0u8; 32];           \\\"}\"}"
             value:
               ArrayInit:
                 element:
                   Value:
-                    Implicit:
+                    Integer:
+                      - U8
                       - "0"
                       - span:
                           line_start: 29
                           line_stop: 29
                           col_start: 17
-                          col_stop: 18
+                          col_stop: 20
                           path: ""
-                          content: "c5: [u8; 32] = [0; 32];           "
+                          content: "c5: [u8; 32] = [0u8; 32];           "
                 dimensions:
                   - value: "32"
                 span:
                   line_start: 29
                   line_stop: 29
                   col_start: 16
-                  col_stop: 23
+                  col_stop: 25
                   path: ""
-                  content: "c5: [u8; 32] = [0; 32];           "
+                  content: "c5: [u8; 32] = [0u8; 32];           "
             span:
               line_start: 29
               line_stop: 29
               col_start: 5
               col_stop: 13
               path: ""
-              content: "c5: [u8; 32] = [0; 32];           "
+              content: "c5: [u8; 32] = [0u8; 32];           "
           - type_:
               Array:
                 - Array:
                     - IntegerType: U8
                     - - value: "2"
                 - - value: "3"
-            name: "{\"name\":\"c6\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c6: [[u8; 2]; 3] = [[0; 2]; 3]; \\\"}\"}"
+            name: "{\"name\":\"c6\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"c6: [[u8; 2]; 3] = [[0u8; 2]; 3]; \\\"}\"}"
             value:
               ArrayInit:
                 element:
                   ArrayInit:
                     element:
                       Value:
-                        Implicit:
+                        Integer:
+                          - U8
                           - "0"
                           - span:
                               line_start: 30
                               line_stop: 30
                               col_start: 22
-                              col_stop: 23
+                              col_stop: 25
                               path: ""
-                              content: "c6: [[u8; 2]; 3] = [[0; 2]; 3]; "
+                              content: "c6: [[u8; 2]; 3] = [[0u8; 2]; 3]; "
                     dimensions:
                       - value: "2"
                     span:
                       line_start: 30
                       line_stop: 30
                       col_start: 21
-                      col_stop: 27
+                      col_stop: 29
                       path: ""
-                      content: "c6: [[u8; 2]; 3] = [[0; 2]; 3]; "
+                      content: "c6: [[u8; 2]; 3] = [[0u8; 2]; 3]; "
                 dimensions:
                   - value: "3"
                 span:
                   line_start: 30
                   line_stop: 30
                   col_start: 20
-                  col_stop: 31
+                  col_stop: 33
                   path: ""
-                  content: "c6: [[u8; 2]; 3] = [[0; 2]; 3]; "
+                  content: "c6: [[u8; 2]; 3] = [[0u8; 2]; 3]; "
             span:
               line_start: 30
               line_stop: 30
               col_start: 5
               col_stop: 17
               path: ""
-              content: "c6: [[u8; 2]; 3] = [[0; 2]; 3]; "
+              content: "c6: [[u8; 2]; 3] = [[0u8; 2]; 3]; "
           - type_:
               Tuple:
                 - Boolean

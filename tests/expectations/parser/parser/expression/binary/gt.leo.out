@@ -5,349 +5,193 @@ outputs:
   - Binary:
       left:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "1"
             - span:
                 line_start: 1
                 line_stop: 1
                 col_start: 1
-                col_stop: 2
+                col_stop: 4
                 path: ""
-                content: 1 > 1
+                content: 1u8 > 1u8
       right:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "1"
             - span:
                 line_start: 1
                 line_stop: 1
-                col_start: 5
-                col_stop: 6
+                col_start: 7
+                col_stop: 10
                 path: ""
-                content: 1 > 1
+                content: 1u8 > 1u8
       op: Gt
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 6
+        col_stop: 10
         path: ""
-        content: 1 > 1
+        content: 1u8 > 1u8
   - Binary:
       left:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "2"
             - span:
                 line_start: 1
                 line_stop: 1
                 col_start: 1
-                col_stop: 2
+                col_stop: 4
                 path: ""
-                content: 2>3
+                content: 2u8>3u8
       right:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "3"
             - span:
                 line_start: 1
                 line_stop: 1
-                col_start: 3
-                col_stop: 4
+                col_start: 5
+                col_stop: 8
                 path: ""
-                content: 2>3
+                content: 2u8>3u8
       op: Gt
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 4
+        col_stop: 8
         path: ""
-        content: 2>3
+        content: 2u8>3u8
   - Binary:
       left:
         Binary:
           left:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "1"
                 - span:
                     line_start: 1
                     line_stop: 1
                     col_start: 1
-                    col_stop: 2
+                    col_stop: 4
                     path: ""
-                    content: 1 > 2 > 3
+                    content: 1u8 > 2u8 > 3u8
           right:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "2"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 5
-                    col_stop: 6
+                    col_start: 7
+                    col_stop: 10
                     path: ""
-                    content: 1 > 2 > 3
+                    content: 1u8 > 2u8 > 3u8
           op: Gt
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 6
+            col_stop: 10
             path: ""
-            content: 1 > 2 > 3
+            content: 1u8 > 2u8 > 3u8
       right:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "3"
             - span:
                 line_start: 1
                 line_stop: 1
-                col_start: 9
-                col_stop: 10
+                col_start: 13
+                col_stop: 16
                 path: ""
-                content: 1 > 2 > 3
+                content: 1u8 > 2u8 > 3u8
       op: Gt
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 10
+        col_stop: 16
         path: ""
-        content: 1 > 2 > 3
+        content: 1u8 > 2u8 > 3u8
   - Binary:
       left:
         Binary:
           left:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "1"
                 - span:
                     line_start: 1
                     line_stop: 1
                     col_start: 1
-                    col_stop: 2
+                    col_stop: 4
                     path: ""
-                    content: 1 + 2 > 3 + 4
+                    content: 1u8 + 2u8 > 3u8 + 4u8
           right:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "2"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 5
-                    col_stop: 6
+                    col_start: 7
+                    col_stop: 10
                     path: ""
-                    content: 1 + 2 > 3 + 4
+                    content: 1u8 + 2u8 > 3u8 + 4u8
           op: Add
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 6
+            col_stop: 10
             path: ""
-            content: 1 + 2 > 3 + 4
+            content: 1u8 + 2u8 > 3u8 + 4u8
       right:
         Binary:
           left:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "3"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 9
-                    col_stop: 10
+                    col_start: 13
+                    col_stop: 16
                     path: ""
-                    content: 1 + 2 > 3 + 4
+                    content: 1u8 + 2u8 > 3u8 + 4u8
           right:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "4"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 13
-                    col_stop: 14
-                    path: ""
-                    content: 1 + 2 > 3 + 4
-          op: Add
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 9
-            col_stop: 14
-            path: ""
-            content: 1 + 2 > 3 + 4
-      op: Gt
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 14
-        path: ""
-        content: 1 + 2 > 3 + 4
-  - Binary:
-      left:
-        Binary:
-          left:
-            Value:
-              Implicit:
-                - "1"
-                - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 1
-                    col_stop: 2
-                    path: ""
-                    content: 1 > 2 > 3
-          right:
-            Value:
-              Implicit:
-                - "2"
-                - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 5
-                    col_stop: 6
-                    path: ""
-                    content: 1 > 2 > 3
-          op: Gt
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 6
-            path: ""
-            content: 1 > 2 > 3
-      right:
-        Value:
-          Implicit:
-            - "3"
-            - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 9
-                col_stop: 10
-                path: ""
-                content: 1 > 2 > 3
-      op: Gt
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 10
-        path: ""
-        content: 1 > 2 > 3
-  - Binary:
-      left:
-        Binary:
-          left:
-            Binary:
-              left:
-                Value:
-                  Implicit:
-                    - "1"
-                    - span:
-                        line_start: 1
-                        line_stop: 1
-                        col_start: 1
-                        col_stop: 2
-                        path: ""
-                        content: 1 + 2 > 3 + 4 > 5 + 6
-              right:
-                Value:
-                  Implicit:
-                    - "2"
-                    - span:
-                        line_start: 1
-                        line_stop: 1
-                        col_start: 5
-                        col_stop: 6
-                        path: ""
-                        content: 1 + 2 > 3 + 4 > 5 + 6
-              op: Add
-              span:
-                line_start: 1
-                line_stop: 1
-                col_start: 1
-                col_stop: 6
-                path: ""
-                content: 1 + 2 > 3 + 4 > 5 + 6
-          right:
-            Binary:
-              left:
-                Value:
-                  Implicit:
-                    - "3"
-                    - span:
-                        line_start: 1
-                        line_stop: 1
-                        col_start: 9
-                        col_stop: 10
-                        path: ""
-                        content: 1 + 2 > 3 + 4 > 5 + 6
-              right:
-                Value:
-                  Implicit:
-                    - "4"
-                    - span:
-                        line_start: 1
-                        line_stop: 1
-                        col_start: 13
-                        col_stop: 14
-                        path: ""
-                        content: 1 + 2 > 3 + 4 > 5 + 6
-              op: Add
-              span:
-                line_start: 1
-                line_stop: 1
-                col_start: 9
-                col_stop: 14
-                path: ""
-                content: 1 + 2 > 3 + 4 > 5 + 6
-          op: Gt
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 14
-            path: ""
-            content: 1 + 2 > 3 + 4 > 5 + 6
-      right:
-        Binary:
-          left:
-            Value:
-              Implicit:
-                - "5"
-                - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 17
-                    col_stop: 18
-                    path: ""
-                    content: 1 + 2 > 3 + 4 > 5 + 6
-          right:
-            Value:
-              Implicit:
-                - "6"
-                - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 21
+                    col_start: 19
                     col_stop: 22
                     path: ""
-                    content: 1 + 2 > 3 + 4 > 5 + 6
+                    content: 1u8 + 2u8 > 3u8 + 4u8
           op: Add
           span:
             line_start: 1
             line_stop: 1
-            col_start: 17
+            col_start: 13
             col_stop: 22
             path: ""
-            content: 1 + 2 > 3 + 4 > 5 + 6
+            content: 1u8 + 2u8 > 3u8 + 4u8
       op: Gt
       span:
         line_start: 1
@@ -355,4 +199,180 @@ outputs:
         col_start: 1
         col_stop: 22
         path: ""
-        content: 1 + 2 > 3 + 4 > 5 + 6
+        content: 1u8 + 2u8 > 3u8 + 4u8
+  - Binary:
+      left:
+        Binary:
+          left:
+            Value:
+              Integer:
+                - U8
+                - "1"
+                - span:
+                    line_start: 1
+                    line_stop: 1
+                    col_start: 1
+                    col_stop: 4
+                    path: ""
+                    content: 1u8 > 2u8 > 3u8
+          right:
+            Value:
+              Integer:
+                - U8
+                - "2"
+                - span:
+                    line_start: 1
+                    line_stop: 1
+                    col_start: 7
+                    col_stop: 10
+                    path: ""
+                    content: 1u8 > 2u8 > 3u8
+          op: Gt
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 10
+            path: ""
+            content: 1u8 > 2u8 > 3u8
+      right:
+        Value:
+          Integer:
+            - U8
+            - "3"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 13
+                col_stop: 16
+                path: ""
+                content: 1u8 > 2u8 > 3u8
+      op: Gt
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 16
+        path: ""
+        content: 1u8 > 2u8 > 3u8
+  - Binary:
+      left:
+        Binary:
+          left:
+            Binary:
+              left:
+                Value:
+                  Integer:
+                    - U8
+                    - "1"
+                    - span:
+                        line_start: 1
+                        line_stop: 1
+                        col_start: 1
+                        col_stop: 4
+                        path: ""
+                        content: 1u8 + 2u8 > 3u8 + 4u8 > 5u8 + 6u8
+              right:
+                Value:
+                  Integer:
+                    - U8
+                    - "2"
+                    - span:
+                        line_start: 1
+                        line_stop: 1
+                        col_start: 7
+                        col_stop: 10
+                        path: ""
+                        content: 1u8 + 2u8 > 3u8 + 4u8 > 5u8 + 6u8
+              op: Add
+              span:
+                line_start: 1
+                line_stop: 1
+                col_start: 1
+                col_stop: 10
+                path: ""
+                content: 1u8 + 2u8 > 3u8 + 4u8 > 5u8 + 6u8
+          right:
+            Binary:
+              left:
+                Value:
+                  Integer:
+                    - U8
+                    - "3"
+                    - span:
+                        line_start: 1
+                        line_stop: 1
+                        col_start: 13
+                        col_stop: 16
+                        path: ""
+                        content: 1u8 + 2u8 > 3u8 + 4u8 > 5u8 + 6u8
+              right:
+                Value:
+                  Integer:
+                    - U8
+                    - "4"
+                    - span:
+                        line_start: 1
+                        line_stop: 1
+                        col_start: 19
+                        col_stop: 22
+                        path: ""
+                        content: 1u8 + 2u8 > 3u8 + 4u8 > 5u8 + 6u8
+              op: Add
+              span:
+                line_start: 1
+                line_stop: 1
+                col_start: 13
+                col_stop: 22
+                path: ""
+                content: 1u8 + 2u8 > 3u8 + 4u8 > 5u8 + 6u8
+          op: Gt
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 22
+            path: ""
+            content: 1u8 + 2u8 > 3u8 + 4u8 > 5u8 + 6u8
+      right:
+        Binary:
+          left:
+            Value:
+              Integer:
+                - U8
+                - "5"
+                - span:
+                    line_start: 1
+                    line_stop: 1
+                    col_start: 25
+                    col_stop: 28
+                    path: ""
+                    content: 1u8 + 2u8 > 3u8 + 4u8 > 5u8 + 6u8
+          right:
+            Value:
+              Integer:
+                - U8
+                - "6"
+                - span:
+                    line_start: 1
+                    line_stop: 1
+                    col_start: 31
+                    col_stop: 34
+                    path: ""
+                    content: 1u8 + 2u8 > 3u8 + 4u8 > 5u8 + 6u8
+          op: Add
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 25
+            col_stop: 34
+            path: ""
+            content: 1u8 + 2u8 > 3u8 + 4u8 > 5u8 + 6u8
+      op: Gt
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 34
+        path: ""
+        content: 1u8 + 2u8 > 3u8 + 4u8 > 5u8 + 6u8

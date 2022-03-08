@@ -5,242 +5,256 @@ outputs:
   - Binary:
       left:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "1"
             - span:
                 line_start: 1
                 line_stop: 1
                 col_start: 1
-                col_stop: 2
+                col_stop: 4
                 path: ""
-                content: 1 <= 1
+                content: 1u8 <= 1u8
       right:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "1"
             - span:
                 line_start: 1
                 line_stop: 1
-                col_start: 6
-                col_stop: 7
+                col_start: 8
+                col_stop: 11
                 path: ""
-                content: 1 <= 1
+                content: 1u8 <= 1u8
       op: Le
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 7
+        col_stop: 11
         path: ""
-        content: 1 <= 1
+        content: 1u8 <= 1u8
   - Binary:
       left:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "2"
             - span:
                 line_start: 1
                 line_stop: 1
                 col_start: 1
-                col_stop: 2
+                col_stop: 4
                 path: ""
-                content: 2 <= 3
+                content: 2u8 <= 3u8
       right:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "3"
             - span:
                 line_start: 1
                 line_stop: 1
-                col_start: 6
-                col_stop: 7
+                col_start: 8
+                col_stop: 11
                 path: ""
-                content: 2 <= 3
+                content: 2u8 <= 3u8
       op: Le
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 7
+        col_stop: 11
         path: ""
-        content: 2 <= 3
+        content: 2u8 <= 3u8
   - Binary:
       left:
         Binary:
           left:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "1"
                 - span:
                     line_start: 1
                     line_stop: 1
                     col_start: 1
-                    col_stop: 2
+                    col_stop: 4
                     path: ""
-                    content: 1 <= 2 <= 3
+                    content: 1u8 <= 2u8 <= 3u8
           right:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "2"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 6
-                    col_stop: 7
+                    col_start: 8
+                    col_stop: 11
                     path: ""
-                    content: 1 <= 2 <= 3
+                    content: 1u8 <= 2u8 <= 3u8
           op: Le
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 7
+            col_stop: 11
             path: ""
-            content: 1 <= 2 <= 3
+            content: 1u8 <= 2u8 <= 3u8
       right:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "3"
             - span:
                 line_start: 1
                 line_stop: 1
-                col_start: 11
-                col_stop: 12
+                col_start: 15
+                col_stop: 18
                 path: ""
-                content: 1 <= 2 <= 3
+                content: 1u8 <= 2u8 <= 3u8
       op: Le
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 12
+        col_stop: 18
         path: ""
-        content: 1 <= 2 <= 3
+        content: 1u8 <= 2u8 <= 3u8
   - Binary:
       left:
         Binary:
           left:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "1"
                 - span:
                     line_start: 1
                     line_stop: 1
                     col_start: 1
-                    col_stop: 2
+                    col_stop: 4
                     path: ""
-                    content: 1 + 2 <= 3 + 4
+                    content: 1u8 + 2u8 <= 3u8 + 4u8
           right:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "2"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 5
-                    col_stop: 6
+                    col_start: 7
+                    col_stop: 10
                     path: ""
-                    content: 1 + 2 <= 3 + 4
+                    content: 1u8 + 2u8 <= 3u8 + 4u8
           op: Add
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 6
+            col_stop: 10
             path: ""
-            content: 1 + 2 <= 3 + 4
+            content: 1u8 + 2u8 <= 3u8 + 4u8
       right:
         Binary:
           left:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "3"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 10
-                    col_stop: 11
+                    col_start: 14
+                    col_stop: 17
                     path: ""
-                    content: 1 + 2 <= 3 + 4
+                    content: 1u8 + 2u8 <= 3u8 + 4u8
           right:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "4"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 14
-                    col_stop: 15
+                    col_start: 20
+                    col_stop: 23
                     path: ""
-                    content: 1 + 2 <= 3 + 4
+                    content: 1u8 + 2u8 <= 3u8 + 4u8
           op: Add
           span:
             line_start: 1
             line_stop: 1
-            col_start: 10
-            col_stop: 15
+            col_start: 14
+            col_stop: 23
             path: ""
-            content: 1 + 2 <= 3 + 4
+            content: 1u8 + 2u8 <= 3u8 + 4u8
       op: Le
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 15
+        col_stop: 23
         path: ""
-        content: 1 + 2 <= 3 + 4
+        content: 1u8 + 2u8 <= 3u8 + 4u8
   - Binary:
       left:
         Binary:
           left:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "1"
                 - span:
                     line_start: 1
                     line_stop: 1
                     col_start: 1
-                    col_stop: 2
+                    col_stop: 4
                     path: ""
-                    content: 1 <= 2 <= 3
+                    content: 1u8 <= 2u8 <= 3u8
           right:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "2"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 6
-                    col_stop: 7
+                    col_start: 8
+                    col_stop: 11
                     path: ""
-                    content: 1 <= 2 <= 3
+                    content: 1u8 <= 2u8 <= 3u8
           op: Le
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 7
+            col_stop: 11
             path: ""
-            content: 1 <= 2 <= 3
+            content: 1u8 <= 2u8 <= 3u8
       right:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "3"
             - span:
                 line_start: 1
                 line_stop: 1
-                col_start: 11
-                col_stop: 12
+                col_start: 15
+                col_stop: 18
                 path: ""
-                content: 1 <= 2 <= 3
+                content: 1u8 <= 2u8 <= 3u8
       op: Le
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 12
+        col_stop: 18
         path: ""
-        content: 1 <= 2 <= 3
+        content: 1u8 <= 2u8 <= 3u8
   - Binary:
       left:
         Binary:
@@ -248,111 +262,117 @@ outputs:
             Binary:
               left:
                 Value:
-                  Implicit:
+                  Integer:
+                    - U8
                     - "1"
                     - span:
                         line_start: 1
                         line_stop: 1
                         col_start: 1
-                        col_stop: 2
+                        col_stop: 4
                         path: ""
-                        content: 1 + 2 <= 3 + 4 <= 5 + 6
+                        content: 1u8 + 2u8 <= 3u8 + 4u8 <= 5u8 + 6u8
               right:
                 Value:
-                  Implicit:
+                  Integer:
+                    - U8
                     - "2"
                     - span:
                         line_start: 1
                         line_stop: 1
-                        col_start: 5
-                        col_stop: 6
+                        col_start: 7
+                        col_stop: 10
                         path: ""
-                        content: 1 + 2 <= 3 + 4 <= 5 + 6
+                        content: 1u8 + 2u8 <= 3u8 + 4u8 <= 5u8 + 6u8
               op: Add
               span:
                 line_start: 1
                 line_stop: 1
                 col_start: 1
-                col_stop: 6
+                col_stop: 10
                 path: ""
-                content: 1 + 2 <= 3 + 4 <= 5 + 6
+                content: 1u8 + 2u8 <= 3u8 + 4u8 <= 5u8 + 6u8
           right:
             Binary:
               left:
                 Value:
-                  Implicit:
+                  Integer:
+                    - U8
                     - "3"
                     - span:
                         line_start: 1
                         line_stop: 1
-                        col_start: 10
-                        col_stop: 11
+                        col_start: 14
+                        col_stop: 17
                         path: ""
-                        content: 1 + 2 <= 3 + 4 <= 5 + 6
+                        content: 1u8 + 2u8 <= 3u8 + 4u8 <= 5u8 + 6u8
               right:
                 Value:
-                  Implicit:
+                  Integer:
+                    - U8
                     - "4"
                     - span:
                         line_start: 1
                         line_stop: 1
-                        col_start: 14
-                        col_stop: 15
+                        col_start: 20
+                        col_stop: 23
                         path: ""
-                        content: 1 + 2 <= 3 + 4 <= 5 + 6
+                        content: 1u8 + 2u8 <= 3u8 + 4u8 <= 5u8 + 6u8
               op: Add
               span:
                 line_start: 1
                 line_stop: 1
-                col_start: 10
-                col_stop: 15
+                col_start: 14
+                col_stop: 23
                 path: ""
-                content: 1 + 2 <= 3 + 4 <= 5 + 6
+                content: 1u8 + 2u8 <= 3u8 + 4u8 <= 5u8 + 6u8
           op: Le
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 15
+            col_stop: 23
             path: ""
-            content: 1 + 2 <= 3 + 4 <= 5 + 6
+            content: 1u8 + 2u8 <= 3u8 + 4u8 <= 5u8 + 6u8
       right:
         Binary:
           left:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "5"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 19
-                    col_stop: 20
+                    col_start: 27
+                    col_stop: 30
                     path: ""
-                    content: 1 + 2 <= 3 + 4 <= 5 + 6
+                    content: 1u8 + 2u8 <= 3u8 + 4u8 <= 5u8 + 6u8
           right:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "6"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 23
-                    col_stop: 24
+                    col_start: 33
+                    col_stop: 36
                     path: ""
-                    content: 1 + 2 <= 3 + 4 <= 5 + 6
+                    content: 1u8 + 2u8 <= 3u8 + 4u8 <= 5u8 + 6u8
           op: Add
           span:
             line_start: 1
             line_stop: 1
-            col_start: 19
-            col_stop: 24
+            col_start: 27
+            col_stop: 36
             path: ""
-            content: 1 + 2 <= 3 + 4 <= 5 + 6
+            content: 1u8 + 2u8 <= 3u8 + 4u8 <= 5u8 + 6u8
       op: Le
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 24
+        col_stop: 36
         path: ""
-        content: 1 + 2 <= 3 + 4 <= 5 + 6
+        content: 1u8 + 2u8 <= 3u8 + 4u8 <= 5u8 + 6u8
