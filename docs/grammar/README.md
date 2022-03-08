@@ -1002,32 +1002,22 @@ An array type consists of an element type
 and an indication of dimensions.
 There is either a single dimension,
 or a tuple of one or more dimensions.
-Each dimension is either a natural or is unspecified.
+Each dimension is a natural.
 
 <a name="array-type"></a>
 ```abnf
-array-type = "[" type ";" array-type-dimensions "]"
+array-type = "[" type ";" array-dimensions "]"
 ```
 
-Go to: _[array-type-dimensions](#user-content-array-type-dimensions), [type](#user-content-type)_;
+Go to: _[array-dimensions](#user-content-array-dimensions), [type](#user-content-type)_;
 
 
-<a name="array-type-dimension"></a>
+<a name="array-dimensions"></a>
 ```abnf
-array-type-dimension = natural / "_"
+array-dimensions = natural / "(" natural *( "," natural ) ")"
 ```
 
 Go to: _[natural](#user-content-natural)_;
-
-
-<a name="array-type-dimensions"></a>
-```abnf
-array-type-dimensions = array-type-dimension
-                      / "(" array-type-dimension
-                            *( "," array-type-dimension ) [","] ")"
-```
-
-Go to: _[array-type-dimension](#user-content-array-type-dimension)_;
 
 
 The keyword `Self` denotes the enclosing circuit type.
@@ -1203,19 +1193,10 @@ Go to: _[expression](#user-content-expression)_;
 
 <a name="array-repeat-construction"></a>
 ```abnf
-array-repeat-construction = "[" expression ";" array-expression-dimensions "]"
+array-repeat-construction = "[" expression ";" array-dimensions "]"
 ```
 
-Go to: _[array-expression-dimensions](#user-content-array-expression-dimensions), [expression](#user-content-expression)_;
-
-
-<a name="array-expression-dimensions"></a>
-```abnf
-array-expression-dimensions = natural
-                            / "(" natural *( "," natural ) ")"
-```
-
-Go to: _[natural](#user-content-natural)_;
+Go to: _[array-dimensions](#user-content-array-dimensions), [expression](#user-content-expression)_;
 
 
 <a name="array-construction"></a>

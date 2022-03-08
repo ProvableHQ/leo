@@ -99,7 +99,4 @@ let (x,y,) = ();
 
 let (x,) = ();
 
-
-let x: [char; _] = "Hello, World!";
-
 let x: [[u8; 2]; 2] = [[0,0], [0,0]];
