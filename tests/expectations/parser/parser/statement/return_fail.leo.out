@@ -3,5 +3,5 @@ namespace: ParseStatement
 expectation: Fail
 outputs:
   - "Error [EPAR0370003]: unexpected EOF\n    --> test:1:1\n     |\n   1 | return\n     | ^^^^^^"
-  - "Error [EPAR0370033]: Could not parse the implicit value: 5.\n    --> test:1:8\n     |\n   1 | return 5\n     |        ^"
+  - "Error [EPAR0370037]: Could not parse the implicit value: 5.\n    --> test:1:8\n     |\n   1 | return 5\n     |        ^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'if'\n    --> test:2:1\n     |\n   2 | if x {}\n     | ^^"

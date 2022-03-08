@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error [EPAR0370009]: unexpected string: expected 'ident or int', got '?'\n    --> test:3:6\n     |\n   3 | @foo(?, bar, ?)\n     |      ^\nError [EPAR0370009]: unexpected string: expected 'ident or int', got '?'\n    --> test:3:14\n     |\n   3 | @foo(?, bar, ?)\n     |              ^\nError [EPAR0370017]: \"@context(...)\" is deprecated. Did you mean @test annotation?\n    --> test:8:2\n     |\n   8 | @context // recovery witness\n     |  ^^^^^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'ident', got '?'\n    --> test:3:6\n     |\n   3 | @foo(?, bar, ?)\n     |      ^\nError [EPAR0370009]: unexpected string: expected 'ident', got '?'\n    --> test:3:14\n     |\n   3 | @foo(?, bar, ?)\n     |              ^\nError [EPAR0370017]: \"@context(...)\" is deprecated. Did you mean @test annotation?\n    --> test:8:2\n     |\n   8 | @context // recovery witness\n     |  ^^^^^^^"

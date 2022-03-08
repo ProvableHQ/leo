@@ -59,12 +59,12 @@ impl ParserContext<'_> {
 
     /// Returns an [`ArrayDimensions`] AST node if the next tokens represent dimensions for an array type.
     pub fn parse_array_dimensions(&mut self) -> Result<ArrayDimensions> {
-        Ok(if let Some(dim) = self.parse_array_dimension() {
+        Ok(if let Some((dim, _)) = self.eat_int() {
             ArrayDimensions(smallvec![dim])
         } else {
             let mut had_item_err = false;
             let (dims, _, span) = self.parse_paren_comma_list(|p| {
-                Ok(if let Some(dim) = p.parse_array_dimension() {
+                Ok(if let Some((dim, _)) = p.eat_int() {
                     Some(dim)
                 } else {
                     let token = p.expect_any()?;
@@ -78,17 +78,6 @@ impl ParserContext<'_> {
             }
             ArrayDimensions(dims.into())
         })
-    }
-
-    /// Parses a basic array dimension, i.e., an integer or `_`.
-    fn parse_array_dimension(&mut self) -> Option<Dimension> {
-        if let Some((int, _)) = self.eat_int() {
-            Some(Dimension::Number(int))
-        } else if self.eat(Token::Underscore).is_some() {
-            Some(Dimension::Unspecified)
-        } else {
-            None
-        }
     }
 
     /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a type.

@@ -89,11 +89,6 @@ impl Type {
                 let mut left_dims = left_dims.to_owned();
                 let mut right_dims = right_dims.to_owned();
 
-                // Unable to compare arrays with unspecified sizes.
-                if !left_dims.is_specified() || !right_dims.is_specified() {
-                    return false;
-                }
-
                 // Remove the first element from both dimensions.
                 let left_first = left_dims.remove_first();
                 let right_first = right_dims.remove_first();

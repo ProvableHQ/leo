@@ -4,6 +4,6 @@ expectation: Fail
 outputs:
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got ','\n    --> test:1:2\n     |\n   1 | [,]\n     |  ^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got ','\n    --> test:1:2\n     |\n   1 | [,,]\n     |  ^"
-  - "Error [EPAR0370033]: Could not parse the implicit value: 0.\n    --> test:1:2\n     |\n   1 | [0,,]\n     |  ^"
+  - "Error [EPAR0370037]: Could not parse the implicit value: 0.\n    --> test:1:2\n     |\n   1 | [0,,]\n     |  ^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got ','\n    --> test:1:2\n     |\n   1 | [,0]\n     |  ^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got ','\n    --> test:1:2\n     |\n   1 | [,0,]\n     |  ^"

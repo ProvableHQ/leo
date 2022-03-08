@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ECMP0376093]: array sizes must match for comparison; left: 2, right: 3\n    --> compiler-test:5:19\n     |\n   5 |     let z: bool = x == [1u8,2,3]; // array size mismatch\n     |                   ^^^^^^^^^^^^^^"

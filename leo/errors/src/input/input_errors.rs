@@ -46,14 +46,6 @@ create_errors!(
         help: None,
     }
 
-    /// For when [`ArrayDimensions`] are not specified.
-    @formatted
-    array_dimensions_must_be_specified {
-        args: (),
-        msg: "array dimensions must be specified",
-        help: None,
-    }
-
     /// For when array init is using spread.
     @formatted
     array_spread_is_not_allowed {
