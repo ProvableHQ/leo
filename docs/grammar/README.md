@@ -328,7 +328,7 @@ and therefore we have rules like
 
 
 ```
-unary-expression = primary-expression
+unary-expression = postfix-expression
                  / "!" unary-expression
                  / "-" unary-expression
 ```
