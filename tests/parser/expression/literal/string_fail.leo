@@ -16,3 +16,5 @@ expectation: Fail
 "\xFF"
 
 "\x"
+
+"\u}"

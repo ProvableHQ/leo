@@ -1,0 +1,988 @@
+---
+namespace: ParseStatement
+expectation: Pass
+outputs:
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a . b;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = a . b;
+      parened: false
+      type_: ~
+      value:
+        Access:
+          Member:
+            inner:
+              Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a . b;\\\"}\"}"
+            name: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a . b;\\\"}\"}"
+            span:
+              line_start: 1
+              line_stop: 1
+              col_start: 9
+              col_stop: 14
+              path: ""
+              content: let x = a . b;
+            type_: ~
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 14
+        path: ""
+        content: let x = a . b;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a :: b;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: "let x = a :: b;"
+      parened: false
+      type_: ~
+      value:
+        Access:
+          Static:
+            inner:
+              Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a :: b;\\\"}\"}"
+            name: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a :: b;\\\"}\"}"
+            type_: ~
+            span:
+              line_start: 1
+              line_stop: 1
+              col_start: 9
+              col_stop: 15
+              path: ""
+              content: "let x = a :: b;"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 15
+        path: ""
+        content: "let x = a :: b;"
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a == b;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = a == b;
+      parened: false
+      type_: ~
+      value:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a == b;\\\"}\"}"
+          right:
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a == b;\\\"}\"}"
+          op: Eq
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 9
+            col_stop: 15
+            path: ""
+            content: let x = a == b;
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 15
+        path: ""
+        content: let x = a == b;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a != b;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = a != b;
+      parened: false
+      type_: ~
+      value:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a != b;\\\"}\"}"
+          right:
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a != b;\\\"}\"}"
+          op: Ne
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 9
+            col_stop: 15
+            path: ""
+            content: let x = a != b;
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 15
+        path: ""
+        content: let x = a != b;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a > b;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = a > b;
+      parened: false
+      type_: ~
+      value:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a > b;\\\"}\"}"
+          right:
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a > b;\\\"}\"}"
+          op: Gt
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 9
+            col_stop: 14
+            path: ""
+            content: let x = a > b;
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 14
+        path: ""
+        content: let x = a > b;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a >= b;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = a >= b;
+      parened: false
+      type_: ~
+      value:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a >= b;\\\"}\"}"
+          right:
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a >= b;\\\"}\"}"
+          op: Ge
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 9
+            col_stop: 15
+            path: ""
+            content: let x = a >= b;
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 15
+        path: ""
+        content: let x = a >= b;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a < b;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = a < b;
+      parened: false
+      type_: ~
+      value:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a < b;\\\"}\"}"
+          right:
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a < b;\\\"}\"}"
+          op: Lt
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 9
+            col_stop: 14
+            path: ""
+            content: let x = a < b;
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 14
+        path: ""
+        content: let x = a < b;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a <= b;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = a <= b;
+      parened: false
+      type_: ~
+      value:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a <= b;\\\"}\"}"
+          right:
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a <= b;\\\"}\"}"
+          op: Le
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 9
+            col_stop: 15
+            path: ""
+            content: let x = a <= b;
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 15
+        path: ""
+        content: let x = a <= b;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a > b;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = a > b;
+      parened: false
+      type_: ~
+      value:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a > b;\\\"}\"}"
+          right:
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a > b;\\\"}\"}"
+          op: Gt
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 9
+            col_stop: 14
+            path: ""
+            content: let x = a > b;
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 14
+        path: ""
+        content: let x = a > b;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a as b;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = a as b;
+      parened: false
+      type_: ~
+      value:
+        Cast:
+          inner:
+            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a as b;\\\"}\"}"
+          target_type:
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a as b;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 9
+            col_stop: 15
+            path: ""
+            content: let x = a as b;
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 15
+        path: ""
+        content: let x = a as b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"ximport\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"ximport=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 8
+          path: ""
+          content: ximport=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"ximport=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 10
+        path: ""
+        content: ximport=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"x_\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x_=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 3
+          path: ""
+          content: x_=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x_=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 5
+        path: ""
+        content: x_=b;
+  - Expression:
+      expression:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x==b;\\\"}\"}"
+          right:
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x==b;\\\"}\"}"
+          op: Eq
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 5
+            path: ""
+            content: x==b;
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 5
+        path: ""
+        content: x==b;
+  - Expression:
+      expression:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x!=b;\\\"}\"}"
+          right:
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x!=b;\\\"}\"}"
+          op: Ne
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 5
+            path: ""
+            content: x!=b;
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 5
+        path: ""
+        content: x!=b;
+  - Expression:
+      expression:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x>=b;\\\"}\"}"
+          right:
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x>=b;\\\"}\"}"
+          op: Ge
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 5
+            path: ""
+            content: x>=b;
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 5
+        path: ""
+        content: x>=b;
+  - Expression:
+      expression:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x<=b;\\\"}\"}"
+          right:
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x<=b;\\\"}\"}"
+          op: Le
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 5
+            path: ""
+            content: x<=b;
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 5
+        path: ""
+        content: x<=b;
+  - Expression:
+      expression:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x>=b;\\\"}\"}"
+          right:
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x>=b;\\\"}\"}"
+          op: Ge
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 5
+            path: ""
+            content: x>=b;
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 5
+        path: ""
+        content: x>=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xas\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xas=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 4
+          path: ""
+          content: xas=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xas=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 6
+        path: ""
+        content: xas=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xconsole\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xconsole=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 9
+          path: ""
+          content: xconsole=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xconsole=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 11
+        path: ""
+        content: xconsole=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xconst\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xconst=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: ""
+          content: xconst=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xconst=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 9
+        path: ""
+        content: xconst=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xlet\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xlet=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: ""
+          content: xlet=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xlet=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 7
+        path: ""
+        content: xlet=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xfor\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xfor=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: ""
+          content: xfor=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xfor=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 7
+        path: ""
+        content: xfor=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xif\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xif=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 4
+          path: ""
+          content: xif=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xif=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 6
+        path: ""
+        content: xif=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xelse\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xelse=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 6
+          path: ""
+          content: xelse=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xelse=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 8
+        path: ""
+        content: xelse=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xi8\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xi8=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 4
+          path: ""
+          content: xi8=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xi8=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 6
+        path: ""
+        content: xi8=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xi16\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xi16=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: ""
+          content: xi16=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xi16=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 7
+        path: ""
+        content: xi16=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xi32\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xi32=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: ""
+          content: xi32=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xi32=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 7
+        path: ""
+        content: xi32=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xi64\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xi64=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: ""
+          content: xi64=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xi64=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 7
+        path: ""
+        content: xi64=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xi128\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xi128=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 6
+          path: ""
+          content: xi128=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xi128=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 8
+        path: ""
+        content: xi128=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xu8\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xu8=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 4
+          path: ""
+          content: xu8=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xu8=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 6
+        path: ""
+        content: xu8=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xu16\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xu16=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: ""
+          content: xu16=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xu16=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 7
+        path: ""
+        content: xu16=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xu32\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xu32=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: ""
+          content: xu32=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xu32=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 7
+        path: ""
+        content: xu32=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xu64\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xu64=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: ""
+          content: xu64=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xu64=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 7
+        path: ""
+        content: xu64=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xu128\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xu128=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 6
+          path: ""
+          content: xu128=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xu128=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 8
+        path: ""
+        content: xu128=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xreturn\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xreturn=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 8
+          path: ""
+          content: xreturn=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xreturn=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 10
+        path: ""
+        content: xreturn=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xself\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xself=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 6
+          path: ""
+          content: xself=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xself=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 8
+        path: ""
+        content: xself=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xSelf\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xSelf=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 6
+          path: ""
+          content: xSelf=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xSelf=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 8
+        path: ""
+        content: xSelf=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xtrue\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xtrue=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 6
+          path: ""
+          content: xtrue=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xtrue=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 8
+        path: ""
+        content: xtrue=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"xfalse\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xfalse=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: ""
+          content: xfalse=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xfalse=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 9
+        path: ""
+        content: xfalse=b;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"x0\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x0=b;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 3
+          path: ""
+          content: x0=b;
+      value:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x0=b;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 5
+        path: ""
+        content: x0=b;

@@ -115,7 +115,9 @@ impl Token {
 
         if unicode {
             let string = input_tendril.to_string();
-            if string.find('}').is_none() {
+            if string.find('{').is_none() {
+                return Err(ParserError::lexer_unopened_escaped_unicode_char(string).into());
+            } else if string.find('}').is_none() {
                 return Err(ParserError::lexer_unclosed_escaped_unicode_char(string).into());
             }
 

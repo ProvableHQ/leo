@@ -9,3 +9,4 @@ outputs:
   - "Error [EPAR0370027]: Expected a closed string but found `\"\\u\"`."
   - "Error [EPAR0370036]: Expected a valid hex character but found `255`."
   - "Error [EPAR0370027]: Expected a closed string but found `\"\\x\"`."
+  - "Error [EPAR0370042]: There was no opening `{` after starting an escaped unicode `\\u}`."

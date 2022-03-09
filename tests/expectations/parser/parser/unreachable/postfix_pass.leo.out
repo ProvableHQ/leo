@@ -1,0 +1,598 @@
+---
+namespace: ParseStatement
+expectation: Pass
+outputs:
+  - Expression:
+      expression:
+        Value:
+          Implicit:
+            - ""
+            - span:
+                line_start: 0
+                line_stop: 0
+                col_start: 0
+                col_stop: 0
+                path: ""
+                content: ""
+      span:
+        line_start: 0
+        line_stop: 0
+        col_start: 0
+        col_stop: 0
+        path: ""
+        content: ""
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = aimport;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = aimport;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"aimport\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = aimport;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 16
+        path: ""
+        content: let x = aimport;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a_;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = a_;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"a_\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a_;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 11
+        path: ""
+        content: let x = a_;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = aas;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = aas;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"aas\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = aas;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 12
+        path: ""
+        content: let x = aas;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = aconsole;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = aconsole;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"aconsole\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = aconsole;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 17
+        path: ""
+        content: let x = aconsole;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = aconst;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = aconst;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"aconst\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = aconst;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 15
+        path: ""
+        content: let x = aconst;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = alet;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = alet;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"alet\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = alet;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 13
+        path: ""
+        content: let x = alet;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = afor;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = afor;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"afor\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = afor;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 13
+        path: ""
+        content: let x = afor;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = aif;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = aif;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"aif\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = aif;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 12
+        path: ""
+        content: let x = aif;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = aelse;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = aelse;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"aelse\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = aelse;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 14
+        path: ""
+        content: let x = aelse;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = ai8;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = ai8;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"ai8\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = ai8;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 12
+        path: ""
+        content: let x = ai8;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = ai16;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = ai16;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"ai16\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = ai16;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 13
+        path: ""
+        content: let x = ai16;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = ai32;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = ai32;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"ai32\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = ai32;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 13
+        path: ""
+        content: let x = ai32;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = ai64;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = ai64;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"ai64\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = ai64;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 13
+        path: ""
+        content: let x = ai64;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = ai128;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = ai128;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"ai128\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = ai128;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 14
+        path: ""
+        content: let x = ai128;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = au8;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = au8;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"au8\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = au8;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 12
+        path: ""
+        content: let x = au8;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = au16;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = au16;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"au16\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = au16;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 13
+        path: ""
+        content: let x = au16;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = au32;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = au32;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"au32\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = au32;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 13
+        path: ""
+        content: let x = au32;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = au64;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = au64;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"au64\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = au64;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 13
+        path: ""
+        content: let x = au64;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = au128;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = au128;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"au128\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = au128;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 14
+        path: ""
+        content: let x = au128;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = areturn;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = areturn;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"areturn\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = areturn;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 16
+        path: ""
+        content: let x = areturn;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = aself;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = aself;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"aself\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = aself;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 14
+        path: ""
+        content: let x = aself;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = aSelf;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = aSelf;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"aSelf\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = aSelf;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 14
+        path: ""
+        content: let x = aSelf;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = atrue;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = atrue;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"atrue\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = atrue;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 14
+        path: ""
+        content: let x = atrue;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = afalse;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = afalse;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"afalse\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = afalse;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 15
+        path: ""
+        content: let x = afalse;
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a0;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: let x = a0;
+      parened: false
+      type_: ~
+      value:
+        Identifier: "{\"name\":\"a0\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a0;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 11
+        path: ""
+        content: let x = a0;

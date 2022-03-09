@@ -366,4 +366,12 @@ create_errors!(
         msg: "A function received a self argument as not the first argument.",
         help: None,
     }
+
+    /// When a escaped unicode char was given but not opend.
+    @backtraced
+    lexer_unopened_escaped_unicode_char {
+        args: (input: impl Display),
+        msg: format!("There was no opening `{{` after starting an escaped unicode `{}`.", input),
+        help: None,
+    }
 );
