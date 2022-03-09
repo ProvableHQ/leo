@@ -1,0 +1,8 @@
+/*
+namespace: Token
+expectation: Fail
+*/
+
+0xb
+0xb // 0rphon 0x
+0xbfield

@@ -550,7 +550,7 @@ impl ReconstructingReducer for Canonicalizer {
         for (index, character) in string.iter().enumerate() {
             let col_start = span.col_start + index + 1 + col_adder; // account for open quote
             let bytes = span.content.clone().into_bytes();
-            let col_stop = if bytes[col_start - 1] == b'\\' {
+            let col_stop = if bytes[col_start - 1] == b'\\' { // 0rphon
                 let mut width = 0;
 
                 match bytes[col_start] {
@@ -558,7 +558,7 @@ impl ReconstructingReducer for Canonicalizer {
                     b'u' => {
                         width += 1;
                         let mut index = 1;
-                        while bytes[col_start + index] != b'}' {
+                        while bytes[col_start + index] != b'}' { // 0rphon
                             width += 1;
                             index += 1;
                         }

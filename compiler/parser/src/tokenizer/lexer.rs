@@ -32,7 +32,7 @@ fn eat(input: &[u8], wanted: &str) -> Option<usize> {
     if input.len() < wanted.len() {
         return None;
     }
-    if &input[0..wanted.len()] == wanted {
+    if &input[..wanted.len()] == wanted {  // 0rphon
         return Some(wanted.len());
     }
     None
@@ -70,7 +70,7 @@ impl Token {
 
         if escaped {
             let string = input_tendril.to_string();
-            let escaped = &string[1..string.len()];
+            let escaped = &string[1..string.len()]; // 0rphon
 
             if escaped.len() != 1 {
                 return Err(ParserError::lexer_escaped_char_incorrect_length(escaped).into());
@@ -92,7 +92,7 @@ impl Token {
 
         if hex {
             let string = input_tendril.to_string();
-            let hex_string = &string[2..string.len()];
+            let hex_string = &string[2..string.len()]; // 0rphon
 
             if hex_string.len() != 2 {
                 return Err(ParserError::lexer_escaped_hex_incorrect_length(hex_string).into());
@@ -114,7 +114,7 @@ impl Token {
 
             let unicode_number = &string[3..string.len() - 1];
             let len = unicode_number.len();
-            if !(1..=6).contains(&len) {
+            if !(1..=6).contains(&len) {  // 0rphon
                 return Err(ParserError::lexer_invalid_escaped_unicode_length(unicode_number).into());
             } else if let Ok(hex) = u32::from_str_radix(unicode_number, 16) {
                 if let Some(character) = std::char::from_u32(hex) {
@@ -130,7 +130,7 @@ impl Token {
 
         if input_tendril.to_string().chars().count() != 1 {
             // If char doesn't close.
-            return Err(ParserError::lexer_char_not_closed(&input_tendril[0..]).into());
+            return Err(ParserError::lexer_char_not_closed(&input_tendril).into());
         } else if let Some(character) = input_tendril.to_string().chars().next() {
             // If its a simple char.
             return Ok(Char::Scalar(character));
@@ -159,7 +159,7 @@ impl Token {
 
         while i < input.len() {
             if i == 1 && input[0] == b'0' && input[i] == b'x' {
-                return Err(ParserError::lexer_hex_number_provided(&input_tendril[0..3]).into());
+                return Err(ParserError::lexer_hex_number_provided(&input_tendril[..3]).into());
             }
             if !input[i].is_ascii_digit() {
                 break;
@@ -276,7 +276,7 @@ impl Token {
                 }
 
                 if i == input.len() || !end {
-                    return Err(ParserError::lexer_string_not_closed(String::from_utf8_lossy(&input[0..i])).into());
+                    return Err(ParserError::lexer_string_not_closed(String::from_utf8_lossy(&input[..i])).into());  // 0rphon
                 }
 
                 return Ok((i + 1, Token::StringLit(string)));
@@ -297,14 +297,14 @@ impl Token {
                         continue;
                     } else if input[i] & 0x80 > 0 && unicode_char {
                         i += Self::utf8_byte_count(input[i]);
-                        return Err(ParserError::lexer_invalid_char(&input_tendril[0..i]).into());
+                        return Err(ParserError::lexer_invalid_char(&input_tendril[..i]).into());
                     } else if !in_escape || unicode_char {
                         if input[i] == b'\'' {
                             end = true;
                             break;
                         } else if unicode_char {
                             return Err(ParserError::lexer_invalid_char(
-                                &input_tendril[0..input_tendril[1..].find('\'').unwrap_or(i + 1)],
+                                &input_tendril[..input_tendril[1..].find('\'').unwrap_or(i + 1)],
                             )
                             .into());
                         } else if input[i] == b'\\' {
@@ -330,7 +330,7 @@ impl Token {
                 }
 
                 if !end {
-                    return Err(ParserError::lexer_char_not_closed(String::from_utf8_lossy(&input[0..i])).into());
+                    return Err(ParserError::lexer_char_not_closed(String::from_utf8_lossy(&input[..i])).into());
                 }
 
                 let character = Self::eat_char(
@@ -407,7 +407,7 @@ impl Token {
                         eol + 4
                     } else {
                         return Err(ParserError::lexer_block_comment_does_not_close_before_eof(
-                            String::from_utf8_lossy(&input[0..]),
+                            String::from_utf8_lossy(&input),
                         )
                         .into());
                     };
@@ -500,7 +500,7 @@ impl Token {
             ));
         }
 
-        Err(ParserError::could_not_lex(String::from_utf8_lossy(&input[0..])).into())
+        Err(ParserError::could_not_lex(String::from_utf8_lossy(&input)).into())
     }
 }
 

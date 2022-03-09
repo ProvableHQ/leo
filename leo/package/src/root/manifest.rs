@@ -195,7 +195,7 @@ impl TryFrom<&Path> for Manifest {
             if line.starts_with("remote") {
                 let remote = line
                     .split('=') // Split the line as 'remote' = '"{author}/{package_name}"'
-                    .collect::<Vec<&str>>()[1]; // Fetch just '"{author}/{package_name}"'
+                    .nth(1).unwrap(); // Fetch just '"{author}/{package_name}"'
                 old_remote_format = Some(remote);
 
                 // Retain the old remote format if the `manifest_refactor_remote` is not enabled
@@ -238,8 +238,8 @@ impl TryFrom<&Path> for Manifest {
                 // Fetch the author from the old remote.
                 let remote_author = old_remote
                     .split('/') // Split the old remote as '"{author}' and '{package_name}"'
-                    .collect::<Vec<&str>>()[0] // Fetch just the '"{author}'
-                    .replace(&['\"', ' '][..], ""); // Remove the quotes from the author string
+                    .nth(0).unwrap() // Fetch just the '"{author}'
+                    .replace(['\"', ' '], ""); // Remove the quotes from the author string
 
                 // Construct the new remote section.
                 let new_remote = format!(
