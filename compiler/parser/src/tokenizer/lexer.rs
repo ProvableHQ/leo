@@ -164,7 +164,10 @@ impl Token {
 
         while i < input.len() {
             if i == 1 && input[0] == b'0' && input[i] == b'x' {
-                return Err(ParserError::lexer_hex_number_provided(&input_tendril[0..3]).into());
+                return Err(ParserError::lexer_hex_number_provided(
+                    &input_tendril[0..input_tendril.find('\n').unwrap_or(i) + 1],
+                )
+                .into());
             }
             if !input[i].is_ascii_digit() {
                 break;
@@ -305,7 +308,9 @@ impl Token {
                             break;
                         } else if unicode_char {
                             return Err(ParserError::lexer_invalid_char(
-                                &input_tendril[0..input_tendril[1..].find('\'').unwrap_or(i + 1)],
+                                // grab the contents of everything between the '' if possible.
+                                // else just show the character right before stuff went wrong.
+                                &input_tendril[0..input_tendril[1..].find('\'').unwrap_or(i - 1) + 1],
                             )
                             .into());
                         } else if input[i] == b'\\' {
@@ -315,8 +320,11 @@ impl Token {
                         if input[i] == b'x' {
                             hex = true;
                         } else if input[i] == b'u' {
-                            if input[i + 1] == b'{' {
+                            let one_ahead = input.get(i + 1);
+                            if matches!(one_ahead, Some(b'{')) {
                                 escaped_unicode = true;
+                            } else if one_ahead.is_some() {
+                                return Err(ParserError::lexer_expected_valid_escaped_char(input[i + 1]).into());
                             } else {
                                 return Err(ParserError::lexer_expected_valid_escaped_char(input[i]).into());
                             }
