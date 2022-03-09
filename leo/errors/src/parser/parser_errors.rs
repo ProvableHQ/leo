@@ -367,11 +367,19 @@ create_errors!(
         help: None,
     }
 
-    /// When a escaped unicode char was given but not opend.
+    /// When a escaped unicode char was given but not opened.
     @backtraced
     lexer_unopened_escaped_unicode_char {
         args: (input: impl Display),
         msg: format!("There was no opening `{{` after starting an escaped unicode `{}`.", input),
+        help: None,
+    }
+
+    /// When a escaped unicode char has an emoji in it.
+    @backtraced
+    lexer_emoji_inside_escaped_unicode_char {
+        args: (input: impl Display),
+        msg: format!("There was an emoji found in the escaped unicode character: `{}`.", input),
         help: None,
     }
 );

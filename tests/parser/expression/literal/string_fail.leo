@@ -18,3 +18,5 @@ expectation: Fail
 "\x"
 
 "\u}"
+
+"\u6🦀}"

@@ -1,11 +1,9 @@
 /*
-namespace: ParseStatement
+namespace: Parse
 expectation: Fail
 */
 
-// recovery witness
-
-let mut x = 0;
-
-let mut y = 0; 
-
+function foo() {
+    let mut x = 0;
+    let mut y = 0; // recovery witness
+}

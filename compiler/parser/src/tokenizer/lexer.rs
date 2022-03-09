@@ -223,7 +223,15 @@ impl Token {
                     // If it's an emoji get the length.
                     if input[i] & 0x80 > 0 {
                         len = Self::utf8_byte_count(input[i]);
-                        i += len - 1;
+                        i += len;
+
+                        if unicode {
+                            return Err(
+                                ParserError::lexer_emoji_inside_escaped_unicode_char(&input_tendril[0..i]).into(),
+                            );
+                        }
+
+                        continue;
                     }
 
                     if !in_escape {

@@ -424,10 +424,6 @@ outputs:
                         - Value:
                             String:
                               - Scalar: 128512
-                              - Scalar: 128512
-                              - Scalar: 128512
-                              - Scalar: 128512
-                              - Scalar: 128512
                               - Scalar: 32
                               - Scalar: 32
                               - Scalar: 32
@@ -437,12 +433,6 @@ outputs:
                               - Scalar: 32
                               - Scalar: 32
                               - Scalar: 32
-                              - Scalar: 32
-                              - Scalar: 128512
-                              - Scalar: 128512
-                              - Scalar: 128512
-                              - Scalar: 128512
-                              - Scalar: 128512
             - Console:
                 function:
                   Assert:
