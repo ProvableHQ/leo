@@ -643,17 +643,6 @@ We allow leading zeros, e.g. `007`.
 natural = 1*decimal-digit
 ```
 
-An integer (number) is either a natural or its negation.
-We allow leading zeros also in negative numbers, e.g. `-007`.
-
-<a name="integer"></a>
-```abnf
-integer = [ "-" ] natural
-```
-
-Go to: _[natural](#user-content-natural)_;
-
-
 Unsigned literals are naturals followed by unsigned types.
 
 <a name="unsigned-literal"></a>
@@ -664,38 +653,38 @@ unsigned-literal = natural ( %s"u8" / %s"u16" / %s"u32" / %s"u64" / %s"u128" )
 Go to: _[natural](#user-content-natural)_;
 
 
-Signed literals are integers followed by signed types.
+Signed literals are naturals followed by signed types.
 
 <a name="signed-literal"></a>
 ```abnf
-signed-literal = integer ( %s"i8" / %s"i16" / %s"i32" / %s"i64" / %s"i128" )
+signed-literal = natural ( %s"i8" / %s"i16" / %s"i32" / %s"i64" / %s"i128" )
 ```
 
-Go to: _[integer](#user-content-integer)_;
+Go to: _[natural](#user-content-natural)_;
 
 
-Field literals are integers followed by the type of field elements.
+Field literals are naturals followed by the type of field elements.
 
 <a name="field-literal"></a>
 ```abnf
-field-literal = integer %s"field"
+field-literal = natural %s"field"
 ```
 
-Go to: _[integer](#user-content-integer)_;
+Go to: _[natural](#user-content-natural)_;
 
 
 There are two kinds of group literals.
-One is a single integer followed by the type of group elements,
-which denotes the scalar product of the generator point by the integer.
+One is a single natural followed by the type of group elements,
+which denotes the scalar product of the generator point by the natural.
 The other kind is not a token because it allows some whitespace inside;
 therefore, it is defined in the syntactic grammar.
 
 <a name="product-group-literal"></a>
 ```abnf
-product-group-literal = integer %s"group"
+product-group-literal = natural %s"group"
 ```
 
-Go to: _[integer](#user-content-integer)_;
+Go to: _[natural](#user-content-natural)_;
 
 
 Boolean literals are the usual two.
@@ -1080,10 +1069,10 @@ because it consists of affine point coordinates.
 
 <a name="group-coordinate"></a>
 ```abnf
-group-coordinate = integer / "+" / "-" / "_"
+group-coordinate = [ "-" ] natural / "+" / "-" / "_"
 ```
 
-Go to: _[integer](#user-content-integer)_;
+Go to: _[natural](#user-content-natural)_;
 
 
 <a name="affine-group-literal"></a>
