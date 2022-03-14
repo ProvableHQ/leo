@@ -18,14 +18,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macOS-latest, windows-latest, ubuntu-latest]
+        os: [macOS-latest, ubuntu-latest]
         include:
           - os: ubuntu-latest
             sccache-path: /home/runner/.cache/sccache
           - os: macos-latest
             sccache-path: /Users/runner/Library/Caches/Mozilla.sccache
-          - os: windows-latest
-            sccache-path: "C:\\Users\\runneradmin\\AppData\\Local\\Mozilla\\sccache"
+
     env:
       RUSTC_WRAPPER: sccache
       SCCACHE_CACHE_SIZE: 2G
@@ -53,15 +52,6 @@ jobs:
         run: |
           brew update
           brew install sccache
-
-      - name: Install sccache Windows
-        if: matrix.os == 'windows-latest'
-        run: |
-          iwr -useb get.scoop.sh -outfile 'install.ps1'
-          .\install.ps1 -RunAsAdmin [-OtherParameters ...]
-          Set-ExecutionPolicy RemoteSigned -scope CurrentUser
-          scoop install sccache
-          echo "C:\Users\runneradmin\scoop\shims" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Install Rust Stable
         uses: actions-rs/toolchain@v1
@@ -169,6 +159,24 @@ jobs:
         
       - name: Stop sccache server
         run: sccache --stop-server || true
+
+  test-package-windows:
+    name: Test Package Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Rust Stable
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Test
+        run: |
+          cargo test --all
 
   test-docs: 
     name: Test Docs

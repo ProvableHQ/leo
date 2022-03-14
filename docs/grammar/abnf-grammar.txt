@@ -263,7 +263,7 @@
 ; the relative precedence and the associativity of expression operators,
 ; and therefore we have rules like
 ;
-;  unary-expression = primary-expression
+;  unary-expression = postfix-expression
 ;                   / "!" unary-expression
 ;                   / "-" unary-expression
 ;
@@ -456,30 +456,25 @@ annotation-name = "@" identifier
 
 natural = 1*decimal-digit
 
-; An integer (number) is either a natural or its negation.
-; We allow leading zeros also in negative numbers, e.g. `-007`.
-
-integer = [ "-" ] natural
-
 ; Unsigned literals are naturals followed by unsigned types.
 
 unsigned-literal = natural ( %s"u8" / %s"u16" / %s"u32" / %s"u64" / %s"u128" )
 
-; Signed literals are integers followed by signed types.
+; Signed literals are naturals followed by signed types.
 
-signed-literal = integer ( %s"i8" / %s"i16" / %s"i32" / %s"i64" / %s"i128" )
+signed-literal = natural ( %s"i8" / %s"i16" / %s"i32" / %s"i64" / %s"i128" )
 
-; Field literals are integers followed by the type of field elements.
+; Field literals are naturals followed by the type of field elements.
 
-field-literal = integer %s"field"
+field-literal = natural %s"field"
 
 ; There are two kinds of group literals.
-; One is a single integer followed by the type of group elements,
-; which denotes the scalar product of the generator point by the integer.
+; One is a single natural followed by the type of group elements,
+; which denotes the scalar product of the generator point by the natural.
 ; The other kind is not a token because it allows some whitespace inside;
 ; therefore, it is defined in the syntactic grammar.
 
-product-group-literal = integer %s"group"
+product-group-literal = natural %s"group"
 
 ; Boolean literals are the usual two.
 
@@ -688,7 +683,7 @@ named-type = identifier / self-type / scalar-type
 ; This is an affine group literal,
 ; because it consists of affine point coordinates.
 
-group-coordinate = integer / "+" / "-" / "_"
+group-coordinate = [ "-" ] natural / "+" / "-" / "_"
 
 affine-group-literal = "(" group-coordinate "," group-coordinate %s")group"
 
