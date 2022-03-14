@@ -14,7 +14,6 @@ outputs:
             col_stop: 6
             path: ""
             content: let x = a . b;
-      parened: false
       type_: ~
       value:
         Access:
@@ -49,7 +48,6 @@ outputs:
             col_stop: 6
             path: ""
             content: "let x = a :: b;"
-      parened: false
       type_: ~
       value:
         Access:
@@ -84,7 +82,6 @@ outputs:
             col_stop: 6
             path: ""
             content: let x = a == b;
-      parened: false
       type_: ~
       value:
         Binary:
@@ -119,7 +116,6 @@ outputs:
             col_stop: 6
             path: ""
             content: let x = a != b;
-      parened: false
       type_: ~
       value:
         Binary:
@@ -154,7 +150,6 @@ outputs:
             col_stop: 6
             path: ""
             content: let x = a > b;
-      parened: false
       type_: ~
       value:
         Binary:
@@ -189,7 +184,6 @@ outputs:
             col_stop: 6
             path: ""
             content: let x = a >= b;
-      parened: false
       type_: ~
       value:
         Binary:
@@ -224,7 +218,6 @@ outputs:
             col_stop: 6
             path: ""
             content: let x = a < b;
-      parened: false
       type_: ~
       value:
         Binary:
@@ -259,7 +252,6 @@ outputs:
             col_stop: 6
             path: ""
             content: let x = a <= b;
-      parened: false
       type_: ~
       value:
         Binary:
@@ -294,7 +286,6 @@ outputs:
             col_stop: 6
             path: ""
             content: let x = a > b;
-      parened: false
       type_: ~
       value:
         Binary:
@@ -329,7 +320,6 @@ outputs:
             col_stop: 6
             path: ""
             content: let x = a as b;
-      parened: false
       type_: ~
       value:
         Cast:

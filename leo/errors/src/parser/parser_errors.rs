@@ -382,4 +382,12 @@ create_errors!(
         msg: format!("There was an emoji found in the escaped unicode character: `{}`.", input),
         help: None,
     }
+
+    /// For when a user puts parens around a single defined variable.
+    @formatted
+    invalid_parens_around_single_variable {
+        args: (),
+        msg: "do not put parens around single variable names",
+        help: None,
+    }
 );

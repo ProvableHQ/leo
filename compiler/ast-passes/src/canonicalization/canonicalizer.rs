@@ -376,7 +376,6 @@ impl Canonicalizer {
                 Statement::Definition(DefinitionStatement {
                     declaration_type: definition.declaration_type.clone(),
                     variable_names: definition.variable_names.clone(),
-                    parened: definition.parened,
                     type_,
                     value,
                     span: definition.span.clone(),
@@ -621,18 +620,11 @@ impl ReconstructingReducer for Canonicalizer {
         type_: Option<Type>,
         value: Expression,
     ) -> Result<DefinitionStatement> {
-        match &type_ {
-            Some(Type::Tuple(elements)) if elements.len() != 1 => {}
-            _ if definition.parened => {
-                return Err(AstError::invalid_parens_around_single_variable(&definition.span).into());
-            }
-            _ => {}
-        }
+        let type_ = self.canonicalize_self_type(type_.as_ref());
 
         Ok(DefinitionStatement {
             declaration_type: definition.declaration_type.clone(),
             variable_names,
-            parened: definition.parened,
             type_,
             value,
             span: definition.span.clone(),

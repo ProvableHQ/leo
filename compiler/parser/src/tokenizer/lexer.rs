@@ -46,7 +46,7 @@ fn eat_identifier(input_tendril: &StrTendril) -> Option<StrTendril> {
     if input_tendril.is_empty() {
         return None;
     }
-    let input = input_tendril[..].as_bytes();
+    let input = input_tendril.as_bytes();
 
     if !input[0].is_ascii_alphabetic() {
         return None;
@@ -73,7 +73,7 @@ impl Token {
 
         if escaped {
             let string = input_tendril.to_string();
-            let escaped = &string[1..string.len()];
+            let escaped = &string[1..input_tendril.len()];
 
             if escaped.len() != 1 {
                 return Err(ParserError::lexer_escaped_char_incorrect_length(escaped).into());
@@ -158,7 +158,7 @@ impl Token {
         if input_tendril.is_empty() {
             return Err(ParserError::lexer_empty_input_tendril().into());
         }
-        let input = input_tendril[..].as_bytes();
+        let input = input_tendril.as_bytes();
         if !input[0].is_ascii_digit() {
             return Err(ParserError::lexer_eat_integer_leading_zero(String::from_utf8_lossy(input)).into());
         }
@@ -205,7 +205,7 @@ impl Token {
         if input_tendril.is_empty() {
             return Err(ParserError::lexer_empty_input_tendril().into());
         }
-        let input = input_tendril[..].as_bytes();
+        let input = input_tendril.as_bytes();
         match input[0] {
             x if x.is_ascii_whitespace() => return Ok((1, Token::WhiteSpace)),
             b'"' => {

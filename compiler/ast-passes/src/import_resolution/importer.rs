@@ -48,7 +48,7 @@ impl Importer {
             let pretty_package = package.join(".");
 
             let resolved_package =
-                match wrapped_resolver.resolve_package(&package.iter().map(|x| &**x).collect::<Vec<_>>()[..], &span)? {
+                match wrapped_resolver.resolve_package(&package.iter().map(|x| &**x).collect::<Vec<_>>(), &span)? {
                     Some(x) => x,
                     None => return Err(AstError::unresolved_import(pretty_package, &span).into()),
                 };
