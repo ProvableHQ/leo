@@ -335,15 +335,26 @@ unary-expression = postfix-expression
 
 
 
-In order to allow the recursion of the rule to stop,
-we need to regard, in the grammar, a primary expression as a unary expression
-(i.e. a primary expression is also a unary expression in the grammar;
-but note that the opposite is not true).
-However, this is just a grammatical artifact:
-ontologically, a primary expression is not really a unary expression,
-because a unary expression is one that consists of
-a unary operator and an operand sub-expression.
-These terminological exceptions should be easy to identify in the rules.
+and
+
+
+
+```
+postfix-expression = primary-expression
+                   / postfix-expression "." natural
+                   / ...
+```
+
+
+
+In order to allow the recursion of the rule to stop, we need to regard, in the
+grammar, a postfix or primary expression as a unary expression (i.e. a postfix
+or primary expression is also a unary expression in the grammar; but note that
+the opposite is not true).  However, this is just a grammatical artifact:
+ontologically, a postfix or primary expression is not really a unary
+expression, because a unary expression is one that consists of a unary
+operator and an operand sub-expression.  These terminological exceptions
+should be easy to identify in the rules.
 
 
 --------
@@ -1241,7 +1252,8 @@ Go to: _[circuit-construction](#user-content-circuit-construction)_;
 
 
 After primary expressions, postfix expressions have highest precedence.
-They apply to primary expressions, and recursively to postfix expressions.
+They can be primary expressions, and there are a few kinds of postfix
+expressions that have postfix expression subcomponents.
 
 There are postfix expressions to access parts of aggregate values.
 A tuple access selects a component by index (zero-based).
@@ -1258,7 +1270,7 @@ There are three kinds of function calls:
 top-level function calls,
 instance (i.e. non-static) member function calls, and
 static member function calls.
-What changes is the start, but they all end in an argument list.
+They start differently, but they all end in an argument list.
 
 Accesses to static constants are also postfix expressions.
 They consist of a named type followed by the constant name,
@@ -1355,8 +1367,8 @@ ordering-expression = additive-expression
 Go to: _[additive-expression](#user-content-additive-expression)_;
 
 
-Equalities return booleans but may also operate on booleans;
-the rule below makes them left-associative.
+Next in the precedence order are equivalence relations.
+These are not associative, since `a == b == c` could be confusing.
 
 <a name="equality-expression"></a>
 ```abnf
