@@ -59,7 +59,7 @@
 ; usable as last resort in the definiens of a nonterminal.
 
 ; While BNF allows arbitrary terminals,
-; ABNF uses only natural numbers as terminals,
+; ABNF uses only natural numbers (i.e. non-negative integers) as terminals,
 ; and denotes them via:
 ; (i) binary, decimal, or hexadecimal sequences,
 ; e.g. `%b1.11.1010`, `%d1.3.10`, and `%x.1.3.A`
@@ -451,30 +451,30 @@ identifier = letter *( letter / decimal-digit / "_" )
 
 annotation-name = "@" identifier
 
-; A natural (number) is a sequence of one or more decimal digits.
+; A numeral is a sequence of one or more decimal digits.
 ; We allow leading zeros, e.g. `007`.
 
-natural = 1*decimal-digit
+numeral = 1*decimal-digit
 
-; Unsigned literals are naturals followed by unsigned types.
+; Unsigned literals are numerals followed by unsigned types.
 
-unsigned-literal = natural ( %s"u8" / %s"u16" / %s"u32" / %s"u64" / %s"u128" )
+unsigned-literal = numeral ( %s"u8" / %s"u16" / %s"u32" / %s"u64" / %s"u128" )
 
-; Signed literals are naturals followed by signed types.
+; Signed literals are numerals followed by signed types.
 
-signed-literal = natural ( %s"i8" / %s"i16" / %s"i32" / %s"i64" / %s"i128" )
+signed-literal = numeral ( %s"i8" / %s"i16" / %s"i32" / %s"i64" / %s"i128" )
 
-; Field literals are naturals followed by the type of field elements.
+; Field literals are numerals followed by the type of field elements.
 
-field-literal = natural %s"field"
+field-literal = numeral %s"field"
 
 ; There are two kinds of group literals.
-; One is a single natural followed by the type of group elements,
-; which denotes the scalar product of the generator point by the natural.
+; One is a single numeral followed by the type of group elements,
+; which denotes the scalar product of the generator point by the numeral.
 ; The other kind is not a token because it allows some whitespace inside;
 ; therefore, it is defined in the syntactic grammar.
 
-product-group-literal = natural %s"group"
+product-group-literal = numeral %s"group"
 
 ; Boolean literals are the usual two.
 
@@ -640,11 +640,11 @@ tuple-type = "(" [ type 1*( "," type ) ] ")"
 ; and an indication of dimensions.
 ; There is either a single dimension,
 ; or a tuple of one or more dimensions.
-; Each dimension is a natural.
+; Each dimension is a numeral.
 
 array-type = "[" type ";" array-dimensions "]"
 
-array-dimensions = natural / "(" natural *( "," natural ) ")"
+array-dimensions = numeral / "(" numeral *( "," numeral ) ")"
 
 ; The keyword `Self` denotes the enclosing circuit type.
 ; It is only allowed inside a circuit type declaration.
@@ -683,7 +683,7 @@ named-type = identifier / self-type / scalar-type
 ; This is an affine group literal,
 ; because it consists of affine point coordinates.
 
-group-coordinate = [ "-" ] natural / "+" / "-" / "_"
+group-coordinate = [ "-" ] numeral / "+" / "-" / "_"
 
 affine-group-literal = "(" group-coordinate "," group-coordinate %s")group"
 
@@ -793,7 +793,7 @@ circuit-expression = circuit-construction
 function-arguments = "(" [ expression *( "," expression ) ] ")"
 
 postfix-expression = primary-expression
-                   / postfix-expression "." natural
+                   / postfix-expression "." numeral
                    / postfix-expression "." identifier
                    / identifier function-arguments
                    / postfix-expression "." identifier function-arguments
