@@ -201,8 +201,7 @@ impl Token {
         Some(match self {
             Token::Address => sym::address,
             Token::As => sym::As,
-            // todo 0rphon: possibly reachable via unused import tests
-            Token::At => panic!(), //sym::At,
+            Token::At => sym::At,
             Token::Bool => sym::bool,
             Token::Char => sym::char,
             Token::Circuit => sym::circuit,
@@ -237,8 +236,7 @@ impl Token {
             Token::U32 => sym::u32,
             Token::U64 => sym::u64,
             Token::U128 => sym::u128,
-            // todo 0rphon: possibly reachable via unused import tests
-            _ => panic!(), //return None,
+            _ => return None,
         })
     }
 }

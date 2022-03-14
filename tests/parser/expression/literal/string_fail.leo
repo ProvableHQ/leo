@@ -19,8 +19,8 @@ expectation: Fail
 
 "\x"
 
-"\x" // 0rphon "\u}"
+"\u}"
 
-"\x" // 0rphon "\u6🦀}"
+"\u6🦀}"
 
 "\u{af🦀"

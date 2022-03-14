@@ -32,7 +32,7 @@ fn eat(input: &[u8], wanted: &str) -> Option<usize> {
     if input.len() < wanted.len() {
         return None;
     }
-    if &input[..wanted.len()] == wanted {  // 0rphon
+    if &input[..wanted.len()] == wanted {
         return Some(wanted.len());
     }
     None
@@ -70,7 +70,7 @@ impl Token {
 
         if escaped {
             let string = input_tendril.to_string();
-            let escaped = &string[1..string.len()]; // 0rphon
+            let escaped = &string[1..string.len()];
 
             if escaped.len() != 1 {
                 return Err(ParserError::lexer_escaped_char_incorrect_length(escaped).into());
@@ -92,7 +92,7 @@ impl Token {
 
         if hex {
             let string = input_tendril.to_string();
-            let hex_string = &string[2..string.len()]; // 0rphon
+            let hex_string = &string[2..string.len()];
 
             if hex_string.len() != 2 {
                 return Err(ParserError::lexer_escaped_hex_incorrect_length(hex_string).into());
@@ -114,7 +114,7 @@ impl Token {
 
             let unicode_number = &string[3..string.len() - 1];
             let len = unicode_number.len();
-            if !(1..=6).contains(&len) {  // 0rphon
+            if !(1..=6).contains(&len) {
                 return Err(ParserError::lexer_invalid_escaped_unicode_length(unicode_number).into());
             } else if let Ok(hex) = u32::from_str_radix(unicode_number, 16) {
                 if let Some(character) = std::char::from_u32(hex) {
@@ -136,8 +136,6 @@ impl Token {
             return Ok(Char::Scalar(character));
         }
 
-        // 0rphon: should be impossible to hit if function is used correctly
-        panic!();
         Err(ParserError::lexer_invalid_char(input_tendril.to_string()).into())
     }
 
@@ -195,8 +193,6 @@ impl Token {
     ///
     pub(crate) fn eat(input_tendril: StrTendril) -> Result<(usize, Token)> {
         if input_tendril.is_empty() {
-            // 0rphon
-            panic!();
             return Err(ParserError::lexer_empty_input_tendril().into());
         }
         let input = input_tendril.as_bytes();
@@ -276,7 +272,7 @@ impl Token {
                 }
 
                 if i == input.len() || !end {
-                    return Err(ParserError::lexer_string_not_closed(String::from_utf8_lossy(&input[..i])).into());  // 0rphon
+                    return Err(ParserError::lexer_string_not_closed(String::from_utf8_lossy(&input[..i])).into());
                 }
 
                 return Ok((i + 1, Token::StringLit(string)));

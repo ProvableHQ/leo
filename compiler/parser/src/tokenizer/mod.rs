@@ -259,7 +259,7 @@ ppp            test
                 let token_raw = token.token.to_string();
                 let start = line_indicies.get(token.span.line_start - 1).unwrap();
                 let stop = line_indicies.get(token.span.line_stop - 1).unwrap();
-                let original = &raw[*start + token.span.col_start - 1..*stop + token.span.col_stop - 1]; // 0rphon
+                let original = &raw[*start + token.span.col_start - 1..*stop + token.span.col_stop - 1];
                 assert_eq!(original, &token_raw);
             }
         })

@@ -53,7 +53,7 @@ impl ParserContext<'_> {
             Token::U32 => IntegerType::U32,
             Token::U64 => IntegerType::U64,
             Token::U128 => IntegerType::U128,
-            _ => return None, // todo 0rphon: unreachable
+            _ => return None,
         })
     }
 
