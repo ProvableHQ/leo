@@ -2,6 +2,6 @@
 namespace: ParseStatement
 expectation: Fail
 outputs:
-  - "Error [EPAR0370040]: A hex number `0x4..` was provided but hex is not allowed."
-  - "Error [EPAR0370040]: A hex number `0xA..` was provided but hex is not allowed."
-  - "Error [EPAR0370040]: A hex number `0xF..` was provided but hex is not allowed."
+  - "Error [EPAR0370040]: A hex number `0x..` was provided but hex is not allowed."
+  - "Error [EPAR0370040]: A hex number `0x..` was provided but hex is not allowed."
+  - "Error [EPAR0370040]: A hex number `0x..` was provided but hex is not allowed."

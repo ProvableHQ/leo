@@ -328,7 +328,7 @@ and therefore we have rules like
 
 
 ```
-unary-expression = primary-expression
+unary-expression = postfix-expression
                  / "!" unary-expression
                  / "-" unary-expression
 ```
@@ -635,67 +635,56 @@ annotation-name = "@" identifier
 Go to: _[identifier](#user-content-identifier)_;
 
 
-A natural (number) is a sequence of one or more decimal digits.
+A numeral is a sequence of one or more decimal digits.
 We allow leading zeros, e.g. `007`.
 
-<a name="natural"></a>
+<a name="numeral"></a>
 ```abnf
-natural = 1*decimal-digit
+numeral = 1*decimal-digit
 ```
 
-An integer (number) is either a natural or its negation.
-We allow leading zeros also in negative numbers, e.g. `-007`.
-
-<a name="integer"></a>
-```abnf
-integer = [ "-" ] natural
-```
-
-Go to: _[natural](#user-content-natural)_;
-
-
-Unsigned literals are naturals followed by unsigned types.
+Unsigned literals are numerals followed by unsigned types.
 
 <a name="unsigned-literal"></a>
 ```abnf
-unsigned-literal = natural ( %s"u8" / %s"u16" / %s"u32" / %s"u64" / %s"u128" )
+unsigned-literal = numeral ( %s"u8" / %s"u16" / %s"u32" / %s"u64" / %s"u128" )
 ```
 
-Go to: _[natural](#user-content-natural)_;
+Go to: _[numeral](#user-content-numeral)_;
 
 
-Signed literals are integers followed by signed types.
+Signed literals are numerals followed by signed types.
 
 <a name="signed-literal"></a>
 ```abnf
-signed-literal = integer ( %s"i8" / %s"i16" / %s"i32" / %s"i64" / %s"i128" )
+signed-literal = numeral ( %s"i8" / %s"i16" / %s"i32" / %s"i64" / %s"i128" )
 ```
 
-Go to: _[integer](#user-content-integer)_;
+Go to: _[numeral](#user-content-numeral)_;
 
 
-Field literals are integers followed by the type of field elements.
+Field literals are numerals followed by the type of field elements.
 
 <a name="field-literal"></a>
 ```abnf
-field-literal = integer %s"field"
+field-literal = numeral %s"field"
 ```
 
-Go to: _[integer](#user-content-integer)_;
+Go to: _[numeral](#user-content-numeral)_;
 
 
 There are two kinds of group literals.
-One is a single integer followed by the type of group elements,
-which denotes the scalar product of the generator point by the integer.
+One is a single numeral followed by the type of group elements,
+which denotes the scalar product of the generator point by the numeral.
 The other kind is not a token because it allows some whitespace inside;
 therefore, it is defined in the syntactic grammar.
 
 <a name="product-group-literal"></a>
 ```abnf
-product-group-literal = integer %s"group"
+product-group-literal = numeral %s"group"
 ```
 
-Go to: _[integer](#user-content-integer)_;
+Go to: _[numeral](#user-content-numeral)_;
 
 
 Boolean literals are the usual two.
@@ -1002,7 +991,7 @@ An array type consists of an element type
 and an indication of dimensions.
 There is either a single dimension,
 or a tuple of one or more dimensions.
-Each dimension is a natural.
+Each dimension is a numeral.
 
 <a name="array-type"></a>
 ```abnf
@@ -1014,10 +1003,10 @@ Go to: _[array-dimensions](#user-content-array-dimensions), [type](#user-content
 
 <a name="array-dimensions"></a>
 ```abnf
-array-dimensions = natural / "(" natural *( "," natural ) ")"
+array-dimensions = numeral / "(" numeral *( "," numeral ) ")"
 ```
 
-Go to: _[natural](#user-content-natural)_;
+Go to: _[numeral](#user-content-numeral)_;
 
 
 The keyword `Self` denotes the enclosing circuit type.
@@ -1080,10 +1069,10 @@ because it consists of affine point coordinates.
 
 <a name="group-coordinate"></a>
 ```abnf
-group-coordinate = integer / "+" / "-" / "_"
+group-coordinate = [ "-" ] numeral / "+" / "-" / "_"
 ```
 
-Go to: _[integer](#user-content-integer)_;
+Go to: _[numeral](#user-content-numeral)_;
 
 
 <a name="affine-group-literal"></a>
@@ -1286,7 +1275,7 @@ Go to: _[expression](#user-content-expression)_;
 <a name="postfix-expression"></a>
 ```abnf
 postfix-expression = primary-expression
-                   / postfix-expression "." natural
+                   / postfix-expression "." numeral
                    / postfix-expression "." identifier
                    / identifier function-arguments
                    / postfix-expression "." identifier function-arguments
@@ -1296,7 +1285,7 @@ postfix-expression = primary-expression
                    / postfix-expression "[" [expression] ".." [expression] "]"
 ```
 
-Go to: _[expression](#user-content-expression), [function-arguments](#user-content-function-arguments), [identifier](#user-content-identifier), [named-type](#user-content-named-type), [natural](#user-content-natural), [postfix-expression](#user-content-postfix-expression), [primary-expression](#user-content-primary-expression)_;
+Go to: _[expression](#user-content-expression), [function-arguments](#user-content-function-arguments), [identifier](#user-content-identifier), [named-type](#user-content-named-type), [numeral](#user-content-numeral), [postfix-expression](#user-content-postfix-expression), [primary-expression](#user-content-primary-expression)_;
 
 
 Unary operators have the highest operator precedence.

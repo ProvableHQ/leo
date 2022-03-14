@@ -105,49 +105,6 @@ outputs:
                           col_start: 2
                           col_stop: 3
                           path: ""
-                          content: "[0; (1)].len()"
-                dimensions:
-                  - value: "1"
-                span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 1
-                  col_stop: 9
-                  path: ""
-                  content: "[0; (1)].len()"
-            name: "{\"name\":\"len\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"[0; (1)].len()\\\"}\"}"
-            span:
-              line_start: 1
-              line_stop: 1
-              col_start: 1
-              col_stop: 13
-              path: ""
-              content: "[0; (1)].len()"
-            type_: ~
-      arguments: []
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 15
-        path: ""
-        content: "[0; (1)].len()"
-  - Call:
-      function:
-        Access:
-          Member:
-            inner:
-              ArrayInit:
-                element:
-                  Value:
-                    Implicit:
-                      - "0"
-                      - span:
-                          line_start: 1
-                          line_stop: 1
-                          col_start: 2
-                          col_stop: 3
-                          path: ""
                           content: "[0; (1, 2)].len()"
                 dimensions:
                   - value: "1"
