@@ -180,7 +180,7 @@ impl Token {
         Ok((i, Token::Int(input_tendril.subtendril(0, i as u32))))
     }
 
-    /// Returns the number of bytes in an emoji via a bit mask.
+    /// Returns the number of bytes in an utf-8 encoding that starts with this byte.
     fn utf8_byte_count(byte: u8) -> usize {
         let mut mask = 0x80;
         let mut result = 0;
@@ -220,7 +220,8 @@ impl Token {
                 let mut string = Vec::new();
 
                 while i < input.len() {
-                    // If it's an emoji get the length.
+                    // Get the length of the utf-8 encoding here
+                    // and position i at the last byte.
                     if input[i] & 0x80 > 0 {
                         len = Self::utf8_byte_count(input[i]);
                         i += len;
