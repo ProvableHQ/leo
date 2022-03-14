@@ -57,7 +57,8 @@ jobs:
       - name: Install sccache Windows
         if: matrix.os == 'windows-latest'
         run: |
-          iwr -useb get.scoop.sh | iex
+          iwr -useb get.scoop.sh -outfile 'install.ps1'
+          .\install.ps1 -RunAsAdmin [-OtherParameters ...]
           Set-ExecutionPolicy RemoteSigned -scope CurrentUser
           scoop install sccache
           echo "C:\Users\runneradmin\scoop\shims" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
