@@ -25,5 +25,5 @@ outputs:
   - "Error [EPAR0370009]: unexpected string: expected 'ident', got ','\n    --> test:1:10\n     |\n   1 | let (x,y,,) = ();\n     |          ^"
   - "Error [EPAR0370009]: unexpected string: expected 'ident', got ','\n    --> test:1:6\n     |\n   1 | let (,x,y) = ();\n     |      ^"
   - "Error [EPAR0370009]: unexpected string: expected 'ident', got ','\n    --> test:1:8\n     |\n   1 | let (x,,y) = ();\n     |        ^"
-  - "Error [EPAR0370044]: do not put parens around single variable names\n    --> test:1:6\n     |\n   1 | let (x) = ...;\n     |      ^"
-  - "Error [EPAR0370044]: do not put parens around single variable names\n    --> test:1:6\n     |\n   1 | let (x,) = ...;\n     |      ^"
+  - "Error [EPAR0370044]: do not put parens around single variable names\n    --> test:1:6\n     |\n   1 | let (x) = ...;\n     |      ^\nError [EPAR0370009]: unexpected string: expected 'expression', got '...'\n    --> test:1:11\n     |\n   1 | let (x) = ...;\n     |           ^^^"
+  - "Error [EPAR0370044]: do not put parens around single variable names\n    --> test:1:6\n     |\n   1 | let (x,) = ...;\n     |      ^\nError [EPAR0370009]: unexpected string: expected 'expression', got '...'\n    --> test:1:12\n     |\n   1 | let (x,) = ...;\n     |            ^^^"

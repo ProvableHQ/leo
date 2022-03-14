@@ -300,7 +300,7 @@ impl ParserContext<'_> {
                     .map(|(vars, ..)| vars)?;
                 
                 if vars.len() == 1 {
-                    return Err(ParserError::invalid_parens_around_single_variable(vars[0].span()).into());
+                    self.emit_err(ParserError::invalid_parens_around_single_variable(vars[0].span()));
                 }
 
                 vars
