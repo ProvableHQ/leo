@@ -296,14 +296,15 @@ impl ParserContext<'_> {
 
         // Parse variable names.
         let variable_names = if self.peek_is_left_par() {
-                let vars = self.parse_paren_comma_list(|p| p.parse_variable_name(&declare).map(Some))
-                    .map(|(vars, ..)| vars)?;
-                
-                if vars.len() == 1 {
-                    self.emit_err(ParserError::invalid_parens_around_single_variable(vars[0].span()));
-                }
+            let vars = self
+                .parse_paren_comma_list(|p| p.parse_variable_name(&declare).map(Some))
+                .map(|(vars, ..)| vars)?;
 
-                vars
+            if vars.len() == 1 {
+                self.emit_err(ParserError::invalid_parens_around_single_variable(vars[0].span()));
+            }
+
+            vars
         } else {
             vec![self.parse_variable_name(&declare)?]
         };
