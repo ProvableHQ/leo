@@ -46,7 +46,7 @@ fn eat_identifier(input_tendril: &StrTendril) -> Option<StrTendril> {
     if input_tendril.is_empty() {
         return None;
     }
-    let input = input_tendril[..].as_bytes();
+    let input = input_tendril.as_bytes();
 
     if !input[0].is_ascii_alphabetic() {
         return None;
@@ -73,7 +73,7 @@ impl Token {
 
         if escaped {
             let string = input_tendril.to_string();
-            let escaped = &string[1..string.len()];
+            let escaped = &string[1..input_tendril.len()];
 
             if escaped.len() != 1 {
                 return Err(ParserError::lexer_escaped_char_incorrect_length(escaped).into());
@@ -115,7 +115,9 @@ impl Token {
 
         if unicode {
             let string = input_tendril.to_string();
-            if string.find('}').is_none() {
+            if string.find('{').is_none() {
+                return Err(ParserError::lexer_unopened_escaped_unicode_char(string).into());
+            } else if string.find('}').is_none() {
                 return Err(ParserError::lexer_unclosed_escaped_unicode_char(string).into());
             }
 
@@ -156,7 +158,7 @@ impl Token {
         if input_tendril.is_empty() {
             return Err(ParserError::lexer_empty_input_tendril().into());
         }
-        let input = input_tendril[..].as_bytes();
+        let input = input_tendril.as_bytes();
         if !input[0].is_ascii_digit() {
             return Err(ParserError::lexer_eat_integer_leading_zero(String::from_utf8_lossy(input)).into());
         }
@@ -164,7 +166,10 @@ impl Token {
 
         while i < input.len() {
             if i == 1 && input[0] == b'0' && input[i] == b'x' {
-                return Err(ParserError::lexer_hex_number_provided(&input_tendril[0..3]).into());
+                return Err(ParserError::lexer_hex_number_provided(
+                    &input_tendril[0..input_tendril.find('\n').unwrap_or(i) + 1],
+                )
+                .into());
             }
             if !input[i].is_ascii_digit() {
                 break;
@@ -175,7 +180,7 @@ impl Token {
         Ok((i, Token::Int(input_tendril.subtendril(0, i as u32))))
     }
 
-    /// Returns the number of bytes in an emoji via a bit mask.
+    /// Returns the number of bytes in an utf-8 encoding that starts with this byte.
     fn utf8_byte_count(byte: u8) -> usize {
         let mut mask = 0x80;
         let mut result = 0;
@@ -200,7 +205,7 @@ impl Token {
         if input_tendril.is_empty() {
             return Err(ParserError::lexer_empty_input_tendril().into());
         }
-        let input = input_tendril[..].as_bytes();
+        let input = input_tendril.as_bytes();
         match input[0] {
             x if x.is_ascii_whitespace() => return Ok((1, Token::WhiteSpace)),
             b'"' => {
@@ -215,10 +220,19 @@ impl Token {
                 let mut string = Vec::new();
 
                 while i < input.len() {
-                    // If it's an emoji get the length.
+                    // Get the length of the utf-8 encoding here
+                    // and position i at the last byte.
                     if input[i] & 0x80 > 0 {
                         len = Self::utf8_byte_count(input[i]);
-                        i += len - 1;
+                        i += len;
+
+                        if unicode {
+                            return Err(
+                                ParserError::lexer_emoji_inside_escaped_unicode_char(&input_tendril[0..i]).into(),
+                            );
+                        }
+
+                        continue;
                     }
 
                     if !in_escape {
@@ -305,7 +319,9 @@ impl Token {
                             break;
                         } else if unicode_char {
                             return Err(ParserError::lexer_invalid_char(
-                                &input_tendril[0..input_tendril[1..].find('\'').unwrap_or(i + 1)],
+                                // grab the contents of everything between the '' if possible.
+                                // else just show the character right before stuff went wrong.
+                                &input_tendril[0..input_tendril[1..].find('\'').unwrap_or(i - 1) + 1],
                             )
                             .into());
                         } else if input[i] == b'\\' {
@@ -315,8 +331,11 @@ impl Token {
                         if input[i] == b'x' {
                             hex = true;
                         } else if input[i] == b'u' {
-                            if input[i + 1] == b'{' {
+                            let one_ahead = input.get(i + 1);
+                            if matches!(one_ahead, Some(b'{')) {
                                 escaped_unicode = true;
+                            } else if one_ahead.is_some() {
+                                return Err(ParserError::lexer_expected_valid_escaped_char(input[i + 1]).into());
                             } else {
                                 return Err(ParserError::lexer_expected_valid_escaped_char(input[i]).into());
                             }

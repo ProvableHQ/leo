@@ -1,0 +1,24 @@
+---
+namespace: ParseStatement
+expectation: Fail
+outputs:
+  - "did not consume all input: ';' @ 1:11-12\n"
+  - "Error [EPAR0370009]: unexpected string: expected 'int or ident', got ';'\n    --> test:1:11\n     |\n   1 | let x = a.;\n     |           ^"
+  - "Error [EPAR0370005]: expected ; -- got ','\n    --> test:1:10\n     |\n   1 | let x = a,;\n     |          ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got ';'\n    --> test:1:11\n     |\n   1 | let x = a[;\n     |           ^"
+  - "Error [EPAR0370005]: expected ; -- got ']'\n    --> test:1:10\n     |\n   1 | let x = a];\n     |          ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'ident', got ';'\n    --> test:1:11\n     |\n   1 | let x = a{;\n     |           ^"
+  - "Error [EPAR0370005]: expected ; -- got '}'\n    --> test:1:10\n     |\n   1 | let x = a};\n     |          ^"
+  - "Error [EPAR0370005]: expected ; -- got ')'\n    --> test:1:10\n     |\n   1 | let x = a);\n     |          ^"
+  - "Error [EPAR0370005]: expected ; -- got ':'\n    --> test:1:10\n     |\n   1 | let x = a:;\n     |          ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got ';'\n    --> test:1:11\n     |\n   1 | let x = a?;\n     |           ^"
+  - "Error [EPAR0370005]: expected ; -- got '='\n    --> test:1:10\n     |\n   1 | let x = a=;\n     |          ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got ';'\n    --> test:1:12\n     |\n   1 | let x = a==;\n     |            ^"
+  - "Error [EPAR0370005]: expected ; -- got '!'\n    --> test:1:10\n     |\n   1 | let x = a!;\n     |          ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got ';'\n    --> test:1:12\n     |\n   1 | let x = a!=;\n     |            ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got ';'\n    --> test:1:11\n     |\n   1 | let x = a>;\n     |           ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got ';'\n    --> test:1:12\n     |\n   1 | let x = a>=;\n     |            ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got ';'\n    --> test:1:11\n     |\n   1 | let x = a<;\n     |           ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got ';'\n    --> test:1:12\n     |\n   1 | let x = a<=;\n     |            ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got ';'\n    --> test:1:11\n     |\n   1 | let x = a>;\n     |           ^"
+  - "Error [EPAR0370005]: expected ; -- got '..'\n    --> test:1:10\n     |\n   1 | let x = a..;\n     |          ^^"

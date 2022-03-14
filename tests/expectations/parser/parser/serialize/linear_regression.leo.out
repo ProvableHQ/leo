@@ -95,7 +95,6 @@ outputs:
                       variable_names:
                         - mutable: true
                           identifier: "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":13,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let num_points = 5i32;\\\"}\"}"
-                      parened: false
                       type_: ~
                       value:
                         Value:
@@ -107,7 +106,6 @@ outputs:
                       variable_names:
                         - mutable: true
                           identifier: "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let x_sum = 0i32; \\\"}\"}"
-                      parened: false
                       type_: ~
                       value:
                         Value:
@@ -119,7 +117,6 @@ outputs:
                       variable_names:
                         - mutable: true
                           identifier: "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let y_sum = 0i32; \\\"}\"}"
-                      parened: false
                       type_: ~
                       value:
                         Value:
@@ -131,7 +128,6 @@ outputs:
                       variable_names:
                         - mutable: true
                           identifier: "{\"name\":\"xy_sum\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let xy_sum = 0i32; \\\"}\"}"
-                      parened: false
                       type_: ~
                       value:
                         Value:
@@ -143,7 +139,6 @@ outputs:
                       variable_names:
                         - mutable: true
                           identifier: "{\"name\":\"x2_sum\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let x2_sum = 0i32; \\\"}\"}"
-                      parened: false
                       type_: ~
                       value:
                         Value:
@@ -294,7 +289,6 @@ outputs:
                       variable_names:
                         - mutable: true
                           identifier: "{\"name\":\"numerator\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":13,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
-                      parened: false
                       type_: ~
                       value:
                         Binary:
@@ -318,7 +312,6 @@ outputs:
                       variable_names:
                         - mutable: true
                           identifier: "{\"name\":\"denominator\",\"span\":\"{\\\"line_start\\\":36,\\\"line_stop\\\":36,\\\"col_start\\\":13,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
-                      parened: false
                       type_: ~
                       value:
                         Binary:
@@ -342,7 +335,6 @@ outputs:
                       variable_names:
                         - mutable: true
                           identifier: "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let slope = numerator / denominator;\\\"}\"}"
-                      parened: false
                       type_: ~
                       value:
                         Binary:
@@ -376,7 +368,6 @@ outputs:
                       variable_names:
                         - mutable: true
                           identifier: "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":42,\\\"line_stop\\\":42,\\\"col_start\\\":13,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let num_points = 5i32; \\\"}\"}"
-                      parened: false
                       type_: ~
                       value:
                         Value:
@@ -388,7 +379,6 @@ outputs:
                       variable_names:
                         - mutable: true
                           identifier: "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":44,\\\"line_stop\\\":44,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let x_sum = 0i32;\\\"}\"}"
-                      parened: false
                       type_: ~
                       value:
                         Value:
@@ -400,7 +390,6 @@ outputs:
                       variable_names:
                         - mutable: true
                           identifier: "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let y_sum = 0i32;\\\"}\"}"
-                      parened: false
                       type_: ~
                       value:
                         Value:
@@ -511,7 +500,6 @@ outputs:
                 variable_names:
                   - mutable: true
                     identifier: "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":7,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let points: [Point; 5] = [\\\"}\"}"
-                parened: false
                 type_:
                   Array:
                     - Identifier: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":16,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let points: [Point; 5] = [\\\"}\"}"
@@ -634,7 +622,6 @@ outputs:
                 variable_names:
                   - mutable: true
                     identifier: "{\"name\":\"reg\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":7,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
-                parened: false
                 type_: ~
                 value:
                   Call:
@@ -652,7 +639,6 @@ outputs:
                 variable_names:
                   - mutable: true
                     identifier: "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":64,\\\"line_stop\\\":64,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let slope = reg.slope();\\\"}\"}"
-                parened: false
                 type_: ~
                 value:
                   Call:
@@ -669,7 +655,6 @@ outputs:
                 variable_names:
                   - mutable: true
                     identifier: "{\"name\":\"offset\",\"span\":\"{\\\"line_start\\\":65,\\\"line_stop\\\":65,\\\"col_start\\\":7,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let offset = reg.offset(slope);\\\"}\"}"
-                parened: false
                 type_: ~
                 value:
                   Call:

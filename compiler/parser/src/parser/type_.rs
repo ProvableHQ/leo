@@ -75,6 +75,8 @@ impl ParserContext<'_> {
             })?;
             if dims.is_empty() && !had_item_err {
                 self.emit_err(ParserError::array_tuple_dimensions_empty(&span));
+            } else if dims.len() == 1 {
+                self.emit_err(ParserError::invalid_parens_around_single_array_dimension_size(&span));
             }
             ArrayDimensions(dims.into())
         })
