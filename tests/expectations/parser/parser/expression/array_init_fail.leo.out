@@ -5,3 +5,4 @@ outputs:
   - "Error [EPAR0370010]: illegal spread in array initializer\n    --> test:1:1\n     |\n   1 | [...0u8; 1]\n     | ^^^^^^^"
   - "Error [EPAR0370010]: illegal spread in array initializer\n    --> test:1:1\n     |\n   1 | [...0; 1]\n     | ^^^^^"
   - "Error [EPAR0370023]: Array dimensions specified as a tuple cannot be empty.\n    --> test:1:5\n     |\n   1 | [0; ()]\n     |     ^^"
+  - "Error [EPAR0370045]: do not put parens around single dimension array size\n    --> test:1:5\n     |\n   1 | [0; (1)]\n     |     ^^^"

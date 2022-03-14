@@ -7,8 +7,6 @@ expectation: Pass
 
 [0; 1].len()
 
-[0; (1)].len()
-
 [0; (1, 2)].len()
 
 [0; (1, 2, 3)].len()

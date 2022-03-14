@@ -390,4 +390,12 @@ create_errors!(
         msg: "do not put parens around single variable names",
         help: None,
     }
+
+    /// For when a user puts parens around a single defined variable.
+    @formatted
+    invalid_parens_around_single_array_dimension_size {
+        args: (),
+        msg: "do not put parens around single dimension array size",
+        help: None,
+    }
 );
