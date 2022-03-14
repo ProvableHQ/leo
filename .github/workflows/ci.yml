@@ -176,7 +176,6 @@ jobs:
 
       - name: Test
         run: |
-          cd package
           cargo test --all
 
   test-docs: 
