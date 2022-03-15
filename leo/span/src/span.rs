@@ -20,7 +20,6 @@ use std::{fmt, sync::Arc, usize};
 
 use serde::ser::{Serialize, SerializeStruct, Serializer};
 use serde::Deserialize;
-use tendril::StrTendril;
 
 /// The span type which tracks where formatted errors originate from in a Leo file.
 /// This is used in many spots throughout the rest of the Leo crates.
@@ -36,9 +35,8 @@ pub struct Span {
     pub col_stop: usize,
     /// The path to the Leo file containing the error.
     pub path: Arc<String>,
-    #[serde(with = "crate::tendril_json")]
     /// The content of the line(s) that the span is found on.
-    pub content: StrTendril,
+    pub content: String,
 }
 
 impl Span {
@@ -55,7 +53,7 @@ impl Span {
         col_start: usize,
         col_stop: usize,
         path: Arc<String>,
-        content: StrTendril,
+        content: String,
     ) -> Self {
         Self {
             line_start,
@@ -156,7 +154,7 @@ impl std::ops::Add for Span {
                     new_content.push(format!("{:<1$}...", " ", other.col_start + 4));
                 }
             }
-            let new_content = new_content.join("\n").into();
+            let new_content = new_content.join("\n");
             if self.line_start < other.line_stop {
                 Span {
                     line_start: self.line_start,

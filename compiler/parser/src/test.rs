@@ -35,7 +35,7 @@ impl Namespace for TokenNamespace {
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
         create_session_if_not_set_then(|_| {
-            tokenizer::tokenize("test", test.content.into())
+            tokenizer::tokenize("test", &test.content)
                 .map(|tokens| {
                     Value::String(
                         tokens
@@ -80,7 +80,7 @@ fn implicit_value_expr() -> Expression {
 }
 
 fn tokenize(test: Test) -> Result<Vec<SpannedToken>, String> {
-    tokenizer::tokenize("test", test.content.into()).map_err(|x| x.to_string())
+    tokenizer::tokenize("test", &test.content).map_err(|x| x.to_string())
 }
 
 fn all_are_comments(tokens: &[SpannedToken]) -> bool {

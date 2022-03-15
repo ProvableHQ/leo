@@ -398,4 +398,13 @@ create_errors!(
         msg: "do not put parens around single dimension array size",
         help: None,
     }
+
+    /// For when a user puts parens around a single defined variable.
+    @backtraced
+    lexer_expected_but_found {
+        args: (found: impl Display, expected: impl Display),
+        msg: format!("Found the char `{}`, but expected `{}`", found, expected),
+        help: None,
+    }
+
 );

@@ -19,16 +19,12 @@ use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use tendril::StrTendril;
 
 /// A group literal.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GroupValue {
     /// Product group literal, e.g., `42group`.
-    Single(
-        #[serde(with = "leo_span::tendril_json")] StrTendril,
-        #[serde(with = "leo_span::span_json")] Span,
-    ),
+    Single(String, #[serde(with = "leo_span::span_json")] Span),
     /// An affine group literal with (x, y) coordinates.
     Tuple(GroupTuple),
 }

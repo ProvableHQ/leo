@@ -22,7 +22,6 @@ use leo_errors::{LeoError, ParserError, Result};
 use leo_span::{Span, Symbol};
 
 use std::{borrow::Cow, unreachable};
-use tendril::format_tendril;
 
 /// Stores a program in tokenized format plus additional context.
 /// May be converted into a [`Program`] AST by parsing all tokens.
@@ -182,7 +181,7 @@ impl<'a> ParserContext<'a> {
                         return None;
                     }
                     *i -= 1;
-                    GroupCoordinate::Number(format_tendril!("-{}", value), span.clone())
+                    GroupCoordinate::Number(format!("-{}", value), span.clone())
                 }
                 _ => GroupCoordinate::SignLow,
             },

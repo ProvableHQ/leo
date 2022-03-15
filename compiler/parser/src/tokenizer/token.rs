@@ -18,7 +18,6 @@ use leo_span::{sym, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use tendril::StrTendril;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Char {
@@ -50,14 +49,14 @@ impl fmt::Display for Char {
 pub enum Token {
     // Lexical Grammar
     // Literals
-    CommentLine(#[serde(with = "leo_span::tendril_json")] StrTendril),
-    CommentBlock(#[serde(with = "leo_span::tendril_json")] StrTendril),
+    CommentLine(String),
+    CommentBlock(String),
     StringLit(Vec<leo_ast::Char>),
     Ident(Symbol),
-    Int(#[serde(with = "leo_span::tendril_json")] StrTendril),
+    Int(String),
     True,
     False,
-    AddressLit(#[serde(with = "leo_span::tendril_json")] StrTendril),
+    AddressLit(String),
     CharLit(Char),
     WhiteSpace,
 
