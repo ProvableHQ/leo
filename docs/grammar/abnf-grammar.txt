@@ -583,6 +583,7 @@ symbol = "!" / "&" / "&&" / "||"
 token = keyword
       / identifier
       / atomic-literal
+      / numeral
       / annotation-name
       / symbol
 

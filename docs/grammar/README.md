@@ -63,7 +63,7 @@ e.g. `<host, see [RFC3986], Section 3.2.2>`,
 usable as last resort in the definiens of a nonterminal.
 
 While BNF allows arbitrary terminals,
-ABNF uses only natural numbers as terminals,
+ABNF uses only natural numbers (i.e. non-negative integers) as terminals,
 and denotes them via:
 (i) binary, decimal, or hexadecimal sequences,
 e.g. `%b1.11.1010`, `%d1.3.10`, and `%x.1.3.A`
@@ -877,11 +877,12 @@ is a token, as defined by the following rule.
 token = keyword
       / identifier
       / atomic-literal
+      / numeral
       / annotation-name
       / symbol
 ```
 
-Go to: _[annotation-name](#user-content-annotation-name), [atomic-literal](#user-content-atomic-literal), [identifier](#user-content-identifier), [keyword](#user-content-keyword), [symbol](#user-content-symbol)_;
+Go to: _[annotation-name](#user-content-annotation-name), [atomic-literal](#user-content-atomic-literal), [identifier](#user-content-identifier), [keyword](#user-content-keyword), [numeral](#user-content-numeral), [symbol](#user-content-symbol)_;
 
 
 Tokens, comments, and whitespace are lexemes, i.e. lexical units.
