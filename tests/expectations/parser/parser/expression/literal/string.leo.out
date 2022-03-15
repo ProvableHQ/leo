@@ -178,8 +178,6 @@ outputs:
           - Scalar: 115
           - Scalar: 116
           - Scalar: 32
-          - Scalar: 128530
-          - Scalar: 8364
         - span:
             line_start: 1
             line_stop: 1
@@ -189,9 +187,7 @@ outputs:
             content: "\"test 😒€\""
   - Value:
       String:
-        - - Scalar: 128557
-          - Scalar: 128514
-          - Scalar: 128536
+        - []
         - span:
             line_start: 1
             line_stop: 1
@@ -201,8 +197,7 @@ outputs:
             content: "\"😭😂😘\""
   - Value:
       String:
-        - - Scalar: 9995
-          - Scalar: 127999
+        - []
         - span:
             line_start: 1
             line_stop: 1
@@ -212,7 +207,17 @@ outputs:
             content: "\"✋🏿\""
   - Value:
       String:
-        - - Scalar: 65535
+        - []
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 7
+            path: ""
+            content: "\"🦀\""
+  - Value:
+      String:
+        - []
         - span:
             line_start: 1
             line_stop: 1
@@ -222,9 +227,7 @@ outputs:
             content: "\"￿\""
   - Value:
       String:
-        - - Scalar: 65533
-          - Scalar: 65533
-          - Scalar: 65533
+        - []
         - span:
             line_start: 1
             line_stop: 1
@@ -235,11 +238,7 @@ outputs:
   - Value:
       String:
         - - Scalar: 65288
-          - Scalar: 62
           - Scalar: 65299
-          - Scalar: 60
-          - Scalar: 65289
-          - Scalar: 19977
         - span:
             line_start: 1
             line_stop: 1
@@ -249,18 +248,21 @@ outputs:
             content: "\"（>３<）三\""
   - Value:
       String:
-        - - Scalar: 40
-          - Scalar: 9285
-          - Scalar: 8747
-          - Scalar: 176
-          - Scalar: 2570
-          - Scalar: 176
-          - Scalar: 41
-          - Scalar: 8747
+        - - Scalar: 98
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 21
+            col_stop: 4
             path: ""
-            content: "\"(⑅∫°ਊ°)∫\""
+            content: "\"b\" // 0rphon \"(⑅∫°ਊ°)∫\""
+  - Value:
+      String:
+        - - Scalar: 98
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 4
+            path: ""
+            content: "\"b\" // 0rphon \"🦀°1\""
