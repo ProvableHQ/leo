@@ -255,7 +255,7 @@ outputs:
             col_start: 1
             col_stop: 4
             path: ""
-            content: "\"b\" // 0rphon \"(⑅∫°ਊ°)∫\""
+            content: "\"b\" // TODO reenabe once #1682 is closed \"(⑅∫°ਊ°)∫\""
   - Value:
       String:
         - - Scalar: 98
@@ -265,4 +265,4 @@ outputs:
             col_start: 1
             col_stop: 4
             path: ""
-            content: "\"b\" // 0rphon \"🦀°1\""
+            content: "\"b\" // TODO reenabe once #1682 is closed \"🦀°1\""

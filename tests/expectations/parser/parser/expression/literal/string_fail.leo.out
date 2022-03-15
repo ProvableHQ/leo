@@ -13,3 +13,4 @@ outputs:
   - "Error [EPAR0370042]: There was no opening `{` after starting an escaped unicode `\\u}`."
   - "Error [EPAR0370043]: There was an emoji found in the escaped unicode character: `\"\\u6🦀`."
   - "Error [EPAR0370043]: There was an emoji found in the escaped unicode character: `\"\\u{af🦀`."
+  - "Error [EPAR0370032]: Could not lex the following content: `⭇😍;`."
