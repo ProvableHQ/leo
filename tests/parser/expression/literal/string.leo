@@ -1,5 +1,5 @@
 /*
-namespace: ParseExpression
+namespace: Token
 expectation: Pass
 */
 
@@ -32,5 +32,11 @@ expectation: Pass
 "���"
 
 "（>３<）三"
+"ヽ༼ ಠ益ಠ ༽ﾉ"
+"(╯°□°）╯︵ ┻━┻"
+"┬─┬ ノ( ゜-゜ノ)"
+"( ͡° ͜ʖ ͡°)"
+"b" // TODO reenabe once #1682 is closed "ᕙ(▀̿ĺ̯▀̿ ̿)ᕗ"
+"♥╣[-_-]╠♥"
 "b" // TODO reenabe once #1682 is closed "(⑅∫°ਊ°)∫"
 "b" // TODO reenabe once #1682 is closed "🦀°1"
