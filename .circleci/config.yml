@@ -46,7 +46,7 @@ commands:
 jobs:
   check-style:
     docker:
-      - image: cimg/rust:1.56.1
+      - image: cimg/rust:1.59.0
     resource_class: xlarge
     steps:
       - checkout
@@ -61,7 +61,7 @@ jobs:
 
   clippy:
     docker:
-      - image: cimg/rust:1.56.1
+      - image: cimg/rust:1.59.0
     resource_class: xlarge
     steps:
       - checkout
@@ -76,7 +76,7 @@ jobs:
           
   # code-cov:
   #   docker:
-  #     - image: cimg/rust:1.56.1
+  #     - image: cimg/rust:1.59.0
   #   resource_class: xlarge
   #   environment:
   #     RUSTC_BOOTSTRAP: 1
@@ -118,7 +118,7 @@ jobs:
 
   leo-executable:
     docker:
-      - image: cimg/rust:1.56.1
+      - image: cimg/rust:1.59.0
     resource_class: xlarge
     steps:
       - checkout
@@ -136,7 +136,7 @@ jobs:
 #
 #  leo-new:
 #    docker:
-#      - image: cimg/rust:1.56.1
+#      - image: cimg/rust:1.59.0
 #    resource_class: xlarge
 #    steps:
 #      - attach_workspace:
@@ -149,7 +149,7 @@ jobs:
 #
 #  leo-init:
 #    docker:
-#      - image: cimg/rust:1.56.1
+#      - image: cimg/rust:1.59.0
 #    resource_class: xlarge
 #    steps:
 #      - attach_workspace:
@@ -162,7 +162,7 @@ jobs:
 #
 #  leo-clean:
 #    docker:
-#      - image: cimg/rust:1.56.1
+#      - image: cimg/rust:1.59.0
 #    resource_class: xlarge
 #    steps:
 #      - attach_workspace:
@@ -175,7 +175,7 @@ jobs:
 #
 #  leo-setup:
 #    docker:
-#      - image: cimg/rust:1.56.1
+#      - image: cimg/rust:1.59.0
 #    resource_class: xlarge
 #    steps:
 #      - attach_workspace:
@@ -188,7 +188,7 @@ jobs:
 
   # leo-add-remove:
   #   docker:
-  #     - image: cimg/rust:1.56.1
+  #     - image: cimg/rust:1.59.0
   #   resource_class: xlarge
   #   steps:
   #     - attach_workspace:
@@ -202,7 +202,7 @@ jobs:
 # todo (collin): uncomment after compiler refactor
 #  leo-check-constraints:
 #    docker:
-#       - image: cimg/rust:1.56.1
+#       - image: cimg/rust:1.59.0
 #    resource_class: xlarge
 #    steps:
 #      - attach_workspace:
@@ -215,7 +215,7 @@ jobs:
 #
 #  leo-login-logout:
 #    docker:
-#      - image: cimg/rust:1.56.1
+#      - image: cimg/rust:1.59.0
 #    resource_class: xlarge
 #    steps:
 #      - attach_workspace:
@@ -228,7 +228,7 @@ jobs:
 #
 #  leo-clone:
 #    docker:
-#      - image: cimg/rust:1.56.1
+#      - image: cimg/rust:1.59.0
 #    resource_class: xlarge
 #    steps:
 #      - attach_workspace:
@@ -241,7 +241,7 @@ jobs:
 #
 #  leo-publish:
 #    docker:
-#      - image: cimg/rust:1.56.1
+#      - image: cimg/rust:1.59.0
 #    resource_class: xlarge
 #    steps:
 #      - attach_workspace:
