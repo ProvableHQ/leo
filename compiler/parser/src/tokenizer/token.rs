@@ -39,7 +39,7 @@ impl fmt::Display for Char {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Scalar(c) => write!(f, "{}", c),
-            Self::NonScalar(c) => write!(f, "{}", c),
+            Self::NonScalar(c) => write!(f, "{:X}", c),
         }
     }
 }
