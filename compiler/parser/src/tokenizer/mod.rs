@@ -44,10 +44,8 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
         match Token::eat(input.subtendril(index as u32, (input.len() - index) as u32))? {
             (token_len, Token::WhiteSpace) => {
                 if token_len == 0 && index == input.len() {
-                    // impossible to hit, whitespace always returns token_len = 1
                     break;
                 } else if token_len == 0 {
-                    // impossible to hit, whitespace always returns token_len = 1
                     return Err(ParserError::unexpected_token(
                         &input[index..].chars().next().unwrap(),
                         &Span::new(

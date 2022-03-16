@@ -147,12 +147,10 @@ impl Token {
     ///
     fn eat_integer(input_tendril: &StrTendril) -> Result<(usize, Token)> {
         if input_tendril.is_empty() {
-            // impossible to hit if function is used correctly
             return Err(ParserError::lexer_empty_input_tendril().into());
         }
         let input = input_tendril.as_bytes();
         if !input[0].is_ascii_digit() {
-            // impossible to hit if function is used correctly
             return Err(ParserError::lexer_eat_integer_leading_zero(String::from_utf8_lossy(input)).into());
         }
         let mut i = 1;
@@ -182,10 +180,8 @@ impl Token {
             mask >>= 1;
         }
         if result == 0 {
-            // impossible to hit if function is used correctly
             1
         } else if result > 4 {
-            // only possible if invalid chars were sent directly to parser
             4
         } else {
             result
