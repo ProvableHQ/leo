@@ -90,7 +90,7 @@ impl Token {
         // Account for the chars '\' and 'x'.
         let mut len = 2;
 
-        // At least one hex character necessary.
+        // First hex character.
         if let Some(c) = input.next_if(|c| c != &'\'') {
             len += 1;
             hex.push(c);
@@ -100,10 +100,14 @@ impl Token {
             return Err(ParserError::lexer_empty_input_tendril().into());
         }
 
-        // Second hex character optional.
+        // Second hex character.
         if let Some(c) = input.next_if(|c| c != &'\'') {
             len += 1;
             hex.push(c);
+        } else if let Some(c) = input.next() {
+            return Err(ParserError::lexer_expected_valid_hex_char(c).into());
+        } else {
+            return Err(ParserError::lexer_empty_input_tendril().into());
         }
 
         if let Ok(ascii_number) = u8::from_str_radix(&hex, 16) {
@@ -313,10 +317,9 @@ impl Token {
                 return Ok((1, Token::Dot));
             }
             Some(c) if c == &'/' => {
-                let mut comment = String::from(*c);
                 input.next();
-                if let Some(c) = input.next_if_eq(&'/') {
-                    comment.push(c);
+                if input.next_if_eq(&'/').is_some() {
+                    let mut comment = String::from("//");
 
                     while let Some(c) = input.next_if(|c| c != &'\n') {
                         comment.push(c);
@@ -324,12 +327,12 @@ impl Token {
 
                     if let Some(newline) = input.next_if_eq(&'\n') {
                         comment.push(newline);
-                        return Ok((comment.len() + 1, Token::CommentLine(comment)));
+                        return Ok((comment.len(), Token::CommentLine(comment)));
                     }
 
                     return Ok((comment.len(), Token::CommentLine(comment)));
-                } else if let Some(c) = input.next_if_eq(&'*') {
-                    comment.push(c);
+                } else if input.next_if_eq(&'*').is_some() {
+                    let mut comment = String::from("/*");
 
                     if input.peek().is_none() {
                         return Err(ParserError::lexer_empty_block_comment().into());
@@ -348,7 +351,7 @@ impl Token {
                     if !ended {
                         return Err(ParserError::lexer_block_comment_does_not_close_before_eof(comment).into());
                     }
-                    return Ok((comment.len() + 4, Token::CommentBlock(comment)));
+                    return Ok((comment.len(), Token::CommentBlock(comment)));
                 } else if input.next_if_eq(&'=').is_some() {
                     return Ok((2, Token::DivEq));
                 }

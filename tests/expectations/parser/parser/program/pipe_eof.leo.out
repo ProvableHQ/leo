@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error [EPAR0370032]: Could not lex the following content: `|`."
+  - "Error [EPAR0370024]: Expected more characters to lex but found none."

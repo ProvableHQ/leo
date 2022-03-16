@@ -237,6 +237,7 @@ mod tests {
         });
     }
 
+    #[test]
     fn test_spans() {
         create_session_if_not_set_then(|_| {
             let raw = r#"

@@ -2,12 +2,12 @@
 namespace: Token
 expectation: Fail
 outputs:
-  - "Error [EPAR0370027]: Expected a closed string but found `\"Hello world!`."
-  - "Error [EPAR0370027]: Expected a closed string but found `\"\\\"`."
+  - "Error [EPAR0370027]: Expected a closed string but found `[Scalar('H'), Scalar('e'), Scalar('l'), Scalar('l'), Scalar('o'), Scalar(' '), Scalar('w'), Scalar('o'), Scalar('r'), Scalar('l'), Scalar('d'), Scalar('!')]`."
+  - "Error [EPAR0370027]: Expected a closed string but found `[Scalar('\"')]`."
   - "Error [EPAR0370026]: Expected a valid escape character but found `l`."
-  - "Error [EPAR0370027]: Expected a closed string but found `\"\\uaaa\"`."
-  - "Error [EPAR0370027]: Expected a closed string but found `\"\\u\"`."
-  - "Error [EPAR0370036]: Expected a valid hex character but found `255`."
-  - "Error [EPAR0370027]: Expected a closed string but found `\"\\x\"`."
-  - "Error [EPAR0370042]: There was no opening `{` after starting an escaped unicode `\\u}`."
-  - "Error [EPAR0370043]: There was an emoji found in the escaped unicode character: `\"\\u6🦀`."
+  - "Error [EPAR0370042]: There was no opening `{` after starting an escaped unicode `a`."
+  - "Error [EPAR0370042]: There was no opening `{` after starting an escaped unicode `\"`."
+  - "Error [EPAR0370036]: Expected a valid hex character but found `FF`."
+  - "Error [EPAR0370024]: Expected more characters to lex but found none."
+  - "Error [EPAR0370042]: There was no opening `{` after starting an escaped unicode `}`."
+  - "Error [EPAR0370042]: There was no opening `{` after starting an escaped unicode `6`."
