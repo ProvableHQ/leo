@@ -10,3 +10,7 @@ outputs:
   - "did not consume all input: 'group' @ 1:6-11\n"
   - "did not consume all input: 'group' @ 1:12-17\n"
   - "did not consume all input: 'group' @ 1:15-20\n"
+  - "Error [EPAR0370004]: Unexpected white space between terms (123,456) and group\n    --> test:1:10\n     |\n   1 | (123, 456) group\n     |          ^"
+  - "did not consume all input: 'group' @ 1:8-13\n"
+  - "did not consume all input: 'group' @ 1:16-21\n"
+  - "did not consume all input: 'bool' @ 1:11-15\n"

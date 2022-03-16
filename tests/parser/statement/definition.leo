@@ -98,3 +98,8 @@ const (x, y): u32 = x();
 let (x,y,) = ();
 
 let x: [[u8; 2]; 2] = [[0,0], [0,0]];
+
+let x: [u8; (2, 2)] = [[0,0], [0,0]];
+
+
+let x: address = aleo15u4r0gzjtqzepkgurgn7p3u5kkhs9p74rx6aun3uh2s5std6759svgmg53;

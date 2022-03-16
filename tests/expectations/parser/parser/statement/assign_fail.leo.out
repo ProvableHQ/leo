@@ -1,0 +1,18 @@
+---
+namespace: ParseStatement
+expectation: Fail
+outputs:
+  - "Error [EPAR0370011]: invalid assignment target\n    --> test:1:1\n     |\n   1 | x::y = y;\n     | ^^^^"
+  - "Error [EPAR0370011]: invalid assignment target\n    --> test:1:1\n     |\n   1 | 5 = y;\n     | ^"
+  - "Error [EPAR0370011]: invalid assignment target\n    --> test:1:1\n     |\n   1 | x + x = y;\n     | ^^^^^"
+  - "Error [EPAR0370011]: invalid assignment target\n    --> test:1:1\n     |\n   1 | -x = y;\n     | ^^"
+  - "Error [EPAR0370011]: invalid assignment target\n    --> test:1:1\n     |\n   1 | !x = y;\n     | ^^"
+  - "Error [EPAR0370011]: invalid assignment target\n    --> test:1:1\n     |\n   1 | a? x : x = y;\n     | ^^^^^^^^"
+  - "Error [EPAR0370011]: invalid assignment target\n    --> test:1:1\n     |\n   1 | x as u32 = y;\n     | ^^^^^^^^"
+  - "Error [EPAR0370011]: invalid assignment target\n    --> test:1:1\n     |\n   1 | [x, x, x] = y;\n     | ^^^^^^^^^"
+  - "Error [EPAR0370011]: invalid assignment target\n    --> test:1:1\n     |\n   1 | [x; 3] = y;\n     | ^^^^^^"
+  - "Error [EPAR0370011]: invalid assignment target\n    --> test:1:1\n     |\n   1 | (x, x, x) = y;\n     | ^^^^^^^^^"
+  - "Error [EPAR0370011]: invalid assignment target\n    --> test:1:1\n     |\n   1 | x {x: y, y: z} = y;\n     | ^^^^^^^^^^^^^^"
+  - "Error [EPAR0370011]: invalid assignment target\n    --> test:1:1\n     |\n   1 | x() = y;\n     | ^^^"
+  - "Error [EPAR0370011]: invalid assignment target\n    --> test:1:1\n     |\n   1 | x.y() = y;\n     | ^^^^^"
+  - "Error [EPAR0370032]: Could not lex the following content: `🦀 = y;`."

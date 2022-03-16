@@ -166,21 +166,15 @@ impl<'a> ParserContext<'a> {
     /// the next token is not a [`GroupCoordinate`].
     ///
     fn peek_group_coordinate(&self, i: &mut usize) -> Option<GroupCoordinate> {
-        if *i < 1 {
-            return None;
-        }
-        let token = self.tokens.get(*i - 1)?;
-        *i -= 1;
+        *i = i.checked_sub(1)?;
+        let token = self.tokens.get(*i)?;
         Some(match &token.token {
             Token::Add => GroupCoordinate::SignHigh,
-            Token::Minus if *i > 0 => match self.tokens.get(*i - 1) {
+            Token::Minus => match self.tokens.get(i.checked_sub(1)?) {
                 Some(SpannedToken {
                     token: Token::Int(value),
                     span,
                 }) => {
-                    if *i < 1 {
-                        return None;
-                    }
                     *i -= 1;
                     GroupCoordinate::Number(format_tendril!("-{}", value), span.clone())
                 }
@@ -213,57 +207,41 @@ impl<'a> ParserContext<'a> {
     ///
     pub fn eat_group_partial(&mut self) -> Option<Result<(GroupCoordinate, GroupCoordinate, Span)>> {
         let mut i = self.tokens.len();
-        if i < 1 {
-            return None;
-        }
-        let start_span = self.tokens.get(i - 1)?.span.clone();
+        let start_span = self.tokens.get(i.checked_sub(1)?)?.span.clone();
         let first = self.peek_group_coordinate(&mut i)?;
-        if i < 1 {
+        i = i.checked_sub(1)?;
+        if !matches!(
+            self.tokens.get(i),
+            Some(SpannedToken {
+                token: Token::Comma,
+                ..
+            })
+        ) {
             return None;
         }
-        match self.tokens.get(i - 1) {
-            Some(SpannedToken {
-                token: Token::Comma, ..
-            }) => {
-                i -= 1;
-            }
-            _ => {
-                return None;
-            }
-        }
+
         let second = self.peek_group_coordinate(&mut i)?;
-        if i < 1 {
+        i = i.checked_sub(1)?;
+        let right_paren_span = if let Some(SpannedToken {
+            token: Token::RightParen,
+            span,
+        }) = self.tokens.get(i)
+        {
+            span.clone()
+        } else {
             return None;
-        }
-        let right_paren_span;
-        match self.tokens.get(i - 1) {
-            Some(SpannedToken {
-                token: Token::RightParen,
-                span,
-            }) => {
-                right_paren_span = span.clone();
-                i -= 1;
-            }
-            _ => {
-                return None;
-            }
-        }
-        if i < 1 {
+        };
+
+        i = i.checked_sub(1)?;
+        let end_span = if let Some(SpannedToken {
+            token: Token::Group,
+            span,
+        }) = self.tokens.get(i)
+        {
+            span.clone()
+        } else {
             return None;
-        }
-        let end_span;
-        match self.tokens.get(i - 1) {
-            Some(SpannedToken {
-                token: Token::Group,
-                span,
-            }) => {
-                end_span = span.clone();
-                i -= 1;
-            }
-            _ => {
-                return None;
-            }
-        }
+        };
 
         self.tokens.drain(i..);
         if let Err(e) = assert_no_whitespace(

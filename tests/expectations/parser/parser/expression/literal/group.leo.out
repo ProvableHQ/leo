@@ -680,3 +680,35 @@ outputs:
             col_stop: 16
             path: ""
             content: "(123, 456)group"
+  - Value:
+      Group:
+        Single:
+          - "1"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 7
+              path: ""
+              content: 1group
+  - Unary:
+      inner:
+        Value:
+          Group:
+            Single:
+              - "1"
+              - span:
+                  line_start: 1
+                  line_stop: 1
+                  col_start: 2
+                  col_stop: 8
+                  path: ""
+                  content: "-1group"
+      op: Negate
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 8
+        path: ""
+        content: "-1group"

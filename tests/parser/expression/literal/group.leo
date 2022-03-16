@@ -66,3 +66,7 @@ expectation: Pass
 (123, 456)group
 
 (123, 456)group
+
+1group
+
+-1group

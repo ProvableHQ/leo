@@ -33,6 +33,16 @@ outputs:
             path: ""
             content: 456field
   - Value:
+      Implicit:
+        - ""
+        - span:
+            line_start: 0
+            line_stop: 0
+            col_start: 0
+            col_stop: 0
+            path: ""
+            content: ""
+  - Value:
       Field:
         - "87377802873778028737780287377802873778028737780287377802873778028737780287377802"
         - span:

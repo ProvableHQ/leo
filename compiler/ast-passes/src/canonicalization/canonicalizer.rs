@@ -442,7 +442,7 @@ impl Canonicalizer {
                         match &console_function_call.function {
                             ConsoleFunction::Error(_) => ConsoleFunction::Error(console_args),
                             ConsoleFunction::Log(_) => ConsoleFunction::Log(console_args),
-                            _ => unimplemented!(), // impossible
+                            _ => unimplemented!(),
                         }
                     }
                 };
