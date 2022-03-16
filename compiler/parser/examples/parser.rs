@@ -47,7 +47,7 @@ fn main() -> Result<(), String> {
     // Parses the Leo file constructing an ast which is then serialized.
     let serialized_leo_tree = create_session_if_not_set_then(|_| {
         Handler::with(|h| {
-            let ast = leo_parser::parse_ast(&h, opt.input_path.to_str().unwrap(), &code)?;
+            let ast = leo_parser::parse_ast(h, opt.input_path.to_str().unwrap(), &code)?;
             let json = Ast::to_json_string(&ast)?;
             println!("{}", json);
             Ok(json)

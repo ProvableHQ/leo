@@ -221,29 +221,27 @@ impl<'a> ParserContext<'a> {
         }
 
         let second = self.peek_group_coordinate(&mut i)?;
-        let right_paren_span;
         i = i.checked_sub(1)?;
-        if let Some(SpannedToken {
+        let right_paren_span = if let Some(SpannedToken {
             token: Token::RightParen,
             span,
         }) = self.tokens.get(i)
         {
-            right_paren_span = span.clone();
+            span.clone()
         } else {
             return None;
-        }
+        };
 
-        let end_span;
         i = i.checked_sub(1)?;
-        if let Some(SpannedToken {
+        let end_span = if let Some(SpannedToken {
             token: Token::Group,
             span,
         }) = self.tokens.get(i)
         {
-            end_span = span.clone();
+            span.clone()
         } else {
             return None;
-        }
+        };
 
         self.tokens.drain(i..);
         if let Err(e) = assert_no_whitespace(

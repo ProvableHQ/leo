@@ -70,14 +70,7 @@ fn take_hook(
     output: Result<Result<Value, String>, Box<dyn Any + Send>>,
     panic_buf: Arc<Mutex<Option<String>>>,
 ) -> Result<Result<Value, String>, String> {
-    output.map_err(|_| {
-        panic_buf
-            .lock()
-            .unwrap()
-            .take()
-            .expect("failed to get panic message")
-            .clone()
-    })
+    output.map_err(|_| panic_buf.lock().unwrap().take().expect("failed to get panic message"))
 }
 
 pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {

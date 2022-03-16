@@ -48,8 +48,8 @@ fn main() -> Result<(), String> {
     let input_tree = create_session_if_not_set_then(|_| {
         Handler::with(|handler| {
             let input =
-                leo_parser::parse_program_inputs(&handler, input_string.clone(), opt.input_path.to_str().unwrap())?;
-            Ok(input.to_json_string()?)
+                leo_parser::parse_program_inputs(handler, input_string.clone(), opt.input_path.to_str().unwrap())?;
+            input.to_json_string()
         })
         .map_err(|e| e.to_string())
     })?;

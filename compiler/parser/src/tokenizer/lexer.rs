@@ -422,7 +422,7 @@ impl Token {
                         eol + 4
                     } else {
                         return Err(ParserError::lexer_block_comment_does_not_close_before_eof(
-                            String::from_utf8_lossy(&input),
+                            String::from_utf8_lossy(input),
                         )
                         .into());
                     };
@@ -515,7 +515,7 @@ impl Token {
             ));
         }
 
-        Err(ParserError::could_not_lex(String::from_utf8_lossy(&input)).into())
+        Err(ParserError::could_not_lex(String::from_utf8_lossy(input)).into())
     }
 }
 
