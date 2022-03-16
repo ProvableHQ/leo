@@ -88,7 +88,7 @@ impl Serialize for Span {
         } else {
             state.serialize_field("path", "")?;
         }
-        state.serialize_field("content", &self.content[..])?;
+        state.serialize_field("content", &self.content)?;
         state.end()
     }
 }

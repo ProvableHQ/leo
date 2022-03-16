@@ -1540,3 +1540,132 @@ outputs:
         col_stop: 37
         path: ""
         content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: [u8; (2, 2)] = [[0,0], [0,0]];\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
+      type_:
+        Array:
+          - IntegerType: U8
+          - - value: "2"
+            - value: "2"
+      value:
+        ArrayInline:
+          elements:
+            - Expression:
+                ArrayInline:
+                  elements:
+                    - Expression:
+                        Value:
+                          Implicit:
+                            - "0"
+                            - span:
+                                line_start: 1
+                                line_stop: 1
+                                col_start: 25
+                                col_stop: 26
+                                path: ""
+                                content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
+                    - Expression:
+                        Value:
+                          Implicit:
+                            - "0"
+                            - span:
+                                line_start: 1
+                                line_stop: 1
+                                col_start: 27
+                                col_stop: 28
+                                path: ""
+                                content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
+                  span:
+                    line_start: 1
+                    line_stop: 1
+                    col_start: 24
+                    col_stop: 29
+                    path: ""
+                    content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
+            - Expression:
+                ArrayInline:
+                  elements:
+                    - Expression:
+                        Value:
+                          Implicit:
+                            - "0"
+                            - span:
+                                line_start: 1
+                                line_stop: 1
+                                col_start: 32
+                                col_stop: 33
+                                path: ""
+                                content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
+                    - Expression:
+                        Value:
+                          Implicit:
+                            - "0"
+                            - span:
+                                line_start: 1
+                                line_stop: 1
+                                col_start: 34
+                                col_stop: 35
+                                path: ""
+                                content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
+                  span:
+                    line_start: 1
+                    line_stop: 1
+                    col_start: 31
+                    col_stop: 36
+                    path: ""
+                    content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 23
+            col_stop: 37
+            path: ""
+            content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 37
+        path: ""
+        content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: address = aleo15u4r0gzjtqzepkgurgn7p3u5kkhs9p74rx6aun3uh2s5std6759svgmg53;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: "let x: address = aleo15u4r0gzjtqzepkgurgn7p3u5kkhs9p74rx6aun3uh2s5std6759svgmg53;"
+      type_: Address
+      value:
+        Value:
+          Address:
+            - aleo15u4r0gzjtqzepkgurgn7p3u5kkhs9p74rx6aun3uh2s5std6759svgmg53
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 18
+                col_stop: 81
+                path: ""
+                content: "let x: address = aleo15u4r0gzjtqzepkgurgn7p3u5kkhs9p74rx6aun3uh2s5std6759svgmg53;"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 81
+        path: ""
+        content: "let x: address = aleo15u4r0gzjtqzepkgurgn7p3u5kkhs9p74rx6aun3uh2s5std6759svgmg53;"

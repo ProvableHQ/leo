@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370003]: unexpected EOF\n    --> test:3:1\n     |\n   3 | const\n     | ^^^^^"
