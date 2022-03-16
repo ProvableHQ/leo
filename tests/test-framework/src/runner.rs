@@ -70,6 +70,7 @@ fn take_hook(
     output: Result<Result<Value, String>, Box<dyn Any + Send>>,
     panic_buf: Arc<Mutex<Option<String>>>,
 ) -> Result<Result<Value, String>, String> {
+    let _ = panic::take_hook();
     output.map_err(|_| panic_buf.lock().unwrap().take().expect("failed to get panic message"))
 }
 
