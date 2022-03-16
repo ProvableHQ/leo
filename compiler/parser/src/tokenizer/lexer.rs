@@ -35,7 +35,7 @@ fn eat_identifier(input: &mut Peekable<impl Iterator<Item = char>>) -> Option<St
     }
 
     let mut ident = String::new();
-    while let Some(c) = input.next_if(|c| c.is_ascii_alphabetic()) {
+    while let Some(c) = input.next_if(|c| c.is_ascii_alphanumeric() || c == &'_') {
         ident.push(c);
     }
     Some(ident)
@@ -133,15 +133,12 @@ impl Token {
     /// Returns a tuple: [(integer length, integer token)] if an integer can be eaten, otherwise returns [`None`].
     /// An integer can be eaten if its bytes are at the front of the given `input_tendril` string.
     ///
-    fn eat_integer(lead: char, input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Token)> {
-        let mut int = String::from(lead);
-
-        match input.peek() {
-            None => return Err(ParserError::lexer_empty_input_tendril().into()),
-            Some(c) if !c.is_ascii_digit() => return Err(ParserError::lexer_eat_integer_leading_zero(c).into()),
-            _ => {}
+    fn eat_integer(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Token)> {
+        if input.peek().is_none() {
+            return Err(ParserError::lexer_empty_input_tendril().into());
         }
 
+        let mut int = String::new();
         while let Some(c) = input.next_if(|c| c.is_ascii_digit()) {
             if c == '0' && matches!(input.peek(), Some('x')) {
                 int.push(c);
@@ -183,30 +180,78 @@ impl Token {
 
         let mut input = input_tendril.chars().peekable();
 
-        match input.next() {
-            Some(x) if x.is_ascii_whitespace() => return Ok((1, Token::WhiteSpace)),
-            Some(lead) if lead.is_ascii_digit() => {
-                return Self::eat_integer(lead, &mut input);
+        match input.peek() {
+            Some(x) if x.is_ascii_whitespace() => {
+                input.next();
+                return Ok((1, Token::WhiteSpace));
+            }
+            Some('"') => {
+                let mut string = Vec::new();
+                input.next();
+
+                while let Some(c) = input.next_if(|c| c != &'"') {
+                    let character = leo_ast::Char::Scalar(c);
+                    string.push(character);
+                }
+
+                if input.next_if_eq(&'"').is_some() {
+                    return Ok((string.len() + 2, Token::StringLit(string)));
+                }
+
+                return Err(ParserError::lexer_string_not_closed(string).into());
+            }
+            Some('\'') => {
+                input.next();
+
+                if let Some(c) = input.next() {
+                    dbg!(&c);
+                    if input.next_if_eq(&'\'').is_some() {
+                        input.next();
+                        return Ok((c.len_utf8() + 2, Token::CharLit(Char::Scalar(c))));
+                    } else if let Some(c) = input.next() {
+                        return Err(ParserError::lexer_string_not_closed(c).into());
+                    } else {
+                        return Err(ParserError::lexer_empty_input_tendril().into());
+                    }
+                }
+
+                return Err(ParserError::lexer_empty_input_tendril().into());
+            }
+            Some(x) if x.is_ascii_digit() => {
+                return Self::eat_integer(&mut input);
             }
             Some('!') => {
+                input.next();
                 if input.next_if_eq(&'=').is_some() {
                     return Ok((2, Token::NotEq));
                 }
                 return Ok((1, Token::Not));
             }
             Some('?') => {
+                input.next();
                 return Ok((1, Token::Question));
             }
             Some('&') => {
+                input.next();
                 if input.next_if_eq(&'&').is_some() {
                     return Ok((2, Token::And));
                 }
                 return Ok((1, Token::Ampersand));
             }
-            Some('(') => return Ok((1, Token::LeftParen)),
-            Some(')') => return Ok((1, Token::RightParen)),
-            Some('_') => return Ok((1, Token::Underscore)),
+            Some('(') => {
+                input.next();
+                return Ok((1, Token::LeftParen));
+            }
+            Some(')') => {
+                input.next();
+                return Ok((1, Token::RightParen));
+            }
+            Some('_') => {
+                input.next();
+                return Ok((1, Token::Underscore));
+            }
             Some('*') => {
+                input.next();
                 if input.next_if_eq(&'*').is_some() {
                     if input.next_if_eq(&'=').is_some() {
                         return Ok((3, Token::ExpEq));
@@ -218,13 +263,18 @@ impl Token {
                 return Ok((1, Token::Mul));
             }
             Some('+') => {
+                input.next();
                 if input.next_if_eq(&'=').is_some() {
                     return Ok((2, Token::AddEq));
                 }
                 return Ok((1, Token::Add));
             }
-            Some(',') => return Ok((1, Token::Comma)),
+            Some(',') => {
+                input.next();
+                return Ok((1, Token::Comma));
+            }
             Some('-') => {
+                input.next();
                 if input.next_if_eq(&'>').is_some() {
                     return Ok((2, Token::Arrow));
                 } else if input.next_if_eq(&'=').is_some() {
@@ -233,6 +283,7 @@ impl Token {
                 return Ok((1, Token::Minus));
             }
             Some('.') => {
+                input.next();
                 if input.next_if_eq(&'.').is_some() {
                     if input.next_if_eq(&'.').is_some() {
                         return Ok((3, Token::DotDotDot));
@@ -242,8 +293,9 @@ impl Token {
                 }
                 return Ok((1, Token::Dot));
             }
-            Some(c) if c == '/' => {
-                let mut comment = String::from(c);
+            Some(c) if c == &'/' => {
+                let mut comment = String::from(*c);
+                input.next();
                 if let Some(c) = input.next_if_eq(&'/') {
                     comment.push(c);
 
@@ -251,7 +303,8 @@ impl Token {
                         comment.push(c);
                     }
 
-                    if input.next_if_eq(&'\n').is_some() {
+                    if let Some(newline) = input.next_if_eq(&'\n') {
+                        comment.push(newline);
                         return Ok((comment.len() + 1, Token::CommentLine(comment)));
                     }
 
@@ -283,37 +336,60 @@ impl Token {
                 return Ok((1, Token::Div));
             }
             Some(':') => {
+                input.next();
                 if input.next_if_eq(&':').is_some() {
                     return Ok((2, Token::DoubleColon));
                 } else {
                     return Ok((1, Token::Colon));
                 }
             }
-            Some(';') => return Ok((1, Token::Semicolon)),
+            Some(';') => {
+                input.next();
+                return Ok((1, Token::Semicolon));
+            }
             Some('<') => {
+                input.next();
                 if input.next_if_eq(&'=').is_some() {
                     return Ok((2, Token::LtEq));
                 }
                 return Ok((1, Token::Lt));
             }
             Some('>') => {
+                input.next();
                 if input.next_if_eq(&'=').is_some() {
                     return Ok((2, Token::GtEq));
                 }
                 return Ok((1, Token::Gt));
             }
             Some('=') => {
+                input.next();
                 if input.next_if_eq(&'=').is_some() {
                     return Ok((2, Token::Eq));
                 }
                 return Ok((1, Token::Assign));
             }
-            Some('@') => return Ok((1, Token::At)),
-            Some('[') => return Ok((1, Token::LeftSquare)),
-            Some(']') => return Ok((1, Token::RightSquare)),
-            Some('{') => return Ok((1, Token::LeftCurly)),
-            Some('}') => return Ok((1, Token::RightCurly)),
+            Some('@') => {
+                input.next();
+                return Ok((1, Token::At));
+            }
+            Some('[') => {
+                input.next();
+                return Ok((1, Token::LeftSquare));
+            }
+            Some(']') => {
+                input.next();
+                return Ok((1, Token::RightSquare));
+            }
+            Some('{') => {
+                input.next();
+                return Ok((1, Token::LeftCurly));
+            }
+            Some('}') => {
+                input.next();
+                return Ok((1, Token::RightCurly));
+            }
             Some('|') => {
+                input.next();
                 if input.next_if_eq(&'|').is_some() {
                     return Ok((2, Token::Or));
                 } else if let Some(found) = input.next() {

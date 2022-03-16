@@ -39,7 +39,7 @@ pub(crate) fn tokenize(path: &str, input: &str) -> Result<Vec<SpannedToken>> {
     let mut line_no = 1usize;
     let mut line_start = 0usize;
     while input.len() > index {
-        match Token::eat(&input[index..(input.len() - index)])? {
+        match Token::eat(&input[index..input.len()])? {
             (token_len, Token::WhiteSpace) => {
                 if token_len == 0 && index == input.len() {
                     break;
@@ -52,7 +52,12 @@ pub(crate) fn tokenize(path: &str, input: &str) -> Result<Vec<SpannedToken>> {
                             index - line_start + 1,
                             index - line_start + 2,
                             path,
-                            input[line_start..input[line_start..].find('\n').unwrap_or(input.len())].to_string(),
+                            input[line_start
+                                ..input[line_start..]
+                                    .find('\n')
+                                    .map(|i| i + line_start)
+                                    .unwrap_or(input.len())]
+                                .to_string(),
                         ),
                     )
                     .into());
@@ -78,7 +83,12 @@ pub(crate) fn tokenize(path: &str, input: &str) -> Result<Vec<SpannedToken>> {
                     index - line_start + 1,
                     index - line_start + token_len + 1,
                     path.clone(),
-                    input[line_start..input[line_start..].find('\n').unwrap_or(input.len() - line_start)].to_string(),
+                    input[line_start
+                        ..input[line_start..]
+                            .find('\n')
+                            .map(|i| i + line_start)
+                            .unwrap_or(input.len())]
+                        .to_string(),
                 );
                 match &token {
                     Token::CommentLine(_) => {
@@ -121,6 +131,12 @@ mod tests {
             let tokens = tokenize(
                 "test_path",
                 r#"
+        'a'
+        '😭'
+        '\u{10001F}'
+        '\x7f'
+        '\x00'
+        '\x37'
         "test"
         "test{}test"
         "test{}"
@@ -219,7 +235,7 @@ mod tests {
 
             assert_eq!(
                 output,
-                r#""test" "test{}test" "test{}" "{}test" "test{" "test}" "test{test" "test}test" "te{{}}" aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8 test_ident 12345 address as bool circuit const else false field for function group i128 i64 i32 i16 i8 if import in input let mut & return static string test true u128 u64 u32 u16 u8 self Self console ! != && ( ) * ** **= *= + += , - -= -> _ . .. ... / /= : :: ; < <= = == > >= @ [ ] { { } } || ? // test
+                r#"'a' '😭' '\u{10001F}' "test" "test{}test" "test{}" "{}test" "test{" "test}" "test{test" "test}test" "te{{}}" aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8 test_ident 12345 address as bool circuit const else false field for function group i128 i64 i32 i16 i8 if import in input let mut & return static string test true u128 u64 u32 u16 u8 self Self console ! != && ( ) * ** **= *= + += , - -= -> _ . .. ... / /= : :: ; < <= = == > >= @ [ ] { { } } || ? // test
  /* test */ // "#
             );
         });
