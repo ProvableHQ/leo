@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error [EPAR0370032]: Could not lex the following content: `\\1u8`."
+  - "Error [EPAR0370030]: Could not lex the following content: `\\1u8`."

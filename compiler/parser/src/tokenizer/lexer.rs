@@ -41,6 +41,7 @@ fn eat_identifier(input: &mut Peekable<impl Iterator<Item = char>>) -> Option<St
 }
 
 impl Token {
+    // Eats the parts of the unicode character after \u.
     fn eat_unicode_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
         let mut unicode = String::new();
         // Account for the chars '\' and 'u'.
@@ -85,6 +86,7 @@ impl Token {
         }
     }
 
+    // Eats the parts of the hex character after \x.
     fn eat_hex_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
         let mut hex = String::new();
         // Account for the chars '\' and 'x'.
@@ -173,23 +175,6 @@ impl Token {
         Ok((int.len(), Token::Int(int)))
     }
 
-    /// Returns the number of bytes in an utf-8 encoding that starts with this byte.
-    fn _utf8_byte_count(byte: u8) -> usize {
-        let mut mask = 0x80;
-        let mut result = 0;
-        while byte & mask > 0 {
-            result += 1;
-            mask >>= 1;
-        }
-        if result == 0 {
-            1
-        } else if result > 4 {
-            4
-        } else {
-            result
-        }
-    }
-
     ///
     /// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns [`None`].
     /// The next token can be eaten if the bytes at the front of the given `input_tendril` string can be scanned into a token.
@@ -234,8 +219,8 @@ impl Token {
                 if input.next_if_eq(&'\'').is_some() {
                     input.next();
                     return Ok((len + 2, Token::CharLit(character)));
-                } else if let Some(c) = input.next() {
-                    return Err(ParserError::lexer_string_not_closed(c).into());
+                } else if input.next().is_some() {
+                    return Err(ParserError::lexer_char_not_closed(character).into());
                 } else {
                     return Err(ParserError::lexer_empty_input_tendril().into());
                 }
