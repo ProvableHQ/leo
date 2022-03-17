@@ -993,7 +993,7 @@ A tuple type consists of zero, two, or more component types.
 
 <a name="tuple-type"></a>
 ```abnf
-tuple-type = "(" [ type 1*( "," type ) ] ")"
+tuple-type = "(" [ type 1*( "," type ) [ "," ] ] ")"
 ```
 
 Go to: _[type](#user-content-type)_;
@@ -1002,7 +1002,7 @@ Go to: _[type](#user-content-type)_;
 An array type consists of an element type
 and an indication of dimensions.
 There is either a single dimension,
-or a tuple of one or more dimensions.
+or a tuple of two or more dimensions.
 Each dimension is a numeral.
 
 <a name="array-type"></a>
@@ -1015,7 +1015,7 @@ Go to: _[array-dimensions](#user-content-array-dimensions), [type](#user-content
 
 <a name="array-dimensions"></a>
 ```abnf
-array-dimensions = numeral / "(" numeral *( "," numeral ) ")"
+array-dimensions = numeral / "(" numeral 1*( "," numeral ) [ "," ] ")"
 ```
 
 Go to: _[numeral](#user-content-numeral)_;
@@ -1152,7 +1152,7 @@ Each consists of zero, two, or more component expressions.
 
 <a name="tuple-construction"></a>
 ```abnf
-tuple-construction = "(" [ expression 1*( "," expression ) ] ")"
+tuple-construction = "(" [ expression 1*( "," expression ) [ "," ] ] ")"
 ```
 
 Go to: _[expression](#user-content-expression)_;
@@ -1178,6 +1178,7 @@ across one or more dimensions.
 array-inline-construction = "["
                             array-inline-element
                             *( "," array-inline-element )
+                            [ "," ]
                             "]"
 ```
 
@@ -1279,7 +1280,7 @@ as static constants are associated to named types.
 
 <a name="function-arguments"></a>
 ```abnf
-function-arguments = "(" [ expression *( "," expression ) ] ")"
+function-arguments = "(" [ expression *( "," expression ) [ "," ] ] ")"
 ```
 
 Go to: _[expression](#user-content-expression)_;
@@ -1502,7 +1503,7 @@ Go to: _[expression](#user-content-expression), [identifier-or-identifiers](#use
 <a name="identifier-or-identifiers"></a>
 ```abnf
 identifier-or-identifiers = identifier
-                          / "(" identifier 1*( "," identifier ) ")"
+                          / "(" identifier 1*( "," identifier ) [ "," ] ")"
 ```
 
 Go to: _[identifier](#user-content-identifier)_;
@@ -1605,7 +1606,7 @@ print-function = %s"error" / %s"log"
 
 <a name="print-arguments"></a>
 ```abnf
-print-arguments = "(" string-literal  *( "," expression ) ")"
+print-arguments = "(" string-literal  *( "," expression ) [ "," ] ")"
 ```
 
 Go to: _[string-literal](#user-content-string-literal)_;
@@ -1625,7 +1626,7 @@ with optional annotation arguments, which are identifiers.
 <a name="annotation"></a>
 ```abnf
 annotation = annotation-name
-             [ "(" *( identifier "," ) [ identifier ] ")" ]
+             [ "(" [ identifier *( "," identifier ) [ "," ] ] ")" ]
 ```
 
 Go to: _[annotation-name](#user-content-annotation-name), [identifier](#user-content-identifier)_;
@@ -1650,7 +1651,7 @@ Go to: _[block](#user-content-block), [function-parameters](#user-content-functi
 
 <a name="function-parameters"></a>
 ```abnf
-function-parameters = self-parameter
+function-parameters = self-parameter [ "," ]
                     / self-parameter "," function-inputs
                     / function-inputs
 ```
@@ -1665,7 +1666,7 @@ self-parameter = [ %s"&" / %s"const" ] %s"self"
 
 <a name="function-inputs"></a>
 ```abnf
-function-inputs = function-input *( "," function-input )
+function-inputs = function-input *( "," function-input ) [ "," ]
 ```
 
 Go to: _[function-input](#user-content-function-input)_;
@@ -1706,8 +1707,9 @@ see the rule `circuit-declaration`.
 
 <a name="member-variable-declarations"></a>
 ```abnf
-member-variable-declarations = *( identifier ":" type ( "," / ";" ) )
-                               identifier ":" type ( [ "," ] / ";" )
+member-variable-declarations = identifier ":" type
+                               *( ( "," / ";" ) identifier ":" type )
+                               [ "," / ";" ]
 ```
 
 Go to: _[identifier](#user-content-identifier), [type](#user-content-type)_;
