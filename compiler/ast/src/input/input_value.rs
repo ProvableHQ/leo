@@ -38,22 +38,20 @@ impl TryFrom<(Type, Expression)> for InputValue {
         Ok(match value {
             (type_, Expression::Value(value)) => {
                 match (type_, value) {
-                    (Type::Address, ValueExpression::Address(value, _)) => Self::Address(value.to_string()),
+                    (Type::Address, ValueExpression::Address(value, _)) => Self::Address(value),
                     (Type::Boolean, ValueExpression::Boolean(value, span)) => {
                         let bool_value = value.parse::<bool>().map_err(|_| ParserError::unexpected_eof(&span))?; // TODO: change error
                         Self::Boolean(bool_value)
                     }
                     (Type::Char, ValueExpression::Char(value)) => Self::Char(value),
                     (Type::Field, ValueExpression::Field(value, _) | ValueExpression::Implicit(value, _)) => {
-                        Self::Field(value.to_string())
+                        Self::Field(value)
                     }
                     (Type::Group, ValueExpression::Group(value)) => Self::Group(*value),
-                    (Type::IntegerType(type_), ValueExpression::Implicit(value, _)) => {
-                        Self::Integer(type_, value.to_string())
-                    }
+                    (Type::IntegerType(type_), ValueExpression::Implicit(value, _)) => Self::Integer(type_, value),
                     (Type::IntegerType(expected), ValueExpression::Integer(actual, value, span)) => {
                         if expected == actual {
-                            Self::Integer(expected, value.to_string())
+                            Self::Integer(expected, value)
                         } else {
                             return Err(InputError::unexpected_type(expected.to_string(), actual, &span).into());
                         }

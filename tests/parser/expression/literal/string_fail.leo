@@ -25,4 +25,6 @@ expectation: Fail
 
 "\u{af🦀"
 
-"\" // TODO reenable once #1683 is closed "⭇😍;
+"\"
+
+"⭇😍;
