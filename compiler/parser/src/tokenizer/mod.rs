@@ -39,30 +39,8 @@ pub(crate) fn tokenize(path: &str, input: &str) -> Result<Vec<SpannedToken>> {
     let mut line_no = 1usize;
     let mut line_start = 0usize;
     while input.len() > index {
-        match Token::eat(&input[index..input.len()])? {
+        match Token::eat(&input[index..])? {
             (token_len, Token::WhiteSpace) => {
-                if token_len == 0 && index == input.len() {
-                    break;
-                } else if token_len == 0 {
-                    return Err(ParserError::unexpected_token(
-                        &input[index..].chars().next().unwrap(),
-                        &Span::new(
-                            line_no,
-                            line_no,
-                            index - line_start + 1,
-                            index - line_start + 2,
-                            path,
-                            input[line_start
-                                ..input[line_start..]
-                                    .find('\n')
-                                    .map(|i| i + line_start)
-                                    .unwrap_or(input.len())]
-                                .to_string(),
-                        ),
-                    )
-                    .into());
-                }
-
                 let bytes = input.as_bytes();
                 if bytes[index] == 0x000D && matches!(bytes.get(index + 1), Some(0x000A)) {
                     // Check carriage return followed by newline.
