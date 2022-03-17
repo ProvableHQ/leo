@@ -640,17 +640,17 @@ scalar-type =  boolean-type / arithmetic-type / address-type / character-type
 
 ; A tuple type consists of zero, two, or more component types.
 
-tuple-type = "(" [ type 1*( "," type ) ] ")"
+tuple-type = "(" [ type 1*( "," type ) [ "," ] ] ")"
 
 ; An array type consists of an element type
 ; and an indication of dimensions.
 ; There is either a single dimension,
-; or a tuple of one or more dimensions.
+; or a tuple of two or more dimensions.
 ; Each dimension is a numeral.
 
 array-type = "[" type ";" array-dimensions "]"
 
-array-dimensions = numeral / "(" numeral *( "," numeral ) ")"
+array-dimensions = numeral / "(" numeral 1*( "," numeral ) [ "," ] ")"
 
 ; The keyword `Self` denotes the enclosing circuit type.
 ; It is only allowed inside a circuit type declaration.
@@ -730,7 +730,7 @@ primary-expression = identifier
 ; Tuple expressions construct tuples.
 ; Each consists of zero, two, or more component expressions.
 
-tuple-construction = "(" [ expression 1*( "," expression ) ] ")"
+tuple-construction = "(" [ expression 1*( "," expression ) [ "," ] ] ")"
 
 tuple-expression = tuple-construction
 
@@ -744,6 +744,7 @@ tuple-expression = tuple-construction
 array-inline-construction = "["
                             array-inline-element
                             *( "," array-inline-element )
+                            [ "," ]
                             "]"
 
 array-inline-element = expression / "..." expression
@@ -797,7 +798,7 @@ circuit-expression = circuit-construction
 ; They consist of a named type followed by the constant name,
 ; as static constants are associated to named types.
 
-function-arguments = "(" [ expression *( "," expression ) ] ")"
+function-arguments = "(" [ expression *( "," expression ) [ "," ] ] ")"
 
 postfix-expression = primary-expression
                    / postfix-expression "." numeral
@@ -915,7 +916,7 @@ constant-declaration = %s"const" identifier-or-identifiers ":" type
                        "=" expression ";"
 
 identifier-or-identifiers = identifier
-                          / "(" identifier 1*( "," identifier ) ")"
+                          / "(" identifier 1*( "," identifier ) [ "," ] ")"
 
 ; A conditional statement always starts with a condition and a block
 ; (which together form a branch).
@@ -964,7 +965,7 @@ assert-call = %s"assert" "(" expression ")"
 
 print-function = %s"error" / %s"log"
 
-print-arguments = "(" string-literal  *( "," expression ) ")"
+print-arguments = "(" string-literal  *( "," expression ) [ "," ] ")"
 
 print-call = print-function print-arguments
 
@@ -972,7 +973,7 @@ print-call = print-function print-arguments
 ; with optional annotation arguments, which are identifiers.
 
 annotation = annotation-name
-             [ "(" *( identifier "," ) [ identifier ] ")" ]
+             [ "(" [ identifier *( "," identifier ) [ "," ] ] ")" ]
 
 ; A function declaration defines a function.
 ; The output type is optional, defaulting to the empty tuple type.
@@ -985,13 +986,13 @@ function-declaration = *annotation [ %s"const" ] %s"function" identifier
                        "(" [ function-parameters ] ")" [ "->" type ]
                        block
 
-function-parameters = self-parameter
+function-parameters = self-parameter [ "," ]
                     / self-parameter "," function-inputs
                     / function-inputs
 
 self-parameter = [ %s"&" / %s"const" ] %s"self"
 
-function-inputs = function-input *( "," function-input )
+function-inputs = function-input *( "," function-input ) [ "," ]
 
 function-input = [ %s"const" ] identifier ":" type
 
@@ -1014,8 +1015,9 @@ member-constant-declaration = %s"static" %s"const" identifier ":" type
 ; but instead one for a sequence of them;
 ; see the rule `circuit-declaration`.
 
-member-variable-declarations = *( identifier ":" type ( "," / ";" ) )
-                               identifier ":" type ( [ "," ] / ";" )
+member-variable-declarations = identifier ":" type
+                               *( ( "," / ";" ) identifier ":" type )
+                               [ "," / ";" ]
 
 ; A circuit member function declaration consists of a function declaration.
 
