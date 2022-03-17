@@ -13,4 +13,5 @@ outputs:
   - "Error [EPAR0370037]: There was no opening `{` after starting an escaped unicode `}`."
   - "Error [EPAR0370037]: There was no opening `{` after starting an escaped unicode `6`."
   - "Error [EPAR0370032]: There was no closing `}` after a escaped unicode `af🦀\"`."
-  - "Error [EPAR0370030]: Could not lex the following content: `⭇😍;`."
+  - "Error [EPAR0370025]: Expected a closed string but found `[Scalar('\"')]`."
+  - "Error [EPAR0370025]: Expected a closed string but found `[Scalar('⭇'), Scalar('😍'), Scalar(';')]`."
