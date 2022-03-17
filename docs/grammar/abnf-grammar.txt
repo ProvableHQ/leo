@@ -211,7 +211,7 @@ scalar-type =  boolean-type / arithmetic-type / address-type / character-type
 
 type = scalar-type
 
-group-coordinate = [ "-" ] numeral / "+" / "-" / "_"
+group-coordinate = ( [ "-" ] numeral ) / "+" / "-" / "_"
 
 affine-group-literal = "(" group-coordinate "," group-coordinate %s")group"
 
@@ -337,8 +337,8 @@ format-string-open-brace = "{{"
 format-string-close-brace = "}}"
 
 format-string-element = not-brace
-                        / format-string-container
-                        / format-string-open-brace
-                        / format-string-close-brace
+                      / format-string-container
+                      / format-string-open-brace
+                      / format-string-close-brace
 
 format-string = *format-string-element

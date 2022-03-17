@@ -490,7 +490,7 @@ Go to: _[scalar-type](#user-content-scalar-type)_;
 
 <a name="group-coordinate"></a>
 ```abnf
-group-coordinate = [ "-" ] numeral / "+" / "-" / "_"
+group-coordinate = ( [ "-" ] numeral ) / "+" / "-" / "_"
 ```
 
 Go to: _[numeral](#user-content-numeral)_;
@@ -852,9 +852,9 @@ format-string-close-brace = "}}"
 <a name="format-string-element"></a>
 ```abnf
 format-string-element = not-brace
-                        / format-string-container
-                        / format-string-open-brace
-                        / format-string-close-brace
+                      / format-string-container
+                      / format-string-open-brace
+                      / format-string-close-brace
 ```
 
 Go to: _[format-string-close-brace](#user-content-format-string-close-brace), [format-string-container](#user-content-format-string-container), [format-string-open-brace](#user-content-format-string-open-brace), [not-brace](#user-content-not-brace)_;
