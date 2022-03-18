@@ -29,7 +29,7 @@ outputs:
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'as'\n    --> test:1:1\n     |\n   1 | as x = 10u8;\n     | ^^"
   - "Error [EPAR0370005]: expected . -- got 'x'\n    --> test:1:9\n     |\n   1 | console x = 10u8;\n     |         ^"
   - "Error [EPAR0370005]: expected in -- got '='\n    --> test:1:7\n     |\n   1 | for x = 10u8;\n     |       ^"
-  - "Error [EPAR0370005]: expected { -- got '='\n    --> test:1:6\n     |\n   1 | if x = 10u8;\n     |      ^"
+  - "Error [EPAR0370005]: expected ( -- got 'x'\n    --> test:1:4\n     |\n   1 | if x = 10u8;\n     |    ^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'else'\n    --> test:1:1\n     |\n   1 | else x = 10u8;\n     | ^^^^"
   - "Error [EPAR0370005]: expected ; -- got 'x'\n    --> test:1:4\n     |\n   1 | i8 x = 10u8;\n     |    ^"
   - "Error [EPAR0370005]: expected ; -- got 'x'\n    --> test:1:5\n     |\n   1 | i16 x = 10u8;\n     |     ^"

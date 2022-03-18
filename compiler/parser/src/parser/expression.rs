@@ -40,19 +40,8 @@ impl ParserContext<'_> {
     /// Includes circuit init expressions.
     ///
     pub fn parse_expression(&mut self) -> Result<Expression> {
-        // Store current parser state.
-        let prior_fuzzy_state = self.fuzzy_struct_state;
-
-        // Allow circuit init expressions.
-        self.fuzzy_struct_state = false;
-
         // Parse expression.
-        let result = self.parse_conditional_expression();
-
-        // Restore prior parser state.
-        self.fuzzy_struct_state = prior_fuzzy_state;
-
-        result
+        self.parse_conditional_expression()
     }
 
     ///
@@ -557,7 +546,7 @@ impl ParserContext<'_> {
             Token::LeftSquare => self.parse_array_expression(&span)?,
             Token::Ident(name) => {
                 let ident = Identifier { name, span };
-                if !self.fuzzy_struct_state && self.peek_token().as_ref() == &Token::LeftCurly {
+                if self.peek_token().as_ref() == &Token::LeftCurly {
                     self.parse_circuit_expression(ident)?
                 } else {
                     Expression::Identifier(ident)
@@ -568,7 +557,7 @@ impl ParserContext<'_> {
                     name: sym::SelfUpper,
                     span,
                 };
-                if !self.fuzzy_struct_state && self.peek_token().as_ref() == &Token::LeftCurly {
+                if self.peek_token().as_ref() == &Token::LeftCurly {
                     self.parse_circuit_expression(ident)?
                 } else {
                     Expression::Identifier(ident)

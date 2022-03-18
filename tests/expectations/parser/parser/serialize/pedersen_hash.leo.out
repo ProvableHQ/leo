@@ -70,7 +70,7 @@ outputs:
                           Group:
                             Single: "0"
                   - Iteration:
-                      variable: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i in 0..256 {\\\"}\"}"
+                      variable: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i in (0..256) {\\\"}\"}"
                       start:
                         Value:
                           Implicit: "0"
@@ -85,9 +85,9 @@ outputs:
                                 Access:
                                   Array:
                                     array:
-                                      Identifier: "{\"name\":\"bits\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            if bits[i] {\\\"}\"}"
+                                      Identifier: "{\"name\":\"bits\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":17,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            if (bits[i]) {\\\"}\"}"
                                     index:
-                                      Identifier: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            if bits[i] {\\\"}\"}"
+                                      Identifier: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":22,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            if (bits[i]) {\\\"}\"}"
                               block:
                                 statements:
                                   - Assign:

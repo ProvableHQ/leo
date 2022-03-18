@@ -167,9 +167,10 @@ impl ParserContext<'_> {
     /// Returns a [`ConditionalStatement`] AST node if the next tokens represent a conditional statement.
     pub fn parse_conditional_statement(&mut self) -> Result<ConditionalStatement> {
         let start = self.expect(Token::If)?;
-        self.fuzzy_struct_state = true;
+        self.expect(Token::LeftParen)?;
         let expr = self.parse_conditional_expression()?;
-        self.fuzzy_struct_state = false;
+        self.expect(Token::RightParen)?;
+
         let body = self.parse_block()?;
         let next = if self.eat(Token::Else).is_some() {
             let s = self.parse_statement()?;
@@ -196,12 +197,12 @@ impl ParserContext<'_> {
         self.expect(Token::In)?;
 
         // Parse iteration range.
+        self.expect(Token::LeftParen)?;
         let start = self.parse_expression()?;
         self.expect(Token::DotDot)?;
         let inclusive = self.eat(Token::Assign).is_some();
-        self.fuzzy_struct_state = true;
         let stop = self.parse_conditional_expression()?;
-        self.fuzzy_struct_state = false;
+        self.expect(Token::RightParen)?;
 
         let block = self.parse_block()?;
 

@@ -3,11 +3,11 @@ namespace: ParseStatement
 expectation: Pass
 */
 
-if x {
+if (x) {
     return ();
 }
 
-if Self {
+if (Self) {
     return ();
 }
 
@@ -17,9 +17,9 @@ if (x) {
 
 if (x) {} else {}
 
-if x+y {} else if x+z {} else {}
+if (x+y) {} else if (x+z) {} else {}
 
-if x+y {
+if (x+y) {
     expr;
     return ();
 }

@@ -18,7 +18,7 @@ expectation: Pass
 }
 
 {
-    if x {
+    if (x) {
         return ();
     }
 }

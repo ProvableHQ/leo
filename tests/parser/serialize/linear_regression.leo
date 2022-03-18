@@ -29,7 +29,7 @@ circuit LinearRegression {
         let y_sum = 0i32; 
         let xy_sum = 0i32; 
         let x2_sum = 0i32; 
-        for i in 0..5 {
+        for i in (0..5) {
             x_sum += self.points[i].x;
             y_sum += self.points[i].y;
             xy_sum += self.points[i].x * self.points[i].y;
@@ -46,7 +46,7 @@ circuit LinearRegression {
         // Calculate the sum. 
         let x_sum = 0i32;
         let y_sum = 0i32;
-        for i in 0..5 {
+        for i in (0..5) {
             x_sum += self.points[i].x;
             y_sum += self.points[i].y; 
         }

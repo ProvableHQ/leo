@@ -30,8 +30,6 @@ pub struct ParserContext<'a> {
     pub(crate) handler: &'a Handler,
     tokens: Vec<SpannedToken>,
     end_span: Span,
-    // true if parsing an expression for an if statement -- means circuit inits are not legal
-    pub(crate) fuzzy_struct_state: bool,
 }
 
 impl Iterator for ParserContext<'_> {
@@ -61,7 +59,6 @@ impl<'a> ParserContext<'a> {
                 .map(|x| x.span.clone())
                 .unwrap_or_default(),
             tokens,
-            fuzzy_struct_state: false,
         }
     }
 

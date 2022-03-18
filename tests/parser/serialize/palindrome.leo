@@ -17,29 +17,29 @@ function is_palindrome(str: [char; 20]) -> bool {
     let result = true;
     let processed = 0u8;
 
-    for start in 0..(str_len / 2) {
+    for start in (0..(str_len / 2)) {
         let start_sym = str[start];
-        if start_sym != ' ' {
+        if (start_sym != ' ') {
             let skipped = 0u8;
             let end_empty = 0u8;
             let end_sym = ' ';
 
-            for end in (str_len - 1)..start {
-                if str[end] != ' ' && skipped == processed && end_sym == ' ' {
+            for end in ((str_len - 1)..start) {
+                if (str[end] != ' ' && skipped == processed && end_sym == ' ') {
                     end_sym = str[end];
                 } else {
                     end_empty = end_empty + 1;
-                    if str[end] != ' ' {
+                    if (str[end] != ' ') {
                         skipped = skipped + 1;
                     }
                 }
             }
 
             // If there are symbols left to the right from the start.
-            if end_sym != ' ' {
+            if (end_sym != ' ') {
                 console.log("Comparing: {} ? {}", start_sym, end_sym);
 
-                if result {
+                if (result) {
                     result = (start_sym == end_sym);
                 }
 

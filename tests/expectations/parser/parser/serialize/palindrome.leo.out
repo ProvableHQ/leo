@@ -83,14 +83,14 @@ outputs:
                       - U8
                       - "0"
             - Iteration:
-                variable: "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    for start in 0..(str_len / 2) {\\\"}\"}"
+                variable: "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    for start in (0..(str_len / 2)) {\\\"}\"}"
                 start:
                   Value:
                     Implicit: "0"
                 stop:
                   Binary:
                     left:
-                      Identifier: "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":22,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    for start in 0..(str_len / 2) {\\\"}\"}"
+                      Identifier: "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":23,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    for start in (0..(str_len / 2)) {\\\"}\"}"
                     right:
                       Value:
                         Implicit: "2"
@@ -115,7 +115,7 @@ outputs:
                         condition:
                           Binary:
                             left:
-                              Identifier: "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":12,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        if start_sym != ' ' {\\\"}\"}"
+                              Identifier: "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":13,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        if (start_sym != ' ') {\\\"}\"}"
                             right:
                               Value:
                                 Char:
@@ -158,17 +158,17 @@ outputs:
                                       character:
                                         Scalar: 32
                             - Iteration:
-                                variable: "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":17,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
+                                variable: "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":17,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end in ((str_len - 1)..start) {\\\"}\"}"
                                 start:
                                   Binary:
                                     left:
-                                      Identifier: "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":25,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
+                                      Identifier: "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":26,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end in ((str_len - 1)..start) {\\\"}\"}"
                                     right:
                                       Value:
                                         Implicit: "1"
                                     op: Sub
                                 stop:
-                                  Identifier: "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":39,\\\"col_stop\\\":44,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
+                                  Identifier: "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":40,\\\"col_stop\\\":45,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end in ((str_len - 1)..start) {\\\"}\"}"
                                 inclusive: false
                                 block:
                                   statements:
@@ -183,9 +183,9 @@ outputs:
                                                       Access:
                                                         Array:
                                                           array:
-                                                            Identifier: "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":20,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
+                                                            Identifier: "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":21,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if (str[end] != ' ' && skipped == processed && end_sym == ' ') {\\\"}\"}"
                                                           index:
-                                                            Identifier: "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":24,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
+                                                            Identifier: "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":25,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if (str[end] != ' ' && skipped == processed && end_sym == ' ') {\\\"}\"}"
                                                     right:
                                                       Value:
                                                         Char:
@@ -195,15 +195,15 @@ outputs:
                                                 right:
                                                   Binary:
                                                     left:
-                                                      Identifier: "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":39,\\\"col_stop\\\":46,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
+                                                      Identifier: "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":40,\\\"col_stop\\\":47,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if (str[end] != ' ' && skipped == processed && end_sym == ' ') {\\\"}\"}"
                                                     right:
-                                                      Identifier: "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":50,\\\"col_stop\\\":59,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
+                                                      Identifier: "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":51,\\\"col_stop\\\":60,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if (str[end] != ' ' && skipped == processed && end_sym == ' ') {\\\"}\"}"
                                                     op: Eq
                                                 op: And
                                             right:
                                               Binary:
                                                 left:
-                                                  Identifier: "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":63,\\\"col_stop\\\":70,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
+                                                  Identifier: "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":64,\\\"col_stop\\\":71,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if (str[end] != ' ' && skipped == processed && end_sym == ' ') {\\\"}\"}"
                                                 right:
                                                   Value:
                                                     Char:
@@ -248,9 +248,9 @@ outputs:
                                                         Access:
                                                           Array:
                                                             array:
-                                                              Identifier: "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":24,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    if str[end] != ' ' {\\\"}\"}"
+                                                              Identifier: "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":25,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    if (str[end] != ' ') {\\\"}\"}"
                                                             index:
-                                                              Identifier: "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":28,\\\"col_stop\\\":31,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    if str[end] != ' ' {\\\"}\"}"
+                                                              Identifier: "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":29,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    if (str[end] != ' ') {\\\"}\"}"
                                                       right:
                                                         Value:
                                                           Char:
@@ -277,7 +277,7 @@ outputs:
                                 condition:
                                   Binary:
                                     left:
-                                      Identifier: "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":36,\\\"line_stop\\\":36,\\\"col_start\\\":16,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            if end_sym != ' ' {\\\"}\"}"
+                                      Identifier: "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":36,\\\"line_stop\\\":36,\\\"col_start\\\":17,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            if (end_sym != ' ') {\\\"}\"}"
                                     right:
                                       Value:
                                         Char:
@@ -313,7 +313,7 @@ outputs:
                                               - Identifier: "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":62,\\\"col_stop\\\":69,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                console.log(\\\\\\\"Comparing: {} ? {}\\\\\\\", start_sym, end_sym);\\\"}\"}"
                                     - Conditional:
                                         condition:
-                                          Identifier: "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":39,\\\"line_stop\\\":39,\\\"col_start\\\":20,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if result {\\\"}\"}"
+                                          Identifier: "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":39,\\\"line_stop\\\":39,\\\"col_start\\\":21,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if (result) {\\\"}\"}"
                                         block:
                                           statements:
                                             - Assign:

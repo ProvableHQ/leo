@@ -4,7 +4,7 @@ expectation: Pass
 outputs:
   - Conditional:
       condition:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if x {\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if (x) {\\\"}\"}"
       block:
         statements:
           - Return:
@@ -28,10 +28,10 @@ outputs:
         span:
           line_start: 1
           line_stop: 3
-          col_start: 6
+          col_start: 8
           col_stop: 2
           path: ""
-          content: "if x {\n     ...\n}"
+          content: "if (x) {\n     ...\n}"
       next: ~
       span:
         line_start: 1
@@ -39,10 +39,10 @@ outputs:
         col_start: 1
         col_stop: 2
         path: ""
-        content: "if x {\n     ...\n}"
+        content: "if (x) {\n     ...\n}"
   - Conditional:
       condition:
-        Identifier: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if Self {\\\"}\"}"
+        Identifier: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if (Self) {\\\"}\"}"
       block:
         statements:
           - Return:
@@ -66,10 +66,10 @@ outputs:
         span:
           line_start: 1
           line_stop: 3
-          col_start: 9
+          col_start: 11
           col_stop: 2
           path: ""
-          content: "if Self {\n     ...\n}"
+          content: "if (Self) {\n     ...\n}"
       next: ~
       span:
         line_start: 1
@@ -77,7 +77,7 @@ outputs:
         col_start: 1
         col_stop: 2
         path: ""
-        content: "if Self {\n     ...\n}"
+        content: "if (Self) {\n     ...\n}"
   - Conditional:
       condition:
         Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if (x) {\\\"}\"}"
@@ -149,90 +149,90 @@ outputs:
       condition:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if x+y {} else if x+z {} else {}\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if (x+y) {} else if (x+z) {} else {}\\\"}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if x+y {} else if x+z {} else {}\\\"}\"}"
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if (x+y) {} else if (x+z) {} else {}\\\"}\"}"
           op: Add
           span:
             line_start: 1
             line_stop: 1
-            col_start: 4
-            col_stop: 7
+            col_start: 5
+            col_stop: 8
             path: ""
-            content: "if x+y {} else if x+z {} else {}"
+            content: "if (x+y) {} else if (x+z) {} else {}"
       block:
         statements: []
         span:
           line_start: 1
           line_stop: 1
-          col_start: 8
-          col_stop: 10
+          col_start: 10
+          col_stop: 12
           path: ""
-          content: "if x+y {} else if x+z {} else {}"
+          content: "if (x+y) {} else if (x+z) {} else {}"
       next:
         Conditional:
           condition:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if x+y {} else if x+z {} else {}\\\"}\"}"
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":22,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if (x+y) {} else if (x+z) {} else {}\\\"}\"}"
               right:
-                Identifier: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if x+y {} else if x+z {} else {}\\\"}\"}"
+                Identifier: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":24,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if (x+y) {} else if (x+z) {} else {}\\\"}\"}"
               op: Add
               span:
                 line_start: 1
                 line_stop: 1
-                col_start: 19
-                col_stop: 22
+                col_start: 22
+                col_stop: 25
                 path: ""
-                content: "if x+y {} else if x+z {} else {}"
+                content: "if (x+y) {} else if (x+z) {} else {}"
           block:
             statements: []
             span:
               line_start: 1
               line_stop: 1
-              col_start: 23
-              col_stop: 25
+              col_start: 27
+              col_stop: 29
               path: ""
-              content: "if x+y {} else if x+z {} else {}"
+              content: "if (x+y) {} else if (x+z) {} else {}"
           next:
             Block:
               statements: []
               span:
                 line_start: 1
                 line_stop: 1
-                col_start: 31
-                col_stop: 33
+                col_start: 35
+                col_stop: 37
                 path: ""
-                content: "if x+y {} else if x+z {} else {}"
+                content: "if (x+y) {} else if (x+z) {} else {}"
           span:
             line_start: 1
             line_stop: 1
-            col_start: 16
-            col_stop: 33
+            col_start: 18
+            col_stop: 37
             path: ""
-            content: "if x+y {} else if x+z {} else {}"
+            content: "if (x+y) {} else if (x+z) {} else {}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 33
+        col_stop: 37
         path: ""
-        content: "if x+y {} else if x+z {} else {}"
+        content: "if (x+y) {} else if (x+z) {} else {}"
   - Conditional:
       condition:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if x+y {\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if (x+y) {\\\"}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if x+y {\\\"}\"}"
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if (x+y) {\\\"}\"}"
           op: Add
           span:
             line_start: 1
             line_stop: 1
-            col_start: 4
-            col_stop: 7
+            col_start: 5
+            col_stop: 8
             path: ""
-            content: "if x+y {"
+            content: "if (x+y) {"
       block:
         statements:
           - Expression:
@@ -266,10 +266,10 @@ outputs:
         span:
           line_start: 1
           line_stop: 4
-          col_start: 8
+          col_start: 10
           col_stop: 2
           path: ""
-          content: "if x+y {\n     ...\n     ...\n}"
+          content: "if (x+y) {\n     ...\n     ...\n}"
       next: ~
       span:
         line_start: 1
@@ -277,4 +277,4 @@ outputs:
         col_start: 1
         col_stop: 2
         path: ""
-        content: "if x+y {\n     ...\n     ...\n}"
+        content: "if (x+y) {\n     ...\n     ...\n}"

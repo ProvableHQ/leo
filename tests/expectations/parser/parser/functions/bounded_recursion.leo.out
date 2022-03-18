@@ -36,7 +36,7 @@ outputs:
                 condition:
                   Binary:
                     left:
-                      Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    if y < 5u32 {\\\"}\"}"
+                      Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    if (y < 5u32) {\\\"}\"}"
                     right:
                       Value:
                         Integer:
@@ -45,18 +45,18 @@ outputs:
                           - span:
                               line_start: 4
                               line_stop: 4
-                              col_start: 12
-                              col_stop: 16
+                              col_start: 13
+                              col_stop: 17
                               path: ""
-                              content: "    if y < 5u32 {"
+                              content: "    if (y < 5u32) {"
                     op: Lt
                     span:
                       line_start: 4
                       line_stop: 4
-                      col_start: 8
-                      col_stop: 16
+                      col_start: 9
+                      col_stop: 17
                       path: ""
-                      content: "    if y < 5u32 {"
+                      content: "    if (y < 5u32) {"
                 block:
                   statements:
                     - Expression:
@@ -104,10 +104,10 @@ outputs:
                   span:
                     line_start: 4
                     line_stop: 6
-                    col_start: 17
+                    col_start: 19
                     col_stop: 6
                     path: ""
-                    content: "    if y < 5u32 {\n         ...\n    }"
+                    content: "    if (y < 5u32) {\n         ...\n    }"
                 next: ~
                 span:
                   line_start: 4
@@ -115,7 +115,7 @@ outputs:
                   col_start: 5
                   col_stop: 6
                   path: ""
-                  content: "    if y < 5u32 {\n         ...\n    }"
+                  content: "    if (y < 5u32) {\n         ...\n    }"
           span:
             line_start: 3
             line_stop: 7
