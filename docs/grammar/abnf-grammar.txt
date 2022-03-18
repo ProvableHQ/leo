@@ -924,7 +924,7 @@ identifier-or-identifiers = identifier
 ; or possibly with another conditional statement, forming a chain.
 ; Note that blocks are required in all branches, not merely statements.
 
-branch = %s"if" expression block
+branch = %s"if" "(" expression ")" block
 
 conditional-statement = branch
                       / branch %s"else" block
@@ -935,7 +935,7 @@ conditional-statement = branch
 ; The body is a block.
 
 loop-statement = %s"for" identifier ":" type
-                 %s"in" expression ".." [ "=" ] expression
+                 %s"in" "(" expression ".." [ "=" ] expression ")"
                  block
 
 ; An assignment statement is straightforward.
