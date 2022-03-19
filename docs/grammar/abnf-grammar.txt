@@ -444,10 +444,9 @@ hexadecimal-digit = decimal-digit / "a" / "b" / "c" / "d" / "e" / "f"
 ; An identifier is a non-empty sequence of
 ; letters, (decimal) digits, and underscores,
 ; starting with a letter.
-; It must not be a keyword: this is an extra-grammatical requirement.
-; It must also not be or start with `aleo1`,
-; because that is used for address literals:
-; this is another extra-grammatical requirement.
+; It must not be a keyword or a boolean literal,
+; and it must not be or start with `aleo1`;
+; these are extra-grammatical requirements, indicated in the comment.
 
 identifier = letter *( letter / decimal-digit / "_" )
              ; but not a keyword or a boolean literal or aleo1...
@@ -924,7 +923,18 @@ identifier-or-identifiers = identifier
 ; or possibly with another conditional statement, forming a chain.
 ; Note that blocks are required in all branches, not merely statements.
 
+; The test expression must not be, or start with, a circuit construction.
+; This is an extra-grammatical requirement, indicated in the comment.
+; Without this restriction, for example `if c {} {}` would be amgiguous:
+; it could be either a single conditional statement with test `c {}`,
+; or a conditional statement with test `c`
+; followed by an empty block statement.
+; (Type analysis can disambiguate this,
+; but it happens after parsing,
+; and we want unambiguous parsing.)
+
 branch = %s"if" expression block
+         ; but expression is not circuit-construction...
 
 conditional-statement = branch
                       / branch %s"else" block
@@ -934,9 +944,21 @@ conditional-statement = branch
 ; that goes from a starting value (inclusive) to an ending value (exclusive).
 ; The body is a block.
 
+; The second expression must not be, or start with, a circuit construction.
+; This is an extra-grammatical requirement, indicated in the comment.
+; Without this restriction,
+; for example `for i in 0 .. c {} {}` would be ambiguous:
+; it could be either a single loop statement with ending bound is `c {}`,
+; or a loop statement with ending bound `c`
+; followed by an empty block statement.
+; (Type analysis can disambiguate this,
+; but it happens after parsing,
+; and we want unambiguous parsing.)
+
 loop-statement = %s"for" identifier ":" type
                  %s"in" expression ".." [ "=" ] expression
                  block
+                 ; but second expression is not circuit-construction...
 
 ; An assignment statement is straightforward.
 ; Based on the operator, the assignment may be simple (i.e. `=`)

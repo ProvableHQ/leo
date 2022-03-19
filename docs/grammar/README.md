@@ -622,10 +622,9 @@ Go to: _[decimal-digit](#user-content-decimal-digit)_;
 An identifier is a non-empty sequence of
 letters, (decimal) digits, and underscores,
 starting with a letter.
-It must not be a keyword: this is an extra-grammatical requirement.
-It must also not be or start with `aleo1`,
-because that is used for address literals:
-this is another extra-grammatical requirement.
+It must not be a keyword or a boolean literal,
+and it must not be or start with `aleo1`;
+these are extra-grammatical requirements, indicated in the comment.
 
 <a name="identifier"></a>
 ```abnf
@@ -1515,9 +1514,20 @@ It may stop there, or it may continue with an alternative block,
 or possibly with another conditional statement, forming a chain.
 Note that blocks are required in all branches, not merely statements.
 
+The test expression must not be, or start with, a circuit construction.
+This is an extra-grammatical requirement, indicated in the comment.
+Without this restriction, for example `if c {} {}` would be amgiguous:
+it could be either a single conditional statement with test `c {}`,
+or a conditional statement with test `c`
+followed by an empty block statement.
+(Type analysis can disambiguate this,
+but it happens after parsing,
+and we want unambiguous parsing.)
+
 <a name="branch"></a>
 ```abnf
 branch = %s"if" expression block
+         ; but expression is not circuit-construction...
 ```
 
 Go to: _[block](#user-content-block), [expression](#user-content-expression)_;
@@ -1537,11 +1547,23 @@ A loop statement implicitly defines a loop variable
 that goes from a starting value (inclusive) to an ending value (exclusive).
 The body is a block.
 
+The second expression must not be, or start with, a circuit construction.
+This is an extra-grammatical requirement, indicated in the comment.
+Without this restriction,
+for example `for i in 0 .. c {} {}` would be ambiguous:
+it could be either a single loop statement with ending bound is `c {}`,
+or a loop statement with ending bound `c`
+followed by an empty block statement.
+(Type analysis can disambiguate this,
+but it happens after parsing,
+and we want unambiguous parsing.)
+
 <a name="loop-statement"></a>
 ```abnf
 loop-statement = %s"for" identifier ":" type
                  %s"in" expression ".." [ "=" ] expression
                  block
+                 ; but second expression is not circuit-construction...
 ```
 
 Go to: _[block](#user-content-block), [expression](#user-content-expression), [identifier](#user-content-identifier), [type](#user-content-type)_;
