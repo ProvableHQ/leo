@@ -1516,7 +1516,7 @@ Note that blocks are required in all branches, not merely statements.
 
 The test expression must not be, or start with, a circuit construction.
 This is an extra-grammatical requirement, indicated in the comment.
-Without this restriction, for example `if c {} {}` would be amgiguous:
+Without this restriction, for example `if c {} {}` would be ambiguous:
 it could be either a single conditional statement with test `c {}`,
 or a conditional statement with test `c`
 followed by an empty block statement.
