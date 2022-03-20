@@ -1674,11 +1674,11 @@ Go to: _[block](#user-content-block), [function-parameters](#user-content-functi
 <a name="function-parameters"></a>
 ```abnf
 function-parameters = self-parameter [ "," ]
-                    / self-parameter "," function-inputs
-                    / function-inputs
+                    / self-parameter "," named-parameters
+                    / named-parameters
 ```
 
-Go to: _[function-inputs](#user-content-function-inputs), [self-parameter](#user-content-self-parameter)_;
+Go to: _[named-parameters](#user-content-named-parameters), [self-parameter](#user-content-self-parameter)_;
 
 
 <a name="self-parameter"></a>
@@ -1686,17 +1686,17 @@ Go to: _[function-inputs](#user-content-function-inputs), [self-parameter](#user
 self-parameter = [ %s"&" / %s"const" ] %s"self"
 ```
 
-<a name="function-inputs"></a>
+<a name="named-parameters"></a>
 ```abnf
-function-inputs = function-input *( "," function-input ) [ "," ]
+named-parameters = named-parameter *( "," named-parameter ) [ "," ]
 ```
 
-Go to: _[function-input](#user-content-function-input)_;
+Go to: _[named-parameter](#user-content-named-parameter)_;
 
 
-<a name="function-input"></a>
+<a name="named-parameter"></a>
 ```abnf
-function-input = [ %s"const" ] identifier ":" type
+named-parameter = [ %s"const" ] identifier ":" type
 ```
 
 Go to: _[identifier](#user-content-identifier), [type](#user-content-type)_;

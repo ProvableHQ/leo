@@ -1009,14 +1009,14 @@ function-declaration = *annotation [ %s"const" ] %s"function" identifier
                        block
 
 function-parameters = self-parameter [ "," ]
-                    / self-parameter "," function-inputs
-                    / function-inputs
+                    / self-parameter "," named-parameters
+                    / named-parameters
 
 self-parameter = [ %s"&" / %s"const" ] %s"self"
 
-function-inputs = function-input *( "," function-input ) [ "," ]
+named-parameters = named-parameter *( "," named-parameter ) [ "," ]
 
-function-input = [ %s"const" ] identifier ":" type
+named-parameter = [ %s"const" ] identifier ":" type
 
 ; A circuit member constant declaration consists of
 ; the `static` and `const` keywords followed by
