@@ -35,9 +35,6 @@ pub struct Function {
     pub const_: bool,
     /// The function return type, if explicitly specified, or `()` if not.
     pub output: Option<Type>,
-    /// Any mapping to the core library.
-    /// Always `None` when initially parsed.
-    pub core_mapping: Cell<Option<Symbol>>,
     /// The body of the function.
     pub block: Block,
     /// The entire span of the function definition.

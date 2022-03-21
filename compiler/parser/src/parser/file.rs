@@ -25,18 +25,16 @@ impl ParserContext<'_> {
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     ///
     pub fn parse_program(&mut self) -> Result<Program> {
-        let mut import_statements = Vec::new();
         let mut aliases = IndexMap::new();
         let mut circuits = IndexMap::new();
         let mut functions = IndexMap::new();
         let mut global_consts = IndexMap::new();
-        // let mut tests = IndexMap::new();
 
         while self.has_next() {
             let token = self.peek()?;
             match &token.token {
                 Token::Import => {
-                    import_statements.push(self.parse_import_statement()?);
+                    unimplemented!("Import statements not stable yet")
                 }
                 Token::Circuit => {
                     self.expect(Token::Circuit)?;
@@ -76,8 +74,6 @@ impl ParserContext<'_> {
         Ok(Program {
             name: String::new(),
             expected_input: Vec::new(),
-            import_statements,
-            imports: IndexMap::new(),
             aliases,
             circuits,
             functions,
@@ -142,75 +138,6 @@ impl ParserContext<'_> {
         }
 
         Ok(name)
-    }
-
-    /// Returns an [`Identifier`] AST node if the next tokens represent a valid package name.
-    pub fn parse_package_name(&mut self) -> Result<Identifier> {
-        // Build the package name, starting with valid characters up to a dash `-` (Token::Minus).
-        let base = self.expect_loose_identifier()?;
-
-        // Return an error if the package name contains a keyword.
-        if let Some(token) = KEYWORD_TOKENS.iter().find(|x| x.keyword_to_symbol() == Some(base.name)) {
-            self.emit_err(ParserError::unexpected_str(token, "package name", &base.span));
-        }
-
-        // Return the package name.
-        Ok(base)
-    }
-
-    /// Returns an [`ImportTree`] AST node if the next tokens represent a valid package import
-    /// with accesses.
-    // Public solely for writing import parsing tests.
-    pub fn parse_import_tree(&mut self) -> Result<ImportTree> {
-        // Parse the first part of the path.
-        let first_name = self.parse_package_name()?;
-        let start = first_name.span.clone();
-        let mut base = vec![first_name];
-
-        let make = |base, end, kind| {
-            let span = start + end;
-            ImportTree { base, span, kind }
-        };
-
-        // Paths are separated by `.`s.
-        while self.eat(Token::Dot).is_some() {
-            if self.peek_is_left_par() {
-                // Encountered `.(`, so we have a nested import. Recurse!
-                let (tree, _, end) = self.parse_paren_comma_list(|p| p.parse_import_tree().map(Some))?;
-
-                if tree.is_empty() {
-                    self.emit_err(ParserError::invalid_import_list(&end));
-                }
-
-                return Ok(make(base, end, ImportTreeKind::Nested { tree }));
-            } else if let Some(SpannedToken { span, .. }) = self.eat(Token::Mul) {
-                // Encountered `.*`, so we have a glob import.
-                return Ok(make(base, span.clone(), ImportTreeKind::Glob { span }));
-            }
-
-            // Parse another path segment.
-            base.push(self.parse_package_name()?);
-        }
-
-        let (end, alias) = if self.eat(Token::As).is_some() {
-            // Encountered `as`, so interpret as `path as rename`.
-            let alias = self.expect_ident()?;
-            (alias.span.clone(), Some(alias))
-        } else {
-            (base.last().unwrap().span.clone(), None)
-        };
-        Ok(make(base, end, ImportTreeKind::Leaf { alias }))
-    }
-
-    /// Returns a [`ImportStatement`] AST node if the next tokens represent an import statement.
-    pub fn parse_import_statement(&mut self) -> Result<ImportStatement> {
-        self.expect(Token::Import)?;
-        let tree = self.parse_import_tree()?;
-        self.expect(Token::Semicolon)?;
-        Ok(ImportStatement {
-            span: tree.span.clone(),
-            tree,
-        })
     }
 
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
@@ -460,7 +387,6 @@ impl ParserContext<'_> {
                 output,
                 span: start + block.span.clone(),
                 block,
-                core_mapping: <_>::default(),
             },
         ))
     }

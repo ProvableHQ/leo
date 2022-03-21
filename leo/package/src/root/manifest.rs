@@ -239,7 +239,8 @@ impl TryFrom<&Path> for Manifest {
                 let remote_author = old_remote
                     .split('/') // Split the old remote as '"{author}' and '{package_name}"'
                     .next().unwrap() // Fetch just the '"{author}'
-                    .replace(&['\"', ' '], ""); // Remove the quotes from the author string
+                    .replace('\"', "")
+                    .replace(' ', ""); // Remove the quotes from the author string
 
                 // Construct the new remote section.
                 let new_remote = format!(

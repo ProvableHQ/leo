@@ -16,10 +16,10 @@
 
 #![doc = include_str!("../README.md")]
 
-pub mod canonicalization;
-pub use canonicalization::*;
+// todo @collinc97 - Refactor AST passes
 
-// Temporarily disable import resolution
-// until we migrate stdlib and then import resolution.
-/* pub mod import_resolution;
-pub use import_resolution::*; */
+// pub mod canonicalization;
+// pub use canonicalization::*;
+
+// pub mod import_resolution;
+// pub use import_resolution::*;

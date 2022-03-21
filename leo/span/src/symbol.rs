@@ -112,7 +112,7 @@ symbols! {
     Class: "class",
     context,
     constants,
-    CoreFunction,
+    // CoreFunction,
     console,
     Const: "const",
     Else: "else",
