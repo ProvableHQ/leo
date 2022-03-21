@@ -4,8 +4,6 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    import_statements: []
-    imports: {}
     aliases: {}
     circuits: {}
     global_consts: {}
@@ -26,7 +24,6 @@ outputs:
         input: []
         const_: false
         output: ~
-        core_mapping: ~
         block:
           statements:
             - Return:
@@ -78,7 +75,6 @@ outputs:
         input: []
         const_: false
         output: ~
-        core_mapping: ~
         block:
           statements:
             - Return:
@@ -130,7 +126,6 @@ outputs:
         input: []
         const_: false
         output: ~
-        core_mapping: ~
         block:
           statements:
             - Return:
@@ -181,7 +176,6 @@ outputs:
         input: []
         const_: false
         output: ~
-        core_mapping: ~
         block:
           statements:
             - Return:

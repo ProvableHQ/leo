@@ -4,8 +4,6 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    import_statements: []
-    imports: {}
     aliases: {}
     circuits: {}
     global_consts: {}
@@ -42,7 +40,6 @@ outputs:
                 content: "function x(x: u32, const y: i32) {"
         const_: false
         output: ~
-        core_mapping: ~
         block:
           statements:
             - Return:
@@ -109,7 +106,6 @@ outputs:
                 content: "function x(const x: u32, y: i32) {"
         const_: false
         output: ~
-        core_mapping: ~
         block:
           statements:
             - Return:

@@ -4,8 +4,6 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    import_statements: []
-    imports: {}
     aliases: {}
     circuits:
       "{\"name\":\"PedersenHash\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit PedersenHash {\\\"}\"}":
@@ -30,7 +28,6 @@ outputs:
                         - - value: "256"
               const_: false
               output: SelfType
-              core_mapping: ~
               block:
                 statements:
                   - Return:
@@ -56,7 +53,6 @@ outputs:
                         - - value: "256"
               const_: false
               output: Group
-              core_mapping: ~
               block:
                 statements:
                   - Definition:
@@ -135,7 +131,6 @@ outputs:
                   - - value: "256"
         const_: false
         output: Group
-        core_mapping: ~
         block:
           statements:
             - Definition:

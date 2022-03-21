@@ -4,8 +4,6 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    import_statements: []
-    imports: {}
     aliases: {}
     circuits:
       "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Point {\\\"}\"}":
@@ -35,7 +33,6 @@ outputs:
                       IntegerType: I32
               const_: false
               output: SelfType
-              core_mapping: ~
               block:
                 statements:
                   - Return:
@@ -69,7 +66,6 @@ outputs:
                         - - value: "5"
               const_: false
               output: SelfType
-              core_mapping: ~
               block:
                 statements:
                   - Return:
@@ -87,7 +83,6 @@ outputs:
               const_: false
               output:
                 IntegerType: I32
-              core_mapping: ~
               block:
                 statements:
                   - Definition:
@@ -360,7 +355,6 @@ outputs:
               const_: false
               output:
                 IntegerType: I32
-              core_mapping: ~
               block:
                 statements:
                   - Definition:
@@ -492,7 +486,6 @@ outputs:
           Array:
             - IntegerType: I32
             - - value: "2"
-        core_mapping: ~
         block:
           statements:
             - Definition:

@@ -4,8 +4,6 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    import_statements: []
-    imports: {}
     aliases: {}
     circuits: {}
     global_consts: {}
@@ -19,7 +17,6 @@ outputs:
           Tuple:
             - IntegerType: U32
             - IntegerType: U32
-        core_mapping: ~
         block:
           statements:
             - Return:

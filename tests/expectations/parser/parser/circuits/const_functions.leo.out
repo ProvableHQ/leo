@@ -4,8 +4,6 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    import_statements: []
-    imports: {}
     aliases: {}
     circuits:
       "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}":
@@ -20,7 +18,6 @@ outputs:
               input: []
               const_: true
               output: ~
-              core_mapping: ~
               block:
                 statements:
                   - Return:
@@ -62,7 +59,6 @@ outputs:
                 - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":22,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function x(self) { \\\"}\"}"
               const_: true
               output: ~
-              core_mapping: ~
               block:
                 statements:
                   - Return:
@@ -104,7 +100,6 @@ outputs:
                 - ConstSelfKeyword: "{\"name\":\"const self\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":22,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function c(const self) { \\\"}\"}"
               const_: true
               output: ~
-              core_mapping: ~
               block:
                 statements:
                   - Return:
@@ -159,7 +154,6 @@ outputs:
                       content: "    const function b(const self, x: u32) {"
               const_: true
               output: ~
-              core_mapping: ~
               block:
                 statements:
                   - Return:
@@ -214,7 +208,6 @@ outputs:
                       content: "    const function b(const self, const x: u32) {"
               const_: true
               output: ~
-              core_mapping: ~
               block:
                 statements:
                   - Return:
