@@ -19,7 +19,6 @@ use leo_span::{sym, Span, Symbol};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
-use std::cell::Cell;
 use std::fmt;
 
 /// A function definition.

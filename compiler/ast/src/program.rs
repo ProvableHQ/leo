@@ -17,9 +17,7 @@
 //! A Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of ast statements and expressions.
 
-use crate::{Alias, Circuit, CircuitMember, DefinitionStatement, Function, FunctionInput, Identifier, ImportStatement};
-
-use leo_span::{sym, Symbol};
+use crate::{Alias, Circuit, DefinitionStatement, Function, FunctionInput, Identifier};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
