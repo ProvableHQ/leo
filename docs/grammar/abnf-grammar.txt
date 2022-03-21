@@ -709,13 +709,29 @@ group-literal = product-group-literal / affine-group-literal
 ; of operators and other expression constructs,
 ; and the (left or right) associativity of binary operators.
 
-; The primary expressions are self-contained in a way,
-; i.e. they have clear delimitations:
-; Some consist of single tokens,
+; Primary expressions are the building blocks of
+; expressions involving postfix, prefix, and infix constructs.
+; The parsing of primary expressions
+; involves no considerations of construct precedence,
+; because primary expressions are clearly delimited:
+; some consist of single tokens,
 ; while others have explicit endings.
-; Primary expressions also include parenthesized expressions,
+
+; Primary expressions include variables and constants
+; (i.e. identifiers, as well as `self` and `input`),
+; as well as literals.
+; They also include parenthesized expressions,
 ; i.e. any expression may be turned into a primary one
 ; by putting parentheses around it.
+; Top-level function calls,
+; static member function calls
+; and static constant accesses
+; are also primary expressions.
+; (On the other hand,
+; instance member function calls
+; and instance member variable accesses
+; are postfix expressions,
+; because the target expression may recursively be a postfix expression.)
 
 primary-expression = identifier
                    / %s"self"
@@ -725,6 +741,11 @@ primary-expression = identifier
                    / tuple-expression
                    / array-expression
                    / circuit-expression
+                   / identifier function-arguments
+                   / named-type "::" identifier function-arguments
+                   / named-type "::" identifier
+
+function-arguments = "(" [ expression *( "," expression ) [ "," ] ] ")"
 
 ; Tuple expressions construct tuples.
 ; Each consists of zero, two, or more component expressions.
@@ -786,32 +807,15 @@ circuit-expression = circuit-construction
 ; the first defaulting to 0 and the second to the array length.
 ; A circuit access selects a member variable by name.
 
-; Function calls are also postfix expressions.
-; There are three kinds of function calls:
-; top-level function calls,
-; instance (i.e. non-static) member function calls, and
-; static member function calls.
-; They start differently, but they all end in an argument list.
-
-; Accesses to static constants are also postfix expressions.
-; They consist of a named type followed by the constant name,
-; as static constants are associated to named types.
-
-function-arguments = "(" [ expression *( "," expression ) [ "," ] ] ")"
-
 postfix-expression = primary-expression
                    / postfix-expression "." numeral
                    / postfix-expression "." identifier
-                   / identifier function-arguments
                    / postfix-expression "." identifier function-arguments
-                   / named-type "::" identifier function-arguments
-                   / named-type "::" identifier
                    / postfix-expression "[" expression "]"
                    / postfix-expression "[" [expression] ".." [expression] "]"
 
-; Unary operators have the highest operator precedence.
-; They apply to postfix expressions,
-; and recursively to unary expressions.
+; Unary operators have the highest precedence, after postfix expressions.
+; They apply to postfix expressions, and recursively to unary expressions.
 
 unary-expression = postfix-expression
                  / "!" unary-expression

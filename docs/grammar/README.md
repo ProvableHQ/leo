@@ -1123,13 +1123,29 @@ which also defines the relative precedence
 of operators and other expression constructs,
 and the (left or right) associativity of binary operators.
 
-The primary expressions are self-contained in a way,
-i.e. they have clear delimitations:
-Some consist of single tokens,
+Primary expressions are the building blocks of
+expressions involving postfix, prefix, and infix constructs.
+The parsing of primary expressions
+involves no considerations of construct precedence,
+because primary expressions are clearly delimited:
+some consist of single tokens,
 while others have explicit endings.
-Primary expressions also include parenthesized expressions,
+
+Primary expressions include variables and constants
+(i.e. identifiers, as well as `self` and `input`),
+as well as literals.
+They also include parenthesized expressions,
 i.e. any expression may be turned into a primary one
 by putting parentheses around it.
+Top-level function calls,
+static member function calls
+and static constant accesses
+are also primary expressions.
+(On the other hand,
+instance member function calls
+and instance member variable accesses
+are postfix expressions,
+because the target expression may recursively be a postfix expression.)
 
 <a name="primary-expression"></a>
 ```abnf
@@ -1141,9 +1157,20 @@ primary-expression = identifier
                    / tuple-expression
                    / array-expression
                    / circuit-expression
+                   / identifier function-arguments
+                   / named-type "::" identifier function-arguments
+                   / named-type "::" identifier
 ```
 
-Go to: _[array-expression](#user-content-array-expression), [circuit-expression](#user-content-circuit-expression), [expression](#user-content-expression), [identifier](#user-content-identifier), [literal](#user-content-literal), [tuple-expression](#user-content-tuple-expression)_;
+Go to: _[array-expression](#user-content-array-expression), [circuit-expression](#user-content-circuit-expression), [expression](#user-content-expression), [function-arguments](#user-content-function-arguments), [identifier](#user-content-identifier), [literal](#user-content-literal), [named-type](#user-content-named-type), [tuple-expression](#user-content-tuple-expression)_;
+
+
+<a name="function-arguments"></a>
+```abnf
+function-arguments = "(" [ expression *( "," expression ) [ "," ] ] ")"
+```
+
+Go to: _[expression](#user-content-expression)_;
 
 
 Tuple expressions construct tuples.
@@ -1266,44 +1293,21 @@ both are optional,
 the first defaulting to 0 and the second to the array length.
 A circuit access selects a member variable by name.
 
-Function calls are also postfix expressions.
-There are three kinds of function calls:
-top-level function calls,
-instance (i.e. non-static) member function calls, and
-static member function calls.
-They start differently, but they all end in an argument list.
-
-Accesses to static constants are also postfix expressions.
-They consist of a named type followed by the constant name,
-as static constants are associated to named types.
-
-<a name="function-arguments"></a>
-```abnf
-function-arguments = "(" [ expression *( "," expression ) [ "," ] ] ")"
-```
-
-Go to: _[expression](#user-content-expression)_;
-
-
 <a name="postfix-expression"></a>
 ```abnf
 postfix-expression = primary-expression
                    / postfix-expression "." numeral
                    / postfix-expression "." identifier
-                   / identifier function-arguments
                    / postfix-expression "." identifier function-arguments
-                   / named-type "::" identifier function-arguments
-                   / named-type "::" identifier
                    / postfix-expression "[" expression "]"
                    / postfix-expression "[" [expression] ".." [expression] "]"
 ```
 
-Go to: _[expression](#user-content-expression), [function-arguments](#user-content-function-arguments), [identifier](#user-content-identifier), [named-type](#user-content-named-type), [numeral](#user-content-numeral), [postfix-expression](#user-content-postfix-expression), [primary-expression](#user-content-primary-expression)_;
+Go to: _[expression](#user-content-expression), [function-arguments](#user-content-function-arguments), [identifier](#user-content-identifier), [numeral](#user-content-numeral), [postfix-expression](#user-content-postfix-expression), [primary-expression](#user-content-primary-expression)_;
 
 
-Unary operators have the highest operator precedence.
-They apply to postfix expressions,
-and recursively to unary expressions.
+Unary operators have the highest precedence, after postfix expressions.
+They apply to postfix expressions, and recursively to unary expressions.
 
 <a name="unary-expression"></a>
 ```abnf
