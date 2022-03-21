@@ -204,6 +204,12 @@ hexadecimal-digit = decimal-digit / "a" / "b" / "c" / "d" / "e" / "f"
 Go to: _[decimal-digit](#user-content-decimal-digit)_;
 
 
+An identifier is a non-empty sequence of
+letters, (decimal) digits, and underscores,
+starting with a letter.
+It must not be a keyword or a boolean literal,
+and it must not be or start with `aleo1`;
+these are extra-grammatical requirements, indicated in the comment.
 <a name="identifier"></a>
 ```abnf
 identifier = letter *( letter / decimal-digit / "_" )
@@ -478,7 +484,6 @@ scalar-type =  boolean-type / arithmetic-type / address-type / character-type
 ```
 
 Go to: _[address-type](#user-content-address-type), [arithmetic-type](#user-content-arithmetic-type), [boolean-type](#user-content-boolean-type), [character-type](#user-content-character-type)_;
-
 
 <a name="type"></a>
 ```abnf
@@ -781,7 +786,6 @@ print-call = print-function print-arguments
 ```
 
 Go to: _[print-arguments](#user-content-print-arguments), [print-function](#user-content-print-function)_;
-
 
 <a name="function-declaration"></a>
 ```abnf

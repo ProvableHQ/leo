@@ -19,8 +19,6 @@ use super::*;
 use leo_errors::{ParserError, Result};
 use leo_span::sym;
 
-use tendril::format_tendril;
-
 const INT_TYPES: &[Token] = &[
     Token::I8,
     Token::I16,
@@ -253,17 +251,10 @@ impl ParserContext<'_> {
             // hack for const signed integer overflow issues
             if matches!(operation, UnaryOperation::Negate) {
                 if let Expression::Value(ValueExpression::Integer(type_, value, span)) = inner {
-                    inner = Expression::Value(ValueExpression::Integer(
-                        type_,
-                        format_tendril!("-{}", value),
-                        &op.span + &span,
-                    ));
+                    inner = Expression::Value(ValueExpression::Integer(type_, format!("-{}", value), &op.span + &span));
                     continue;
                 } else if let Expression::Value(ValueExpression::Implicit(value, span)) = inner {
-                    inner = Expression::Value(ValueExpression::Implicit(
-                        format_tendril!("-{}", value),
-                        &op.span + &span,
-                    ));
+                    inner = Expression::Value(ValueExpression::Implicit(format!("-{}", value), &op.span + &span));
                     continue;
                 }
             }

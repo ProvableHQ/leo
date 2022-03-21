@@ -18,7 +18,6 @@ use leo_span::{sym, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use tendril::StrTendril;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Char {
@@ -40,7 +39,7 @@ impl fmt::Display for Char {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Scalar(c) => write!(f, "{}", c),
-            Self::NonScalar(c) => write!(f, "{}", c),
+            Self::NonScalar(c) => write!(f, "{:X}", c),
         }
     }
 }
@@ -50,14 +49,14 @@ impl fmt::Display for Char {
 pub enum Token {
     // Lexical Grammar
     // Literals
-    CommentLine(#[serde(with = "leo_span::tendril_json")] StrTendril),
-    CommentBlock(#[serde(with = "leo_span::tendril_json")] StrTendril),
+    CommentLine(String),
+    CommentBlock(String),
     StringLit(Vec<leo_ast::Char>),
     Ident(Symbol),
-    Int(#[serde(with = "leo_span::tendril_json")] StrTendril),
+    Int(String),
     True,
     False,
-    AddressLit(#[serde(with = "leo_span::tendril_json")] StrTendril),
+    AddressLit(String),
     CharLit(Char),
     WhiteSpace,
 
@@ -259,7 +258,7 @@ impl fmt::Display for Token {
             True => write!(f, "true"),
             False => write!(f, "false"),
             AddressLit(s) => write!(f, "{}", s),
-            CharLit(s) => write!(f, "{}", s),
+            CharLit(s) => write!(f, "'{}'", s),
             WhiteSpace => write!(f, "whitespace"),
 
             At => write!(f, "@"),

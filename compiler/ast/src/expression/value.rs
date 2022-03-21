@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use tendril::StrTendril;
-
 use super::*;
 use crate::{Char, CharValue};
 
@@ -24,37 +22,21 @@ use crate::{Char, CharValue};
 pub enum ValueExpression {
     // todo: deserialize values here
     /// An address literal, e.g., `aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8`.
-    Address(
-        #[serde(with = "leo_span::tendril_json")] StrTendril,
-        #[serde(with = "leo_span::span_json")] Span,
-    ),
+    Address(String, #[serde(with = "leo_span::span_json")] Span),
     /// A boolean literal, either `true` or `false`.
-    Boolean(
-        #[serde(with = "leo_span::tendril_json")] StrTendril,
-        #[serde(with = "leo_span::span_json")] Span,
-    ),
+    Boolean(String, #[serde(with = "leo_span::span_json")] Span),
     /// A char literal, e.g., `'a'`, representing a single unicode code point.
     Char(CharValue),
     /// A field literal, e.g., `42field`.
     /// That is, a signed number followed by the keyword `field`.
-    Field(
-        #[serde(with = "leo_span::tendril_json")] StrTendril,
-        #[serde(with = "leo_span::span_json")] Span,
-    ),
+    Field(String, #[serde(with = "leo_span::span_json")] Span),
     /// A group literal, either product or affine.
     /// For example, `42group` or `(12, 52)group`.
     Group(Box<GroupValue>),
     /// A negated non-integer literal, e.g., `-4.2`.
-    Implicit(
-        #[serde(with = "leo_span::tendril_json")] StrTendril,
-        #[serde(with = "leo_span::span_json")] Span,
-    ),
+    Implicit(String, #[serde(with = "leo_span::span_json")] Span),
     /// An integer literal, e.g., `42`.
-    Integer(
-        IntegerType,
-        #[serde(with = "leo_span::tendril_json")] StrTendril,
-        #[serde(with = "leo_span::span_json")] Span,
-    ),
+    Integer(IntegerType, String, #[serde(with = "leo_span::span_json")] Span),
     /// A string literal, e.g., `"foobar"`.
     String(Vec<Char>, #[serde(with = "leo_span::span_json")] Span),
 }

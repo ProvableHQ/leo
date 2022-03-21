@@ -177,6 +177,8 @@ outputs:
           - Scalar: 115
           - Scalar: 116
           - Scalar: 32
+          - Scalar: 128530
+          - Scalar: 8364
         - span:
             line_start: 1
             line_stop: 1
@@ -186,7 +188,9 @@ outputs:
             content: "\"test 😒€\""
   - Value:
       String:
-        - []
+        - - Scalar: 128557
+          - Scalar: 128514
+          - Scalar: 128536
         - span:
             line_start: 1
             line_stop: 1

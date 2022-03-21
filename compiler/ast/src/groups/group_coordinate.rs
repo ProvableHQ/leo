@@ -18,16 +18,12 @@ use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use tendril::StrTendril;
 
 /// A coordinate in a affine group literal.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GroupCoordinate {
     /// A number, e.g., `42`.
-    Number(
-        #[serde(with = "leo_span::tendril_json")] StrTendril,
-        #[serde(with = "leo_span::span_json")] Span,
-    ),
+    Number(String, #[serde(with = "leo_span::span_json")] Span),
     /// A sign high recovery, i.e. `+`.
     SignHigh,
     /// A sign low recovery, i.e., `-`.

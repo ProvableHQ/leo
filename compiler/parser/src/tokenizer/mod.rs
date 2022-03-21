@@ -31,38 +31,16 @@ pub(crate) use self::lexer::*;
 use leo_errors::{ParserError, Result};
 use leo_span::Span;
 
-use tendril::StrTendril;
-
 /// Creates a new vector of spanned tokens from a given file path and source code text.
-pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken>> {
+pub(crate) fn tokenize(path: &str, input: &str) -> Result<Vec<SpannedToken>> {
     let path = Arc::new(path.to_string());
     let mut tokens = vec![];
     let mut index = 0usize;
     let mut line_no = 1usize;
     let mut line_start = 0usize;
     while input.len() > index {
-        match Token::eat(input.subtendril(index as u32, (input.len() - index) as u32))? {
+        match Token::eat(&input[index..])? {
             (token_len, Token::WhiteSpace) => {
-                if token_len == 0 && index == input.len() {
-                    break;
-                } else if token_len == 0 {
-                    return Err(ParserError::unexpected_token(
-                        &input[index..].chars().next().unwrap(),
-                        &Span::new(
-                            line_no,
-                            line_no,
-                            index - line_start + 1,
-                            index - line_start + 2,
-                            path,
-                            input.subtendril(
-                                line_start as u32,
-                                input[line_start..].find('\n').unwrap_or(input.len()) as u32,
-                            ),
-                        ),
-                    )
-                    .into());
-                }
-
                 let bytes = input.as_bytes();
                 if bytes[index] == 0x000D && matches!(bytes.get(index + 1), Some(0x000A)) {
                     // Check carriage return followed by newline.
@@ -83,10 +61,12 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
                     index - line_start + 1,
                     index - line_start + token_len + 1,
                     path.clone(),
-                    input.subtendril(
-                        line_start as u32,
-                        input[line_start..].find('\n').unwrap_or(input.len() - line_start) as u32,
-                    ),
+                    input[line_start
+                        ..input[line_start..]
+                            .find('\n')
+                            .map(|i| i + line_start)
+                            .unwrap_or(input.len())]
+                        .to_string(),
                 );
                 match &token {
                     Token::CommentLine(_) => {
@@ -129,6 +109,8 @@ mod tests {
             let tokens = tokenize(
                 "test_path",
                 r#"
+        'a'
+        '😭'
         "test"
         "test{}test"
         "test{}"
@@ -227,7 +209,7 @@ mod tests {
 
             assert_eq!(
                 output,
-                r#""test" "test{}test" "test{}" "{}test" "test{" "test}" "test{test" "test}test" "te{{}}" aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8 test_ident 12345 address as bool circuit const else false field for function group i128 i64 i32 i16 i8 if import in input let mut & return static string test true u128 u64 u32 u16 u8 self Self console ! != && ( ) * ** **= *= + += , - -= -> _ . .. ... / /= : :: ; < <= = == > >= @ [ ] { { } } || ? // test
+                r#"'a' '😭' "test" "test{}test" "test{}" "{}test" "test{" "test}" "test{test" "test}test" "te{{}}" aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8 test_ident 12345 address as bool circuit const else false field for function group i128 i64 i32 i16 i8 if import in input let mut & return static string test true u128 u64 u32 u16 u8 self Self console ! != && ( ) * ** **= *= + += , - -= -> _ . .. ... / /= : :: ; < <= = == > >= @ [ ] { { } } || ? // test
  /* test */ // "#
             );
         });

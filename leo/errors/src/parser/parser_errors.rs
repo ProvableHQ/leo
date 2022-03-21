@@ -136,14 +136,6 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encountered an illegal `const self` argument.
-    @formatted
-    illegal_self_const {
-        args: (),
-        msg: "cannot have const self",
-        help: None,
-    }
-
     /// For when the parser encountered a deprecated `mut` argument in a function.
     @formatted
     mut_function_input {
@@ -234,14 +226,6 @@ create_errors!(
 
     /// When an integer is started with a leading zero.
     @backtraced
-    lexer_eat_integer_leading_zero {
-    args: (input: impl Display),
-    msg: format!("Tried to eat integer but found a leading zero on `{}`.", input),
-    help: None,
-    }
-
-    /// When an integer is started with a leading zero.
-    @backtraced
     lexer_expected_valid_escaped_char {
     args: (input: impl Display),
     msg: format!("Expected a valid escape character but found `{}`.", input),
@@ -251,8 +235,8 @@ create_errors!(
     /// When a string is not properly closed.
     @backtraced
     lexer_string_not_closed {
-    args: (input: impl Display),
-    msg: format!("Expected a closed string but found `{}`.", input),
+    args: (input: impl Debug),
+    msg: format!("Expected a closed string but found `{:?}`.", input),
     help: None,
     }
 
@@ -296,30 +280,6 @@ create_errors!(
     help: None,
     }
 
-    /// When a escaped character was given more than one char to escape.
-    @backtraced
-    lexer_escaped_char_incorrect_length {
-        args: (input: impl Display),
-        msg: format!("Could not lex the following escaped char due to being given more than one char: `{}`.", input),
-        help: None,
-    }
-
-    /// When a escape was given but no following character
-    @backtraced
-    lexer_unclosed_escaped_char {
-        args: (),
-        msg: "There was no escaped character following the escape char symbol `\\`.",
-        help: None,
-    }
-
-    /// When a escaped hex was given more than two chars to escape.
-    @backtraced
-    lexer_escaped_hex_incorrect_length {
-        args: (input: impl Display),
-        msg: format!("Could not lex the following escaped hex due to being given more than two chars: `{}`.", input),
-        help: None,
-    }
-
     /// When a valid hex character was expected.
     @backtraced
     lexer_expected_valid_hex_char {
@@ -336,7 +296,7 @@ create_errors!(
         help: None,
     }
 
-    /// When a escaped unicode char was given but it had an incorrect length.
+    /// When a escaped unicode char was given but it had an incorrect length. 38
     @backtraced
     lexer_invalid_escaped_unicode_length {
         args: (input: impl Display),
@@ -375,14 +335,6 @@ create_errors!(
         help: None,
     }
 
-    /// When a escaped unicode char has an emoji in it.
-    @backtraced
-    lexer_emoji_inside_escaped_unicode_char {
-        args: (input: impl Display),
-        msg: format!("There was an emoji found in the escaped unicode character: `{}`.", input),
-        help: None,
-    }
-
     /// For when a user puts parens around a single defined variable.
     @formatted
     invalid_parens_around_single_variable {
@@ -396,6 +348,14 @@ create_errors!(
     invalid_parens_around_single_array_dimension_size {
         args: (),
         msg: "do not put parens around single dimension array size",
+        help: None,
+    }
+
+    /// For when a user puts parens around a single defined variable.
+    @backtraced
+    lexer_expected_but_found {
+        args: (found: impl Display, expected: impl Display),
+        msg: format!("Found the char `{}`, but expected `{}`", found, expected),
         help: None,
     }
 );

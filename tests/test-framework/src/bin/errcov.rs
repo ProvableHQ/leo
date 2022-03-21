@@ -49,7 +49,7 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
     // Variable that stores all the tests.
     let mut tests = Vec::new();
     let mut test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    test_dir.push("../tests/");
+    test_dir.push("../");
 
     let mut expectation_dir = test_dir.clone();
     expectation_dir.push("expectations");
