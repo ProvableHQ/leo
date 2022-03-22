@@ -341,7 +341,7 @@ and
 
 ```
 postfix-expression = primary-expression
-                   / postfix-expression "." natural
+                   / postfix-expression "." numeral
                    / ...
 ```
 
@@ -1142,8 +1142,8 @@ static member function calls
 and static constant accesses
 are also primary expressions.
 (On the other hand,
-instance member function calls
-and instance member variable accesses
+circuit instance member variable accesses
+and instance member function calls
 are postfix expressions,
 because the target expression may recursively be a postfix expression.)
 
@@ -1285,13 +1285,14 @@ expressions that have postfix expression subcomponents.
 
 There are postfix expressions to access parts of aggregate values.
 A tuple access selects a component by index (zero-based).
+Circuit instance member variable accesses and instance member function calls
+are also postfix expressions.
 There are two kinds of array accesses:
 one selects a single element by index (zero-based);
 the other selects a range via two indices,
 the first inclusive and the second exclusive --
 both are optional,
 the first defaulting to 0 and the second to the array length.
-A circuit access selects a member variable by name.
 
 <a name="postfix-expression"></a>
 ```abnf
