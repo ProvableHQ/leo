@@ -204,12 +204,6 @@ hexadecimal-digit = decimal-digit / "a" / "b" / "c" / "d" / "e" / "f"
 Go to: _[decimal-digit](#user-content-decimal-digit)_;
 
 
-An identifier is a non-empty sequence of
-letters, (decimal) digits, and underscores,
-starting with a letter.
-It must not be a keyword or a boolean literal,
-and it must not be or start with `aleo1`;
-these are extra-grammatical requirements, indicated in the comment.
 <a name="identifier"></a>
 ```abnf
 identifier = letter *( letter / decimal-digit / "_" )
@@ -485,6 +479,7 @@ scalar-type =  boolean-type / arithmetic-type / address-type / character-type
 
 Go to: _[address-type](#user-content-address-type), [arithmetic-type](#user-content-arithmetic-type), [boolean-type](#user-content-boolean-type), [character-type](#user-content-character-type)_;
 
+
 <a name="type"></a>
 ```abnf
 type = scalar-type
@@ -530,9 +525,10 @@ Go to: _[affine-group-literal](#user-content-affine-group-literal), [product-gro
 primary-expression = identifier
                    / literal
                    / "(" expression ")"
+                   / identifier function-arguments
 ```
 
-Go to: _[expression](#user-content-expression), [identifier](#user-content-identifier), [literal](#user-content-literal)_;
+Go to: _[expression](#user-content-expression), [function-arguments](#user-content-function-arguments), [identifier](#user-content-identifier), [literal](#user-content-literal)_;
 
 
 <a name="function-arguments"></a>
@@ -543,23 +539,14 @@ function-arguments = "(" [ expression *( "," expression ) [ "," ] ] ")"
 Go to: _[expression](#user-content-expression)_;
 
 
-<a name="postfix-expression"></a>
-```abnf
-postfix-expression = primary-expression
-                   / identifier function-arguments
-```
-
-Go to: _[function-arguments](#user-content-function-arguments), [identifier](#user-content-identifier), [primary-expression](#user-content-primary-expression)_;
-
-
 <a name="unary-expression"></a>
 ```abnf
-unary-expression = postfix-expression
+unary-expression = primary-expression
                  / "!" unary-expression
                  / "-" unary-expression
 ```
 
-Go to: _[postfix-expression](#user-content-postfix-expression), [unary-expression](#user-content-unary-expression)_;
+Go to: _[primary-expression](#user-content-primary-expression), [unary-expression](#user-content-unary-expression)_;
 
 
 <a name="exponential-expression"></a>
@@ -786,6 +773,7 @@ print-call = print-function print-arguments
 ```
 
 Go to: _[print-arguments](#user-content-print-arguments), [print-function](#user-content-print-function)_;
+
 
 <a name="function-declaration"></a>
 ```abnf
