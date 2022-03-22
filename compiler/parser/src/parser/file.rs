@@ -293,11 +293,16 @@ impl ParserContext<'_> {
         // `IDENT: TYPE = EXPR`:
         let (name, type_) = self.parse_typed_field_name()?;
         self.expect(Token::Assign)?;
-        let literal = self.parse_primary_expression()?;
+        let expr = self.parse_expression()?;
+        if let Expression::Call(ce) = expr {
+            return Err(
+                ParserError::unexpected_token("Function calls not allowed in circuit members.", ce.span()).into(),
+            );
+        }
 
         self.expect(Token::Semicolon)?;
 
-        Ok(CircuitMember::CircuitConst(name, type_, literal))
+        Ok(CircuitMember::CircuitConst(name, type_, expr))
     }
 
     ///
