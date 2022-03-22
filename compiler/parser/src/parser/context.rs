@@ -30,7 +30,7 @@ pub struct ParserContext<'a> {
     pub(crate) handler: &'a Handler,
     tokens: Vec<SpannedToken>,
     end_span: Span,
-    // true if parsing an expression for an if statement -- means circuit inits are not legal
+    // true if parsing an expression for if and loop statements -- means circuit inits are not legal
     pub(crate) disallow_circuit_construction: bool,
 }
 
