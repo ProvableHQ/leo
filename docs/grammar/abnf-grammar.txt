@@ -100,12 +100,6 @@ octal-digit = %x30-37   ; 0-7
 
 hexadecimal-digit = decimal-digit / "a" / "b" / "c" / "d" / "e" / "f"
 
-; An identifier is a non-empty sequence of
-; letters, (decimal) digits, and underscores,
-; starting with a letter.
-; It must not be a keyword or a boolean literal,
-; and it must not be or start with `aleo1`;
-; these are extra-grammatical requirements, indicated in the comment.
 identifier = letter *( letter / decimal-digit / "_" )
              ; but not a keyword or a boolean literal or aleo1...
 

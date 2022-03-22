@@ -204,14 +204,14 @@ hexadecimal-digit = decimal-digit / "a" / "b" / "c" / "d" / "e" / "f"
 Go to: _[decimal-digit](#user-content-decimal-digit)_;
 
 
-An identifier is a non-empty sequence of
-letters, (decimal) digits, and underscores,
-starting with a letter.
-It must not be a keyword or a boolean literal,
-and it must not be or start with `aleo1`;
-these are extra-grammatical requirements, indicated in the comment.
+<a name="identifier"></a>
+```abnf
 identifier = letter *( letter / decimal-digit / "_" )
              ; but not a keyword or a boolean literal or aleo1...
+```
+
+Go to: _[letter](#user-content-letter)_;
+
 
 <a name="numeral"></a>
 ```abnf
