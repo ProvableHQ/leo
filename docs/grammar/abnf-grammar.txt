@@ -228,13 +228,11 @@ group-literal = product-group-literal / affine-group-literal
 primary-expression = identifier
                    / literal
                    / "(" expression ")"
+                   / identifier function-arguments
 
 function-arguments = "(" [ expression *( "," expression ) [ "," ] ] ")"
 
-postfix-expression = primary-expression
-                   / identifier function-arguments
-
-unary-expression = postfix-expression
+unary-expression = primary-expression
                  / "!" unary-expression
                  / "-" unary-expression
 
