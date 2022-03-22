@@ -209,7 +209,7 @@ impl Token {
                     return Ok((len + 2, Token::StringLit(string)));
                 }
 
-                return Err(ParserError::lexer_string_not_closed(string).into());
+                return Err(ParserError::lexer_string_not_closed(leo_ast::Chars(string)).into());
             }
             Some('\'') => {
                 input.next();
