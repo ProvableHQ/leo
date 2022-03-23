@@ -12,4 +12,5 @@ circuit X {
     static const TINDEXED: Foo = T.0;
     static const TWO: i8 = 1i8 + 1i8;
     static const mult: i8 = x * y;
+    static const mult: i8 = one();
 }

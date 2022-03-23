@@ -294,11 +294,6 @@ impl ParserContext<'_> {
         let (name, type_) = self.parse_typed_field_name()?;
         self.expect(Token::Assign)?;
         let expr = self.parse_expression()?;
-        if let Expression::Call(ce) = expr {
-            return Err(
-                ParserError::unexpected_token("Function calls not allowed in circuit members.", ce.span()).into(),
-            );
-        }
 
         self.expect(Token::Semicolon)?;
 
@@ -341,11 +336,6 @@ impl ParserContext<'_> {
     pub fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
         let name = if let Some(ident) = self.eat_identifier() {
             ident
-        } else if let Some(scalar_type) = self.eat_any(crate::type_::TYPE_TOKENS) {
-            Identifier {
-                name: scalar_type.token.keyword_to_symbol().unwrap(),
-                span: scalar_type.span,
-            }
         } else {
             let next = self.peek()?;
             return Err(ParserError::unexpected_str(&next.token, "ident", &next.span).into());

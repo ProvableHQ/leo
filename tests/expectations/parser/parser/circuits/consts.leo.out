@@ -147,5 +147,19 @@ outputs:
                     col_stop: 34
                     path: ""
                     content: "    static const mult: i8 = x * y;"
+          - CircuitConst:
+              - "{\"name\":\"mult\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":18,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const mult: i8 = one();\\\"}\"}"
+              - IntegerType: I8
+              - Call:
+                  function:
+                    Identifier: "{\"name\":\"one\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":29,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const mult: i8 = one();\\\"}\"}"
+                  arguments: []
+                  span:
+                    line_start: 12
+                    line_stop: 12
+                    col_start: 29
+                    col_stop: 34
+                    path: ""
+                    content: "    static const mult: i8 = one();"
     global_consts: {}
     functions: {}
