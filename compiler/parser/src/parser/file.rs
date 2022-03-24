@@ -36,7 +36,8 @@ impl ParserContext<'_> {
             let token = self.peek()?;
             match &token.token {
                 Token::Import => {
-                    import_statements.push(self.parse_import_statement()?);
+                    panic!("0rphon");
+                    // import_statements.push(self.parse_import_statement()?);
                 }
                 Token::Circuit => {
                     self.expect(Token::Circuit)?;
@@ -316,16 +317,17 @@ impl ParserContext<'_> {
             let function = self.parse_function_declaration()?;
             Ok(CircuitMember::CircuitFunction(Box::new(function.1)))
         } else {
-            return Err(ParserError::unexpected(
-                &peeked.token,
-                [Token::Function, Token::At, Token::Const]
-                    .iter()
-                    .map(|x| format!("'{}'", x))
-                    .collect::<Vec<_>>()
-                    .join(", "),
-                &peeked.span,
-            )
-            .into());
+            panic!("0rphon");
+            // return Err(ParserError::unexpected(
+            //     &peeked.token,
+            //     [Token::Function, Token::At, Token::Const]
+            //         .iter()
+            //         .map(|x| format!("'{}'", x))
+            //         .collect::<Vec<_>>()
+            //         .join(", "),
+            //     &peeked.span,
+            // )
+            // .into());
         }
     }
 
@@ -337,10 +339,11 @@ impl ParserContext<'_> {
         let name = if let Some(ident) = self.eat_identifier() {
             ident
         } else if let Some(scalar_type) = self.eat_any(crate::type_::TYPE_TOKENS) {
-            Identifier {
-                name: scalar_type.token.keyword_to_symbol().unwrap(),
-                span: scalar_type.span,
-            }
+            panic!("0rphon");
+            // Identifier {
+            //     name: scalar_type.token.keyword_to_symbol().unwrap(),
+            //     span: scalar_type.span,
+            // }
         } else {
             let next = self.peek()?;
             return Err(ParserError::unexpected_str(&next.token, "ident", &next.span).into());
@@ -393,7 +396,8 @@ impl ParserContext<'_> {
         }
 
         if let Some(mutable) = &mutable {
-            self.emit_err(ParserError::mut_function_input(&(&mutable.span + &name.span)));
+            panic!("0rphon");
+            // self.emit_err(ParserError::mut_function_input(&(&mutable.span + &name.span)));
         }
 
         self.expect(Token::Colon)?;

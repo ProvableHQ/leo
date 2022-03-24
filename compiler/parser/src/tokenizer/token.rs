@@ -30,7 +30,7 @@ impl Into<leo_ast::Char> for Char {
     fn into(self) -> leo_ast::Char {
         match self {
             Self::Scalar(c) => leo_ast::Char::Scalar(c),
-            Self::NonScalar(c) => leo_ast::Char::NonScalar(c),
+            Self::NonScalar(c) => panic!("0rphon"), // leo_ast::Char::NonScalar(c),
         }
     }
 }
@@ -192,7 +192,8 @@ pub const KEYWORD_TOKENS: &[Token] = &[
 impl Token {
     /// Returns `true` if the `self` token equals a Leo keyword.
     pub fn is_keyword(&self) -> bool {
-        KEYWORD_TOKENS.contains(self)
+        panic!("0rphon");
+        // KEYWORD_TOKENS.contains(self)
     }
 
     /// Converts `self` to the corresponding `Symbol` if it `is_keyword`.
@@ -200,7 +201,7 @@ impl Token {
         Some(match self {
             Token::Address => sym::address,
             Token::As => sym::As,
-            Token::At => sym::At,
+            Token::At => panic!("0rphon"), // sym::At,
             Token::Bool => sym::bool,
             Token::Char => sym::char,
             Token::Circuit => sym::circuit,
@@ -235,7 +236,7 @@ impl Token {
             Token::U32 => sym::u32,
             Token::U64 => sym::u64,
             Token::U128 => sym::u128,
-            _ => return None,
+            _ => panic!("0rphon"), // return None,
         })
     }
 }
@@ -244,8 +245,8 @@ impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use Token::*;
         match self {
-            CommentLine(s) => write!(f, "{}", s),
-            CommentBlock(s) => write!(f, "{}", s),
+            CommentLine(s) => panic!("0rphon"), // write!(f, "{}", s),
+            CommentBlock(s) => panic!("0rphon"), //write!(f, "{}", s),
             StringLit(string) => {
                 write!(f, "\"")?;
                 for character in string.iter() {
@@ -259,13 +260,13 @@ impl fmt::Display for Token {
             False => write!(f, "false"),
             AddressLit(s) => write!(f, "{}", s),
             CharLit(s) => write!(f, "'{}'", s),
-            WhiteSpace => write!(f, "whitespace"),
+            WhiteSpace => panic!("0rphon"), // write!(f, "whitespace"),
 
             At => write!(f, "@"),
 
             Not => write!(f, "!"),
-            And => write!(f, "&&"),
-            Or => write!(f, "||"),
+            And => panic!("0rphon"), // write!(f, "&&"),
+            Or => panic!("0rphon"), // write!(f, "||"),
             Eq => write!(f, "=="),
             NotEq => write!(f, "!="),
             Lt => write!(f, "<"),
@@ -276,13 +277,13 @@ impl fmt::Display for Token {
             Minus => write!(f, "-"),
             Mul => write!(f, "*"),
             Div => write!(f, "/"),
-            Exp => write!(f, "**"),
+            Exp => panic!("0rphon"), // write!(f, "**"),
             Assign => write!(f, "="),
-            AddEq => write!(f, "+="),
-            MinusEq => write!(f, "-="),
-            MulEq => write!(f, "*="),
-            DivEq => write!(f, "/="),
-            ExpEq => write!(f, "**="),
+            AddEq => panic!("0rphon"), // write!(f, "+="),
+            MinusEq => panic!("0rphon"), // write!(f, "-="),
+            MulEq => panic!("0rphon"), // write!(f, "*="),
+            DivEq => panic!("0rphon"), // write!(f, "/="),
+            ExpEq => panic!("0rphon"), // write!(f, "**="),
             LeftParen => write!(f, "("),
             RightParen => write!(f, ")"),
             LeftSquare => write!(f, "["),
@@ -297,7 +298,7 @@ impl fmt::Display for Token {
             Colon => write!(f, ":"),
             DoubleColon => write!(f, "::"),
             Question => write!(f, "?"),
-            Arrow => write!(f, "->"),
+            Arrow => panic!("0rphon"), // write!(f, "->"),
             Underscore => write!(f, "_"),
 
             U8 => write!(f, "u8"),
@@ -335,9 +336,9 @@ impl fmt::Display for Token {
             Mut => write!(f, "mut"),
             Ampersand => write!(f, "&"), // Used for `Reference` and `BitAnd`
             Return => write!(f, "return"),
-            Static => write!(f, "static"),
+            Static => panic!("0rphon"), // write!(f, "static"),
             Type => write!(f, "type"),
-            Eof => write!(f, ""),
+            Eof => panic!("0rphon"), // write!(f, ""),
         }
     }
 }

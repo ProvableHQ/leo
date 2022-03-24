@@ -28,7 +28,7 @@ use std::{fmt, iter::Peekable};
 ///
 fn eat_identifier(input: &mut Peekable<impl Iterator<Item = char>>) -> Option<String> {
     match input.peek() {
-        None => return None,
+        None => panic!("0rphon"), // return None,
         Some(c) if !c.is_ascii_alphabetic() => return None,
         _ => {}
     }
@@ -69,7 +69,8 @@ impl Token {
         // Max of 6 digits.
         // Minimum of 1 digit.
         if unicode.len() > 6 || unicode.is_empty() {
-            return Err(ParserError::lexer_invalid_escaped_unicode_length(unicode).into());
+            panic!("0rphon");
+            // return Err(ParserError::lexer_invalid_escaped_unicode_length(unicode).into());
         }
 
         if let Ok(hex) = u32::from_str_radix(&unicode, 16) {
@@ -99,7 +100,8 @@ impl Token {
         } else if let Some(c) = input.next() {
             return Err(ParserError::lexer_expected_valid_hex_char(c).into());
         } else {
-            return Err(ParserError::lexer_empty_input_tendril().into());
+            panic!("0rphon");
+            // return Err(ParserError::lexer_empty_input_tendril().into());
         }
 
         // Second hex character.
@@ -158,7 +160,8 @@ impl Token {
     ///
     fn eat_integer(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Token)> {
         if input.peek().is_none() {
-            return Err(ParserError::lexer_empty_input_tendril().into());
+            panic!("0rphon");
+            // return Err(ParserError::lexer_empty_input_tendril().into());
         }
 
         let mut int = String::new();
@@ -181,7 +184,8 @@ impl Token {
     ///
     pub(crate) fn eat(input_tendril: &str) -> Result<(usize, Token)> {
         if input_tendril.is_empty() {
-            return Err(ParserError::lexer_empty_input_tendril().into());
+            panic!("0rphon");
+            // return Err(ParserError::lexer_empty_input_tendril().into());
         }
 
         let mut input = input_tendril.chars().peekable();

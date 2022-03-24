@@ -336,8 +336,9 @@ impl<'a> ParserContext<'a> {
             });
         }
         if let Some((int, span)) = self.eat_int() {
-            let name = Symbol::intern(&int.value);
-            return Ok(Identifier { name, span });
+            panic!("0rphon");
+            // let name = Symbol::intern(&int.value);
+            // return Ok(Identifier { name, span });
         }
         self.expect_ident()
     }
