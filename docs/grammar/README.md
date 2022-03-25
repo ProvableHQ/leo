@@ -21,9 +21,10 @@ along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 Lexical Grammar
 ---------------
 
-This rule states the basic elements that form Leo code:
-the Unicode code points that can be decoded from UTF-8.
-character = %x0-D7FF / %xE000-10FFFF
+<a name="character"></a>
+```abnf
+character = %x0-D7FF / %xE000-10FFFF   ; Unicode code points decoded from UTF-8
+```
 
 <a name="horizontal-tab"></a>
 ```abnf
@@ -821,13 +822,10 @@ file = *declaration
 Format String Grammar
 ---------------------
 
-The code points mentioned in this grammar represent
-the elements of a Leo format string already parsed,
-after escapes have been processed.
-
 <a name="not-brace"></a>
 ```abnf
 not-brace = %x0-7A / %x7C / %x7E-10FFFF ; anything but { or }
+            ; codes permitted in string after escapes processed, except braces
 ```
 
 <a name="format-string-container"></a>
