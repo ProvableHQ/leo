@@ -22,7 +22,7 @@ Background on ABNF
 ------------------
 
 ABNF is an Internet standard:
-for more info please checkout the
+for more info please check out the
 [README](./README.md) in this directory.
 
 
@@ -67,10 +67,7 @@ format-string-element = not-brace
                         / format-string-close-brace
 ```
 
-Go to: _[format-string-close-brace](#user-content-format-string-close-brace), [format-string-container](#user-content-format-string-container), [format-string-open-brace](#user-content-format-string-open-brace), [not-brace](#user-content-not-brace)_;
-
-
 <a name="format-string"></a>
 ```abnf
 format-string = *format-string-element
-
+```
