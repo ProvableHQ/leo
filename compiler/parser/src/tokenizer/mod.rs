@@ -43,11 +43,10 @@ pub(crate) fn tokenize(path: &str, input: &str) -> Result<Vec<SpannedToken>> {
             (token_len, Token::WhiteSpace) => {
                 let bytes = input.as_bytes();
                 if bytes[index] == 0x000D && matches!(bytes.get(index + 1), Some(0x000A)) {
-                    panic!("0rphon");
-                    // // Check carriage return followed by newline.
-                    // line_no += 1;
-                    // line_start = index + token_len;
-                    // index += token_len;
+                    // Check carriage return followed by newline.
+                    line_no += 1;
+                    line_start = index + token_len;
+                    index += token_len;
                 } else if matches!(bytes[index], 0x000A | 0x000D) {
                     // Check new-line or carriage-return
                     line_no += 1;

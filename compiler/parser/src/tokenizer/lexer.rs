@@ -69,8 +69,7 @@ impl Token {
         // Max of 6 digits.
         // Minimum of 1 digit.
         if unicode.len() > 6 || unicode.is_empty() {
-            panic!("0rphon");
-            // return Err(ParserError::lexer_invalid_escaped_unicode_length(unicode).into());
+            return Err(ParserError::lexer_invalid_escaped_unicode_length(unicode).into());
         }
 
         if let Ok(hex) = u32::from_str_radix(&unicode, 16) {
@@ -100,8 +99,7 @@ impl Token {
         } else if let Some(c) = input.next() {
             return Err(ParserError::lexer_expected_valid_hex_char(c).into());
         } else {
-            panic!("0rphon");
-            // return Err(ParserError::lexer_empty_input_tendril().into());
+            return Err(ParserError::lexer_empty_input_tendril().into());
         }
 
         // Second hex character.
@@ -475,7 +473,8 @@ impl fmt::Display for SpannedToken {
 
 impl fmt::Debug for SpannedToken {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        <SpannedToken as fmt::Display>::fmt(self, f)
+        panic!("0rphon");
+        // <SpannedToken as fmt::Display>::fmt(self, f)
     }
 }
 

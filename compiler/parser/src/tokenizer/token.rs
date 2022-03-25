@@ -192,8 +192,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
 impl Token {
     /// Returns `true` if the `self` token equals a Leo keyword.
     pub fn is_keyword(&self) -> bool {
-        panic!("0rphon");
-        // KEYWORD_TOKENS.contains(self)
+        KEYWORD_TOKENS.contains(self)
     }
 
     /// Converts `self` to the corresponding `Symbol` if it `is_keyword`.
@@ -201,7 +200,7 @@ impl Token {
         Some(match self {
             Token::Address => sym::address,
             Token::As => sym::As,
-            Token::At => panic!("0rphon"), // sym::At,
+            Token::At => sym::At,
             Token::Bool => sym::bool,
             Token::Char => sym::char,
             Token::Circuit => sym::circuit,
@@ -265,8 +264,8 @@ impl fmt::Display for Token {
             At => write!(f, "@"),
 
             Not => write!(f, "!"),
-            And => panic!("0rphon"), // write!(f, "&&"),
-            Or => panic!("0rphon"), // write!(f, "||"),
+            And => write!(f, "&&"),
+            Or => write!(f, "||"),
             Eq => write!(f, "=="),
             NotEq => write!(f, "!="),
             Lt => write!(f, "<"),
@@ -277,13 +276,13 @@ impl fmt::Display for Token {
             Minus => write!(f, "-"),
             Mul => write!(f, "*"),
             Div => write!(f, "/"),
-            Exp => panic!("0rphon"), // write!(f, "**"),
+            Exp => write!(f, "**"),
             Assign => write!(f, "="),
-            AddEq => panic!("0rphon"), // write!(f, "+="),
-            MinusEq => panic!("0rphon"), // write!(f, "-="),
-            MulEq => panic!("0rphon"), // write!(f, "*="),
-            DivEq => panic!("0rphon"), // write!(f, "/="),
-            ExpEq => panic!("0rphon"), // write!(f, "**="),
+            AddEq => write!(f, "+="),
+            MinusEq => write!(f, "-="),
+            MulEq => write!(f, "*="),
+            DivEq => write!(f, "/="),
+            ExpEq => write!(f, "**="),
             LeftParen => write!(f, "("),
             RightParen => write!(f, ")"),
             LeftSquare => write!(f, "["),
@@ -298,7 +297,7 @@ impl fmt::Display for Token {
             Colon => write!(f, ":"),
             DoubleColon => write!(f, "::"),
             Question => write!(f, "?"),
-            Arrow => panic!("0rphon"), // write!(f, "->"),
+            Arrow => write!(f, "->"),
             Underscore => write!(f, "_"),
 
             U8 => write!(f, "u8"),
@@ -336,7 +335,7 @@ impl fmt::Display for Token {
             Mut => write!(f, "mut"),
             Ampersand => write!(f, "&"), // Used for `Reference` and `BitAnd`
             Return => write!(f, "return"),
-            Static => panic!("0rphon"), // write!(f, "static"),
+            Static => write!(f, "static"),
             Type => write!(f, "type"),
             Eof => panic!("0rphon"), // write!(f, ""),
         }

@@ -53,7 +53,7 @@ impl ParserContext<'_> {
             Token::U32 => IntegerType::U32,
             Token::U64 => IntegerType::U64,
             Token::U128 => IntegerType::U128,
-            _ => panic!("0rphon"), // return None,
+            _ => return None,
         })
     }
 
