@@ -128,7 +128,7 @@ and comments (semicolons to line endings).
 Structure
 ---------
 
-This ABNF grammar consists of two (sub-)grammars:
+This ABNF grammar consists of two sub-grammars:
 (i) a lexical grammar that describes how
 sequence of characters are parsed into tokens, and
 (ii) a syntactic grammar that describes how
@@ -364,8 +364,9 @@ Lexical Grammar
 ---------------
 
 A Leo file is a finite sequence of Unicode characters,
-represented as Unicode code points,
-which are numbers in the range from 0 to 10FFFF.
+encoded in UTF-8.  After decoding, the Unicode code points
+are numbers in the range from 0 to 10FFFF (hexadecimal)
+excluding the surrogate range D800 to DFFF.
 These are captured by the ABNF rule `character` below.
 
 The lexical grammar defines how, at least conceptually,
@@ -389,15 +390,9 @@ the longest possible sequence of characters is always parsed.
 This way, `**` must be parsed as one `**` symbol token,
 and `<CR><LF>` must be parsed as one line terminator.
 
-As mentioned above, a character is any Unicode code point.
-This grammar does not say how those are encoded in files (e.g. UTF-8):
-it starts with a decoded sequence of Unicode code points.
-Note that we allow any value,
-even though some values may not be used according to the Unicode standard.
-
 <a name="character"></a>
 ```abnf
-character = %x0-10FFFF   ; any Unicode code point
+character = %x0-D7FF / %xE000-10FFFF ; Unicode code points decoded from UTF-8
 ```
 
 We give names to certain ASCII characters.
@@ -437,29 +432,30 @@ These consist of all the Unicode characters except for one or two.
 
 <a name="not-star"></a>
 ```abnf
-not-star = %x0-29 / %x2B-10FFFF   ; anything but *
+not-star = %x0-29 / %x2B-D7FF / %xE000-10FFFF   ; anything but *
 ```
 
 <a name="not-star-or-slash"></a>
 ```abnf
-not-star-or-slash = %x0-29 / %x2B-2E / %x30-10FFFF   ; anything but * or /
+not-star-or-slash = %x0-29 / %x2B-2E / %x30-D7FF / %xE000-10FFFF
+                    ; anything but * or /
 ```
 
 <a name="not-line-feed-or-carriage-return"></a>
 ```abnf
-not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-10FFFF
+not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-D7FF / %xE000-10FFFF
                                    ; anything but <LF> or <CR>
 ```
 
 <a name="not-double-quote-or-backslash"></a>
 ```abnf
-not-double-quote-or-backslash = %x0-21 / %x23-5B / %x5D-10FFFF
+not-double-quote-or-backslash = %x0-21 / %x23-5B / %x5D-D7FF / %xE000-10FFFF
                                 ; anything but " or \
 ```
 
 <a name="not-single-quote-or-backslash"></a>
 ```abnf
-not-single-quote-or-backslash = %x0-26 / %x28-5B / %x5D-10FFFF
+not-single-quote-or-backslash = %x0-26 / %x28-5B / %x5D-D7FF / %xE000-10FFFF
                                 ; anything but ' or \
 ```
 

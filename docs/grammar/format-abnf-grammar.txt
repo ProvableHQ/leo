@@ -28,13 +28,14 @@
 ; Format String
 ; -------------------
 
-; This ABNF grammar consists of one grammar:
+; This ABNF grammar consists of one grammar
 ; that describes how a Leo string-literal is parsed
-; for formatting.  Meaning in this context
+; for formatting.  Meaning, in this context
 ; all characters are already parsed and we don't
-; have to worry about escapes or etc.
+; have to process escapes.
 
-not-brace = %x0-7A / %x7C / %x7E-10FFFF ; anything but { or }
+not-brace = %x0-7A / %x7C / %x7E-10FFFF
+            ; codes permitted in string after escapes processed, except { or }
 
 format-string-container = "{}"
 
@@ -46,5 +47,5 @@ format-string-element = not-brace
                         / format-string-container
                         / format-string-open-brace
                         / format-string-close-brace
-		      
+
 format-string = *format-string-element
