@@ -824,8 +824,8 @@ Format String Grammar
 
 <a name="not-brace"></a>
 ```abnf
-not-brace = %x0-7A / %x7C / %x7E-10FFFF ; anything but { or }
-            ; codes permitted in string after escapes processed, except braces
+not-brace = %x0-7A / %x7C / %x7E-10FFFF
+            ; codes permitted in string after escapes processed, except { or }
 ```
 
 <a name="format-string-container"></a>
