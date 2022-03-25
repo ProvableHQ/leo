@@ -28,8 +28,7 @@ impl ParserContext<'_> {
             if matches!(token.token, Token::LeftSquare) {
                 sections.push(self.parse_section()?);
             } else {
-                panic!("0rphon");
-                // return Err(ParserError::unexpected_token(token.token.clone(), &token.span).into());
+                return Err(ParserError::unexpected_token(token.token.clone(), &token.span).into());
             }
         }
 
