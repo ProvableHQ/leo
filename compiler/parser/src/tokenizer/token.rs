@@ -30,7 +30,7 @@ impl Into<leo_ast::Char> for Char {
     fn into(self) -> leo_ast::Char {
         match self {
             Self::Scalar(c) => leo_ast::Char::Scalar(c),
-            Self::NonScalar(c) => panic!("0rphon"), // leo_ast::Char::NonScalar(c),
+            Self::NonScalar(c) => leo_ast::Char::NonScalar(c),
         }
     }
 }
@@ -235,7 +235,7 @@ impl Token {
             Token::U32 => sym::u32,
             Token::U64 => sym::u64,
             Token::U128 => sym::u128,
-            _ => panic!("0rphon"), // return None,
+            _ => return None,
         })
     }
 }
@@ -244,8 +244,8 @@ impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use Token::*;
         match self {
-            CommentLine(s) => panic!("0rphon"), // write!(f, "{}", s),
-            CommentBlock(s) => panic!("0rphon"), //write!(f, "{}", s),
+            CommentLine(s) => write!(f, "{}", s),
+            CommentBlock(s) => write!(f, "{}", s),
             StringLit(string) => {
                 write!(f, "\"")?;
                 for character in string.iter() {
@@ -259,7 +259,7 @@ impl fmt::Display for Token {
             False => write!(f, "false"),
             AddressLit(s) => write!(f, "{}", s),
             CharLit(s) => write!(f, "'{}'", s),
-            WhiteSpace => panic!("0rphon"), // write!(f, "whitespace"),
+            WhiteSpace => write!(f, "whitespace"),
 
             At => write!(f, "@"),
 
@@ -337,7 +337,7 @@ impl fmt::Display for Token {
             Return => write!(f, "return"),
             Static => write!(f, "static"),
             Type => write!(f, "type"),
-            Eof => panic!("0rphon"), // write!(f, ""),
+            Eof => write!(f, ""),
         }
     }
 }

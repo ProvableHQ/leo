@@ -28,7 +28,7 @@ use std::{fmt, iter::Peekable};
 ///
 fn eat_identifier(input: &mut Peekable<impl Iterator<Item = char>>) -> Option<String> {
     match input.peek() {
-        None => panic!("0rphon"), // return None,
+        None => return None,
         Some(c) if !c.is_ascii_alphabetic() => return None,
         _ => {}
     }
@@ -158,8 +158,7 @@ impl Token {
     ///
     fn eat_integer(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Token)> {
         if input.peek().is_none() {
-            panic!("0rphon");
-            // return Err(ParserError::lexer_empty_input_tendril().into());
+            return Err(ParserError::lexer_empty_input_tendril().into());
         }
 
         let mut int = String::new();
@@ -182,8 +181,7 @@ impl Token {
     ///
     pub(crate) fn eat(input_tendril: &str) -> Result<(usize, Token)> {
         if input_tendril.is_empty() {
-            panic!("0rphon");
-            // return Err(ParserError::lexer_empty_input_tendril().into());
+            return Err(ParserError::lexer_empty_input_tendril().into());
         }
 
         let mut input = input_tendril.chars().peekable();
@@ -473,8 +471,7 @@ impl fmt::Display for SpannedToken {
 
 impl fmt::Debug for SpannedToken {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        panic!("0rphon");
-        // <SpannedToken as fmt::Display>::fmt(self, f)
+        <SpannedToken as fmt::Display>::fmt(self, f)
     }
 }
 
