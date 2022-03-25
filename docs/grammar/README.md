@@ -821,9 +821,13 @@ file = *declaration
 Format String Grammar
 ---------------------
 
+The code points mentioned in this grammar represent
+the elements of a Leo format string already parsed,
+after escapes have been processed.
+
 <a name="not-brace"></a>
 ```abnf
-not-brace = %x0-7A / %x7C / %x7E-D7FF / %xE000-10FFFF ; anything but { or }
+not-brace = %x0-7A / %x7C / %x7E-10FFFF ; anything but { or }
 ```
 
 <a name="format-string-container"></a>
