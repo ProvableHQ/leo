@@ -310,7 +310,7 @@ print-arguments = "(" string-literal  *( "," expression ) [ "," ] ")"
 print-call = print-function print-arguments
 
 function-declaration = %s"function" identifier
-                       "(" [ function-parameters ] ")" [ "->" type ]
+                       "(" [ function-parameters ] ")" "->" type
                        block
 
 function-parameters = function-parameter *( "," function-parameter ) [ "," ]
