@@ -123,18 +123,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_ternary(ternary, condition, if_true, if_false)
     }
 
-    pub fn reduce_member_access(&mut self, member_access: &MemberAccess) -> Result<MemberAccess> {
-        let inner = self.reduce_expression(&member_access.inner)?;
-        let name = self.reduce_identifier(&member_access.name)?;
-        let type_ = member_access
-            .type_
-            .as_ref()
-            .map(|type_| self.reduce_type(type_, &member_access.span))
-            .transpose()?;
-
-        self.reducer.reduce_member_access(member_access, inner, name, type_)
-    }
-
     pub fn reduce_tuple_access(&mut self, tuple_access: &TupleAccess) -> Result<TupleAccess> {
         let tuple = self.reduce_expression(&tuple_access.tuple)?;
 
@@ -145,7 +133,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         use AccessExpression::*;
 
         let new = match access {
-            Member(access) => Member(self.reduce_member_access(access)?),
             Tuple(access) => Tuple(self.reduce_tuple_access(access)?),
         };
 

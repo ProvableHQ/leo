@@ -37,10 +37,6 @@ impl ParserContext<'_> {
         let identifier;
         match expr {
             Expression::Access(access) => match access {
-                AccessExpression::Member(expr) => {
-                    identifier = Self::construct_assignee_access(*expr.inner, accesses)?;
-                    accesses.push(AssigneeAccess::Member(expr.name));
-                }
                 AccessExpression::Tuple(expr) => {
                     identifier = Self::construct_assignee_access(*expr.tuple, accesses)?;
                     accesses.push(AssigneeAccess::Tuple(expr.index, expr.span));

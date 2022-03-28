@@ -252,14 +252,7 @@ impl ParserContext<'_> {
         while let Some(token) = self.eat_any(&[Token::Dot, Token::LeftParen]) {
             match token.token {
                 Token::Dot => {
-                    if let Some(ident) = self.eat_identifier() {
-                        expr = Expression::Access(AccessExpression::Member(MemberAccess {
-                            span: expr.span() + &ident.span,
-                            inner: Box::new(expr),
-                            name: ident,
-                            type_: None,
-                        }));
-                    } else if let Some((num, span)) = self.eat_int() {
+                    if let Some((num, span)) = self.eat_int() {
                         expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
                             span: expr.span() + &span,
                             tuple: Box::new(expr),

@@ -3,7 +3,6 @@ namespace: ParseStatement
 expectation: Pass
 */
 
-let x = a . b;
 
 let x = a == b;
 

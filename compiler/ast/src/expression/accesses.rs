@@ -20,8 +20,6 @@ use crate::accesses::*;
 /// An access expressions, extracting a smaller part out of a whole.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AccessExpression {
-    /// An expression accessing a field in a structure, e.g., `circuit_var.field`.
-    Member(MemberAccess),
     /// Access to a tuple field using its position, e.g., `tuple.1`.
     Tuple(TupleAccess),
 }
@@ -31,7 +29,6 @@ impl fmt::Display for AccessExpression {
         use AccessExpression::*;
 
         match self {
-            Member(access) => access.fmt(f),
             Tuple(access) => access.fmt(f),
         }
     }
@@ -42,7 +39,6 @@ impl Node for AccessExpression {
         use AccessExpression::*;
 
         match &self {
-            Member(access) => access.span(),
             Tuple(access) => access.span(),
         }
     }
@@ -51,7 +47,6 @@ impl Node for AccessExpression {
         use AccessExpression::*;
 
         match self {
-            Member(access) => access.set_span(span),
             Tuple(access) => access.set_span(span),
         }
     }

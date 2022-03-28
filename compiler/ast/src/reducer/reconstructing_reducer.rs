@@ -113,21 +113,6 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_member_access(
-        &mut self,
-        member_access: &MemberAccess,
-        inner: Expression,
-        name: Identifier,
-        type_: Option<Type>,
-    ) -> Result<MemberAccess> {
-        Ok(MemberAccess {
-            inner: Box::new(inner),
-            name,
-            span: member_access.span.clone(),
-            type_,
-        })
-    }
-
     fn reduce_tuple_access(&mut self, tuple_access: &TupleAccess, tuple: Expression) -> Result<TupleAccess> {
         Ok(TupleAccess {
             tuple: Box::new(tuple),

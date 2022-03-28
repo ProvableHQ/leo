@@ -14,8 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod member_access;
-pub use member_access::*;
-
 mod tuple_access;
 pub use tuple_access::*;

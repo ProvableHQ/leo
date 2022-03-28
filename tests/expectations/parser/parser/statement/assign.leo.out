@@ -148,28 +148,6 @@ outputs:
         path: ""
         content: x = x();
   - Assign:
-      operation: Assign
-      assignee:
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y = y;\\\"}\"}"
-        accesses:
-          - Member: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y = y;\\\"}\"}"
-        span:
-          line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 4
-          path: ""
-          content: x.y = y;
-      value:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y = y;\\\"}\"}"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 8
-        path: ""
-        content: x.y = y;
-  - Assign:
       operation: Add
       assignee:
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x += expr;\\\"}\"}"
@@ -284,58 +262,6 @@ outputs:
         path: ""
         content: x += x();
   - Assign:
-      operation: Add
-      assignee:
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.0 += y;\\\"}\"}"
-        accesses:
-          - Tuple:
-              - value: "0"
-              - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 1
-                  col_stop: 4
-                  path: ""
-                  content: x.0 += y;
-        span:
-          line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 4
-          path: ""
-          content: x.0 += y;
-      value:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.0 += y;\\\"}\"}"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 9
-        path: ""
-        content: x.0 += y;
-  - Assign:
-      operation: Add
-      assignee:
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y += y;\\\"}\"}"
-        accesses:
-          - Member: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y += y;\\\"}\"}"
-        span:
-          line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 4
-          path: ""
-          content: x.y += y;
-      value:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y += y;\\\"}\"}"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 9
-        path: ""
-        content: x.y += y;
-  - Assign:
       operation: Sub
       assignee:
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x -= expr;\\\"}\"}"
@@ -449,28 +375,6 @@ outputs:
         col_stop: 9
         path: ""
         content: x -= x();
-  - Assign:
-      operation: Sub
-      assignee:
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y -= y;\\\"}\"}"
-        accesses:
-          - Member: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y -= y;\\\"}\"}"
-        span:
-          line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 4
-          path: ""
-          content: x.y -= y;
-      value:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y -= y;\\\"}\"}"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 9
-        path: ""
-        content: x.y -= y;
   - Assign:
       operation: Mul
       assignee:
@@ -616,28 +520,6 @@ outputs:
         path: ""
         content: x.0 *= y;
   - Assign:
-      operation: Mul
-      assignee:
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y *= y;\\\"}\"}"
-        accesses:
-          - Member: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y *= y;\\\"}\"}"
-        span:
-          line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 4
-          path: ""
-          content: x.y *= y;
-      value:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y *= y;\\\"}\"}"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 9
-        path: ""
-        content: x.y *= y;
-  - Assign:
       operation: Div
       assignee:
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x /= expr;\\\"}\"}"
@@ -782,28 +664,6 @@ outputs:
         path: ""
         content: x.0 /= y;
   - Assign:
-      operation: Div
-      assignee:
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y /= y;\\\"}\"}"
-        accesses:
-          - Member: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y /= y;\\\"}\"}"
-        span:
-          line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 4
-          path: ""
-          content: x.y /= y;
-      value:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y /= y;\\\"}\"}"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 9
-        path: ""
-        content: x.y /= y;
-  - Assign:
       operation: Pow
       assignee:
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x **= expr;\\\"}\"}"
@@ -947,25 +807,3 @@ outputs:
         col_stop: 10
         path: ""
         content: x.0 **= y;
-  - Assign:
-      operation: Pow
-      assignee:
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y **= y;\\\"}\"}"
-        accesses:
-          - Member: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y **= y;\\\"}\"}"
-        span:
-          line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 4
-          path: ""
-          content: x.y **= y;
-      value:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y **= y;\\\"}\"}"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 10
-        path: ""
-        content: x.y **= y;
