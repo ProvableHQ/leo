@@ -533,17 +533,6 @@ impl ParserContext<'_> {
                 let ident = Identifier { name, span };
                 Expression::Identifier(ident)
             }
-            Token::BigSelf => {
-                let ident = Identifier {
-                    name: sym::SelfUpper,
-                    span,
-                };
-                Expression::Identifier(ident)
-            }
-            Token::LittleSelf => Expression::Identifier(Identifier {
-                name: sym::SelfLower,
-                span,
-            }),
             Token::Input => Expression::Identifier(Identifier { name: sym::input, span }),
             t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
                 name: t.keyword_to_symbol().unwrap(),

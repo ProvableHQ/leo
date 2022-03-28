@@ -436,8 +436,6 @@ impl Token {
                     "let" => Token::Let,
                     "mut" => Token::Mut,
                     "return" => Token::Return,
-                    "Self" => Token::BigSelf,
-                    "self" => Token::LittleSelf,
                     "static" => Token::Static,
                     "true" => Token::True,
                     "type" => Token::Type,

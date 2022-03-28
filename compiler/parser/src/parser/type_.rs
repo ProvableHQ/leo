@@ -85,9 +85,7 @@ impl ParserContext<'_> {
     /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a type.
     /// Also returns the span of the parsed token.
     pub fn parse_type(&mut self) -> Result<(Type, Span)> {
-        Ok(if let Some(token) = self.eat(Token::BigSelf) {
-            (Type::SelfType, token.span)
-        } else if let Some(ident) = self.eat_identifier() {
+        Ok(if let Some(ident) = self.eat_identifier() {
             let span = ident.span.clone();
             (Type::Identifier(ident), span)
         } else if self.peek_is_left_par() {

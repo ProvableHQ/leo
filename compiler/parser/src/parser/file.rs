@@ -36,10 +36,7 @@ impl ParserContext<'_> {
                 Token::Import => {
                     import_statements.push(self.parse_import_statement()?);
                 }
-                Token::Ident(ident) => match *ident {
-                    sym::test => return Err(ParserError::test_function(&token.span).into()),
-                    _ => return Err(Self::unexpected_item(token).into()),
-                },
+                Token::Ident(sym::test) => return Err(ParserError::test_function(&token.span).into()),
                 // Const functions share the first token with the global Const.
                 Token::Const if self.peek_is_function()? => {
                     let (id, function) = self.parse_function_declaration()?;
@@ -74,16 +71,11 @@ impl ParserContext<'_> {
     fn unexpected_item(token: &SpannedToken) -> ParserError {
         ParserError::unexpected(
             &token.token,
-            [
-                Token::Import,
-                Token::Function,
-                Token::Ident(sym::test),
-                Token::At,
-            ]
-            .iter()
-            .map(|x| format!("'{}'", x))
-            .collect::<Vec<_>>()
-            .join(", "),
+            [Token::Import, Token::Function, Token::Ident(sym::test), Token::At]
+                .iter()
+                .map(|x| format!("'{}'", x))
+                .collect::<Vec<_>>()
+                .join(", "),
             &token.span,
         )
     }
@@ -201,36 +193,10 @@ impl ParserContext<'_> {
     ///
     /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
     ///
-    pub fn parse_function_parameters(&mut self, first: bool) -> Result<FunctionInput> {
+    pub fn parse_function_parameters(&mut self) -> Result<FunctionInput> {
         let const_ = self.eat(Token::Const);
         let mutable = self.eat(Token::Mut);
-        let reference = self.eat(Token::Ampersand);
-        let mut name = if let Some(token) = self.eat(Token::LittleSelf) {
-            Identifier {
-                name: sym::SelfLower,
-                span: token.span,
-            }
-        } else {
-            self.expect_ident()?
-        };
-        if name.name == sym::SelfLower {
-            if !first {
-                return Err(ParserError::parser_self_outside_first_argument().into());
-            } else if let Some(mutable) = &mutable {
-                self.emit_err(ParserError::mut_self_parameter(&(&mutable.span + &name.span)));
-                return Ok(Self::build_ref_self(name, mutable));
-            } else if let Some(reference) = &reference {
-                // Handle `&self`.
-                return Ok(Self::build_ref_self(name, reference));
-            } else if let Some(const_) = &const_ {
-                // Handle `const self`.
-                name.span = &const_.span + &name.span;
-                name.name = Symbol::intern("const self");
-                return Ok(FunctionInput::ConstSelfKeyword(ConstSelfKeyword { identifier: name }));
-            }
-            // Handle `self`.
-            return Ok(FunctionInput::SelfKeyword(SelfKeyword { identifier: name }));
-        }
+        let name = self.expect_ident()?;
 
         if let Some(mutable) = &mutable {
             self.emit_err(ParserError::mut_function_input(&(&mutable.span + &name.span)));
@@ -245,14 +211,6 @@ impl ParserContext<'_> {
             span: name.span.clone(),
             identifier: name,
         }))
-    }
-
-    /// Builds a function parameter `&self`.
-    fn build_ref_self(mut name: Identifier, reference: &SpannedToken) -> FunctionInput {
-        name.span = &reference.span + &name.span;
-        // FIXME(Centril): This should be *two* tokens, NOT one!
-        name.name = Symbol::intern("&self");
-        FunctionInput::RefSelfKeyword(RefSelfKeyword { identifier: name })
     }
 
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
@@ -273,12 +231,7 @@ impl ParserContext<'_> {
         let name = self.expect_ident()?;
 
         // Parse parameters.
-        let mut first = true;
-        let (inputs, ..) = self.parse_paren_comma_list(|p| {
-            let param = p.parse_function_parameters(first).map(Some);
-            first = false;
-            param
-        })?;
+        let (inputs, ..) = self.parse_paren_comma_list(|p| p.parse_function_parameters().map(Some))?;
 
         // Parse return type.
         let output = if self.eat(Token::Arrow).is_some() {

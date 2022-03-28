@@ -46,22 +46,12 @@ pub enum Type {
     /// A reference to either a nominal type (e.g., a `circuit`) or a type alias.
     Identifier(Identifier),
 
-    /// The `Self` type, allowed within `circuit` definitions.
-    SelfType,
-
     /// Placeholder for a type that could not be resolved or was not well-formed.
     /// Will eventually lead to a compile error.
     Err,
 }
 
 impl Type {
-    ///
-    /// Returns `true` if the self `Type` is the `SelfType`.
-    ///
-    pub fn is_self(&self) -> bool {
-        matches!(self, Type::SelfType)
-    }
-
     ///
     /// Returns `true` if the self `Type` is a `Circuit`.
     ///
@@ -83,7 +73,6 @@ impl Type {
             (Type::Group, Type::Group) => true,
             (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(right),
             (Type::Identifier(left), Type::Identifier(right)) => left.eq(right),
-            (Type::SelfType, Type::SelfType) => true,
             (Type::Array(left_type, left_dims), Type::Array(right_type, right_dims)) => {
                 // Convert array dimensions to owned.
                 let mut left_dims = left_dims.to_owned();
@@ -124,7 +113,6 @@ impl fmt::Display for Type {
             Type::Group => write!(f, "group"),
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
             Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
-            Type::SelfType => write!(f, "SelfType"),
             Type::Array(ref array, ref dimensions) => write!(f, "[{}; {}]", *array, dimensions),
             Type::Tuple(ref tuple) => {
                 let types = tuple.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");

@@ -116,11 +116,9 @@ pub enum Token {
     Bool,
     Address,
     Char,
-    BigSelf,
 
     // primary expresion
     Input,
-    LittleSelf,
 
     // Import
     Import,
@@ -175,8 +173,6 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Mut,
     Token::Ampersand,
     Token::Return,
-    Token::BigSelf,
-    Token::LittleSelf,
     Token::Static,
     Token::True,
     Token::Type,
@@ -222,8 +218,6 @@ impl Token {
             Token::Mut => sym::Mut,
             Token::Ampersand => sym::Ampersand,
             Token::Return => sym::Return,
-            Token::BigSelf => sym::SelfUpper,
-            Token::LittleSelf => sym::SelfLower,
             Token::Static => sym::Static,
             Token::True => sym::True,
             Token::Type => sym::Type,
@@ -312,10 +306,8 @@ impl fmt::Display for Token {
             Bool => write!(f, "bool"),
             Address => write!(f, "address"),
             Char => write!(f, "char"),
-            BigSelf => write!(f, "Self"),
 
             Input => write!(f, "input"),
-            LittleSelf => write!(f, "self"),
 
             Import => write!(f, "import"),
 

@@ -64,29 +64,6 @@ impl Function {
     }
 
     ///
-    /// Returns `true` if the function has input `self` or `mut self`.
-    /// Returns `false` otherwise.
-    ///
-    pub fn contains_self(&self) -> bool {
-        self.input.iter().any(|param| param.is_self())
-    }
-
-    ///
-    /// Returns `true` if the function has input `mut self`.
-    /// Returns `false` otherwise.
-    ///
-    pub fn contains_mut_self(&self) -> bool {
-        self.input.iter().any(|param| param.is_mut_self())
-    }
-
-    ///
-    /// Returns an iterator of [&FunctionInput] removing `self` and `mut self` inputs.
-    ///
-    pub fn filter_self_inputs(&self) -> impl Iterator<Item = &FunctionInput> {
-        self.input.iter().filter(|input| !input.is_self())
-    }
-
-    ///
     /// Private formatting method used for optimizing [fmt::Debug] and [fmt::Display] implementations.
     ///
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {

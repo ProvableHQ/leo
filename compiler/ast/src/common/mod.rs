@@ -17,9 +17,6 @@
 pub mod array_dimensions;
 pub use array_dimensions::*;
 
-pub mod const_self_keyword;
-pub use const_self_keyword::*;
-
 pub mod global_consts_json;
 
 pub mod identifier;
@@ -28,14 +25,8 @@ pub use identifier::*;
 pub mod imported_modules;
 pub use imported_modules::*;
 
-pub mod mut_self_keyword;
-pub use mut_self_keyword::*;
-
 pub mod positive_number;
 pub use positive_number::*;
-
-pub mod self_keyword;
-pub use self_keyword::*;
 
 pub mod spread_or_expression;
 pub use spread_or_expression::*;

@@ -454,7 +454,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             FunctionInput::Variable(function_input_variable) => {
                 FunctionInput::Variable(self.reduce_function_input_variable(function_input_variable)?)
             }
-            _ => input.clone(),
         };
 
         self.reducer.reduce_function_input(input, new)
