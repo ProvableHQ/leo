@@ -344,11 +344,7 @@ impl Token {
             }
             Some(':') => {
                 input.next();
-                if input.next_if_eq(&':').is_some() {
-                    return Ok((2, Token::DoubleColon));
-                } else {
-                    return Ok((1, Token::Colon));
-                }
+                return Ok((1, Token::Colon));
             }
             Some(';') => {
                 input.next();
@@ -374,10 +370,6 @@ impl Token {
                     return Ok((2, Token::Eq));
                 }
                 return Ok((1, Token::Assign));
-            }
-            Some('@') => {
-                input.next();
-                return Ok((1, Token::At));
             }
             Some('[') => {
                 input.next();

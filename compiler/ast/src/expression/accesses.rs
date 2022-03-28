@@ -28,8 +28,6 @@ pub enum AccessExpression {
     Member(MemberAccess),
     /// Access to a tuple field using its position, e.g., `tuple.1`.
     Tuple(TupleAccess),
-    /// Access to a member constant or a static function of a circuit.
-    Static(StaticAccess),
 }
 
 impl fmt::Display for AccessExpression {
@@ -41,7 +39,6 @@ impl fmt::Display for AccessExpression {
             ArrayRange(access) => access.fmt(f),
             Member(access) => access.fmt(f),
             Tuple(access) => access.fmt(f),
-            Static(access) => access.fmt(f),
         }
     }
 }
@@ -55,7 +52,6 @@ impl Node for AccessExpression {
             ArrayRange(access) => access.span(),
             Member(access) => access.span(),
             Tuple(access) => access.span(),
-            Static(access) => access.span(),
         }
     }
 
@@ -67,7 +63,6 @@ impl Node for AccessExpression {
             ArrayRange(access) => access.set_span(span),
             Member(access) => access.set_span(span),
             Tuple(access) => access.set_span(span),
-            Static(access) => access.set_span(span),
         }
     }
 }

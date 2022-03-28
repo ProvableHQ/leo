@@ -46,7 +46,7 @@ impl ParserContext<'_> {
                     let (name, global_const) = self.parse_global_const_declaration()?;
                     global_consts.insert(name, global_const);
                 }
-                Token::Function | Token::At => {
+                Token::Function => {
                     let (id, function) = self.parse_function_declaration()?;
                     functions.insert(id, function);
                 }
@@ -71,54 +71,13 @@ impl ParserContext<'_> {
     fn unexpected_item(token: &SpannedToken) -> ParserError {
         ParserError::unexpected(
             &token.token,
-            [Token::Import, Token::Function, Token::Ident(sym::test), Token::At]
+            [Token::Import, Token::Function, Token::Ident(sym::test)]
                 .iter()
                 .map(|x| format!("'{}'", x))
                 .collect::<Vec<_>>()
                 .join(", "),
             &token.span,
         )
-    }
-
-    /// Returns an [`Annotation`] AST node if the next tokens represent a supported annotation.
-    pub fn parse_annotation(&mut self) -> Result<Annotation> {
-        let start = self.expect(Token::At)?;
-        let name = self.parse_annotation_name()?;
-
-        assert_no_whitespace(&start, &name.span, &name.name.as_str(), "@")?;
-
-        let (end_span, arguments) = if self.peek_is_left_par() {
-            let (args, _, span) = self.parse_paren_comma_list(|p| {
-                Ok(if let Some(ident) = p.eat_identifier() {
-                    Some(ident.name)
-                } else {
-                    let token = p.expect_any()?;
-                    p.emit_err(ParserError::unexpected_str(&token.token, "ident", &token.span));
-                    None
-                })
-            })?;
-            (span, args)
-        } else {
-            (name.span.clone(), Vec::new())
-        };
-        Ok(Annotation {
-            name,
-            arguments,
-            span: start + end_span,
-        })
-    }
-
-    /// Parses `foo` in an annotation `@foo . That is, the name of the annotation.
-    fn parse_annotation_name(&mut self) -> Result<Identifier> {
-        let mut name = self.expect_ident()?;
-
-        // Recover `context` instead of `test`.
-        if name.name == sym::context {
-            self.emit_err(ParserError::context_annotation(&name.span));
-            name.name = sym::test;
-        }
-
-        Ok(name)
     }
 
     /// Returns an [`Identifier`] AST node if the next tokens represent a valid package name.
@@ -216,13 +175,6 @@ impl ParserContext<'_> {
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
     pub fn parse_function_declaration(&mut self) -> Result<(Identifier, Function)> {
-        // Parse any annotations.
-        let mut annotations = IndexMap::new();
-        while self.peek_token().as_ref() == &Token::At {
-            let annotation = self.parse_annotation()?;
-            annotations.insert(annotation.name.name, annotation);
-        }
-
         // Parse optional const modifier.
         let const_ = self.eat(Token::Const).is_some();
 
@@ -246,7 +198,6 @@ impl ParserContext<'_> {
         Ok((
             name.clone(),
             Function {
-                annotations,
                 identifier: name,
                 input: inputs,
                 const_,

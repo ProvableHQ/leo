@@ -61,7 +61,6 @@ pub enum Token {
     WhiteSpace,
 
     // Symbols
-    At,
     Not,
     And,
     Or,
@@ -94,7 +93,6 @@ pub enum Token {
     DotDotDot,
     Semicolon,
     Colon,
-    DoubleColon,
     Question,
     Arrow,
     Underscore,
@@ -188,7 +186,6 @@ impl Token {
         Some(match self {
             Token::Address => sym::address,
             Token::As => sym::As,
-            Token::At => sym::At,
             Token::Bool => sym::bool,
             Token::Char => sym::char,
             Token::Console => sym::console,
@@ -244,8 +241,6 @@ impl fmt::Display for Token {
             CharLit(s) => write!(f, "'{}'", s),
             WhiteSpace => write!(f, "whitespace"),
 
-            At => write!(f, "@"),
-
             Not => write!(f, "!"),
             And => write!(f, "&&"),
             Or => write!(f, "||"),
@@ -278,7 +273,6 @@ impl fmt::Display for Token {
             DotDotDot => write!(f, "..."),
             Semicolon => write!(f, ";"),
             Colon => write!(f, ":"),
-            DoubleColon => write!(f, "::"),
             Question => write!(f, "?"),
             Arrow => write!(f, "->"),
             Underscore => write!(f, "_"),

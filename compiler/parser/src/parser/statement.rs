@@ -56,7 +56,6 @@ impl ParserContext<'_> {
                     identifier = Self::construct_assignee_access(*expr.array, accesses)?;
                     accesses.push(AssigneeAccess::ArrayIndex(*expr.index));
                 }
-                _ => return Err(ParserError::invalid_assignment_target(access.span()).into()),
             },
 
             Expression::Identifier(id) => identifier = id,

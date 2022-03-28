@@ -10,7 +10,6 @@ outputs:
     global_consts: {}
     functions:
       "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}":
-        annotations: {}
         identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}"
         input:
           - Variable:
@@ -34,7 +33,6 @@ outputs:
                     arguments:
                       - Identifier: "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":26,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return is_palindrome(str);\\\"}\"}"
       "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":10,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function is_palindrome(str: [char; 20]) -> bool {\\\"}\"}":
-        annotations: {}
         identifier: "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":10,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function is_palindrome(str: [char; 20]) -> bool {\\\"}\"}"
         input:
           - Variable:
@@ -365,12 +363,8 @@ outputs:
             - Return:
                 expression:
                   Identifier: "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":50,\\\"line_stop\\\":50,\\\"col_start\\\":12,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return result;\\\"}\"}"
-      "{\"name\":\"test_is_palindrome\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":10,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_is_palindrome() {\\\"}\"}":
-        annotations:
-          test:
-            arguments: []
-            name: "{\"name\":\"test\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":2,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"@test\\\"}\"}"
-        identifier: "{\"name\":\"test_is_palindrome\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":10,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_is_palindrome() {\\\"}\"}"
+      "{\"name\":\"test_is_palindrome\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":10,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_is_palindrome() {\\\"}\"}":
+        identifier: "{\"name\":\"test_is_palindrome\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":10,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_is_palindrome() {\\\"}\"}"
         input: []
         const_: false
         output: ~
@@ -382,7 +376,7 @@ outputs:
                   Assert:
                     Call:
                       function:
-                        Identifier: "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"a           b   a   \\\\\\\"));\\\"}\"}"
+                        Identifier: "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"a           b   a   \\\\\\\"));\\\"}\"}"
                       arguments:
                         - Value:
                             String:
@@ -411,7 +405,7 @@ outputs:
                   Assert:
                     Call:
                       function:
-                        Identifier: "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"😀😀😀😀😀          😀😀😀😀😀\\\\\\\"));\\\"}\"}"
+                        Identifier: "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"😀😀😀😀😀          😀😀😀😀😀\\\\\\\"));\\\"}\"}"
                       arguments:
                         - Value:
                             String:
@@ -440,7 +434,7 @@ outputs:
                   Assert:
                     Call:
                       function:
-                        Identifier: "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"borrow or rob       \\\\\\\"));\\\"}\"}"
+                        Identifier: "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"borrow or rob       \\\\\\\"));\\\"}\"}"
                       arguments:
                         - Value:
                             String:
@@ -469,7 +463,7 @@ outputs:
                   Assert:
                     Call:
                       function:
-                        Identifier: "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"bbbb aaaa  aaaa bbbb\\\\\\\"));\\\"}\"}"
+                        Identifier: "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"bbbb aaaa  aaaa bbbb\\\\\\\"));\\\"}\"}"
                       arguments:
                         - Value:
                             String:
@@ -498,7 +492,7 @@ outputs:
                   Assert:
                     Call:
                       function:
-                        Identifier: "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"aaaaaaaaaaaaaaaaaaaa\\\\\\\"));\\\"}\"}"
+                        Identifier: "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"aaaaaaaaaaaaaaaaaaaa\\\\\\\"));\\\"}\"}"
                       arguments:
                         - Value:
                             String:
@@ -527,7 +521,7 @@ outputs:
                   Assert:
                     Call:
                       function:
-                        Identifier: "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"taco cat            \\\\\\\"));\\\"}\"}"
+                        Identifier: "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"taco cat            \\\\\\\"));\\\"}\"}"
                       arguments:
                         - Value:
                             String:

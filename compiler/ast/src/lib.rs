@@ -28,9 +28,6 @@ pub use self::accesses::*;
 pub mod aliases;
 pub use self::aliases::*;
 
-pub mod annotation;
-pub use self::annotation::*;
-
 pub mod chars;
 pub use self::chars::*;
 

@@ -268,7 +268,7 @@ impl ParserContext<'_> {
         // the ABNF states. Rather the primary expression already
         // handle those. The ABNF is more specific for language reasons.
         let mut expr = self.parse_primary_expression()?;
-        while let Some(token) = self.eat_any(&[Token::LeftSquare, Token::Dot, Token::LeftParen, Token::DoubleColon]) {
+        while let Some(token) = self.eat_any(&[Token::LeftSquare, Token::Dot, Token::LeftParen]) {
             match token.token {
                 Token::LeftSquare => {
                     if self.eat(Token::DotDot).is_some() {
@@ -350,15 +350,6 @@ impl ParserContext<'_> {
                         function: Box::new(expr),
                         arguments,
                     });
-                }
-                Token::DoubleColon => {
-                    let ident = self.expect_ident()?;
-                    expr = Expression::Access(AccessExpression::Static(StaticAccess {
-                        span: expr.span() + &ident.span,
-                        inner: Box::new(expr),
-                        type_: None,
-                        name: ident,
-                    }));
                 }
                 _ => unreachable!("parse_postfix_expression_ shouldn't produce this"),
             }

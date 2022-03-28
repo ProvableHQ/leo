@@ -25,6 +25,3 @@ pub use member_access::*;
 
 mod tuple_access;
 pub use tuple_access::*;
-
-mod static_access;
-pub use static_access::*;

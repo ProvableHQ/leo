@@ -177,18 +177,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_tuple_access(tuple_access, tuple)
     }
 
-    pub fn reduce_static_access(&mut self, static_access: &StaticAccess) -> Result<StaticAccess> {
-        let value = self.reduce_expression(&static_access.inner)?;
-        let name = self.reduce_identifier(&static_access.name)?;
-        let type_ = static_access
-            .type_
-            .as_ref()
-            .map(|type_| self.reduce_type(type_, &static_access.span))
-            .transpose()?;
-
-        self.reducer.reduce_static_access(static_access, value, type_, name)
-    }
-
     pub fn reduce_access(&mut self, access: &AccessExpression) -> Result<AccessExpression> {
         use AccessExpression::*;
 
@@ -197,7 +185,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             ArrayRange(access) => ArrayRange(self.reduce_array_range_access(access)?),
             Member(access) => Member(self.reduce_member_access(access)?),
             Tuple(access) => Tuple(self.reduce_tuple_access(access)?),
-            Static(access) => Static(self.reduce_static_access(access)?),
         };
 
         Ok(new)
@@ -494,19 +481,8 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_import(new_identifer, new_import)
     }
 
-    fn reduce_annotation(&mut self, annotation: &Annotation) -> Result<Annotation> {
-        let name = self.reduce_identifier(&annotation.name)?;
-
-        self.reducer.reduce_annotation(annotation, name)
-    }
-
     pub fn reduce_function(&mut self, function: &Function) -> Result<Function> {
         let identifier = self.reduce_identifier(&function.identifier)?;
-
-        let mut annotations = IndexMap::new();
-        for (name, annotation) in function.annotations.iter() {
-            annotations.insert(*name, self.reduce_annotation(annotation)?);
-        }
 
         let mut inputs = vec![];
         for input in function.input.iter() {
@@ -521,14 +497,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
         let block = self.reduce_block(&function.block)?;
 
-        self.reducer.reduce_function(
-            function,
-            identifier,
-            annotations,
-            inputs,
-            function.const_,
-            output,
-            block,
-        )
+        self.reducer
+            .reduce_function(function, identifier, inputs, function.const_, output, block)
     }
 }

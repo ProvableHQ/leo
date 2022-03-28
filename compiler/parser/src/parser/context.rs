@@ -196,7 +196,7 @@ impl<'a> ParserContext<'a> {
         };
         Ok(matches!(
             (first, next),
-            (Token::Function | Token::At, _) | (Token::Const, Token::Function)
+            (Token::Function, _) | (Token::Const, Token::Function)
         ))
     }
 

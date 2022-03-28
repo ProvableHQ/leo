@@ -172,21 +172,6 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_static_access(
-        &mut self,
-        static_access: &StaticAccess,
-        value: Expression,
-        type_: Option<Type>,
-        name: Identifier,
-    ) -> Result<StaticAccess> {
-        Ok(StaticAccess {
-            inner: Box::new(value),
-            name,
-            type_,
-            span: static_access.span.clone(),
-        })
-    }
-
     fn reduce_array_inline(
         &mut self,
         array_inline: &ArrayInlineExpression,
@@ -416,20 +401,11 @@ pub trait ReconstructingReducer {
         Ok((identifier, import))
     }
 
-    fn reduce_annotation(&mut self, annotation: &Annotation, name: Identifier) -> Result<Annotation> {
-        Ok(Annotation {
-            span: annotation.span.clone(),
-            name,
-            arguments: annotation.arguments.clone(),
-        })
-    }
-
     #[allow(clippy::too_many_arguments)]
     fn reduce_function(
         &mut self,
         function: &Function,
         identifier: Identifier,
-        annotations: IndexMap<Symbol, Annotation>,
         input: Vec<FunctionInput>,
         const_: bool,
         output: Option<Type>,
@@ -437,7 +413,6 @@ pub trait ReconstructingReducer {
     ) -> Result<Function> {
         Ok(Function {
             identifier,
-            annotations,
             input,
             const_,
             output,

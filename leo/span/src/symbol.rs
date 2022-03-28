@@ -104,7 +104,6 @@ symbols! {
     array,
     As: "as",
     assert,
-    At: "@",
     bool,
     char,
     Class: "class",

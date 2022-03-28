@@ -53,7 +53,6 @@ function is_palindrome(str: [char; 20]) -> bool {
     return result;
 }
 
-@test
 function test_is_palindrome() {
     console.assert(is_palindrome("a           b   a   "));
     console.assert(is_palindrome("😀😀😀😀😀          😀😀😀😀😀"));

@@ -40,40 +40,6 @@ outputs:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a :: b;\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x = a :: b;"
-      type_: ~
-      value:
-        Access:
-          Static:
-            inner:
-              Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a :: b;\\\"}\"}"
-            name: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a :: b;\\\"}\"}"
-            type_: ~
-            span:
-              line_start: 1
-              line_stop: 1
-              col_start: 9
-              col_stop: 15
-              path: ""
-              content: "let x = a :: b;"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 15
-        path: ""
-        content: "let x = a :: b;"
-  - Definition:
-      declaration_type: Let
-      variable_names:
-        - mutable: true
           identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a == b;\\\"}\"}"
           span:
             line_start: 1
