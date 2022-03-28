@@ -121,11 +121,7 @@ address ~
 
 char ~
 
-Self ~
-
 input ~
-
-self ~
 
 import
 
@@ -152,7 +148,5 @@ mut
 &
 
 return
-
-static
 
 type

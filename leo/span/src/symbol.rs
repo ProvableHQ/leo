@@ -101,7 +101,6 @@ macro_rules! symbols {
 symbols! {
     address,
     AlwaysConst,
-    Ampersand: "&",
     array,
     As: "as",
     assert,
@@ -138,7 +137,6 @@ symbols! {
     Return: "return",
     Star: "*",
     std,
-    Static: "static",
     Struct: "struct",
     test,
     True: "true",

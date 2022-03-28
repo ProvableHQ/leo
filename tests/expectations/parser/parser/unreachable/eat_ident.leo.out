@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected 'import', 'function', 'test', '@' -- got 'circuit'\n    --> test:3:1\n     |\n   3 | circuit ;\n     | ^^^^^^^"
+  - "Error [EPAR0370023]: Expected more characters to lex but found none."

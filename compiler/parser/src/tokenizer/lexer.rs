@@ -244,7 +244,7 @@ impl Token {
                 if input.next_if_eq(&'&').is_some() {
                     return Ok((2, Token::And));
                 }
-                return Ok((1, Token::Ampersand));
+                return Err(ParserError::lexer_empty_input_tendril().into());
             }
             Some('(') => {
                 input.next();
@@ -436,7 +436,6 @@ impl Token {
                     "let" => Token::Let,
                     "mut" => Token::Mut,
                     "return" => Token::Return,
-                    "static" => Token::Static,
                     "true" => Token::True,
                     "type" => Token::Type,
                     "u8" => Token::U8,
