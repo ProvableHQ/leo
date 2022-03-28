@@ -1706,15 +1706,15 @@ Go to: _[identifier](#user-content-identifier), [type](#user-content-type)_;
 A circuit member constant declaration consists of
 the `static` and `const` keywords followed by
 an identifier and a type, then an initializer
-with a literal terminated by semicolon.
+with an expression (which must be constant) terminated by semicolon.
 
 <a name="member-constant-declaration"></a>
 ```abnf
 member-constant-declaration = %s"static" %s"const" identifier ":" type
-                              "=" literal ";"
+                              "=" expression ";"
 ```
 
-Go to: _[identifier](#user-content-identifier), [literal](#user-content-literal), [type](#user-content-type)_;
+Go to: _[expression](#user-content-expression), [identifier](#user-content-identifier), [type](#user-content-type)_;
 
 
 A circuit member variable declaration consists of

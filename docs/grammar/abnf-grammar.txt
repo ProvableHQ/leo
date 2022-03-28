@@ -1022,10 +1022,10 @@ named-parameter = [ %s"const" ] identifier ":" type
 ; A circuit member constant declaration consists of
 ; the `static` and `const` keywords followed by
 ; an identifier and a type, then an initializer
-; with a literal terminated by semicolon.
+; with an expression (which must be constant) terminated by semicolon.
 
 member-constant-declaration = %s"static" %s"const" identifier ":" type
-                              "=" literal ";"
+                              "=" expression ";"
 
 ; A circuit member variable declaration consists of
 ; an identifier and a type, terminated by semicolon.
