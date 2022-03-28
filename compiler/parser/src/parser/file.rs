@@ -293,11 +293,11 @@ impl ParserContext<'_> {
         // `IDENT: TYPE = EXPR`:
         let (name, type_) = self.parse_typed_field_name()?;
         self.expect(Token::Assign)?;
-        let literal = self.parse_primary_expression()?;
+        let expr = self.parse_expression()?;
 
         self.expect(Token::Semicolon)?;
 
-        Ok(CircuitMember::CircuitConst(name, type_, literal))
+        Ok(CircuitMember::CircuitConst(name, type_, expr))
     }
 
     ///
@@ -336,11 +336,6 @@ impl ParserContext<'_> {
     pub fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
         let name = if let Some(ident) = self.eat_identifier() {
             ident
-        } else if let Some(scalar_type) = self.eat_any(crate::type_::TYPE_TOKENS) {
-            Identifier {
-                name: scalar_type.token.keyword_to_symbol().unwrap(),
-                span: scalar_type.span,
-            }
         } else {
             let next = self.peek()?;
             return Err(ParserError::unexpected_str(&next.token, "ident", &next.span).into());

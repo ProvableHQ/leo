@@ -235,8 +235,8 @@ create_errors!(
     /// When a string is not properly closed.
     @backtraced
     lexer_string_not_closed {
-    args: (input: impl Debug),
-    msg: format!("Expected a closed string but found `{:?}`.", input),
+    args: (input: impl Display),
+    msg: format!("Expected a closed string but found `{}`.", input),
     help: None,
     }
 

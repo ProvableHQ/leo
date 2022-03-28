@@ -35,15 +35,16 @@ single-quote = %x27   ; '
 
 not-star = %x0-29 / %x2B-10FFFF   ; anything but *
 
-not-star-or-slash = %x0-29 / %x2B-2E / %x30-10FFFF   ; anything but * or /
+not-star-or-slash = %x0-29 / %x2B-2E / %x30-D7FF / %xE000-10FFFF
+                    ; anything but * or /
 
-not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-10FFFF
+not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-D7FF / %xE000-10FFFF
                                    ; anything but <LF> or <CR>
 
-not-double-quote-or-backslash = %x0-21 / %x23-5B / %x5D-10FFFF
+not-double-quote-or-backslash = %x0-21 / %x23-5B / %x5D-D7FF / %xE000-10FFFF
                                 ; anything but " or \
 
-not-single-quote-or-backslash = %x0-26 / %x28-5B / %x5D-10FFFF
+not-single-quote-or-backslash = %x0-26 / %x28-5B / %x5D-D7FF / %xE000-10FFFF
                                 ; anything but ' or \
 
 line-terminator = line-feed / carriage-return / carriage-return line-feed

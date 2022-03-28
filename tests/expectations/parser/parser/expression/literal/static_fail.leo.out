@@ -1,0 +1,19 @@
+---
+namespace: ParseExpression
+expectation: Fail
+outputs:
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'address'\n    --> test:1:1\n     |\n   1 | address::call()\n     | ^^^^^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'bool'\n    --> test:1:1\n     |\n   1 | bool::call()\n     | ^^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'char'\n    --> test:1:1\n     |\n   1 | char::call()\n     | ^^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'field'\n    --> test:1:1\n     |\n   1 | field::call()\n     | ^^^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'group'\n    --> test:1:1\n     |\n   1 | group::call()\n     | ^^^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'i8'\n    --> test:1:1\n     |\n   1 | i8::call()\n     | ^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'i16'\n    --> test:1:1\n     |\n   1 | i16::call()\n     | ^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'i32'\n    --> test:1:1\n     |\n   1 | i32::call()\n     | ^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'i64'\n    --> test:1:1\n     |\n   1 | i64::call()\n     | ^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'i128'\n    --> test:1:1\n     |\n   1 | i128::call()\n     | ^^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'u8'\n    --> test:1:1\n     |\n   1 | u8::call()\n     | ^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'u16'\n    --> test:1:1\n     |\n   1 | u16::call()\n     | ^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'u32'\n    --> test:1:1\n     |\n   1 | u32::call()\n     | ^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'u64'\n    --> test:1:1\n     |\n   1 | u64::call()\n     | ^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'u128'\n    --> test:1:1\n     |\n   1 | u128::call()\n     | ^^^^"
