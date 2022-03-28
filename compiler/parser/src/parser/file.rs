@@ -24,9 +24,7 @@ impl ParserContext<'_> {
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     ///
     pub fn parse_program(&mut self) -> Result<Program> {
-        let mut aliases = IndexMap::new();
         let mut functions = IndexMap::new();
-        let mut global_consts = IndexMap::new();
 
         while self.has_next() {
             let token = self.peek()?;
@@ -37,17 +35,9 @@ impl ParserContext<'_> {
                     let (id, function) = self.parse_function_declaration()?;
                     functions.insert(id, function);
                 }
-                Token::Const => {
-                    let (name, global_const) = self.parse_global_const_declaration()?;
-                    global_consts.insert(name, global_const);
-                }
                 Token::Function => {
                     let (id, function) = self.parse_function_declaration()?;
                     functions.insert(id, function);
-                }
-                Token::Type => {
-                    let (name, alias) = self.parse_type_alias()?;
-                    aliases.insert(name, alias);
                 }
                 _ => return Err(Self::unexpected_item(token).into()),
             }
@@ -55,9 +45,7 @@ impl ParserContext<'_> {
         Ok(Program {
             name: String::new(),
             expected_input: Vec::new(),
-            aliases,
             functions,
-            global_consts,
         })
     }
 
@@ -146,18 +134,5 @@ impl ParserContext<'_> {
             .collect();
 
         Ok((variable_names, statement))
-    }
-
-    ///
-    /// Returns a [`(String, Alias)`] AST node if the next tokens represent a type alias declaration.
-    ///
-    pub fn parse_type_alias(&mut self) -> Result<(Identifier, Alias)> {
-        let start = self.expect(Token::Type)?;
-        let name = self.expect_ident()?;
-        self.expect(Token::Assign)?;
-        let (represents, _) = self.parse_type()?;
-        let span = start + self.expect(Token::Semicolon)?;
-
-        Ok((name.clone(), Alias { represents, span, name }))
     }
 }

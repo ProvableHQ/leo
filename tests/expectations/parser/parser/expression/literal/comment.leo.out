@@ -4,6 +4,4 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    aliases: {}
-    global_consts: {}
     functions: {}

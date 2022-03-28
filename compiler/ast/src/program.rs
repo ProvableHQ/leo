@@ -17,7 +17,7 @@
 //! A Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of ast statements and expressions.
 
-use crate::{Alias, DefinitionStatement, Function, FunctionInput, Identifier};
+use crate::{Function, FunctionInput, Identifier};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -32,11 +32,6 @@ pub struct Program {
     /// Expected main function inputs.
     /// Empty after parsing.
     pub expected_input: Vec<FunctionInput>,
-    /// A map from alias names to type aliases.
-    pub aliases: IndexMap<Identifier, Alias>,
-    /// A map from constant names to their definitions.
-    #[serde(with = "crate::common::global_consts_json")]
-    pub global_consts: IndexMap<Vec<Identifier>, DefinitionStatement>,
     /// A map from function names to their definitions.
     pub functions: IndexMap<Identifier, Function>,
 }
@@ -49,11 +44,6 @@ impl AsRef<Program> for Program {
 
 impl fmt::Display for Program {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        for (_, alias) in self.aliases.iter() {
-            alias.fmt(f)?;
-            writeln!(f,)?;
-        }
-        writeln!(f,)?;
         for (_, function) in self.functions.iter() {
             function.fmt(f)?;
             writeln!(f,)?;
@@ -68,8 +58,6 @@ impl Program {
         Self {
             name,
             expected_input: vec![],
-            aliases: IndexMap::new(),
-            global_consts: IndexMap::new(),
             functions: IndexMap::new(),
         }
     }

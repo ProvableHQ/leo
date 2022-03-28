@@ -319,31 +319,12 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             inputs.push(self.reduce_function_input(input)?);
         }
 
-        let mut aliases = IndexMap::new();
-        for (name, alias) in program.aliases.iter() {
-            let represents = self.reduce_type(&alias.represents, &alias.name.span)?;
-            aliases.insert(
-                name.clone(),
-                Alias {
-                    name: alias.name.clone(),
-                    span: alias.span.clone(),
-                    represents,
-                },
-            );
-        }
-
         let mut functions = IndexMap::new();
         for (name, function) in program.functions.iter() {
             functions.insert(name.clone(), self.reduce_function(function)?);
         }
 
-        let mut global_consts = IndexMap::new();
-        for (name, definition) in program.global_consts.iter() {
-            global_consts.insert(name.clone(), self.reduce_definition(definition)?);
-        }
-
-        self.reducer
-            .reduce_program(program, inputs, aliases, functions, global_consts)
+        self.reducer.reduce_program(program, inputs, functions)
     }
 
     pub fn reduce_function_input_variable(

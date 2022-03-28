@@ -25,9 +25,6 @@
 pub mod accesses;
 pub use self::accesses::*;
 
-pub mod aliases;
-pub use self::aliases::*;
-
 pub mod chars;
 pub use self::chars::*;
 

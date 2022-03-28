@@ -291,16 +291,12 @@ pub trait ReconstructingReducer {
         &mut self,
         program: &Program,
         expected_input: Vec<FunctionInput>,
-        aliases: IndexMap<Identifier, Alias>,
         functions: IndexMap<Identifier, Function>,
-        global_consts: IndexMap<Vec<Identifier>, DefinitionStatement>,
     ) -> Result<Program> {
         Ok(Program {
             name: program.name.clone(),
             expected_input,
-            aliases,
             functions,
-            global_consts,
         })
     }
 
