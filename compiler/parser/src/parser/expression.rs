@@ -41,16 +41,16 @@ impl ParserContext<'_> {
     ///
     pub fn parse_expression(&mut self) -> Result<Expression> {
         // Store current parser state.
-        let prior_fuzzy_state = self.fuzzy_struct_state;
+        let prior_fuzzy_state = self.disallow_circuit_construction;
 
         // Allow circuit init expressions.
-        self.fuzzy_struct_state = false;
+        self.disallow_circuit_construction = false;
 
         // Parse expression.
         let result = self.parse_conditional_expression();
 
         // Restore prior parser state.
-        self.fuzzy_struct_state = prior_fuzzy_state;
+        self.disallow_circuit_construction = prior_fuzzy_state;
 
         result
     }
@@ -248,16 +248,6 @@ impl ParserContext<'_> {
                 Token::Minus => UnaryOperation::Negate,
                 _ => unreachable!("parse_unary_expression_ shouldn't produce this"),
             };
-            // hack for const signed integer overflow issues
-            if matches!(operation, UnaryOperation::Negate) {
-                if let Expression::Value(ValueExpression::Integer(type_, value, span)) = inner {
-                    inner = Expression::Value(ValueExpression::Integer(type_, format!("-{}", value), &op.span + &span));
-                    continue;
-                } else if let Expression::Value(ValueExpression::Implicit(value, span)) = inner {
-                    inner = Expression::Value(ValueExpression::Implicit(format!("-{}", value), &op.span + &span));
-                    continue;
-                }
-            }
             inner = Expression::Unary(UnaryExpression {
                 span: &op.span + inner.span(),
                 op: operation,
@@ -557,7 +547,7 @@ impl ParserContext<'_> {
             Token::LeftSquare => self.parse_array_expression(&span)?,
             Token::Ident(name) => {
                 let ident = Identifier { name, span };
-                if !self.fuzzy_struct_state && self.peek_token().as_ref() == &Token::LeftCurly {
+                if !self.disallow_circuit_construction && self.peek_token().as_ref() == &Token::LeftCurly {
                     self.parse_circuit_expression(ident)?
                 } else {
                     Expression::Identifier(ident)
@@ -568,7 +558,7 @@ impl ParserContext<'_> {
                     name: sym::SelfUpper,
                     span,
                 };
-                if !self.fuzzy_struct_state && self.peek_token().as_ref() == &Token::LeftCurly {
+                if !self.disallow_circuit_construction && self.peek_token().as_ref() == &Token::LeftCurly {
                     self.parse_circuit_expression(ident)?
                 } else {
                     Expression::Identifier(ident)
