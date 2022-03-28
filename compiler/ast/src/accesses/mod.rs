@@ -14,12 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod array_access;
-pub use array_access::*;
-
-mod array_range_access;
-pub use array_range_access::*;
-
 mod member_access;
 pub use member_access::*;
 

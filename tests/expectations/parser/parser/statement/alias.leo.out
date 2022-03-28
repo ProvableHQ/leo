@@ -40,18 +40,5 @@ outputs:
           content: type c = a;
         represents:
           Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"type c = a;\\\"}\"}"
-      "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"type b = [u8; 5];\\\"}\"}":
-        name: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"type b = [u8; 5];\\\"}\"}"
-        span:
-          line_start: 9
-          line_stop: 9
-          col_start: 1
-          col_stop: 18
-          path: ""
-          content: "type b = [u8; 5];"
-        represents:
-          Array:
-            - IntegerType: U8
-            - - value: "5"
     global_consts: {}
     functions: {}

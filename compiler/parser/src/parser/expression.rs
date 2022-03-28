@@ -268,50 +268,8 @@ impl ParserContext<'_> {
         // the ABNF states. Rather the primary expression already
         // handle those. The ABNF is more specific for language reasons.
         let mut expr = self.parse_primary_expression()?;
-        while let Some(token) = self.eat_any(&[Token::LeftSquare, Token::Dot, Token::LeftParen]) {
+        while let Some(token) = self.eat_any(&[Token::Dot, Token::LeftParen]) {
             match token.token {
-                Token::LeftSquare => {
-                    if self.eat(Token::DotDot).is_some() {
-                        let right = if self.peek_token().as_ref() != &Token::RightSquare {
-                            Some(Box::new(self.parse_expression()?))
-                        } else {
-                            None
-                        };
-
-                        let end = self.expect(Token::RightSquare)?;
-                        expr = Expression::Access(AccessExpression::ArrayRange(ArrayRangeAccess {
-                            span: expr.span() + &end,
-                            array: Box::new(expr),
-                            left: None,
-                            right,
-                        }));
-                        continue;
-                    }
-
-                    let left = self.parse_expression()?;
-                    if self.eat(Token::DotDot).is_some() {
-                        let right = if self.peek_token().as_ref() != &Token::RightSquare {
-                            Some(Box::new(self.parse_expression()?))
-                        } else {
-                            None
-                        };
-
-                        let end = self.expect(Token::RightSquare)?;
-                        expr = Expression::Access(AccessExpression::ArrayRange(ArrayRangeAccess {
-                            span: expr.span() + &end,
-                            array: Box::new(expr),
-                            left: Some(Box::new(left)),
-                            right,
-                        }));
-                    } else {
-                        let end = self.expect(Token::RightSquare)?;
-                        expr = Expression::Access(AccessExpression::Array(ArrayAccess {
-                            span: expr.span() + &end,
-                            array: Box::new(expr),
-                            index: Box::new(left),
-                        }));
-                    }
-                }
                 Token::Dot => {
                     if let Some(ident) = self.eat_identifier() {
                         expr = Expression::Access(AccessExpression::Member(MemberAccess {
@@ -358,20 +316,6 @@ impl ParserContext<'_> {
     }
 
     ///
-    /// Returns a [`SpreadOrExpression`] AST node if the next tokens represent a
-    /// spread or expression.
-    ///
-    /// This method should only be called in the context of an array construction expression.
-    ///
-    pub fn parse_spread_or_expression(&mut self) -> Result<SpreadOrExpression> {
-        Ok(if self.eat(Token::DotDotDot).is_some() {
-            SpreadOrExpression::Spread(self.parse_expression()?)
-        } else {
-            SpreadOrExpression::Expression(self.parse_expression()?)
-        })
-    }
-
-    ///
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// tuple initialization expression or an affine group literal.
     ///
@@ -406,63 +350,6 @@ impl ParserContext<'_> {
             Ok(Expression::TupleInit(TupleInitExpression {
                 span: span + &end_span,
                 elements: args,
-            }))
-        }
-    }
-
-    ///
-    /// Returns an [`Expression`] AST node if the next tokens represent an
-    /// array initialization expression.
-    ///
-    pub fn parse_array_expression(&mut self, span: &Span) -> Result<Expression> {
-        if let Some(end) = self.eat(Token::RightSquare) {
-            return Ok(Expression::ArrayInline(ArrayInlineExpression {
-                elements: Vec::new(),
-                span: span + &end.span,
-            }));
-        }
-        let first = self.parse_spread_or_expression()?;
-        if self.eat(Token::Semicolon).is_some() {
-            let dimensions = self
-                .parse_array_dimensions()
-                .map_err(|_| ParserError::unable_to_parse_array_dimensions(span))?;
-            let end = self.expect(Token::RightSquare)?;
-            let first = match first {
-                SpreadOrExpression::Spread(first) => {
-                    let span = span + first.span();
-                    return Err(ParserError::spread_in_array_init(&span).into());
-                }
-                SpreadOrExpression::Expression(x) => x,
-            };
-            Ok(Expression::ArrayInit(ArrayInitExpression {
-                span: span + &end,
-                element: Box::new(first),
-                dimensions,
-            }))
-        } else {
-            let end_span;
-            let mut elements = vec![first];
-            loop {
-                if let Some(token) = self.eat(Token::RightSquare) {
-                    end_span = token.span;
-                    break;
-                }
-                if elements.len() == 1 {
-                    self.expect(Token::Comma)?;
-                    if let Some(token) = self.eat(Token::RightSquare) {
-                        end_span = token.span;
-                        break;
-                    }
-                }
-                elements.push(self.parse_spread_or_expression()?);
-                if self.eat(Token::Comma).is_none() {
-                    end_span = self.expect(Token::RightSquare)?;
-                    break;
-                }
-            }
-            Ok(Expression::ArrayInline(ArrayInlineExpression {
-                elements,
-                span: span + &end_span,
             }))
         }
     }
@@ -519,7 +406,6 @@ impl ParserContext<'_> {
             })),
             Token::StringLit(value) => Expression::Value(ValueExpression::String(value, span)),
             Token::LeftParen => self.parse_tuple_expression(&span)?,
-            Token::LeftSquare => self.parse_array_expression(&span)?,
             Token::Ident(name) => {
                 let ident = Identifier { name, span };
                 Expression::Identifier(ident)

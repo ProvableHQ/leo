@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArrayDimensions, Identifier, IntegerType};
+use crate::{Identifier, IntegerType};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -35,10 +35,6 @@ pub enum Type {
     Group,
     /// An integer type.
     IntegerType(IntegerType),
-
-    // Data type wrappers
-    /// An array type `[element; dimensions]`.
-    Array(Box<Type>, ArrayDimensions),
 
     /// A tuple type `(T_0, T_1, ...)` made up of a list of types.
     Tuple(Vec<Type>),
@@ -73,27 +69,6 @@ impl Type {
             (Type::Group, Type::Group) => true,
             (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(right),
             (Type::Identifier(left), Type::Identifier(right)) => left.eq(right),
-            (Type::Array(left_type, left_dims), Type::Array(right_type, right_dims)) => {
-                // Convert array dimensions to owned.
-                let mut left_dims = left_dims.to_owned();
-                let mut right_dims = right_dims.to_owned();
-
-                // Remove the first element from both dimensions.
-                let left_first = left_dims.remove_first();
-                let right_first = right_dims.remove_first();
-
-                // Compare the first dimensions.
-                if left_first.ne(&right_first) {
-                    return false;
-                }
-
-                // Create a new array type from the remaining array dimensions.
-                let left_new_type = inner_array_type(*left_type.to_owned(), left_dims);
-                let right_new_type = inner_array_type(*right_type.to_owned(), right_dims);
-
-                // Call eq_flat() on the new left and right types.
-                left_new_type.eq_flat(&right_new_type)
-            }
             (Type::Tuple(left), Type::Tuple(right)) => left
                 .iter()
                 .zip(right)
@@ -113,7 +88,6 @@ impl fmt::Display for Type {
             Type::Group => write!(f, "group"),
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
             Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
-            Type::Array(ref array, ref dimensions) => write!(f, "[{}; {}]", *array, dimensions),
             Type::Tuple(ref tuple) => {
                 let types = tuple.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
 
@@ -121,23 +95,5 @@ impl fmt::Display for Type {
             }
             Type::Err => write!(f, "error"),
         }
-    }
-}
-
-/// Returns the type of the inner array given an array element and array dimensions.
-///
-/// If the array has no dimensions, then an inner array does not exist. Simply return the given
-/// element type.
-///
-/// If the array has dimensions, then an inner array exists. Create a new type for the
-/// inner array. The element type of the new array should be the same as the old array. The
-/// dimensions of the new array should be the old array dimensions with the first dimension removed.
-pub fn inner_array_type(element_type: Type, dimensions: ArrayDimensions) -> Type {
-    if dimensions.is_empty() {
-        // The array has one dimension.
-        element_type
-    } else {
-        // The array has multiple dimensions.
-        Type::Array(Box::new(element_type), dimensions)
     }
 }

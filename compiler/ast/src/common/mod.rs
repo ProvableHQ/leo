@@ -14,9 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod array_dimensions;
-pub use array_dimensions::*;
-
 pub mod global_consts_json;
 
 pub mod identifier;
@@ -27,8 +24,5 @@ pub use imported_modules::*;
 
 pub mod positive_number;
 pub use positive_number::*;
-
-pub mod spread_or_expression;
-pub use spread_or_expression::*;
 
 pub mod vec_tendril_json;

@@ -45,17 +45,6 @@ impl ParserContext<'_> {
                     identifier = Self::construct_assignee_access(*expr.tuple, accesses)?;
                     accesses.push(AssigneeAccess::Tuple(expr.index, expr.span));
                 }
-                AccessExpression::ArrayRange(expr) => {
-                    identifier = Self::construct_assignee_access(*expr.array, accesses)?;
-                    accesses.push(AssigneeAccess::ArrayRange(
-                        expr.left.map(|x| *x),
-                        expr.right.map(|x| *x),
-                    ));
-                }
-                AccessExpression::Array(expr) => {
-                    identifier = Self::construct_assignee_access(*expr.array, accesses)?;
-                    accesses.push(AssigneeAccess::ArrayIndex(*expr.index));
-                }
             },
 
             Expression::Identifier(id) => identifier = id,

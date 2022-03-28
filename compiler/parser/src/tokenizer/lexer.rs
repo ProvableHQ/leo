@@ -293,11 +293,7 @@ impl Token {
             Some('.') => {
                 input.next();
                 if input.next_if_eq(&'.').is_some() {
-                    if input.next_if_eq(&'.').is_some() {
-                        return Ok((3, Token::DotDotDot));
-                    } else {
-                        return Ok((2, Token::DotDot));
-                    }
+                    return Ok((2, Token::DotDot));
                 }
                 return Ok((1, Token::Dot));
             }

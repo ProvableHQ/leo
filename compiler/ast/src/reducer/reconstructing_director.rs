@@ -35,7 +35,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
     pub fn reduce_type(&mut self, type_: &Type, span: &Span) -> Result<Type> {
         let new = match type_ {
-            Type::Array(type_, dimensions) => Type::Array(Box::new(self.reduce_type(type_, span)?), dimensions.clone()),
             Type::Tuple(types) => {
                 let mut reduced_types = vec![];
                 for type_ in types.iter() {
@@ -61,9 +60,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             Expression::Ternary(ternary) => Expression::Ternary(self.reduce_ternary(ternary)?),
             Expression::Cast(cast) => Expression::Cast(self.reduce_cast(cast)?),
             Expression::Access(access) => Expression::Access(self.reduce_access(access)?),
-
-            Expression::ArrayInline(array_inline) => Expression::ArrayInline(self.reduce_array_inline(array_inline)?),
-            Expression::ArrayInit(array_init) => Expression::ArrayInit(self.reduce_array_init(array_init)?),
 
             Expression::TupleInit(tuple_init) => Expression::TupleInit(self.reduce_tuple_init(tuple_init)?),
 
@@ -135,30 +131,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_cast(cast, inner, target_type)
     }
 
-    pub fn reduce_array_access(&mut self, array_access: &ArrayAccess) -> Result<ArrayAccess> {
-        let array = self.reduce_expression(&array_access.array)?;
-        let index = self.reduce_expression(&array_access.index)?;
-
-        self.reducer.reduce_array_access(array_access, array, index)
-    }
-
-    pub fn reduce_array_range_access(&mut self, array_range_access: &ArrayRangeAccess) -> Result<ArrayRangeAccess> {
-        let array = self.reduce_expression(&array_range_access.array)?;
-        let left = array_range_access
-            .left
-            .as_ref()
-            .map(|left| self.reduce_expression(left))
-            .transpose()?;
-        let right = array_range_access
-            .right
-            .as_ref()
-            .map(|right| self.reduce_expression(right))
-            .transpose()?;
-
-        self.reducer
-            .reduce_array_range_access(array_range_access, array, left, right)
-    }
-
     pub fn reduce_member_access(&mut self, member_access: &MemberAccess) -> Result<MemberAccess> {
         let inner = self.reduce_expression(&member_access.inner)?;
         let name = self.reduce_identifier(&member_access.name)?;
@@ -181,37 +153,11 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         use AccessExpression::*;
 
         let new = match access {
-            Array(access) => Array(self.reduce_array_access(access)?),
-            ArrayRange(access) => ArrayRange(self.reduce_array_range_access(access)?),
             Member(access) => Member(self.reduce_member_access(access)?),
             Tuple(access) => Tuple(self.reduce_tuple_access(access)?),
         };
 
         Ok(new)
-    }
-
-    pub fn reduce_array_inline(&mut self, array_inline: &ArrayInlineExpression) -> Result<ArrayInlineExpression> {
-        let mut elements = vec![];
-        for element in array_inline.elements.iter() {
-            let reduced_element = match element {
-                SpreadOrExpression::Expression(expression) => {
-                    SpreadOrExpression::Expression(self.reduce_expression(expression)?)
-                }
-                SpreadOrExpression::Spread(expression) => {
-                    SpreadOrExpression::Spread(self.reduce_expression(expression)?)
-                }
-            };
-
-            elements.push(reduced_element);
-        }
-
-        self.reducer.reduce_array_inline(array_inline, elements)
-    }
-
-    pub fn reduce_array_init(&mut self, array_init: &ArrayInitExpression) -> Result<ArrayInitExpression> {
-        let element = self.reduce_expression(&array_init.element)?;
-
-        self.reducer.reduce_array_init(array_init, element)
     }
 
     pub fn reduce_tuple_init(&mut self, tuple_init: &TupleInitExpression) -> Result<TupleInitExpression> {

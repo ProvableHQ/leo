@@ -121,34 +121,6 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_array_access(
-        &mut self,
-        array_access: &ArrayAccess,
-        array: Expression,
-        index: Expression,
-    ) -> Result<ArrayAccess> {
-        Ok(ArrayAccess {
-            array: Box::new(array),
-            index: Box::new(index),
-            span: array_access.span.clone(),
-        })
-    }
-
-    fn reduce_array_range_access(
-        &mut self,
-        array_rage_access: &ArrayRangeAccess,
-        array: Expression,
-        left: Option<Expression>,
-        right: Option<Expression>,
-    ) -> Result<ArrayRangeAccess> {
-        Ok(ArrayRangeAccess {
-            array: Box::new(array),
-            left: left.map(|expr| Box::new(expr)),
-            right: right.map(|expr| Box::new(expr)),
-            span: array_rage_access.span.clone(),
-        })
-    }
-
     fn reduce_member_access(
         &mut self,
         member_access: &MemberAccess,
@@ -169,29 +141,6 @@ pub trait ReconstructingReducer {
             tuple: Box::new(tuple),
             index: tuple_access.index.clone(),
             span: tuple_access.span.clone(),
-        })
-    }
-
-    fn reduce_array_inline(
-        &mut self,
-        array_inline: &ArrayInlineExpression,
-        elements: Vec<SpreadOrExpression>,
-    ) -> Result<ArrayInlineExpression> {
-        Ok(ArrayInlineExpression {
-            elements,
-            span: array_inline.span.clone(),
-        })
-    }
-
-    fn reduce_array_init(
-        &mut self,
-        array_init: &ArrayInitExpression,
-        element: Expression,
-    ) -> Result<ArrayInitExpression> {
-        Ok(ArrayInitExpression {
-            element: Box::new(element),
-            dimensions: array_init.dimensions.clone(),
-            span: array_init.span.clone(),
         })
     }
 

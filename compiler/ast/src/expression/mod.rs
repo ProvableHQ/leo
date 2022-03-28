@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArrayDimensions, GroupValue, Identifier, IntegerType, Node, SpreadOrExpression};
+use crate::{GroupValue, Identifier, IntegerType, Node};
 
 use leo_span::Span;
 
@@ -29,10 +29,6 @@ mod unary;
 pub use unary::*;
 mod ternary;
 pub use ternary::*;
-mod array_inline;
-pub use array_inline::*;
-mod array_init;
-pub use array_init::*;
 mod tuple_init;
 pub use tuple_init::*;
 mod value;
@@ -61,11 +57,6 @@ pub enum Expression {
     Cast(CastExpression),
     /// An access expression of some sort, e.g., `array[idx]` or `foo.bar`.
     Access(AccessExpression),
-    /// An array expression where individual elements are listed inline,
-    /// for example `[4, 6, ...[5, 7], 2]`.
-    ArrayInline(ArrayInlineExpression),
-    /// An array-repeat expression, e.g., `[42; 3]` yielding `[42, 42, 42]`.
-    ArrayInit(ArrayInitExpression),
     /// A tuple expression e.g., `(foo, 42, true)`.
     TupleInit(TupleInitExpression),
     /// A call expression like `my_fun(args)`.
@@ -84,8 +75,6 @@ impl Node for Expression {
             Binary(n) => n.span(),
             Unary(n) => n.span(),
             Ternary(n) => n.span(),
-            ArrayInline(n) => n.span(),
-            ArrayInit(n) => n.span(),
             TupleInit(n) => n.span(),
             Call(n) => n.span(),
             Cast(n) => n.span(),
@@ -102,8 +91,6 @@ impl Node for Expression {
             Binary(n) => n.set_span(span),
             Unary(n) => n.set_span(span),
             Ternary(n) => n.set_span(span),
-            ArrayInline(n) => n.set_span(span),
-            ArrayInit(n) => n.set_span(span),
             TupleInit(n) => n.set_span(span),
             Call(n) => n.set_span(span),
             Cast(n) => n.set_span(span),
@@ -122,8 +109,6 @@ impl fmt::Display for Expression {
             Binary(n) => n.fmt(f),
             Unary(n) => n.fmt(f),
             Ternary(n) => n.fmt(f),
-            ArrayInline(n) => n.fmt(f),
-            ArrayInit(n) => n.fmt(f),
             TupleInit(n) => n.fmt(f),
             Call(n) => n.fmt(f),
             Cast(n) => n.fmt(f),
