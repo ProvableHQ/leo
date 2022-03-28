@@ -131,8 +131,6 @@ import
 
 as
 
-circuit
-
 console
 
 const

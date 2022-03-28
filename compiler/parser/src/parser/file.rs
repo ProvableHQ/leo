@@ -27,10 +27,8 @@ impl ParserContext<'_> {
     pub fn parse_program(&mut self) -> Result<Program> {
         let mut import_statements = Vec::new();
         let mut aliases = IndexMap::new();
-        let mut circuits = IndexMap::new();
         let mut functions = IndexMap::new();
         let mut global_consts = IndexMap::new();
-        // let mut tests = IndexMap::new();
 
         while self.has_next() {
             let token = self.peek()?;
@@ -38,19 +36,8 @@ impl ParserContext<'_> {
                 Token::Import => {
                     import_statements.push(self.parse_import_statement()?);
                 }
-                Token::Circuit => {
-                    self.expect(Token::Circuit)?;
-                    let (id, circuit) = self.parse_circuit()?;
-                    circuits.insert(id, circuit);
-                }
                 Token::Ident(ident) => match *ident {
                     sym::test => return Err(ParserError::test_function(&token.span).into()),
-                    kw @ (sym::Struct | sym::Class) => {
-                        self.emit_err(ParserError::unexpected(kw, "circuit", &token.span));
-                        self.bump().unwrap();
-                        let (id, circuit) = self.parse_circuit()?;
-                        circuits.insert(id, circuit);
-                    }
                     _ => return Err(Self::unexpected_item(token).into()),
                 },
                 // Const functions share the first token with the global Const.
@@ -79,7 +66,6 @@ impl ParserContext<'_> {
             import_statements,
             imports: IndexMap::new(),
             aliases,
-            circuits,
             functions,
             global_consts,
         })
@@ -90,7 +76,6 @@ impl ParserContext<'_> {
             &token.token,
             [
                 Token::Import,
-                Token::Circuit,
                 Token::Function,
                 Token::Ident(sym::test),
                 Token::At,
@@ -211,146 +196,6 @@ impl ParserContext<'_> {
             span: tree.span.clone(),
             tree,
         })
-    }
-
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
-    /// or circuit member function or circuit member constant.
-    pub fn parse_circuit_declaration(&mut self) -> Result<Vec<CircuitMember>> {
-        let mut members = Vec::new();
-
-        let (mut semi_colons, mut commas) = (false, false);
-
-        while self.eat(Token::RightCurly).is_none() {
-            members.push(if self.peek_is_function()? {
-                // function
-                self.parse_member_function_declaration()?
-            } else if *self.peek_token() == Token::Static {
-                // static const
-                self.parse_const_member_variable_declaration()?
-            } else {
-                // variable
-                let variable = self.parse_member_variable_declaration()?;
-
-                if let Some(semi) = self.eat(Token::Semicolon) {
-                    if commas {
-                        self.emit_err(ParserError::mixed_commas_and_semicolons(&semi.span));
-                    }
-                    semi_colons = true;
-                }
-
-                if let Some(comma) = self.eat(Token::Comma) {
-                    if semi_colons {
-                        self.emit_err(ParserError::mixed_commas_and_semicolons(&comma.span));
-                    }
-                    commas = true;
-                }
-
-                variable
-            });
-        }
-
-        self.ban_mixed_member_order(&members);
-
-        Ok(members)
-    }
-
-    /// Emits errors if order isn't `consts variables functions`.
-    fn ban_mixed_member_order(&self, members: &[CircuitMember]) {
-        let mut had_var = false;
-        let mut had_fun = false;
-        for member in members {
-            match member {
-                CircuitMember::CircuitConst(id, _, e) if had_var => {
-                    self.emit_err(ParserError::member_const_after_var(&(id.span() + e.span())));
-                }
-                CircuitMember::CircuitConst(id, _, e) if had_fun => {
-                    self.emit_err(ParserError::member_const_after_fun(&(id.span() + e.span())));
-                }
-                CircuitMember::CircuitVariable(id, _) if had_fun => {
-                    self.emit_err(ParserError::member_var_after_fun(id.span()));
-                }
-                CircuitMember::CircuitConst(..) => {}
-                CircuitMember::CircuitVariable(..) => had_var = true,
-                CircuitMember::CircuitFunction(..) => had_fun = true,
-            }
-        }
-    }
-
-    /// Parses `IDENT: TYPE`.
-    fn parse_typed_field_name(&mut self) -> Result<(Identifier, Type)> {
-        let name = self.expect_ident()?;
-        self.expect(Token::Colon)?;
-        let type_ = self.parse_type()?.0;
-
-        Ok((name, type_))
-    }
-
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member static constant.
-    pub fn parse_const_member_variable_declaration(&mut self) -> Result<CircuitMember> {
-        self.expect(Token::Static)?;
-        self.expect(Token::Const)?;
-
-        // `IDENT: TYPE = EXPR`:
-        let (name, type_) = self.parse_typed_field_name()?;
-        self.expect(Token::Assign)?;
-        let expr = self.parse_expression()?;
-
-        self.expect(Token::Semicolon)?;
-
-        Ok(CircuitMember::CircuitConst(name, type_, expr))
-    }
-
-    ///
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.
-    ///
-    pub fn parse_member_variable_declaration(&mut self) -> Result<CircuitMember> {
-        let (name, type_) = self.parse_typed_field_name()?;
-
-        Ok(CircuitMember::CircuitVariable(name, type_))
-    }
-
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member function.
-    pub fn parse_member_function_declaration(&mut self) -> Result<CircuitMember> {
-        let peeked = self.peek()?.clone();
-        if self.peek_is_function()? {
-            let function = self.parse_function_declaration()?;
-            Ok(CircuitMember::CircuitFunction(Box::new(function.1)))
-        } else {
-            return Err(ParserError::unexpected(
-                &peeked.token,
-                [Token::Function, Token::At, Token::Const]
-                    .iter()
-                    .map(|x| format!("'{}'", x))
-                    .collect::<Vec<_>>()
-                    .join(", "),
-                &peeked.span,
-            )
-            .into());
-        }
-    }
-
-    ///
-    /// Returns an [`(Identifier, Circuit)`] tuple of AST nodes if the next tokens represent a
-    /// circuit name and definition statement.
-    ///
-    pub fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
-        let name = if let Some(ident) = self.eat_identifier() {
-            ident
-        } else {
-            let next = self.peek()?;
-            return Err(ParserError::unexpected_str(&next.token, "ident", &next.span).into());
-        };
-
-        self.expect(Token::LeftCurly)?;
-        let members = self.parse_circuit_declaration()?;
-
-        Ok((
-            name.clone(),
-            Circuit {
-                circuit_name: name,
-                members,
-            },
-        ))
     }
 
     ///

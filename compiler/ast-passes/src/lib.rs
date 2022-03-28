@@ -16,8 +16,10 @@
 
 #![doc = include_str!("../README.md")]
 
-pub mod canonicalization;
+// disable
+/* pub mod canonicalization;
 pub use canonicalization::*;
+ */
 
 // Temporarily disable import resolution
 // until we migrate stdlib and then import resolution.

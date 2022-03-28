@@ -23,7 +23,6 @@
 #![doc = include_str!("../README.md")]
 
 pub use leo_ast::Ast;
-use leo_ast::AstPass;
 use leo_errors::emitter::Handler;
 use leo_errors::{CompilerError, Result};
 use leo_span::symbol::create_session_if_not_set_then;
@@ -76,7 +75,7 @@ impl<'a> Compiler<'a> {
             .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;
 
         // Use the parser to construct the abstract syntax tree (ast).
-        let mut ast: leo_ast::Ast = leo_parser::parse_ast(
+        let ast: leo_ast::Ast = leo_parser::parse_ast(
             self.handler,
             self.main_file_path.to_str().unwrap_or_default(),
             program_string,
@@ -85,9 +84,9 @@ impl<'a> Compiler<'a> {
         ast.to_json_file_without_keys(self.output_directory.clone(), "initial_ast.json", &["span"])?;
 
         // Canonicalize the AST.
-        ast = leo_ast_passes::Canonicalizer::do_pass(Default::default(), ast.into_repr())?;
+        // ast = leo_ast_passes::Canonicalizer::do_pass(Default::default(), ast.into_repr())?;
         // Write the AST snapshot post parsing
-        ast.to_json_file_without_keys(self.output_directory, "canonicalization_ast.json", &["span"])?;
+        // ast.to_json_file_without_keys(self.output_directory, "canonicalization_ast.json", &["span"])?;
 
         Ok(ast)
     }

@@ -35,8 +35,6 @@ mod array_init;
 pub use array_init::*;
 mod tuple_init;
 pub use tuple_init::*;
-mod circuit_init;
-pub use circuit_init::*;
 mod value;
 pub use value::*;
 mod call;
@@ -70,8 +68,6 @@ pub enum Expression {
     ArrayInit(ArrayInitExpression),
     /// A tuple expression e.g., `(foo, 42, true)`.
     TupleInit(TupleInitExpression),
-    /// An expression constructing a structure like `Foo { bar: 42, baz }`.
-    CircuitInit(CircuitInitExpression),
     /// A call expression like `my_fun(args)`.
     Call(CallExpression),
     /// An expression of type "error".
@@ -91,7 +87,6 @@ impl Node for Expression {
             ArrayInline(n) => n.span(),
             ArrayInit(n) => n.span(),
             TupleInit(n) => n.span(),
-            CircuitInit(n) => n.span(),
             Call(n) => n.span(),
             Cast(n) => n.span(),
             Access(n) => n.span(),
@@ -110,7 +105,6 @@ impl Node for Expression {
             ArrayInline(n) => n.set_span(span),
             ArrayInit(n) => n.set_span(span),
             TupleInit(n) => n.set_span(span),
-            CircuitInit(n) => n.set_span(span),
             Call(n) => n.set_span(span),
             Cast(n) => n.set_span(span),
             Access(n) => n.set_span(span),
@@ -131,7 +125,6 @@ impl fmt::Display for Expression {
             ArrayInline(n) => n.fmt(f),
             ArrayInit(n) => n.fmt(f),
             TupleInit(n) => n.fmt(f),
-            CircuitInit(n) => n.fmt(f),
             Call(n) => n.fmt(f),
             Cast(n) => n.fmt(f),
             Access(n) => n.fmt(f),

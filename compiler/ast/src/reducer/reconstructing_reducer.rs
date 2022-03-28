@@ -221,28 +221,6 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_circuit_variable_initializer(
-        &mut self,
-        _variable: &CircuitVariableInitializer,
-        identifier: Identifier,
-        expression: Option<Expression>,
-    ) -> Result<CircuitVariableInitializer> {
-        Ok(CircuitVariableInitializer { identifier, expression })
-    }
-
-    fn reduce_circuit_init(
-        &mut self,
-        circuit_init: &CircuitInitExpression,
-        name: Identifier,
-        members: Vec<CircuitVariableInitializer>,
-    ) -> Result<CircuitInitExpression> {
-        Ok(CircuitInitExpression {
-            name,
-            members,
-            span: circuit_init.span.clone(),
-        })
-    }
-
     fn reduce_call(
         &mut self,
         call: &CallExpression,
@@ -390,7 +368,6 @@ pub trait ReconstructingReducer {
         import_statements: Vec<ImportStatement>,
         imports: IndexMap<Vec<Symbol>, Program>,
         aliases: IndexMap<Identifier, Alias>,
-        circuits: IndexMap<Identifier, Circuit>,
         functions: IndexMap<Identifier, Function>,
         global_consts: IndexMap<Vec<Identifier>, DefinitionStatement>,
     ) -> Result<Program> {
@@ -400,7 +377,6 @@ pub trait ReconstructingReducer {
             import_statements,
             imports,
             aliases,
-            circuits,
             functions,
             global_consts,
         })
@@ -438,19 +414,6 @@ pub trait ReconstructingReducer {
 
     fn reduce_import(&mut self, identifier: Vec<Symbol>, import: Program) -> Result<(Vec<Symbol>, Program)> {
         Ok((identifier, import))
-    }
-
-    fn reduce_circuit_member(&mut self, _circuit_member: &CircuitMember, new: CircuitMember) -> Result<CircuitMember> {
-        Ok(new)
-    }
-
-    fn reduce_circuit(
-        &mut self,
-        _circuit: &Circuit,
-        circuit_name: Identifier,
-        members: Vec<CircuitMember>,
-    ) -> Result<Circuit> {
-        Ok(Circuit { circuit_name, members })
     }
 
     fn reduce_annotation(&mut self, annotation: &Annotation, name: Identifier) -> Result<Annotation> {

@@ -17,9 +17,9 @@
 //! A Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of ast statements and expressions.
 
-use crate::{Alias, Circuit, CircuitMember, DefinitionStatement, Function, FunctionInput, Identifier, ImportStatement};
+use crate::{Alias, DefinitionStatement, Function, FunctionInput, Identifier, ImportStatement};
 
-use leo_span::{sym, Symbol};
+use leo_span::Symbol;
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -41,8 +41,6 @@ pub struct Program {
     pub imports: IndexMap<Vec<Symbol>, Program>,
     /// A map from alias names to type aliases.
     pub aliases: IndexMap<Identifier, Alias>,
-    /// A map from circuit names to circuit definitions.
-    pub circuits: IndexMap<Identifier, Circuit>,
     /// A map from constant names to their definitions.
     #[serde(with = "crate::common::global_consts_json")]
     pub global_consts: IndexMap<Vec<Identifier>, DefinitionStatement>,
@@ -73,11 +71,6 @@ impl fmt::Display for Program {
             writeln!(f,)?;
         }
         writeln!(f,)?;
-        for (_, circuit) in self.circuits.iter() {
-            circuit.fmt(f)?;
-            writeln!(f,)?;
-        }
-        writeln!(f,)?;
         for (_, function) in self.functions.iter() {
             function.fmt(f)?;
             writeln!(f,)?;
@@ -95,42 +88,9 @@ impl Program {
             import_statements: vec![],
             imports: IndexMap::new(),
             aliases: IndexMap::new(),
-            circuits: IndexMap::new(),
             global_consts: IndexMap::new(),
             functions: IndexMap::new(),
         }
-    }
-
-    /// Handles all internal annotations like `@CoreFunction` and `@AlwaysConst`.
-    pub fn handle_internal_annotations(&mut self) {
-        self.circuits
-            .iter_mut()
-            .flat_map(|(_, circuit)| &mut circuit.members)
-            .filter_map(|member| {
-                if let CircuitMember::CircuitFunction(function) = member {
-                    Some(function)
-                } else {
-                    None
-                }
-            })
-            .for_each(|function| {
-                function.annotations.retain(|name, core_map| {
-                    match *name {
-                        sym::CoreFunction => {
-                            let new = core_map.arguments.get(0).copied().or(Some(function.identifier.name));
-                            function.core_mapping.replace(new);
-                            false
-                        }
-                        sym::AlwaysConst => {
-                            function.const_ = true;
-                            false
-                        }
-                        // Could still be a valid annotation.
-                        // Carry on and let ASG handle.
-                        _ => true,
-                    }
-                })
-            });
     }
 
     /// Extract the name of the program.

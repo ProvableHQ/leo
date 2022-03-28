@@ -53,6 +53,5 @@ outputs:
           Array:
             - IntegerType: U8
             - - value: "5"
-    circuits: {}
     global_consts: {}
     functions: {}

@@ -380,22 +380,6 @@ impl ParserContext<'_> {
         })
     }
 
-    /// Returns an [`Expression`] AST node if the next tokens represent a
-    /// circuit initialization expression.
-    pub fn parse_circuit_expression(&mut self, identifier: Identifier) -> Result<Expression> {
-        let (members, _, span) = self.parse_list(Token::LeftCurly, Token::RightCurly, Token::Comma, |p| {
-            Ok(Some(CircuitVariableInitializer {
-                identifier: p.expect_ident()?,
-                expression: p.eat(Token::Colon).map(|_| p.parse_expression()).transpose()?,
-            }))
-        })?;
-        Ok(Expression::CircuitInit(CircuitInitExpression {
-            span: &identifier.span + &span,
-            name: identifier,
-            members,
-        }))
-    }
-
     ///
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// tuple initialization expression or an affine group literal.
@@ -547,22 +531,14 @@ impl ParserContext<'_> {
             Token::LeftSquare => self.parse_array_expression(&span)?,
             Token::Ident(name) => {
                 let ident = Identifier { name, span };
-                if !self.disallow_circuit_construction && self.peek_token().as_ref() == &Token::LeftCurly {
-                    self.parse_circuit_expression(ident)?
-                } else {
-                    Expression::Identifier(ident)
-                }
+                Expression::Identifier(ident)
             }
             Token::BigSelf => {
                 let ident = Identifier {
                     name: sym::SelfUpper,
                     span,
                 };
-                if !self.disallow_circuit_construction && self.peek_token().as_ref() == &Token::LeftCurly {
-                    self.parse_circuit_expression(ident)?
-                } else {
-                    Expression::Identifier(ident)
-                }
+                Expression::Identifier(ident)
             }
             Token::LittleSelf => Expression::Identifier(Identifier {
                 name: sym::SelfLower,

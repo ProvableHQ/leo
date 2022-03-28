@@ -31,9 +31,6 @@ pub use self::aliases::*;
 pub mod annotation;
 pub use self::annotation::*;
 
-pub mod circuits;
-pub use self::circuits::*;
-
 pub mod chars;
 pub use self::chars::*;
 
