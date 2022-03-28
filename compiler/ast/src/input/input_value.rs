@@ -28,7 +28,6 @@ pub enum InputValue {
     Field(String),
     Group(GroupValue),
     Integer(IntegerType, String),
-    Tuple(Vec<InputValue>),
 }
 
 impl TryFrom<(Type, Expression)> for InputValue {
@@ -60,20 +59,6 @@ impl TryFrom<(Type, Expression)> for InputValue {
                     }
                 }
             }
-            (Type::Tuple(types), Expression::TupleInit(tuple_init)) => {
-                let size = tuple_init.elements.len();
-                let mut elements = Vec::with_capacity(size);
-
-                if size != types.len() {
-                    return Err(InputError::tuple_length_mismatch(size, types.len(), tuple_init.span()).into());
-                }
-
-                for (i, element) in tuple_init.elements.into_iter().enumerate() {
-                    elements.push(Self::try_from((types[i].clone(), element))?);
-                }
-
-                Self::Tuple(elements)
-            }
             (_type_, expr) => return Err(InputError::illegal_expression(&expr, expr.span()).into()),
         })
     }
@@ -88,10 +73,6 @@ impl fmt::Display for InputValue {
             InputValue::Group(ref group) => write!(f, "{}", group),
             InputValue::Field(ref field) => write!(f, "{}", field),
             InputValue::Integer(ref type_, ref number) => write!(f, "{}{:?}", number, type_),
-            InputValue::Tuple(ref tuple) => {
-                let values = tuple.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
-                write!(f, "({})", values)
-            }
         }
     }
 }

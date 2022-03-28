@@ -36,9 +36,6 @@ pub enum Type {
     /// An integer type.
     IntegerType(IntegerType),
 
-    /// A tuple type `(T_0, T_1, ...)` made up of a list of types.
-    Tuple(Vec<Type>),
-
     /// A reference to either a nominal type (e.g., a `circuit`) or a type alias.
     Identifier(Identifier),
 
@@ -69,10 +66,7 @@ impl Type {
             (Type::Group, Type::Group) => true,
             (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(right),
             (Type::Identifier(left), Type::Identifier(right)) => left.eq(right),
-            (Type::Tuple(left), Type::Tuple(right)) => left
-                .iter()
-                .zip(right)
-                .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
+
             _ => false,
         }
     }
@@ -88,11 +82,6 @@ impl fmt::Display for Type {
             Type::Group => write!(f, "group"),
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
             Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
-            Type::Tuple(ref tuple) => {
-                let types = tuple.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
-
-                write!(f, "({})", types)
-            }
             Type::Err => write!(f, "error"),
         }
     }

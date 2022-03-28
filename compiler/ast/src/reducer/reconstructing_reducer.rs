@@ -113,25 +113,6 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_tuple_access(&mut self, tuple_access: &TupleAccess, tuple: Expression) -> Result<TupleAccess> {
-        Ok(TupleAccess {
-            tuple: Box::new(tuple),
-            index: tuple_access.index.clone(),
-            span: tuple_access.span.clone(),
-        })
-    }
-
-    fn reduce_tuple_init(
-        &mut self,
-        tuple_init: &TupleInitExpression,
-        elements: Vec<Expression>,
-    ) -> Result<TupleInitExpression> {
-        Ok(TupleInitExpression {
-            elements,
-            span: tuple_init.span.clone(),
-        })
-    }
-
     fn reduce_call(
         &mut self,
         call: &CallExpression,

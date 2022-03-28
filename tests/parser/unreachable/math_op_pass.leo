@@ -64,10 +64,6 @@ xu128=b;
 
 xreturn=b;
 
-xself=b;
-
-xSelf=b;
-
 xtrue=b;
 
 xfalse=b;

@@ -21,16 +21,12 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-mod accesses;
-pub use accesses::*;
 mod binary;
 pub use binary::*;
 mod unary;
 pub use unary::*;
 mod ternary;
 pub use ternary::*;
-mod tuple_init;
-pub use tuple_init::*;
 mod value;
 pub use value::*;
 mod call;
@@ -51,10 +47,6 @@ pub enum Expression {
     Unary(UnaryExpression),
     /// A ternary conditional expression `cond ? if_expr : else_expr`.
     Ternary(TernaryExpression),
-    /// An access expression of some sort, e.g., `array[idx]` or `foo.bar`.
-    Access(AccessExpression),
-    /// A tuple expression e.g., `(foo, 42, true)`.
-    TupleInit(TupleInitExpression),
     /// A call expression like `my_fun(args)`.
     Call(CallExpression),
     /// An expression of type "error".
@@ -71,9 +63,7 @@ impl Node for Expression {
             Binary(n) => n.span(),
             Unary(n) => n.span(),
             Ternary(n) => n.span(),
-            TupleInit(n) => n.span(),
             Call(n) => n.span(),
-            Access(n) => n.span(),
             Err(n) => n.span(),
         }
     }
@@ -86,9 +76,7 @@ impl Node for Expression {
             Binary(n) => n.set_span(span),
             Unary(n) => n.set_span(span),
             Ternary(n) => n.set_span(span),
-            TupleInit(n) => n.set_span(span),
             Call(n) => n.set_span(span),
-            Access(n) => n.set_span(span),
             Err(n) => n.set_span(span),
         }
     }
@@ -103,9 +91,7 @@ impl fmt::Display for Expression {
             Binary(n) => n.fmt(f),
             Unary(n) => n.fmt(f),
             Ternary(n) => n.fmt(f),
-            TupleInit(n) => n.fmt(f),
             Call(n) => n.fmt(f),
-            Access(n) => n.fmt(f),
             Err(n) => n.fmt(f),
         }
     }

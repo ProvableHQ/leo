@@ -4,5 +4,5 @@ expectation: Pass
 */
 
 const function x() {
-    return ();
+    return 0;
 }

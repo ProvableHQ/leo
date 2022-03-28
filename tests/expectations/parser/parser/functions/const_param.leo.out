@@ -41,22 +41,23 @@ outputs:
           statements:
             - Return:
                 expression:
-                  TupleInit:
-                    elements: []
-                    span:
-                      line_start: 4
-                      line_stop: 4
-                      col_start: 12
-                      col_stop: 14
-                      path: ""
-                      content: "    return ();"
+                  Value:
+                    Implicit:
+                      - "0"
+                      - span:
+                          line_start: 4
+                          line_stop: 4
+                          col_start: 12
+                          col_stop: 13
+                          path: ""
+                          content: "    return 0;"
                 span:
                   line_start: 4
                   line_stop: 4
                   col_start: 5
-                  col_stop: 14
+                  col_stop: 13
                   path: ""
-                  content: "    return ();"
+                  content: "    return 0;"
           span:
             line_start: 3
             line_stop: 5
@@ -107,22 +108,23 @@ outputs:
           statements:
             - Return:
                 expression:
-                  TupleInit:
-                    elements: []
-                    span:
-                      line_start: 8
-                      line_stop: 8
-                      col_start: 12
-                      col_stop: 14
-                      path: ""
-                      content: "    return ();"
+                  Value:
+                    Implicit:
+                      - "0"
+                      - span:
+                          line_start: 8
+                          line_stop: 8
+                          col_start: 12
+                          col_stop: 13
+                          path: ""
+                          content: "    return 0;"
                 span:
                   line_start: 8
                   line_stop: 8
                   col_start: 5
-                  col_stop: 14
+                  col_stop: 13
                   path: ""
-                  content: "    return ();"
+                  content: "    return 0;"
           span:
             line_start: 7
             line_stop: 9

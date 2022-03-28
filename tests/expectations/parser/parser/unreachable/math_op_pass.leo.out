@@ -731,48 +731,6 @@ outputs:
   - Assign:
       operation: Assign
       assignee:
-        identifier: "{\"name\":\"xself\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xself=b;\\\"}\"}"
-        accesses: []
-        span:
-          line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 6
-          path: ""
-          content: xself=b;
-      value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xself=b;\\\"}\"}"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 8
-        path: ""
-        content: xself=b;
-  - Assign:
-      operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xSelf\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xSelf=b;\\\"}\"}"
-        accesses: []
-        span:
-          line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 6
-          path: ""
-          content: xSelf=b;
-      value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xSelf=b;\\\"}\"}"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 8
-        path: ""
-        content: xSelf=b;
-  - Assign:
-      operation: Assign
-      assignee:
         identifier: "{\"name\":\"xtrue\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xtrue=b;\\\"}\"}"
         accesses: []
         span:

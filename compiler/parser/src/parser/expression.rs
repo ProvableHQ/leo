@@ -252,16 +252,8 @@ impl ParserContext<'_> {
         while let Some(token) = self.eat_any(&[Token::Dot, Token::LeftParen]) {
             match token.token {
                 Token::Dot => {
-                    if let Some((num, span)) = self.eat_int() {
-                        expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
-                            span: expr.span() + &span,
-                            tuple: Box::new(expr),
-                            index: num,
-                        }));
-                    } else {
-                        let next = self.peek()?;
-                        return Err(ParserError::unexpected_str(&next.token, "int or ident", &next.span).into());
-                    }
+                    let next = self.peek()?;
+                    return Err(ParserError::unexpected_str(&next.token, "int or ident", &next.span).into());
                 }
                 Token::LeftParen => {
                     let mut arguments = Vec::new();
@@ -321,10 +313,7 @@ impl ParserContext<'_> {
         if args.len() == 1 {
             Ok(args.remove(0))
         } else {
-            Ok(Expression::TupleInit(TupleInitExpression {
-                span: span + &end_span,
-                elements: args,
-            }))
+            Err(ParserError::unexpected("A tuple expression.", "A valid expression.", &(span + &end_span)).into())
         }
     }
 

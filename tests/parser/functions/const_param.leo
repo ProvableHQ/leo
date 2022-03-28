@@ -4,9 +4,9 @@ expectation: Pass
 */
 
 function x(x: u32, const y: i32) {
-    return ();
+    return 0;
 }
 
 function x(const x: u32, y: i32) {
-    return ();
+    return 0;
 }

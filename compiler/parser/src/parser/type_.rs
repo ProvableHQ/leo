@@ -61,9 +61,6 @@ impl ParserContext<'_> {
         Ok(if let Some(ident) = self.eat_identifier() {
             let span = ident.span.clone();
             (Type::Identifier(ident), span)
-        } else if self.peek_is_left_par() {
-            let (types, _, span) = self.parse_paren_comma_list(|p| p.parse_type().map(|t| Some(t.0)))?;
-            (Type::Tuple(types), span)
         } else {
             let token = self.expect_oneof(TYPE_TOKENS)?;
             (

@@ -35,14 +35,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
     pub fn reduce_type(&mut self, type_: &Type, span: &Span) -> Result<Type> {
         let new = match type_ {
-            Type::Tuple(types) => {
-                let mut reduced_types = vec![];
-                for type_ in types.iter() {
-                    reduced_types.push(self.reduce_type(type_, span)?);
-                }
-
-                Type::Tuple(reduced_types)
-            }
             Type::Identifier(identifier) => Type::Identifier(self.reduce_identifier(identifier)?),
             _ => type_.clone(),
         };
@@ -58,10 +50,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             Expression::Binary(binary) => Expression::Binary(self.reduce_binary(binary)?),
             Expression::Unary(unary) => Expression::Unary(self.reduce_unary(unary)?),
             Expression::Ternary(ternary) => Expression::Ternary(self.reduce_ternary(ternary)?),
-            Expression::Access(access) => Expression::Access(self.reduce_access(access)?),
-
-            Expression::TupleInit(tuple_init) => Expression::TupleInit(self.reduce_tuple_init(tuple_init)?),
-
             Expression::Call(call) => Expression::Call(self.reduce_call(call)?),
             Expression::Err(s) => Expression::Err(s.clone()),
         };
@@ -121,31 +109,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         let if_false = self.reduce_expression(&ternary.if_false)?;
 
         self.reducer.reduce_ternary(ternary, condition, if_true, if_false)
-    }
-
-    pub fn reduce_tuple_access(&mut self, tuple_access: &TupleAccess) -> Result<TupleAccess> {
-        let tuple = self.reduce_expression(&tuple_access.tuple)?;
-
-        self.reducer.reduce_tuple_access(tuple_access, tuple)
-    }
-
-    pub fn reduce_access(&mut self, access: &AccessExpression) -> Result<AccessExpression> {
-        use AccessExpression::*;
-
-        let new = match access {
-            Tuple(access) => Tuple(self.reduce_tuple_access(access)?),
-        };
-
-        Ok(new)
-    }
-
-    pub fn reduce_tuple_init(&mut self, tuple_init: &TupleInitExpression) -> Result<TupleInitExpression> {
-        let mut elements = vec![];
-        for element in tuple_init.elements.iter() {
-            elements.push(self.reduce_expression(element)?);
-        }
-
-        self.reducer.reduce_tuple_init(tuple_init, elements)
     }
 
     pub fn reduce_call(&mut self, call: &CallExpression) -> Result<CallExpression> {
