@@ -17,9 +17,7 @@
 //! A Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of ast statements and expressions.
 
-use crate::{Alias, DefinitionStatement, Function, FunctionInput, Identifier, ImportStatement};
-
-use leo_span::Symbol;
+use crate::{Alias, DefinitionStatement, Function, FunctionInput, Identifier};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -34,11 +32,6 @@ pub struct Program {
     /// Expected main function inputs.
     /// Empty after parsing.
     pub expected_input: Vec<FunctionInput>,
-    /// The collected import statements.
-    pub import_statements: Vec<ImportStatement>,
-    #[serde(with = "crate::common::imported_modules")]
-    /// A map from paths to injected programs.
-    pub imports: IndexMap<Vec<Symbol>, Program>,
     /// A map from alias names to type aliases.
     pub aliases: IndexMap<Identifier, Alias>,
     /// A map from constant names to their definitions.
@@ -56,18 +49,8 @@ impl AsRef<Program> for Program {
 
 impl fmt::Display for Program {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        for import in self.import_statements.iter() {
-            import.fmt(f)?;
-            writeln!(f,)?;
-        }
-        writeln!(f,)?;
         for (_, alias) in self.aliases.iter() {
             alias.fmt(f)?;
-            writeln!(f,)?;
-        }
-        writeln!(f,)?;
-        for (_, import) in self.imports.iter() {
-            import.fmt(f)?;
             writeln!(f,)?;
         }
         writeln!(f,)?;
@@ -85,8 +68,6 @@ impl Program {
         Self {
             name,
             expected_input: vec![],
-            import_statements: vec![],
-            imports: IndexMap::new(),
             aliases: IndexMap::new(),
             global_consts: IndexMap::new(),
             functions: IndexMap::new(),

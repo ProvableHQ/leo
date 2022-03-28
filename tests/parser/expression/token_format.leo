@@ -123,10 +123,6 @@ char ~
 
 input ~
 
-import
-
-as
-
 console
 
 const

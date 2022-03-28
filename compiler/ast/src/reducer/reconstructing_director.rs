@@ -20,7 +20,7 @@
 use crate::*;
 
 use leo_errors::{AstError, Result};
-use leo_span::{Span, Symbol};
+use leo_span::Span;
 
 use indexmap::IndexMap;
 
@@ -58,7 +58,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             Expression::Binary(binary) => Expression::Binary(self.reduce_binary(binary)?),
             Expression::Unary(unary) => Expression::Unary(self.reduce_unary(unary)?),
             Expression::Ternary(ternary) => Expression::Ternary(self.reduce_ternary(ternary)?),
-            Expression::Cast(cast) => Expression::Cast(self.reduce_cast(cast)?),
             Expression::Access(access) => Expression::Access(self.reduce_access(access)?),
 
             Expression::TupleInit(tuple_init) => Expression::TupleInit(self.reduce_tuple_init(tuple_init)?),
@@ -122,13 +121,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         let if_false = self.reduce_expression(&ternary.if_false)?;
 
         self.reducer.reduce_ternary(ternary, condition, if_true, if_false)
-    }
-
-    pub fn reduce_cast(&mut self, cast: &CastExpression) -> Result<CastExpression> {
-        let inner = self.reduce_expression(&cast.inner)?;
-        let target_type = self.reduce_type(&cast.target_type, &cast.span)?;
-
-        self.reducer.reduce_cast(cast, inner, target_type)
     }
 
     pub fn reduce_member_access(&mut self, member_access: &MemberAccess) -> Result<MemberAccess> {
@@ -327,17 +319,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             inputs.push(self.reduce_function_input(input)?);
         }
 
-        let mut import_statements = vec![];
-        for import in program.import_statements.iter() {
-            import_statements.push(self.reduce_import_statement(import)?);
-        }
-
-        let mut imports = IndexMap::new();
-        for (identifier, program) in program.imports.iter() {
-            let (ident, import) = self.reduce_import(identifier, program)?;
-            imports.insert(ident, import);
-        }
-
         let mut aliases = IndexMap::new();
         for (name, alias) in program.aliases.iter() {
             let represents = self.reduce_type(&alias.represents, &alias.name.span)?;
@@ -361,15 +342,8 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             global_consts.insert(name.clone(), self.reduce_definition(definition)?);
         }
 
-        self.reducer.reduce_program(
-            program,
-            inputs,
-            import_statements,
-            imports,
-            aliases,
-            functions,
-            global_consts,
-        )
+        self.reducer
+            .reduce_program(program, inputs, aliases, functions, global_consts)
     }
 
     pub fn reduce_function_input_variable(
@@ -390,41 +364,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         };
 
         self.reducer.reduce_function_input(input, new)
-    }
-
-    pub fn reduce_import_tree(&mut self, tree: &ImportTree) -> Result<ImportTree> {
-        let new = ImportTree {
-            base: tree
-                .base
-                .iter()
-                .map(|i| self.reduce_identifier(i))
-                .collect::<Result<_>>()?,
-
-            kind: match &tree.kind {
-                ImportTreeKind::Glob { .. } | ImportTreeKind::Leaf { alias: None } => tree.kind.clone(),
-                ImportTreeKind::Leaf { alias: Some(alias) } => {
-                    let alias = self.reduce_identifier(alias)?;
-                    ImportTreeKind::Leaf { alias: Some(alias) }
-                }
-                ImportTreeKind::Nested { tree } => ImportTreeKind::Nested {
-                    tree: tree.iter().map(|n| self.reduce_import_tree(n)).collect::<Result<_>>()?,
-                },
-            },
-            span: tree.span.clone(),
-        };
-
-        self.reducer.reduce_import_tree(tree, new)
-    }
-
-    pub fn reduce_import_statement(&mut self, import: &ImportStatement) -> Result<ImportStatement> {
-        let tree = self.reduce_import_tree(&import.tree)?;
-        self.reducer.reduce_import_statement(import, tree)
-    }
-
-    pub fn reduce_import(&mut self, identifier: &[Symbol], import: &Program) -> Result<(Vec<Symbol>, Program)> {
-        let new_identifer = identifier.to_vec();
-        let new_import = self.reduce_program(import)?;
-        self.reducer.reduce_import(new_identifer, new_import)
     }
 
     pub fn reduce_function(&mut self, function: &Function) -> Result<Function> {

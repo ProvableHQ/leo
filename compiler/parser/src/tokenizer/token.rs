@@ -117,11 +117,7 @@ pub enum Token {
     // primary expresion
     Input,
 
-    // Import
-    Import,
-
     // Regular Keywords
-    As,
     Console,
     /// Const variable and a const function.
     Const,
@@ -142,7 +138,6 @@ pub enum Token {
 /// Represents all valid Leo keyword tokens.
 pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Address,
-    Token::As,
     Token::Bool,
     Token::Char,
     Token::Console,
@@ -159,7 +154,6 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::I64,
     Token::I128,
     Token::If,
-    Token::Import,
     Token::In,
     Token::Input,
     Token::Let,
@@ -184,7 +178,6 @@ impl Token {
     pub fn keyword_to_symbol(&self) -> Option<Symbol> {
         Some(match self {
             Token::Address => sym::address,
-            Token::As => sym::As,
             Token::Bool => sym::bool,
             Token::Char => sym::char,
             Token::Console => sym::console,
@@ -201,7 +194,6 @@ impl Token {
             Token::I64 => sym::i64,
             Token::I128 => sym::i128,
             Token::If => sym::If,
-            Token::Import => sym::import,
             Token::In => sym::In,
             Token::Input => sym::input,
             Token::Let => sym::Let,
@@ -293,9 +285,6 @@ impl fmt::Display for Token {
 
             Input => write!(f, "input"),
 
-            Import => write!(f, "import"),
-
-            As => write!(f, "as"),
             Console => write!(f, "console"),
             Const => write!(f, "const"),
             Else => write!(f, "else"),

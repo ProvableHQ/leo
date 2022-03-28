@@ -113,14 +113,6 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_cast(&mut self, cast: &CastExpression, inner: Expression, target_type: Type) -> Result<CastExpression> {
-        Ok(CastExpression {
-            inner: Box::new(inner),
-            target_type,
-            span: cast.span.clone(),
-        })
-    }
-
     fn reduce_member_access(
         &mut self,
         member_access: &MemberAccess,
@@ -299,8 +291,6 @@ pub trait ReconstructingReducer {
         &mut self,
         program: &Program,
         expected_input: Vec<FunctionInput>,
-        import_statements: Vec<ImportStatement>,
-        imports: IndexMap<Vec<Symbol>, Program>,
         aliases: IndexMap<Identifier, Alias>,
         functions: IndexMap<Identifier, Function>,
         global_consts: IndexMap<Vec<Identifier>, DefinitionStatement>,
@@ -308,8 +298,6 @@ pub trait ReconstructingReducer {
         Ok(Program {
             name: program.name.clone(),
             expected_input,
-            import_statements,
-            imports,
             aliases,
             functions,
             global_consts,
@@ -333,17 +321,6 @@ pub trait ReconstructingReducer {
 
     fn reduce_function_input(&mut self, _input: &FunctionInput, new: FunctionInput) -> Result<FunctionInput> {
         Ok(new)
-    }
-
-    fn reduce_import_tree(&mut self, _tree: &ImportTree, new: ImportTree) -> Result<ImportTree> {
-        Ok(new)
-    }
-
-    fn reduce_import_statement(&mut self, import: &ImportStatement, tree: ImportTree) -> Result<ImportStatement> {
-        Ok(ImportStatement {
-            tree,
-            span: import.span.clone(),
-        })
     }
 
     fn reduce_import(&mut self, identifier: Vec<Symbol>, import: Program) -> Result<(Vec<Symbol>, Program)> {

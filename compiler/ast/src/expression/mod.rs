@@ -35,8 +35,6 @@ mod value;
 pub use value::*;
 mod call;
 pub use call::*;
-mod cast;
-pub use cast::*;
 mod err;
 pub use err::*;
 
@@ -53,8 +51,6 @@ pub enum Expression {
     Unary(UnaryExpression),
     /// A ternary conditional expression `cond ? if_expr : else_expr`.
     Ternary(TernaryExpression),
-    /// A cast expression `expr as type`.
-    Cast(CastExpression),
     /// An access expression of some sort, e.g., `array[idx]` or `foo.bar`.
     Access(AccessExpression),
     /// A tuple expression e.g., `(foo, 42, true)`.
@@ -77,7 +73,6 @@ impl Node for Expression {
             Ternary(n) => n.span(),
             TupleInit(n) => n.span(),
             Call(n) => n.span(),
-            Cast(n) => n.span(),
             Access(n) => n.span(),
             Err(n) => n.span(),
         }
@@ -93,7 +88,6 @@ impl Node for Expression {
             Ternary(n) => n.set_span(span),
             TupleInit(n) => n.set_span(span),
             Call(n) => n.set_span(span),
-            Cast(n) => n.set_span(span),
             Access(n) => n.set_span(span),
             Err(n) => n.set_span(span),
         }
@@ -111,7 +105,6 @@ impl fmt::Display for Expression {
             Ternary(n) => n.fmt(f),
             TupleInit(n) => n.fmt(f),
             Call(n) => n.fmt(f),
-            Cast(n) => n.fmt(f),
             Access(n) => n.fmt(f),
             Err(n) => n.fmt(f),
         }

@@ -401,7 +401,6 @@ impl Token {
                 match &*ident {
                     x if x.starts_with("aleo1") => Token::AddressLit(ident),
                     "address" => Token::Address,
-                    "as" => Token::As,
                     "bool" => Token::Bool,
                     "char" => Token::Char,
                     "console" => Token::Console,
@@ -418,7 +417,6 @@ impl Token {
                     "i64" => Token::I64,
                     "i128" => Token::I128,
                     "if" => Token::If,
-                    "import" => Token::Import,
                     "in" => Token::In,
                     "input" => Token::Input,
                     "let" => Token::Let,
