@@ -262,8 +262,7 @@ conditional-expression = disjunctive-expression
 
 expression = conditional-expression
 
-statement = expression-statement
-          / return-statement
+statement = return-statement
           / variable-declaration
           / constant-declaration
           / conditional-statement
