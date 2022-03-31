@@ -23,7 +23,7 @@ Lexical Grammar
 
 <a name="character"></a>
 ```abnf
-character = %x0-10FFFF   ; any Unicode code point
+character = %x0-D7FF / %xE000-10FFFF   ; Unicode code points decoded from UTF-8
 ```
 
 <a name="horizontal-tab"></a>
@@ -58,29 +58,30 @@ single-quote = %x27   ; '
 
 <a name="not-star"></a>
 ```abnf
-not-star = %x0-29 / %x2B-10FFFF   ; anything but *
+not-star = %x0-29 / %x2B-D7FF / %xE000-10FFFF   ; anything but *
 ```
 
 <a name="not-star-or-slash"></a>
 ```abnf
-not-star-or-slash = %x0-29 / %x2B-2E / %x30-10FFFF   ; anything but * or /
+not-star-or-slash = %x0-29 / %x2B-2E / %x30-D7FF / %xE000-10FFFF
+                    ; anything but * or /
 ```
 
 <a name="not-line-feed-or-carriage-return"></a>
 ```abnf
-not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-10FFFF
+not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-D7FF / %xE000-10FFFF
                                    ; anything but <LF> or <CR>
 ```
 
 <a name="not-double-quote-or-backslash"></a>
 ```abnf
-not-double-quote-or-backslash = %x0-21 / %x23-5B / %x5D-10FFFF
+not-double-quote-or-backslash = %x0-21 / %x23-5B / %x5D-D7FF / %xE000-10FFFF
                                 ; anything but " or \
 ```
 
 <a name="not-single-quote-or-backslash"></a>
 ```abnf
-not-single-quote-or-backslash = %x0-26 / %x28-5B / %x5D-10FFFF
+not-single-quote-or-backslash = %x0-26 / %x28-5B / %x5D-D7FF / %xE000-10FFFF
                                 ; anything but ' or \
 ```
 
@@ -823,7 +824,8 @@ Format String Grammar
 
 <a name="not-brace"></a>
 ```abnf
-not-brace = %x0-7A / %x7C / %x7E-10FFFF ; anything but { or }
+not-brace = %x0-7A / %x7C / %x7E-10FFFF
+            ; codes permitted in string after escapes processed, except { or }
 ```
 
 <a name="format-string-container"></a>
