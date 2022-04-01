@@ -15,22 +15,23 @@ outputs:
       statements:
         - Return:
             expression:
-              TupleInit:
-                elements: []
-                span:
-                  line_start: 2
-                  line_stop: 2
-                  col_start: 8
-                  col_stop: 10
-                  path: ""
-                  content: return ();
+              Value:
+                Implicit:
+                  - "0"
+                  - span:
+                      line_start: 2
+                      line_stop: 2
+                      col_start: 8
+                      col_stop: 9
+                      path: ""
+                      content: return 0;
             span:
               line_start: 2
               line_stop: 2
               col_start: 1
-              col_stop: 10
+              col_stop: 9
               path: ""
-              content: return ();
+              content: return 0;
       span:
         line_start: 1
         line_stop: 3
@@ -62,22 +63,23 @@ outputs:
             statements:
               - Return:
                   expression:
-                    TupleInit:
-                      elements: []
-                      span:
-                        line_start: 3
-                        line_stop: 3
-                        col_start: 8
-                        col_stop: 10
-                        path: ""
-                        content: return ();
+                    Value:
+                      Implicit:
+                        - "0"
+                        - span:
+                            line_start: 3
+                            line_stop: 3
+                            col_start: 8
+                            col_stop: 9
+                            path: ""
+                            content: return 0;
                   span:
                     line_start: 3
                     line_stop: 3
                     col_start: 1
-                    col_stop: 10
+                    col_stop: 9
                     path: ""
-                    content: return ();
+                    content: return 0;
             span:
               line_start: 2
               line_stop: 4
@@ -101,22 +103,23 @@ outputs:
               statements:
                 - Return:
                     expression:
-                      TupleInit:
-                        elements: []
-                        span:
-                          line_start: 3
-                          line_stop: 3
-                          col_start: 8
-                          col_stop: 10
-                          path: ""
-                          content: return ();
+                      Value:
+                        Implicit:
+                          - "0"
+                          - span:
+                              line_start: 3
+                              line_stop: 3
+                              col_start: 8
+                              col_stop: 9
+                              path: ""
+                              content: return 0;
                     span:
                       line_start: 3
                       line_stop: 3
                       col_start: 1
-                      col_stop: 10
+                      col_stop: 9
                       path: ""
-                      content: return ();
+                      content: return 0;
               span:
                 line_start: 2
                 line_stop: 4

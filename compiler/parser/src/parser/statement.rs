@@ -33,36 +33,11 @@ impl ParserContext<'_> {
     /// Returns an [`Identifier`] AST node if the given [`Expression`] AST node evaluates to an
     /// identifier access. The access is stored in the given accesses.
     ///
-    pub fn construct_assignee_access(expr: Expression, accesses: &mut Vec<AssigneeAccess>) -> Result<Identifier> {
-        let identifier;
+    pub fn construct_assignee_access(expr: Expression, _accesses: &mut Vec<AssigneeAccess>) -> Result<Identifier> {
         match expr {
-            Expression::Access(access) => match access {
-                AccessExpression::Member(expr) => {
-                    identifier = Self::construct_assignee_access(*expr.inner, accesses)?;
-                    accesses.push(AssigneeAccess::Member(expr.name));
-                }
-                AccessExpression::Tuple(expr) => {
-                    identifier = Self::construct_assignee_access(*expr.tuple, accesses)?;
-                    accesses.push(AssigneeAccess::Tuple(expr.index, expr.span));
-                }
-                AccessExpression::ArrayRange(expr) => {
-                    identifier = Self::construct_assignee_access(*expr.array, accesses)?;
-                    accesses.push(AssigneeAccess::ArrayRange(
-                        expr.left.map(|x| *x),
-                        expr.right.map(|x| *x),
-                    ));
-                }
-                AccessExpression::Array(expr) => {
-                    identifier = Self::construct_assignee_access(*expr.array, accesses)?;
-                    accesses.push(AssigneeAccess::ArrayIndex(*expr.index));
-                }
-                _ => return Err(ParserError::invalid_assignment_target(access.span()).into()),
-            },
-
-            Expression::Identifier(id) => identifier = id,
+            Expression::Identifier(id) => Ok(id),
             _ => return Err(ParserError::invalid_assignment_target(expr.span()).into()),
         }
-        Ok(identifier)
     }
 
     ///
@@ -167,9 +142,9 @@ impl ParserContext<'_> {
     /// Returns a [`ConditionalStatement`] AST node if the next tokens represent a conditional statement.
     pub fn parse_conditional_statement(&mut self) -> Result<ConditionalStatement> {
         let start = self.expect(Token::If)?;
-        self.fuzzy_struct_state = true;
+        self.disallow_circuit_construction = true;
         let expr = self.parse_conditional_expression()?;
-        self.fuzzy_struct_state = false;
+        self.disallow_circuit_construction = false;
         let body = self.parse_block()?;
         let next = if self.eat(Token::Else).is_some() {
             let s = self.parse_statement()?;
@@ -199,9 +174,9 @@ impl ParserContext<'_> {
         let start = self.parse_expression()?;
         self.expect(Token::DotDot)?;
         let inclusive = self.eat(Token::Assign).is_some();
-        self.fuzzy_struct_state = true;
+        self.disallow_circuit_construction = true;
         let stop = self.parse_conditional_expression()?;
-        self.fuzzy_struct_state = false;
+        self.disallow_circuit_construction = false;
 
         let block = self.parse_block()?;
 

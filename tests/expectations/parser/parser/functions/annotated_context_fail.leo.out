@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error [EPAR0370016]: \"@context(...)\" is deprecated. Did you mean @test annotation?\n    --> test:3:2\n     |\n   3 | @context\n     |  ^^^^^^^\nError [EPAR0370016]: \"@context(...)\" is deprecated. Did you mean @test annotation?\n    --> test:8:2\n     |\n   8 | @context // recovery witness\n     |  ^^^^^^^"
+  - "Error [EPAR0370030]: Could not lex the following content: `@context\nfunction f() {\n    return ();\n}\n\n@context // recovery witness\nfunction g() {\n    return ();\n}\n`."

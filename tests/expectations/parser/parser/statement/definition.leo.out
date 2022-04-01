@@ -28,36 +28,6 @@ outputs:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = ();\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: let x = ();
-      type_: ~
-      value:
-        TupleInit:
-          elements: []
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 9
-            col_stop: 11
-            path: ""
-            content: let x = ();
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 11
-        path: ""
-        content: let x = ();
-  - Definition:
-      declaration_type: Let
-      variable_names:
-        - mutable: true
           identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = x+y;\\\"}\"}"
           span:
             line_start: 1
@@ -88,38 +58,6 @@ outputs:
         col_stop: 12
         path: ""
         content: let x = x+y;
-  - Definition:
-      declaration_type: Let
-      variable_names:
-        - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x = (x,y);"
-      type_: ~
-      value:
-        TupleInit:
-          elements:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = (x,y);\\\"}\"}"
-            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 9
-            col_stop: 14
-            path: ""
-            content: "let x = (x,y);"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 14
-        path: ""
-        content: "let x = (x,y);"
   - Definition:
       declaration_type: Let
       variable_names:
@@ -178,36 +116,6 @@ outputs:
       declaration_type: Const
       variable_names:
         - mutable: false
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x = ();\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 7
-            col_stop: 8
-            path: ""
-            content: const x = ();
-      type_: ~
-      value:
-        TupleInit:
-          elements: []
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 11
-            col_stop: 13
-            path: ""
-            content: const x = ();
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 13
-        path: ""
-        content: const x = ();
-  - Definition:
-      declaration_type: Const
-      variable_names:
-        - mutable: false
           identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x = x+y;\\\"}\"}"
           span:
             line_start: 1
@@ -238,38 +146,6 @@ outputs:
         col_stop: 14
         path: ""
         content: const x = x+y;
-  - Definition:
-      declaration_type: Const
-      variable_names:
-        - mutable: false
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 7
-            col_stop: 8
-            path: ""
-            content: "const x = (x,y);"
-      type_: ~
-      value:
-        TupleInit:
-          elements:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x = (x,y);\\\"}\"}"
-            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 11
-            col_stop: 16
-            path: ""
-            content: "const x = (x,y);"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 16
-        path: ""
-        content: "const x = (x,y);"
   - Definition:
       declaration_type: Const
       variable_names:
@@ -329,37 +205,6 @@ outputs:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u32 = ();\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u32 = ();"
-      type_:
-        IntegerType: U32
-      value:
-        TupleInit:
-          elements: []
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 14
-            col_stop: 16
-            path: ""
-            content: "let x: u32 = ();"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 16
-        path: ""
-        content: "let x: u32 = ();"
-  - Definition:
-      declaration_type: Let
-      variable_names:
-        - mutable: true
           identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u32 = x+y;\\\"}\"}"
           span:
             line_start: 1
@@ -391,39 +236,6 @@ outputs:
         col_stop: 17
         path: ""
         content: "let x: u32 = x+y;"
-  - Definition:
-      declaration_type: Let
-      variable_names:
-        - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u32 = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u32 = (x,y);"
-      type_:
-        IntegerType: U32
-      value:
-        TupleInit:
-          elements:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u32 = (x,y);\\\"}\"}"
-            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":17,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u32 = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 14
-            col_stop: 19
-            path: ""
-            content: "let x: u32 = (x,y);"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 19
-        path: ""
-        content: "let x: u32 = (x,y);"
   - Definition:
       declaration_type: Let
       variable_names:
@@ -484,37 +296,6 @@ outputs:
       declaration_type: Const
       variable_names:
         - mutable: false
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: u32 = ();\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 7
-            col_stop: 8
-            path: ""
-            content: "const x: u32 = ();"
-      type_:
-        IntegerType: U32
-      value:
-        TupleInit:
-          elements: []
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 16
-            col_stop: 18
-            path: ""
-            content: "const x: u32 = ();"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 18
-        path: ""
-        content: "const x: u32 = ();"
-  - Definition:
-      declaration_type: Const
-      variable_names:
-        - mutable: false
           identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: u32 = x+y;\\\"}\"}"
           span:
             line_start: 1
@@ -546,39 +327,6 @@ outputs:
         col_stop: 19
         path: ""
         content: "const x: u32 = x+y;"
-  - Definition:
-      declaration_type: Const
-      variable_names:
-        - mutable: false
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: u32 = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 7
-            col_stop: 8
-            path: ""
-            content: "const x: u32 = (x,y);"
-      type_:
-        IntegerType: U32
-      value:
-        TupleInit:
-          elements:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":17,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: u32 = (x,y);\\\"}\"}"
-            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: u32 = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 16
-            col_stop: 21
-            path: ""
-            content: "const x: u32 = (x,y);"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 21
-        path: ""
-        content: "const x: u32 = (x,y);"
   - Definition:
       declaration_type: Const
       variable_names:
@@ -647,45 +395,6 @@ outputs:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let (x, y) = ();\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 6
-            col_stop: 7
-            path: ""
-            content: "let (x, y) = ();"
-        - mutable: true
-          identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let (x, y) = ();\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 9
-            col_stop: 10
-            path: ""
-            content: "let (x, y) = ();"
-      type_: ~
-      value:
-        TupleInit:
-          elements: []
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 14
-            col_stop: 16
-            path: ""
-            content: "let (x, y) = ();"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 16
-        path: ""
-        content: "let (x, y) = ();"
-  - Definition:
-      declaration_type: Let
-      variable_names:
-        - mutable: true
           identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let (x, y) = x+y;\\\"}\"}"
           span:
             line_start: 1
@@ -725,47 +434,6 @@ outputs:
         col_stop: 17
         path: ""
         content: "let (x, y) = x+y;"
-  - Definition:
-      declaration_type: Let
-      variable_names:
-        - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let (x, y) = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 6
-            col_stop: 7
-            path: ""
-            content: "let (x, y) = (x,y);"
-        - mutable: true
-          identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let (x, y) = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 9
-            col_stop: 10
-            path: ""
-            content: "let (x, y) = (x,y);"
-      type_: ~
-      value:
-        TupleInit:
-          elements:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let (x, y) = (x,y);\\\"}\"}"
-            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":17,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let (x, y) = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 14
-            col_stop: 19
-            path: ""
-            content: "let (x, y) = (x,y);"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 19
-        path: ""
-        content: "let (x, y) = (x,y);"
   - Definition:
       declaration_type: Let
       variable_names:
@@ -842,45 +510,6 @@ outputs:
       declaration_type: Const
       variable_names:
         - mutable: false
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const (x, y) = ();\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 8
-            col_stop: 9
-            path: ""
-            content: "const (x, y) = ();"
-        - mutable: false
-          identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":11,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const (x, y) = ();\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 11
-            col_stop: 12
-            path: ""
-            content: "const (x, y) = ();"
-      type_: ~
-      value:
-        TupleInit:
-          elements: []
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 16
-            col_stop: 18
-            path: ""
-            content: "const (x, y) = ();"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 18
-        path: ""
-        content: "const (x, y) = ();"
-  - Definition:
-      declaration_type: Const
-      variable_names:
-        - mutable: false
           identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const (x, y) = x+y;\\\"}\"}"
           span:
             line_start: 1
@@ -920,47 +549,6 @@ outputs:
         col_stop: 19
         path: ""
         content: "const (x, y) = x+y;"
-  - Definition:
-      declaration_type: Const
-      variable_names:
-        - mutable: false
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const (x, y) = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 8
-            col_stop: 9
-            path: ""
-            content: "const (x, y) = (x,y);"
-        - mutable: false
-          identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":11,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const (x, y) = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 11
-            col_stop: 12
-            path: ""
-            content: "const (x, y) = (x,y);"
-      type_: ~
-      value:
-        TupleInit:
-          elements:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":17,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const (x, y) = (x,y);\\\"}\"}"
-            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const (x, y) = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 16
-            col_stop: 21
-            path: ""
-            content: "const (x, y) = (x,y);"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 21
-        path: ""
-        content: "const (x, y) = (x,y);"
   - Definition:
       declaration_type: Const
       variable_names:
@@ -1038,46 +626,6 @@ outputs:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let (x, y): u32 = ();\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 6
-            col_stop: 7
-            path: ""
-            content: "let (x, y): u32 = ();"
-        - mutable: true
-          identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let (x, y): u32 = ();\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 9
-            col_stop: 10
-            path: ""
-            content: "let (x, y): u32 = ();"
-      type_:
-        IntegerType: U32
-      value:
-        TupleInit:
-          elements: []
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 19
-            col_stop: 21
-            path: ""
-            content: "let (x, y): u32 = ();"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 21
-        path: ""
-        content: "let (x, y): u32 = ();"
-  - Definition:
-      declaration_type: Let
-      variable_names:
-        - mutable: true
           identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let (x, y): u32 = x+y;\\\"}\"}"
           span:
             line_start: 1
@@ -1118,48 +666,6 @@ outputs:
         col_stop: 22
         path: ""
         content: "let (x, y): u32 = x+y;"
-  - Definition:
-      declaration_type: Let
-      variable_names:
-        - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let (x, y): u32 = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 6
-            col_stop: 7
-            path: ""
-            content: "let (x, y): u32 = (x,y);"
-        - mutable: true
-          identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let (x, y): u32 = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 9
-            col_stop: 10
-            path: ""
-            content: "let (x, y): u32 = (x,y);"
-      type_:
-        IntegerType: U32
-      value:
-        TupleInit:
-          elements:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":20,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let (x, y): u32 = (x,y);\\\"}\"}"
-            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":22,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let (x, y): u32 = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 19
-            col_stop: 24
-            path: ""
-            content: "let (x, y): u32 = (x,y);"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 24
-        path: ""
-        content: "let (x, y): u32 = (x,y);"
   - Definition:
       declaration_type: Let
       variable_names:
@@ -1238,46 +744,6 @@ outputs:
       declaration_type: Const
       variable_names:
         - mutable: false
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const (x, y): u32 = ();\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 8
-            col_stop: 9
-            path: ""
-            content: "const (x, y): u32 = ();"
-        - mutable: false
-          identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":11,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const (x, y): u32 = ();\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 11
-            col_stop: 12
-            path: ""
-            content: "const (x, y): u32 = ();"
-      type_:
-        IntegerType: U32
-      value:
-        TupleInit:
-          elements: []
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 21
-            col_stop: 23
-            path: ""
-            content: "const (x, y): u32 = ();"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 23
-        path: ""
-        content: "const (x, y): u32 = ();"
-  - Definition:
-      declaration_type: Const
-      variable_names:
-        - mutable: false
           identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const (x, y): u32 = x+y;\\\"}\"}"
           span:
             line_start: 1
@@ -1322,48 +788,6 @@ outputs:
       declaration_type: Const
       variable_names:
         - mutable: false
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const (x, y): u32 = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 8
-            col_stop: 9
-            path: ""
-            content: "const (x, y): u32 = (x,y);"
-        - mutable: false
-          identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":11,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const (x, y): u32 = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 11
-            col_stop: 12
-            path: ""
-            content: "const (x, y): u32 = (x,y);"
-      type_:
-        IntegerType: U32
-      value:
-        TupleInit:
-          elements:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":22,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const (x, y): u32 = (x,y);\\\"}\"}"
-            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":24,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const (x, y): u32 = (x,y);\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 21
-            col_stop: 26
-            path: ""
-            content: "const (x, y): u32 = (x,y);"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 26
-        path: ""
-        content: "const (x, y): u32 = (x,y);"
-  - Definition:
-      declaration_type: Const
-      variable_names:
-        - mutable: false
           identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const (x, y): u32 = x();\\\"}\"}"
           span:
             line_start: 1
@@ -1402,242 +826,6 @@ outputs:
         col_stop: 24
         path: ""
         content: "const (x, y): u32 = x();"
-  - Definition:
-      declaration_type: Let
-      variable_names:
-        - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let (x,y,) = ();\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 6
-            col_stop: 7
-            path: ""
-            content: "let (x,y,) = ();"
-        - mutable: true
-          identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let (x,y,) = ();\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 8
-            col_stop: 9
-            path: ""
-            content: "let (x,y,) = ();"
-      type_: ~
-      value:
-        TupleInit:
-          elements: []
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 14
-            col_stop: 16
-            path: ""
-            content: "let (x,y,) = ();"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 16
-        path: ""
-        content: "let (x,y,) = ();"
-  - Definition:
-      declaration_type: Let
-      variable_names:
-        - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: [[u8; 2]; 2] = [[0,0], [0,0]];\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
-      type_:
-        Array:
-          - Array:
-              - IntegerType: U8
-              - - value: "2"
-          - - value: "2"
-      value:
-        ArrayInline:
-          elements:
-            - Expression:
-                ArrayInline:
-                  elements:
-                    - Expression:
-                        Value:
-                          Implicit:
-                            - "0"
-                            - span:
-                                line_start: 1
-                                line_stop: 1
-                                col_start: 25
-                                col_stop: 26
-                                path: ""
-                                content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
-                    - Expression:
-                        Value:
-                          Implicit:
-                            - "0"
-                            - span:
-                                line_start: 1
-                                line_stop: 1
-                                col_start: 27
-                                col_stop: 28
-                                path: ""
-                                content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
-                  span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 24
-                    col_stop: 29
-                    path: ""
-                    content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
-            - Expression:
-                ArrayInline:
-                  elements:
-                    - Expression:
-                        Value:
-                          Implicit:
-                            - "0"
-                            - span:
-                                line_start: 1
-                                line_stop: 1
-                                col_start: 32
-                                col_stop: 33
-                                path: ""
-                                content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
-                    - Expression:
-                        Value:
-                          Implicit:
-                            - "0"
-                            - span:
-                                line_start: 1
-                                line_stop: 1
-                                col_start: 34
-                                col_stop: 35
-                                path: ""
-                                content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
-                  span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 31
-                    col_stop: 36
-                    path: ""
-                    content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 23
-            col_stop: 37
-            path: ""
-            content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 37
-        path: ""
-        content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
-  - Definition:
-      declaration_type: Let
-      variable_names:
-        - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: [u8; (2, 2)] = [[0,0], [0,0]];\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
-      type_:
-        Array:
-          - IntegerType: U8
-          - - value: "2"
-            - value: "2"
-      value:
-        ArrayInline:
-          elements:
-            - Expression:
-                ArrayInline:
-                  elements:
-                    - Expression:
-                        Value:
-                          Implicit:
-                            - "0"
-                            - span:
-                                line_start: 1
-                                line_stop: 1
-                                col_start: 25
-                                col_stop: 26
-                                path: ""
-                                content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
-                    - Expression:
-                        Value:
-                          Implicit:
-                            - "0"
-                            - span:
-                                line_start: 1
-                                line_stop: 1
-                                col_start: 27
-                                col_stop: 28
-                                path: ""
-                                content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
-                  span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 24
-                    col_stop: 29
-                    path: ""
-                    content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
-            - Expression:
-                ArrayInline:
-                  elements:
-                    - Expression:
-                        Value:
-                          Implicit:
-                            - "0"
-                            - span:
-                                line_start: 1
-                                line_stop: 1
-                                col_start: 32
-                                col_stop: 33
-                                path: ""
-                                content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
-                    - Expression:
-                        Value:
-                          Implicit:
-                            - "0"
-                            - span:
-                                line_start: 1
-                                line_stop: 1
-                                col_start: 34
-                                col_stop: 35
-                                path: ""
-                                content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
-                  span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 31
-                    col_stop: 36
-                    path: ""
-                    content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 23
-            col_stop: 37
-            path: ""
-            content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 37
-        path: ""
-        content: "let x: [u8; (2, 2)] = [[0,0], [0,0]];"
   - Definition:
       declaration_type: Let
       variable_names:

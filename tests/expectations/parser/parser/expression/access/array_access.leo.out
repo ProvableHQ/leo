@@ -215,41 +215,6 @@ outputs:
           col_stop: 7
           path: ""
           content: "x()[0]"
-  - Call:
-      function:
-        Access:
-          Static:
-            inner:
-              Call:
-                function:
-                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x(y)::y(x)\\\"}\"}"
-                arguments:
-                  - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x(y)::y(x)\\\"}\"}"
-                span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 1
-                  col_stop: 5
-                  path: ""
-                  content: "x(y)::y(x)"
-            name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x(y)::y(x)\\\"}\"}"
-            type_: ~
-            span:
-              line_start: 1
-              line_stop: 1
-              col_start: 1
-              col_stop: 8
-              path: ""
-              content: "x(y)::y(x)"
-      arguments:
-        - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x(y)::y(x)\\\"}\"}"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 11
-        path: ""
-        content: "x(y)::y(x)"
   - Access:
       Array:
         array:

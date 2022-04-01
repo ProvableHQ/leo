@@ -777,7 +777,7 @@ Go to: _[print-arguments](#user-content-print-arguments), [print-function](#user
 <a name="function-declaration"></a>
 ```abnf
 function-declaration = %s"function" identifier
-                       "(" [ function-parameters ] ")" [ "->" type ]
+                       "(" [ function-parameters ] ")" "->" type
                        block
 ```
 

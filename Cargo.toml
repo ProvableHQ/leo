@@ -86,7 +86,7 @@ version = "0.11.10"
 features = [ "blocking", "json", "multipart" ]
 
 [dependencies.self_update]
-version = "0.28.0"
+version = "0.29.0"
 features = [ "archive-zip" ]
 
 [dependencies.serde]

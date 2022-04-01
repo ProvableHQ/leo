@@ -209,7 +209,7 @@ impl Token {
                     return Ok((len + 2, Token::StringLit(string)));
                 }
 
-                return Err(ParserError::lexer_string_not_closed(string).into());
+                return Err(ParserError::lexer_string_not_closed(leo_ast::Chars(string)).into());
             }
             Some('\'') => {
                 input.next();
@@ -244,7 +244,7 @@ impl Token {
                 if input.next_if_eq(&'&').is_some() {
                     return Ok((2, Token::And));
                 }
-                return Ok((1, Token::Ampersand));
+                return Err(ParserError::lexer_empty_input_tendril().into());
             }
             Some('(') => {
                 input.next();
@@ -293,11 +293,7 @@ impl Token {
             Some('.') => {
                 input.next();
                 if input.next_if_eq(&'.').is_some() {
-                    if input.next_if_eq(&'.').is_some() {
-                        return Ok((3, Token::DotDotDot));
-                    } else {
-                        return Ok((2, Token::DotDot));
-                    }
+                    return Ok((2, Token::DotDot));
                 }
                 return Ok((1, Token::Dot));
             }
@@ -344,11 +340,7 @@ impl Token {
             }
             Some(':') => {
                 input.next();
-                if input.next_if_eq(&':').is_some() {
-                    return Ok((2, Token::DoubleColon));
-                } else {
-                    return Ok((1, Token::Colon));
-                }
+                return Ok((1, Token::Colon));
             }
             Some(';') => {
                 input.next();
@@ -374,10 +366,6 @@ impl Token {
                     return Ok((2, Token::Eq));
                 }
                 return Ok((1, Token::Assign));
-            }
-            Some('@') => {
-                input.next();
-                return Ok((1, Token::At));
             }
             Some('[') => {
                 input.next();
@@ -413,10 +401,8 @@ impl Token {
                 match &*ident {
                     x if x.starts_with("aleo1") => Token::AddressLit(ident),
                     "address" => Token::Address,
-                    "as" => Token::As,
                     "bool" => Token::Bool,
                     "char" => Token::Char,
-                    "circuit" => Token::Circuit,
                     "console" => Token::Console,
                     "const" => Token::Const,
                     "else" => Token::Else,
@@ -431,15 +417,11 @@ impl Token {
                     "i64" => Token::I64,
                     "i128" => Token::I128,
                     "if" => Token::If,
-                    "import" => Token::Import,
                     "in" => Token::In,
                     "input" => Token::Input,
                     "let" => Token::Let,
                     "mut" => Token::Mut,
                     "return" => Token::Return,
-                    "Self" => Token::BigSelf,
-                    "self" => Token::LittleSelf,
-                    "static" => Token::Static,
                     "true" => Token::True,
                     "type" => Token::Type,
                     "u8" => Token::U8,
