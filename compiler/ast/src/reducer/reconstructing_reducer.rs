@@ -113,136 +113,6 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_cast(&mut self, cast: &CastExpression, inner: Expression, target_type: Type) -> Result<CastExpression> {
-        Ok(CastExpression {
-            inner: Box::new(inner),
-            target_type,
-            span: cast.span.clone(),
-        })
-    }
-
-    fn reduce_array_access(
-        &mut self,
-        array_access: &ArrayAccess,
-        array: Expression,
-        index: Expression,
-    ) -> Result<ArrayAccess> {
-        Ok(ArrayAccess {
-            array: Box::new(array),
-            index: Box::new(index),
-            span: array_access.span.clone(),
-        })
-    }
-
-    fn reduce_array_range_access(
-        &mut self,
-        array_rage_access: &ArrayRangeAccess,
-        array: Expression,
-        left: Option<Expression>,
-        right: Option<Expression>,
-    ) -> Result<ArrayRangeAccess> {
-        Ok(ArrayRangeAccess {
-            array: Box::new(array),
-            left: left.map(|expr| Box::new(expr)),
-            right: right.map(|expr| Box::new(expr)),
-            span: array_rage_access.span.clone(),
-        })
-    }
-
-    fn reduce_member_access(
-        &mut self,
-        member_access: &MemberAccess,
-        inner: Expression,
-        name: Identifier,
-        type_: Option<Type>,
-    ) -> Result<MemberAccess> {
-        Ok(MemberAccess {
-            inner: Box::new(inner),
-            name,
-            span: member_access.span.clone(),
-            type_,
-        })
-    }
-
-    fn reduce_tuple_access(&mut self, tuple_access: &TupleAccess, tuple: Expression) -> Result<TupleAccess> {
-        Ok(TupleAccess {
-            tuple: Box::new(tuple),
-            index: tuple_access.index.clone(),
-            span: tuple_access.span.clone(),
-        })
-    }
-
-    fn reduce_static_access(
-        &mut self,
-        static_access: &StaticAccess,
-        value: Expression,
-        type_: Option<Type>,
-        name: Identifier,
-    ) -> Result<StaticAccess> {
-        Ok(StaticAccess {
-            inner: Box::new(value),
-            name,
-            type_,
-            span: static_access.span.clone(),
-        })
-    }
-
-    fn reduce_array_inline(
-        &mut self,
-        array_inline: &ArrayInlineExpression,
-        elements: Vec<SpreadOrExpression>,
-    ) -> Result<ArrayInlineExpression> {
-        Ok(ArrayInlineExpression {
-            elements,
-            span: array_inline.span.clone(),
-        })
-    }
-
-    fn reduce_array_init(
-        &mut self,
-        array_init: &ArrayInitExpression,
-        element: Expression,
-    ) -> Result<ArrayInitExpression> {
-        Ok(ArrayInitExpression {
-            element: Box::new(element),
-            dimensions: array_init.dimensions.clone(),
-            span: array_init.span.clone(),
-        })
-    }
-
-    fn reduce_tuple_init(
-        &mut self,
-        tuple_init: &TupleInitExpression,
-        elements: Vec<Expression>,
-    ) -> Result<TupleInitExpression> {
-        Ok(TupleInitExpression {
-            elements,
-            span: tuple_init.span.clone(),
-        })
-    }
-
-    fn reduce_circuit_variable_initializer(
-        &mut self,
-        _variable: &CircuitVariableInitializer,
-        identifier: Identifier,
-        expression: Option<Expression>,
-    ) -> Result<CircuitVariableInitializer> {
-        Ok(CircuitVariableInitializer { identifier, expression })
-    }
-
-    fn reduce_circuit_init(
-        &mut self,
-        circuit_init: &CircuitInitExpression,
-        name: Identifier,
-        members: Vec<CircuitVariableInitializer>,
-    ) -> Result<CircuitInitExpression> {
-        Ok(CircuitInitExpression {
-            name,
-            members,
-            span: circuit_init.span.clone(),
-        })
-    }
-
     fn reduce_call(
         &mut self,
         call: &CallExpression,
@@ -387,22 +257,12 @@ pub trait ReconstructingReducer {
         &mut self,
         program: &Program,
         expected_input: Vec<FunctionInput>,
-        import_statements: Vec<ImportStatement>,
-        imports: IndexMap<Vec<Symbol>, Program>,
-        aliases: IndexMap<Identifier, Alias>,
-        circuits: IndexMap<Identifier, Circuit>,
         functions: IndexMap<Identifier, Function>,
-        global_consts: IndexMap<Vec<Identifier>, DefinitionStatement>,
     ) -> Result<Program> {
         Ok(Program {
             name: program.name.clone(),
             expected_input,
-            import_statements,
-            imports,
-            aliases,
-            circuits,
             functions,
-            global_consts,
         })
     }
 
@@ -425,40 +285,8 @@ pub trait ReconstructingReducer {
         Ok(new)
     }
 
-    fn reduce_import_tree(&mut self, _tree: &ImportTree, new: ImportTree) -> Result<ImportTree> {
-        Ok(new)
-    }
-
-    fn reduce_import_statement(&mut self, import: &ImportStatement, tree: ImportTree) -> Result<ImportStatement> {
-        Ok(ImportStatement {
-            tree,
-            span: import.span.clone(),
-        })
-    }
-
     fn reduce_import(&mut self, identifier: Vec<Symbol>, import: Program) -> Result<(Vec<Symbol>, Program)> {
         Ok((identifier, import))
-    }
-
-    fn reduce_circuit_member(&mut self, _circuit_member: &CircuitMember, new: CircuitMember) -> Result<CircuitMember> {
-        Ok(new)
-    }
-
-    fn reduce_circuit(
-        &mut self,
-        _circuit: &Circuit,
-        circuit_name: Identifier,
-        members: Vec<CircuitMember>,
-    ) -> Result<Circuit> {
-        Ok(Circuit { circuit_name, members })
-    }
-
-    fn reduce_annotation(&mut self, annotation: &Annotation, name: Identifier) -> Result<Annotation> {
-        Ok(Annotation {
-            span: annotation.span.clone(),
-            name,
-            arguments: annotation.arguments.clone(),
-        })
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -466,7 +294,6 @@ pub trait ReconstructingReducer {
         &mut self,
         function: &Function,
         identifier: Identifier,
-        annotations: IndexMap<Symbol, Annotation>,
         input: Vec<FunctionInput>,
         const_: bool,
         output: Option<Type>,
@@ -474,7 +301,6 @@ pub trait ReconstructingReducer {
     ) -> Result<Function> {
         Ok(Function {
             identifier,
-            annotations,
             input,
             const_,
             output,

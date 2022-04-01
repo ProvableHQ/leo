@@ -53,6 +53,18 @@ impl fmt::Display for Char {
     }
 }
 
+pub struct Chars(pub Vec<Char>);
+
+impl fmt::Display for Chars {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for character in self.0.iter() {
+            write!(f, "{}", character)?;
+        }
+
+        Ok(())
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CharValue {
     pub character: Char,

@@ -12,6 +12,7 @@ expectation: Fail
 
 ''
 
+'\x
 '\x7'
 '\xz'
 '\x9A'
@@ -51,6 +52,7 @@ expectation: Fail
 '\u00000000'
 '\u01000000'
 '\u{110000}'
+'\u{1234567890}'
 '\u{bbbbb}\u{aaaa}'
 
 '😭😂😘'

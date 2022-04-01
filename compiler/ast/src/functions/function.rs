@@ -14,10 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Annotation, Block, FunctionInput, Identifier, Node, Type};
+use crate::{Block, FunctionInput, Identifier, Node, Type};
 use leo_span::{sym, Span, Symbol};
 
-use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::cell::Cell;
 use std::fmt;
@@ -25,8 +24,6 @@ use std::fmt;
 /// A function definition.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Function {
-    /// A map of all the annotations from their base names to the whole.
-    pub annotations: IndexMap<Symbol, Annotation>,
     /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
     pub identifier: Identifier,
     /// The function's parameters.
@@ -61,29 +58,6 @@ impl Function {
     /// Returns `true` if the function name is `main`.
     pub fn is_main(&self) -> bool {
         self.name() == sym::main
-    }
-
-    ///
-    /// Returns `true` if the function has input `self` or `mut self`.
-    /// Returns `false` otherwise.
-    ///
-    pub fn contains_self(&self) -> bool {
-        self.input.iter().any(|param| param.is_self())
-    }
-
-    ///
-    /// Returns `true` if the function has input `mut self`.
-    /// Returns `false` otherwise.
-    ///
-    pub fn contains_mut_self(&self) -> bool {
-        self.input.iter().any(|param| param.is_mut_self())
-    }
-
-    ///
-    /// Returns an iterator of [&FunctionInput] removing `self` and `mut self` inputs.
-    ///
-    pub fn filter_self_inputs(&self) -> impl Iterator<Item = &FunctionInput> {
-        self.input.iter().filter(|input| !input.is_self())
     }
 
     ///

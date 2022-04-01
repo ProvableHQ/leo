@@ -22,18 +22,6 @@
 
 #![doc = include_str!("../README.md")]
 
-pub mod accesses;
-pub use self::accesses::*;
-
-pub mod aliases;
-pub use self::aliases::*;
-
-pub mod annotation;
-pub use self::annotation::*;
-
-pub mod circuits;
-pub use self::circuits::*;
-
 pub mod chars;
 pub use self::chars::*;
 
@@ -48,9 +36,6 @@ pub use self::functions::*;
 
 pub mod groups;
 pub use self::groups::*;
-
-pub mod imports;
-pub use self::imports::*;
 
 pub mod input;
 pub use self::input::*;

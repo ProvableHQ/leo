@@ -61,7 +61,6 @@ pub enum Token {
     WhiteSpace,
 
     // Symbols
-    At,
     Not,
     And,
     Or,
@@ -91,10 +90,8 @@ pub enum Token {
     Comma,
     Dot,
     DotDot,
-    DotDotDot,
     Semicolon,
     Colon,
-    DoubleColon,
     Question,
     Arrow,
     Underscore,
@@ -116,18 +113,11 @@ pub enum Token {
     Bool,
     Address,
     Char,
-    BigSelf,
 
     // primary expresion
     Input,
-    LittleSelf,
-
-    // Import
-    Import,
 
     // Regular Keywords
-    As,
-    Circuit,
     Console,
     /// Const variable and a const function.
     Const,
@@ -138,11 +128,7 @@ pub enum Token {
     In,
     Let,
     Mut,
-    /// Represents `&`.
-    /// Used for `Reference` and `BitAnd`.
-    Ampersand,
     Return,
-    Static,
     Type,
 
     // Meta Tokens
@@ -152,10 +138,8 @@ pub enum Token {
 /// Represents all valid Leo keyword tokens.
 pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Address,
-    Token::As,
     Token::Bool,
     Token::Char,
-    Token::Circuit,
     Token::Console,
     Token::Const,
     Token::Else,
@@ -170,16 +154,11 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::I64,
     Token::I128,
     Token::If,
-    Token::Import,
     Token::In,
     Token::Input,
     Token::Let,
     Token::Mut,
-    Token::Ampersand,
     Token::Return,
-    Token::BigSelf,
-    Token::LittleSelf,
-    Token::Static,
     Token::True,
     Token::Type,
     Token::U8,
@@ -199,11 +178,8 @@ impl Token {
     pub fn keyword_to_symbol(&self) -> Option<Symbol> {
         Some(match self {
             Token::Address => sym::address,
-            Token::As => sym::As,
-            Token::At => sym::At,
             Token::Bool => sym::bool,
             Token::Char => sym::char,
-            Token::Circuit => sym::circuit,
             Token::Console => sym::console,
             Token::Const => sym::Const,
             Token::Else => sym::Else,
@@ -218,16 +194,11 @@ impl Token {
             Token::I64 => sym::i64,
             Token::I128 => sym::i128,
             Token::If => sym::If,
-            Token::Import => sym::import,
             Token::In => sym::In,
             Token::Input => sym::input,
             Token::Let => sym::Let,
             Token::Mut => sym::Mut,
-            Token::Ampersand => sym::Ampersand,
             Token::Return => sym::Return,
-            Token::BigSelf => sym::SelfUpper,
-            Token::LittleSelf => sym::SelfLower,
-            Token::Static => sym::Static,
             Token::True => sym::True,
             Token::Type => sym::Type,
             Token::U8 => sym::u8,
@@ -261,8 +232,6 @@ impl fmt::Display for Token {
             CharLit(s) => write!(f, "'{}'", s),
             WhiteSpace => write!(f, "whitespace"),
 
-            At => write!(f, "@"),
-
             Not => write!(f, "!"),
             And => write!(f, "&&"),
             Or => write!(f, "||"),
@@ -292,10 +261,8 @@ impl fmt::Display for Token {
             Comma => write!(f, ","),
             Dot => write!(f, "."),
             DotDot => write!(f, ".."),
-            DotDotDot => write!(f, "..."),
             Semicolon => write!(f, ";"),
             Colon => write!(f, ":"),
-            DoubleColon => write!(f, "::"),
             Question => write!(f, "?"),
             Arrow => write!(f, "->"),
             Underscore => write!(f, "_"),
@@ -315,15 +282,9 @@ impl fmt::Display for Token {
             Bool => write!(f, "bool"),
             Address => write!(f, "address"),
             Char => write!(f, "char"),
-            BigSelf => write!(f, "Self"),
 
             Input => write!(f, "input"),
-            LittleSelf => write!(f, "self"),
 
-            Import => write!(f, "import"),
-
-            As => write!(f, "as"),
-            Circuit => write!(f, "circuit"),
             Console => write!(f, "console"),
             Const => write!(f, "const"),
             Else => write!(f, "else"),
@@ -333,9 +294,7 @@ impl fmt::Display for Token {
             In => write!(f, "in"),
             Let => write!(f, "let"),
             Mut => write!(f, "mut"),
-            Ampersand => write!(f, "&"), // Used for `Reference` and `BitAnd`
             Return => write!(f, "return"),
-            Static => write!(f, "static"),
             Type => write!(f, "type"),
             Eof => write!(f, ""),
         }
