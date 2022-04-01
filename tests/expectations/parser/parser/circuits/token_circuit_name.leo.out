@@ -1,15 +1,5 @@
 ---
 namespace: Parse
-expectation: Pass
+expectation: Fail
 outputs:
-  - name: ""
-    expected_input: []
-    import_statements: []
-    imports: {}
-    aliases: {}
-    circuits:
-      "{\"name\":\"u32\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit u32 {}\\\"}\"}":
-        circuit_name: "{\"name\":\"u32\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit u32 {}\\\"}\"}"
-        members: []
-    global_consts: {}
-    functions: {}
+  - "Error [EPAR0370009]: unexpected string: expected 'ident', got 'u32'\n    --> test:3:9\n     |\n   3 | circuit u32 {}\n     |         ^^^"
