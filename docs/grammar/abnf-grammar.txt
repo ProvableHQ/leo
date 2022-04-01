@@ -19,7 +19,7 @@
 ; Lexical Grammar
 ; ---------------
 
-character = %x0-10FFFF   ; any Unicode code point
+character = %x0-D7FF / %xE000-10FFFF   ; Unicode code points decoded from UTF-8
 
 horizontal-tab = %x9   ; <HT>
 
@@ -33,7 +33,7 @@ double-quote = %x22   ; "
 
 single-quote = %x27   ; '
 
-not-star = %x0-29 / %x2B-10FFFF   ; anything but *
+not-star = %x0-29 / %x2B-D7FF / %xE000-10FFFF   ; anything but *
 
 not-star-or-slash = %x0-29 / %x2B-2E / %x30-D7FF / %xE000-10FFFF
                     ; anything but * or /
@@ -327,7 +327,8 @@ file = *declaration
 ; Format String Grammar
 ; ---------------------
 
-not-brace = %x0-7A / %x7C / %x7E-10FFFF ; anything but { or }
+not-brace = %x0-7A / %x7C / %x7E-10FFFF
+            ; codes permitted in string after escapes processed, except { or }
 
 format-string-container = "{}"
 
