@@ -37,5 +37,129 @@ outputs:
                         col_stop: 28
                         path: ""
                         content: "    static const y: u32 = 5;"
+          - CircuitConst:
+              - "{\"name\":\"G\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const G: u8 = G;\\\"}\"}"
+              - IntegerType: U8
+              - Identifier: "{\"name\":\"G\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const G: u8 = G;\\\"}\"}"
+          - CircuitConst:
+              - "{\"name\":\"FOO\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":18,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const FOO: Foo = Foo {};\\\"}\"}"
+              - Identifier: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":23,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const FOO: Foo = Foo {};\\\"}\"}"
+              - CircuitInit:
+                  name: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":29,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const FOO: Foo = Foo {};\\\"}\"}"
+                  members: []
+                  span:
+                    line_start: 7
+                    line_stop: 7
+                    col_start: 29
+                    col_stop: 35
+                    path: ""
+                    content: "    static const FOO: Foo = Foo {};"
+          - CircuitConst:
+              - "{\"name\":\"INDEXED\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":18,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const INDEXED: Foo = A[0];\\\"}\"}"
+              - Identifier: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":27,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const INDEXED: Foo = A[0];\\\"}\"}"
+              - Access:
+                  Array:
+                    array:
+                      Identifier: "{\"name\":\"A\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":33,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const INDEXED: Foo = A[0];\\\"}\"}"
+                    index:
+                      Value:
+                        Implicit:
+                          - "0"
+                          - span:
+                              line_start: 8
+                              line_stop: 8
+                              col_start: 35
+                              col_stop: 36
+                              path: ""
+                              content: "    static const INDEXED: Foo = A[0];"
+                    span:
+                      line_start: 8
+                      line_stop: 8
+                      col_start: 33
+                      col_stop: 37
+                      path: ""
+                      content: "    static const INDEXED: Foo = A[0];"
+          - CircuitConst:
+              - "{\"name\":\"TINDEXED\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":18,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const TINDEXED: Foo = T.0;\\\"}\"}"
+              - Identifier: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":28,\\\"col_stop\\\":31,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const TINDEXED: Foo = T.0;\\\"}\"}"
+              - Access:
+                  Tuple:
+                    tuple:
+                      Identifier: "{\"name\":\"T\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const TINDEXED: Foo = T.0;\\\"}\"}"
+                    index:
+                      value: "0"
+                    span:
+                      line_start: 9
+                      line_stop: 9
+                      col_start: 34
+                      col_stop: 37
+                      path: ""
+                      content: "    static const TINDEXED: Foo = T.0;"
+          - CircuitConst:
+              - "{\"name\":\"TWO\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":18,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const TWO: i8 = 1i8 + 1i8;\\\"}\"}"
+              - IntegerType: I8
+              - Binary:
+                  left:
+                    Value:
+                      Integer:
+                        - I8
+                        - "1"
+                        - span:
+                            line_start: 10
+                            line_stop: 10
+                            col_start: 28
+                            col_stop: 31
+                            path: ""
+                            content: "    static const TWO: i8 = 1i8 + 1i8;"
+                  right:
+                    Value:
+                      Integer:
+                        - I8
+                        - "1"
+                        - span:
+                            line_start: 10
+                            line_stop: 10
+                            col_start: 34
+                            col_stop: 37
+                            path: ""
+                            content: "    static const TWO: i8 = 1i8 + 1i8;"
+                  op: Add
+                  span:
+                    line_start: 10
+                    line_stop: 10
+                    col_start: 28
+                    col_stop: 37
+                    path: ""
+                    content: "    static const TWO: i8 = 1i8 + 1i8;"
+          - CircuitConst:
+              - "{\"name\":\"mult\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":18,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const mult: i8 = x * y;\\\"}\"}"
+              - IntegerType: I8
+              - Binary:
+                  left:
+                    Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":29,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const mult: i8 = x * y;\\\"}\"}"
+                  right:
+                    Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":33,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const mult: i8 = x * y;\\\"}\"}"
+                  op: Mul
+                  span:
+                    line_start: 11
+                    line_stop: 11
+                    col_start: 29
+                    col_stop: 34
+                    path: ""
+                    content: "    static const mult: i8 = x * y;"
+          - CircuitConst:
+              - "{\"name\":\"mult\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":18,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const mult: i8 = one();\\\"}\"}"
+              - IntegerType: I8
+              - Call:
+                  function:
+                    Identifier: "{\"name\":\"one\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":29,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const mult: i8 = one();\\\"}\"}"
+                  arguments: []
+                  span:
+                    line_start: 12
+                    line_stop: 12
+                    col_start: 29
+                    col_stop: 34
+                    path: ""
+                    content: "    static const mult: i8 = one();"
     global_consts: {}
     functions: {}

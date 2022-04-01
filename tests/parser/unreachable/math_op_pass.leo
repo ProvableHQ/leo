@@ -3,9 +3,6 @@ namespace: ParseStatement
 expectation: Pass
 */
 
-let x = a . b;
-
-let x = a :: b;
 
 let x = a == b;
 
@@ -21,10 +18,6 @@ let x = a <= b;
 
 let x = a > b;
 
-let x = a as b;
-
-ximport=b;
-
 x_=b;
 
 x==b;
@@ -36,8 +29,6 @@ x>=b;
 x<=b;
 
 x>=b;
-
-xas=b;
 
 xconsole=b;
 
@@ -72,10 +63,6 @@ xu64=b;
 xu128=b;
 
 xreturn=b;
-
-xself=b;
-
-xSelf=b;
 
 xtrue=b;
 

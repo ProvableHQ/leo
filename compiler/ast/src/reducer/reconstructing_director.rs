@@ -20,7 +20,7 @@
 use crate::*;
 
 use leo_errors::{AstError, Result};
-use leo_span::{Span, Symbol};
+use leo_span::Span;
 
 use indexmap::IndexMap;
 
@@ -35,15 +35,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
     pub fn reduce_type(&mut self, type_: &Type, span: &Span) -> Result<Type> {
         let new = match type_ {
-            Type::Array(type_, dimensions) => Type::Array(Box::new(self.reduce_type(type_, span)?), dimensions.clone()),
-            Type::Tuple(types) => {
-                let mut reduced_types = vec![];
-                for type_ in types.iter() {
-                    reduced_types.push(self.reduce_type(type_, span)?);
-                }
-
-                Type::Tuple(reduced_types)
-            }
             Type::Identifier(identifier) => Type::Identifier(self.reduce_identifier(identifier)?),
             _ => type_.clone(),
         };
@@ -59,16 +50,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             Expression::Binary(binary) => Expression::Binary(self.reduce_binary(binary)?),
             Expression::Unary(unary) => Expression::Unary(self.reduce_unary(unary)?),
             Expression::Ternary(ternary) => Expression::Ternary(self.reduce_ternary(ternary)?),
-            Expression::Cast(cast) => Expression::Cast(self.reduce_cast(cast)?),
-            Expression::Access(access) => Expression::Access(self.reduce_access(access)?),
-
-            Expression::ArrayInline(array_inline) => Expression::ArrayInline(self.reduce_array_inline(array_inline)?),
-            Expression::ArrayInit(array_init) => Expression::ArrayInit(self.reduce_array_init(array_init)?),
-
-            Expression::TupleInit(tuple_init) => Expression::TupleInit(self.reduce_tuple_init(tuple_init)?),
-
-            Expression::CircuitInit(circuit_init) => Expression::CircuitInit(self.reduce_circuit_init(circuit_init)?),
-
             Expression::Call(call) => Expression::Call(self.reduce_call(call)?),
             Expression::Err(s) => Expression::Err(s.clone()),
         };
@@ -128,140 +109,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         let if_false = self.reduce_expression(&ternary.if_false)?;
 
         self.reducer.reduce_ternary(ternary, condition, if_true, if_false)
-    }
-
-    pub fn reduce_cast(&mut self, cast: &CastExpression) -> Result<CastExpression> {
-        let inner = self.reduce_expression(&cast.inner)?;
-        let target_type = self.reduce_type(&cast.target_type, &cast.span)?;
-
-        self.reducer.reduce_cast(cast, inner, target_type)
-    }
-
-    pub fn reduce_array_access(&mut self, array_access: &ArrayAccess) -> Result<ArrayAccess> {
-        let array = self.reduce_expression(&array_access.array)?;
-        let index = self.reduce_expression(&array_access.index)?;
-
-        self.reducer.reduce_array_access(array_access, array, index)
-    }
-
-    pub fn reduce_array_range_access(&mut self, array_range_access: &ArrayRangeAccess) -> Result<ArrayRangeAccess> {
-        let array = self.reduce_expression(&array_range_access.array)?;
-        let left = array_range_access
-            .left
-            .as_ref()
-            .map(|left| self.reduce_expression(left))
-            .transpose()?;
-        let right = array_range_access
-            .right
-            .as_ref()
-            .map(|right| self.reduce_expression(right))
-            .transpose()?;
-
-        self.reducer
-            .reduce_array_range_access(array_range_access, array, left, right)
-    }
-
-    pub fn reduce_member_access(&mut self, member_access: &MemberAccess) -> Result<MemberAccess> {
-        let inner = self.reduce_expression(&member_access.inner)?;
-        let name = self.reduce_identifier(&member_access.name)?;
-        let type_ = member_access
-            .type_
-            .as_ref()
-            .map(|type_| self.reduce_type(type_, &member_access.span))
-            .transpose()?;
-
-        self.reducer.reduce_member_access(member_access, inner, name, type_)
-    }
-
-    pub fn reduce_tuple_access(&mut self, tuple_access: &TupleAccess) -> Result<TupleAccess> {
-        let tuple = self.reduce_expression(&tuple_access.tuple)?;
-
-        self.reducer.reduce_tuple_access(tuple_access, tuple)
-    }
-
-    pub fn reduce_static_access(&mut self, static_access: &StaticAccess) -> Result<StaticAccess> {
-        let value = self.reduce_expression(&static_access.inner)?;
-        let name = self.reduce_identifier(&static_access.name)?;
-        let type_ = static_access
-            .type_
-            .as_ref()
-            .map(|type_| self.reduce_type(type_, &static_access.span))
-            .transpose()?;
-
-        self.reducer.reduce_static_access(static_access, value, type_, name)
-    }
-
-    pub fn reduce_access(&mut self, access: &AccessExpression) -> Result<AccessExpression> {
-        use AccessExpression::*;
-
-        let new = match access {
-            Array(access) => Array(self.reduce_array_access(access)?),
-            ArrayRange(access) => ArrayRange(self.reduce_array_range_access(access)?),
-            Member(access) => Member(self.reduce_member_access(access)?),
-            Tuple(access) => Tuple(self.reduce_tuple_access(access)?),
-            Static(access) => Static(self.reduce_static_access(access)?),
-        };
-
-        Ok(new)
-    }
-
-    pub fn reduce_array_inline(&mut self, array_inline: &ArrayInlineExpression) -> Result<ArrayInlineExpression> {
-        let mut elements = vec![];
-        for element in array_inline.elements.iter() {
-            let reduced_element = match element {
-                SpreadOrExpression::Expression(expression) => {
-                    SpreadOrExpression::Expression(self.reduce_expression(expression)?)
-                }
-                SpreadOrExpression::Spread(expression) => {
-                    SpreadOrExpression::Spread(self.reduce_expression(expression)?)
-                }
-            };
-
-            elements.push(reduced_element);
-        }
-
-        self.reducer.reduce_array_inline(array_inline, elements)
-    }
-
-    pub fn reduce_array_init(&mut self, array_init: &ArrayInitExpression) -> Result<ArrayInitExpression> {
-        let element = self.reduce_expression(&array_init.element)?;
-
-        self.reducer.reduce_array_init(array_init, element)
-    }
-
-    pub fn reduce_tuple_init(&mut self, tuple_init: &TupleInitExpression) -> Result<TupleInitExpression> {
-        let mut elements = vec![];
-        for element in tuple_init.elements.iter() {
-            elements.push(self.reduce_expression(element)?);
-        }
-
-        self.reducer.reduce_tuple_init(tuple_init, elements)
-    }
-
-    pub fn reduce_circuit_variable_initializer(
-        &mut self,
-        variable: &CircuitVariableInitializer,
-    ) -> Result<CircuitVariableInitializer> {
-        let identifier = self.reduce_identifier(&variable.identifier)?;
-        let expression = variable
-            .expression
-            .as_ref()
-            .map(|expr| self.reduce_expression(expr))
-            .transpose()?;
-
-        self.reducer
-            .reduce_circuit_variable_initializer(variable, identifier, expression)
-    }
-
-    pub fn reduce_circuit_init(&mut self, circuit_init: &CircuitInitExpression) -> Result<CircuitInitExpression> {
-        let name = self.reduce_identifier(&circuit_init.name)?;
-
-        let mut members = vec![];
-        for member in circuit_init.members.iter() {
-            members.push(self.reduce_circuit_variable_initializer(member)?);
-        }
-
-        self.reducer.reduce_circuit_init(circuit_init, name, members)
     }
 
     pub fn reduce_call(&mut self, call: &CallExpression) -> Result<CallExpression> {
@@ -422,57 +269,12 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             inputs.push(self.reduce_function_input(input)?);
         }
 
-        let mut import_statements = vec![];
-        for import in program.import_statements.iter() {
-            import_statements.push(self.reduce_import_statement(import)?);
-        }
-
-        let mut imports = IndexMap::new();
-        for (identifier, program) in program.imports.iter() {
-            let (ident, import) = self.reduce_import(identifier, program)?;
-            imports.insert(ident, import);
-        }
-
-        let mut aliases = IndexMap::new();
-        for (name, alias) in program.aliases.iter() {
-            let represents = self.reduce_type(&alias.represents, &alias.name.span)?;
-            aliases.insert(
-                name.clone(),
-                Alias {
-                    name: alias.name.clone(),
-                    span: alias.span.clone(),
-                    represents,
-                },
-            );
-        }
-
-        let mut circuits = IndexMap::new();
-        self.reducer.swap_in_circuit();
-        for (name, circuit) in program.circuits.iter() {
-            circuits.insert(name.clone(), self.reduce_circuit(circuit)?);
-        }
-        self.reducer.swap_in_circuit();
-
         let mut functions = IndexMap::new();
         for (name, function) in program.functions.iter() {
             functions.insert(name.clone(), self.reduce_function(function)?);
         }
 
-        let mut global_consts = IndexMap::new();
-        for (name, definition) in program.global_consts.iter() {
-            global_consts.insert(name.clone(), self.reduce_definition(definition)?);
-        }
-
-        self.reducer.reduce_program(
-            program,
-            inputs,
-            import_statements,
-            imports,
-            aliases,
-            circuits,
-            functions,
-            global_consts,
-        )
+        self.reducer.reduce_program(program, inputs, functions)
     }
 
     pub fn reduce_function_input_variable(
@@ -490,90 +292,13 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             FunctionInput::Variable(function_input_variable) => {
                 FunctionInput::Variable(self.reduce_function_input_variable(function_input_variable)?)
             }
-            _ => input.clone(),
         };
 
         self.reducer.reduce_function_input(input, new)
     }
 
-    pub fn reduce_import_tree(&mut self, tree: &ImportTree) -> Result<ImportTree> {
-        let new = ImportTree {
-            base: tree
-                .base
-                .iter()
-                .map(|i| self.reduce_identifier(i))
-                .collect::<Result<_>>()?,
-
-            kind: match &tree.kind {
-                ImportTreeKind::Glob { .. } | ImportTreeKind::Leaf { alias: None } => tree.kind.clone(),
-                ImportTreeKind::Leaf { alias: Some(alias) } => {
-                    let alias = self.reduce_identifier(alias)?;
-                    ImportTreeKind::Leaf { alias: Some(alias) }
-                }
-                ImportTreeKind::Nested { tree } => ImportTreeKind::Nested {
-                    tree: tree.iter().map(|n| self.reduce_import_tree(n)).collect::<Result<_>>()?,
-                },
-            },
-            span: tree.span.clone(),
-        };
-
-        self.reducer.reduce_import_tree(tree, new)
-    }
-
-    pub fn reduce_import_statement(&mut self, import: &ImportStatement) -> Result<ImportStatement> {
-        let tree = self.reduce_import_tree(&import.tree)?;
-        self.reducer.reduce_import_statement(import, tree)
-    }
-
-    pub fn reduce_import(&mut self, identifier: &[Symbol], import: &Program) -> Result<(Vec<Symbol>, Program)> {
-        let new_identifer = identifier.to_vec();
-        let new_import = self.reduce_program(import)?;
-        self.reducer.reduce_import(new_identifer, new_import)
-    }
-
-    pub fn reduce_circuit_member(&mut self, circuit_member: &CircuitMember) -> Result<CircuitMember> {
-        let new = match circuit_member {
-            CircuitMember::CircuitConst(identifier, type_, value) => CircuitMember::CircuitConst(
-                self.reduce_identifier(identifier)?,
-                self.reduce_type(type_, &identifier.span)?,
-                self.reduce_expression(value)?,
-            ),
-            CircuitMember::CircuitVariable(identifier, type_) => CircuitMember::CircuitVariable(
-                self.reduce_identifier(identifier)?,
-                self.reduce_type(type_, &identifier.span)?,
-            ),
-            CircuitMember::CircuitFunction(function) => {
-                CircuitMember::CircuitFunction(Box::new(self.reduce_function(function)?))
-            }
-        };
-
-        self.reducer.reduce_circuit_member(circuit_member, new)
-    }
-
-    pub fn reduce_circuit(&mut self, circuit: &Circuit) -> Result<Circuit> {
-        let circuit_name = self.reduce_identifier(&circuit.circuit_name)?;
-
-        let mut members = vec![];
-        for member in circuit.members.iter() {
-            members.push(self.reduce_circuit_member(member)?);
-        }
-
-        self.reducer.reduce_circuit(circuit, circuit_name, members)
-    }
-
-    fn reduce_annotation(&mut self, annotation: &Annotation) -> Result<Annotation> {
-        let name = self.reduce_identifier(&annotation.name)?;
-
-        self.reducer.reduce_annotation(annotation, name)
-    }
-
     pub fn reduce_function(&mut self, function: &Function) -> Result<Function> {
         let identifier = self.reduce_identifier(&function.identifier)?;
-
-        let mut annotations = IndexMap::new();
-        for (name, annotation) in function.annotations.iter() {
-            annotations.insert(*name, self.reduce_annotation(annotation)?);
-        }
 
         let mut inputs = vec![];
         for input in function.input.iter() {
@@ -588,14 +313,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
         let block = self.reduce_block(&function.block)?;
 
-        self.reducer.reduce_function(
-            function,
-            identifier,
-            annotations,
-            inputs,
-            function.const_,
-            output,
-            block,
-        )
+        self.reducer
+            .reduce_function(function, identifier, inputs, function.const_, output, block)
     }
 }

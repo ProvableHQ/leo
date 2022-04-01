@@ -4,14 +4,8 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    import_statements: []
-    imports: {}
-    aliases: {}
-    circuits: {}
-    global_consts: {}
     functions:
       "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, const y: i32) {\\\"}\"}":
-        annotations: {}
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, const y: i32) {\\\"}\"}"
         input:
           - Variable:
@@ -47,22 +41,23 @@ outputs:
           statements:
             - Return:
                 expression:
-                  TupleInit:
-                    elements: []
-                    span:
-                      line_start: 4
-                      line_stop: 4
-                      col_start: 12
-                      col_stop: 14
-                      path: ""
-                      content: "    return ();"
+                  Value:
+                    Implicit:
+                      - "0"
+                      - span:
+                          line_start: 4
+                          line_stop: 4
+                          col_start: 12
+                          col_stop: 13
+                          path: ""
+                          content: "    return 0;"
                 span:
                   line_start: 4
                   line_stop: 4
                   col_start: 5
-                  col_stop: 14
+                  col_stop: 13
                   path: ""
-                  content: "    return ();"
+                  content: "    return 0;"
           span:
             line_start: 3
             line_stop: 5
@@ -78,7 +73,6 @@ outputs:
           path: ""
           content: "function x(x: u32, const y: i32) {\n     ...\n}"
       "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const x: u32, y: i32) {\\\"}\"}":
-        annotations: {}
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const x: u32, y: i32) {\\\"}\"}"
         input:
           - Variable:
@@ -114,22 +108,23 @@ outputs:
           statements:
             - Return:
                 expression:
-                  TupleInit:
-                    elements: []
-                    span:
-                      line_start: 8
-                      line_stop: 8
-                      col_start: 12
-                      col_stop: 14
-                      path: ""
-                      content: "    return ();"
+                  Value:
+                    Implicit:
+                      - "0"
+                      - span:
+                          line_start: 8
+                          line_stop: 8
+                          col_start: 12
+                          col_stop: 13
+                          path: ""
+                          content: "    return 0;"
                 span:
                   line_start: 8
                   line_stop: 8
                   col_start: 5
-                  col_stop: 14
+                  col_stop: 13
                   path: ""
-                  content: "    return ();"
+                  content: "    return 0;"
           span:
             line_start: 7
             line_stop: 9

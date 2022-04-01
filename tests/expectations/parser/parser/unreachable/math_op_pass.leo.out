@@ -6,74 +6,6 @@ outputs:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a . b;\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: let x = a . b;
-      type_: ~
-      value:
-        Access:
-          Member:
-            inner:
-              Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a . b;\\\"}\"}"
-            name: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a . b;\\\"}\"}"
-            span:
-              line_start: 1
-              line_stop: 1
-              col_start: 9
-              col_stop: 14
-              path: ""
-              content: let x = a . b;
-            type_: ~
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 14
-        path: ""
-        content: let x = a . b;
-  - Definition:
-      declaration_type: Let
-      variable_names:
-        - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a :: b;\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x = a :: b;"
-      type_: ~
-      value:
-        Access:
-          Static:
-            inner:
-              Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a :: b;\\\"}\"}"
-            name: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a :: b;\\\"}\"}"
-            type_: ~
-            span:
-              line_start: 1
-              line_stop: 1
-              col_start: 9
-              col_stop: 15
-              path: ""
-              content: "let x = a :: b;"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 15
-        path: ""
-        content: "let x = a :: b;"
-  - Definition:
-      declaration_type: Let
-      variable_names:
-        - mutable: true
           identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a == b;\\\"}\"}"
           span:
             line_start: 1
@@ -308,60 +240,6 @@ outputs:
         col_stop: 14
         path: ""
         content: let x = a > b;
-  - Definition:
-      declaration_type: Let
-      variable_names:
-        - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a as b;\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: let x = a as b;
-      type_: ~
-      value:
-        Cast:
-          inner:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a as b;\\\"}\"}"
-          target_type:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a as b;\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 9
-            col_stop: 15
-            path: ""
-            content: let x = a as b;
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 15
-        path: ""
-        content: let x = a as b;
-  - Assign:
-      operation: Assign
-      assignee:
-        identifier: "{\"name\":\"ximport\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"ximport=b;\\\"}\"}"
-        accesses: []
-        span:
-          line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 8
-          path: ""
-          content: ximport=b;
-      value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"ximport=b;\\\"}\"}"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 10
-        path: ""
-        content: ximport=b;
   - Assign:
       operation: Assign
       assignee:
@@ -493,27 +371,6 @@ outputs:
         col_stop: 5
         path: ""
         content: x>=b;
-  - Assign:
-      operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xas\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xas=b;\\\"}\"}"
-        accesses: []
-        span:
-          line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 4
-          path: ""
-          content: xas=b;
-      value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xas=b;\\\"}\"}"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 6
-        path: ""
-        content: xas=b;
   - Assign:
       operation: Assign
       assignee:
@@ -871,48 +728,6 @@ outputs:
         col_stop: 10
         path: ""
         content: xreturn=b;
-  - Assign:
-      operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xself\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xself=b;\\\"}\"}"
-        accesses: []
-        span:
-          line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 6
-          path: ""
-          content: xself=b;
-      value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xself=b;\\\"}\"}"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 8
-        path: ""
-        content: xself=b;
-  - Assign:
-      operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xSelf\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xSelf=b;\\\"}\"}"
-        accesses: []
-        span:
-          line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 6
-          path: ""
-          content: xSelf=b;
-      value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"xSelf=b;\\\"}\"}"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 8
-        path: ""
-        content: xSelf=b;
   - Assign:
       operation: Assign
       assignee:
