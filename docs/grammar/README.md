@@ -637,8 +637,7 @@ Go to: _[conditional-expression](#user-content-conditional-expression)_;
 
 <a name="statement"></a>
 ```abnf
-statement = expression-statement
-          / return-statement
+statement = return-statement
           / variable-declaration
           / constant-declaration
           / conditional-statement
@@ -648,7 +647,7 @@ statement = expression-statement
           / block
 ```
 
-Go to: _[assignment-statement](#user-content-assignment-statement), [block](#user-content-block), [conditional-statement](#user-content-conditional-statement), [console-statement](#user-content-console-statement), [constant-declaration](#user-content-constant-declaration), [expression-statement](#user-content-expression-statement), [loop-statement](#user-content-loop-statement), [return-statement](#user-content-return-statement), [variable-declaration](#user-content-variable-declaration)_;
+Go to: _[assignment-statement](#user-content-assignment-statement), [block](#user-content-block), [conditional-statement](#user-content-conditional-statement), [console-statement](#user-content-console-statement), [constant-declaration](#user-content-constant-declaration), [loop-statement](#user-content-loop-statement), [return-statement](#user-content-return-statement), [variable-declaration](#user-content-variable-declaration)_;
 
 
 <a name="block"></a>
