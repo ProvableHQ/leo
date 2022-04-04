@@ -358,4 +358,20 @@ create_errors!(
         msg: format!("Found the char `{}`, but expected `{}`", found, expected),
         help: None,
     }
+
+    /// For when a user does not specify a type of input.
+    @backtraced
+    inputs_no_variable_type_specified {
+        args: (),
+        msg: "An input must be either const, private, or public.",
+        help: None,
+    }
+
+     /// For when a user specified more than a type of input.
+     @backtraced
+     inputs_multpe_variable_types_specified {
+         args: (),
+         msg: "An input can only be one of const, private, or public.",
+         help: None,
+     }
 );

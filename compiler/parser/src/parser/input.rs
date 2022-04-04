@@ -66,6 +66,16 @@ impl ParserContext<'_> {
     /// `<identifier> : <type> = <expression>;`
     /// Returns [`Definition`].
     pub fn parse_input_definition(&mut self) -> Result<Definition> {
+        let const_ = self.eat(Token::Const).is_some();
+        let private = self.eat(Token::Private).is_some();
+        let public = self.eat(Token::Public).is_some();
+
+        match (const_, private, public) {
+            (true, false, false) | (false, true, false) | (false, false, true) => {}
+            (false, false, false) => return Err(ParserError::inputs_no_variable_type_specified().into()),
+            _ => return Err(ParserError::inputs_multpe_variable_types_specified().into()),
+        }
+
         let name = self.expect_ident()?;
         self.expect(Token::Colon)?;
         let (type_, span) = self.parse_type()?;
@@ -74,6 +84,9 @@ impl ParserContext<'_> {
         self.expect(Token::Semicolon)?;
 
         Ok(Definition {
+            const_,
+            private,
+            public,
             name,
             type_,
             value,
