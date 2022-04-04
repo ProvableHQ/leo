@@ -274,8 +274,6 @@ statement = return-statement
 
 block = "{" *statement "}"
 
-expression-statement = expression ";"
-
 return-statement = %s"return" expression ";"
 
 variable-declaration = %s"let" identifier ":" type "=" expression ";"
