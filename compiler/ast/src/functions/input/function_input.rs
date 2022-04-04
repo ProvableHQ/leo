@@ -27,6 +27,10 @@ pub struct FunctionInputVariable {
     pub identifier: Identifier,
     /// Is it a const parameter?
     pub const_: bool,
+    /// Is it a private input parameter?
+    pub private: bool,
+    /// Is it a public parameter?
+    pub public: bool,
     /// Is it a mutable parameter?
     pub mutable: bool,
     /// What's the parameter's type?

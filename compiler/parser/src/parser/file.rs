@@ -67,6 +67,9 @@ impl ParserContext<'_> {
     pub fn parse_function_parameters(&mut self) -> Result<FunctionInput> {
         let const_ = self.eat(Token::Const);
         let mutable = self.eat(Token::Mut);
+        let private = self.eat(Token::Private).is_some();
+        let public = self.eat(Token::Public).is_some();
+
         let name = self.expect_ident()?;
 
         if let Some(mutable) = &mutable {
@@ -78,6 +81,8 @@ impl ParserContext<'_> {
         Ok(FunctionInput::Variable(FunctionInputVariable {
             const_: const_.is_some(),
             mutable: const_.is_none(),
+            private,
+            public,
             type_,
             span: name.span.clone(),
             identifier: name,
