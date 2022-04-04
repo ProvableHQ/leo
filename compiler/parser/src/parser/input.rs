@@ -17,6 +17,7 @@
 use super::*;
 
 use leo_errors::{ParserError, Result};
+use leo_span::sym;
 
 impl ParserContext<'_> {
     /// Returns a [`ParsedInputFile`] struct filled with the data acquired in the file.
@@ -49,10 +50,10 @@ impl ParserContext<'_> {
         let mut definitions = Vec::new();
 
         while let Some(SpannedToken {
-            token: Token::Ident(_), ..
+            token: Token::Const | Token::Private | Token::Public | Token::Ident(_), ..
         }) = self.peek_option()
         {
-            definitions.push(self.parse_input_definition()?);
+            definitions.push(self.parse_input_definition(section.name == sym::main)?);
         }
 
         Ok(Section {
@@ -65,15 +66,16 @@ impl ParserContext<'_> {
     /// Parses a single parameter definition:
     /// `<identifier> : <type> = <expression>;`
     /// Returns [`Definition`].
-    pub fn parse_input_definition(&mut self) -> Result<Definition> {
+    pub fn parse_input_definition(&mut self, is_main: bool) -> Result<Definition> {
         let const_ = self.eat(Token::Const).is_some();
         let private = self.eat(Token::Private).is_some();
         let public = self.eat(Token::Public).is_some();
 
         match (const_, private, public) {
-            (true, false, false) | (false, true, false) | (false, false, true) => {}
-            (false, false, false) => return Err(ParserError::inputs_no_variable_type_specified().into()),
-            _ => return Err(ParserError::inputs_multpe_variable_types_specified().into()),
+            (true, false, false) | (false, true, false) | (false, false, true) if is_main => {}
+            (false, false, false) if is_main => return Err(ParserError::inputs_no_variable_type_specified().into()),
+            _ if is_main => return Err(ParserError::inputs_multpe_variable_types_specified().into()),
+            _ => {}
         }
 
         let name = self.expect_ident()?;

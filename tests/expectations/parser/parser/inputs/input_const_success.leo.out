@@ -5,11 +5,11 @@ outputs:
   - sections:
       - name: main
         definitions:
-          - const_: false
-            private: true
+          - const_: true
+            private: false
             public: false
             type_: Boolean
-            name: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"private a: bool  = true;                 \\\"}\"}"
+            name: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const a: bool  = true;                 \\\"}\"}"
             value:
               Value:
                 Boolean:
@@ -17,23 +17,23 @@ outputs:
                   - span:
                       line_start: 4
                       line_stop: 4
-                      col_start: 20
-                      col_stop: 24
+                      col_start: 18
+                      col_stop: 22
                       path: ""
-                      content: "private a: bool  = true;                 "
+                      content: "const a: bool  = true;                 "
             span:
               line_start: 4
               line_stop: 4
-              col_start: 12
-              col_stop: 16
+              col_start: 10
+              col_stop: 14
               path: ""
-              content: "private a: bool  = true;                 "
-          - const_: false
-            private: true
+              content: "const a: bool  = true;                 "
+          - const_: true
+            private: false
             public: false
             type_:
               IntegerType: U8
-            name: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"private b: u8    = 2;                    \\\"}\"}"
+            name: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const b: u8    = 2;                    \\\"}\"}"
             value:
               Value:
                 Implicit:
@@ -41,22 +41,22 @@ outputs:
                   - span:
                       line_start: 5
                       line_stop: 5
-                      col_start: 20
-                      col_stop: 21
+                      col_start: 18
+                      col_stop: 19
                       path: ""
-                      content: "private b: u8    = 2;                    "
+                      content: "const b: u8    = 2;                    "
             span:
               line_start: 5
               line_stop: 5
-              col_start: 12
-              col_stop: 14
+              col_start: 10
+              col_stop: 12
               path: ""
-              content: "private b: u8    = 2;                    "
-          - const_: false
-            private: true
+              content: "const b: u8    = 2;                    "
+          - const_: true
+            private: false
             public: false
             type_: Field
-            name: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"private c: field = 0;                    \\\"}\"}"
+            name: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const c: field = 0;                    \\\"}\"}"
             value:
               Value:
                 Implicit:
@@ -64,22 +64,22 @@ outputs:
                   - span:
                       line_start: 6
                       line_stop: 6
-                      col_start: 20
-                      col_stop: 21
+                      col_start: 18
+                      col_stop: 19
                       path: ""
-                      content: "private c: field = 0;                    "
+                      content: "const c: field = 0;                    "
             span:
               line_start: 6
               line_stop: 6
-              col_start: 12
-              col_stop: 17
+              col_start: 10
+              col_stop: 15
               path: ""
-              content: "private c: field = 0;                    "
-          - const_: false
-            private: true
+              content: "const c: field = 0;                    "
+          - const_: true
+            private: false
             public: false
             type_: Group
-            name: "{\"name\":\"d\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"private d: group = (0, 1)group;          \\\"}\"}"
+            name: "{\"name\":\"d\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const d: group = (0, 1)group;          \\\"}\"}"
             value:
               Value:
                 Group:
@@ -90,39 +90,39 @@ outputs:
                         - span:
                             line_start: 7
                             line_stop: 7
-                            col_start: 21
-                            col_stop: 22
+                            col_start: 19
+                            col_stop: 20
                             path: ""
-                            content: "private d: group = (0, 1)group;          "
+                            content: "const d: group = (0, 1)group;          "
                     y:
                       Number:
                         - "1"
                         - span:
                             line_start: 7
                             line_stop: 7
-                            col_start: 24
-                            col_stop: 25
+                            col_start: 22
+                            col_stop: 23
                             path: ""
-                            content: "private d: group = (0, 1)group;          "
+                            content: "const d: group = (0, 1)group;          "
                     span:
                       line_start: 7
                       line_stop: 7
-                      col_start: 21
-                      col_stop: 31
+                      col_start: 19
+                      col_stop: 29
                       path: ""
-                      content: "private d: group = (0, 1)group;          "
+                      content: "const d: group = (0, 1)group;          "
             span:
               line_start: 7
               line_stop: 7
-              col_start: 12
-              col_stop: 17
+              col_start: 10
+              col_stop: 15
               path: ""
-              content: "private d: group = (0, 1)group;          "
-          - const_: false
-            private: true
+              content: "const d: group = (0, 1)group;          "
+          - const_: true
+            private: false
             public: false
             type_: Address
-            name: "{\"name\":\"e\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"private e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;\\\"}\"}"
+            name: "{\"name\":\"e\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;\\\"}\"}"
             value:
               Value:
                 Address:
@@ -130,17 +130,17 @@ outputs:
                   - span:
                       line_start: 8
                       line_stop: 8
-                      col_start: 22
-                      col_stop: 85
+                      col_start: 20
+                      col_stop: 83
                       path: ""
-                      content: "private e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;"
+                      content: "const e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;"
             span:
               line_start: 8
               line_stop: 8
-              col_start: 12
-              col_stop: 19
+              col_start: 10
+              col_stop: 17
               path: ""
-              content: "private e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;"
+              content: "const e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;"
         span:
           line_start: 3
           line_stop: 3
