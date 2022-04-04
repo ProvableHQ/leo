@@ -57,8 +57,8 @@ pub fn parse(handler: &Handler, path: &str, source: &str) -> Result<Program> {
 }
 
 /// Parses an input file at the given file `path` and `source` code text.
-pub fn parse_input(handler: &Handler, path: &str, source: &str) -> Result<ParsedInputFile> {
-    let mut tokens = ParserContext::new(handler, crate::tokenize(path, source)?);
+pub fn parse_input<T: AsRef<str>, Y: AsRef<str>>(handler: &Handler, path: T, source: Y) -> Result<ParsedInputFile> {
+    let mut tokens = ParserContext::new(handler, crate::tokenize(path.as_ref(), source.as_ref())?);
 
     tokens.parse_input()
 }

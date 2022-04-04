@@ -50,7 +50,8 @@ impl ParserContext<'_> {
         let mut definitions = Vec::new();
 
         while let Some(SpannedToken {
-            token: Token::Const | Token::Private | Token::Public | Token::Ident(_), ..
+            token: Token::Const | Token::Private | Token::Public | Token::Ident(_),
+            ..
         }) = self.peek_option()
         {
             definitions.push(self.parse_input_definition(section.name == sym::main)?);
