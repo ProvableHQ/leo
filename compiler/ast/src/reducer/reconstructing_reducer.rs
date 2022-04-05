@@ -276,7 +276,6 @@ pub trait ReconstructingReducer {
             identifier,
             const_: variable.const_,
             mutable: variable.mutable,
-            private: variable.private,
             public: variable.public,
             type_,
             span: variable.span.clone(),

@@ -27,8 +27,6 @@ pub struct FunctionInputVariable {
     pub identifier: Identifier,
     /// Is it a const parameter?
     pub const_: bool,
-    /// Is it a private input parameter?
-    pub private: bool,
     /// Is it a public parameter?
     pub public: bool,
     /// Is it a mutable parameter?
@@ -41,7 +39,11 @@ pub struct FunctionInputVariable {
 
 impl FunctionInputVariable {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // mut var: bool
+        if self.public {
+            write!(f, "public ")?;
+        } else {
+            write!(f, "private ")?;
+        }
         if self.const_ {
             write!(f, "const ")?;
         }

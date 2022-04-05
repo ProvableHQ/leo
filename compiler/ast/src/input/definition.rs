@@ -22,7 +22,6 @@ use crate::{Expression, Identifier, Type};
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Definition {
     pub const_: bool,
-    pub private: bool,
     pub public: bool,
     pub type_: Type,
     pub name: Identifier,
