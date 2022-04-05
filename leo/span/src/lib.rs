@@ -23,5 +23,3 @@ pub mod span;
 pub use span::Span;
 
 pub mod span_json;
-
-pub mod tendril_json;

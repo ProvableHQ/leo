@@ -19,14 +19,7 @@ use super::*;
 use leo_errors::{ParserError, Result};
 use leo_span::sym;
 
-const ASSIGN_TOKENS: &[Token] = &[
-    Token::Assign,
-    Token::AddEq,
-    Token::MinusEq,
-    Token::MulEq,
-    Token::DivEq,
-    Token::ExpEq,
-];
+const ASSIGN_TOKENS: &[Token] = &[Token::Assign];
 
 impl ParserContext<'_> {
     ///
@@ -85,11 +78,6 @@ impl ParserContext<'_> {
                 assignee,
                 operation: match operator.token {
                     Token::Assign => AssignOperation::Assign,
-                    Token::AddEq => AssignOperation::Add,
-                    Token::MinusEq => AssignOperation::Sub,
-                    Token::MulEq => AssignOperation::Mul,
-                    Token::DivEq => AssignOperation::Div,
-                    Token::ExpEq => AssignOperation::Pow,
                     _ => unreachable!("parse_assign_statement_ shouldn't produce this"),
                 },
                 value,
