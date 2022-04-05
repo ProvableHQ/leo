@@ -401,10 +401,11 @@ symbol = "!" / "&&" / "||"
 token = keyword
       / identifier
       / atomic-literal
+      / numeral
       / symbol
 ```
 
-Go to: _[atomic-literal](#user-content-atomic-literal), [identifier](#user-content-identifier), [keyword](#user-content-keyword), [symbol](#user-content-symbol)_;
+Go to: _[atomic-literal](#user-content-atomic-literal), [identifier](#user-content-identifier), [keyword](#user-content-keyword), [numeral](#user-content-numeral), [symbol](#user-content-symbol)_;
 
 
 <a name="lexeme"></a>
