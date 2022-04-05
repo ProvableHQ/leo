@@ -41,9 +41,6 @@ features = [ "derive", "rc" ]
 version = "1.0"
 features = [ "preserve_order" ]
 
-[dependencies.tendril]
-version = "0.4"
-
 [dev-dependencies.criterion]
 version = "0.3"
 
