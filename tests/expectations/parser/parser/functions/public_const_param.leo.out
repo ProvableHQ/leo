@@ -5,11 +5,11 @@ outputs:
   - name: ""
     expected_input: []
     functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, const y: i32) {\\\"}\"}":
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, const y: i32) {\\\"}\"}"
+      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, public const y: i32) {\\\"}\"}":
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, public const y: i32) {\\\"}\"}"
         input:
           - Variable:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, const y: i32) {\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, public const y: i32) {\\\"}\"}"
               const_: false
               public: false
               mutable: true
@@ -21,21 +21,21 @@ outputs:
                 col_start: 12
                 col_stop: 13
                 path: ""
-                content: "function x(x: u32, const y: i32) {"
+                content: "function x(x: u32, public const y: i32) {"
           - Variable:
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, const y: i32) {\\\"}\"}"
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":33,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, public const y: i32) {\\\"}\"}"
               const_: true
-              public: false
+              public: true
               mutable: false
               type_:
                 IntegerType: I32
               span:
                 line_start: 3
                 line_stop: 3
-                col_start: 26
-                col_stop: 27
+                col_start: 33
+                col_stop: 34
                 path: ""
-                content: "function x(x: u32, const y: i32) {"
+                content: "function x(x: u32, public const y: i32) {"
         const_: false
         output: ~
         core_mapping: ~
@@ -63,36 +63,36 @@ outputs:
           span:
             line_start: 3
             line_stop: 5
-            col_start: 34
+            col_start: 41
             col_stop: 2
             path: ""
-            content: "function x(x: u32, const y: i32) {\n     ...\n}"
+            content: "function x(x: u32, public const y: i32) {\n     ...\n}"
         span:
           line_start: 3
           line_stop: 5
           col_start: 1
           col_stop: 2
           path: ""
-          content: "function x(x: u32, const y: i32) {\n     ...\n}"
-      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const x: u32, y: i32) {\\\"}\"}":
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const x: u32, y: i32) {\\\"}\"}"
+          content: "function x(x: u32, public const y: i32) {\n     ...\n}"
+      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(public const x: u32, y: i32) {\\\"}\"}":
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(public const x: u32, y: i32) {\\\"}\"}"
         input:
           - Variable:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const x: u32, y: i32) {\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":25,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(public const x: u32, y: i32) {\\\"}\"}"
               const_: true
-              public: false
+              public: true
               mutable: false
               type_:
                 IntegerType: U32
               span:
                 line_start: 7
                 line_stop: 7
-                col_start: 18
-                col_stop: 19
+                col_start: 25
+                col_stop: 26
                 path: ""
-                content: "function x(const x: u32, y: i32) {"
+                content: "function x(public const x: u32, y: i32) {"
           - Variable:
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const x: u32, y: i32) {\\\"}\"}"
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":33,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(public const x: u32, y: i32) {\\\"}\"}"
               const_: false
               public: false
               mutable: true
@@ -101,10 +101,10 @@ outputs:
               span:
                 line_start: 7
                 line_stop: 7
-                col_start: 26
-                col_stop: 27
+                col_start: 33
+                col_stop: 34
                 path: ""
-                content: "function x(const x: u32, y: i32) {"
+                content: "function x(public const x: u32, y: i32) {"
         const_: false
         output: ~
         core_mapping: ~
@@ -132,14 +132,14 @@ outputs:
           span:
             line_start: 7
             line_stop: 9
-            col_start: 34
+            col_start: 41
             col_stop: 2
             path: ""
-            content: "function x(const x: u32, y: i32) {\n     ...\n}"
+            content: "function x(public const x: u32, y: i32) {\n     ...\n}"
         span:
           line_start: 7
           line_stop: 9
           col_start: 1
           col_stop: 2
           path: ""
-          content: "function x(const x: u32, y: i32) {\n     ...\n}"
+          content: "function x(public const x: u32, y: i32) {\n     ...\n}"

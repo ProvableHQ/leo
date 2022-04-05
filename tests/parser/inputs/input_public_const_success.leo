@@ -4,11 +4,11 @@ expectation: Pass
 */
 
 [main]
-private a: bool  = true;                 
-private b: u8    = 2;                    
-private c: field = 0;                    
-private d: group = (0, 1)group;          
-private e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;
+public const a: bool  = true;                 
+public const b: u8    = 2;                    
+public const c: field = 0;                    
+public const d: group = (0, 1)group;          
+public const e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;
 
 [registers]
 r0: bool  = true;                 

@@ -1,0 +1,5 @@
+---
+namespace: Input
+expectation: Fail
+outputs:
+  - "Error [EPAR0370009]: unexpected string: expected 'ident', got 'public'\n    --> test:4:7\n     |\n   4 | const public a: bool  = true;                 \n     |       ^^^^^^"

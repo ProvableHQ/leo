@@ -53,7 +53,6 @@ outputs:
           - Variable:
               identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
               const_: false
-              private: false
               public: false
               mutable: true
               type_: Boolean

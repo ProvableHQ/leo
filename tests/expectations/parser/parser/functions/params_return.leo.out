@@ -11,7 +11,6 @@ outputs:
           - Variable:
               identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, y: i32) -> u32 {\\\"}\"}"
               const_: false
-              private: false
               public: false
               mutable: true
               type_:
@@ -26,7 +25,6 @@ outputs:
           - Variable:
               identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":20,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, y: i32) -> u32 {\\\"}\"}"
               const_: false
-              private: false
               public: false
               mutable: true
               type_:

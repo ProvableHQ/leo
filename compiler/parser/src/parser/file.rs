@@ -65,9 +65,9 @@ impl ParserContext<'_> {
     /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
     ///
     pub fn parse_function_parameters(&mut self) -> Result<FunctionInput> {
+        let public = self.eat(Token::Public).is_some();
         let const_ = self.eat(Token::Const);
         let mutable = self.eat(Token::Mut);
-        let public = self.eat(Token::Public).is_some();
 
         let name = self.expect_ident()?;
 

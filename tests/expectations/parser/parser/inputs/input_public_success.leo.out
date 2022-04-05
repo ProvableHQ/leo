@@ -6,7 +6,6 @@ outputs:
       - name: main
         definitions:
           - const_: false
-            private: false
             public: true
             type_: Boolean
             name: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"public a: bool  = true;                 \\\"}\"}"
@@ -29,7 +28,6 @@ outputs:
               path: ""
               content: "public a: bool  = true;                 "
           - const_: false
-            private: false
             public: true
             type_:
               IntegerType: U8
@@ -53,7 +51,6 @@ outputs:
               path: ""
               content: "public b: u8    = 2;                    "
           - const_: false
-            private: false
             public: true
             type_: Field
             name: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"public c: field = 0;                    \\\"}\"}"
@@ -76,7 +73,6 @@ outputs:
               path: ""
               content: "public c: field = 0;                    "
           - const_: false
-            private: false
             public: true
             type_: Group
             name: "{\"name\":\"d\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"public d: group = (0, 1)group;          \\\"}\"}"
@@ -119,7 +115,6 @@ outputs:
               path: ""
               content: "public d: group = (0, 1)group;          "
           - const_: false
-            private: false
             public: true
             type_: Address
             name: "{\"name\":\"e\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"public e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;\\\"}\"}"
@@ -151,7 +146,6 @@ outputs:
       - name: registers
         definitions:
           - const_: false
-            private: false
             public: false
             type_: Boolean
             name: "{\"name\":\"r0\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r0: bool  = true;                 \\\"}\"}"
@@ -174,7 +168,6 @@ outputs:
               path: ""
               content: "r0: bool  = true;                 "
           - const_: false
-            private: false
             public: false
             type_:
               IntegerType: U8
@@ -198,7 +191,6 @@ outputs:
               path: ""
               content: "r1: u8    = 2;                    "
           - const_: false
-            private: false
             public: false
             type_: Field
             name: "{\"name\":\"r2\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r2: field = 0;                    \\\"}\"}"
@@ -221,7 +213,6 @@ outputs:
               path: ""
               content: "r2: field = 0;                    "
           - const_: false
-            private: false
             public: false
             type_: Group
             name: "{\"name\":\"r3\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r3: group = (0, 1)group;          \\\"}\"}"
@@ -264,7 +255,6 @@ outputs:
               path: ""
               content: "r3: group = (0, 1)group;          "
           - const_: false
-            private: false
             public: false
             type_: Address
             name: "{\"name\":\"r4\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r4: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;\\\"}\"}"
