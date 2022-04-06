@@ -10,9 +10,7 @@ outputs:
         input:
           - Variable:
               identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, const y: i32) {\\\"}\"}"
-              const_: false
-              public: false
-              mutable: true
+              mode: Private
               type_:
                 IntegerType: U32
               span:
@@ -24,9 +22,7 @@ outputs:
                 content: "function x(x: u32, const y: i32) {"
           - Variable:
               identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, const y: i32) {\\\"}\"}"
-              const_: true
-              public: false
-              mutable: false
+              mode: Const
               type_:
                 IntegerType: I32
               span:
@@ -79,9 +75,7 @@ outputs:
         input:
           - Variable:
               identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const x: u32, y: i32) {\\\"}\"}"
-              const_: true
-              public: false
-              mutable: false
+              mode: Const
               type_:
                 IntegerType: U32
               span:
@@ -93,9 +87,7 @@ outputs:
                 content: "function x(const x: u32, y: i32) {"
           - Variable:
               identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const x: u32, y: i32) {\\\"}\"}"
-              const_: false
-              public: false
-              mutable: true
+              mode: Private
               type_:
                 IntegerType: I32
               span:

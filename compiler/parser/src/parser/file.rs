@@ -61,6 +61,9 @@ impl ParserContext<'_> {
         )
     }
 
+    ///
+    /// Returns a [`ParamMode`] AST node if the next tokens represent a function parameter mode.
+    ///
     pub fn parse_function_parameter_mode(&mut self) -> Result<ParamMode> {
         let public = self.eat(Token::Public);
         let const_ = self.eat(Token::Const);
