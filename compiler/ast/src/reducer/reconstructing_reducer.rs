@@ -274,9 +274,7 @@ pub trait ReconstructingReducer {
     ) -> Result<FunctionInputVariable> {
         Ok(FunctionInputVariable {
             identifier,
-            const_: variable.const_,
-            mutable: variable.mutable,
-            public: variable.public,
+            mode: variable.mode,
             type_,
             span: variable.span.clone(),
         })

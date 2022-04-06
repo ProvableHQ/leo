@@ -67,8 +67,7 @@ impl ParserContext<'_> {
     /// `<identifier> : <type> = <expression>;`
     /// Returns [`Definition`].
     pub fn parse_input_definition(&mut self) -> Result<Definition> {
-        let public = self.eat(Token::Public).is_some();
-        let const_ = self.eat(Token::Const).is_some();
+        let mode = self.parse_function_parameter_mode()?;
 
         let name = self.expect_ident()?;
         self.expect(Token::Colon)?;
@@ -78,8 +77,7 @@ impl ParserContext<'_> {
         self.expect(Token::Semicolon)?;
 
         Ok(Definition {
-            const_,
-            public,
+            mode,
             name,
             type_,
             value,

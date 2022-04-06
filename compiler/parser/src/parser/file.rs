@@ -61,12 +61,23 @@ impl ParserContext<'_> {
         )
     }
 
+    pub fn parse_function_parameter_mode(&mut self) -> Result<ParamMode> {
+        let public = self.eat(Token::Public);
+        let const_ = self.eat(Token::Const);
+
+        match (public, const_) {
+            (None, Some(_)) => Ok(ParamMode::Const),
+            (None, None) => Ok(ParamMode::Private),
+            (Some(_), None) => Ok(ParamMode::Public),
+            (Some(p), Some(c)) => Err(ParserError::inputs_multiple_variable_types_specified(&(p.span + c.span)).into()),
+        }
+    }
+
     ///
     /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
     ///
     pub fn parse_function_parameters(&mut self) -> Result<FunctionInput> {
-        let public = self.eat(Token::Public).is_some();
-        let const_ = self.eat(Token::Const);
+        let mode = self.parse_function_parameter_mode()?;
         let mutable = self.eat(Token::Mut);
 
         let name = self.expect_ident()?;
@@ -78,9 +89,7 @@ impl ParserContext<'_> {
         self.expect(Token::Colon)?;
         let type_ = self.parse_type()?.0;
         Ok(FunctionInput::Variable(FunctionInputVariable {
-            const_: const_.is_some(),
-            mutable: const_.is_none(),
-            public,
+            mode,
             type_,
             span: name.span.clone(),
             identifier: name,
