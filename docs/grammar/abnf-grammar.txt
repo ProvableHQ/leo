@@ -181,6 +181,7 @@ symbol = "!" / "&&" / "||"
 token = keyword
       / identifier
       / atomic-literal
+      / numeral
       / symbol
 
 lexeme = token / comment / whitespace

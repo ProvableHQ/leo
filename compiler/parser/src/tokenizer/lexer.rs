@@ -261,20 +261,12 @@ impl Token {
             Some('*') => {
                 input.next();
                 if input.next_if_eq(&'*').is_some() {
-                    if input.next_if_eq(&'=').is_some() {
-                        return Ok((3, Token::ExpEq));
-                    }
                     return Ok((2, Token::Exp));
-                } else if input.next_if_eq(&'=').is_some() {
-                    return Ok((2, Token::MulEq));
                 }
                 return Ok((1, Token::Mul));
             }
             Some('+') => {
                 input.next();
-                if input.next_if_eq(&'=').is_some() {
-                    return Ok((2, Token::AddEq));
-                }
                 return Ok((1, Token::Add));
             }
             Some(',') => {
@@ -285,8 +277,6 @@ impl Token {
                 input.next();
                 if input.next_if_eq(&'>').is_some() {
                     return Ok((2, Token::Arrow));
-                } else if input.next_if_eq(&'=').is_some() {
-                    return Ok((2, Token::MinusEq));
                 }
                 return Ok((1, Token::Minus));
             }
@@ -333,8 +323,6 @@ impl Token {
                         return Err(ParserError::lexer_block_comment_does_not_close_before_eof(comment).into());
                     }
                     return Ok((comment.len(), Token::CommentBlock(comment)));
-                } else if input.next_if_eq(&'=').is_some() {
-                    return Ok((2, Token::DivEq));
                 }
                 return Ok((1, Token::Div));
             }
