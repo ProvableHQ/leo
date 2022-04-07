@@ -18,6 +18,7 @@ use crate::{commands::Command, context::Context};
 use leo_compiler::{Ast, Compiler};
 use leo_errors::{CliError, Result};
 use leo_package::{
+    inputs::InputFile,
     // inputs::*,
     // outputs::CircuitFile
     outputs::{ChecksumFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
@@ -147,7 +148,7 @@ impl Command for Build {
         main_file_path.push(MAIN_FILENAME);
 
         // Load the input file at `package_name.in`
-        // let (input_string, input_path) = InputFile::new(&package_name).read_from(&path)?;
+        let input_path = InputFile::new(&package_name).setup_file_path(&path);
 
         // Load the state file at `package_name.in`
         // let (state_string, state_path) = StateFile::new(&package_name).read_from(&path)?;
@@ -179,7 +180,7 @@ impl Command for Build {
         // Initialize error handler
         let handler = leo_errors::emitter::Handler::default();
 
-        let program = Compiler::new(&handler, main_file_path, output_directory);
+        let program = Compiler::new(&handler, main_file_path, output_directory, input_path.to_path_buf());
 
         // Compute the current program checksum
         let program_checksum = program.checksum()?;

@@ -1,5 +1,0 @@
----
-namespace: Parse
-expectation: Fail
-outputs:
-  - "Error [EPAR0370000]: Function calls not allowed in circuit members.\n    --> test:4:27\n     |\n   4 |     static const x: u32 = foo();\n     |                           ^^^^^"

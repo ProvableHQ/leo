@@ -20,30 +20,60 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParamMode {
+    Const,
+    Private,
+    Public,
+}
+
+impl fmt::Display for ParamMode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use ParamMode::*;
+
+        match self {
+            Const => write!(f, "const"),
+            Private => write!(f, "private"),
+            Public => write!(f, "public"),
+        }
+    }
+}
+
 /// A function parameter.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FunctionInputVariable {
     /// The name the parameter is accessible as in the function's body.
     pub identifier: Identifier,
-    /// Is it a const parameter?
-    pub const_: bool,
-    /// Is it a mutable parameter?
-    pub mutable: bool,
+    /// The mode of the function parameter.
+    mode: ParamMode,
     /// What's the parameter's type?
-    pub type_: Type,
+    type_: Type,
     /// The parameters span from any annotations to its type.
     pub span: Span,
 }
 
 impl FunctionInputVariable {
+    pub fn new(identifier: Identifier, mode: ParamMode, type_: Type, span: Span) -> Self {
+        Self {
+            identifier,
+            mode,
+            type_,
+            span,
+        }
+    }
+
+    pub fn mode(&self) -> ParamMode {
+        self.mode
+    }
+
+    pub fn type_(&self) -> Type {
+        self.type_.clone()
+    }
+}
+
+impl FunctionInputVariable {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // mut var: bool
-        if self.const_ {
-            write!(f, "const ")?;
-        }
-        if self.mutable {
-            write!(f, "mut ")?;
-        }
+        write!(f, "{} ", self.mode)?;
         write!(f, "{}: ", self.identifier)?;
         write!(f, "{}", self.type_)
     }

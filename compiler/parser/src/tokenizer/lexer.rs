@@ -409,6 +409,7 @@ impl Token {
                     "input" => Token::Input,
                     "let" => Token::Let,
                     "mut" => Token::Mut,
+                    "public" => Token::Public,
                     "return" => Token::Return,
                     "true" => Token::True,
                     "type" => Token::Type,

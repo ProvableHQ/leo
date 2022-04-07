@@ -314,7 +314,7 @@ function-declaration = %s"function" identifier
 
 function-parameters = function-parameter *( "," function-parameter ) [ "," ]
 
-function-parameter = [ %s"const" ] identifier ":" type
+function-parameter = [ %s"public" / %s"const" ] identifier ":" type
 
 declaration = function-declaration
 

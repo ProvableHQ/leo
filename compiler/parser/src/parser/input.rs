@@ -49,7 +49,8 @@ impl ParserContext<'_> {
         let mut definitions = Vec::new();
 
         while let Some(SpannedToken {
-            token: Token::Ident(_), ..
+            token: Token::Const | Token::Public | Token::Ident(_),
+            ..
         }) = self.peek_option()
         {
             definitions.push(self.parse_input_definition()?);
@@ -66,6 +67,8 @@ impl ParserContext<'_> {
     /// `<identifier> : <type> = <expression>;`
     /// Returns [`Definition`].
     pub fn parse_input_definition(&mut self) -> Result<Definition> {
+        let mode = self.parse_function_parameter_mode()?;
+
         let name = self.expect_ident()?;
         self.expect(Token::Colon)?;
         let (type_, span) = self.parse_type()?;
@@ -74,6 +77,7 @@ impl ParserContext<'_> {
         self.expect(Token::Semicolon)?;
 
         Ok(Definition {
+            mode,
             name,
             type_,
             value,

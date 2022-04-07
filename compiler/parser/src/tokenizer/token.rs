@@ -123,6 +123,8 @@ pub enum Token {
     In,
     Let,
     Mut,
+    /// For public inputs.
+    Public,
     Return,
     Type,
 
@@ -153,6 +155,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Input,
     Token::Let,
     Token::Mut,
+    Token::Public,
     Token::Return,
     Token::True,
     Token::Type,
@@ -193,6 +196,7 @@ impl Token {
             Token::Input => sym::input,
             Token::Let => sym::Let,
             Token::Mut => sym::Mut,
+            Token::Public => sym::Public,
             Token::Return => sym::Return,
             Token::True => sym::True,
             Token::Type => sym::Type,
@@ -284,6 +288,7 @@ impl fmt::Display for Token {
             In => write!(f, "in"),
             Let => write!(f, "let"),
             Mut => write!(f, "mut"),
+            Public => write!(f, "public"),
             Return => write!(f, "return"),
             Type => write!(f, "type"),
             Eof => write!(f, ""),

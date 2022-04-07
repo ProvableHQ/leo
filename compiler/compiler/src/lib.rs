@@ -36,17 +36,24 @@ pub struct Compiler<'a> {
     handler: &'a Handler,
     main_file_path: PathBuf,
     output_directory: PathBuf,
+    input_file_path: PathBuf,
 }
 
 impl<'a> Compiler<'a> {
     ///
     /// Returns a new Leo compiler.
     ///
-    pub fn new(handler: &'a Handler, main_file_path: PathBuf, output_directory: PathBuf) -> Self {
+    pub fn new(
+        handler: &'a Handler,
+        main_file_path: PathBuf,
+        output_directory: PathBuf,
+        input_file_path: PathBuf,
+    ) -> Self {
         Self {
             handler,
             main_file_path,
             output_directory,
+            input_file_path,
         }
     }
 
@@ -70,6 +77,20 @@ impl<'a> Compiler<'a> {
     /// Runs the compiler stages.
     ///
     fn compiler_stages(self) -> Result<leo_ast::Ast> {
+        //load the input file if it exists.
+        let _input_ast = if self.input_file_path.exists() {
+            let input_string = fs::read_to_string(&self.input_file_path)
+                .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;
+
+            Some(leo_parser::parse_input(
+                self.handler,
+                self.input_file_path.to_str().unwrap_or_default(),
+                input_string,
+            )?)
+        } else {
+            None
+        };
+
         // Load the program file.
         let program_string = fs::read_to_string(&self.main_file_path)
             .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;

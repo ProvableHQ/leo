@@ -358,4 +358,12 @@ create_errors!(
         msg: format!("Found the char `{}`, but expected `{}`", found, expected),
         help: None,
     }
+
+     /// For when a user specified more than a type on a parameter.
+     @formatted
+     inputs_multiple_variable_types_specified {
+         args: (),
+         msg: "A parameter cannot be both public and const.",
+         help: None,
+     }
 );

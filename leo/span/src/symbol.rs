@@ -131,6 +131,7 @@ symbols! {
     main,
     Mut: "mut",
     prelude,
+    Public,
     Return: "return",
     Star: "*",
     std,

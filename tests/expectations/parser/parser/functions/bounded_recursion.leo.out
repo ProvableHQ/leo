@@ -10,8 +10,7 @@ outputs:
         input:
           - Variable:
               identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const y: u32) {\\\"}\"}"
-              const_: true
-              mutable: false
+              mode: Const
               type_:
                 IntegerType: U32
               span:
@@ -129,8 +128,7 @@ outputs:
         input:
           - Variable:
               identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
-              const_: false
-              mutable: true
+              mode: Private
               type_: Boolean
               span:
                 line_start: 9
