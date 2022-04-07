@@ -282,7 +282,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         variable: &FunctionInputVariable,
     ) -> Result<FunctionInputVariable> {
         let identifier = self.reduce_identifier(&variable.identifier)?;
-        let type_ = self.reduce_type(&variable.type_, &variable.span)?;
+        let type_ = self.reduce_type(&variable.type_(), &variable.span)?;
 
         self.reducer.reduce_function_input_variable(variable, identifier, type_)
     }

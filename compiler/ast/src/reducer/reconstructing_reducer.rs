@@ -272,12 +272,12 @@ pub trait ReconstructingReducer {
         identifier: Identifier,
         type_: Type,
     ) -> Result<FunctionInputVariable> {
-        Ok(FunctionInputVariable {
+        Ok(FunctionInputVariable::new(
             identifier,
-            mode: variable.mode,
+            variable.mode(),
             type_,
-            span: variable.span.clone(),
-        })
+            variable.span.clone(),
+        ))
     }
 
     fn reduce_function_input(&mut self, _input: &FunctionInput, new: FunctionInput) -> Result<FunctionInput> {

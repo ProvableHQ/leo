@@ -91,12 +91,12 @@ impl ParserContext<'_> {
 
         self.expect(Token::Colon)?;
         let type_ = self.parse_type()?.0;
-        Ok(FunctionInput::Variable(FunctionInputVariable {
+        Ok(FunctionInput::Variable(FunctionInputVariable::new(
+            name.clone(),
             mode,
             type_,
-            span: name.span.clone(),
-            identifier: name,
-        }))
+            name.span,
+        )))
     }
 
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name

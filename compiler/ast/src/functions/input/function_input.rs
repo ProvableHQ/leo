@@ -44,12 +44,31 @@ impl fmt::Display for ParamMode {
 pub struct FunctionInputVariable {
     /// The name the parameter is accessible as in the function's body.
     pub identifier: Identifier,
-    /// Is it a const parameter?
-    pub mode: ParamMode,
+    /// The mode of the function parameter.
+    mode: ParamMode,
     /// What's the parameter's type?
-    pub type_: Type,
+    type_: Type,
     /// The parameters span from any annotations to its type.
     pub span: Span,
+}
+
+impl FunctionInputVariable {
+    pub fn new(identifier: Identifier, mode: ParamMode, type_: Type, span: Span) -> Self {
+        Self {
+            identifier,
+            mode,
+            type_,
+            span,
+        }
+    }
+
+    pub fn mode(&self) -> ParamMode {
+        self.mode
+    }
+
+    pub fn type_(&self) -> Type {
+        self.type_.clone()
+    }
 }
 
 impl FunctionInputVariable {
