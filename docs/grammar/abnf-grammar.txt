@@ -159,8 +159,10 @@ string-literal-element = not-double-quote-or-backslash
                        / ascii-character-escape
                        / unicode-character-escape
 
-atomic-literal = unsigned-literal
-               / signed-literal
+integer-literal = unsigned-literal
+                / signed-literal 
+
+atomic-literal = integer-literal
                / field-literal
                / product-group-literal
                / boolean-literal
