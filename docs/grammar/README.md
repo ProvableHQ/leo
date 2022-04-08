@@ -368,10 +368,18 @@ string-literal-element = not-double-quote-or-backslash
 Go to: _[ascii-character-escape](#user-content-ascii-character-escape), [not-double-quote-or-backslash](#user-content-not-double-quote-or-backslash), [simple-character-escape](#user-content-simple-character-escape), [unicode-character-escape](#user-content-unicode-character-escape)_;
 
 
+<a name="integer-literal"></a>
+```abnf
+integer-literal = unsigned-literal
+                / signed-literal 
+```
+
+Go to: _[signed-literal](#user-content-signed-literal), [unsigned-literal](#user-content-unsigned-literal)_;
+
+
 <a name="atomic-literal"></a>
 ```abnf
-atomic-literal = unsigned-literal
-               / signed-literal
+atomic-literal = integer-literal
                / field-literal
                / product-group-literal
                / boolean-literal
@@ -380,7 +388,7 @@ atomic-literal = unsigned-literal
                / string-literal
 ```
 
-Go to: _[address-literal](#user-content-address-literal), [boolean-literal](#user-content-boolean-literal), [character-literal](#user-content-character-literal), [field-literal](#user-content-field-literal), [product-group-literal](#user-content-product-group-literal), [signed-literal](#user-content-signed-literal), [string-literal](#user-content-string-literal), [unsigned-literal](#user-content-unsigned-literal)_;
+Go to: _[address-literal](#user-content-address-literal), [boolean-literal](#user-content-boolean-literal), [character-literal](#user-content-character-literal), [field-literal](#user-content-field-literal), [integer-literal](#user-content-integer-literal), [product-group-literal](#user-content-product-group-literal), [string-literal](#user-content-string-literal)_;
 
 
 <a name="symbol"></a>
