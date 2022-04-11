@@ -26,7 +26,7 @@ impl ParserContext<'_> {
     /// Returns an [`Identifier`] AST node if the given [`Expression`] AST node evaluates to an
     /// identifier access. The access is stored in the given accesses.
     ///
-    pub fn construct_assignee_access(expr: Expression, _accesses: &mut Vec<AssigneeAccess>) -> Result<Identifier> {
+    pub fn construct_assignee_access(expr: Expression, _accesses: &mut [AssigneeAccess]) -> Result<Identifier> {
         match expr {
             Expression::Identifier(id) => Ok(id),
             _ => return Err(ParserError::invalid_assignment_target(expr.span()).into()),

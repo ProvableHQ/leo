@@ -66,10 +66,10 @@ impl ParserContext<'_> {
     ///
     pub fn parse_function_parameter_mode(&mut self) -> Result<ParamMode> {
         let public = self.eat(Token::Public);
-        let const_ = self.eat(Token::Const);
+        let constant = self.eat(Token::Constant);
 
-        match (public, const_) {
-            (None, Some(_)) => Ok(ParamMode::Const),
+        match (public, constant) {
+            (None, Some(_)) => Ok(ParamMode::Constant),
             (None, None) => Ok(ParamMode::Private),
             (Some(_), None) => Ok(ParamMode::Public),
             (Some(p), Some(c)) => Err(ParserError::inputs_multiple_variable_types_specified(&(p.span + c.span)).into()),

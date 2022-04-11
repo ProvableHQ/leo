@@ -393,6 +393,7 @@ impl Token {
                     "char" => Token::Char,
                     "console" => Token::Console,
                     "const" => Token::Const,
+                    "constant" => Token::Constant,
                     "else" => Token::Else,
                     "false" => Token::False,
                     "field" => Token::Field,

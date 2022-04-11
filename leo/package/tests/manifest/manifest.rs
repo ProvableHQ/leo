@@ -68,7 +68,7 @@ fn read_manifest_file(path: &Path) -> String {
 
 /// Read the manifest file and check that the remote format is updated.
 fn remote_is_updated(path: &Path) -> bool {
-    let manifest_string = read_manifest_file(&path);
+    let manifest_string = read_manifest_file(path);
     for line in manifest_string.lines() {
         if line.starts_with("remote") {
             return false;
@@ -80,7 +80,7 @@ fn remote_is_updated(path: &Path) -> bool {
 
 /// Read the manifest file and check that the project format is updated.
 fn project_is_updated(path: &Path) -> bool {
-    let manifest_string = read_manifest_file(&path);
+    let manifest_string = read_manifest_file(path);
 
     !manifest_string.contains(OLD_PROJECT_FORMAT) && manifest_string.contains(NEW_PROJECT_FORMAT)
 }

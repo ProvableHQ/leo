@@ -4,11 +4,11 @@ expectation: Pass
 */
 
 [main]
-const a: bool  = true;                 
-const b: u8    = 2;                    
-const c: field = 0;                    
-const d: group = (0, 1)group;          
-const e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;
+constant a: bool  = true;                 
+constant b: u8    = 2;                    
+constant c: field = 0;                    
+constant d: group = (0, 1)group;          
+constant e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;
 
 [registers]
 r0: bool  = true;                 

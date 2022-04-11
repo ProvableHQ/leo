@@ -4,11 +4,11 @@ expectation: Fail
 */
 
 [main]
-const public a: bool  = true;                 
-const public b: u8    = 2;                    
-const public c: field = 0;                    
-const public d: group = (0, 1)group;          
-const public e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;
+constant public a: bool  = true;                 
+constant public b: u8    = 2;                    
+constant public c: field = 0;                    
+constant public d: group = (0, 1)group;          
+constant public e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;
 
 [registers]
 r0: bool  = true;                 

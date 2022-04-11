@@ -116,6 +116,8 @@ pub enum Token {
     Console,
     /// Const variable and a const function.
     Const,
+    /// Constant parameter
+    Constant,
     Else,
     For,
     Function,
@@ -180,6 +182,7 @@ impl Token {
             Token::Char => sym::char,
             Token::Console => sym::console,
             Token::Const => sym::Const,
+            Token::Constant => sym::Const,
             Token::Else => sym::Else,
             Token::False => sym::False,
             Token::Field => sym::field,
@@ -281,6 +284,7 @@ impl fmt::Display for Token {
 
             Console => write!(f, "console"),
             Const => write!(f, "const"),
+            Constant => write!(f, "constant"),
             Else => write!(f, "else"),
             For => write!(f, "for"),
             Function => write!(f, "function"),

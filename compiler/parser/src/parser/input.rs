@@ -49,7 +49,7 @@ impl ParserContext<'_> {
         let mut definitions = Vec::new();
 
         while let Some(SpannedToken {
-            token: Token::Const | Token::Public | Token::Ident(_),
+            token: Token::Constant | Token::Public | Token::Ident(_),
             ..
         }) = self.peek_option()
         {
