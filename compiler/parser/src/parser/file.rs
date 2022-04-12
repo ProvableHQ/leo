@@ -66,13 +66,24 @@ impl ParserContext<'_> {
     ///
     pub fn parse_function_parameter_mode(&mut self) -> Result<ParamMode> {
         let public = self.eat(Token::Public);
+        let constant = self.eat(Token::Constant);
         let const_ = self.eat(Token::Const);
 
-        match (public, const_) {
-            (None, Some(_)) => Ok(ParamMode::Const),
-            (None, None) => Ok(ParamMode::Private),
-            (Some(_), None) => Ok(ParamMode::Public),
-            (Some(p), Some(c)) => Err(ParserError::inputs_multiple_variable_types_specified(&(p.span + c.span)).into()),
+        if const_.is_some() {
+            self.emit_err(ParserError::const_parameter_or_input(&const_.as_ref().unwrap().span));
+        }
+
+        match (public, constant, const_) {
+            (None, Some(_), None) => Ok(ParamMode::Constant),
+            (None, None, Some(_)) => Ok(ParamMode::Constant),
+            (None, None, None) => Ok(ParamMode::Private),
+            (Some(_), None, None) => Ok(ParamMode::Public),
+            (Some(m1), Some(m2), None) | (Some(m1), None, Some(m2)) | (None, Some(m1), Some(m2)) => {
+                Err(ParserError::inputs_multiple_variable_types_specified(&(m1.span + m2.span)).into())
+            }
+            (Some(m1), Some(m2), Some(m3)) => {
+                Err(ParserError::inputs_multiple_variable_types_specified(&(m1.span + m2.span + m3.span)).into())
+            }
         }
     }
 

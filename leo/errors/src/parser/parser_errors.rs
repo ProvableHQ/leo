@@ -366,4 +366,12 @@ create_errors!(
          msg: "A parameter cannot be both public and const.",
          help: None,
      }
+
+     /// For when a user used const on a parameter or input instead of constant.
+     @formatted
+     const_parameter_or_input {
+         args: (),
+         msg: "`constant` is preferred over `const` for function parameters to indicate a R1CS constant.",
+         help: None,
+     }
 );

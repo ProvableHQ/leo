@@ -3,7 +3,7 @@ namespace: Parse
 expectation: Pass
 */
 
-function x(const y: u32) {
+function x(constant y: u32) {
     if y < 5u32 {
         x(y+1);
     }

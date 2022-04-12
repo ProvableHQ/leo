@@ -69,6 +69,7 @@ keyword = %s"address"
         / %s"char"
         / %s"console"
         / %s"const"
+        / %s"constant"
         / %s"else"
         / %s"field"
         / %s"for"
@@ -317,7 +318,7 @@ function-declaration = %s"function" identifier
 
 function-parameters = function-parameter *( "," function-parameter ) [ "," ]
 
-function-parameter = [ %s"public" / %s"const" ] identifier ":" type
+function-parameter = [ %s"public" / %s"constant" / %s"const" ] identifier ":" type
 
 declaration = function-declaration
 

@@ -111,6 +111,7 @@ symbols! {
     CoreFunction,
     console,
     Const: "const",
+    Constant,
     Else: "else",
     error,
     False: "false",
