@@ -371,7 +371,7 @@ Go to: _[ascii-character-escape](#user-content-ascii-character-escape), [not-dou
 <a name="integer-literal"></a>
 ```abnf
 integer-literal = unsigned-literal
-                / signed-literal 
+                / signed-literal
 ```
 
 Go to: _[signed-literal](#user-content-signed-literal), [unsigned-literal](#user-content-unsigned-literal)_;
@@ -536,10 +536,18 @@ Go to: _[affine-group-literal](#user-content-affine-group-literal), [product-gro
 primary-expression = identifier
                    / literal
                    / "(" expression ")"
-                   / identifier function-arguments
+                   / function-call
 ```
 
-Go to: _[expression](#user-content-expression), [function-arguments](#user-content-function-arguments), [identifier](#user-content-identifier), [literal](#user-content-literal)_;
+Go to: _[expression](#user-content-expression), [function-call](#user-content-function-call), [identifier](#user-content-identifier), [literal](#user-content-literal)_;
+
+
+<a name="function-call"></a>
+```abnf
+function-call = identifier function-arguments
+```
+
+Go to: _[function-arguments](#user-content-function-arguments), [identifier](#user-content-identifier)_;
 
 
 <a name="function-arguments"></a>
