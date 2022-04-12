@@ -78,17 +78,11 @@ impl ParserContext<'_> {
             (None, None, Some(_)) => Ok(ParamMode::Constant),
             (None, None, None) => Ok(ParamMode::Private),
             (Some(_), None, None) => Ok(ParamMode::Public),
-            (Some(p), None, Some(c)) => {
-                Err(ParserError::inputs_multiple_variable_types_specified(&(p.span + c.span)).into())
+            (Some(m1), Some(m2), None) | (Some(m1), None, Some(m2)) | (None, Some(m1), Some(m2)) => {
+                Err(ParserError::inputs_multiple_variable_types_specified(&(m1.span + m2.span)).into())
             }
-            (None, Some(c), Some(co)) => {
-                Err(ParserError::inputs_multiple_variable_types_specified(&(c.span + co.span)).into())
-            }
-            (Some(p), Some(c), None) => {
-                Err(ParserError::inputs_multiple_variable_types_specified(&(p.span + c.span)).into())
-            }
-            (Some(p), Some(c), Some(co)) => {
-                Err(ParserError::inputs_multiple_variable_types_specified(&(p.span + c.span + co.span)).into())
+            (Some(m1), Some(m2), Some(m3)) => {
+                Err(ParserError::inputs_multiple_variable_types_specified(&(m1.span + m2.span + m3.span)).into())
             }
         }
     }
