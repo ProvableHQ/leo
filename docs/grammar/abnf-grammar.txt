@@ -160,7 +160,7 @@ string-literal-element = not-double-quote-or-backslash
                        / unicode-character-escape
 
 integer-literal = unsigned-literal
-                / signed-literal 
+                / signed-literal
 
 atomic-literal = integer-literal
                / field-literal
@@ -227,7 +227,9 @@ group-literal = product-group-literal / affine-group-literal
 primary-expression = identifier
                    / literal
                    / "(" expression ")"
-                   / identifier function-arguments
+                   / function-call
+
+function-call = identifier function-arguments
 
 function-arguments = "(" [ expression *( "," expression ) [ "," ] ] ")"
 
