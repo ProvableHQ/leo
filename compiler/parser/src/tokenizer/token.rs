@@ -182,7 +182,7 @@ impl Token {
             Token::Char => sym::char,
             Token::Console => sym::console,
             Token::Const => sym::Const,
-            Token::Constant => sym::Const,
+            Token::Constant => sym::Constant,
             Token::Else => sym::Else,
             Token::False => sym::False,
             Token::Field => sym::field,
