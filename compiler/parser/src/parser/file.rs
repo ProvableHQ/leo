@@ -70,19 +70,26 @@ impl ParserContext<'_> {
         let const_ = self.eat(Token::Const);
 
         if const_.is_some() {
-            dbg!(&const_.as_ref().unwrap().span);
             self.emit_err(ParserError::const_parameter_or_input(&const_.as_ref().unwrap().span));
         }
 
-        match (public, constant) {
-            (None, Some(_)) => Ok(ParamMode::Constant),
-            (None, None) if const_.is_some() => Ok(ParamMode::Constant),
-            (None, None) => Ok(ParamMode::Private),
-            (Some(p), None) if const_.is_some() => {
-                Err(ParserError::inputs_multiple_variable_types_specified(&(p.span + const_.unwrap().span)).into())
+        match (public, constant, const_) {
+            (None, Some(_), None) => Ok(ParamMode::Constant),
+            (None, None, Some(_)) => Ok(ParamMode::Constant),
+            (None, None, None) => Ok(ParamMode::Private),
+            (Some(_), None, None) => Ok(ParamMode::Public),
+            (Some(p), None, Some(c)) => {
+                Err(ParserError::inputs_multiple_variable_types_specified(&(p.span + c.span)).into())
             }
-            (Some(_), None) => Ok(ParamMode::Public),
-            (Some(p), Some(c)) => Err(ParserError::inputs_multiple_variable_types_specified(&(p.span + c.span)).into()),
+            (None, Some(c), Some(co)) => {
+                Err(ParserError::inputs_multiple_variable_types_specified(&(c.span + co.span)).into())
+            }
+            (Some(p), Some(c), None) => {
+                Err(ParserError::inputs_multiple_variable_types_specified(&(p.span + c.span)).into())
+            }
+            (Some(p), Some(c), Some(co)) => {
+                Err(ParserError::inputs_multiple_variable_types_specified(&(p.span + c.span + co.span)).into())
+            }
         }
     }
 
