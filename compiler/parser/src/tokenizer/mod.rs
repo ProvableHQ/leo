@@ -183,8 +183,7 @@ mod tests {
         ?
         // test
         /* test */
-        //"#
-                .into(),
+        //"#,
             )
             .unwrap();
             let mut output = String::new();
@@ -213,7 +212,7 @@ ppp            test
             test */
             test
             "#;
-            let tokens = tokenize("test_path", raw.into()).unwrap();
+            let tokens = tokenize("test_path", raw).unwrap();
             let mut line_indicies = vec![0];
             for (i, c) in raw.chars().enumerate() {
                 if c == '\n' {
