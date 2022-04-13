@@ -40,6 +40,10 @@ pub struct ParserContext<'a> {
 
     // true if parsing an expression for if and loop statements -- means circuit inits are not legal
     pub(crate) disallow_circuit_construction: bool,
+
+    /// HACK(Centril): Place to store a dummy EOF.
+    /// Exists to appease borrow checker for now.
+    dummy_eof: SpannedToken,
 }
 
 impl<'a> ParserContext<'a> {
@@ -51,9 +55,14 @@ impl<'a> ParserContext<'a> {
         tokens.reverse();
 
         let token = SpannedToken::dummy();
+        let dummy_eof = SpannedToken {
+            token: Token::Eof,
+            span: token.span.clone(),
+        };
         let mut p = Self {
             handler,
             disallow_circuit_construction: false,
+            dummy_eof,
             prev_token: token.clone(),
             token,
             tokens,
@@ -95,22 +104,17 @@ impl<'a> ParserContext<'a> {
 
     /// Look-ahead `dist` tokens of `self.token` and get access to that token there.
     /// When `dist == 0` then the current token is looked at.
-    pub fn look_ahead<R>(&self, dist: usize, looker: impl FnOnce(&SpannedToken) -> R) -> R {
+    pub fn look_ahead<'s, R>(&'s self, dist: usize, looker: impl FnOnce(&'s SpannedToken) -> R) -> R {
         if dist == 0 {
             return looker(&self.token);
         }
 
-        let eof = SpannedToken {
-            token: Token::Eof,
-            span: Span::dummy(),
-        };
-
         let idx = match self.tokens.len().checked_sub(dist) {
-            None => return looker(&eof),
+            None => return looker(&self.dummy_eof),
             Some(idx) => idx,
         };
 
-        looker(self.tokens.get(idx).unwrap_or_else(|| &eof))
+        looker(self.tokens.get(idx).unwrap_or_else(|| &self.dummy_eof))
     }
 
     /// Emit the error `err`.
@@ -180,8 +184,8 @@ impl<'a> ParserContext<'a> {
     /// Returns `false` otherwise.
     pub fn peek_is_function(&self) -> bool {
         matches!(
-            (&self.token.token, self.tokens.last().map(|t| &t.token)),
-            (Token::Function, _) | (Token::Const, Some(Token::Function))
+            (&self.token.token, self.look_ahead(1, |t| &t.token)),
+            (Token::Function, _) | (Token::Const, Token::Function)
         )
     }
 
@@ -191,7 +195,7 @@ impl<'a> ParserContext<'a> {
         assert!(self.check(&Token::LeftParen)); // `(`.
 
         // Peek at first gc.
-        let start_span = self.look_ahead(1, |t| t.span.clone());
+        let start_span = &self.token.span;
         let mut dist = 1; // 0th is `(` so 1st is first gc's start.
         let first_gc = self.peek_group_coordinate(&mut dist)?;
 
@@ -212,25 +216,20 @@ impl<'a> ParserContext<'a> {
         let end_span = check_ahead(dist, &Token::Group)?;
         dist += 1; // Standing at `)` so advance one for 'group'.
 
+        let gt = GroupTuple {
+            span: start_span + &end_span,
+            x: first_gc,
+            y: second_gc,
+        };
+
         // Eat everything so that this isn't just peeking.
         for _ in 0..dist {
             self.bump();
         }
 
-        if let Err(e) = assert_no_whitespace(
-            &right_paren_span,
-            &end_span,
-            &format!("({},{})", first_gc, second_gc),
-            "group",
-        ) {
+        if let Err(e) = assert_no_whitespace(&right_paren_span, &end_span, &format!("({},{})", gt.x, gt.y), "group") {
             return Some(Err(e));
         }
-
-        let gt = GroupTuple {
-            span: start_span + end_span,
-            x: first_gc,
-            y: second_gc,
-        };
 
         Some(Ok(gt))
     }

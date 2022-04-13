@@ -99,7 +99,7 @@ outputs:
                     span:
                       line_start: 7
                       line_stop: 7
-                      col_start: 22
+                      col_start: 21
                       col_stop: 32
                       path: ""
                       content: "constant d: group = (0, 1)group;"
@@ -234,7 +234,7 @@ outputs:
                     span:
                       line_start: 14
                       line_stop: 14
-                      col_start: 14
+                      col_start: 13
                       col_stop: 24
                       path: ""
                       content: "r3: group = (0, 1)group;"
