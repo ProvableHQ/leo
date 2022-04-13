@@ -434,6 +434,16 @@ pub struct SpannedToken {
     pub span: Span,
 }
 
+impl SpannedToken {
+    /// Returns a dummy token at a dummy span.
+    pub fn dummy() -> Self {
+        Self {
+            token: Token::Question,
+            span: Span::dummy(),
+        }
+    }
+}
+
 impl fmt::Display for SpannedToken {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "'{}' @ ", self.token.to_string().trim())?;

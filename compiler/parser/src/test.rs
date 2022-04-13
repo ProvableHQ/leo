@@ -56,7 +56,8 @@ fn not_fully_consumed(tokens: &mut ParserContext) -> Result<(), String> {
     }
     let mut out = "did not consume all input: ".to_string();
     while tokens.has_next() {
-        out.push_str(&tokens.expect_any().unwrap().to_string());
+        tokens.bump();
+        out.push_str(&tokens.prev_token.to_string());
         out.push('\n');
     }
     Err(out)

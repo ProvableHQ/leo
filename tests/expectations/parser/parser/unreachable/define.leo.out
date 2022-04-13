@@ -8,7 +8,7 @@ outputs:
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got ','\n    --> test:1:1\n     |\n   1 | , x = 10u8;\n     | ^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got '['\n    --> test:1:1\n     |\n   1 | [ x = 10u8;\n     | ^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got ']'\n    --> test:1:1\n     |\n   1 | ] x = 10u8;\n     | ^"
-  - "Error [EPAR0370003]: unexpected EOF\n    --> test:1:11\n     |\n   1 | { x = 10u8;\n     |           ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got '<eof>'\n    --> test:1:11\n     |\n   1 | { x = 10u8;\n     |           ^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got '}'\n    --> test:1:1\n     |\n   1 | } x = 10u8;\n     | ^"
   - "Error [EPAR0370005]: expected ) -- got '='\n    --> test:1:5\n     |\n   1 | ( x = 10u8;\n     |     ^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got ')'\n    --> test:1:1\n     |\n   1 | ) x = 10u8;\n     | ^"

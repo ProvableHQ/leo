@@ -295,7 +295,7 @@ impl fmt::Display for Token {
             Public => write!(f, "public"),
             Return => write!(f, "return"),
             Type => write!(f, "type"),
-            Eof => write!(f, ""),
+            Eof => write!(f, "<eof>"),
         }
     }
 }
