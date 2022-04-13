@@ -64,12 +64,12 @@ impl ParserContext<'_> {
     /// Returns a [`ParamMode`] AST node if the next tokens represent a function parameter mode.
     ///
     pub fn parse_function_parameter_mode(&mut self) -> Result<ParamMode> {
-        let public = self.eat(&Token::Public).then(|| self.prev_token.clone());
-        let constant = self.eat(&Token::Constant).then(|| self.prev_token.clone());
-        let const_ = self.eat(&Token::Const).then(|| self.prev_token.clone());
+        let public = self.eat(&Token::Public).then(|| self.prev_token.span.clone());
+        let constant = self.eat(&Token::Constant).then(|| self.prev_token.span.clone());
+        let const_ = self.eat(&Token::Const).then(|| self.prev_token.span.clone());
 
-        if let Some(token) = &const_ {
-            self.emit_err(ParserError::const_parameter_or_input(&token.span));
+        if let Some(span) = &const_ {
+            self.emit_err(ParserError::const_parameter_or_input(span));
         }
 
         match (public, constant, const_) {
@@ -78,10 +78,10 @@ impl ParserContext<'_> {
             (None, None, None) => Ok(ParamMode::Private),
             (Some(_), None, None) => Ok(ParamMode::Public),
             (Some(m1), Some(m2), None) | (Some(m1), None, Some(m2)) | (None, Some(m1), Some(m2)) => {
-                Err(ParserError::inputs_multiple_variable_types_specified(&(m1.span + m2.span)).into())
+                Err(ParserError::inputs_multiple_variable_types_specified(&(m1 + m2)).into())
             }
             (Some(m1), Some(m2), Some(m3)) => {
-                Err(ParserError::inputs_multiple_variable_types_specified(&(m1.span + m2.span + m3.span)).into())
+                Err(ParserError::inputs_multiple_variable_types_specified(&(m1 + m2 + m3)).into())
             }
         }
     }
