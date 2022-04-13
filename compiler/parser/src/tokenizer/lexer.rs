@@ -17,11 +17,7 @@
 use crate::tokenizer::{Char, Token};
 use leo_errors::{ParserError, Result};
 use leo_span::{Span, Symbol};
-use snarkvm_dpc::{
-    prelude::*,
-    testnet2::Testnet2
-};
-
+use snarkvm_dpc::{prelude::*, testnet2::Testnet2};
 
 use serde::{Deserialize, Serialize};
 
