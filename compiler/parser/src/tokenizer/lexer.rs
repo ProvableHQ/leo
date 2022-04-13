@@ -17,10 +17,15 @@
 use crate::tokenizer::{Char, Token};
 use leo_errors::{ParserError, Result};
 use leo_span::{Span, Symbol};
+use snarkvm_dpc::{
+    prelude::*,
+    testnet2::Testnet2
+};
+
 
 use serde::{Deserialize, Serialize};
 
-use std::{fmt, iter::Peekable};
+use std::{fmt, iter::Peekable, str::FromStr};
 
 ///
 /// Returns a new `StrTendril` string if an identifier can be eaten, otherwise returns [`None`].
@@ -448,16 +453,8 @@ impl fmt::Debug for SpannedToken {
 }
 
 ///
-/// Returns true if the given string looks like Aleo address.
-/// This method DOES NOT check if the address is valid on-chain.
+/// Returns true if the given string is a valid Aleo address.
 ///
 pub(crate) fn check_address(address: &str) -> bool {
-    // "aleo1" (LOWERCASE_LETTER | ASCII_DIGIT){58}
-    if !address.starts_with("aleo1") || address.len() != 63 {
-        return false;
-    }
-    address
-        .chars()
-        .skip(5)
-        .all(|x| x.is_ascii_lowercase() || x.is_ascii_digit())
+    Address::<Testnet2>::from_str(address).is_ok()
 }
