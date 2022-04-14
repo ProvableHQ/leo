@@ -57,10 +57,6 @@ pub use self::package::*;
 pub mod parser;
 pub use self::parser::*;
 
-/// Contains the SnarkVM error definitions.
-pub mod snarkvm;
-pub use self::snarkvm::*;
-
 /// Contains the State error definitions.
 pub mod state;
 pub use self::state::*;
@@ -104,10 +100,6 @@ pub enum LeoError {
     #[error(transparent)]
     ParserError(#[from] ParserError),
 
-    /// Represents an SnarkVM Error in a Leo Error.
-    #[error(transparent)]
-    SnarkVMError(#[from] SnarkVMError),
-
     /// Represents an State Error in a Leo Error.
     #[error(transparent)]
     StateError(#[from] StateError),
@@ -127,7 +119,6 @@ impl LeoError {
             InputError(error) => error.error_code(),
             PackageError(error) => error.error_code(),
             ParserError(error) => error.error_code(),
-            SnarkVMError(_error) => Default::default(), // TODO update once snarkvm implments a global top level error similar to LeoError.
             StateError(error) => error.error_code(),
         }
     }
@@ -145,7 +136,6 @@ impl LeoError {
             InputError(error) => error.exit_code(),
             PackageError(error) => error.exit_code(),
             ParserError(error) => error.exit_code(),
-            SnarkVMError(_error) => 1, // TODO update once snarkvm implments a global top level error similar to LeoError.
             StateError(error) => error.exit_code(),
         }
     }
