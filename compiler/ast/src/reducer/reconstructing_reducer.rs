@@ -154,7 +154,7 @@ pub trait ReconstructingReducer {
         value: Expression,
     ) -> Result<DefinitionStatement> {
         Ok(DefinitionStatement {
-            declaration_type: definition.declaration_type.clone(),
+            declaration_type: definition.declaration_type,
             variable_names,
             type_,
             value,

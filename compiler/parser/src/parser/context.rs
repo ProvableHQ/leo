@@ -114,7 +114,7 @@ impl<'a> ParserContext<'a> {
             Some(idx) => idx,
         };
 
-        looker(self.tokens.get(idx).unwrap_or_else(|| &self.dummy_eof))
+        looker(self.tokens.get(idx).unwrap_or(&self.dummy_eof))
     }
 
     /// Emit the error `err`.

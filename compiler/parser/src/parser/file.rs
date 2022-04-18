@@ -100,7 +100,7 @@ impl ParserContext<'_> {
         }
 
         self.expect(&Token::Colon)?;
-        let type_ = self.parse_type()?.0;
+        let type_ = self.parse_all_types()?.0;
         Ok(FunctionInput::Variable(FunctionInputVariable::new(
             name.clone(),
             mode,
@@ -124,7 +124,7 @@ impl ParserContext<'_> {
 
         // Parse return type.
         let output = if self.eat(&Token::Arrow) {
-            Some(self.parse_type()?.0)
+            Some(self.parse_all_types()?.0)
         } else {
             None
         };
