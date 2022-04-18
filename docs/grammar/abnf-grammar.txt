@@ -265,8 +265,10 @@ conjunctive-expression = equality-expression
 disjunctive-expression = conjunctive-expression
                        / disjunctive-expression "||" conjunctive-expression
 
-conditional-expression = disjunctive-expression
-                       / disjunctive-expression "?" expression ":" expression
+binary-expression = disjunctive-expression
+
+conditional-expression = binary-expression
+                       / binary-expression "?" expression ":" expression
 
 expression = conditional-expression
 

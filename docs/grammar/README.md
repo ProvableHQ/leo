@@ -148,6 +148,7 @@ keyword = %s"address"
         / %s"char"
         / %s"console"
         / %s"const"
+        / %s"constant"
         / %s"else"
         / %s"field"
         / %s"for"
@@ -637,13 +638,21 @@ disjunctive-expression = conjunctive-expression
 Go to: _[conjunctive-expression](#user-content-conjunctive-expression), [disjunctive-expression](#user-content-disjunctive-expression)_;
 
 
-<a name="conditional-expression"></a>
+<a name="binary-expression"></a>
 ```abnf
-conditional-expression = disjunctive-expression
-                       / disjunctive-expression "?" expression ":" expression
+binary-expression = disjunctive-expression
 ```
 
-Go to: _[disjunctive-expression](#user-content-disjunctive-expression), [expression](#user-content-expression)_;
+Go to: _[disjunctive-expression](#user-content-disjunctive-expression)_;
+
+
+<a name="conditional-expression"></a>
+```abnf
+conditional-expression = binary-expression
+                       / binary-expression "?" expression ":" expression
+```
+
+Go to: _[binary-expression](#user-content-binary-expression), [expression](#user-content-expression)_;
 
 
 <a name="expression"></a>
@@ -805,7 +814,7 @@ Go to: _[function-parameter](#user-content-function-parameter)_;
 
 <a name="function-parameter"></a>
 ```abnf
-function-parameter = [ %s"public" / %s"const" ] identifier ":" type
+function-parameter = [ %s"public" / %s"constant" / %s"const" ] identifier ":" type
 ```
 
 Go to: _[identifier](#user-content-identifier), [type](#user-content-type)_;
