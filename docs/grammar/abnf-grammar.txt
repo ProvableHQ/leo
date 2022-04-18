@@ -177,6 +177,7 @@ symbol = "!" / "&&" / "||"
        / "+" / "-" / "*" / "/" / "**"
        / "="
        / "(" / ")"
+       / "[" / "]"
        / "{" / "}"
        / "," / "." / ".." / ";" / ":" / "?"
        / "->" / "_"
@@ -348,3 +349,20 @@ format-string-element = not-brace
                       / format-string-close-brace
 
 format-string = *format-string-element
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Input Grammar
+; -------------
+
+input-type = type
+
+input-expression = literal
+
+input-item = identifier ":" input-type "=" input-expression ";"
+
+input-title = "[" identifier "]"
+
+input-section = input-title *input-item
+
+input-file = *input-section

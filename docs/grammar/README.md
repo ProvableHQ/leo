@@ -400,6 +400,7 @@ symbol = "!" / "&&" / "||"
        / "+" / "-" / "*" / "/" / "**"
        / "="
        / "(" / ")"
+       / "[" / "]"
        / "{" / "}"
        / "," / "." / ".." / ";" / ":" / "?"
        / "->" / "_"
@@ -875,4 +876,56 @@ Go to: _[format-string-close-brace](#user-content-format-string-close-brace), [f
 <a name="format-string"></a>
 ```abnf
 format-string = *format-string-element
+```
+
+
+--------
+
+
+Input Grammar
+-------------
+
+<a name="input-type"></a>
+```abnf
+input-type = type
+```
+
+Go to: _[type](#user-content-type)_;
+
+
+<a name="input-expression"></a>
+```abnf
+input-expression = literal
+```
+
+Go to: _[literal](#user-content-literal)_;
+
+
+<a name="input-item"></a>
+```abnf
+input-item = identifier ":" input-type "=" input-expression ";"
+```
+
+Go to: _[identifier](#user-content-identifier), [input-expression](#user-content-input-expression), [input-type](#user-content-input-type)_;
+
+
+<a name="input-title"></a>
+```abnf
+input-title = "[" identifier "]"
+```
+
+Go to: _[identifier](#user-content-identifier)_;
+
+
+<a name="input-section"></a>
+```abnf
+input-section = input-title *input-item
+```
+
+Go to: _[input-title](#user-content-input-title)_;
+
+
+<a name="input-file"></a>
+```abnf
+input-file = *input-section
 
