@@ -24,37 +24,40 @@ use derivative::Derivative;
 /// The indent for an error message.
 pub(crate) const INDENT: &str = "    ";
 
-/// Backtraced compiler error type
+/// Backtraced compiler ouput type
 ///     undefined value `x`
 ///     --> file.leo: 2:8
 ///      = help: Initialize a variable `x` first.
 #[derive(Derivative)]
 #[derivative(Clone, Debug, Default, Hash, PartialEq)]
-pub struct BacktracedError {
+pub struct Backtraced {
     /// The error message.
     pub message: String,
     /// The error help message if it exists.
     pub help: Option<String>,
     /// The error exit code.
-    pub exit_code: i32,
+    pub code: i32,
     /// The error leading digits identifier.
     pub code_identifier: i8,
     /// The characters representing the type of error.
-    pub error_type: String,
+    pub type_: String,
+    /// Is this Backtrace a warning or error?
+    pub error: bool,
     #[derivative(PartialEq = "ignore")]
     #[derivative(Hash = "ignore")]
     /// The backtrace representing where the error occured in Leo.
     pub backtrace: Backtrace,
 }
 
-impl BacktracedError {
+impl Backtraced {
     /// Creates a backtraced error from a backtrace.
     pub fn new_from_backtrace<S>(
         message: S,
         help: Option<String>,
-        exit_code: i32,
+        code: i32,
         code_identifier: i8,
-        error_type: String,
+        type_: String,
+        error: bool,
         backtrace: Backtrace,
     ) -> Self
     where
@@ -63,14 +66,15 @@ impl BacktracedError {
         Self {
             message: message.to_string(),
             help,
-            exit_code,
+            code,
             code_identifier,
-            error_type,
+            type_,
+            error,
             backtrace,
         }
     }
 
-    /// Gets the backtraced error error code.
+    /// Gets the backtraced error exit code.
     pub fn exit_code(&self) -> i32 {
         let mut code: i32;
         if self.code_identifier > 99 {
@@ -80,7 +84,7 @@ impl BacktracedError {
         } else {
             code = self.code_identifier as i32 * 1_000;
         }
-        code += self.exit_code;
+        code += self.code;
 
         code
     }
@@ -89,20 +93,31 @@ impl BacktracedError {
     pub fn error_code(&self) -> String {
         format!(
             "E{error_type}{code_identifier:0>3}{exit_code:0>4}",
-            error_type = self.error_type,
+            error_type = self.type_,
             code_identifier = self.code_identifier,
-            exit_code = self.exit_code,
+            exit_code = self.code,
+        )
+    }
+
+    /// Gets a unique warning identifier.
+    pub fn warning_code(&self) -> String {
+        format!(
+            "W{error_type}{code_identifier:0>3}{exit_code:0>4}",
+            error_type = self.type_,
+            code_identifier = self.code_identifier,
+            exit_code = self.code,
         )
     }
 }
 
-impl fmt::Display for BacktracedError {
+impl fmt::Display for Backtraced {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let error_message = format!(
-            "Error [{error_code}]: {message}",
-            error_code = self.error_code(),
-            message = self.message,
-        );
+        let (kind, code) = if self.error {
+            ("Error", self.error_code())
+        } else {
+            ("Warning", self.warning_code())
+        };
+        let message = format!("{kind} [{code}]: {message}", message = self.message,);
 
         // To avoid the color enabling characters for comparison with test expectations.
         if std::env::var("LEO_TESTFRAMEWORK")
@@ -111,9 +126,13 @@ impl fmt::Display for BacktracedError {
             .to_owned()
             .is_empty()
         {
-            write!(f, "{}", error_message.bold().red())?;
+            if self.error {
+                write!(f, "{}", message.bold().red())?;
+            } else {
+                write!(f, "{}", message.bold().yellow())?;
+            }
         } else {
-            write!(f, "{}", error_message)?;
+            write!(f, "{}", message)?;
         };
 
         if let Some(help) = &self.help {
@@ -151,7 +170,7 @@ impl fmt::Display for BacktracedError {
     }
 }
 
-impl std::error::Error for BacktracedError {
+impl std::error::Error for Backtraced {
     fn description(&self) -> &str {
         &self.message
     }

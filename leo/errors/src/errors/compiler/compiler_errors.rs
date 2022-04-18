@@ -14,18 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::create_errors;
+use crate::create_messages;
 
 use std::{
     error::Error as ErrorArg,
     fmt::{Debug, Display},
 };
 
-create_errors!(
+create_messages!(
     /// CompilerError enum that represents all the errors for the `leo-compiler` crate.
     CompilerError,
-    exit_code_mask: 6000i32,
-    error_code_prefix: "CMP",
+    code_mask: 6000i32,
+    code_prefix: "CMP",
 
     /// For when the test function has invalid test context.
     @backtraced

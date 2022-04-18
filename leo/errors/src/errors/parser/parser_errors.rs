@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::create_errors;
+use crate::create_messages;
 
 use std::fmt::{Debug, Display};
 
-create_errors!(
+create_messages!(
     /// ParserError enum that represents all the errors for the `leo-parser` crate.
     ParserError,
-    exit_code_mask: 0000i32,
-    error_code_prefix: "PAR",
+    code_mask: 0000i32,
+    code_prefix: "PAR",
 
     /// For when the parser encountered an unexpected token.
     @formatted
@@ -359,19 +359,11 @@ create_errors!(
         help: None,
     }
 
-     /// For when a user specified more than a type on a parameter.
-     @formatted
-     inputs_multiple_variable_types_specified {
-         args: (),
-         msg: "A parameter cannot be both public and const.",
-         help: None,
-     }
-
-     /// For when a user used const on a parameter or input instead of constant.
-     @formatted
-     const_parameter_or_input {
-         args: (),
-         msg: "`constant` is preferred over `const` for function parameters to indicate a R1CS constant.",
-         help: None,
-     }
+    /// For when a user specified more than a type on a parameter.
+    @formatted
+    inputs_multiple_variable_types_specified {
+        args: (),
+        msg: "A parameter cannot be both public and const.",
+        help: None,
+    }
 );

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::create_errors;
+use crate::create_messages;
 
 use std::{
     error::Error as ErrorArg,
@@ -23,11 +23,11 @@ use std::{
 
 // todo (collin): redo these after Mazdak finishes error indexing.
 
-create_errors!(
+create_messages!(
     /// PackageError enum that represents all the errors for the `leo-package` crate.
     PackageError,
-    exit_code_mask: 5000i32,
-    error_code_prefix: "PAK",
+    code_mask: 5000i32,
+    code_prefix: "PAK",
 
     /// For when the specified import does not exist.
     @backtraced
