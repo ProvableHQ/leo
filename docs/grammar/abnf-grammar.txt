@@ -118,9 +118,6 @@ unsigned-literal = numeral ( %s"u8" / %s"u16" / %s"u32" / %s"u64" / %s"u128" )
 
 signed-literal = numeral ( %s"i8" / %s"i16" / %s"i32" / %s"i64" / %s"i128" )
 
-integer-literal = unsigned-literal
-                / signed-literal
-
 field-literal = numeral %s"field"
 
 product-group-literal = numeral %s"group"
@@ -168,6 +165,9 @@ string-literal-element = not-double-quote-or-backslash
                        / simple-character-escape
                        / ascii-character-escape
                        / unicode-character-escape
+
+integer-literal = unsigned-literal
+                / signed-literal
 
 numeric-literal = integer-literal
                 / field-literal

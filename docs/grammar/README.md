@@ -267,15 +267,6 @@ signed-literal = numeral ( %s"i8" / %s"i16" / %s"i32" / %s"i64" / %s"i128" )
 Go to: _[numeral](#user-content-numeral)_;
 
 
-<a name="integer-literal"></a>
-```abnf
-integer-literal = unsigned-literal
-                / signed-literal
-```
-
-Go to: _[signed-literal](#user-content-signed-literal), [unsigned-literal](#user-content-unsigned-literal)_;
-
-
 <a name="field-literal"></a>
 ```abnf
 field-literal = numeral %s"field"
@@ -406,6 +397,15 @@ string-literal-element = not-double-quote-or-backslash
 ```
 
 Go to: _[ascii-character-escape](#user-content-ascii-character-escape), [not-double-quote-or-backslash](#user-content-not-double-quote-or-backslash), [simple-character-escape](#user-content-simple-character-escape), [unicode-character-escape](#user-content-unicode-character-escape)_;
+
+
+<a name="integer-literal"></a>
+```abnf
+integer-literal = unsigned-literal
+                / signed-literal
+```
+
+Go to: _[signed-literal](#user-content-signed-literal), [unsigned-literal](#user-content-unsigned-literal)_;
 
 
 <a name="numeric-literal"></a>
