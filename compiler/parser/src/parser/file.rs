@@ -27,11 +27,10 @@ impl ParserContext<'_> {
         let mut functions = IndexMap::new();
 
         while self.has_next() {
-            let token = self.peek()?;
-            match &token.token {
-                Token::Ident(sym::test) => return Err(ParserError::test_function(&token.span).into()),
+            match &self.token.token {
+                Token::Ident(sym::test) => return Err(ParserError::test_function(&self.token.span).into()),
                 // Const functions share the first token with the global Const.
-                Token::Const if self.peek_is_function()? => {
+                Token::Const if self.peek_is_function() => {
                     let (id, function) = self.parse_function_declaration()?;
                     functions.insert(id, function);
                 }
@@ -39,7 +38,7 @@ impl ParserContext<'_> {
                     let (id, function) = self.parse_function_declaration()?;
                     functions.insert(id, function);
                 }
-                _ => return Err(Self::unexpected_item(token).into()),
+                _ => return Err(Self::unexpected_item(&self.token).into()),
             }
         }
         Ok(Program {
@@ -65,12 +64,12 @@ impl ParserContext<'_> {
     /// Returns a [`ParamMode`] AST node if the next tokens represent a function parameter mode.
     ///
     pub fn parse_function_parameter_mode(&mut self) -> Result<ParamMode> {
-        let public = self.eat(Token::Public);
-        let constant = self.eat(Token::Constant);
-        let const_ = self.eat(Token::Const);
+        let public = self.eat(&Token::Public).then(|| self.prev_token.span.clone());
+        let constant = self.eat(&Token::Constant).then(|| self.prev_token.span.clone());
+        let const_ = self.eat(&Token::Const).then(|| self.prev_token.span.clone());
 
-        if const_.is_some() {
-            self.emit_err(ParserError::const_parameter_or_input(&const_.as_ref().unwrap().span));
+        if let Some(span) = &const_ {
+            self.emit_err(ParserError::const_parameter_or_input(span));
         }
 
         match (public, constant, const_) {
@@ -79,10 +78,10 @@ impl ParserContext<'_> {
             (None, None, None) => Ok(ParamMode::Private),
             (Some(_), None, None) => Ok(ParamMode::Public),
             (Some(m1), Some(m2), None) | (Some(m1), None, Some(m2)) | (None, Some(m1), Some(m2)) => {
-                Err(ParserError::inputs_multiple_variable_types_specified(&(m1.span + m2.span)).into())
+                Err(ParserError::inputs_multiple_variable_types_specified(&(m1 + m2)).into())
             }
             (Some(m1), Some(m2), Some(m3)) => {
-                Err(ParserError::inputs_multiple_variable_types_specified(&(m1.span + m2.span + m3.span)).into())
+                Err(ParserError::inputs_multiple_variable_types_specified(&(m1 + m2 + m3)).into())
             }
         }
     }
@@ -90,9 +89,9 @@ impl ParserContext<'_> {
     ///
     /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
     ///
-    pub fn parse_function_parameters(&mut self) -> Result<FunctionInput> {
+    pub fn parse_function_parameter(&mut self) -> Result<FunctionInput> {
         let mode = self.parse_function_parameter_mode()?;
-        let mutable = self.eat(Token::Mut);
+        let mutable = self.eat(&Token::Mut).then(|| self.prev_token.clone());
 
         let name = self.expect_ident()?;
 
@@ -100,7 +99,7 @@ impl ParserContext<'_> {
             self.emit_err(ParserError::mut_function_input(&(&mutable.span + &name.span)));
         }
 
-        self.expect(Token::Colon)?;
+        self.expect(&Token::Colon)?;
         let type_ = self.parse_type()?.0;
         Ok(FunctionInput::Variable(FunctionInputVariable::new(
             name.clone(),
@@ -114,17 +113,17 @@ impl ParserContext<'_> {
     /// and function definition.
     pub fn parse_function_declaration(&mut self) -> Result<(Identifier, Function)> {
         // Parse optional const modifier.
-        let const_ = self.eat(Token::Const).is_some();
+        let const_ = self.eat(&Token::Const);
 
         // Parse `function IDENT`.
-        let start = self.expect(Token::Function)?;
+        let start = self.expect(&Token::Function)?;
         let name = self.expect_ident()?;
 
         // Parse parameters.
-        let (inputs, ..) = self.parse_paren_comma_list(|p| p.parse_function_parameters().map(Some))?;
+        let (inputs, ..) = self.parse_paren_comma_list(|p| p.parse_function_parameter().map(Some))?;
 
         // Parse return type.
-        let output = if self.eat(Token::Arrow).is_some() {
+        let output = if self.eat(&Token::Arrow) {
             Some(self.parse_type()?.0)
         } else {
             None

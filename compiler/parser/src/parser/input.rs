@@ -24,11 +24,10 @@ impl ParserContext<'_> {
         let mut sections = Vec::new();
 
         while self.has_next() {
-            let token = self.peek()?;
-            if matches!(token.token, Token::LeftSquare) {
+            if self.check(&Token::LeftSquare) {
                 sections.push(self.parse_section()?);
             } else {
-                return Err(ParserError::unexpected_token(token.token.clone(), &token.span).into());
+                return Err(ParserError::unexpected_token(self.token.token.clone(), &self.token.span).into());
             }
         }
 
@@ -42,17 +41,12 @@ impl ParserContext<'_> {
     /// `
     /// Returns [`Section`].
     pub fn parse_section(&mut self) -> Result<Section> {
-        self.expect(Token::LeftSquare)?;
+        self.expect(&Token::LeftSquare)?;
         let section = self.expect_ident()?;
-        self.expect(Token::RightSquare)?;
+        self.expect(&Token::RightSquare)?;
 
         let mut definitions = Vec::new();
-
-        while let Some(SpannedToken {
-            token: Token::Const | Token::Constant | Token::Public | Token::Ident(_),
-            ..
-        }) = self.peek_option()
-        {
+        while let Token::Const | Token::Constant | Token::Public | Token::Ident(_) = self.token.token {
             definitions.push(self.parse_input_definition()?);
         }
 
@@ -70,11 +64,11 @@ impl ParserContext<'_> {
         let mode = self.parse_function_parameter_mode()?;
 
         let name = self.expect_ident()?;
-        self.expect(Token::Colon)?;
+        self.expect(&Token::Colon)?;
         let (type_, span) = self.parse_type()?;
-        self.expect(Token::Assign)?;
+        self.expect(&Token::Assign)?;
         let value = self.parse_primary_expression()?;
-        self.expect(Token::Semicolon)?;
+        self.expect(&Token::Semicolon)?;
 
         Ok(Definition {
             mode,

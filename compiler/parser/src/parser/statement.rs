@@ -52,7 +52,7 @@ impl ParserContext<'_> {
     /// Returns a [`Statement`] AST node if the next tokens represent a statement.
     ///
     pub fn parse_statement(&mut self) -> Result<Statement> {
-        match &self.peek()?.token {
+        match &self.token.token {
             Token::Return => Ok(Statement::Return(self.parse_return_statement()?)),
             Token::If => Ok(Statement::Conditional(self.parse_conditional_statement()?)),
             Token::For => Ok(Statement::Iteration(Box::new(self.parse_loop_statement()?))),
@@ -69,21 +69,19 @@ impl ParserContext<'_> {
     pub fn parse_assign_statement(&mut self) -> Result<Statement> {
         let expr = self.parse_expression()?;
 
-        if let Some(operator) = self.eat_any(ASSIGN_TOKENS) {
+        if self.eat_any(ASSIGN_TOKENS) {
             let value = self.parse_expression()?;
             let assignee = Self::construct_assignee(expr)?;
-            self.expect(Token::Semicolon)?;
+            self.expect(&Token::Semicolon)?;
             Ok(Statement::Assign(Box::new(AssignStatement {
                 span: &assignee.span + value.span(),
                 assignee,
-                operation: match operator.token {
-                    Token::Assign => AssignOperation::Assign,
-                    _ => unreachable!("parse_assign_statement_ shouldn't produce this"),
-                },
+                // Currently only `=` so this is alright.
+                operation: AssignOperation::Assign,
                 value,
             })))
         } else {
-            self.expect(Token::Semicolon)?;
+            self.expect(&Token::Semicolon)?;
             Ok(Statement::Expression(ExpressionStatement {
                 span: expr.span().clone(),
                 expression: expr,
@@ -91,50 +89,40 @@ impl ParserContext<'_> {
         }
     }
 
-    ///
     /// Returns a [`Block`] AST node if the next tokens represent a block of statements.
-    ///
     pub fn parse_block(&mut self) -> Result<Block> {
-        let start = self.expect(Token::LeftCurly)?;
+        let start = self.expect(&Token::LeftCurly)?;
 
         let mut statements = Vec::new();
         loop {
-            match self.eat(Token::RightCurly) {
-                None => {
-                    statements.push(self.parse_statement()?);
-                }
-                Some(end) => {
-                    return Ok(Block {
-                        span: start + end.span,
-                        statements,
-                    });
-                }
+            if self.eat(&Token::RightCurly) {
+                return Ok(Block {
+                    span: &start + &self.prev_token.span,
+                    statements,
+                });
             }
+
+            statements.push(self.parse_statement()?);
         }
     }
 
-    ///
     /// Returns a [`ReturnStatement`] AST node if the next tokens represent a return statement.
-    ///
     pub fn parse_return_statement(&mut self) -> Result<ReturnStatement> {
-        let start = self.expect(Token::Return)?;
-        let expr = self.parse_expression()?;
-        self.expect(Token::Semicolon)?;
-
-        Ok(ReturnStatement {
-            span: &start + expr.span(),
-            expression: expr,
-        })
+        let start = self.expect(&Token::Return)?;
+        let expression = self.parse_expression()?;
+        self.expect(&Token::Semicolon)?;
+        let span = &start + expression.span();
+        Ok(ReturnStatement { span, expression })
     }
 
     /// Returns a [`ConditionalStatement`] AST node if the next tokens represent a conditional statement.
     pub fn parse_conditional_statement(&mut self) -> Result<ConditionalStatement> {
-        let start = self.expect(Token::If)?;
+        let start = self.expect(&Token::If)?;
         self.disallow_circuit_construction = true;
         let expr = self.parse_conditional_expression()?;
         self.disallow_circuit_construction = false;
         let body = self.parse_block()?;
-        let next = if self.eat(Token::Else).is_some() {
+        let next = if self.eat(&Token::Else) {
             let s = self.parse_statement()?;
             if !matches!(s, Statement::Block(_) | Statement::Conditional(_)) {
                 self.emit_err(ParserError::unexpected_statement(&s, "Block or Conditional", s.span()));
@@ -154,14 +142,14 @@ impl ParserContext<'_> {
 
     /// Returns an [`IterationStatement`] AST node if the next tokens represent an iteration statement.
     pub fn parse_loop_statement(&mut self) -> Result<IterationStatement> {
-        let start_span = self.expect(Token::For)?;
+        let start_span = self.expect(&Token::For)?;
         let ident = self.expect_ident()?;
-        self.expect(Token::In)?;
+        self.expect(&Token::In)?;
 
         // Parse iteration range.
         let start = self.parse_expression()?;
-        self.expect(Token::DotDot)?;
-        let inclusive = self.eat(Token::Assign).is_some();
+        self.expect(&Token::DotDot)?;
+        let inclusive = self.eat(&Token::Assign);
         self.disallow_circuit_construction = true;
         let stop = self.parse_conditional_expression()?;
         self.disallow_circuit_construction = false;
@@ -183,7 +171,8 @@ impl ParserContext<'_> {
         let mut string = None;
         let (parameters, _, span) = self.parse_paren_comma_list(|p| {
             if string.is_none() {
-                let SpannedToken { token, span } = p.expect_any()?;
+                p.bump();
+                let SpannedToken { token, span } = p.prev_token.clone();
                 string = Some(match token {
                     Token::StringLit(chars) => chars,
                     _ => {
@@ -206,14 +195,14 @@ impl ParserContext<'_> {
 
     /// Returns a [`ConsoleStatement`] AST node if the next tokens represent a console statement.
     pub fn parse_console_statement(&mut self) -> Result<ConsoleStatement> {
-        let keyword = self.expect(Token::Console)?;
-        self.expect(Token::Dot)?;
+        let keyword = self.expect(&Token::Console)?;
+        self.expect(&Token::Dot)?;
         let function = self.expect_ident()?;
         let function = match function.name {
             sym::assert => {
-                self.expect(Token::LeftParen)?;
+                self.expect(&Token::LeftParen)?;
                 let expr = self.parse_expression()?;
-                self.expect(Token::RightParen)?;
+                self.expect(&Token::RightParen)?;
                 ConsoleFunction::Assert(expr)
             }
             sym::error => ConsoleFunction::Error(self.parse_console_args()?),
@@ -228,7 +217,7 @@ impl ParserContext<'_> {
                 ConsoleFunction::Log(self.parse_console_args()?)
             }
         };
-        self.expect(Token::Semicolon)?;
+        self.expect(&Token::Semicolon)?;
 
         Ok(ConsoleStatement {
             span: &keyword + function.span(),
@@ -238,29 +227,34 @@ impl ParserContext<'_> {
 
     /// Returns a [`VariableName`] AST node if the next tokens represent a variable name with
     /// valid keywords.
-    pub fn parse_variable_name(&mut self, span: &SpannedToken) -> Result<VariableName> {
-        let mutable = self.eat(Token::Mut);
-
-        if let Some(mutable) = &mutable {
-            self.emit_err(ParserError::let_mut_statement(&(&mutable.span + &span.span)));
+    pub fn parse_variable_name(&mut self, decl_ty: Declare, span: &Span) -> Result<VariableName> {
+        if self.eat(&Token::Mut) {
+            self.emit_err(ParserError::let_mut_statement(&(&self.prev_token.span + span)));
         }
 
         let name = self.expect_ident()?;
         Ok(VariableName {
             span: name.span.clone(),
-            mutable: matches!(span.token, Token::Let),
+            mutable: matches!(decl_ty, Declare::Let),
             identifier: name,
         })
     }
 
     /// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.
     pub fn parse_definition_statement(&mut self) -> Result<DefinitionStatement> {
-        let declare = self.expect_oneof(&[Token::Let, Token::Const])?;
+        self.expect_any(&[Token::Let, Token::Const])?;
+        let decl_span = self.prev_token.span.clone();
+        let decl_type = match &self.prev_token.token {
+            Token::Let => Declare::Let,
+            Token::Const => Declare::Const,
+            _ => unreachable!("parse_definition_statement_ shouldn't produce this"),
+        };
+        dbg!();
 
         // Parse variable names.
         let variable_names = if self.peek_is_left_par() {
             let vars = self
-                .parse_paren_comma_list(|p| p.parse_variable_name(&declare).map(Some))
+                .parse_paren_comma_list(|p| p.parse_variable_name(decl_type, &decl_span).map(Some))
                 .map(|(vars, ..)| vars)?;
 
             if vars.len() == 1 {
@@ -269,26 +263,22 @@ impl ParserContext<'_> {
 
             vars
         } else {
-            vec![self.parse_variable_name(&declare)?]
+            vec![self.parse_variable_name(decl_type, &decl_span)?]
         };
 
         // Parse an optional type ascription.
         let type_ = self
-            .eat(Token::Colon)
-            .map(|_| self.parse_type().map(|t| t.0))
+            .eat(&Token::Colon)
+            .then(|| self.parse_type().map(|t| t.0))
             .transpose()?;
 
-        self.expect(Token::Assign)?;
+        self.expect(&Token::Assign)?;
         let expr = self.parse_expression()?;
-        self.expect(Token::Semicolon)?;
+        self.expect(&Token::Semicolon)?;
 
         Ok(DefinitionStatement {
-            span: &declare.span + expr.span(),
-            declaration_type: match declare.token {
-                Token::Let => Declare::Let,
-                Token::Const => Declare::Const,
-                _ => unreachable!("parse_definition_statement_ shouldn't produce this"),
-            },
+            span: &decl_span + expr.span(),
+            declaration_type: decl_type,
             variable_names,
             type_,
             value: expr,

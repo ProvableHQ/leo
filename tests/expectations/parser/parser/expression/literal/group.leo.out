@@ -10,7 +10,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 12
             path: ""
             content: "(+, _)group"
@@ -22,7 +22,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 12
             path: ""
             content: "(_, -)group"
@@ -34,7 +34,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 12
             path: ""
             content: "(+, -)group"
@@ -46,7 +46,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 12
             path: ""
             content: "(-, +)group"
@@ -58,7 +58,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 12
             path: ""
             content: "(+, +)group"
@@ -70,7 +70,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 12
             path: ""
             content: "(-, -)group"
@@ -82,7 +82,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 12
             path: ""
             content: "(_, _)group"
@@ -112,7 +112,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 16
             path: ""
             content: "(123,-456)group"
@@ -142,7 +142,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 16
             path: ""
             content: "(-123,456)group"
@@ -172,7 +172,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 16
             path: ""
             content: "(-123,456)group"
@@ -193,7 +193,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 14
             path: ""
             content: "(123, _)group"
@@ -214,7 +214,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 14
             path: ""
             content: "(123, -)group"
@@ -235,7 +235,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 14
             path: ""
             content: "(123, -)group"
@@ -256,7 +256,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 14
             path: ""
             content: "(123, +)group"
@@ -277,7 +277,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 14
             path: ""
             content: "(123, +)group"
@@ -298,7 +298,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 14
             path: ""
             content: "(123, -)group"
@@ -319,7 +319,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 14
             path: ""
             content: "(123, _)group"
@@ -340,7 +340,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 14
             path: ""
             content: "(+, 345)group"
@@ -361,7 +361,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 14
             path: ""
             content: "(_, 345)group"
@@ -382,7 +382,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 14
             path: ""
             content: "(+, 345)group"
@@ -403,7 +403,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 14
             path: ""
             content: "(-, 345)group"
@@ -424,7 +424,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 14
             path: ""
             content: "(+, 345)group"
@@ -445,7 +445,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 14
             path: ""
             content: "(-, 345)group"
@@ -466,7 +466,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 14
             path: ""
             content: "(_, 345)group"
@@ -496,7 +496,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 16
             path: ""
             content: "(123, 456)group"
@@ -526,7 +526,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 16
             path: ""
             content: "(123, 456)group"
@@ -556,7 +556,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 16
             path: ""
             content: "(123, 456)group"
@@ -586,7 +586,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 16
             path: ""
             content: "(123, 456)group"
@@ -616,7 +616,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 16
             path: ""
             content: "(123, 456)group"
@@ -646,7 +646,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 16
             path: ""
             content: "(123, 456)group"
@@ -676,7 +676,7 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 2
+            col_start: 1
             col_stop: 16
             path: ""
             content: "(123, 456)group"

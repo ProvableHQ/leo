@@ -25,6 +25,9 @@ use serde::Deserialize;
 /// This is used in many spots throughout the rest of the Leo crates.
 #[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq)]
 pub struct Span {
+    // TODO(Centril): All of could be optimized to just `{ lo: u32, hi: u32 }`,
+    // i.e. 8 bytes by indexing into a global source map of all files concatenated.
+    // That would also give us `Copy` which is quite nice!
     /// The line number where the error started.
     pub line_start: usize,
     /// The line number where the error stopped.
@@ -63,6 +66,12 @@ impl Span {
             path,
             content,
         }
+    }
+
+    /// Generates a dummy span with all defaults.
+    /// Should only be used in temporary situations.
+    pub fn dummy() -> Self {
+        Self::new(0, 0, 0, 0, <_>::default(), <_>::default())
     }
 }
 

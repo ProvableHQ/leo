@@ -20,6 +20,7 @@
 //! separated by whitespace.
 
 pub(crate) mod token;
+use std::iter;
 use std::sync::Arc;
 
 pub use self::token::KEYWORD_TOKENS;
@@ -33,69 +34,79 @@ use leo_span::Span;
 
 /// Creates a new vector of spanned tokens from a given file path and source code text.
 pub(crate) fn tokenize(path: &str, input: &str) -> Result<Vec<SpannedToken>> {
+    tokenize_iter(path, input).collect()
+}
+
+/// Yields spanned tokens from a given file path and source code text.
+pub(crate) fn tokenize_iter<'a>(path: &'a str, input: &'a str) -> impl 'a + Iterator<Item = Result<SpannedToken>> {
     let path = Arc::new(path.to_string());
-    let mut tokens = vec![];
     let mut index = 0usize;
     let mut line_no = 1usize;
     let mut line_start = 0usize;
-    while input.len() > index {
-        match Token::eat(&input[index..])? {
-            (token_len, Token::WhiteSpace) => {
-                let bytes = input.as_bytes();
-                if bytes[index] == 0x000D && matches!(bytes.get(index + 1), Some(0x000A)) {
-                    // Check carriage return followed by newline.
-                    line_no += 1;
-                    line_start = index + token_len;
-                    index += token_len;
-                } else if matches!(bytes[index], 0x000A | 0x000D) {
-                    // Check new-line or carriage-return
-                    line_no += 1;
-                    line_start = index + token_len;
-                }
-                index += token_len;
-            }
-            (token_len, token) => {
-                let mut span = Span::new(
-                    line_no,
-                    line_no,
-                    index - line_start + 1,
-                    index - line_start + token_len + 1,
-                    path.clone(),
-                    input[line_start
-                        ..input[line_start..]
-                            .find('\n')
-                            .map(|i| i + line_start)
-                            .unwrap_or(input.len())]
-                        .to_string(),
-                );
-                match &token {
-                    Token::CommentLine(_) => {
+    iter::from_fn(move || {
+        while input.len() > index {
+            let token = match Token::eat(&input[index..]) {
+                Err(e) => return Some(Err(e.into())),
+                Ok(t) => t,
+            };
+
+            match token {
+                (token_len, Token::WhiteSpace) => {
+                    let bytes = input.as_bytes();
+                    if bytes[index] == 0x000D && matches!(bytes.get(index + 1), Some(0x000A)) {
+                        // Check carriage return followed by newline.
+                        line_no += 1;
+                        line_start = index + token_len;
+                        index += token_len;
+                    } else if matches!(bytes[index], 0x000A | 0x000D) {
+                        // Check new-line or carriage-return
                         line_no += 1;
                         line_start = index + token_len;
                     }
-                    Token::CommentBlock(block) => {
-                        let line_ct = block.chars().filter(|x| *x == '\n').count();
-                        line_no += line_ct;
-                        if line_ct > 0 {
-                            let last_line_index = block.rfind('\n').unwrap();
-                            line_start = index + last_line_index + 1;
-                            span.col_stop = index + token_len - line_start + 1;
-                        }
-                        span.line_stop = line_no;
-                    }
-                    Token::AddressLit(address) => {
-                        if !check_address(address) {
-                            return Err(ParserError::invalid_address_lit(address, &span).into());
-                        }
-                    }
-                    _ => (),
+                    index += token_len;
                 }
-                tokens.push(SpannedToken { token, span });
-                index += token_len;
+                (token_len, token) => {
+                    let mut span = Span::new(
+                        line_no,
+                        line_no,
+                        index - line_start + 1,
+                        index - line_start + token_len + 1,
+                        path.clone(),
+                        input[line_start
+                            ..input[line_start..]
+                                .find('\n')
+                                .map(|i| i + line_start)
+                                .unwrap_or(input.len())]
+                            .to_string(),
+                    );
+                    match &token {
+                        Token::CommentLine(_) => {
+                            line_no += 1;
+                            line_start = index + token_len;
+                        }
+                        Token::CommentBlock(block) => {
+                            let line_ct = block.chars().filter(|x| *x == '\n').count();
+                            line_no += line_ct;
+                            if line_ct > 0 {
+                                let last_line_index = block.rfind('\n').unwrap();
+                                line_start = index + last_line_index + 1;
+                                span.col_stop = index + token_len - line_start + 1;
+                            }
+                            span.line_stop = line_no;
+                        }
+                        Token::AddressLit(address) if !check_address(address) => {
+                            return Some(Err(ParserError::invalid_address_lit(address, &span).into()));
+                        }
+                        _ => (),
+                    }
+                    index += token_len;
+                    return Some(Ok(SpannedToken { token, span }));
+                }
             }
         }
-    }
-    Ok(tokens)
+
+        None
+    })
 }
 
 #[cfg(test)]

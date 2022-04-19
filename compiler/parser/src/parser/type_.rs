@@ -39,7 +39,7 @@ impl ParserContext<'_> {
     ///
     /// Returns a [`IntegerType`] AST node if the given token is a supported integer type, or [`None`].
     ///
-    pub fn token_to_int_type(token: Token) -> Option<IntegerType> {
+    pub fn token_to_int_type(token: &Token) -> Option<IntegerType> {
         Some(match token {
             Token::I8 => IntegerType::I8,
             Token::I16 => IntegerType::I16,
@@ -62,9 +62,9 @@ impl ParserContext<'_> {
             let span = ident.span.clone();
             (Type::Identifier(ident), span)
         } else {
-            let token = self.expect_oneof(TYPE_TOKENS)?;
+            let span = self.expect_any(TYPE_TOKENS)?;
             (
-                match token.token {
+                match &self.prev_token.token {
                     Token::Field => Type::Field,
                     Token::Group => Type::Group,
                     Token::Address => Type::Address,
@@ -72,7 +72,7 @@ impl ParserContext<'_> {
                     Token::Char => Type::Char,
                     x => Type::IntegerType(Self::token_to_int_type(x).expect("invalid int type")),
                 },
-                token.span,
+                span,
             )
         })
     }
