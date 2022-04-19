@@ -374,4 +374,13 @@ create_errors!(
          msg: "`constant` is preferred over `const` for function parameters to indicate a R1CS constant.",
          help: None,
      }
+
+    /// For when the lexer encountered a bidi override character
+    @backtraced
+    lexer_bidi_override {
+        args: (),
+        msg: "Unicode bidi override code point encountered.",
+        help: None,
+    }
+
 );
