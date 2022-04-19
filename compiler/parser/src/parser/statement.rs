@@ -70,17 +70,14 @@ impl ParserContext<'_> {
         let expr = self.parse_expression()?;
 
         if self.eat_any(ASSIGN_TOKENS) {
-            let operation = match self.prev_token.token {
-                Token::Assign => AssignOperation::Assign,
-                _ => unreachable!("parse_assign_statement_ shouldn't produce this"),
-            };
             let value = self.parse_expression()?;
             let assignee = Self::construct_assignee(expr)?;
             self.expect(&Token::Semicolon)?;
             Ok(Statement::Assign(Box::new(AssignStatement {
                 span: &assignee.span + value.span(),
                 assignee,
-                operation,
+                // Currently only `=` so this is alright.
+                operation: AssignOperation::Assign,
                 value,
             })))
         } else {
