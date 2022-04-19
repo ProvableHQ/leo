@@ -4,6 +4,6 @@ expectation: Fail
 */
 
 function main() {
-    // 202E‮<-here
-    let x = 1u8;
+    /* next line starts with 2069
+⁩*/
 }
