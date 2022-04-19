@@ -163,9 +163,11 @@ string-literal-element = not-double-quote-or-backslash
 integer-literal = unsigned-literal
                 / signed-literal
 
-atomic-literal = integer-literal
-               / field-literal
-               / product-group-literal
+numeric-literal = integer-literal
+                / field-literal
+                / product-group-literal
+
+atomic-literal = numeric-literal
                / boolean-literal
                / address-literal
                / character-literal
