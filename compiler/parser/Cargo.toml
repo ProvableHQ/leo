@@ -38,6 +38,10 @@ version = "1.5.3"
 path = "../../leo/span"
 version = "1.5.3"
 
+[dependencies.snarkvm-dpc]
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "85b7a79"
+
 [dependencies.indexmap]
 version = "1.8"
 
