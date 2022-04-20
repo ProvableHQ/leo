@@ -46,7 +46,7 @@ pub(crate) fn tokenize_iter<'a>(path: &'a str, input: &'a str) -> impl 'a + Iter
     iter::from_fn(move || {
         while input.len() > index {
             let token = match Token::eat(&input[index..]) {
-                Err(e) => return Some(Err(e.into())),
+                Err(e) => return Some(Err(e)),
                 Ok(t) => t,
             };
 
