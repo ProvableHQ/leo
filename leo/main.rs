@@ -175,8 +175,38 @@ enum CommandOpts {
     // },
 }
 
+fn set_panic_hook() {
+    #[cfg(not(debug_assertions))]
+    std::panic::set_hook({
+        Box::new(move |e| {
+            println!(
+                "thread `{}` {}",
+                std::thread::current().name().unwrap_or("<unnamed>"),
+                e
+            );
+            println!("stack backtrace: \n{:?}", backtrace::Backtrace::new());
+            println!("error: internal compiler error: unexpected panic\n");
+            println!("note: the compiler unexpectedly panicked. this is a bug.\n");
+            println!("note: we would appreciate a bug report: https://github.com/AleoHQ/leo/issues/new?labels=bug,panic&template=bug.md&title=[Bug]\n");
+            println!(
+                "note: {} {} running on {} {}\n",
+                env!("CARGO_PKG_NAME"),
+                env!("CARGO_PKG_VERSION"),
+                sys_info::os_type().unwrap_or_else(|e| e.to_string()),
+                sys_info::os_release().unwrap_or_else(|e| e.to_string()),
+            );
+            println!(
+                "note: compiler args: {}\n",
+                std::env::args().collect::<Vec<_>>().join(" ")
+            );
+            println!("note: compiler flags: {:?}\n", Opt::from_args());
+        })
+    });
+}
+
 fn main() {
-    handle_error(run_with_args(Opt::from_args()))
+    set_panic_hook();
+    handle_error(run_with_args(Opt::from_args()));
 }
 
 /// Run command with custom build arguments.
