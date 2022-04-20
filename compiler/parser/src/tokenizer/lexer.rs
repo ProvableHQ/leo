@@ -41,6 +41,14 @@ fn eat_identifier(input: &mut Peekable<impl Iterator<Item = char>>) -> Option<St
     Some(ident)
 }
 
+///
+/// Checks if a char is a Unicode Bidirectional Override code point
+///
+fn is_bidi_override(c: char) -> bool {
+    let i = c as u32;
+    return (0x202A <= i && i <= 0x202E) || (0x2066 <= i && i <= 0x2069);
+}
+
 impl Token {
     // Eats the parts of the unicode character after \u.
     fn eat_unicode_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
@@ -198,6 +206,9 @@ impl Token {
 
                 let mut len = 0;
                 while let Some(c) = input.peek() {
+                    if is_bidi_override(*c) {
+                        return Err(ParserError::lexer_bidi_override().into());
+                    }
                     if c == &'"' {
                         break;
                     }
@@ -215,8 +226,14 @@ impl Token {
             Some('\'') => {
                 input.next();
 
-                let (len, character) = Self::eat_char(&mut input)?;
+                match input.peek() {
+                    Some(c) if is_bidi_override(*c) => {
+                        return Err(ParserError::lexer_bidi_override().into());
+                    }
+                    _ => {}
+                }
 
+                let (len, character) = Self::eat_char(&mut input)?;
                 if input.next_if_eq(&'\'').is_some() {
                     input.next();
                     return Ok((len + 2, Token::CharLit(character)));
@@ -294,6 +311,9 @@ impl Token {
                     let mut comment = String::from("//");
 
                     while let Some(c) = input.next_if(|c| c != &'\n') {
+                        if is_bidi_override(c) {
+                            return Err(ParserError::lexer_bidi_override().into());
+                        }
                         comment.push(c);
                     }
 
@@ -312,6 +332,9 @@ impl Token {
 
                     let mut ended = false;
                     while let Some(c) = input.next() {
+                        if is_bidi_override(c) {
+                            return Err(ParserError::lexer_bidi_override().into());
+                        }
                         comment.push(c);
                         if c == '*' && input.next_if_eq(&'/').is_some() {
                             comment.push('/');
