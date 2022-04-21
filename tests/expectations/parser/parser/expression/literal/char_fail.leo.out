@@ -48,3 +48,4 @@ outputs:
   - "Error [EPAR0370033]: The escaped unicode char `1234567890` is not within valid length of [1, 6]."
   - "Error [EPAR0370026]: Expected a closed char but found `򻮻`."
   - "Error [EPAR0370026]: Expected a closed char but found `😭`."
+  - "Error [EPAR0370043]: Unicode bidi override code point encountered."

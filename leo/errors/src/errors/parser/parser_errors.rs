@@ -359,11 +359,27 @@ create_messages!(
         help: None,
     }
 
-    /// For when a user specified more than a type on a parameter.
-    @formatted
-    inputs_multiple_variable_types_specified {
+     /// For when a user specified more than a type on a parameter.
+     @formatted
+     inputs_multiple_variable_types_specified {
+         args: (),
+         msg: "A parameter cannot be both public and const.",
+         help: None,
+     }
+
+     /// For when a user used const on a parameter or input instead of constant.
+     @formatted
+     const_parameter_or_input {
+         args: (),
+         msg: "`constant` is preferred over `const` for function parameters to indicate a R1CS constant.",
+         help: None,
+     }
+
+    /// For when the lexer encountered a bidi override character
+    @backtraced
+    lexer_bidi_override {
         args: (),
-        msg: "A parameter cannot be both public and const.",
+        msg: "Unicode bidi override code point encountered.",
         help: None,
     }
 );

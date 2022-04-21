@@ -194,15 +194,15 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
 name = "backtrace"
-version = "0.3.64"
+version = "0.3.65"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e121dee8023ce33ab248d9ce1493df03c3b38a659b240096fcbd7048ff9c31f"
+checksum = "11a17d453482a265fd5f8479f2a3f405566e6ca627837aaddb85af8b1ab8ef61"
 dependencies = [
  "addr2line",
  "cc",
  "cfg-if 1.0.0",
  "libc",
- "miniz_oxide 0.4.4",
+ "miniz_oxide",
  "object",
  "rustc-demangle",
 ]
@@ -391,9 +391,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.1.9"
+version = "3.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6aad2534fad53df1cc12519c5cda696dd3e20e6118a027e24054aea14a0bdcbe"
+checksum = "3124f3f75ce09e22d1410043e1e24f2ecc44fad3afe4f08408f1f7663d68da2b"
 dependencies = [
  "atty",
  "bitflags",
@@ -748,7 +748,7 @@ dependencies = [
  "cfg-if 1.0.0",
  "crc32fast",
  "libc",
- "miniz_oxide 0.5.1",
+ "miniz_oxide",
 ]
 
 [[package]]
@@ -1262,7 +1262,8 @@ version = "1.5.3"
 dependencies = [
  "ansi_term",
  "assert_cmd",
- "clap 3.1.9",
+ "backtrace",
+ "clap 3.1.10",
  "color-backtrace",
  "colored",
  "console",
@@ -1282,6 +1283,7 @@ dependencies = [
  "serde_json",
  "snarkvm-utilities 0.7.5 (git+https://github.com/AleoHQ/snarkVM.git?rev=51633e2)",
  "structopt",
+ "sys-info",
  "test_dir",
  "toml",
  "tracing",
@@ -1430,16 +1432,6 @@ name = "minimal-lexical"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
-
-[[package]]
-name = "miniz_oxide"
-version = "0.4.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a92518e98c078586bc6c934028adcca4c92a53d6a958196de835170a01d84e4b"
-dependencies = [
- "adler",
- "autocfg",
-]
 
 [[package]]
 name = "miniz_oxide"
@@ -1645,9 +1637,9 @@ checksum = "830b246a0e5f20af87141b25c173cd1b609bd7779a4617d6ec582abaf90870f3"
 
 [[package]]
 name = "object"
-version = "0.27.1"
+version = "0.28.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67ac1d3f9a1d3616fd9a60c8d74296f22406a238b6a72f5cc1e6f314df4ffbf9"
+checksum = "40bec70ba014595f99f7aa110b84331ffe1ee9aece7fe6f387cc7e3ecda4d456"
 dependencies = [
  "memchr",
 ]
@@ -2597,6 +2589,16 @@ dependencies = [
  "proc-macro2 1.0.37",
  "quote 1.0.18",
  "unicode-xid 0.2.2",
+]
+
+[[package]]
+name = "sys-info"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b3a0d0aba8bf96a0e1ddfdc352fc53b3df7f39318c71854910c3c4b024ae52c"
+dependencies = [
+ "cc",
+ "libc",
 ]
 
 [[package]]
