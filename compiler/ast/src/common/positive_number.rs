@@ -17,7 +17,7 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// A number string guaranteed to be positive by the pest grammar.
+/// A number string guaranteed to be positive.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
 pub struct PositiveNumber {
     /// The string representation of the positive number.
