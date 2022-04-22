@@ -29,13 +29,13 @@ ascii = %x0-7F
 <a name="safe-nonascii"></a>
 ```abnf
 safe-nonascii = %x80-2029 / %x202F-2065 / %x2070-D7FF / %xE000-10FFFF
-                ; excludes bidi overrides and high/low surrogates
+                ; excludes bidi embeddings/overrides/isolates
+                ; and excludes high/low surrogates
 ```
 
 <a name="character"></a>
 ```abnf
 character = ascii / safe-nonascii
-            ; Unicode code points decoded from UTF-8
 ```
 
 Go to: _[ascii](#user-content-ascii), [safe-nonascii](#user-content-safe-nonascii)_;
