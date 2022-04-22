@@ -33,7 +33,7 @@ impl<'a> Pass<'a> for CreateSymbolTable<'a> {
     type Output = Result<SymbolTable<'a>, ()>;
 
     fn do_pass((ast, handler): Self::Input) -> Self::Output {
-        let mut visitor = VisitorDirector::new(CreateSymbolTable::default());
+        let mut visitor = VisitorDirector::new(CreateSymbolTable::new(handler));
         visitor.visit_program(ast.as_repr());
         if handler.had_errors() {
             return Err(());

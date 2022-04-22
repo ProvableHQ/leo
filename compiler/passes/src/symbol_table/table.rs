@@ -15,14 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::Function;
-use leo_errors::Result;
+use leo_errors::{AstError, Result};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
 
 use crate::VariableSymbol;
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub struct SymbolTable<'a> {
     functions: IndexMap<Symbol, &'a Function>,
     variables: VariableSymbol<'a>,
@@ -30,12 +30,12 @@ pub struct SymbolTable<'a> {
 
 impl<'a> SymbolTable<'a> {
     pub fn check_shadowing(&self, symbol: &Symbol) -> Result<()> {
-        if let Some(_) = self.functions.get(symbol) {
-            todo!("error");
+        if let Some(function) = self.functions.get(symbol) {
+            Err(AstError::shadowed_function(symbol, &function.span).into())
+        } else {
+            self.variables.check_shadowing(symbol)?;
+            Ok(())
         }
-        self.variables.check_shadowing(symbol)?;
-
-        Ok(())
     }
 
     pub fn insert_fn(&mut self, symbol: Symbol, function: &'a Function) -> Result<()> {

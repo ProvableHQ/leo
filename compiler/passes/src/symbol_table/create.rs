@@ -15,15 +15,22 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::*;
+use leo_errors::emitter::Handler;
 
 use crate::SymbolTable;
 
-#[derive(Debug, Default)]
 pub struct CreateSymbolTable<'a> {
     symbol_table: SymbolTable<'a>,
+    handler: &'a Handler,
 }
 
 impl<'a> CreateSymbolTable<'a> {
+    pub fn new(handler: &'a Handler) -> Self {
+        Self {
+            symbol_table: SymbolTable::default(),
+            handler,
+        }
+    }
     pub fn symbol_table(self) -> SymbolTable<'a> {
         self.symbol_table
     }
@@ -36,7 +43,7 @@ impl<'a> StatementVisitor<'a> for CreateSymbolTable<'a> {}
 impl<'a> ProgramVisitor<'a> for CreateSymbolTable<'a> {
     fn visit_function(&mut self, input: &'a Function) -> VisitResult {
         if let Err(err) = self.symbol_table.insert_fn(input.name(), input) {
-            todo!("{:?}", err)
+            self.handler.emit_err(err);
         }
         VisitResult::SkipChildren
     }

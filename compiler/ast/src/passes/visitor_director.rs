@@ -81,7 +81,7 @@ impl<'a, V: ExpressionVisitor<'a>> VisitorDirector<'a, V> {
         if let VisitResult::VisitChildren = self.visitor.visit_call(input) {
             self.visit_expression(&input.function);
             for expr in input.arguments.iter() {
-                self.visit_expression(&expr);
+                self.visit_expression(expr);
             }
         }
     }
@@ -156,7 +156,7 @@ impl<'a, V: ExpressionVisitor<'a> + StatementVisitor<'a>> VisitorDirector<'a, V>
     pub fn visit_block(&mut self, input: &'a Block) {
         if let VisitResult::VisitChildren = self.visitor.visit_block(input) {
             for stmt in input.statements.iter() {
-                self.visit_statement(&stmt);
+                self.visit_statement(stmt);
             }
         }
     }
@@ -166,7 +166,7 @@ impl<'a, V: ExpressionVisitor<'a> + ProgramVisitor<'a> + StatementVisitor<'a>> V
     pub fn visit_program(&mut self, input: &'a Program) {
         if let VisitResult::VisitChildren = self.visitor.visit_program(input) {
             for function in input.functions.values() {
-                self.visit_function(&function);
+                self.visit_function(function);
             }
         }
     }

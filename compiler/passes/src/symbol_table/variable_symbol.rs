@@ -15,14 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use indexmap::IndexMap;
-use leo_ast::{DefinitionStatement, FunctionInput, Type};
-use leo_errors::Result;
+use leo_ast::{DefinitionStatement, FunctionInput, FunctionInputVariable};
+use leo_errors::{AstError, Result};
 use leo_span::Symbol;
 
 #[derive(Debug, Default)]
 pub struct VariableSymbol<'a> {
     parent: Option<Box<VariableSymbol<'a>>>,
-    inputs: IndexMap<Symbol, Type>,
+    inputs: IndexMap<Symbol, &'a FunctionInputVariable>,
     variables: IndexMap<Symbol, &'a DefinitionStatement>,
 }
 
@@ -34,7 +34,7 @@ impl<'a> VariableSymbol<'a> {
                 .iter()
                 .map(|input| {
                     let inner = input.get_variable();
-                    (inner.identifier.name, inner.type_())
+                    (inner.identifier.name, inner)
                 })
                 .collect(),
             variables: IndexMap::new(),
@@ -43,9 +43,9 @@ impl<'a> VariableSymbol<'a> {
 
     pub fn check_shadowing(&self, symbol: &Symbol) -> Result<()> {
         if let Some(input) = self.inputs.get(symbol) {
-            todo!("error");
+            Err(AstError::shadowed_function_input(symbol, &input.span).into())
         } else if let Some(var) = self.variables.get(symbol) {
-            todo!("error");
+            Err(AstError::shadowed_variable(symbol, &var.span).into())
         } else if let Some(parent) = &self.parent {
             parent.check_shadowing(symbol)
         } else {

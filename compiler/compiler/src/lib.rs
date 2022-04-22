@@ -110,7 +110,10 @@ impl<'a> Compiler<'a> {
         // Write the AST snapshot post parsing
         // ast.to_json_file_without_keys(self.output_directory, "canonicalization_ast.json", &["span"])?;
 
-        let _symbol_table = CreateSymbolTable::do_pass((&ast, self.handler));
+        let _symbol_table = match CreateSymbolTable::do_pass((&ast, self.handler)) {
+            Ok(table) => table,
+            Err(_) => todo!("exit with latest error code here"),
+        };
 
         Ok(ast)
     }
