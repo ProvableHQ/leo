@@ -17,129 +17,20 @@
 #![deny(clippy::all, clippy::missing_docs_in_private_items)]
 #![doc = include_str!("../README.md")]
 
-/// Contains traits and types for channels through which errors go.
-pub mod emitter;
-
-/// Contains the ASG error definitions.
-pub mod asg;
-pub use self::asg::*;
-
-/// Contains the AST error definitions.
-pub mod ast;
-pub use self::ast::*;
-
-/// Contains the CLI error definitions.
-pub mod cli;
-pub use self::cli::*;
+#[macro_use]
+extern crate thiserror;
 
 /// Contains the common functionalities for defining errors..
 #[macro_use]
 pub mod common;
 pub use self::common::*;
 
-/// Contains the Compiler error definitions.
-pub mod compiler;
-pub use self::compiler::*;
+/// Contains traits and types for channels through which errors go.
+pub mod emitter;
+/// Contains the errors for the Leo lang.
+pub mod errors;
+pub use self::errors::*;
 
-/// Contains the Import error definitions.
-pub mod import;
-pub use self::import::*;
-
-/// Contains the Input error definitions.
-pub mod input;
-pub use self::input::*;
-
-/// Contains the Package error definitions.
-pub mod package;
-pub use self::package::*;
-
-/// Contains the Parser error definitions.
-pub mod parser;
-pub use self::parser::*;
-
-/// Contains the State error definitions.
-pub mod state;
-pub use self::state::*;
-
-#[macro_use]
-extern crate thiserror;
-
-/// The LeoError type that contains all sub error types.
-/// This allows a unified error type throughout the Leo crates.
-#[derive(Debug, Error)]
-pub enum LeoError {
-    /// Represents an ASG Error in a Leo Error.
-    #[error(transparent)]
-    AsgError(#[from] AsgError),
-
-    /// Represents an AST Error in a Leo Error.
-    #[error(transparent)]
-    AstError(#[from] AstError),
-
-    /// Represents an CLI Error in a Leo Error.
-    #[error(transparent)]
-    CliError(#[from] CliError),
-
-    /// Represents an Compiler Error in a Leo Error.
-    #[error(transparent)]
-    CompilerError(#[from] CompilerError),
-
-    /// Represents an Import Error in a Leo Error.
-    #[error(transparent)]
-    ImportError(#[from] ImportError),
-
-    /// Represents an Input Error in a Leo Error.
-    #[error(transparent)]
-    InputError(#[from] InputError),
-
-    /// Represents an Package Error in a Leo Error.
-    #[error(transparent)]
-    PackageError(#[from] PackageError),
-
-    /// Represents an Parser Error in a Leo Error.
-    #[error(transparent)]
-    ParserError(#[from] ParserError),
-
-    /// Represents an State Error in a Leo Error.
-    #[error(transparent)]
-    StateError(#[from] StateError),
-}
-
-impl LeoError {
-    /// Implement error code for each type of Error. For the unsupported use a default value.
-    pub fn error_code(&self) -> String {
-        use LeoError::*;
-
-        match self {
-            AsgError(error) => error.error_code(),
-            AstError(error) => error.error_code(),
-            CliError(error) => error.error_code(),
-            CompilerError(error) => error.error_code(),
-            ImportError(error) => error.error_code(),
-            InputError(error) => error.error_code(),
-            PackageError(error) => error.error_code(),
-            ParserError(error) => error.error_code(),
-            StateError(error) => error.error_code(),
-        }
-    }
-
-    /// Implement exit code for each type of Error, even the ones that don't have one.
-    pub fn exit_code(&self) -> i32 {
-        use LeoError::*;
-
-        match self {
-            AsgError(error) => error.exit_code(),
-            AstError(error) => error.exit_code(),
-            CliError(error) => error.exit_code(),
-            CompilerError(error) => error.exit_code(),
-            ImportError(error) => error.exit_code(),
-            InputError(error) => error.exit_code(),
-            PackageError(error) => error.exit_code(),
-            ParserError(error) => error.exit_code(),
-            StateError(error) => error.exit_code(),
-        }
-    }
-}
-
-/// A global result type for all Leo crates, that defaults the errors to be a LeoError.
-pub type Result<T, E = LeoError> = core::result::Result<T, E>;
+/// Contains the warnings for the Leo lang.
+pub mod warnings;
+pub use self::warnings::*;

@@ -14,26 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use serde::{Deserialize, Serialize};
-use std::fmt;
+use crate::create_messages;
 
-/// A number string guaranteed to be positive.
-#[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
-pub struct PositiveNumber {
-    /// The string representation of the positive number.
-    // FIXME(Centril): This should become an `u128`.
-    pub value: String,
-}
+create_messages!(
+    /// ParserWarning enum that represents all the warnings for the `leo-parser` crate.
+    ParserWarning,
+    code_mask: 0000i32,
+    code_prefix: "PAR",
 
-impl PositiveNumber {
-    /// Returns `true` if this number is zero.
-    pub fn is_zero(&self) -> bool {
-        self.value.eq("0")
-    }
-}
-
-impl fmt::Display for PositiveNumber {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.value)
-    }
-}
+    /// For when a user used const on a parameter or input instead of constant.
+     @formatted
+     const_parameter_or_input {
+         args: (),
+         msg: "`constant` is preferred over `const` for function parameters to indicate a R1CS constant.",
+         help: None,
+     }
+);

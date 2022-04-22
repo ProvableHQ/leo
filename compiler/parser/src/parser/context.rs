@@ -18,7 +18,7 @@ use crate::{assert_no_whitespace, tokenizer::*, Token, KEYWORD_TOKENS};
 
 use leo_ast::*;
 use leo_errors::emitter::Handler;
-use leo_errors::{ParserError, Result};
+use leo_errors::{ParserError, ParserWarning, Result};
 use leo_span::{Span, Symbol};
 
 use std::fmt::Display;
@@ -120,6 +120,11 @@ impl<'a> ParserContext<'a> {
     /// Emit the error `err`.
     pub(crate) fn emit_err(&self, err: ParserError) {
         self.handler.emit_err(err.into());
+    }
+
+    /// Emit the error `err`.
+    pub(crate) fn emit_warning(&self, warning: ParserWarning) {
+        self.handler.emit_warning(warning.into());
     }
 
     /// Returns true if the next token exists.

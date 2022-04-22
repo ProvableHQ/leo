@@ -56,3 +56,4 @@ expectation: Fail
 '\u{bbbbb}\u{aaaa}'
 
 '😭😂😘'
+'⁩'

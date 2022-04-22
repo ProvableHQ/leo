@@ -19,7 +19,13 @@
 ; Lexical Grammar
 ; ---------------
 
-character = %x0-D7FF / %xE000-10FFFF   ; Unicode code points decoded from UTF-8
+ascii = %x0-7F
+
+safe-nonascii = %x80-2029 / %x202F-2065 / %x2070-D7FF / %xE000-10FFFF
+                ; excludes bidi embeddings/overrides/isolates
+                ; and excludes high/low surrogates
+
+character = ascii / safe-nonascii
 
 horizontal-tab = %x9   ; <HT>
 
@@ -33,18 +39,18 @@ double-quote = %x22   ; "
 
 single-quote = %x27   ; '
 
-not-star = %x0-29 / %x2B-D7FF / %xE000-10FFFF   ; anything but *
+not-star = %x0-29 / %x2B-7F / safe-nonascii  ; anything but *
 
-not-star-or-slash = %x0-29 / %x2B-2E / %x30-D7FF / %xE000-10FFFF
+not-star-or-slash = %x0-29 / %x2B-2E / %x30-7F / safe-nonascii
                     ; anything but * or /
 
-not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-D7FF / %xE000-10FFFF
+not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-7F / safe-nonascii
                                    ; anything but <LF> or <CR>
 
-not-double-quote-or-backslash = %x0-21 / %x23-5B / %x5D-D7FF / %xE000-10FFFF
+not-double-quote-or-backslash = %x0-21 / %x23-5B / %x5D-7F / safe-nonascii
                                 ; anything but " or \
 
-not-single-quote-or-backslash = %x0-26 / %x28-5B / %x5D-D7FF / %xE000-10FFFF
+not-single-quote-or-backslash = %x0-26 / %x28-5B / %x5D-7F / safe-nonascii
                                 ; anything but ' or \
 
 line-terminator = line-feed / carriage-return / carriage-return line-feed

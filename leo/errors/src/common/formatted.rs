@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{BacktracedError, INDENT};
+use crate::{Backtraced, INDENT};
 
 use leo_span::Span;
 
@@ -33,21 +33,23 @@ use std::fmt;
 ///      = help: Initialize a variable `x` first.
 /// Makes use of the same fields as a BacktracedError.
 #[derive(Clone, Debug, Default, Hash, PartialEq)]
-pub struct FormattedError {
+pub struct Formatted {
     /// The formatted error span information.
     pub span: Span,
     /// The backtrace to track where the Leo error originated.
-    pub backtrace: BacktracedError,
+    pub backtrace: Backtraced,
 }
 
-impl FormattedError {
+impl Formatted {
     /// Creates a backtraced error from a span and a backtrace.
+    #[allow(clippy::too_many_arguments)]
     pub fn new_from_span<S>(
         message: S,
         help: Option<String>,
-        exit_code: i32,
+        code: i32,
         code_identifier: i8,
-        error_type: String,
+        type_: String,
+        error: bool,
         span: &Span,
         backtrace: Backtrace,
     ) -> Self
@@ -56,18 +58,19 @@ impl FormattedError {
     {
         Self {
             span: span.clone(),
-            backtrace: BacktracedError::new_from_backtrace(
+            backtrace: Backtraced::new_from_backtrace(
                 message.to_string(),
                 help,
-                exit_code,
+                code,
                 code_identifier,
-                error_type,
+                type_,
+                error,
                 backtrace,
             ),
         }
     }
 
-    /// Calls the backtraces error code.
+    /// Calls the backtraces error exit code.
     pub fn exit_code(&self) -> i32 {
         self.backtrace.exit_code()
     }
@@ -76,9 +79,14 @@ impl FormattedError {
     pub fn error_code(&self) -> String {
         self.backtrace.error_code()
     }
+
+    /// Returns an warning identifier.
+    pub fn warning_code(&self) -> String {
+        self.backtrace.warning_code()
+    }
 }
 
-impl fmt::Display for FormattedError {
+impl fmt::Display for Formatted {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let underline = |mut start: usize, mut end: usize| -> String {
             if start > end {
@@ -101,11 +109,13 @@ impl fmt::Display for FormattedError {
 
         let underlined = underline(self.span.col_start, self.span.col_stop);
 
-        let error_message = format!(
-            "Error [{error_code}]: {message}",
-            error_code = self.error_code(),
-            message = self.backtrace.message,
-        );
+        let (kind, code) = if self.backtrace.error {
+            ("Error", self.error_code())
+        } else {
+            ("Warning", self.warning_code())
+        };
+
+        let message = format!("{kind} [{code}]: {message}", message = self.backtrace.message,);
 
         // To avoid the color enabling characters for comparison with test expectations.
         if std::env::var("LEO_TESTFRAMEWORK")
@@ -114,9 +124,13 @@ impl fmt::Display for FormattedError {
             .to_owned()
             .is_empty()
         {
-            write!(f, "{}", error_message.bold().red())?;
+            if self.backtrace.error {
+                write!(f, "{}", message.bold().red())?;
+            } else {
+                write!(f, "{}", message.bold().yellow())?;
+            }
         } else {
-            write!(f, "{}", error_message)?;
+            write!(f, "{}", message)?;
         };
 
         write!(
@@ -183,7 +197,7 @@ impl fmt::Display for FormattedError {
     }
 }
 
-impl std::error::Error for FormattedError {
+impl std::error::Error for Formatted {
     fn description(&self) -> &str {
         &self.backtrace.message
     }

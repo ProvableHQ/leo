@@ -6,6 +6,15 @@
 
 This directory contains the code for the Errors for all the Leo crates.
 
+The errors are inspired by `rust` in a few different ways:
+
+- Each error has its own unique code.
+- Error codes will never be changed upon a stable release.
+  - Meaning outdated errors will just deprecated.
+- In addition we had a unique identifier to let you know where the compiler found the error.
+
+The purpose of these errors is such that searching an error in the documentation, or online for help, becomes easier.
+
 ## [Common](./src/common)
 
 The common section of this crate contains a few sub files:

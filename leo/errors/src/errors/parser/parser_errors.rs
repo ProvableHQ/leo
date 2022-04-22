@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::create_errors;
+use crate::create_messages;
 
 use std::fmt::{Debug, Display};
 
-create_errors!(
+create_messages!(
     /// ParserError enum that represents all the errors for the `leo-parser` crate.
     ParserError,
-    exit_code_mask: 0000i32,
-    error_code_prefix: "PAR",
+    code_mask: 0000i32,
+    code_prefix: "PAR",
 
     /// For when the parser encountered an unexpected token.
     @formatted
@@ -374,4 +374,12 @@ create_errors!(
          msg: "`constant` is preferred over `const` for function parameters to indicate a R1CS constant.",
          help: None,
      }
+
+    /// For when the lexer encountered a bidi override character
+    @backtraced
+    lexer_bidi_override {
+        args: (),
+        msg: "Unicode bidi override code point encountered.",
+        help: None,
+    }
 );

@@ -21,10 +21,25 @@ along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 Lexical Grammar
 ---------------
 
+<a name="ascii"></a>
+```abnf
+ascii = %x0-7F
+```
+
+<a name="safe-nonascii"></a>
+```abnf
+safe-nonascii = %x80-2029 / %x202F-2065 / %x2070-D7FF / %xE000-10FFFF
+                ; excludes bidi embeddings/overrides/isolates
+                ; and excludes high/low surrogates
+```
+
 <a name="character"></a>
 ```abnf
-character = %x0-D7FF / %xE000-10FFFF   ; Unicode code points decoded from UTF-8
+character = ascii / safe-nonascii
 ```
+
+Go to: _[ascii](#user-content-ascii), [safe-nonascii](#user-content-safe-nonascii)_;
+
 
 <a name="horizontal-tab"></a>
 ```abnf
@@ -58,32 +73,47 @@ single-quote = %x27   ; '
 
 <a name="not-star"></a>
 ```abnf
-not-star = %x0-29 / %x2B-D7FF / %xE000-10FFFF   ; anything but *
+not-star = %x0-29 / %x2B-7F / safe-nonascii  ; anything but *
 ```
+
+Go to: _[safe-nonascii](#user-content-safe-nonascii)_;
+
 
 <a name="not-star-or-slash"></a>
 ```abnf
-not-star-or-slash = %x0-29 / %x2B-2E / %x30-D7FF / %xE000-10FFFF
+not-star-or-slash = %x0-29 / %x2B-2E / %x30-7F / safe-nonascii
                     ; anything but * or /
 ```
 
+Go to: _[safe-nonascii](#user-content-safe-nonascii)_;
+
+
 <a name="not-line-feed-or-carriage-return"></a>
 ```abnf
-not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-D7FF / %xE000-10FFFF
+not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-7F / safe-nonascii
                                    ; anything but <LF> or <CR>
 ```
 
+Go to: _[safe-nonascii](#user-content-safe-nonascii)_;
+
+
 <a name="not-double-quote-or-backslash"></a>
 ```abnf
-not-double-quote-or-backslash = %x0-21 / %x23-5B / %x5D-D7FF / %xE000-10FFFF
+not-double-quote-or-backslash = %x0-21 / %x23-5B / %x5D-7F / safe-nonascii
                                 ; anything but " or \
 ```
 
+Go to: _[safe-nonascii](#user-content-safe-nonascii)_;
+
+
 <a name="not-single-quote-or-backslash"></a>
 ```abnf
-not-single-quote-or-backslash = %x0-26 / %x28-5B / %x5D-D7FF / %xE000-10FFFF
+not-single-quote-or-backslash = %x0-26 / %x28-5B / %x5D-7F / safe-nonascii
                                 ; anything but ' or \
 ```
+
+Go to: _[safe-nonascii](#user-content-safe-nonascii)_;
+
 
 <a name="line-terminator"></a>
 ```abnf

@@ -56,7 +56,7 @@ pub(crate) fn tokenize_iter<'a>(path: &'a str, input: &'a str) -> impl 'a + Iter
                     if bytes[index] == 0x000D && matches!(bytes.get(index + 1), Some(0x000A)) {
                         // Check carriage return followed by newline.
                         line_no += 1;
-                        line_start = index + token_len;
+                        line_start = index + token_len + 1;
                         index += token_len;
                     } else if matches!(bytes[index], 0x000A | 0x000D) {
                         // Check new-line or carriage-return
