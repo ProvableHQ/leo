@@ -46,7 +46,7 @@ fn eat_identifier(input: &mut Peekable<impl Iterator<Item = char>>) -> Option<St
 ///
 fn is_bidi_override(c: char) -> bool {
     let i = c as u32;
-    return (0x202A <= i && i <= 0x202E) || (0x2066 <= i && i <= 0x2069);
+    (0x202A..=0x202E).contains(&i) || (0x2066..=0x2069).contains(&i)
 }
 
 impl Token {
