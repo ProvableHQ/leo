@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::LeoWarning;
+
 use super::LeoError;
 use core::default::Default;
 use core::fmt;
@@ -24,6 +26,9 @@ use std::rc::Rc;
 pub trait Emitter {
     /// Emit the error `err`.
     fn emit_err(&mut self, err: LeoError);
+
+    /// Emit the warning.
+    fn emit_warning(&mut self, warning: LeoWarning);
 }
 
 /// A trivial `Emitter` using the standard error.
@@ -32,6 +37,10 @@ pub struct StderrEmitter;
 impl Emitter for StderrEmitter {
     fn emit_err(&mut self, err: LeoError) {
         eprintln!("{}", err);
+    }
+
+    fn emit_warning(&mut self, warning: LeoWarning) {
+        eprintln!("{warning}");
     }
 }
 
@@ -72,20 +81,27 @@ impl<T: fmt::Display> fmt::Display for Buffer<T> {
 
 /// A buffer of `LeoError`s.
 pub type ErrBuffer = Buffer<LeoError>;
+/// A buffer of `LeoWarning`s.
+pub type WarningBuffer = Buffer<LeoWarning>;
 
 /// An `Emitter` that collects into a list.
 #[derive(Default, Clone)]
-pub struct BufferEmitter(Rc<RefCell<ErrBuffer>>);
+pub struct BufferEmitter(Rc<RefCell<ErrBuffer>>, Rc<RefCell<WarningBuffer>>);
 
 impl BufferEmitter {
     /// Returns a new buffered emitter.
     pub fn new() -> Self {
-        BufferEmitter(<_>::default())
+        BufferEmitter(<_>::default(), <_>::default())
     }
 
     /// Extracts all the errors collected in this emitter.
-    pub fn extract(&self) -> ErrBuffer {
+    pub fn extract_errs(&self) -> ErrBuffer {
         self.0.take()
+    }
+
+    /// Extracts all the errors collected in this emitter.
+    pub fn extract_warnings(&self) -> WarningBuffer {
+        self.1.take()
     }
 }
 
@@ -93,13 +109,19 @@ impl Emitter for BufferEmitter {
     fn emit_err(&mut self, err: LeoError) {
         self.0.borrow_mut().push(err);
     }
+
+    fn emit_warning(&mut self, warning: LeoWarning) {
+        self.1.borrow_mut().push(warning);
+    }
 }
 
 /// Contains the actual data for `Handler`.
 /// Modelled this way to afford an API using interior mutability.
 struct HandlerInner {
     /// Number of errors emitted thus far.
-    count: usize,
+    err_count: usize,
+    /// Number of warnings emitted thus far.
+    warn_count: usize,
     /// The sink through which errors will be emitted.
     emitter: Box<dyn Emitter>,
 }
@@ -107,8 +129,14 @@ struct HandlerInner {
 impl HandlerInner {
     /// Emit the error `err`.
     fn emit_err(&mut self, err: LeoError) {
-        self.count = self.count.saturating_add(1);
+        self.err_count = self.err_count.saturating_add(1);
         self.emitter.emit_err(err);
+    }
+
+    /// Emit the error `err`.
+    fn emit_warning(&mut self, warning: LeoWarning) {
+        self.warn_count = self.warn_count.saturating_add(1);
+        self.emitter.emit_warning(warning);
     }
 }
 
@@ -128,7 +156,11 @@ impl Default for Handler {
 impl Handler {
     /// Construct a `Handler` using the given `emitter`.
     pub fn new(emitter: Box<dyn Emitter>) -> Self {
-        let inner = RefCell::new(HandlerInner { count: 0, emitter });
+        let inner = RefCell::new(HandlerInner {
+            err_count: 0,
+            warn_count: 0,
+            emitter,
+        });
         Self { inner }
     }
 
@@ -143,12 +175,17 @@ impl Handler {
     /// or if there were none, returns some `T`.
     pub fn with<T>(logic: impl for<'a> FnOnce(&'a Handler) -> Result<T, LeoError>) -> Result<T, ErrBuffer> {
         let (handler, buf) = Handler::new_with_buf();
-        handler.extend_if_error(logic(&handler)).map_err(|_| buf.extract())
+        handler.extend_if_error(logic(&handler)).map_err(|_| buf.extract_errs())
     }
 
     /// Emit the error `err`.
     pub fn emit_err(&self, err: LeoError) {
         self.inner.borrow_mut().emit_err(err);
+    }
+
+    /// Emit the error `err`.
+    pub fn emit_warning(&self, warning: LeoWarning) {
+        self.inner.borrow_mut().emit_warning(warning);
     }
 
     /// Emits the error `err`.
@@ -161,7 +198,12 @@ impl Handler {
 
     /// The number of errors thus far.
     pub fn err_count(&self) -> usize {
-        self.inner.borrow().count
+        self.inner.borrow().err_count
+    }
+
+    /// The number of warnings thus far.
+    pub fn warning_count(&self) -> usize {
+        self.inner.borrow().warn_count
     }
 
     /// Did we have any errors thus far?

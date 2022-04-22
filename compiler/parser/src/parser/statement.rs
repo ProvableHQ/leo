@@ -249,8 +249,6 @@ impl ParserContext<'_> {
             Token::Const => Declare::Const,
             _ => unreachable!("parse_definition_statement_ shouldn't produce this"),
         };
-        dbg!();
-
         // Parse variable names.
         let variable_names = if self.peek_is_left_par() {
             let vars = self
@@ -269,7 +267,7 @@ impl ParserContext<'_> {
         // Parse an optional type ascription.
         let type_ = self
             .eat(&Token::Colon)
-            .then(|| self.parse_type().map(|t| t.0))
+            .then(|| self.parse_all_types().map(|t| t.0))
             .transpose()?;
 
         self.expect(&Token::Assign)?;

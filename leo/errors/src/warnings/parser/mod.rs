@@ -14,23 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![deny(clippy::all, clippy::missing_docs_in_private_items)]
-#![doc = include_str!("../README.md")]
-
-#[macro_use]
-extern crate thiserror;
-
-/// Contains the common functionalities for defining errors..
-#[macro_use]
-pub mod common;
-pub use self::common::*;
-
-/// Contains traits and types for channels through which errors go.
-pub mod emitter;
-/// Contains the errors for the Leo lang.
-pub mod errors;
-pub use self::errors::*;
-
-/// Contains the warnings for the Leo lang.
-pub mod warnings;
-pub use self::warnings::*;
+/// This module contains the Parser error definitions.
+pub mod parser_warning;
+pub use self::parser_warning::*;

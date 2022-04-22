@@ -3,6 +3,7 @@
 **.idea/
 *.DS_Store
 .vscode
+.iml
 
 **/process.yml
 

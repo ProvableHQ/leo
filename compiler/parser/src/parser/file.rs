@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_errors::{ParserError, Result};
+use leo_errors::{ParserError, ParserWarning, Result};
 use leo_span::sym;
 
 impl ParserContext<'_> {
@@ -69,7 +69,7 @@ impl ParserContext<'_> {
         let const_ = self.eat(&Token::Const).then(|| self.prev_token.span.clone());
 
         if let Some(span) = &const_ {
-            self.emit_err(ParserError::const_parameter_or_input(span));
+            self.emit_warning(ParserWarning::const_parameter_or_input(span));
         }
 
         match (public, constant, const_) {
@@ -100,7 +100,7 @@ impl ParserContext<'_> {
         }
 
         self.expect(&Token::Colon)?;
-        let type_ = self.parse_type()?.0;
+        let type_ = self.parse_all_types()?.0;
         Ok(FunctionInput::Variable(FunctionInputVariable::new(
             name.clone(),
             mode,
@@ -124,7 +124,7 @@ impl ParserContext<'_> {
 
         // Parse return type.
         let output = if self.eat(&Token::Arrow) {
-            Some(self.parse_type()?.0)
+            Some(self.parse_all_types()?.0)
         } else {
             None
         };
