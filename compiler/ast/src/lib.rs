@@ -43,11 +43,11 @@ pub use self::input::*;
 pub mod pass;
 pub use self::pass::*;
 
+pub mod passes;
+pub use self::passes::*;
+
 pub mod program;
 pub use self::program::*;
-
-pub mod reducer;
-pub use self::reducer::*;
 
 pub mod statements;
 pub use self::statements::*;
