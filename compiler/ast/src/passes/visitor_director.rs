@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! This module contains both a Director to reconstruct the AST
-//! which maps over every node of the AST and calls a reducer.
-//! The Trait for a reducer are methods that can be overridden
-//! to make changes to how AST nodes are rebuilt.
+
+//! This module contains Visitor Traits for the AST.
+//! It implements default methods for each node to be made
+//! given the type of node its visiting.
 
 // temporary till we use in another pr.
 #![allow(dead_code)]
