@@ -30,15 +30,13 @@ use leo_errors::emitter::Handler;
 
 impl<'a> Pass<'a> for CreateSymbolTable<'a> {
     type Input = (&'a Ast, &'a Handler);
-    type Output = Result<SymbolTable<'a>, ()>;
+    type Output = SymbolTable<'a>;
 
     fn do_pass((ast, handler): Self::Input) -> Self::Output {
         let mut visitor = VisitorDirector::new(CreateSymbolTable::new(handler));
         visitor.visit_program(ast.as_repr());
-        if handler.had_errors() {
-            return Err(());
-        }
+        handler.exit_with_last_err_code();
 
-        Ok(visitor.visitor().symbol_table())
+        visitor.visitor().symbol_table()
     }
 }

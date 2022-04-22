@@ -27,16 +27,27 @@ pub trait Emitter {
     /// Emit the error `err`.
     fn emit_err(&mut self, err: LeoError);
 
+    /// Tracks last emmited error.
+    fn last_emited_err_code(&self) -> Option<i32>;
+
     /// Emit the warning.
     fn emit_warning(&mut self, warning: LeoWarning);
 }
 
 /// A trivial `Emitter` using the standard error.
-pub struct StderrEmitter;
+pub struct StderrEmitter {
+    /// Exit code of the last emitted error.
+    last_error_code: Option<i32>,
+}
 
 impl Emitter for StderrEmitter {
     fn emit_err(&mut self, err: LeoError) {
+        self.last_error_code = Some(err.exit_code());
         eprintln!("{}", err);
+    }
+
+    fn last_emited_err_code(&self) -> Option<i32> {
+        self.last_error_code
     }
 
     fn emit_warning(&mut self, warning: LeoWarning) {
@@ -63,6 +74,11 @@ impl<T> Buffer<T> {
     /// Extract the underlying list of Ts.
     pub fn into_inner(self) -> Vec<T> {
         self.0
+    }
+
+    /// Last entry to the buffer.
+    pub fn last_entry(&self) -> Option<&T> {
+        self.0.last()
     }
 }
 
@@ -110,6 +126,11 @@ impl Emitter for BufferEmitter {
         self.0.borrow_mut().push(err);
     }
 
+    fn last_emited_err_code(&self) -> Option<i32> {
+        let temp = &*self.0.borrow();
+        temp.last_entry().map(|entry| entry.exit_code())
+    }
+
     fn emit_warning(&mut self, warning: LeoWarning) {
         self.1.borrow_mut().push(warning);
     }
@@ -133,6 +154,11 @@ impl HandlerInner {
         self.emitter.emit_err(err);
     }
 
+    /// Gets the last emitted error's exit code.
+    fn last_emited_err_code(&self) -> Option<i32> {
+        self.emitter.last_emited_err_code()
+    }
+
     /// Emit the error `err`.
     fn emit_warning(&mut self, warning: LeoWarning) {
         self.warn_count = self.warn_count.saturating_add(1);
@@ -149,7 +175,7 @@ pub struct Handler {
 
 impl Default for Handler {
     fn default() -> Self {
-        Self::new(Box::new(StderrEmitter))
+        Self::new(Box::new(StderrEmitter { last_error_code: None }))
     }
 }
 
@@ -209,6 +235,14 @@ impl Handler {
     /// Did we have any errors thus far?
     pub fn had_errors(&self) -> bool {
         self.err_count() > 0
+    }
+
+    /// Gets the last emitted error's exit code if it exists.
+    /// Then exits the program with it if it did exist.
+    pub fn exit_with_last_err_code(&self) {
+        if let Some(code) = self.inner.borrow().last_emited_err_code() {
+            std::process::exit(code);
+        }
     }
 
     /// Extend handler with `error` given `res = Err(error)`.
