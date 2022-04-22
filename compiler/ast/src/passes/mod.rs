@@ -14,13 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! This module contains both a Director to reconstruct the AST
-//! which maps over every node of the AST and calls a reducer.
-//! The Trait for a reducer are methods that can be overridden
-//! to make changes to how AST nodes are rebuilt.
+//! This module contains both a Reducer and Visitor design pattern.
+//! These both iterate over the AST.
+
+// todo @gluax: Move the files in this module into `leo-passes` in a future PR.
 
 pub mod reconstructing_reducer;
 pub use reconstructing_reducer::*;
 
 pub mod reconstructing_director;
 pub use reconstructing_director::*;
+
+pub mod visitor;
+pub use visitor::*;
+
+pub mod visitor_director;
+pub use visitor_director::*;
