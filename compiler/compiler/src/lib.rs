@@ -25,6 +25,7 @@
 pub use leo_ast::Ast;
 use leo_errors::emitter::Handler;
 use leo_errors::{CompilerError, Result};
+use leo_passes::*;
 use leo_span::symbol::create_session_if_not_set_then;
 
 use sha2::{Digest, Sha256};
@@ -108,6 +109,8 @@ impl<'a> Compiler<'a> {
         // ast = leo_ast_passes::Canonicalizer::do_pass(Default::default(), ast.into_repr())?;
         // Write the AST snapshot post parsing
         // ast.to_json_file_without_keys(self.output_directory, "canonicalization_ast.json", &["span"])?;
+
+        let _symbol_table = CreateSymbolTable::do_pass((&ast, self.handler));
 
         Ok(ast)
     }

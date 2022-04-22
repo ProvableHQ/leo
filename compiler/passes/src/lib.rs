@@ -25,3 +25,9 @@ pub use canonicalization::*;
 // until we migrate stdlib and then import resolution.
 /* pub mod import_resolution;
 pub use import_resolution::*; */
+
+pub mod pass;
+pub use self::pass::*;
+
+pub mod symbol_table;
+pub use symbol_table::*;

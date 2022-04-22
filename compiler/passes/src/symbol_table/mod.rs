@@ -14,10 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Ast, Program};
-use leo_errors::Result;
+pub mod create;
+pub use create::*;
 
-/// A pass consuming a `Program` and possibly returning an `Ast`.
-pub trait AstPass {
-    fn do_pass(self, ast: Program) -> Result<Ast>;
+pub mod table;
+pub use table::*;
+
+pub mod variable_symbol;
+pub use variable_symbol::*;
+
+use crate::Pass;
+
+use leo_ast::{Ast, VisitorDirector};
+use leo_errors::emitter::Handler;
+
+impl<'a> Pass<'a> for CreateSymbolTable<'a> {
+    type Input = (&'a Ast, &'a Handler);
+    type Output = Result<SymbolTable<'a>, ()>;
+
+    fn do_pass((ast, handler): Self::Input) -> Self::Output {
+        let mut visitor = VisitorDirector::new(CreateSymbolTable::default());
+        visitor.visit_program(ast.as_repr());
+        if handler.had_errors() {
+            return Err(());
+        }
+
+        Ok(visitor.visitor().symbol_table())
+    }
 }

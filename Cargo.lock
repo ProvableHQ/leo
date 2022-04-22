@@ -1221,24 +1221,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "leo-ast-passes"
-version = "1.5.3"
-dependencies = [
- "indexmap",
- "leo-ast",
- "leo-errors",
- "leo-parser",
- "leo-span",
-]
-
-[[package]]
 name = "leo-compiler"
 version = "1.5.3"
 dependencies = [
  "leo-ast",
- "leo-ast-passes",
  "leo-errors",
  "leo-parser",
+ "leo-passes",
  "leo-span",
  "sha2",
 ]
@@ -1323,6 +1312,17 @@ dependencies = [
  "snarkvm-dpc",
  "structopt",
  "tracing",
+]
+
+[[package]]
+name = "leo-passes"
+version = "1.5.3"
+dependencies = [
+ "indexmap",
+ "leo-ast",
+ "leo-errors",
+ "leo-parser",
+ "leo-span",
 ]
 
 [[package]]
