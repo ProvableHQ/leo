@@ -14,23 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![deny(clippy::all, clippy::missing_docs_in_private_items)]
-#![doc = include_str!("../README.md")]
+use crate::create_messages;
 
-#[macro_use]
-extern crate thiserror;
+create_messages!(
+    /// ParserWarning enum that represents all the warnings for the `leo-parser` crate.
+    ParserWarning,
+    code_mask: 0000i32,
+    code_prefix: "PAR",
 
-/// Contains the common functionalities for defining errors..
-#[macro_use]
-pub mod common;
-pub use self::common::*;
-
-/// Contains traits and types for channels through which errors go.
-pub mod emitter;
-/// Contains the errors for the Leo lang.
-pub mod errors;
-pub use self::errors::*;
-
-/// Contains the warnings for the Leo lang.
-pub mod warnings;
-pub use self::warnings::*;
+    /// For when a user used const on a parameter or input instead of constant.
+     @formatted
+     const_parameter_or_input {
+         args: (),
+         msg: "`constant` is preferred over `const` for function parameters to indicate a R1CS constant.",
+         help: None,
+     }
+);

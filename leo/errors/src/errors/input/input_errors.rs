@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::create_errors;
+use crate::create_messages;
 use std::fmt::{Debug, Display};
 
-create_errors!(
+create_messages!(
     /// InputError enum that represents all the errors for the inputs part of `leo-ast` crate.
     InputError,
-    exit_code_mask: 8000i32,
-    error_code_prefix: "INP",
+    code_mask: 8000i32,
+    code_prefix: "INP",
 
     /// For when declared variable type mismatches actual type.
     @formatted

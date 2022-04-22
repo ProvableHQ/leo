@@ -1,6 +1,6 @@
 /*
 namespace: Input
-expectation: Fail
+expectation: Pass
 */
 
 [main]
