@@ -17,6 +17,8 @@
 //! This module contains both a Reducer and Visitor design pattern.
 //! These both iterate over the AST.
 
+// todo @gluax: Move the files in this module into `leo-passes` in a future PR.
+
 pub mod reconstructing_reducer;
 pub use reconstructing_reducer::*;
 

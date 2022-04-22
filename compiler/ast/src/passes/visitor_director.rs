@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! This module contains Visitor Traits for the AST.
+//! This module contains Visitor trait implementations for the AST.
 //! It implements default methods for each node to be made
 //! given the type of node its visiting.
 
