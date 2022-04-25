@@ -77,8 +77,7 @@ impl Namespace for CompileNamespace {
         let handler = Handler::new(Box::new(err_buf.clone()));
 
         create_session_if_not_set_then(|_| {
-            // run_test(test, &handler, &err_buf).map_err(|()| err_buf.0.take().to_string())
-            Err("todo".to_string())
+            run_test(test, &handler, &err_buf).map_err(|()| err_buf.0.take().to_string())
         })
     }
 }
@@ -220,7 +219,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     }
 
     let initial_ast = hash_file("/tmp/output/initial_ast.json");
-    let input_ast = hash_file("/tmp/output/input_ast.json");
+    let initial_input = hash_file("/tmp/output/input_ast.json");
 
     if fs::read_dir("/tmp/output").is_ok() {
         fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");

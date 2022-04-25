@@ -19,7 +19,7 @@ use leo_ast::{DefinitionStatement, FunctionInput, FunctionInputVariable};
 use leo_errors::{AstError, Result};
 use leo_span::Symbol;
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct VariableSymbol<'a> {
     parent: Option<Box<VariableSymbol<'a>>>,
     inputs: IndexMap<Symbol, &'a FunctionInputVariable>,

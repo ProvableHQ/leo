@@ -22,7 +22,7 @@ use indexmap::IndexMap;
 
 use crate::VariableSymbol;
 
-#[derive(Default)]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct SymbolTable<'a> {
     functions: IndexMap<Symbol, &'a Function>,
     variables: VariableSymbol<'a>,

@@ -1229,6 +1229,9 @@ dependencies = [
  "leo-parser",
  "leo-passes",
  "leo-span",
+ "leo-test-framework",
+ "serde",
+ "serde_yaml",
  "sha2",
 ]
 

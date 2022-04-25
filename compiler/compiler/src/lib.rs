@@ -76,7 +76,7 @@ impl<'a> Compiler<'a> {
     ///
     /// Runs the compiler stages.
     ///
-    fn compiler_stages(&self) -> Result<leo_ast::Ast> {
+    fn compiler_stages(&self, program_string: &str) -> Result<leo_ast::Ast> {
         //load the input file if it exists.
         if let Some(input_file_path) = self.input_file_path.as_ref() {
             let _input_ast = if input_file_path.exists() {
@@ -92,10 +92,6 @@ impl<'a> Compiler<'a> {
                 None
             };
         }
-
-        // Load the program file.
-        let program_string = fs::read_to_string(&self.main_file_path)
-            .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;
 
         // Use the parser to construct the abstract syntax tree (ast).
         let ast: leo_ast::Ast = leo_parser::parse_ast(
@@ -116,10 +112,21 @@ impl<'a> Compiler<'a> {
         Ok(ast)
     }
 
+    /// Parses and stores the main program file, constructs a syntax tree, and generates a program.
+    ///
+    /// Parses and stores all programs imported by the main program file.
+    pub fn parse_program(&self) -> Result<Ast> {
+        // Load the program file.
+        let program_string = fs::read_to_string(&self.main_file_path)
+            .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;
+
+        self.compiler_stages(&program_string)
+    }
+
     ///
     /// Returns a compiled Leo program.
     ///
     pub fn compile(&self) -> Result<leo_ast::Ast> {
-        create_session_if_not_set_then(|_| self.compiler_stages())
+        create_session_if_not_set_then(|_| self.parse_program())
     }
 }
