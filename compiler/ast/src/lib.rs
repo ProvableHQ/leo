@@ -40,9 +40,6 @@ pub use self::groups::*;
 pub mod input;
 pub use self::input::*;
 
-pub mod pass;
-pub use self::pass::*;
-
 pub mod passes;
 pub use self::passes::*;
 
