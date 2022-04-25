@@ -52,4 +52,10 @@ impl<'a> VariableSymbol<'a> {
             Ok(())
         }
     }
+
+    pub fn clear(&mut self) {
+        self.parent = None;
+        self.inputs.clear();
+        self.variables.clear();
+    }
 }

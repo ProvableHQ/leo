@@ -38,6 +38,10 @@ impl<'a> SymbolTable<'a> {
         }
     }
 
+    pub fn clear_variables(&mut self) {
+        self.variables.clear();
+    }
+
     pub fn insert_fn(&mut self, symbol: Symbol, function: &'a Function) -> Result<()> {
         self.check_shadowing(&symbol)?;
         self.functions.insert(symbol, function);
