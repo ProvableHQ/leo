@@ -22,6 +22,9 @@
 #![allow(clippy::upper_case_acronyms)]
 #![doc = include_str!("../README.md")]
 
+#[cfg(test)]
+mod test;
+
 pub use leo_ast::Ast;
 use leo_errors::emitter::Handler;
 use leo_errors::{CompilerError, Result};
@@ -32,29 +35,25 @@ use sha2::{Digest, Sha256};
 use std::fs;
 use std::path::PathBuf;
 
+#[derive(Clone)]
 /// The primary entry point of the Leo compiler.
 pub struct Compiler<'a> {
     handler: &'a Handler,
     main_file_path: PathBuf,
     output_directory: PathBuf,
-    input_file_path: PathBuf,
+    input_file_path: Option<PathBuf>,
 }
 
 impl<'a> Compiler<'a> {
     ///
     /// Returns a new Leo compiler.
     ///
-    pub fn new(
-        handler: &'a Handler,
-        main_file_path: PathBuf,
-        output_directory: PathBuf,
-        input_file_path: PathBuf,
-    ) -> Self {
+    pub fn new(handler: &'a Handler, main_file_path: PathBuf, output_directory: PathBuf) -> Self {
         Self {
             handler,
             main_file_path,
             output_directory,
-            input_file_path,
+            input_file_path: None,
         }
     }
 
@@ -77,20 +76,22 @@ impl<'a> Compiler<'a> {
     ///
     /// Runs the compiler stages.
     ///
-    fn compiler_stages(self) -> Result<leo_ast::Ast> {
+    fn compiler_stages(&self) -> Result<leo_ast::Ast> {
         //load the input file if it exists.
-        let _input_ast = if self.input_file_path.exists() {
-            let input_string = fs::read_to_string(&self.input_file_path)
-                .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;
+        if let Some(input_file_path) = self.input_file_path.as_ref() {
+            let _input_ast = if input_file_path.exists() {
+                let input_string = fs::read_to_string(&input_file_path)
+                    .map_err(|e| CompilerError::file_read_error(input_file_path.clone(), e))?;
 
-            Some(leo_parser::parse_input(
-                self.handler,
-                self.input_file_path.to_str().unwrap_or_default(),
-                input_string,
-            )?)
-        } else {
-            None
-        };
+                Some(leo_parser::parse_input(
+                    self.handler,
+                    input_file_path.to_str().unwrap_or_default(),
+                    input_string,
+                )?)
+            } else {
+                None
+            };
+        }
 
         // Load the program file.
         let program_string = fs::read_to_string(&self.main_file_path)
@@ -103,7 +104,7 @@ impl<'a> Compiler<'a> {
             program_string,
         )?;
         // Write the AST snapshot post parsing.
-        ast.to_json_file_without_keys(self.output_directory, "initial_ast.json", &["span"])?;
+        ast.to_json_file_without_keys(self.output_directory.clone(), "initial_ast.json", &["span"])?;
 
         // Canonicalize the AST.
         // ast = leo_ast_passes::Canonicalizer::do_pass(Default::default(), ast.into_repr())?;
@@ -118,7 +119,7 @@ impl<'a> Compiler<'a> {
     ///
     /// Returns a compiled Leo program.
     ///
-    pub fn compile(self) -> Result<leo_ast::Ast> {
+    pub fn compile(&self) -> Result<leo_ast::Ast> {
         create_session_if_not_set_then(|_| self.compiler_stages())
     }
 }
