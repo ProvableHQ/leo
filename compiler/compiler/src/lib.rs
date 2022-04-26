@@ -25,9 +25,11 @@
 #[cfg(test)]
 mod test;
 
-pub use leo_ast::Ast;
+use leo_ast::Program;
+pub use leo_ast::{Ast, ParsedInputFile};
 use leo_errors::emitter::Handler;
 use leo_errors::{CompilerError, Result};
+pub use leo_passes::SymbolTable;
 use leo_passes::*;
 use leo_span::symbol::create_session_if_not_set_then;
 
@@ -41,7 +43,7 @@ pub struct Compiler<'a> {
     handler: &'a Handler,
     main_file_path: PathBuf,
     output_directory: PathBuf,
-    input_file_path: Option<PathBuf>,
+    pub ast: Ast,
 }
 
 impl<'a> Compiler<'a> {
@@ -53,7 +55,7 @@ impl<'a> Compiler<'a> {
             handler,
             main_file_path,
             output_directory,
-            input_file_path: None,
+            ast: Ast::new(Program::new("Initial".to_string())),
         }
     }
 
@@ -73,25 +75,27 @@ impl<'a> Compiler<'a> {
         Ok(format!("{:x}", hash))
     }
 
-    ///
-    /// Runs the compiler stages.
-    ///
-    fn compiler_stages(&self, program_string: &str) -> Result<leo_ast::Ast> {
-        //load the input file if it exists.
-        if let Some(input_file_path) = self.input_file_path.as_ref() {
-            let _input_ast = if input_file_path.exists() {
-                let input_string = fs::read_to_string(&input_file_path)
-                    .map_err(|e| CompilerError::file_read_error(input_file_path.clone(), e))?;
+    // Parses and stores a program file content from a string, constructs a syntax tree, and generates a program.
+    pub fn parse_program_from_string(&mut self, program_string: &str) -> Result<()> {
+        // Use the parser to construct the abstract syntax tree (ast).
+        let ast: leo_ast::Ast = leo_parser::parse_ast(
+            self.handler,
+            self.main_file_path.to_str().unwrap_or_default(),
+            program_string,
+        )?;
+        // Write the AST snapshot post parsing.
+        ast.to_json_file_without_keys(self.output_directory.clone(), "initial_ast.json", &["span"])?;
 
-                Some(leo_parser::parse_input(
-                    self.handler,
-                    input_file_path.to_str().unwrap_or_default(),
-                    input_string,
-                )?)
-            } else {
-                None
-            };
-        }
+        self.ast = ast;
+
+        Ok(())
+    }
+
+    /// Parses and stores the main program file, constructs a syntax tree, and generates a program.
+    pub fn parse_program(&mut self) -> Result<()> {
+        // Load the program file.
+        let program_string = fs::read_to_string(&self.main_file_path)
+            .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;
 
         // Use the parser to construct the abstract syntax tree (ast).
         let ast: leo_ast::Ast = leo_parser::parse_ast(
@@ -102,31 +106,43 @@ impl<'a> Compiler<'a> {
         // Write the AST snapshot post parsing.
         ast.to_json_file_without_keys(self.output_directory.clone(), "initial_ast.json", &["span"])?;
 
-        // Canonicalize the AST.
-        // ast = leo_ast_passes::Canonicalizer::do_pass(Default::default(), ast.into_repr())?;
-        // Write the AST snapshot post parsing
-        // ast.to_json_file_without_keys(self.output_directory, "canonicalization_ast.json", &["span"])?;
+        self.ast = ast;
 
-        let _symbol_table = CreateSymbolTable::do_pass((&ast, self.handler));
-
-        Ok(ast)
+        Ok(())
     }
 
-    /// Parses and stores the main program file, constructs a syntax tree, and generates a program.
-    ///
-    /// Parses and stores all programs imported by the main program file.
-    pub fn parse_program(&self) -> Result<Ast> {
-        // Load the program file.
-        let program_string = fs::read_to_string(&self.main_file_path)
-            .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;
+    // Loads the given input file if it exists.
+    fn parse_input(&self, input_file_path: PathBuf) -> Result<Option<ParsedInputFile>> {
+        // Load the input file if it exists.
+        if input_file_path.exists() {
+            let input_string = fs::read_to_string(&input_file_path)
+                .map_err(|e| CompilerError::file_read_error(input_file_path.clone(), e))?;
 
-        self.compiler_stages(&program_string)
+            let input_ast =
+                leo_parser::parse_input(self.handler, input_file_path.to_str().unwrap_or_default(), input_string)?;
+
+            input_ast.to_json_file_without_keys(self.output_directory.clone(), "inital_input_ast.json", &["span"])?;
+
+            Ok(Some(input_ast))
+        } else {
+            Ok(None)
+        }
+    }
+
+    ///
+    /// Runs the compiler stages.
+    ///
+    fn compiler_stages(&mut self, input_file_path: PathBuf) -> Result<(Option<ParsedInputFile>, SymbolTable<'_>)> {
+        let input_ast = self.parse_input(input_file_path)?;
+        let symbol_table = CreateSymbolTable::do_pass((&self.ast, self.handler));
+
+        Ok((input_ast, symbol_table))
     }
 
     ///
     /// Returns a compiled Leo program.
     ///
-    pub fn compile(&self) -> Result<leo_ast::Ast> {
-        create_session_if_not_set_then(|_| self.parse_program())
+    pub fn compile(&mut self, input_file_path: PathBuf) -> Result<(Option<ParsedInputFile>, SymbolTable<'_>)> {
+        create_session_if_not_set_then(|_| self.compiler_stages(input_file_path))
     }
 }

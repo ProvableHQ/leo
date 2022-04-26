@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{commands::Command, context::Context};
-use leo_compiler::{Ast, Compiler};
+use leo_compiler::{Ast, Compiler, ParsedInputFile};
 use leo_errors::{CliError, Result};
 use leo_package::{
     inputs::InputFile,
@@ -101,7 +101,7 @@ pub struct Build {
 
 impl Command for Build {
     type Input = ();
-    type Output = (Ast, bool);
+    type Output = (Option<ParsedInputFile>, Ast, bool);
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Build")
@@ -180,13 +180,14 @@ impl Command for Build {
         // Initialize error handler
         let handler = leo_errors::emitter::Handler::default();
 
-        let program = Compiler::new(&handler, main_file_path, output_directory);
+        let mut program = Compiler::new(&handler, main_file_path, output_directory);
+        program.parse_program()?;
 
         // Compute the current program checksum
         let program_checksum = program.checksum()?;
 
         // Compile the program
-        let program_compiled = program.compile()?;
+        let (input_ast, _) = program.compile(input_path.to_path_buf())?;
 
         // Generate the program on the constraint system and verify correctness
         {
@@ -240,6 +241,6 @@ impl Command for Build {
 
         tracing::info!("Complete");
 
-        Ok((program_compiled, checksum_differs))
+        Ok((input_ast, program.ast, checksum_differs))
     }
 }

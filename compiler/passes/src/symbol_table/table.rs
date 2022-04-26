@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use std::fmt::Display;
+
 use leo_ast::Function;
 use leo_errors::{AstError, Result};
 use leo_span::Symbol;
@@ -46,5 +48,11 @@ impl<'a> SymbolTable<'a> {
         self.check_shadowing(&symbol)?;
         self.functions.insert(symbol, function);
         Ok(())
+    }
+}
+
+impl<'a> Display for SymbolTable<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        todo!()
     }
 }

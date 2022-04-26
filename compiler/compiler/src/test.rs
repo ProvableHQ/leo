@@ -28,6 +28,7 @@ use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
     LeoError,
 };
+use leo_passes::SymbolTable;
 use leo_span::symbol::create_session_if_not_set_then;
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
@@ -49,20 +50,23 @@ fn parse_program<'a>(
     cwd: Option<PathBuf>,
 ) -> Result<Compiler<'a>, LeoError> {
     let mut compiler = new_compiler(handler, cwd.unwrap_or_else(|| "compiler-test".into()));
-
-    compiler.compile()?;
+    compiler.parse_program_from_string(program_string)?;
 
     Ok(compiler)
 }
 
-fn hash_file(path: &str) -> String {
+fn hash_content(content: &str) -> String {
     use sha2::{Digest, Sha256};
-    let mut file = fs::File::open(&Path::new(path)).unwrap();
     let mut hasher = Sha256::new();
-    std::io::copy(&mut file, &mut hasher).unwrap();
+    hasher.update(content);
     let hash = hasher.finalize();
 
     format!("{:x}", hash)
+}
+
+fn hash_file(path: &str) -> String {
+    let file = fs::read_to_string(&Path::new(path)).unwrap();
+    hash_content(&file)
 }
 
 struct CompileNamespace;
@@ -85,6 +89,8 @@ impl Namespace for CompileNamespace {
 #[derive(Deserialize, PartialEq, Serialize)]
 struct OutputItem {
     pub input_file: String,
+    pub initial_input_ast: String,
+    pub symbol_table: String,
 }
 
 #[derive(Deserialize, PartialEq, Serialize)]
@@ -93,44 +99,18 @@ struct CompileOutput {
     pub initial_ast: String,
 }
 
-type Input = (String, String);
+type Input = (PathBuf, String);
 
-/// Collect all inputs into `list` from `field`, if possible.
-fn collect_inputs_list(list: &mut Vec<Input>, field: &[Value]) -> Result<(), String> {
-    for map in field {
-        for (name, value) in map.as_mapping().unwrap().iter() {
-            // Try to parse string from 'inputs' map, else fail
-            let value = if let serde_yaml::Value::String(value) = value {
-                value
-            } else {
-                return Err("Expected string in 'inputs' map".to_string());
-            };
-
-            list.push((name.as_str().unwrap().to_string(), value.clone()));
-        }
-    }
-    Ok(())
-}
-
-/// Read contents of `input_file` given in `input` into `list`.
-fn read_input_file(list: &mut Vec<Input>, test: &Test, input: &Value) {
+/// Get the path of the `input_file` given in `input` into `list`.
+fn get_input_file_paths(list: &mut Vec<Input>, test: &Test, input: &Value) {
     let input_file: PathBuf = test.path.parent().expect("no test parent dir").into();
-    if let Some(name) = input.as_str() {
+    if let Some(_) = input.as_str() {
         let mut input_file = input_file;
         input_file.push(input.as_str().expect("input_file was not a string or array"));
         list.push((
-            name.to_string(),
+            input_file.clone(),
             fs::read_to_string(&input_file).expect("failed to read test input file"),
         ));
-    } else if let Some(seq) = input.as_sequence() {
-        for name in seq {
-            let mut input_file = input_file.clone();
-            input_file.push(name.as_str().expect("input_file was not a string"));
-            list.push((
-                name.as_str().expect("input_file item was not a string").to_string(),
-                fs::read_to_string(&input_file).expect("failed to read test input file"),
-            ));
-        }
     }
 }
 
@@ -138,22 +118,19 @@ fn read_input_file(list: &mut Vec<Input>, test: &Test, input: &Value) {
 fn collect_all_inputs(test: &Test) -> Result<Vec<Input>, String> {
     let mut list = vec![];
 
-    if let Some(Value::Sequence(field)) = test.config.get("inputs") {
-        collect_inputs_list(&mut list, field)?;
+    if let Some(input) = test.config.get("input_file") {
+        get_input_file_paths(&mut list, &test, input);
     }
 
-    if let Some(input) = test.config.get("input_file") {
-        read_input_file(&mut list, &test, input);
-    }
-    if list.is_empty() {
-        list.push(("empty".to_string(), "".to_string()));
-    }
     Ok(list)
 }
 
-fn compile_and_process(parsed: Compiler<'_>, input: &Input) -> Result<(), LeoError> {
-    // ParsedInputFile
-    Ok(())
+fn compile_and_process<'a>(
+    parsed: &'a mut Compiler<'a>,
+    input_file_path: PathBuf,
+) -> Result<(Option<ParsedInputFile>, SymbolTable<'a>), LeoError> {
+    let compiled = parsed.compiler_stages(input_file_path)?;
+    Ok(compiled)
 }
 
 // Errors used in this module.
@@ -212,14 +189,18 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     let mut output_items = Vec::with_capacity(inputs.len());
 
     for input in inputs {
-        let parsed = parsed.clone();
-        handler.extend_if_error(compile_and_process(parsed, &input))?;
+        let mut parsed = parsed.clone();
+        let (_, symbol_table) = handler.extend_if_error(compile_and_process(&mut parsed, input.0))?;
+        let initial_input_ast = hash_file("/tmp/output/inital_input_ast.json");
 
-        output_items.push(OutputItem { input_file: input.0 });
+        output_items.push(OutputItem {
+            input_file: input.1,
+            initial_input_ast,
+            symbol_table: hash_content(&symbol_table.to_string()),
+        });
     }
 
     let initial_ast = hash_file("/tmp/output/initial_ast.json");
-    let initial_input = hash_file("/tmp/output/input_ast.json");
 
     if fs::read_dir("/tmp/output").is_ok() {
         fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
