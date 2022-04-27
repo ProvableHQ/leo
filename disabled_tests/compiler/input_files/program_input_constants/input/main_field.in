@@ -1,10 +1,9 @@
 [main]
-a: bool = true;
 y: bool = true;
-// arr: [u32; 2] = [10, 8];
 
 [constants]
-b: bool = true;
+a: field = 1;
+b: field = -1;
 
 [registers]
 r0: bool = true;

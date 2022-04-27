@@ -1,14 +1,10 @@
 /*
 namespace: Compile
 expectation: Pass
-input_file: input/dummy.in
+input_file: ../input/dummy.in
 */
 
-// @test
-// function fake_test() {}
-
 function main(y: bool) -> bool {
+    const a: i32 = -2147483648;
     return y == true;
 }
-
-// circuit Foo {}

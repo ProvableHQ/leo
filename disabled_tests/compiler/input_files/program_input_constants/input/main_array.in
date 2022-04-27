@@ -1,10 +1,8 @@
 [main]
-a: bool = true;
 y: bool = true;
-// arr: [u32; 2] = [10, 8];
 
 [constants]
-b: bool = true;
+x: [i16; 1] = [0i16; 1];
 
 [registers]
 r0: bool = true;

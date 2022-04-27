@@ -29,6 +29,7 @@ use commands::{
     // Deploy, Init, Lint, New, Prove, Run, Setup, Test, Update, Watch,
 };
 use leo_errors::Result;
+use leo_span::symbol::create_session_if_not_set_then;
 // use snarkvm_utilities::Write;
 
 use std::{path::PathBuf, process::exit};
@@ -206,7 +207,7 @@ fn set_panic_hook() {
 
 fn main() {
     set_panic_hook();
-    handle_error(run_with_args(Opt::from_args()));
+    handle_error(create_session_if_not_set_then(|_| run_with_args(Opt::from_args())));
 }
 
 /// Run command with custom build arguments.

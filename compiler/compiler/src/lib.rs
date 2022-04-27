@@ -31,7 +31,6 @@ use leo_errors::emitter::Handler;
 use leo_errors::{CompilerError, Result};
 pub use leo_passes::SymbolTable;
 use leo_passes::*;
-use leo_span::symbol::create_session_if_not_set_then;
 
 use sha2::{Digest, Sha256};
 use std::fs;
@@ -143,6 +142,6 @@ impl<'a> Compiler<'a> {
     /// Returns a compiled Leo program.
     ///
     pub fn compile(&mut self, input_file_path: PathBuf) -> Result<(Option<ParsedInputFile>, SymbolTable<'_>)> {
-        create_session_if_not_set_then(|_| self.compiler_stages(input_file_path))
+        self.compiler_stages(input_file_path)
     }
 }

@@ -46,6 +46,10 @@ version = "1.5.3"
 path = "./leo/package"
 version = "1.5.3"
 
+[dependencies.leo-span]
+path = "./leo/span"
+version = "1.5.3"
+
 [dependencies.snarkvm-utilities]
 git = "https://github.com/AleoHQ/snarkVM.git"
 rev = "51633e2"

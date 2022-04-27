@@ -4,5 +4,5 @@ expectation: Fail
 */
 
 function main() {
-    const a: u128 = -1;
+    const i = 1 i32;
 }
