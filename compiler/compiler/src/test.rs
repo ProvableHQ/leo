@@ -26,7 +26,7 @@ use crate::Compiler;
 use leo_ast::ParsedInputFile;
 use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
-    LeoError,
+    LeoError, LeoWarning,
 };
 use leo_passes::SymbolTable;
 use leo_span::symbol::create_session_if_not_set_then;
@@ -77,12 +77,10 @@ impl Namespace for CompileNamespace {
     }
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
-        let err_buf = BufferEmitter(Rc::default());
-        let handler = Handler::new(Box::new(err_buf.clone()));
+        let buf = BufferEmitter(Rc::default(), Rc::default());
+        let handler = Handler::new(Box::new(buf.clone()));
 
-        create_session_if_not_set_then(|_| {
-            run_test(test, &handler, &err_buf).map_err(|()| err_buf.0.take().to_string())
-        })
+        create_session_if_not_set_then(|_| run_test(test, &handler, &buf).map_err(|()| buf.0.take().to_string()))
     }
 }
 
@@ -150,7 +148,7 @@ impl fmt::Display for LeoOrString {
 
 /// A buffer used to emit errors into.
 #[derive(Clone)]
-struct BufferEmitter(Rc<RefCell<Buffer<LeoOrString>>>);
+struct BufferEmitter(Rc<RefCell<Buffer<LeoOrString>>>, Rc<RefCell<Buffer<LeoWarning>>>);
 
 impl Emitter for BufferEmitter {
     fn emit_err(&mut self, err: LeoError) {
@@ -158,11 +156,15 @@ impl Emitter for BufferEmitter {
     }
 
     fn last_emited_err_code(&self) -> Option<i32> {
-        todo!()
+        let temp = &*self.0.borrow();
+        temp.last_entry().map(|entry| match entry {
+            LeoOrString::Leo(err) => err.exit_code(),
+            _ => 0,
+        })
     }
 
     fn emit_warning(&mut self, warning: leo_errors::LeoWarning) {
-        todo!()
+        self.1.borrow_mut().push(warning);
     }
 }
 

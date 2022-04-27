@@ -53,6 +53,12 @@ impl<'a> SymbolTable<'a> {
 
 impl<'a> Display for SymbolTable<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        todo!()
+        write!(f, "SymbolTable")?;
+
+        for func in self.functions.values() {
+            write!(f, "{func}")?;
+        }
+
+        write!(f, "{}", self.variables)
     }
 }

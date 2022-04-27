@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use std::fmt::Display;
+
 use indexmap::IndexMap;
 use leo_ast::{DefinitionStatement, FunctionInput, FunctionInputVariable};
 use leo_errors::{AstError, Result};
@@ -57,5 +59,25 @@ impl<'a> VariableSymbol<'a> {
         self.parent = None;
         self.inputs.clear();
         self.variables.clear();
+    }
+}
+
+impl<'a> Display for VariableSymbol<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "VariableSymbol")?;
+        self.parent
+            .as_ref()
+            .map(|parent| write!(f, "parent {parent}"))
+            .transpose()?;
+
+        for input in self.inputs.values() {
+            write!(f, "{input}")?;
+        }
+
+        for var in self.variables.values() {
+            write!(f, "{var}")?;
+        }
+
+        Ok(())
     }
 }
