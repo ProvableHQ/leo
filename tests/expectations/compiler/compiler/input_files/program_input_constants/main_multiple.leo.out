@@ -2,21 +2,8 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - circuit:
-      num_public_variables: 0
-      num_private_variables: 1
-      num_constraints: 1
-      at: 042610d0fd1fe6d6ac112138f8755752f44c7d2a00f1b5960574d6da5cda393f
-      bt: e97756698880ab7555a959a5fb5c6b4e15bd64612aa677adbfe2d0bd91f0a83c
-      ct: cf1cbb66a638b4860a516671fb74850e6ccf787fe6c4c8d29e9c04efe880bd05
-    output:
-      - input_file: input/main_multiple.in
-        output:
-          registers:
-            r0:
-              type: bool
-              value: "true"
-    initial_ast: 841fab63212fa6030fe800e4494dc455a9f4d91a583a3780669f6d5431702646
-    imports_resolved_ast: 8d90701424ca8b5722a13dc009ee0a84f62e4869c74c79e9590cefa07ce61e2a
-    canonicalized_ast: 8d90701424ca8b5722a13dc009ee0a84f62e4869c74c79e9590cefa07ce61e2a
-    type_inferenced_ast: d85a4f34150f9b87932f445575f606078fccff1649919264de7daed050c09d30
+  - output:
+      - input_file: "[main]\ny: bool = true;\n\n[constants]\na: bool = true;\nb: bool = false;\n\n[registers]\nr0: bool = true;\n"
+        initial_input_ast: 81306ba48e4ea08106311612bfd5c1bce79242ca08695fda8584780329266063
+        symbol_table: 6680aaab1d739d10eb145876c05f90779c9888b98dce5eeb122517ef87fb4536
+    initial_ast: 3c27f9f5dddfc4a5a036c33fd9bbbff4594bcdb188cff720d0e8ae7f171f6acf

@@ -2,21 +2,8 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - circuit:
-      num_public_variables: 0
-      num_private_variables: 25
-      num_constraints: 33
-      at: 00318b0f80b01b9e2d5a8154a536deb1545f04abd493a84071ef13dce1a9d92d
-      bt: 799ee4dc07f6320b8c3dcbd5ebdf6de8a4cf5af8b1edc45dbe5621c8a34fa38d
-      ct: 7b6ec9eacd65cfa47dfe7e73eb7c8fa4be804a9fb878fddf59fe5d06e7c04489
-    output:
-      - input_file: inputs/ternary_explicit_and_implicit.in
-        output:
-          registers:
-            a:
-              type: u8
-              value: "3"
-    initial_ast: 2fe02053af3b0036f939e7eb256fb54a52c193780c9a276f2ba5a5065e80eda0
-    imports_resolved_ast: ed770362776ddd99e3212e5b5de24932130ff48d925f66f2ecfb655c558f15b7
-    canonicalized_ast: ed770362776ddd99e3212e5b5de24932130ff48d925f66f2ecfb655c558f15b7
-    type_inferenced_ast: 4e9f786837db65d8ab0aaa2c9a5d4363617b8bf47083daff7a8dafa397e1d513
+  - output:
+      - input_file: "[main]\nx: u8 = 3;\ny: bool = true;\n\n[registers]\na: u8 = 0;"
+        initial_input_ast: f8e632870ce0044f507e280f5d6ee8715eb152d556245bc42680ba217581ceec
+        symbol_table: 447cf0023743b719c1bbf7a5f1d72d41a2066e4772231e5ebe419098479be8fa
+    initial_ast: 060826d16d66f656a31c83dc7a9652ca364048f241b228621a71caa29388f6ce
