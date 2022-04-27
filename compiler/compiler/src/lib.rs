@@ -133,7 +133,7 @@ impl<'a> Compiler<'a> {
     ///
     fn compiler_stages(&mut self, input_file_path: PathBuf) -> Result<(Option<ParsedInputFile>, SymbolTable<'_>)> {
         let input_ast = self.parse_input(input_file_path)?;
-        let symbol_table = CreateSymbolTable::do_pass((&self.ast, self.handler));
+        let symbol_table = CreateSymbolTable::do_pass((&self.ast, self.handler))?;
 
         Ok((input_ast, symbol_table))
     }

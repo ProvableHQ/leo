@@ -155,11 +155,11 @@ impl Emitter for BufferEmitter {
         self.0.borrow_mut().push(LeoOrString::Leo(err));
     }
 
-    fn last_emited_err_code(&self) -> Option<i32> {
+    fn last_emited_err(&self) -> Option<LeoError> {
         let temp = &*self.0.borrow();
         temp.last_entry().map(|entry| match entry {
-            LeoOrString::Leo(err) => err.exit_code(),
-            _ => 0,
+            LeoOrString::Leo(err) => err.clone(),
+            _ => unimplemented!(),
         })
     }
 

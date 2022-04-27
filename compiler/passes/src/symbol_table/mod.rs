@@ -26,17 +26,17 @@ pub use variable_symbol::*;
 use crate::Pass;
 
 use leo_ast::{Ast, VisitorDirector};
-use leo_errors::emitter::Handler;
+use leo_errors::{emitter::Handler, Result};
 
 impl<'a> Pass<'a> for CreateSymbolTable<'a> {
     type Input = (&'a Ast, &'a Handler);
-    type Output = SymbolTable<'a>;
+    type Output = Result<SymbolTable<'a>>;
 
     fn do_pass((ast, handler): Self::Input) -> Self::Output {
         let mut visitor = VisitorDirector::new(CreateSymbolTable::new(handler));
         visitor.visit_program(ast.as_repr());
-        handler.exit_with_last_err_code();
+        handler.last_err()?;
 
-        visitor.visitor().symbol_table()
+        Ok(visitor.visitor().symbol_table())
     }
 }
