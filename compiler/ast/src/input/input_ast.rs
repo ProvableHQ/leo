@@ -29,17 +29,17 @@ pub struct Input {
 /// A raw unprocessed input or state file data. Used for future conversion
 /// into [`ProgramInput`] or [`ProgramState`].
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct ParsedInputFile {
+pub struct InputAst {
     pub sections: Vec<Section>,
 }
 
-impl ParsedInputFile {
-    /// Serializes the `ParsedInputFile` into a JSON Value.
+impl Input {
+    /// Serializes the `Input` into a JSON Value.
     pub fn to_json_value(&self) -> Result<serde_json::Value> {
         Ok(serde_json::to_value(&self).map_err(|e| AstError::failed_to_convert_ast_to_json_value(&e))?)
     }
 
-    /// Serializes the `ParsedInputFile` into a JSON value and removes keys from object mappings before writing to a file.
+    /// Serializes the `Input` into a JSON value and removes keys from object mappings before writing to a file.
     pub fn to_json_file_without_keys(
         &self,
         mut path: std::path::PathBuf,
@@ -59,9 +59,7 @@ impl ParsedInputFile {
         Ok(serde_json::to_writer_pretty(writer, &value)
             .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e))?)
     }
-}
 
-impl Input {
     /// Serializes the ast into a JSON string.
     pub fn to_json_string(&self) -> Result<String> {
         Ok(serde_json::to_string_pretty(&self).map_err(|e| AstError::failed_to_convert_ast_to_json_string(&e))?)

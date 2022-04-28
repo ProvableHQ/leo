@@ -23,9 +23,9 @@ pub struct ProgramInput {
     pub registers: Definitions,
 }
 
-impl TryFrom<ParsedInputFile> for ProgramInput {
+impl TryFrom<InputAst> for ProgramInput {
     type Error = LeoError;
-    fn try_from(input: ParsedInputFile) -> Result<Self> {
+    fn try_from(input: InputAst) -> Result<Self> {
         let mut main = IndexMap::new();
         let mut registers = IndexMap::new();
 

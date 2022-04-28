@@ -23,7 +23,7 @@ use std::{
 
 use crate::Compiler;
 
-use leo_ast::ParsedInputFile;
+use leo_ast::Input;
 use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
     LeoError, LeoWarning,
@@ -86,7 +86,6 @@ impl Namespace for CompileNamespace {
 
 #[derive(Deserialize, PartialEq, Serialize)]
 struct OutputItem {
-    pub input_file: String,
     pub initial_input_ast: String,
     pub symbol_table: String,
 }
@@ -97,27 +96,22 @@ struct CompileOutput {
     pub initial_ast: String,
 }
 
-type Input = (PathBuf, String);
-
 /// Get the path of the `input_file` given in `input` into `list`.
-fn get_input_file_paths(list: &mut Vec<Input>, test: &Test, input: &Value) {
+fn get_input_file_paths(list: &mut Vec<PathBuf>, test: &Test, input: &Value) {
     let input_file: PathBuf = test.path.parent().expect("no test parent dir").into();
-    if let Some(_) = input.as_str() {
+    if input.as_str().is_some() {
         let mut input_file = input_file;
         input_file.push(input.as_str().expect("input_file was not a string or array"));
-        list.push((
-            input_file.clone(),
-            fs::read_to_string(&input_file).expect("failed to read test input file"),
-        ));
+        list.push(input_file.clone());
     }
 }
 
 /// Collect and return all inputs, if possible.
-fn collect_all_inputs(test: &Test) -> Result<Vec<Input>, String> {
+fn collect_all_inputs(test: &Test) -> Result<Vec<PathBuf>, String> {
     let mut list = vec![];
 
     if let Some(input) = test.config.get("input_file") {
-        get_input_file_paths(&mut list, &test, input);
+        get_input_file_paths(&mut list, test, input);
     }
 
     Ok(list)
@@ -126,9 +120,8 @@ fn collect_all_inputs(test: &Test) -> Result<Vec<Input>, String> {
 fn compile_and_process<'a>(
     parsed: &'a mut Compiler<'a>,
     input_file_path: PathBuf,
-) -> Result<(Option<ParsedInputFile>, SymbolTable<'a>), LeoError> {
-    let compiled = parsed.compiler_stages(input_file_path)?;
-    Ok(compiled)
+) -> Result<(Option<Input>, SymbolTable<'a>), LeoError> {
+    parsed.compiler_stages(input_file_path)
 }
 
 // Errors used in this module.
@@ -183,20 +176,19 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         cwd.join(&val.as_str().unwrap())
     });
 
-    let parsed = handler.extend_if_error(parse_program(&handler, &test.content, cwd))?;
+    let parsed = handler.extend_if_error(parse_program(handler, &test.content, cwd))?;
 
     // (name, content)
-    let inputs = buffer_if_err(&err_buf, collect_all_inputs(&test))?;
+    let inputs = buffer_if_err(err_buf, collect_all_inputs(&test))?;
 
     let mut output_items = Vec::with_capacity(inputs.len());
 
     for input in inputs {
         let mut parsed = parsed.clone();
-        let (_, symbol_table) = handler.extend_if_error(compile_and_process(&mut parsed, input.0))?;
+        let (_, symbol_table) = handler.extend_if_error(compile_and_process(&mut parsed, input))?;
         let initial_input_ast = hash_file("/tmp/output/inital_input_ast.json");
 
         output_items.push(OutputItem {
-            input_file: input.1,
             initial_input_ast,
             symbol_table: hash_content(&symbol_table.to_string()),
         });

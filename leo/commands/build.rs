@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{commands::Command, context::Context};
-use leo_compiler::{Ast, Compiler, ParsedInputFile};
+use leo_compiler::{Ast, Compiler, Input};
 use leo_errors::{CliError, Result};
 use leo_package::{
     inputs::InputFile,
@@ -101,7 +101,7 @@ pub struct Build {
 
 impl Command for Build {
     type Input = ();
-    type Output = (Option<ParsedInputFile>, Ast, bool);
+    type Output = (Option<Input>, Ast, bool);
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Build")

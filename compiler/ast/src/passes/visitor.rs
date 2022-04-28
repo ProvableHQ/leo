@@ -34,7 +34,7 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_identifer(&mut self, _input: &'a Identifier) -> VisitResult {
+    fn visit_identifier(&mut self, _input: &'a Identifier) -> VisitResult {
         Default::default()
     }
 
