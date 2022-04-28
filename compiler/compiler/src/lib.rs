@@ -26,7 +26,7 @@
 mod test;
 
 use leo_ast::Program;
-pub use leo_ast::{Ast, Input};
+pub use leo_ast::{Ast, InputAst};
 use leo_errors::emitter::Handler;
 use leo_errors::{CompilerError, Result};
 pub use leo_passes::SymbolTable;
@@ -100,17 +100,14 @@ impl<'a> Compiler<'a> {
     }
 
     // Loads the given input file if it exists.
-    fn parse_input(&self, input_file_path: PathBuf) -> Result<Option<Input>> {
+    fn parse_input(&self, input_file_path: PathBuf) -> Result<Option<InputAst>> {
         // Load the input file if it exists.
         if input_file_path.exists() {
             let input_string = fs::read_to_string(&input_file_path)
                 .map_err(|e| CompilerError::file_read_error(input_file_path.clone(), e))?;
 
-            let input_ast = leo_parser::parse_program_inputs(
-                self.handler,
-                input_file_path.to_str().unwrap_or_default(),
-                input_string,
-            )?;
+            let input_ast =
+                leo_parser::parse_input(self.handler, input_file_path.to_str().unwrap_or_default(), input_string)?;
 
             input_ast.to_json_file_without_keys(self.output_directory.clone(), "inital_input_ast.json", &["span"])?;
 
@@ -123,7 +120,7 @@ impl<'a> Compiler<'a> {
     ///
     /// Runs the compiler stages.
     ///
-    fn compiler_stages(&mut self, input_file_path: PathBuf) -> Result<(Option<Input>, SymbolTable<'_>)> {
+    fn compiler_stages(&mut self, input_file_path: PathBuf) -> Result<(Option<InputAst>, SymbolTable<'_>)> {
         let input_ast = self.parse_input(input_file_path)?;
         let symbol_table = CreateSymbolTable::do_pass((&self.ast, self.handler))?;
 
@@ -133,7 +130,7 @@ impl<'a> Compiler<'a> {
     ///
     /// Returns a compiled Leo program.
     ///
-    pub fn compile(&mut self, input_file_path: PathBuf) -> Result<(Option<Input>, SymbolTable<'_>)> {
+    pub fn compile(&mut self, input_file_path: PathBuf) -> Result<(Option<InputAst>, SymbolTable<'_>)> {
         self.compiler_stages(input_file_path)
     }
 }

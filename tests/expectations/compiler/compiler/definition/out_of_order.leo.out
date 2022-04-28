@@ -3,7 +3,6 @@ namespace: Compile
 expectation: Pass
 outputs:
   - output:
-      - input_file: "[main]\ny: bool = true;\n\n[registers]\nr0: bool = true;\n"
-        initial_input_ast: 3674d8249023145121ff35eb4d9e59b0ce79cda7e17f9f98b5dbaa6ba4f80cf2
+      - initial_input_ast: 3674d8249023145121ff35eb4d9e59b0ce79cda7e17f9f98b5dbaa6ba4f80cf2
         symbol_table: fe836874629cdc86427a1048352c6e75e7a2981ee5c9819df0fd946eb79d4d8b
     initial_ast: 5ef5995607c9487bbba88bd6e2806f19ca1ef11bf6bb7507f75f6a5f32d39fb6

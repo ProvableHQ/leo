@@ -3,7 +3,6 @@ namespace: Compile
 expectation: Pass
 outputs:
   - output:
-      - input_file: "[main]\nx: u8 = 3;\ny: bool = true;\n\n[registers]\na: u8 = 0;"
-        initial_input_ast: f8e632870ce0044f507e280f5d6ee8715eb152d556245bc42680ba217581ceec
+      - initial_input_ast: f8e632870ce0044f507e280f5d6ee8715eb152d556245bc42680ba217581ceec
         symbol_table: 447cf0023743b719c1bbf7a5f1d72d41a2066e4772231e5ebe419098479be8fa
     initial_ast: 060826d16d66f656a31c83dc7a9652ca364048f241b228621a71caa29388f6ce

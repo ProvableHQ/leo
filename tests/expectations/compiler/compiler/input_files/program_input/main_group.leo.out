@@ -3,7 +3,6 @@ namespace: Compile
 expectation: Pass
 outputs:
   - output:
-      - input_file: "[main]\na: group = 1group;\nb: group = -1group;\nc: group = (0, -1)group;\n"
-        initial_input_ast: 723e9ab87822d7d8d793ca1611eabcebc684097a64f37a4cd246ff9e506a4865
+      - initial_input_ast: 723e9ab87822d7d8d793ca1611eabcebc684097a64f37a4cd246ff9e506a4865
         symbol_table: 27ba3868c5417bf99f34622b3a2f074fc400f9550b4a282b47c559391f961b55
     initial_ast: 7e9c14acddc22727d5f7a480aaa8a88eabb1be94072f9124d286bd0c2224d018

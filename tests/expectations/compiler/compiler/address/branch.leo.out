@@ -3,7 +3,6 @@ namespace: Compile
 expectation: Pass
 outputs:
   - output:
-      - input_file: "[main]\nx: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9;\ny: bool = true;\n\n[registers]\na: bool = false;"
-        initial_input_ast: bbe973798ab14152165455260924a0de60131d31da32d2e223228954365dc609
+      - initial_input_ast: bbe973798ab14152165455260924a0de60131d31da32d2e223228954365dc609
         symbol_table: 6f506e4bd93ca4a193014f33276e519aec48586d26a29a6a40c7fc7434a70b6d
     initial_ast: eec1883a71c0ffd8b84ccf32538073fb8dece4b49f502227eef42f55ed4970af

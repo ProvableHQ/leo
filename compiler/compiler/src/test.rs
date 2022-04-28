@@ -23,7 +23,7 @@ use std::{
 
 use crate::Compiler;
 
-use leo_ast::Input;
+use leo_ast::InputAst;
 use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
     LeoError, LeoWarning,
@@ -120,7 +120,7 @@ fn collect_all_inputs(test: &Test) -> Result<Vec<PathBuf>, String> {
 fn compile_and_process<'a>(
     parsed: &'a mut Compiler<'a>,
     input_file_path: PathBuf,
-) -> Result<(Option<Input>, SymbolTable<'a>), LeoError> {
+) -> Result<(Option<InputAst>, SymbolTable<'a>), LeoError> {
     parsed.compiler_stages(input_file_path)
 }
 

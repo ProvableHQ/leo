@@ -3,7 +3,6 @@ namespace: Compile
 expectation: Pass
 outputs:
   - output:
-      - input_file: "[main]\na: u32 = 10;\nb: u32 = 100;\ny: bool = true;\n\n[registers]\nr0: bool = true;\nr1: bool = true;\n"
-        initial_input_ast: d718416ac1a3ae6c6d9cc30f75175eb408f584cff8de4994a756a054e4571dbc
+      - initial_input_ast: d718416ac1a3ae6c6d9cc30f75175eb408f584cff8de4994a756a054e4571dbc
         symbol_table: b25c0ab70906c0cac81eca91609c3ad6201198c2f871147e455f0689d1222e6d
     initial_ast: 3c9f874c442a8b41ff0e3f3f212d96690d2665022d7898045bec0b18495db1bc

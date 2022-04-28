@@ -3,7 +3,6 @@ namespace: Compile
 expectation: Pass
 outputs:
   - output:
-      - input_file: "[main]\na: bool = true;\ny: bool = true;\n// arr: [u32; 2] = [10, 8];\n\n[constants]\nb: bool = true;\n\n[registers]\nr0: bool = true;\n"
-        initial_input_ast: 534a7a2cf337da1dc9ea3d25dacec6390f4cdbf6b5961b481564abc44fff1442
+      - initial_input_ast: 534a7a2cf337da1dc9ea3d25dacec6390f4cdbf6b5961b481564abc44fff1442
         symbol_table: 7ab514d7a4bc29d3591f2a08de47b4e1abef689ec058a5dbcdbb2169cf56a2a0
     initial_ast: 4db2058d770eaf4a82ca62b0220db4cff2564824e3b4ec6691ba3109cab8d729
