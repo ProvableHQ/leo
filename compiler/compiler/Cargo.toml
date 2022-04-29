@@ -22,24 +22,28 @@ rust-version = "1.56.1"
 path = "../ast"
 version = "1.5.3"
 
-[dependencies.leo-passes]
-path = "../passes"
-version = "1.5.3"
-
 [dependencies.leo-errors]
 path = "../../leo/errors"
+version = "1.5.3"
+
+[dependencies.leo-passes]
+path = "../passes"
 version = "1.5.3"
 
 [dependencies.leo-parser]
 path = "../parser"
 version = "1.5.3"
 
+[dependencies.sha2]
+version = "0.10"
+
 [dev-dependencies.leo-span]
 path = "../../leo/span"
 version = "1.5.3"
 
-[dependencies.sha2]
-version = "0.10"
+[dev-dependencies.leo-test-framework]
+path = "../../tests/test-framework"
+version = "1.4.0"
 
 [dev-dependencies.serde]
 version = "1.0.136"
@@ -48,9 +52,6 @@ features = ["derive"]
 [dev-dependencies.serde_yaml]
 version = "0.8.23"
 
-[dev-dependencies.leo-test-framework]
-path = "../../tests/test-framework"
-version = "1.4.0"
 
 [features]
 default = [ ]
