@@ -18,9 +18,6 @@
 //! It implements default methods for each node to be made
 //! given the type of node its visiting.
 
-// temporary till we use in another pr.
-#![allow(dead_code)]
-
 use std::marker::PhantomData;
 
 use crate::*;

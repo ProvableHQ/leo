@@ -23,7 +23,6 @@ use std::{
 
 use crate::Compiler;
 
-use leo_ast::InputAst;
 use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
     LeoError, LeoWarning,
@@ -120,8 +119,9 @@ fn collect_all_inputs(test: &Test) -> Result<Vec<PathBuf>, String> {
 fn compile_and_process<'a>(
     parsed: &'a mut Compiler<'a>,
     input_file_path: PathBuf,
-) -> Result<(Option<InputAst>, SymbolTable<'a>), LeoError> {
-    parsed.compiler_stages(input_file_path)
+) -> Result<SymbolTable<'a>, LeoError> {
+    parsed.parse_input(input_file_path)?;
+    parsed.compiler_stages()
 }
 
 // Errors used in this module.
@@ -185,7 +185,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
 
     for input in inputs {
         let mut parsed = parsed.clone();
-        let (_, symbol_table) = handler.extend_if_error(compile_and_process(&mut parsed, input))?;
+        let symbol_table = handler.extend_if_error(compile_and_process(&mut parsed, input))?;
         let initial_input_ast = hash_file("/tmp/output/inital_input_ast.json");
 
         output_items.push(OutputItem {

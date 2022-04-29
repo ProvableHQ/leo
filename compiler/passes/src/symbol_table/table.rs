@@ -26,7 +26,11 @@ use crate::VariableSymbol;
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct SymbolTable<'a> {
+    /// Functions represents the name of each function mapped to the Ast's function definition.
+    /// This field is populated at a first pass.
     functions: IndexMap<Symbol, &'a Function>,
+    /// Variables represents functions variable definitions and input variables.
+    /// This field is not populated till necessary.
     variables: VariableSymbol<'a>,
 }
 

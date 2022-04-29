@@ -182,12 +182,13 @@ impl Command for Build {
 
         let mut program = Compiler::new(&handler, main_file_path, output_directory);
         program.parse_program()?;
+        program.parse_input(input_path.to_path_buf())?;
 
         // Compute the current program checksum
         let program_checksum = program.checksum()?;
 
         // Compile the program
-        let (input_ast, _) = program.compile(input_path.to_path_buf())?;
+        program.compile()?;
 
         // Generate the program on the constraint system and verify correctness
         {
@@ -241,6 +242,6 @@ impl Command for Build {
 
         tracing::info!("Complete");
 
-        Ok((input_ast, program.ast, checksum_differs))
+        Ok((program.input_ast, program.ast, checksum_differs))
     }
 }

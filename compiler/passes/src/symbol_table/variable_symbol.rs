@@ -23,8 +23,16 @@ use leo_span::Symbol;
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct VariableSymbol<'a> {
+    /// The parent scope of variables if it exists.
+    /// For example if we are in a if block inside a function.
+    /// The parent would be the functions variables and inputs.
+    /// This field is populated as necessary.
     parent: Option<Box<VariableSymbol<'a>>>,
+    /// The input variables defined in a scope.
+    /// This field is populated as necessary.
     inputs: IndexMap<Symbol, &'a FunctionInputVariable>,
+    /// The variables defined in a scope.
+    /// This field is populated as necessary.
     variables: IndexMap<Symbol, &'a DefinitionStatement>,
 }
 

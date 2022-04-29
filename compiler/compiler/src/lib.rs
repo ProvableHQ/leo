@@ -43,6 +43,7 @@ pub struct Compiler<'a> {
     main_file_path: PathBuf,
     output_directory: PathBuf,
     pub ast: Ast,
+    pub input_ast: Option<InputAst>,
 }
 
 impl<'a> Compiler<'a> {
@@ -55,6 +56,7 @@ impl<'a> Compiler<'a> {
             main_file_path,
             output_directory,
             ast: Ast::new(Program::new("Initial".to_string())),
+            input_ast: None,
         }
     }
 
@@ -99,38 +101,42 @@ impl<'a> Compiler<'a> {
         self.parse_program_from_string(&program_string)
     }
 
-    // Loads the given input file if it exists.
-    fn parse_input(&self, input_file_path: PathBuf) -> Result<Option<InputAst>> {
+    /// Parses and stores the input file, constructs a syntax tree, and generates a program input.
+    pub fn parse_input_from_string(&mut self, input_file_path: PathBuf, input_string: &str) -> Result<()> {
+        let input_ast =
+            leo_parser::parse_input(self.handler, input_file_path.to_str().unwrap_or_default(), input_string)?;
+        input_ast.to_json_file_without_keys(self.output_directory.clone(), "inital_input_ast.json", &["span"])?;
+
+        self.input_ast = Some(input_ast);
+        Ok(())
+    }
+
+    /// Parses and stores the input file, constructs a syntax tree, and generates a program input.
+    pub fn parse_input(&mut self, input_file_path: PathBuf) -> Result<()> {
         // Load the input file if it exists.
         if input_file_path.exists() {
             let input_string = fs::read_to_string(&input_file_path)
                 .map_err(|e| CompilerError::file_read_error(input_file_path.clone(), e))?;
 
-            let input_ast =
-                leo_parser::parse_input(self.handler, input_file_path.to_str().unwrap_or_default(), input_string)?;
-
-            input_ast.to_json_file_without_keys(self.output_directory.clone(), "inital_input_ast.json", &["span"])?;
-
-            Ok(Some(input_ast))
-        } else {
-            Ok(None)
+            self.parse_input_from_string(input_file_path, &input_string)?;
         }
+
+        Ok(())
     }
 
     ///
     /// Runs the compiler stages.
     ///
-    fn compiler_stages(&mut self, input_file_path: PathBuf) -> Result<(Option<InputAst>, SymbolTable<'_>)> {
-        let input_ast = self.parse_input(input_file_path)?;
+    fn compiler_stages(&self) -> Result<SymbolTable<'_>> {
         let symbol_table = CreateSymbolTable::do_pass((&self.ast, self.handler))?;
 
-        Ok((input_ast, symbol_table))
+        Ok(symbol_table)
     }
 
     ///
     /// Returns a compiled Leo program.
     ///
-    pub fn compile(&mut self, input_file_path: PathBuf) -> Result<(Option<InputAst>, SymbolTable<'_>)> {
-        self.compiler_stages(input_file_path)
+    pub fn compile(&self) -> Result<SymbolTable<'_>> {
+        self.compiler_stages()
     }
 }
