@@ -853,7 +853,8 @@ Go to: _[function-parameter](#user-content-function-parameter)_;
 
 <a name="function-parameter"></a>
 ```abnf
-function-parameter = [ %s"public" / %s"constant" / %s"const" ] identifier ":" type
+function-parameter = [ %s"public" / %s"constant" / %s"const" ]
+                     identifier ":" type
 ```
 
 Go to: _[identifier](#user-content-identifier), [type](#user-content-type)_;
