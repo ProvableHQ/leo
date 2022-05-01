@@ -73,7 +73,7 @@ macro_rules! strings {
     ([$($acc:expr),*] [$_sym:ident: $string:literal $(,)?]) => {
         strings!([$($acc,)* $string] [])
     };
-    // Base case 4): A single identitifier left.
+    // Base case 4): A single identifier left.
     // So in e.g., `symbols! { x, y }`, this handles `y` with `x` already in `$acc`.
     ([$($acc:expr),*] [$sym:ident $(,)?]) => {
         strings!([$($acc,)* stringify!($sym)] [])
