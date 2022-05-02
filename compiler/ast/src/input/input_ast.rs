@@ -14,8 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::{normalize_json_value, remove_key_from_json};
+
 use super::*;
-use leo_errors::AstError;
+use leo_errors::{AstError, Result};
 
 /// Input data which includes [`ProgramInput`] and [`ProgramState`].
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -24,16 +26,44 @@ pub struct Input {
     pub program_state: ProgramState,
 }
 
-/// A raw unprocessed input or state file data. Used for future conversion
-/// into [`ProgramInput`] or [`ProgramState`].
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct ParsedInputFile {
-    pub sections: Vec<Section>,
-}
-
 impl Input {
     /// Serializes the ast into a JSON string.
     pub fn to_json_string(&self) -> Result<String> {
         Ok(serde_json::to_string_pretty(&self).map_err(|e| AstError::failed_to_convert_ast_to_json_string(&e))?)
+    }
+}
+
+/// A raw unprocessed input or state file data. Used for future conversion
+/// into [`ProgramInput`] or [`ProgramState`].
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct InputAst {
+    pub sections: Vec<Section>,
+}
+
+impl InputAst {
+    /// Serializes the `Input` into a JSON Value.
+    pub fn to_json_value(&self) -> Result<serde_json::Value> {
+        Ok(serde_json::to_value(&self).map_err(|e| AstError::failed_to_convert_ast_to_json_value(&e))?)
+    }
+
+    /// Serializes the `Input` into a JSON value and removes keys from object mappings before writing to a file.
+    pub fn to_json_file_without_keys(
+        &self,
+        mut path: std::path::PathBuf,
+        file_name: &str,
+        excluded_keys: &[&str],
+    ) -> Result<()> {
+        path.push(file_name);
+        let file = std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_ast_json_file(&path, &e))?;
+        let writer = std::io::BufWriter::new(file);
+
+        let mut value = self.to_json_value().unwrap();
+        for key in excluded_keys {
+            value = remove_key_from_json(value, key);
+        }
+        value = normalize_json_value(value);
+
+        Ok(serde_json::to_writer_pretty(writer, &value)
+            .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e))?)
     }
 }

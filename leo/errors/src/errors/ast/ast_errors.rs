@@ -138,4 +138,28 @@ create_messages!(
         msg: "tuples of 1 element are not allowed",
         help: None,
     }
+
+    /// For when a user shadows a function.
+    @formatted
+    shadowed_function {
+        args: (func: impl Display),
+        msg: format!("function `{func}` shadowed"),
+        help: None,
+    }
+
+    /// For when a user shadows a function input.
+    @formatted
+    shadowed_function_input {
+        args: (fn_input: impl Display),
+        msg: format!("function input `{fn_input}` shadowed"),
+        help: None,
+    }
+
+    /// For when a user shadows a variable.
+    @formatted
+    shadowed_variable {
+        args: (var: impl Display),
+        msg: format!("variable `{var}` shadowed"),
+        help: None,
+    }
 );

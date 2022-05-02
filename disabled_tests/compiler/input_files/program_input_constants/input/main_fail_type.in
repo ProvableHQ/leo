@@ -1,0 +1,2 @@
+[constants]
+a: u8 = 1;

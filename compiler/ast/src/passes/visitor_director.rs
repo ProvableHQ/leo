@@ -18,25 +18,28 @@
 //! It implements default methods for each node to be made
 //! given the type of node its visiting.
 
-// temporary till we use in another pr.
-#![allow(dead_code)]
+use std::marker::PhantomData;
 
 use crate::*;
 
-pub struct VisitorDirector<V: ExpressionVisitor> {
+pub struct VisitorDirector<'a, V: ExpressionVisitor<'a>> {
     visitor: V,
+    lifetime: PhantomData<&'a ()>,
 }
 
-impl<V: ExpressionVisitor> VisitorDirector<V> {
+impl<'a, V: ExpressionVisitor<'a>> VisitorDirector<'a, V> {
     pub fn new(visitor: V) -> Self {
-        Self { visitor }
+        Self {
+            visitor,
+            lifetime: PhantomData,
+        }
     }
 
     pub fn visitor(self) -> V {
         self.visitor
     }
 
-    pub fn visit_expression(&mut self, input: &Expression) {
+    pub fn visit_expression(&mut self, input: &'a Expression) {
         if let VisitResult::VisitChildren = self.visitor.visit_expression(input) {
             match input {
                 Expression::Identifier(_) => {}
@@ -50,20 +53,20 @@ impl<V: ExpressionVisitor> VisitorDirector<V> {
         }
     }
 
-    pub fn visit_binary(&mut self, input: &BinaryExpression) {
+    pub fn visit_binary(&mut self, input: &'a BinaryExpression) {
         if let VisitResult::VisitChildren = self.visitor.visit_binary(input) {
             self.visit_expression(&input.left);
             self.visit_expression(&input.right);
         }
     }
 
-    pub fn visit_unary(&mut self, input: &UnaryExpression) {
+    pub fn visit_unary(&mut self, input: &'a UnaryExpression) {
         if let VisitResult::VisitChildren = self.visitor.visit_unary(input) {
             self.visit_expression(&input.inner);
         }
     }
 
-    pub fn visit_ternary(&mut self, input: &TernaryExpression) {
+    pub fn visit_ternary(&mut self, input: &'a TernaryExpression) {
         if let VisitResult::VisitChildren = self.visitor.visit_ternary(input) {
             self.visit_expression(&input.condition);
             self.visit_expression(&input.if_true);
@@ -71,16 +74,18 @@ impl<V: ExpressionVisitor> VisitorDirector<V> {
         }
     }
 
-    pub fn visit_call(&mut self, input: &CallExpression) {
+    pub fn visit_call(&mut self, input: &'a CallExpression) {
         if let VisitResult::VisitChildren = self.visitor.visit_call(input) {
             self.visit_expression(&input.function);
-            input.arguments.iter().for_each(|expr| self.visit_expression(expr));
+            for expr in input.arguments.iter() {
+                self.visit_expression(expr);
+            }
         }
     }
 }
 
-impl<V: ExpressionVisitor + StatementVisitor> VisitorDirector<V> {
-    fn visit_statement(&mut self, input: &Statement) {
+impl<'a, V: ExpressionVisitor<'a> + StatementVisitor<'a>> VisitorDirector<'a, V> {
+    pub fn visit_statement(&mut self, input: &'a Statement) {
         if let VisitResult::VisitChildren = self.visitor.visit_statement(input) {
             match input {
                 Statement::Return(stmt) => self.visit_return(stmt),
@@ -95,25 +100,25 @@ impl<V: ExpressionVisitor + StatementVisitor> VisitorDirector<V> {
         }
     }
 
-    fn visit_return(&mut self, input: &ReturnStatement) {
+    pub fn visit_return(&mut self, input: &'a ReturnStatement) {
         if let VisitResult::VisitChildren = self.visitor.visit_return(input) {
             self.visit_expression(&input.expression);
         }
     }
 
-    fn visit_definition(&mut self, input: &DefinitionStatement) {
+    pub fn visit_definition(&mut self, input: &'a DefinitionStatement) {
         if let VisitResult::VisitChildren = self.visitor.visit_definition(input) {
             self.visit_expression(&input.value);
         }
     }
 
-    fn visit_assign(&mut self, input: &AssignStatement) {
+    pub fn visit_assign(&mut self, input: &'a AssignStatement) {
         if let VisitResult::VisitChildren = self.visitor.visit_assign(input) {
             self.visit_expression(&input.value);
         }
     }
 
-    fn visit_conditional(&mut self, input: &ConditionalStatement) {
+    pub fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
         if let VisitResult::VisitChildren = self.visitor.visit_conditional(input) {
             self.visit_expression(&input.condition);
             self.visit_block(&input.block);
@@ -123,7 +128,7 @@ impl<V: ExpressionVisitor + StatementVisitor> VisitorDirector<V> {
         }
     }
 
-    fn visit_iteration(&mut self, input: &IterationStatement) {
+    pub fn visit_iteration(&mut self, input: &'a IterationStatement) {
         if let VisitResult::VisitChildren = self.visitor.visit_iteration(input) {
             self.visit_expression(&input.start);
             self.visit_expression(&input.stop);
@@ -131,7 +136,7 @@ impl<V: ExpressionVisitor + StatementVisitor> VisitorDirector<V> {
         }
     }
 
-    fn visit_console(&mut self, input: &ConsoleStatement) {
+    pub fn visit_console(&mut self, input: &'a ConsoleStatement) {
         if let VisitResult::VisitChildren = self.visitor.visit_console(input) {
             if let ConsoleFunction::Assert(expr) = &input.function {
                 self.visit_expression(expr);
@@ -139,30 +144,31 @@ impl<V: ExpressionVisitor + StatementVisitor> VisitorDirector<V> {
         }
     }
 
-    fn visit_expression_statement(&mut self, input: &ExpressionStatement) {
+    pub fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) {
         if let VisitResult::VisitChildren = self.visitor.visit_expression_statement(input) {
             self.visit_expression(&input.expression);
         }
     }
 
-    fn visit_block(&mut self, input: &Block) {
+    pub fn visit_block(&mut self, input: &'a Block) {
         if let VisitResult::VisitChildren = self.visitor.visit_block(input) {
-            input.statements.iter().for_each(|stmt| self.visit_statement(stmt));
+            for stmt in input.statements.iter() {
+                self.visit_statement(stmt);
+            }
         }
     }
 }
 
-impl<V: ExpressionVisitor + ProgramVisitor + StatementVisitor> VisitorDirector<V> {
-    fn visit_program(&mut self, input: &Program) {
+impl<'a, V: ExpressionVisitor<'a> + ProgramVisitor<'a> + StatementVisitor<'a>> VisitorDirector<'a, V> {
+    pub fn visit_program(&mut self, input: &'a Program) {
         if let VisitResult::VisitChildren = self.visitor.visit_program(input) {
-            input
-                .functions
-                .values()
-                .for_each(|function| self.visit_function(function));
+            for function in input.functions.values() {
+                self.visit_function(function);
+            }
         }
     }
 
-    fn visit_function(&mut self, input: &Function) {
+    pub fn visit_function(&mut self, input: &'a Function) {
         if let VisitResult::VisitChildren = self.visitor.visit_function(input) {
             self.visit_block(&input.block);
         }

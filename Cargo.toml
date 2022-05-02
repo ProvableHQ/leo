@@ -46,9 +46,16 @@ version = "1.5.3"
 path = "./leo/package"
 version = "1.5.3"
 
+[dependencies.leo-span]
+path = "./leo/span"
+version = "1.5.3"
+
 [dependencies.snarkvm-utilities]
 git = "https://github.com/AleoHQ/snarkVM.git"
 rev = "51633e2"
+
+[dependencies.backtrace]
+version = "0.3.65"
 
 [dependencies.clap]
 version = "3.1"
@@ -59,17 +66,11 @@ version = "0.5.1"
 [dependencies.colored]
 version = "2.0"
 
-[dependencies.backtrace]
-version = "0.3.65"
-
-[dependencies.sys-info]
-version = "0.9.1"
+[dependencies.console]
+version = "0.15.0"
 
 [dependencies.dirs]
 version = "4.0.0"
-
-[dependencies.console]
-version = "0.15.0"
 
 [dependencies.indexmap]
 version = "1.8"
@@ -104,6 +105,9 @@ version = "1.0"
 
 [dependencies.structopt]
 version = "0.3"
+
+[dependencies.sys-info]
+version = "0.9.1"
 
 [dependencies.toml]
 version = "0.5"

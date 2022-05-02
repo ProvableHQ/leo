@@ -20,7 +20,7 @@ use leo_errors::{ParserError, Result};
 
 impl ParserContext<'_> {
     /// Returns a [`ParsedInputFile`] struct filled with the data acquired in the file.
-    pub fn parse_input(&mut self) -> Result<ParsedInputFile> {
+    pub fn parse_input(&mut self) -> Result<InputAst> {
         let mut sections = Vec::new();
 
         while self.has_next() {
@@ -31,7 +31,7 @@ impl ParserContext<'_> {
             }
         }
 
-        Ok(ParsedInputFile { sections })
+        Ok(InputAst { sections })
     }
 
     /// Parses particular section in the Input or State file.
@@ -67,7 +67,7 @@ impl ParserContext<'_> {
         self.expect(&Token::Colon)?;
         let (type_, span) = self.parse_non_ident_types()?;
         self.expect(&Token::Assign)?;
-        let value = self.parse_primary_expression()?;
+        let value = self.parse_unary_expression()?;
         self.expect(&Token::Semicolon)?;
 
         Ok(Definition {

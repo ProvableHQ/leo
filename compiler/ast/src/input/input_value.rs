@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CharValue, Expression, GroupValue, IntegerType, Node, Type, ValueExpression};
+use crate::{CharValue, Expression, GroupValue, IntegerType, Node, Type, UnaryOperation, ValueExpression};
 use leo_errors::{InputError, LeoError, ParserError, Result};
 
 use serde::{Deserialize, Serialize};
@@ -58,6 +58,9 @@ impl TryFrom<(Type, Expression)> for InputValue {
                         return Err(InputError::unexpected_type(x, &y, y.span()).into());
                     }
                 }
+            }
+            (type_, Expression::Unary(unary)) if unary.op == UnaryOperation::Negate => {
+                InputValue::try_from((type_, *unary.inner))?
             }
             (_type_, expr) => return Err(InputError::illegal_expression(&expr, expr.span()).into()),
         })

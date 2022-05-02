@@ -43,7 +43,7 @@ pub use self::parser::*;
 
 /// The LeoError type that contains all sub error types.
 /// This allows a unified error type throughout the Leo crates.
-#[derive(Debug, Error)]
+#[derive(Clone, Debug, Error)]
 pub enum LeoError {
     /// Represents an AST Error in a Leo Error.
     #[error(transparent)]

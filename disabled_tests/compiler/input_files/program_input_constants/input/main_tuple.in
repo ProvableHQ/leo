@@ -1,0 +1,8 @@
+[main]
+y: bool = true;
+
+[constants]
+x: (u8, bool, u8) = (10, true, 10);
+
+[registers]
+r0: bool = true;
