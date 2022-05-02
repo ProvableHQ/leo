@@ -331,7 +331,8 @@ function-declaration = %s"function" identifier
 
 function-parameters = function-parameter *( "," function-parameter ) [ "," ]
 
-function-parameter = [ %s"public" / %s"constant" / %s"const" ] identifier ":" type
+function-parameter = [ %s"public" / %s"constant" / %s"const" ]
+                     identifier ":" type
 
 declaration = function-declaration
 
@@ -342,8 +343,7 @@ file = *declaration
 ; Format String Grammar
 ; ---------------------
 
-not-brace = %x0-7A / %x7C / %x7E-10FFFF
-            ; codes permitted in string after escapes processed, except { or }
+not-brace = %x0-7A / %x7C / %x7E-10FFFF  ; anything but { or }
 
 format-string-container = "{}"
 
