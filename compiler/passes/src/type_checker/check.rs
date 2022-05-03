@@ -14,40 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node};
-use leo_errors::Result;
-use leo_span::Span;
+use leo_ast::*;
 
-use serde::{Deserialize, Serialize};
-use std::fmt;
+use crate::TypeChecker;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct VariableName {
-    pub mutable: bool,
-    pub identifier: Identifier,
-    pub span: Span,
-}
+impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {}
 
-impl fmt::Display for VariableName {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.mutable {
-            write!(f, "mut ")?;
+impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
+    fn visit_return(&mut self, input: &'a ReturnStatement) -> VisitResult {
+        let parent = self.parent.unwrap();
+        if let Some(func) = self.symbol_table.lookup_fn(&parent) {
+            // if func.get_type()? != input.get_type()? {
+            //     // self.handler.emit_err(err);
+            // }
         }
 
-        write!(f, "{}", self.identifier)
+        VisitResult::VisitChildren
     }
 }
 
-impl Node for VariableName {
-    fn span(&self) -> &Span {
-        &self.span
-    }
-
-    fn set_span(&mut self, span: Span) {
-        self.span = span;
-    }
-
-    fn get_type(&self) -> Result<Option<crate::Type>> {
-        Ok(None)
+impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
+    fn visit_function(&mut self, input: &'a Function) -> VisitResult {
+        self.symbol_table.clear_variables();
+        self.parent = Some(input.name());
+        VisitResult::VisitChildren
     }
 }

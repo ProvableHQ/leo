@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{FunctionInputVariable, Node};
+use leo_errors::Result;
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -81,6 +82,13 @@ impl Node for FunctionInput {
         use FunctionInput::*;
         match self {
             Variable(variable) => variable.span = span,
+        }
+    }
+
+    fn get_type(&self) -> Result<Option<crate::Type>> {
+        use FunctionInput::*;
+        match self {
+            Variable(variable) => variable.get_type(),
         }
     }
 }

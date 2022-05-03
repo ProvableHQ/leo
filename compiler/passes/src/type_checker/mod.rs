@@ -14,40 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node};
-use leo_errors::Result;
-use leo_span::Span;
+pub mod check;
+pub use check::*;
 
-use serde::{Deserialize, Serialize};
-use std::fmt;
+pub mod checker;
+pub use checker::*;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct VariableName {
-    pub mutable: bool,
-    pub identifier: Identifier,
-    pub span: Span,
-}
+use crate::{Pass, SymbolTable};
 
-impl fmt::Display for VariableName {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.mutable {
-            write!(f, "mut ")?;
-        }
+use leo_ast::{Ast, VisitorDirector};
+use leo_errors::{emitter::Handler, Result};
 
-        write!(f, "{}", self.identifier)
-    }
-}
+impl<'a> Pass<'a> for TypeChecker<'a> {
+    type Input = (&'a Ast, SymbolTable<'a>, &'a Handler);
+    type Output = Result<()>;
 
-impl Node for VariableName {
-    fn span(&self) -> &Span {
-        &self.span
-    }
+    fn do_pass((ast, symbol_table, handler): Self::Input) -> Self::Output {
+        let mut visitor = VisitorDirector::new(TypeChecker::new(symbol_table, handler));
+        visitor.visit_program(ast.as_repr());
+        handler.last_err()?;
 
-    fn set_span(&mut self, span: Span) {
-        self.span = span;
-    }
-
-    fn get_type(&self) -> Result<Option<crate::Type>> {
-        Ok(None)
+        Ok(())
     }
 }

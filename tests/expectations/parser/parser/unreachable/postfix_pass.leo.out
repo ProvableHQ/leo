@@ -5,8 +5,8 @@ outputs:
   - Expression:
       expression:
         Value:
-          Implicit:
-            - ""
+          String:
+            - []
             - span:
                 line_start: 0
                 line_stop: 0

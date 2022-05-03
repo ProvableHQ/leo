@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{GroupValue, Identifier, IntegerType, Node};
-
+use crate::{GroupValue, Identifier, IntegerType, Node, Type};
+use leo_errors::Result;
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -78,6 +78,19 @@ impl Node for Expression {
             Ternary(n) => n.set_span(span),
             Call(n) => n.set_span(span),
             Err(n) => n.set_span(span),
+        }
+    }
+
+    fn get_type(&self) -> Result<Option<Type>> {
+        use Expression::*;
+        match self {
+            Identifier(n) => n.get_type(),
+            Value(n) => n.get_type(),
+            Binary(n) => n.get_type(),
+            Unary(n) => n.get_type(),
+            Ternary(n) => n.get_type(),
+            Call(n) => n.get_type(),
+            Err(n) => n.get_type(),
         }
     }
 }

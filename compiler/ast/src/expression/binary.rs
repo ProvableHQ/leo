@@ -156,4 +156,21 @@ impl Node for BinaryExpression {
     fn set_span(&mut self, span: Span) {
         self.span = span;
     }
+
+    fn get_type(&self) -> Result<Option<crate::Type>> {
+        match self.op.class() {
+            BinaryOperationClass::Boolean => Ok(Some(Type::Boolean)),
+            BinaryOperationClass::Numeric => {
+                let left = self.left.get_type()?;
+                let right = self.right.get_type()?;
+
+                match (left, right) {
+                    (Some(t1), Some(t2)) if t1 == t2 => Ok(Some(t1)),
+                    (None, None) => Ok(None),
+                    (Some(t1), Some(t2)) => todo!("throw err"),
+                    (None, Some(t)) | (Some(t), None) => todo!("throw err"),
+                }
+            }
+        }
+    }
 }

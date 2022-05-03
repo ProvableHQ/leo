@@ -76,10 +76,6 @@ fn with_handler<T>(
     Ok(parsed)
 }
 
-fn implicit_value_expr() -> Expression {
-    Expression::Value(ValueExpression::Implicit("".into(), Span::default()))
-}
-
 fn tokenize(test: Test) -> Result<Vec<SpannedToken>, String> {
     tokenizer::tokenize("test", &test.content).map_err(|x| x.to_string())
 }
@@ -105,7 +101,7 @@ impl Namespace for ParseExpressionNamespace {
         create_session_if_not_set_then(|_| {
             let tokenizer = tokenize(test)?;
             if all_are_comments(&tokenizer) {
-                return Ok(yaml_or_fail(implicit_value_expr()));
+                return Ok(yaml_or_fail(""));
             }
             with_handler(tokenizer, |p| p.parse_expression()).map(yaml_or_fail)
         })
@@ -124,7 +120,7 @@ impl Namespace for ParseStatementNamespace {
             let tokenizer = tokenize(test)?;
             if all_are_comments(&tokenizer) {
                 return Ok(yaml_or_fail(Statement::Expression(ExpressionStatement {
-                    expression: implicit_value_expr(),
+                    expression: Expression::Value(ValueExpression::String(Vec::new(), Default::default())),
                     span: Span::default(),
                 })));
             }

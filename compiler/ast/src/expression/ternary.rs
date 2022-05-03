@@ -43,4 +43,8 @@ impl Node for TernaryExpression {
     fn set_span(&mut self, span: Span) {
         self.span = span;
     }
+
+    fn get_type(&self) -> Result<Option<crate::Type>> {
+        Ok(None)
+    }
 }

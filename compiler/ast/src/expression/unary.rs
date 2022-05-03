@@ -64,4 +64,8 @@ impl Node for UnaryExpression {
     fn set_span(&mut self, span: Span) {
         self.span = span;
     }
+
+    fn get_type(&self) -> Result<Option<crate::Type>> {
+        self.inner.get_type()
+    }
 }

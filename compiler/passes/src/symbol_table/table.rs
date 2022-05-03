@@ -53,6 +53,10 @@ impl<'a> SymbolTable<'a> {
         self.functions.insert(symbol, function);
         Ok(())
     }
+
+    pub fn lookup_fn(&mut self, symbol: &Symbol) -> Option<&&'a Function> {
+        self.functions.get(symbol)
+    }
 }
 
 impl<'a> Display for SymbolTable<'a> {

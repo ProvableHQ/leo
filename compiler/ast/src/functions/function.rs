@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Block, FunctionInput, Identifier, Node, Type};
+use leo_errors::Result;
 use leo_span::{sym, Span, Symbol};
 
 use serde::{Deserialize, Serialize};
@@ -91,5 +92,9 @@ impl Node for Function {
 
     fn set_span(&mut self, span: Span) {
         self.span = span;
+    }
+
+    fn get_type(&self) -> Result<Option<Type>> {
+        Ok(Some(self.output.clone()))
     }
 }

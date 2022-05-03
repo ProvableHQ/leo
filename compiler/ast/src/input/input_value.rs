@@ -42,11 +42,8 @@ impl TryFrom<(Type, Expression)> for InputValue {
                         Self::Boolean(bool_value)
                     }
                     (Type::Char, ValueExpression::Char(value)) => Self::Char(value),
-                    (Type::Field, ValueExpression::Field(value, _) | ValueExpression::Implicit(value, _)) => {
-                        Self::Field(value)
-                    }
+                    (Type::Field, ValueExpression::Field(value, _)) => Self::Field(value),
                     (Type::Group, ValueExpression::Group(value)) => Self::Group(*value),
-                    (Type::IntegerType(type_), ValueExpression::Implicit(value, _)) => Self::Integer(type_, value),
                     (Type::IntegerType(expected), ValueExpression::Integer(actual, value, span)) => {
                         if expected == actual {
                             Self::Integer(expected, value)

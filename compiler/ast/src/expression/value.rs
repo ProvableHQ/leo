@@ -33,8 +33,6 @@ pub enum ValueExpression {
     /// A group literal, either product or affine.
     /// For example, `42group` or `(12, 52)group`.
     Group(Box<GroupValue>),
-    /// A negated non-integer literal, e.g., `-4.2`.
-    Implicit(String, #[serde(with = "leo_span::span_json")] Span),
     /// An integer literal, e.g., `42`.
     Integer(IntegerType, String, #[serde(with = "leo_span::span_json")] Span),
     /// A string literal, e.g., `"foobar"`.
@@ -49,7 +47,6 @@ impl fmt::Display for ValueExpression {
             Boolean(boolean, _) => write!(f, "{}", boolean),
             Char(character) => write!(f, "{}", character),
             Field(field, _) => write!(f, "{}", field),
-            Implicit(implicit, _) => write!(f, "{}", implicit),
             Integer(type_, value, _) => write!(f, "{}{}", value, type_),
             Group(group) => write!(f, "{}", group),
             String(string, _) => {
@@ -66,12 +63,7 @@ impl Node for ValueExpression {
     fn span(&self) -> &Span {
         use ValueExpression::*;
         match &self {
-            Address(_, span)
-            | Boolean(_, span)
-            | Field(_, span)
-            | Implicit(_, span)
-            | Integer(_, _, span)
-            | String(_, span) => span,
+            Address(_, span) | Boolean(_, span) | Field(_, span) | Integer(_, _, span) | String(_, span) => span,
             Char(character) => &character.span,
             Group(group) => match &**group {
                 GroupValue::Single(_, span) => span,
@@ -83,17 +75,27 @@ impl Node for ValueExpression {
     fn set_span(&mut self, new_span: Span) {
         use ValueExpression::*;
         match self {
-            Address(_, span)
-            | Boolean(_, span)
-            | Field(_, span)
-            | Implicit(_, span)
-            | Integer(_, _, span)
-            | String(_, span) => *span = new_span,
+            Address(_, span) | Boolean(_, span) | Field(_, span) | Integer(_, _, span) | String(_, span) => {
+                *span = new_span
+            }
             Char(character) => character.span = new_span,
             Group(group) => match &mut **group {
                 GroupValue::Single(_, span) => *span = new_span,
                 GroupValue::Tuple(tuple) => tuple.span = new_span,
             },
         }
+    }
+
+    fn get_type(&self) -> Result<Option<crate::Type>> {
+        use ValueExpression::*;
+        Ok(Some(match &self {
+            Address(_, _) => Type::Address,
+            Boolean(_, _) => Type::Boolean,
+            Char(_) => Type::Char,
+            Field(_, _) => Type::Field,
+            Integer(type_, _, _) => Type::IntegerType(*type_),
+            Group(_) => Type::Group,
+            String(_, _) => return Ok(None),
+        }))
     }
 }

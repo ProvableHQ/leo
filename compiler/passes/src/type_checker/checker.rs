@@ -14,40 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node};
-use leo_errors::Result;
-use leo_span::Span;
+use leo_errors::emitter::Handler;
+use leo_span::Symbol;
 
-use serde::{Deserialize, Serialize};
-use std::fmt;
+use crate::SymbolTable;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct VariableName {
-    pub mutable: bool,
-    pub identifier: Identifier,
-    pub span: Span,
+pub struct TypeChecker<'a> {
+    pub(crate) symbol_table: SymbolTable<'a>,
+    pub(crate) handler: &'a Handler,
+    pub(crate) parent: Option<Symbol>,
 }
 
-impl fmt::Display for VariableName {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.mutable {
-            write!(f, "mut ")?;
+impl<'a> TypeChecker<'a> {
+    pub fn new(symbol_table: SymbolTable<'a>, handler: &'a Handler) -> Self {
+        Self {
+            symbol_table,
+            handler,
+            parent: None,
         }
-
-        write!(f, "{}", self.identifier)
-    }
-}
-
-impl Node for VariableName {
-    fn span(&self) -> &Span {
-        &self.span
-    }
-
-    fn set_span(&mut self, span: Span) {
-        self.span = span;
-    }
-
-    fn get_type(&self) -> Result<Option<crate::Type>> {
-        Ok(None)
     }
 }

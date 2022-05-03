@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_errors::Result;
 use leo_span::Span;
+
+use crate::Type;
 
 /// A node in the AST.
 pub trait Node:
@@ -25,4 +28,7 @@ pub trait Node:
 
     /// Sets the span of the node.
     fn set_span(&mut self, span: Span);
+
+    /// Gets the type of the node if it exists.
+    fn get_type(&self) -> Result<Option<Type>>;
 }
