@@ -24,7 +24,7 @@ use crate::{tokenizer::*, Token};
 use leo_ast::*;
 use leo_errors::emitter::Handler;
 use leo_errors::{ParserError, Result};
-use leo_span::{Span, Symbol};
+use leo_span::Span;
 
 use indexmap::IndexMap;
 use std::unreachable;
@@ -51,14 +51,14 @@ pub(crate) fn assert_no_whitespace(left_span: &Span, right_span: &Span, left: &s
 
 /// Creates a new program from a given file path and source code text.
 pub fn parse(handler: &Handler, path: &str, source: &str) -> Result<Program> {
-    let mut tokens = ParserContext::new(handler, crate::tokenize(path, source.into())?);
+    let mut tokens = ParserContext::new(handler, crate::tokenize(path, source)?);
 
     tokens.parse_program()
 }
 
 /// Parses an input file at the given file `path` and `source` code text.
-pub fn parse_input(handler: &Handler, path: &str, source: &str) -> Result<ParsedInputFile> {
-    let mut tokens = ParserContext::new(handler, crate::tokenize(path, source.into())?);
+pub fn parse_input<T: AsRef<str>, Y: AsRef<str>>(handler: &Handler, path: T, source: Y) -> Result<InputAst> {
+    let mut tokens = ParserContext::new(handler, crate::tokenize(path.as_ref(), source.as_ref())?);
 
     tokens.parse_input()
 }

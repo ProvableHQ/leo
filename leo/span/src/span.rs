@@ -20,12 +20,14 @@ use std::{fmt, sync::Arc, usize};
 
 use serde::ser::{Serialize, SerializeStruct, Serializer};
 use serde::Deserialize;
-use tendril::StrTendril;
 
 /// The span type which tracks where formatted errors originate from in a Leo file.
 /// This is used in many spots throughout the rest of the Leo crates.
 #[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq)]
 pub struct Span {
+    // TODO(Centril): All of could be optimized to just `{ lo: u32, hi: u32 }`,
+    // i.e. 8 bytes by indexing into a global source map of all files concatenated.
+    // That would also give us `Copy` which is quite nice!
     /// The line number where the error started.
     pub line_start: usize,
     /// The line number where the error stopped.
@@ -36,9 +38,8 @@ pub struct Span {
     pub col_stop: usize,
     /// The path to the Leo file containing the error.
     pub path: Arc<String>,
-    #[serde(with = "crate::tendril_json")]
     /// The content of the line(s) that the span is found on.
-    pub content: StrTendril,
+    pub content: String,
 }
 
 impl Span {
@@ -55,7 +56,7 @@ impl Span {
         col_start: usize,
         col_stop: usize,
         path: Arc<String>,
-        content: StrTendril,
+        content: String,
     ) -> Self {
         Self {
             line_start,
@@ -65,6 +66,12 @@ impl Span {
             path,
             content,
         }
+    }
+
+    /// Generates a dummy span with all defaults.
+    /// Should only be used in temporary situations.
+    pub fn dummy() -> Self {
+        Self::new(0, 0, 0, 0, <_>::default(), <_>::default())
     }
 }
 
@@ -90,7 +97,7 @@ impl Serialize for Span {
         } else {
             state.serialize_field("path", "")?;
         }
-        state.serialize_field("content", &self.content[..])?;
+        state.serialize_field("content", &self.content)?;
         state.end()
     }
 }
@@ -156,7 +163,7 @@ impl std::ops::Add for Span {
                     new_content.push(format!("{:<1$}...", " ", other.col_start + 4));
                 }
             }
-            let new_content = new_content.join("\n").into();
+            let new_content = new_content.join("\n");
             if self.line_start < other.line_stop {
                 Span {
                     line_start: self.line_start,

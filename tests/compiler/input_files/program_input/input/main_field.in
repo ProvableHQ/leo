@@ -1,6 +1,6 @@
 [main]
-a: field = 1;
-b: field = -1;
+a: field = 1field;
+b: field = -1field;
 y: bool = true;
 
 [registers]

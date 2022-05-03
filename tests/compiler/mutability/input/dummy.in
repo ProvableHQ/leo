@@ -1,7 +1,7 @@
 [main]
 a: bool = true;
 y: bool = true;
-arr: [u32; 2] = [10, 8];
+// arr: [u32; 2] = [10, 8];
 
 [constants]
 b: bool = true;

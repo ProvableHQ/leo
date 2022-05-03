@@ -2,33 +2,5 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - circuit:
-      num_public_variables: 0
-      num_private_variables: 897
-      num_constraints: 897
-      at: 3898b682c2301fc8f7812b25fafec37b2382eede8f6e86d20bf9468c8b7e4a74
-      bt: 8e0a2864aa6383434f6d7843e06d6594b85a65b2009c612f72b3d8c6f07fb4ef
-      ct: 8d7309bdb692a71de6c9efc246984ce389534e8fc31222a94d5217720c2d20e9
-    output:
-      - input_file: u128_f.in
-        output:
-          registers:
-            r0:
-              type: bool
-              value: "false"
-      - input_file: u128_e.in
-        output:
-          registers:
-            r0:
-              type: bool
-              value: "true"
-      - input_file: u128_l.in
-        output:
-          registers:
-            r0:
-              type: bool
-              value: "false"
-    initial_ast: b1bd25758e4e2b6ea97586011f4e923a7d5c50664842cf9bf3e24bb849274de0
-    imports_resolved_ast: b334e1a5b09e3be41ccec5a5fcf6ec3fde3dc0d7965b66c7de3a771a605ee373
-    canonicalized_ast: b334e1a5b09e3be41ccec5a5fcf6ec3fde3dc0d7965b66c7de3a771a605ee373
-    type_inferenced_ast: 2ba654c7d74e2f653b2854efe13b5e7dc572e182bdcb6fb4b43837b5fe502be7
+  - output: []
+    initial_ast: dc5a1d60acec0e8a0bd8ac4da8dbf50314802ba4abc75b69e5a8036b880e1ea7

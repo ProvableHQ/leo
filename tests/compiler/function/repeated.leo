@@ -9,7 +9,7 @@ function one() -> bool {
 }
 
 function main(y: bool) -> bool {
-    const a = one() && one();
+    const a: bool = one() && one();
 
     return (a == true) == y;
 }

@@ -7,7 +7,7 @@ input_file:
 */
 
 function main(x: u32) -> bool {
-    if x == 3 {
+    if x == 3u32 {
         return true;
     } else {
         return false;

@@ -2,21 +2,7 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - circuit:
-      num_public_variables: 0
-      num_private_variables: 1
-      num_constraints: 1
-      at: 042610d0fd1fe6d6ac112138f8755752f44c7d2a00f1b5960574d6da5cda393f
-      bt: e97756698880ab7555a959a5fb5c6b4e15bd64612aa677adbfe2d0bd91f0a83c
-      ct: cf1cbb66a638b4860a516671fb74850e6ccf787fe6c4c8d29e9c04efe880bd05
-    output:
-      - input_file: input/dummy.in
-        output:
-          registers:
-            r0:
-              type: bool
-              value: "true"
-    initial_ast: baf6543c53c08f26703bca8541dd804c699470fd9378c5f1fc0edccf8f070a54
-    imports_resolved_ast: bc8f34c08103383ddc262f881a669798e66f8944302448fd87315928e5a161e4
-    canonicalized_ast: bc8f34c08103383ddc262f881a669798e66f8944302448fd87315928e5a161e4
-    type_inferenced_ast: ccdd5b12784e3763ec28fe860feb45e0c3b8866d15e8b939ab8fe8c343d1b855
+  - output:
+      - initial_input_ast: e518f4721bb7a7b6c63e380710a5a8cf4e489ccf66461bf9a68dc4b369e16445
+        symbol_table: b25c0ab70906c0cac81eca91609c3ad6201198c2f871147e455f0689d1222e6d
+    initial_ast: 3c9f874c442a8b41ff0e3f3f212d96690d2665022d7898045bec0b18495db1bc

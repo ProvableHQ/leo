@@ -2,21 +2,7 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - circuit:
-      num_public_variables: 0
-      num_private_variables: 1024
-      num_constraints: 1536
-      at: 5afd1d58b6826912fe5cba06b60d9a7debdbad9e922b8a78ed49f7a7ca0ac65e
-      bt: db77c3470cf1b3c80c2e3b1b3ddc59d9891912489bfcf39b7f67c2f314ca7f6d
-      ct: d0993682df5b495f4a6784882e0f007dbc378adb35007d250e2c098975f4d32e
-    output:
-      - input_file: inputs/branch.in
-        output:
-          registers:
-            a:
-              type: bool
-              value: "true"
-    initial_ast: 7ad5e2d2d6b833861f055b51029ed74cb9aba444d689578b0a1d1e2ff90d848d
-    imports_resolved_ast: 045b43d9a82ffc1c7d36d8c299aa42e682e43e11b7af043d5d9bde522ef43f24
-    canonicalized_ast: 045b43d9a82ffc1c7d36d8c299aa42e682e43e11b7af043d5d9bde522ef43f24
-    type_inferenced_ast: 45e22455ff329af7695237d84c319e6160fd5a181d18e6b4edfa6bfb33845011
+  - output:
+      - initial_input_ast: bbe973798ab14152165455260924a0de60131d31da32d2e223228954365dc609
+        symbol_table: 48301928ee2c6e396e20c53b0b59a8e76dabe0f60e5f7544349665683db0eae5
+    initial_ast: ddf5a3cdb4d2796c15e7c590647ef497e9c1e9dd876d35053b7d20e0327201f2

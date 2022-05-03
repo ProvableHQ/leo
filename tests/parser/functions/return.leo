@@ -4,5 +4,5 @@ expectation: Pass
 */
 
 function x() -> u32 {
-    return ();
+    return 0u8;
 }

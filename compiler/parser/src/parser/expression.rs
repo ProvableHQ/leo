@@ -14,14 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::cell::RefCell;
-
 use super::*;
 
 use leo_errors::{ParserError, Result};
 use leo_span::sym;
-
-use tendril::format_tendril;
 
 const INT_TYPES: &[Token] = &[
     Token::I8,
@@ -45,34 +41,32 @@ impl ParserContext<'_> {
     ///
     pub fn parse_expression(&mut self) -> Result<Expression> {
         // Store current parser state.
-        let prior_fuzzy_state = self.fuzzy_struct_state;
+        let prior_fuzzy_state = self.disallow_circuit_construction;
 
         // Allow circuit init expressions.
-        self.fuzzy_struct_state = false;
+        self.disallow_circuit_construction = false;
 
         // Parse expression.
         let result = self.parse_conditional_expression();
 
         // Restore prior parser state.
-        self.fuzzy_struct_state = prior_fuzzy_state;
+        self.disallow_circuit_construction = prior_fuzzy_state;
 
         result
     }
 
-    ///
     /// Returns an [`Expression`] AST node if the next tokens represent
     /// a ternary expression. May or may not include circuit init expressions.
     ///
     /// Otherwise, tries to parse the next token using [`parse_disjunctive_expression`].
-    ///
     pub fn parse_conditional_expression(&mut self) -> Result<Expression> {
         // Try to parse the next expression. Try BinaryOperation::Or.
         let mut expr = self.parse_disjunctive_expression()?;
 
         // Parse the rest of the ternary expression.
-        if self.eat(Token::Question).is_some() {
+        if self.eat(&Token::Question) {
             let if_true = self.parse_expression()?;
-            self.expect(Token::Colon)?;
+            self.expect(&Token::Colon)?;
             let if_false = self.parse_conditional_expression()?;
             expr = Expression::Ternary(TernaryExpression {
                 span: expr.span() + if_false.span(),
@@ -98,12 +92,11 @@ impl ParserContext<'_> {
     /// The `token` is translated to `op` in the AST.
     fn parse_bin_expr(
         &mut self,
-        token: Token,
-        op: BinaryOperation,
+        tokens: &[Token],
         mut f: impl FnMut(&mut Self) -> Result<Expression>,
     ) -> Result<Expression> {
         let mut expr = f(self)?;
-        while self.eat(token.clone()).is_some() {
+        while let Some(op) = self.eat_bin_op(tokens) {
             expr = Self::bin_expr(expr, f(self)?, op);
         }
         Ok(expr)
@@ -114,7 +107,7 @@ impl ParserContext<'_> {
     ///
     /// Otherwise, tries to parse the next token using [`parse_conjunctive_expression`].
     pub fn parse_disjunctive_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(Token::Or, BinaryOperation::Or, Self::parse_conjunctive_expression)
+        self.parse_bin_expr(&[Token::Or], Self::parse_conjunctive_expression)
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -122,7 +115,27 @@ impl ParserContext<'_> {
     ///
     /// Otherwise, tries to parse the next token using [`parse_equality_expression`].
     pub fn parse_conjunctive_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(Token::And, BinaryOperation::And, Self::parse_equality_expression)
+        self.parse_bin_expr(&[Token::And], Self::parse_equality_expression)
+    }
+
+    /// Eats one of binary operators matching any in `tokens`.
+    fn eat_bin_op(&mut self, tokens: &[Token]) -> Option<BinaryOperation> {
+        self.eat_any(tokens).then(|| match &self.prev_token.token {
+            Token::Eq => BinaryOperation::Eq,
+            Token::NotEq => BinaryOperation::Ne,
+            Token::Lt => BinaryOperation::Lt,
+            Token::LtEq => BinaryOperation::Le,
+            Token::Gt => BinaryOperation::Gt,
+            Token::GtEq => BinaryOperation::Ge,
+            Token::Add => BinaryOperation::Add,
+            Token::Minus => BinaryOperation::Sub,
+            Token::Mul => BinaryOperation::Mul,
+            Token::Div => BinaryOperation::Div,
+            Token::Or => BinaryOperation::Or,
+            Token::And => BinaryOperation::And,
+            Token::Exp => BinaryOperation::Pow,
+            _ => unreachable!("`eat_bin_op` shouldn't produce this"),
+        })
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -131,13 +144,8 @@ impl ParserContext<'_> {
     /// Otherwise, tries to parse the next token using [`parse_ordering_expression`].
     pub fn parse_equality_expression(&mut self) -> Result<Expression> {
         let mut expr = self.parse_ordering_expression()?;
-        if let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Eq, Token::NotEq]) {
+        if let Some(op) = self.eat_bin_op(&[Token::Eq, Token::NotEq]) {
             let right = self.parse_ordering_expression()?;
-            let op = match op {
-                Token::Eq => BinaryOperation::Eq,
-                Token::NotEq => BinaryOperation::Ne,
-                _ => unreachable!("parse_equality_expression_ shouldn't produce this"),
-            };
             expr = Self::bin_expr(expr, right, op);
         }
         Ok(expr)
@@ -148,20 +156,10 @@ impl ParserContext<'_> {
     ///
     /// Otherwise, tries to parse the next token using [`parse_shift_expression`].
     pub fn parse_ordering_expression(&mut self) -> Result<Expression> {
-        let mut expr = self.parse_additive_expression()?;
-        while let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Lt, Token::LtEq, Token::Gt, Token::GtEq])
-        {
-            let right = self.parse_additive_expression()?;
-            let op = match op {
-                Token::Lt => BinaryOperation::Lt,
-                Token::LtEq => BinaryOperation::Le,
-                Token::Gt => BinaryOperation::Gt,
-                Token::GtEq => BinaryOperation::Ge,
-                _ => unreachable!("parse_ordering_expression_ shouldn't produce this"),
-            };
-            expr = Self::bin_expr(expr, right, op);
-        }
-        Ok(expr)
+        self.parse_bin_expr(
+            &[Token::Lt, Token::LtEq, Token::Gt, Token::GtEq],
+            Self::parse_additive_expression,
+        )
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -169,17 +167,7 @@ impl ParserContext<'_> {
     ///
     /// Otherwise, tries to parse the next token using [`parse_mul_div_pow_expression`].
     pub fn parse_additive_expression(&mut self) -> Result<Expression> {
-        let mut expr = self.parse_multiplicative_expression()?;
-        while let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Add, Token::Minus]) {
-            let right = self.parse_multiplicative_expression()?;
-            let op = match op {
-                Token::Add => BinaryOperation::Add,
-                Token::Minus => BinaryOperation::Sub,
-                _ => unreachable!("parse_additive_expression_ shouldn't produce this"),
-            };
-            expr = Self::bin_expr(expr, right, op);
-        }
-        Ok(expr)
+        self.parse_bin_expr(&[Token::Add, Token::Minus], Self::parse_multiplicative_expression)
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -187,333 +175,96 @@ impl ParserContext<'_> {
     ///
     /// Otherwise, tries to parse the next token using [`parse_exponential_expression`].
     pub fn parse_multiplicative_expression(&mut self) -> Result<Expression> {
-        let mut expr = self.parse_exponential_expression()?;
-        while let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Mul, Token::Div]) {
-            let right = self.parse_exponential_expression()?;
-            let op = match op {
-                Token::Mul => BinaryOperation::Mul,
-                Token::Div => BinaryOperation::Div,
-                _ => unreachable!("parse_multiplicative_expression_ shouldn't produce this"),
-            };
-            expr = Self::bin_expr(expr, right, op);
-        }
-        Ok(expr)
+        self.parse_bin_expr(&[Token::Mul, Token::Div], Self::parse_exponential_expression)
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// binary exponentiation expression.
     ///
-    /// Otherwise, tries to parse the next token using [`parse_cast_expression`].
-    pub fn parse_exponential_expression(&mut self) -> Result<Expression> {
-        let mut expr = self.parse_cast_expression()?;
-
-        if self.eat(Token::Exp).is_some() {
-            let right = self.parse_exponential_expression()?;
-            expr = Self::bin_expr(expr, right, BinaryOperation::Pow);
-        }
-
-        Ok(expr)
-    }
-
-    ///
-    /// Returns an [`Expression`] AST node if the next tokens represent a
-    /// type cast expression.
-    ///
     /// Otherwise, tries to parse the next token using [`parse_unary_expression`].
-    ///
-    pub fn parse_cast_expression(&mut self) -> Result<Expression> {
+    pub fn parse_exponential_expression(&mut self) -> Result<Expression> {
         let mut expr = self.parse_unary_expression()?;
-        while self.eat(Token::As).is_some() {
-            let (type_, type_span) = self.parse_type()?;
-            expr = Expression::Cast(CastExpression {
-                span: expr.span() + &type_span,
-                inner: Box::new(expr),
-                target_type: type_,
-            })
+
+        if let Some(op) = self.eat_bin_op(&[Token::Exp]) {
+            let right = self.parse_exponential_expression()?;
+            expr = Self::bin_expr(expr, right, op);
         }
+
         Ok(expr)
     }
 
-    ///
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// unary not, negate, or bitwise not expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_postfix_expression`].
-    ///
     pub fn parse_unary_expression(&mut self) -> Result<Expression> {
         let mut ops = Vec::new();
-        while let Some(token) = self.eat_any(&[Token::Not, Token::Minus]) {
-            ops.push(token);
-        }
-        let mut inner = self.parse_postfix_expression()?;
-        for op in ops.into_iter().rev() {
-            let operation = match op.token {
+        while self.eat_any(&[Token::Not, Token::Minus]) {
+            let operation = match self.prev_token.token {
                 Token::Not => UnaryOperation::Not,
                 Token::Minus => UnaryOperation::Negate,
                 _ => unreachable!("parse_unary_expression_ shouldn't produce this"),
             };
-            // hack for const signed integer overflow issues
-            if matches!(operation, UnaryOperation::Negate) {
-                if let Expression::Value(ValueExpression::Integer(type_, value, span)) = inner {
-                    inner = Expression::Value(ValueExpression::Integer(
-                        type_,
-                        format_tendril!("-{}", value),
-                        &op.span + &span,
-                    ));
-                    continue;
-                } else if let Expression::Value(ValueExpression::Implicit(value, span)) = inner {
-                    inner = Expression::Value(ValueExpression::Implicit(
-                        format_tendril!("-{}", value),
-                        &op.span + &span,
-                    ));
-                    continue;
-                }
-            }
+            ops.push((operation, self.prev_token.span.clone()));
+        }
+        let mut inner = self.parse_postfix_expression()?;
+        for (op, op_span) in ops.into_iter().rev() {
             inner = Expression::Unary(UnaryExpression {
-                span: &op.span + inner.span(),
-                op: operation,
+                span: &op_span + inner.span(),
+                op,
                 inner: Box::new(inner),
             });
         }
         Ok(inner)
     }
 
-    ///
     /// Returns an [`Expression`] AST node if the next tokens represent an
     /// array access, circuit member access, function call, or static function call expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_primary_expression`].
-    ///
     pub fn parse_postfix_expression(&mut self) -> Result<Expression> {
         // We don't directly parse named-type's and Identifier's here as
         // the ABNF states. Rather the primary expression already
         // handle those. The ABNF is more specific for language reasons.
         let mut expr = self.parse_primary_expression()?;
-        while let Some(token) = self.eat_any(&[Token::LeftSquare, Token::Dot, Token::LeftParen, Token::DoubleColon]) {
-            match token.token {
-                Token::LeftSquare => {
-                    if self.eat(Token::DotDot).is_some() {
-                        let right = if self.peek_token().as_ref() != &Token::RightSquare {
-                            Some(Box::new(self.parse_expression()?))
-                        } else {
-                            None
-                        };
-
-                        let end = self.expect(Token::RightSquare)?;
-                        expr = Expression::Access(AccessExpression::ArrayRange(ArrayRangeAccess {
-                            span: expr.span() + &end,
-                            array: Box::new(expr),
-                            left: None,
-                            right,
-                        }));
-                        continue;
-                    }
-
-                    let left = self.parse_expression()?;
-                    if self.eat(Token::DotDot).is_some() {
-                        let right = if self.peek_token().as_ref() != &Token::RightSquare {
-                            Some(Box::new(self.parse_expression()?))
-                        } else {
-                            None
-                        };
-
-                        let end = self.expect(Token::RightSquare)?;
-                        expr = Expression::Access(AccessExpression::ArrayRange(ArrayRangeAccess {
-                            span: expr.span() + &end,
-                            array: Box::new(expr),
-                            left: Some(Box::new(left)),
-                            right,
-                        }));
-                    } else {
-                        let end = self.expect(Token::RightSquare)?;
-                        expr = Expression::Access(AccessExpression::Array(ArrayAccess {
-                            span: expr.span() + &end,
-                            array: Box::new(expr),
-                            index: Box::new(left),
-                        }));
-                    }
-                }
-                Token::Dot => {
-                    if let Some(ident) = self.eat_identifier() {
-                        expr = Expression::Access(AccessExpression::Member(MemberAccess {
-                            span: expr.span() + &ident.span,
-                            inner: Box::new(expr),
-                            name: ident,
-                            type_: None,
-                        }));
-                    } else if let Some((num, span)) = self.eat_int() {
-                        expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
-                            span: expr.span() + &span,
-                            tuple: Box::new(expr),
-                            index: num,
-                        }));
-                    } else {
-                        let next = self.peek()?;
-                        return Err(ParserError::unexpected_str(&next.token, "int or ident", &next.span).into());
-                    }
-                }
-                Token::LeftParen => {
-                    let mut arguments = Vec::new();
-                    let end_span;
-                    loop {
-                        if let Some(end) = self.eat(Token::RightParen) {
-                            end_span = end.span;
-                            break;
-                        }
-                        arguments.push(self.parse_expression()?);
-                        if self.eat(Token::Comma).is_none() {
-                            end_span = self.expect(Token::RightParen)?;
-                            break;
-                        }
-                    }
-                    expr = Expression::Call(CallExpression {
-                        span: expr.span() + &end_span,
-                        function: Box::new(expr),
-                        arguments,
-                    });
-                }
-                Token::DoubleColon => {
-                    let ident = self.expect_ident()?;
-                    expr = Expression::Access(AccessExpression::Static(StaticAccess {
-                        span: expr.span() + &ident.span,
-                        inner: Box::new(expr),
-                        type_: RefCell::new(Type::Tuple(Vec::new())),
-                        name: ident,
-                    }));
-                }
-                _ => unreachable!("parse_postfix_expression_ shouldn't produce this"),
+        loop {
+            if self.eat(&Token::Dot) {
+                let curr = &self.token;
+                return Err(ParserError::unexpected_str(&curr.token, "int or ident", &curr.span).into());
             }
+
+            if !self.check(&Token::LeftParen) {
+                break;
+            }
+
+            let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
+            expr = Expression::Call(CallExpression {
+                span: expr.span() + &span,
+                function: Box::new(expr),
+                arguments,
+            });
         }
         Ok(expr)
     }
 
-    ///
-    /// Returns a [`SpreadOrExpression`] AST node if the next tokens represent a
-    /// spread or expression.
-    ///
-    /// This method should only be called in the context of an array construction expression.
-    ///
-    pub fn parse_spread_or_expression(&mut self) -> Result<SpreadOrExpression> {
-        Ok(if self.eat(Token::DotDotDot).is_some() {
-            SpreadOrExpression::Spread(self.parse_expression()?)
-        } else {
-            SpreadOrExpression::Expression(self.parse_expression()?)
-        })
-    }
-
-    /// Returns an [`Expression`] AST node if the next tokens represent a
-    /// circuit initialization expression.
-    pub fn parse_circuit_expression(&mut self, identifier: Identifier) -> Result<Expression> {
-        let (members, _, span) = self.parse_list(Token::LeftCurly, Token::RightCurly, Token::Comma, |p| {
-            Ok(Some(CircuitVariableInitializer {
-                identifier: p.expect_ident()?,
-                expression: p.eat(Token::Colon).map(|_| p.parse_expression()).transpose()?,
-            }))
-        })?;
-        Ok(Expression::CircuitInit(CircuitInitExpression {
-            span: &identifier.span + &span,
-            name: identifier,
-            members,
-        }))
-    }
-
-    ///
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// tuple initialization expression or an affine group literal.
-    ///
-    pub fn parse_tuple_expression(&mut self, span: &Span) -> Result<Expression> {
-        if let Some((left, right, span)) = self.eat_group_partial().transpose()? {
+    pub fn parse_tuple_expression(&mut self) -> Result<Expression> {
+        if let Some(gt) = self.eat_group_partial().transpose()? {
             return Ok(Expression::Value(ValueExpression::Group(Box::new(GroupValue::Tuple(
-                GroupTuple {
-                    span,
-                    x: left,
-                    y: right,
-                },
+                gt,
             )))));
         }
-        let mut args = Vec::new();
-        let end_span;
-        loop {
-            let end = self.eat(Token::RightParen);
-            if let Some(end) = end {
-                end_span = end.span;
-                break;
-            }
-            let expr = self.parse_expression()?;
-            args.push(expr);
-            if self.eat(Token::Comma).is_none() {
-                end_span = self.expect(Token::RightParen)?;
-                break;
-            }
-        }
-        if args.len() == 1 {
-            Ok(args.remove(0))
+
+        let (mut tuple, trailing, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
+
+        if !trailing && tuple.len() == 1 {
+            Ok(tuple.remove(0))
         } else {
-            Ok(Expression::TupleInit(TupleInitExpression {
-                span: span + &end_span,
-                elements: args,
-            }))
+            Err(ParserError::unexpected("A tuple expression.", "A valid expression.", &span).into())
         }
     }
 
-    ///
-    /// Returns an [`Expression`] AST node if the next tokens represent an
-    /// array initialization expression.
-    ///
-    pub fn parse_array_expression(&mut self, span: &Span) -> Result<Expression> {
-        if let Some(end) = self.eat(Token::RightSquare) {
-            return Ok(Expression::ArrayInline(ArrayInlineExpression {
-                elements: Vec::new(),
-                span: span + &end.span,
-            }));
-        }
-        let first = self.parse_spread_or_expression()?;
-        if self.eat(Token::Semicolon).is_some() {
-            let dimensions = self
-                .parse_array_dimensions()
-                .map_err(|_| ParserError::unable_to_parse_array_dimensions(span))?;
-            let end = self.expect(Token::RightSquare)?;
-            let first = match first {
-                SpreadOrExpression::Spread(first) => {
-                    let span = span + first.span();
-                    return Err(ParserError::spread_in_array_init(&span).into());
-                }
-                SpreadOrExpression::Expression(x) => x,
-            };
-            Ok(Expression::ArrayInit(ArrayInitExpression {
-                span: span + &end,
-                element: Box::new(first),
-                dimensions,
-            }))
-        } else {
-            let end_span;
-            let mut elements = vec![first];
-            loop {
-                if let Some(token) = self.eat(Token::RightSquare) {
-                    end_span = token.span;
-                    break;
-                }
-                if elements.len() == 1 {
-                    self.expect(Token::Comma)?;
-                    if let Some(token) = self.eat(Token::RightSquare) {
-                        end_span = token.span;
-                        break;
-                    }
-                }
-                elements.push(self.parse_spread_or_expression()?);
-                if self.eat(Token::Comma).is_none() {
-                    end_span = self.expect(Token::RightSquare)?;
-                    break;
-                }
-            }
-            Ok(Expression::ArrayInline(ArrayInlineExpression {
-                elements,
-                span: span + &end_span,
-            }))
-        }
-    }
-
-    ///
     /// Returns an [`Expression`] AST node if the next token is a primary expression:
     /// - Literals: field, group, unsigned integer, signed integer, boolean, address
     /// - Aggregate types: array, tuple
@@ -521,37 +272,35 @@ impl ParserContext<'_> {
     /// - self
     ///
     /// Returns an expression error if the token cannot be matched.
-    ///
     pub fn parse_primary_expression(&mut self) -> Result<Expression> {
-        let SpannedToken { token, span } = self.expect_any()?;
+        if let Token::LeftParen = self.token.token {
+            return self.parse_tuple_expression();
+        }
+
+        let SpannedToken { token, span } = self.token.clone();
+        self.bump();
+
         Ok(match token {
             Token::Int(value) => {
-                let type_ = self.eat_any(INT_TYPES);
-                match type_ {
-                    Some(SpannedToken {
-                        token: Token::Field,
-                        span: type_span,
-                    }) => {
-                        assert_no_whitespace(&span, &type_span, &value, "field")?;
-                        Expression::Value(ValueExpression::Field(value, span + type_span))
+                let suffix_span = self.token.span.clone();
+                let full_span = &span + &suffix_span;
+                let assert_no_whitespace = |x| assert_no_whitespace(&span, &suffix_span, &value, x);
+                match self.eat_any(INT_TYPES).then(|| &self.prev_token.token) {
+                    // Literal followed by `field`, e.g., `42field`.
+                    Some(Token::Field) => {
+                        assert_no_whitespace("field")?;
+                        Expression::Value(ValueExpression::Field(value, full_span))
                     }
-                    Some(SpannedToken {
-                        token: Token::Group,
-                        span: type_span,
-                    }) => {
-                        assert_no_whitespace(&span, &type_span, &value, "group")?;
-                        Expression::Value(ValueExpression::Group(Box::new(GroupValue::Single(
-                            value,
-                            span + type_span,
-                        ))))
+                    // Literal followed by `group`, e.g., `42group`.
+                    Some(Token::Group) => {
+                        assert_no_whitespace("group")?;
+                        Expression::Value(ValueExpression::Group(Box::new(GroupValue::Single(value, full_span))))
                     }
-                    Some(SpannedToken { token, span: type_span }) => {
-                        assert_no_whitespace(&span, &type_span, &value, &token.to_string())?;
-                        Expression::Value(ValueExpression::Integer(
-                            Self::token_to_int_type(token).expect("unknown int type token"),
-                            value,
-                            span + type_span,
-                        ))
+                    // Literal followed by other type suffix, e.g., `42u8`.
+                    Some(suffix) => {
+                        assert_no_whitespace(&suffix.to_string())?;
+                        let int_ty = Self::token_to_int_type(suffix).expect("unknown int type token");
+                        Expression::Value(ValueExpression::Integer(int_ty, value, full_span))
                     }
                     None => return Err(ParserError::implicit_values_not_allowed(value, &span).into()),
                 }
@@ -564,31 +313,10 @@ impl ParserContext<'_> {
                 span,
             })),
             Token::StringLit(value) => Expression::Value(ValueExpression::String(value, span)),
-            Token::LeftParen => self.parse_tuple_expression(&span)?,
-            Token::LeftSquare => self.parse_array_expression(&span)?,
             Token::Ident(name) => {
                 let ident = Identifier { name, span };
-                if !self.fuzzy_struct_state && self.peek_token().as_ref() == &Token::LeftCurly {
-                    self.parse_circuit_expression(ident)?
-                } else {
-                    Expression::Identifier(ident)
-                }
+                Expression::Identifier(ident)
             }
-            Token::BigSelf => {
-                let ident = Identifier {
-                    name: sym::SelfUpper,
-                    span,
-                };
-                if !self.fuzzy_struct_state && self.peek_token().as_ref() == &Token::LeftCurly {
-                    self.parse_circuit_expression(ident)?
-                } else {
-                    Expression::Identifier(ident)
-                }
-            }
-            Token::LittleSelf => Expression::Identifier(Identifier {
-                name: sym::SelfLower,
-                span,
-            }),
             Token::Input => Expression::Identifier(Identifier { name: sym::input, span }),
             t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
                 name: t.keyword_to_symbol().unwrap(),

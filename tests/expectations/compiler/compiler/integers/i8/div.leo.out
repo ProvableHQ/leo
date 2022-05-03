@@ -2,21 +2,5 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - circuit:
-      num_public_variables: 0
-      num_private_variables: 1150
-      num_constraints: 1438
-      at: ea4e10bc92af056bb4b3797063565094853fe4ba595f03fd6d4a8a0fc30ca195
-      bt: a41852ab8ac16bc91220ddd5b2fd1dacf3bebb624715cf2c3dc53f5dd172da9b
-      ct: 0449683ea39f4822da71f08082f051f005ecf6b846ab99e48c6ab9ac5aaa75be
-    output:
-      - input_file: i8.in
-        output:
-          registers:
-            r0:
-              type: bool
-              value: "true"
-    initial_ast: 345b9e2ba4e58d18156fadd9a4e592b23c08e447cb1d3d413b5cbebc9ddc161d
-    imports_resolved_ast: 04e8f8dfa028514252e6ba75c8404ae0f72068fd82a7a13bda66319bd9f94a7d
-    canonicalized_ast: 04e8f8dfa028514252e6ba75c8404ae0f72068fd82a7a13bda66319bd9f94a7d
-    type_inferenced_ast: cd658feb37a4d359f2082a408102b15f541985ddaa4f1ddca36191ef1bc37909
+  - output: []
+    initial_ast: df29046329d8b12827f7885dfafee8a88abb17450a6fef94f5c192d582c170a9

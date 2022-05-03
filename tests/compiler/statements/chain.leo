@@ -8,14 +8,14 @@ input_file:
 */
 
 function main(x: u32) -> bool {
-    let c = 0u32;
+    let c: u32 = 0u32;
 
-    if x == 1 {
-        c = 1;
-    } else if x == 2 {
-        c = 2;
+    if x == 1u32 {
+        c = 1u32;
+    } else if x == 2u32 {
+        c = 2u32;
     } else {
-        c = 3;
+        c = 3u32;
     }
     return c == x;
 }

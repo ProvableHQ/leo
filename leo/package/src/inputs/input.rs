@@ -86,7 +86,7 @@ r0: u32 = 0;
         )
     }
 
-    fn setup_file_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {
+    pub fn setup_file_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {
         let mut path = Cow::from(path);
         if path.is_dir() {
             if !path.ends_with(INPUTS_DIRECTORY_NAME) {

@@ -4,32 +4,25 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    import_statements: []
-    imports: {}
-    aliases: {}
-    circuits: {}
-    global_consts: {}
     functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const y: u32) {\\\"}\"}":
-        annotations: {}
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const y: u32) {\\\"}\"}"
+      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(constant y: u32) -> u8 {\\\"}\"}":
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(constant y: u32) -> u8 {\\\"}\"}"
         input:
           - Variable:
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const y: u32) {\\\"}\"}"
-              const_: true
-              mutable: false
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(constant y: u32) -> u8 {\\\"}\"}"
+              mode: Constant
               type_:
                 IntegerType: U32
               span:
                 line_start: 3
                 line_stop: 3
-                col_start: 18
-                col_stop: 19
+                col_start: 21
+                col_stop: 22
                 path: ""
-                content: "function x(const y: u32) {"
+                content: "function x(constant y: u32) -> u8 {"
         const_: false
         output:
-          Tuple: []
+          IntegerType: U8
         core_mapping: ~
         block:
           statements:
@@ -121,25 +114,23 @@ outputs:
           span:
             line_start: 3
             line_stop: 7
-            col_start: 26
+            col_start: 35
             col_stop: 2
             path: ""
-            content: "function x(const y: u32) {\n     ...\n     ...\n     ...\n}"
+            content: "function x(constant y: u32) -> u8 {\n     ...\n     ...\n     ...\n}"
         span:
           line_start: 3
           line_stop: 7
           col_start: 1
           col_stop: 2
           path: ""
-          content: "function x(const y: u32) {\n     ...\n     ...\n     ...\n}"
+          content: "function x(constant y: u32) -> u8 {\n     ...\n     ...\n     ...\n}"
       "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
-        annotations: {}
         identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
         input:
           - Variable:
               identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
-              const_: false
-              mutable: true
+              mode: Private
               type_: Boolean
               span:
                 line_start: 9

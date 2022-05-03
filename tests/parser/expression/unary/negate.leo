@@ -4,8 +4,8 @@ expectation: Pass
 */
 
 -x
--x.y
--x::y
 -x()
 --x
 -!x
+
+-5i8

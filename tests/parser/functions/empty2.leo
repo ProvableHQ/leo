@@ -3,4 +3,4 @@ namespace: Parse
 expectation: Pass
 */
 
-function x() {}
+function x() -> u8 {}

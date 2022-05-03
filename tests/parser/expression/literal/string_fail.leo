@@ -7,6 +7,8 @@ expectation: Fail
 
 "\"
 
+"\
+
 "\l"
 
 "\uaaa"
@@ -16,3 +18,15 @@ expectation: Fail
 "\xFF"
 
 "\x"
+
+"\u}"
+
+"\u6🦀}"
+
+"\u{af🦀"
+
+"\"
+
+"⭇😍;
+
+"2066:⁦"

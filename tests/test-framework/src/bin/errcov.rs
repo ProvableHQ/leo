@@ -14,9 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::{
-    AsgError, AstError, CliError, CompilerError, ImportError, LeoErrorCode, PackageError, ParserError, StateError,
-};
+use leo_errors::{AstError, InputError, LeoMessageCode, PackageError, ParserError};
 use leo_test_framework::{
     fetch::find_tests,
     output::TestExpectation,
@@ -49,7 +47,7 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
     // Variable that stores all the tests.
     let mut tests = Vec::new();
     let mut test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    test_dir.push("../tests/");
+    test_dir.push("../");
 
     let mut expectation_dir = test_dir.clone();
     expectation_dir.push("expectations");
@@ -111,59 +109,31 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
     let mut all_codes = HashSet::new();
     collect_error_codes(
         &mut all_codes,
-        AsgError::error_type(),
-        AsgError::code_identifier(),
-        AsgError::exit_code_mask(),
-        AsgError::num_exit_codes(),
-    );
-    collect_error_codes(
-        &mut all_codes,
-        AstError::error_type(),
+        AstError::message_type(),
         AstError::code_identifier(),
-        AstError::exit_code_mask(),
+        AstError::code_mask(),
         AstError::num_exit_codes(),
     );
     collect_error_codes(
         &mut all_codes,
-        CliError::error_type(),
-        CliError::code_identifier(),
-        CliError::exit_code_mask(),
-        CliError::num_exit_codes(),
+        InputError::message_type(),
+        InputError::code_identifier(),
+        InputError::code_mask(),
+        InputError::num_exit_codes(),
     );
     collect_error_codes(
         &mut all_codes,
-        CompilerError::error_type(),
-        CompilerError::code_identifier(),
-        CompilerError::exit_code_mask(),
-        CompilerError::num_exit_codes(),
-    );
-    collect_error_codes(
-        &mut all_codes,
-        ImportError::error_type(),
-        ImportError::code_identifier(),
-        ImportError::exit_code_mask(),
-        ImportError::num_exit_codes(),
-    );
-    collect_error_codes(
-        &mut all_codes,
-        PackageError::error_type(),
+        PackageError::message_type(),
         PackageError::code_identifier(),
-        PackageError::exit_code_mask(),
+        PackageError::code_mask(),
         PackageError::num_exit_codes(),
     );
     collect_error_codes(
         &mut all_codes,
-        ParserError::error_type(),
+        ParserError::message_type(),
         ParserError::code_identifier(),
-        ParserError::exit_code_mask(),
+        ParserError::code_mask(),
         ParserError::num_exit_codes(),
-    );
-    collect_error_codes(
-        &mut all_codes,
-        StateError::error_type(),
-        StateError::code_identifier(),
-        StateError::exit_code_mask(),
-        StateError::num_exit_codes(),
     );
 
     // Repackage data into values compatible with serde_yaml

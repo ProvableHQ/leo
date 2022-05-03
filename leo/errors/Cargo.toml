@@ -19,7 +19,7 @@ edition = "2021"
 rust-version = "1.56"
 
 [dependencies.backtrace]
-version = "0.3.62"
+version = "0.3.65"
 
 [dependencies.leo-span]
 path = "../span"
@@ -34,16 +34,9 @@ version = "0.5.1"
 [dependencies.derivative]
 version = "2.2.0"
 
-[dependencies.eyre]
-version = "0.6.7"
-default-features = false
-
 [dependencies.serde]
 version = "1.0.133"
 features = [ "derive", "rc" ]
-
-[dependencies.tendril]
-version = "0.4.2"
 
 [dependencies.thiserror]
 version = "1.0.30"

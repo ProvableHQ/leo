@@ -18,7 +18,6 @@ use leo_span::{sym, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use tendril::StrTendril;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Char {
@@ -40,7 +39,7 @@ impl fmt::Display for Char {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Scalar(c) => write!(f, "{}", c),
-            Self::NonScalar(c) => write!(f, "{}", c),
+            Self::NonScalar(c) => write!(f, "{:X}", c),
         }
     }
 }
@@ -50,19 +49,18 @@ impl fmt::Display for Char {
 pub enum Token {
     // Lexical Grammar
     // Literals
-    CommentLine(#[serde(with = "leo_span::tendril_json")] StrTendril),
-    CommentBlock(#[serde(with = "leo_span::tendril_json")] StrTendril),
+    CommentLine(String),
+    CommentBlock(String),
     StringLit(Vec<leo_ast::Char>),
     Ident(Symbol),
-    Int(#[serde(with = "leo_span::tendril_json")] StrTendril),
+    Int(String),
     True,
     False,
-    AddressLit(#[serde(with = "leo_span::tendril_json")] StrTendril),
+    AddressLit(String),
     CharLit(Char),
     WhiteSpace,
 
     // Symbols
-    At,
     Not,
     And,
     Or,
@@ -78,11 +76,6 @@ pub enum Token {
     Div,
     Exp,
     Assign,
-    AddEq,
-    MinusEq,
-    MulEq,
-    DivEq,
-    ExpEq,
     LeftParen,
     RightParen,
     LeftSquare,
@@ -92,10 +85,8 @@ pub enum Token {
     Comma,
     Dot,
     DotDot,
-    DotDotDot,
     Semicolon,
     Colon,
-    DoubleColon,
     Question,
     Arrow,
     Underscore,
@@ -117,21 +108,16 @@ pub enum Token {
     Bool,
     Address,
     Char,
-    BigSelf,
 
     // primary expresion
     Input,
-    LittleSelf,
-
-    // Import
-    Import,
 
     // Regular Keywords
-    As,
-    Circuit,
     Console,
     /// Const variable and a const function.
     Const,
+    /// Constant parameter
+    Constant,
     Else,
     For,
     Function,
@@ -139,11 +125,9 @@ pub enum Token {
     In,
     Let,
     Mut,
-    /// Represents `&`.
-    /// Used for `Reference` and `BitAnd`.
-    Ampersand,
+    /// For public inputs.
+    Public,
     Return,
-    Static,
     Type,
 
     // Meta Tokens
@@ -153,10 +137,8 @@ pub enum Token {
 /// Represents all valid Leo keyword tokens.
 pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Address,
-    Token::As,
     Token::Bool,
     Token::Char,
-    Token::Circuit,
     Token::Console,
     Token::Const,
     Token::Else,
@@ -171,16 +153,12 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::I64,
     Token::I128,
     Token::If,
-    Token::Import,
     Token::In,
     Token::Input,
     Token::Let,
     Token::Mut,
-    Token::Ampersand,
+    Token::Public,
     Token::Return,
-    Token::BigSelf,
-    Token::LittleSelf,
-    Token::Static,
     Token::True,
     Token::Type,
     Token::U8,
@@ -200,13 +178,11 @@ impl Token {
     pub fn keyword_to_symbol(&self) -> Option<Symbol> {
         Some(match self {
             Token::Address => sym::address,
-            Token::As => sym::As,
-            Token::At => sym::At,
             Token::Bool => sym::bool,
             Token::Char => sym::char,
-            Token::Circuit => sym::circuit,
             Token::Console => sym::console,
             Token::Const => sym::Const,
+            Token::Constant => sym::Constant,
             Token::Else => sym::Else,
             Token::False => sym::False,
             Token::Field => sym::field,
@@ -219,16 +195,12 @@ impl Token {
             Token::I64 => sym::i64,
             Token::I128 => sym::i128,
             Token::If => sym::If,
-            Token::Import => sym::import,
             Token::In => sym::In,
             Token::Input => sym::input,
             Token::Let => sym::Let,
             Token::Mut => sym::Mut,
-            Token::Ampersand => sym::Ampersand,
+            Token::Public => sym::Public,
             Token::Return => sym::Return,
-            Token::BigSelf => sym::SelfUpper,
-            Token::LittleSelf => sym::SelfLower,
-            Token::Static => sym::Static,
             Token::True => sym::True,
             Token::Type => sym::Type,
             Token::U8 => sym::u8,
@@ -259,10 +231,8 @@ impl fmt::Display for Token {
             True => write!(f, "true"),
             False => write!(f, "false"),
             AddressLit(s) => write!(f, "{}", s),
-            CharLit(s) => write!(f, "{}", s),
+            CharLit(s) => write!(f, "'{}'", s),
             WhiteSpace => write!(f, "whitespace"),
-
-            At => write!(f, "@"),
 
             Not => write!(f, "!"),
             And => write!(f, "&&"),
@@ -279,11 +249,6 @@ impl fmt::Display for Token {
             Div => write!(f, "/"),
             Exp => write!(f, "**"),
             Assign => write!(f, "="),
-            AddEq => write!(f, "+="),
-            MinusEq => write!(f, "-="),
-            MulEq => write!(f, "*="),
-            DivEq => write!(f, "/="),
-            ExpEq => write!(f, "**="),
             LeftParen => write!(f, "("),
             RightParen => write!(f, ")"),
             LeftSquare => write!(f, "["),
@@ -293,10 +258,8 @@ impl fmt::Display for Token {
             Comma => write!(f, ","),
             Dot => write!(f, "."),
             DotDot => write!(f, ".."),
-            DotDotDot => write!(f, "..."),
             Semicolon => write!(f, ";"),
             Colon => write!(f, ":"),
-            DoubleColon => write!(f, "::"),
             Question => write!(f, "?"),
             Arrow => write!(f, "->"),
             Underscore => write!(f, "_"),
@@ -316,17 +279,12 @@ impl fmt::Display for Token {
             Bool => write!(f, "bool"),
             Address => write!(f, "address"),
             Char => write!(f, "char"),
-            BigSelf => write!(f, "Self"),
 
             Input => write!(f, "input"),
-            LittleSelf => write!(f, "self"),
 
-            Import => write!(f, "import"),
-
-            As => write!(f, "as"),
-            Circuit => write!(f, "circuit"),
             Console => write!(f, "console"),
             Const => write!(f, "const"),
+            Constant => write!(f, "constant"),
             Else => write!(f, "else"),
             For => write!(f, "for"),
             Function => write!(f, "function"),
@@ -334,11 +292,10 @@ impl fmt::Display for Token {
             In => write!(f, "in"),
             Let => write!(f, "let"),
             Mut => write!(f, "mut"),
-            Ampersand => write!(f, "&"), // Used for `Reference` and `BitAnd`
+            Public => write!(f, "public"),
             Return => write!(f, "return"),
-            Static => write!(f, "static"),
             Type => write!(f, "type"),
-            Eof => write!(f, ""),
+            Eof => write!(f, "<eof>"),
         }
     }
 }

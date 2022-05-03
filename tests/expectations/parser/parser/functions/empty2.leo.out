@@ -4,33 +4,27 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    import_statements: []
-    imports: {}
-    aliases: {}
-    circuits: {}
-    global_consts: {}
     functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x() {}\\\"}\"}":
-        annotations: {}
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x() {}\\\"}\"}"
+      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x() -> u8 {}\\\"}\"}":
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x() -> u8 {}\\\"}\"}"
         input: []
         const_: false
         output:
-          Tuple: []
+          IntegerType: U8
         core_mapping: ~
         block:
           statements: []
           span:
             line_start: 3
             line_stop: 3
-            col_start: 14
-            col_stop: 16
+            col_start: 20
+            col_stop: 22
             path: ""
-            content: "function x() {}"
+            content: "function x() -> u8 {}"
         span:
           line_start: 3
           line_stop: 3
           col_start: 1
-          col_stop: 16
+          col_stop: 22
           path: ""
-          content: "function x() {}"
+          content: "function x() -> u8 {}"

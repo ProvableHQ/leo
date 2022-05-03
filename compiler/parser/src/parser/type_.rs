@@ -15,9 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_errors::{ParserError, Result};
-
-use smallvec::smallvec;
+use leo_errors::Result;
 
 pub(crate) const TYPE_TOKENS: &[Token] = &[
     Token::I8,
@@ -34,14 +32,13 @@ pub(crate) const TYPE_TOKENS: &[Token] = &[
     Token::Group,
     Token::Address,
     Token::Bool,
-    Token::Char,
 ];
 
 impl ParserContext<'_> {
     ///
     /// Returns a [`IntegerType`] AST node if the given token is a supported integer type, or [`None`].
     ///
-    pub fn token_to_int_type(token: Token) -> Option<IntegerType> {
+    pub fn token_to_int_type(token: &Token) -> Option<IntegerType> {
         Some(match token {
             Token::I8 => IntegerType::I8,
             Token::I16 => IntegerType::I16,
@@ -57,59 +54,20 @@ impl ParserContext<'_> {
         })
     }
 
-    /// Returns an [`ArrayDimensions`] AST node if the next tokens represent dimensions for an array type.
-    pub fn parse_array_dimensions(&mut self) -> Result<ArrayDimensions> {
-        Ok(if let Some((dim, _)) = self.eat_int() {
-            ArrayDimensions(smallvec![dim])
-        } else {
-            let mut had_item_err = false;
-            let (dims, _, span) = self.parse_paren_comma_list(|p| {
-                Ok(if let Some((dim, _)) = p.eat_int() {
-                    Some(dim)
-                } else {
-                    let token = p.expect_any()?;
-                    p.emit_err(ParserError::unexpected_str(&token.token, "int", &token.span));
-                    had_item_err = true;
-                    None
-                })
-            })?;
-            if dims.is_empty() && !had_item_err {
-                self.emit_err(ParserError::array_tuple_dimensions_empty(&span));
-            }
-            ArrayDimensions(dims.into())
-        })
-    }
-
     /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a type.
     /// Also returns the span of the parsed token.
     pub fn parse_type(&mut self) -> Result<(Type, Span)> {
-        Ok(if let Some(token) = self.eat(Token::BigSelf) {
-            (Type::SelfType, token.span)
-        } else if let Some(ident) = self.eat_identifier() {
-            let span = ident.span.clone();
-            (Type::Identifier(ident), span)
-        } else if self.peek_is_left_par() {
-            let (types, _, span) = self.parse_paren_comma_list(|p| p.parse_type().map(|t| Some(t.0)))?;
-            (Type::Tuple(types), span)
-        } else if let Some(token) = self.eat(Token::LeftSquare) {
-            let (inner, _) = self.parse_type()?;
-            self.expect(Token::Semicolon)?;
-            let dimensions = self.parse_array_dimensions()?;
-            let end_span = self.expect(Token::RightSquare)?;
-            (Type::Array(Box::new(inner), dimensions), token.span + end_span)
-        } else {
-            let token = self.expect_oneof(TYPE_TOKENS)?;
-            (
-                match token.token {
-                    Token::Field => Type::Field,
-                    Token::Group => Type::Group,
-                    Token::Address => Type::Address,
-                    Token::Bool => Type::Boolean,
-                    Token::Char => Type::Char,
-                    x => Type::IntegerType(Self::token_to_int_type(x).expect("invalid int type")),
-                },
-                token.span,
-            )
-        })
+        let span = self.expect_any(TYPE_TOKENS)?;
+        Ok((
+            match &self.prev_token.token {
+                Token::Field => Type::Field,
+                Token::Group => Type::Group,
+                Token::Address => Type::Address,
+                Token::Bool => Type::Boolean,
+                Token::Char => Type::Char,
+                x => Type::IntegerType(Self::token_to_int_type(x).expect("invalid int type")),
+            },
+            span,
+        ))
     }
 }

@@ -32,13 +32,13 @@ use std::{
 /// An identifier in the constrained program.
 ///
 /// Attention - When adding or removing fields from this struct,
-/// please remember to update it's Serialize and Deserialize implementation
+/// please remember to update its Serialize and Deserialize implementation
 /// to reflect the new struct instantiation.
 #[derive(Clone)]
 pub struct Identifier {
     /// The symbol that the user wrote, e.g., `foo`.
     pub name: Symbol,
-    /// A span locating where the identifier occured in the source.
+    /// A span locating where the identifier occurred in the source.
     pub span: Span,
 }
 

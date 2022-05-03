@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConstSelfKeyword, FunctionInputVariable, Node, RefSelfKeyword, SelfKeyword};
+use crate::{FunctionInputVariable, Node};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -23,74 +23,24 @@ use std::fmt;
 /// Enumerates the possible inputs to a function.
 #[derive(Clone, Serialize, Deserialize)]
 pub enum FunctionInput {
-    /// A `self` parameter.
-    SelfKeyword(SelfKeyword),
-    /// A `const self` parameter.
-    ConstSelfKeyword(ConstSelfKeyword),
-    /// A `&self` parameter.
-    RefSelfKeyword(RefSelfKeyword),
     /// A normal function parameter.
     Variable(FunctionInputVariable),
 }
 
 impl FunctionInput {
     ///
-    /// Returns `true` if the function input is the `self` or `mut self` keyword.
-    /// Returns `false` otherwise.
-    ///
-    pub fn is_self(&self) -> bool {
-        match self {
-            FunctionInput::SelfKeyword(_) => true,
-            FunctionInput::ConstSelfKeyword(_) => true,
-            FunctionInput::RefSelfKeyword(_) => true,
-            FunctionInput::Variable(_) => false,
-        }
-    }
-
-    ///
-    /// Returns `true` if the function input is the `const self` keyword.
-    /// Returns `false` otherwise.
-    ///
-    pub fn is_const_self(&self) -> bool {
-        match self {
-            FunctionInput::SelfKeyword(_) => false,
-            FunctionInput::ConstSelfKeyword(_) => true,
-            FunctionInput::RefSelfKeyword(_) => false,
-            FunctionInput::Variable(_) => false,
-        }
-    }
-
-    ///
-    /// Returns `true` if the function input is the `mut self` keyword.
-    /// Returns `false` otherwise.
-    ///
-    pub fn is_mut_self(&self) -> bool {
-        match self {
-            FunctionInput::SelfKeyword(_) => false,
-            FunctionInput::ConstSelfKeyword(_) => false,
-            FunctionInput::RefSelfKeyword(_) => true,
-            FunctionInput::Variable(_) => false,
-        }
-    }
-
-    ///
     /// Returns Option with FunctionInputVariable if the input is a variable.
     /// Returns None otherwise.
     ///
-    pub fn get_variable(&self) -> Option<&FunctionInputVariable> {
-        if let FunctionInput::Variable(var) = self {
-            Some(var)
-        } else {
-            None
+    pub fn get_variable(&self) -> &FunctionInputVariable {
+        match self {
+            Self::Variable(var) => var,
         }
     }
 
     /// Formats the parameter to `f`.
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            FunctionInput::SelfKeyword(keyword) => write!(f, "{}", keyword),
-            FunctionInput::ConstSelfKeyword(keyword) => write!(f, "{}", keyword),
-            FunctionInput::RefSelfKeyword(keyword) => write!(f, "{}", keyword),
             FunctionInput::Variable(function_input) => write!(f, "{}", function_input),
         }
     }
@@ -112,11 +62,7 @@ impl PartialEq for FunctionInput {
     /// Returns true if `self == other`. Does not compare spans.
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (FunctionInput::SelfKeyword(_), FunctionInput::SelfKeyword(_)) => true,
-            (FunctionInput::ConstSelfKeyword(_), FunctionInput::ConstSelfKeyword(_)) => true,
-            (FunctionInput::RefSelfKeyword(_), FunctionInput::RefSelfKeyword(_)) => true,
             (FunctionInput::Variable(left), FunctionInput::Variable(right)) => left.eq(right),
-            _ => false,
         }
     }
 }
@@ -127,9 +73,6 @@ impl Node for FunctionInput {
     fn span(&self) -> &Span {
         use FunctionInput::*;
         match self {
-            SelfKeyword(keyword) => &keyword.identifier.span,
-            ConstSelfKeyword(keyword) => &keyword.identifier.span,
-            RefSelfKeyword(keyword) => &keyword.identifier.span,
             Variable(variable) => &variable.span,
         }
     }
@@ -137,9 +80,6 @@ impl Node for FunctionInput {
     fn set_span(&mut self, span: Span) {
         use FunctionInput::*;
         match self {
-            SelfKeyword(keyword) => keyword.identifier.span = span,
-            ConstSelfKeyword(keyword) => keyword.identifier.span = span,
-            RefSelfKeyword(keyword) => keyword.identifier.span = span,
             Variable(variable) => variable.span = span,
         }
     }

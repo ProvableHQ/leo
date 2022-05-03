@@ -16,8 +16,12 @@
 
 use serde_yaml::Value;
 use std::{
+    any::Any,
     collections::BTreeMap,
+    panic::{self, RefUnwindSafe, UnwindSafe},
     path::{Path, PathBuf},
+    sync::{Arc, Mutex},
+    thread,
 };
 
 use crate::{error::*, fetch::find_tests, output::TestExpectation, test::*};
@@ -36,7 +40,7 @@ pub struct Test {
     pub config: BTreeMap<String, Value>,
 }
 
-pub trait Namespace {
+pub trait Namespace: UnwindSafe + RefUnwindSafe {
     fn parse_type(&self) -> ParseType;
 
     fn run_test(&self, test: Test) -> Result<Value, String>;
@@ -44,6 +48,30 @@ pub trait Namespace {
 
 pub trait Runner {
     fn resolve_namespace(&self, name: &str) -> Option<Box<dyn Namespace>>;
+}
+
+fn set_hook() -> Arc<Mutex<Option<String>>> {
+    let panic_buf = Arc::new(Mutex::new(None));
+    let thread_id = thread::current().id();
+    panic::set_hook({
+        let panic_buf = panic_buf.clone();
+        Box::new(move |e| {
+            if thread::current().id() == thread_id {
+                *panic_buf.lock().unwrap() = Some(e.to_string());
+            } else {
+                println!("{}", e)
+            }
+        })
+    });
+    panic_buf
+}
+
+fn take_hook(
+    output: Result<Result<Value, String>, Box<dyn Any + Send>>,
+    panic_buf: Arc<Mutex<Option<String>>>,
+) -> Result<Result<Value, String>, String> {
+    let _ = panic::take_hook();
+    output.map_err(|_| panic_buf.lock().unwrap().take().expect("failed to get panic message"))
 }
 
 pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
@@ -149,24 +177,24 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
         for (i, test) in tests.into_iter().enumerate() {
             let expected_output = expected_output.as_mut().and_then(|x| x.next()).cloned();
             println!("running test {} @ '{}'", test_name, path.to_str().unwrap());
-            let output = namespace.run_test(Test {
-                name: test_name.clone(),
-                content: test.clone(),
-                path: path.into(),
-                config: config.extra.clone(),
+            let panic_buf = set_hook();
+            let leo_output = panic::catch_unwind(|| {
+                namespace.run_test(Test {
+                    name: test_name.clone(),
+                    content: test.clone(),
+                    path: path.into(),
+                    config: config.extra.clone(),
+                })
             });
-            if let Some(error) = emit_errors(
-                output.as_ref().map_err(|x| &**x),
-                &config.expectation,
-                expected_output,
-                i,
-            ) {
+            let output = take_hook(leo_output, panic_buf);
+            if let Some(error) = emit_errors(&test, &output, &config.expectation, expected_output, i) {
                 fail_tests += 1;
                 errors.push(error);
             } else {
                 pass_tests += 1;
                 new_outputs.push(
                     output
+                        .unwrap()
                         .as_ref()
                         .map(|x| serde_yaml::to_value(x).expect("serialization failed"))
                         .unwrap_or_else(|e| Value::String(e.clone())),

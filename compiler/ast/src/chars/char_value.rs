@@ -48,8 +48,20 @@ impl fmt::Display for Char {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Scalar(c) => write!(f, "{}", c),
-            Self::NonScalar(c) => write!(f, "{}", c),
+            Self::NonScalar(c) => write!(f, "{:X}", c),
         }
+    }
+}
+
+pub struct Chars(pub Vec<Char>);
+
+impl fmt::Display for Chars {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for character in self.0.iter() {
+            write!(f, "{}", character)?;
+        }
+
+        Ok(())
     }
 }
 

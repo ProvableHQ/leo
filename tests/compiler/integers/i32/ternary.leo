@@ -5,25 +5,25 @@ inputs:
  - i32.in: |
     [main]
     s: bool = true;
-    a: i32 = 10;
-    b: i32 = 5;
-    c: i32 = 10;
+    a: i32 = 10i32;
+    b: i32 = 5i32;
+    c: i32 = 10i32;
 
     [registers]
     r0: bool = false;
  - i32_rev.in: |
     [main]
     s: bool = false;
-    a: i32 = 10;
-    b: i32 = 5;
-    c: i32 = 5;
+    a: i32 = 10i32;
+    b: i32 = 5i32;
+    c: i32 = 5i32;
 
     [registers]
     r0: bool = false;
 */
 
 function main(s: bool, a: i32, b: i32, c: i32) -> bool {
-    let r = s ? a : b;
+    let r: i32 = s ? a : b;
 
     return r == c;
 }

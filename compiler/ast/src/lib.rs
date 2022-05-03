@@ -22,18 +22,6 @@
 
 #![doc = include_str!("../README.md")]
 
-pub mod accesses;
-pub use self::accesses::*;
-
-pub mod aliases;
-pub use self::aliases::*;
-
-pub mod annotation;
-pub use self::annotation::*;
-
-pub mod circuits;
-pub use self::circuits::*;
-
 pub mod chars;
 pub use self::chars::*;
 
@@ -49,20 +37,14 @@ pub use self::functions::*;
 pub mod groups;
 pub use self::groups::*;
 
-pub mod imports;
-pub use self::imports::*;
-
 pub mod input;
 pub use self::input::*;
 
-pub mod pass;
-pub use self::pass::*;
+pub mod passes;
+pub use self::passes::*;
 
 pub mod program;
 pub use self::program::*;
-
-pub mod reducer;
-pub use self::reducer::*;
 
 pub mod statements;
 pub use self::statements::*;
@@ -162,7 +144,7 @@ impl AsRef<Program> for Ast {
 }
 
 /// Helper function to recursively filter keys from AST JSON
-fn remove_key_from_json(value: serde_json::Value, key: &str) -> serde_json::Value {
+pub(crate) fn remove_key_from_json(value: serde_json::Value, key: &str) -> serde_json::Value {
     match value {
         serde_json::Value::Object(map) => serde_json::Value::Object(
             map.into_iter()
@@ -183,7 +165,7 @@ fn remove_key_from_json(value: serde_json::Value, key: &str) -> serde_json::Valu
 /// 1. Remove empty object mappings from JSON arrays
 /// 2. If there are two elements in a JSON array and one is an empty object
 ///     mapping and the other is not, then lift up the one that isn't
-fn normalize_json_value(value: serde_json::Value) -> serde_json::Value {
+pub(crate) fn normalize_json_value(value: serde_json::Value) -> serde_json::Value {
     match value {
         serde_json::Value::Array(vec) => {
             let orig_length = vec.len();

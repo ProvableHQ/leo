@@ -3,7 +3,7 @@ namespace: Parse
 expectation: Pass
 */
 
-function inf() {
+function inf() -> u8 {
     inf();
 }
 

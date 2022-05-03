@@ -22,9 +22,9 @@ pub struct ProgramState {
     pub state: Definitions,
 }
 
-impl TryFrom<ParsedInputFile> for ProgramState {
+impl TryFrom<InputAst> for ProgramState {
     type Error = LeoError;
-    fn try_from(input: ParsedInputFile) -> Result<Self> {
+    fn try_from(input: InputAst) -> Result<Self> {
         let mut state = IndexMap::new();
 
         for section in input.sections {

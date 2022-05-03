@@ -2,21 +2,5 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - circuit:
-      num_public_variables: 0
-      num_private_variables: 33
-      num_constraints: 33
-      at: 5e88cd940df2c48a53e64a9b8589045ef766371daa5cc885df982902d9fcc754
-      bt: 10b52342f8c44eb9b3335b4df9ca4136de3ad35d5b580b2ab32ae5e10bcdf3b4
-      ct: 2aae7d6631260dcaafbfe9709ade84e75f5172a9baad48e108e7264d5fc17cf6
-    output:
-      - input_file: ne.in
-        output:
-          registers:
-            r0:
-              type: bool
-              value: "true"
-    initial_ast: 40dde7c7b88c62369fe2158367a437068a868915ce396073a1175da002fb5ac9
-    imports_resolved_ast: 04a8f0a644627674badf15ae8905b1c900b69c55737349a2b5a47c8fac8ad34e
-    canonicalized_ast: 04a8f0a644627674badf15ae8905b1c900b69c55737349a2b5a47c8fac8ad34e
-    type_inferenced_ast: 986c782450aee517ce53b71f1bb9dc907dc97833775f3186c4f6d341ae5239b3
+  - output: []
+    initial_ast: d4fd7ef16af8dab231510e78cba7be176f619f7646ce5867211fc0982e7c245a

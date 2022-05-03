@@ -2,27 +2,5 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - circuit:
-      num_public_variables: 0
-      num_private_variables: 449
-      num_constraints: 449
-      at: 228ee4529b5cacfbd2dfbe9fe20088c9e8de89c4f80fcca316cd4ed3830ff633
-      bt: b228ce69df9ccfd94eb2d43619a82e2720dc0b34666b6850f0cd42db04befdef
-      ct: 7b765314986bd8a51a62dabdef866c5fe05ad9bf392fb0e25b7ce3b9969f81e1
-    output:
-      - input_file: i64_l.in
-        output:
-          registers:
-            r0:
-              type: bool
-              value: "true"
-      - input_file: i64_e.in
-        output:
-          registers:
-            r0:
-              type: bool
-              value: "true"
-    initial_ast: 4cbe66b4faa6f90f792df2c404d2a1a9ebf4b1f2c61be21751cf438d11984acb
-    imports_resolved_ast: c11552123f4f495d555b4ed8972f08f8ffbb8a9db7876ff0a9bf3d03a44f6cb9
-    canonicalized_ast: c11552123f4f495d555b4ed8972f08f8ffbb8a9db7876ff0a9bf3d03a44f6cb9
-    type_inferenced_ast: 2f5c29250ae6f083bc16ee9b2f7616f3f45ada6b518d2ca22f55043134b3f444
+  - output: []
+    initial_ast: a2708a17884e05a752fcac58df044096170c53df416cb7b5bf4e8d5228d7396d

@@ -2,6 +2,8 @@
 /tmp/
 **.idea/
 *.DS_Store
+.vscode
+leo.iml
 
 **/process.yml
 

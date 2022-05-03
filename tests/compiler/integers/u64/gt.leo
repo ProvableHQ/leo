@@ -20,6 +20,8 @@ inputs:
     r0: bool = true;
 */
 
-function main(a: u64, b: u64, c: bool) {
-    console.assert(a > b == c);
+function main(a: u64, b: u64, c: bool) -> bool {
+    let ret: bool = a > b == c;
+    console.assert(ret);
+    return ret;
 }

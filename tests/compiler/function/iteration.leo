@@ -9,10 +9,10 @@ function one() -> u32 {
 }
 
 function main(y: bool) -> bool {
-    let a = 0u32;
+    let a: u32 = 0u32;
 
-    for i in 0..10 {
-        a += one();
+    for i: u32 in 0u32..10u32 {
+        a = a + one();
     }
 
     return (a == 10u32) == y;

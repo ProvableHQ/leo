@@ -73,7 +73,7 @@ macro_rules! strings {
     ([$($acc:expr),*] [$_sym:ident: $string:literal $(,)?]) => {
         strings!([$($acc,)* $string] [])
     };
-    // Base case 4): A single identitifier left.
+    // Base case 4): A single identifier left.
     // So in e.g., `symbols! { x, y }`, this handles `y` with `x` already in `$acc`.
     ([$($acc:expr),*] [$sym:ident $(,)?]) => {
         strings!([$($acc,)* stringify!($sym)] [])
@@ -101,20 +101,17 @@ macro_rules! symbols {
 symbols! {
     address,
     AlwaysConst,
-    Ampersand: "&",
     array,
-    As: "as",
     assert,
-    At: "@",
     bool,
     char,
-    circuit,
     Class: "class",
     context,
     constants,
     CoreFunction,
     console,
     Const: "const",
+    Constant,
     Else: "else",
     error,
     False: "false",
@@ -128,7 +125,6 @@ symbols! {
     i64,
     i128,
     If: "if",
-    import,
     In: "in",
     input,
     Let: "let",
@@ -136,12 +132,10 @@ symbols! {
     main,
     Mut: "mut",
     prelude,
+    Public,
     Return: "return",
-    SelfLower: "self",
-    SelfUpper: "Self",
     Star: "*",
     std,
-    Static: "static",
     Struct: "struct",
     test,
     True: "true",

@@ -21,28 +21,22 @@ use super::*;
 pub struct ProgramInput {
     pub main: Definitions,
     pub registers: Definitions,
-    pub constants: Definitions,
 }
 
-impl TryFrom<ParsedInputFile> for ProgramInput {
+impl TryFrom<InputAst> for ProgramInput {
     type Error = LeoError;
-    fn try_from(input: ParsedInputFile) -> Result<Self> {
+    fn try_from(input: InputAst) -> Result<Self> {
         let mut main = IndexMap::new();
         let mut registers = IndexMap::new();
-        let mut constants = IndexMap::new();
 
         for section in input.sections {
             let target = match section.name {
                 sym::main => &mut main,
                 sym::registers => &mut registers,
-                sym::constants => &mut constants,
                 _ => {
-                    return Err(InputError::unexpected_section(
-                        &["main", "registers", "constants"],
-                        section.name,
-                        &section.span,
+                    return Err(
+                        InputError::unexpected_section(&["main", "registers"], section.name, &section.span).into(),
                     )
-                    .into())
                 }
             };
 
@@ -54,10 +48,6 @@ impl TryFrom<ParsedInputFile> for ProgramInput {
             }
         }
 
-        Ok(ProgramInput {
-            main,
-            registers,
-            constants,
-        })
+        Ok(ProgramInput { main, registers })
     }
 }

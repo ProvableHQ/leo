@@ -35,7 +35,7 @@ impl Namespace for TokenNamespace {
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
         create_session_if_not_set_then(|_| {
-            tokenizer::tokenize("test", test.content.into())
+            tokenizer::tokenize("test", &test.content)
                 .map(|tokens| {
                     Value::String(
                         tokens
@@ -56,7 +56,8 @@ fn not_fully_consumed(tokens: &mut ParserContext) -> Result<(), String> {
     }
     let mut out = "did not consume all input: ".to_string();
     while tokens.has_next() {
-        out.push_str(&tokens.expect_any().unwrap().to_string());
+        tokens.bump();
+        out.push_str(&tokens.prev_token.to_string());
         out.push('\n');
     }
     Err(out)
@@ -70,7 +71,7 @@ fn with_handler<T>(
     let mut tokens = ParserContext::new(&handler, tokens);
     let parsed = handler
         .extend_if_error(logic(&mut tokens))
-        .map_err(|_| buf.extract().to_string())?;
+        .map_err(|_| buf.extract_errs().to_string())?;
     not_fully_consumed(&mut tokens)?;
     Ok(parsed)
 }
@@ -80,7 +81,7 @@ fn implicit_value_expr() -> Expression {
 }
 
 fn tokenize(test: Test) -> Result<Vec<SpannedToken>, String> {
-    tokenizer::tokenize("test", test.content.into()).map_err(|x| x.to_string())
+    tokenizer::tokenize("test", &test.content).map_err(|x| x.to_string())
 }
 
 fn all_are_comments(tokens: &[SpannedToken]) -> bool {
@@ -107,27 +108,6 @@ impl Namespace for ParseExpressionNamespace {
                 return Ok(yaml_or_fail(implicit_value_expr()));
             }
             with_handler(tokenizer, |p| p.parse_expression()).map(yaml_or_fail)
-        })
-    }
-}
-
-struct ParseImportNamespace;
-
-impl Namespace for ParseImportNamespace {
-    fn parse_type(&self) -> ParseType {
-        ParseType::ContinuousLines
-    }
-
-    fn run_test(&self, test: Test) -> Result<Value, String> {
-        create_session_if_not_set_then(|_| {
-            let tokenizer = tokenize(test)?;
-            if all_are_comments(&tokenizer) {
-                return Ok(yaml_or_fail(Statement::Expression(ExpressionStatement {
-                    expression: implicit_value_expr(),
-                    span: Span::default(),
-                })));
-            }
-            with_handler(tokenizer, |p| p.parse_import_statement()).map(yaml_or_fail)
         })
     }
 }
@@ -248,7 +228,6 @@ impl Runner for TestRunner {
     fn resolve_namespace(&self, name: &str) -> Option<Box<dyn Namespace>> {
         Some(match name {
             "Parse" => Box::new(ParseNamespace),
-            "ParseImport" => Box::new(ParseImportNamespace),
             "ParseExpression" => Box::new(ParseExpressionNamespace),
             "ParseStatement" => Box::new(ParseStatementNamespace),
             "Serialize" => Box::new(SerializeNamespace),
