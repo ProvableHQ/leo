@@ -76,7 +76,6 @@ impl<'a, V: ExpressionVisitor<'a>> VisitorDirector<'a, V> {
 
     pub fn visit_call(&mut self, input: &'a CallExpression) {
         if let VisitResult::VisitChildren = self.visitor.visit_call(input) {
-            self.visit_expression(&input.function);
             for expr in input.arguments.iter() {
                 self.visit_expression(expr);
             }

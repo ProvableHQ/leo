@@ -17,7 +17,7 @@
 use std::fmt::Display;
 
 use indexmap::IndexMap;
-use leo_ast::{DefinitionStatement, FunctionInput, FunctionInputVariable};
+use leo_ast::{DefinitionStatement, FunctionInput, Node};
 use leo_errors::{AstError, Result};
 use leo_span::Symbol;
 
@@ -27,33 +27,20 @@ pub struct VariableSymbol<'a> {
     /// For example if we are in a if block inside a function.
     /// The parent would be the functions variables and inputs.
     /// This field is populated as necessary.
-    parent: Option<Box<VariableSymbol<'a>>>,
+    pub(crate) parent: Option<Box<VariableSymbol<'a>>>,
     /// The input variables defined in a scope.
     /// This field is populated as necessary.
-    inputs: IndexMap<Symbol, &'a FunctionInputVariable>,
+    pub(crate) inputs: IndexMap<Symbol, &'a FunctionInput>,
     /// The variables defined in a scope.
     /// This field is populated as necessary.
-    variables: IndexMap<Symbol, &'a DefinitionStatement>,
+    pub(crate) variables: IndexMap<Symbol, &'a DefinitionStatement>,
 }
 
 impl<'a> VariableSymbol<'a> {
-    pub fn new(parent: Option<Box<VariableSymbol<'a>>>, inputs: Vec<&'a FunctionInput>) -> Self {
-        Self {
-            parent,
-            inputs: inputs
-                .iter()
-                .map(|input| {
-                    let inner = input.get_variable();
-                    (inner.identifier.name, inner)
-                })
-                .collect(),
-            variables: IndexMap::new(),
-        }
-    }
-
     pub fn check_shadowing(&self, symbol: &Symbol) -> Result<()> {
         if let Some(input) = self.inputs.get(symbol) {
-            Err(AstError::shadowed_function_input(symbol, &input.span).into())
+            let span = input.span();
+            Err(AstError::shadowed_function_input(symbol, span).into())
         } else if let Some(var) = self.variables.get(symbol) {
             Err(AstError::shadowed_variable(symbol, &var.span).into())
         } else if let Some(parent) = &self.parent {

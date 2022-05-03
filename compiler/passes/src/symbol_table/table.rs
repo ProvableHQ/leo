@@ -16,7 +16,7 @@
 
 use std::fmt::Display;
 
-use leo_ast::Function;
+use leo_ast::{DefinitionStatement, Function, FunctionInput};
 use leo_errors::{AstError, Result};
 use leo_span::Symbol;
 
@@ -31,7 +31,7 @@ pub struct SymbolTable<'a> {
     functions: IndexMap<Symbol, &'a Function>,
     /// Variables represents functions variable definitions and input variables.
     /// This field is not populated till necessary.
-    variables: VariableSymbol<'a>,
+    pub(crate) variables: VariableSymbol<'a>,
 }
 
 impl<'a> SymbolTable<'a> {
@@ -48,14 +48,34 @@ impl<'a> SymbolTable<'a> {
         self.variables.clear();
     }
 
-    pub fn insert_fn(&mut self, symbol: Symbol, function: &'a Function) -> Result<()> {
+    pub fn insert_fn(&mut self, symbol: Symbol, insert: &'a Function) -> Result<()> {
         self.check_shadowing(&symbol)?;
-        self.functions.insert(symbol, function);
+        self.functions.insert(symbol, insert);
         Ok(())
     }
 
-    pub fn lookup_fn(&mut self, symbol: &Symbol) -> Option<&&'a Function> {
+    pub fn insert_fn_input(&mut self, symbol: Symbol, insert: &'a FunctionInput) -> Result<()> {
+        self.check_shadowing(&symbol)?;
+        self.variables.inputs.insert(symbol, insert);
+        Ok(())
+    }
+
+    pub fn insert_variable(&mut self, symbol: Symbol, insert: &'a DefinitionStatement) -> Result<()> {
+        self.check_shadowing(&symbol)?;
+        self.variables.variables.insert(symbol, insert);
+        Ok(())
+    }
+
+    pub fn lookup_fn(&self, symbol: &Symbol) -> Option<&&'a Function> {
         self.functions.get(symbol)
+    }
+
+    pub fn lookup_fn_input(&self, symbol: &Symbol) -> Option<&&'a FunctionInput> {
+        self.variables.inputs.get(symbol)
+    }
+
+    pub fn lookup_var(&self, symbol: &Symbol) -> Option<&&'a DefinitionStatement> {
+        self.variables.variables.get(symbol)
     }
 }
 
