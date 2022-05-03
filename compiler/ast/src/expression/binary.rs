@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_errors::TypeCheckerError;
+
 use super::*;
 
 /// A binary operator.
@@ -167,8 +169,10 @@ impl Node for BinaryExpression {
                 match (left, right) {
                     (Some(t1), Some(t2)) if t1 == t2 => Ok(Some(t1)),
                     (None, None) => Ok(None),
-                    (Some(t1), Some(t2)) => todo!("throw err"),
-                    (None, Some(t)) | (Some(t), None) => todo!("throw err"),
+                    (Some(t1), Some(t2)) => Err(TypeCheckerError::types_do_not_match(t1, t2, self.span()).into()),
+                    (None, Some(t)) | (Some(t), None) => {
+                        Err(TypeCheckerError::type_expected_but_not_found(t, self.span()).into())
+                    }
                 }
             }
         }

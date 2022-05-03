@@ -15,15 +15,20 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::*;
-use leo_errors::Result;
+use leo_errors::{Result, TypeCheckerError};
+use leo_span::Span;
 
 use crate::TypeChecker;
 
 impl<'a> TypeChecker<'a> {
-    fn compare_types(&self, t1: Result<Option<Type>>, t2: Result<Option<Type>>) {
+    fn compare_types(&self, t1: Result<Option<Type>>, t2: Result<Option<Type>>, span: &Span) {
         match (t1, t2) {
-            (Ok(Some(t1)), Ok(Some(t2))) if t1 != t2 => self.handler.emit_err(todo!()),
-            (Ok(Some(t)), Ok(None)) | (Ok(None), Ok(Some(t))) => self.handler.emit_err(todo!()),
+            (Ok(Some(t1)), Ok(Some(t2))) if t1 != t2 => self
+                .handler
+                .emit_err(TypeCheckerError::types_do_not_match(t1, t2, span).into()),
+            (Ok(Some(t)), Ok(None)) | (Ok(None), Ok(Some(t))) => self
+                .handler
+                .emit_err(TypeCheckerError::type_expected_but_not_found(t, span).into()),
             (Err(err), Ok(None)) | (Ok(None), Err(err)) => self.handler.emit_err(err),
             (Err(err1), Err(err2)) => {
                 self.handler.emit_err(err1);
@@ -43,7 +48,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let parent = self.parent.unwrap();
 
         if let Some(func) = self.symbol_table.lookup_fn(&parent) {
-            self.compare_types(func.get_type(), input.get_type());
+            self.compare_types(func.get_type(), input.get_type(), input.span());
         }
 
         VisitResult::VisitChildren
@@ -54,6 +59,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             if let Err(err) = self.symbol_table.insert_variable(v.identifier.name, input) {
                 self.handler.emit_err(err);
             }
+
+            self.compare_types(input.get_type(), input.get_type(), input.span());
         });
 
         VisitResult::VisitChildren
@@ -65,12 +72,33 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         match (input_var, var) {
             (Some(var), None) => {
-                self.compare_types(var.get_type(), input.value.get_type());
+                let inner = var.get_variable();
+                if inner.mode() == ParamMode::Constant {
+                    self.handler.emit_err(
+                        TypeCheckerError::cannont_assign_to_const_input(&inner.identifier.name, var.span()).into(),
+                    );
+                }
+
+                self.compare_types(var.get_type(), input.value.get_type(), input.span());
             }
             (None, Some(var)) => {
-                self.compare_types(var.get_type(), input.value.get_type());
+                if var.declaration_type == Declare::Const {
+                    // there will always be one variable name
+                    // as we don't allow tuples at the moment.
+                    self.handler.emit_err(
+                        TypeCheckerError::cannont_assign_to_const_input(
+                            &var.variable_names[0].identifier.name,
+                            var.span(),
+                        )
+                        .into(),
+                    );
+                }
+
+                self.compare_types(var.get_type(), input.value.get_type(), input.span());
             }
-            (None, None) => self.handler.emit_err(todo!()),
+            (None, None) => self
+                .handler
+                .emit_err(TypeCheckerError::unknown_assignee(&input.assignee.identifier.name, input.span()).into()),
             // Don't have to error here as shadowing checks are done during insertions.
             _ => {}
         }
