@@ -98,33 +98,3 @@ input_file:
 
 function main(a: u32) {}
 ```
-
-### inputs (Compile)
-
-```
-- Mandatory: no
-- Namespace: Compile
-- Values: <input file contents>, ...
-```
-
-With this setting you can specify inputs right in the test description. It is useful for not creating too many files for
-each single case.
-
-```
-/*
-namespace: Compile
-expectation: Pass
-inputs:
- - first.in: |
-    [main]
-    a: u32 = 100;
-
-    [registers]
-    r0: bool = false;
-# - second.in: | ....
-*/
-
-function main(a: u32) -> bool {
-    return a == 100;
-}
-```
