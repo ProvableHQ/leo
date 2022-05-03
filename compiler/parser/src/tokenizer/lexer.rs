@@ -450,7 +450,7 @@ pub struct SpannedToken {
 
 impl SpannedToken {
     /// Returns a dummy token at a dummy span.
-    pub fn dummy() -> Self {
+    pub const fn dummy() -> Self {
         Self {
             token: Token::Question,
             span: Span::dummy(),

@@ -41,8 +41,11 @@ impl Span {
 
     /// Generates a dummy span with all defaults.
     /// Should only be used in temporary situations.
-    pub fn dummy() -> Self {
-        Self::default()
+    pub const fn dummy() -> Self {
+        Self {
+            lo: BytePos(0),
+            hi: BytePos(0),
+        }
     }
 
     /// Is the span a dummy?
@@ -61,7 +64,7 @@ impl std::ops::Add for &Span {
     type Output = Span;
 
     fn add(self, other: &Span) -> Span {
-        self.clone() + other.clone()
+        *self + *other
     }
 }
 

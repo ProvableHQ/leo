@@ -46,12 +46,4 @@ impl fmt::Display for ConsoleArgs {
     }
 }
 
-impl Node for ConsoleArgs {
-    fn span(&self) -> &Span {
-        &self.span
-    }
-
-    fn set_span(&mut self, span: Span) {
-        self.span = span;
-    }
-}
+crate::simple_node_impl!(ConsoleArgs);

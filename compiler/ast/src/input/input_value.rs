@@ -52,14 +52,14 @@ impl TryFrom<(Type, Expression)> for InputValue {
                         }
                     }
                     (x, y) => {
-                        return Err(InputError::unexpected_type(x, &y, y.span()).into());
+                        return Err(InputError::unexpected_type(x, &y, &y.span()).into());
                     }
                 }
             }
             (type_, Expression::Unary(unary)) if unary.op == UnaryOperation::Negate => {
                 InputValue::try_from((type_, *unary.inner))?
             }
-            (_type_, expr) => return Err(InputError::illegal_expression(&expr, expr.span()).into()),
+            (_type_, expr) => return Err(InputError::illegal_expression(&expr, &expr.span()).into()),
         })
     }
 }

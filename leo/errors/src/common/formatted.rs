@@ -50,14 +50,14 @@ impl Formatted {
         code_identifier: i8,
         type_: String,
         error: bool,
-        span: &Span,
+        span: Span,
         backtrace: Backtrace,
     ) -> Self
     where
         S: ToString,
     {
         Self {
-            span: span.clone(),
+            span,
             backtrace: Backtraced::new_from_backtrace(
                 message.to_string(),
                 help,
@@ -111,7 +111,7 @@ impl fmt::Display for Formatted {
             (
                 s.source_map
                     .span_to_location(self.span)
-                    .unwrap_or_else(|| SpanLocation::dummy()),
+                    .unwrap_or_else(SpanLocation::dummy),
                 s.source_map
                     .line_contents_of_span(self.span)
                     .unwrap_or_else(|| "<contents unavailable>".to_owned()),

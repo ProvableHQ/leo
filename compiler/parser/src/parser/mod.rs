@@ -39,7 +39,7 @@ pub mod input;
 pub mod statement;
 pub mod type_;
 
-pub(crate) fn assert_no_whitespace(left_span: &Span, right_span: &Span, left: &str, right: &str) -> Result<()> {
+pub(crate) fn assert_no_whitespace(left_span: Span, right_span: Span, left: &str, right: &str) -> Result<()> {
     if left_span.hi != right_span.lo {
         let error_span = Span::new(left_span.hi, right_span.lo); // The span between them.
         return Err(ParserError::unexpected_whitespace(left, right, &error_span).into());

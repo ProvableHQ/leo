@@ -64,12 +64,4 @@ impl fmt::Display for DefinitionStatement {
     }
 }
 
-impl Node for DefinitionStatement {
-    fn span(&self) -> &Span {
-        &self.span
-    }
-
-    fn set_span(&mut self, span: Span) {
-        self.span = span;
-    }
-}
+crate::simple_node_impl!(DefinitionStatement);

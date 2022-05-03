@@ -42,7 +42,7 @@ pub(crate) fn tokenize(input: &str, start_pos: BytePos) -> Result<Vec<SpannedTok
 /// Yields spanned tokens from the given source code text.
 ///
 /// The `lo` byte position determines where spans will start.
-pub(crate) fn tokenize_iter<'a>(input: &'a str, mut lo: BytePos) -> impl 'a + Iterator<Item = Result<SpannedToken>> {
+pub(crate) fn tokenize_iter(input: &str, mut lo: BytePos) -> impl '_ + Iterator<Item = Result<SpannedToken>> {
     let mut index = 0usize;
     iter::from_fn(move || {
         while input.len() > index {

@@ -105,7 +105,7 @@ macro_rules! create_messages {
                     Self::code_identifier(),
                     Self::message_type(),
                     Self::is_error(),
-                    span,
+                    *span,
                     // Each function always generates its own backtrace for backtrace clarity to originate from the error function.
                     Backtrace::new(),
                 )

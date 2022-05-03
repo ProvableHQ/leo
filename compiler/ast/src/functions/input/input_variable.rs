@@ -70,10 +70,10 @@ impl PartialEq for FunctionInput {
 impl Eq for FunctionInput {}
 
 impl Node for FunctionInput {
-    fn span(&self) -> &Span {
+    fn span(&self) -> Span {
         use FunctionInput::*;
         match self {
-            Variable(variable) => &variable.span,
+            Variable(variable) => variable.span,
         }
     }
 

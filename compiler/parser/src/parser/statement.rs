@@ -27,19 +27,16 @@ impl ParserContext<'_> {
     pub fn construct_assignee_access(expr: Expression, _accesses: &mut [AssigneeAccess]) -> Result<Identifier> {
         match expr {
             Expression::Identifier(id) => Ok(id),
-            _ => return Err(ParserError::invalid_assignment_target(expr.span()).into()),
+            _ => Err(ParserError::invalid_assignment_target(&expr.span()).into()),
         }
     }
 
     /// Returns an [`Assignee`] AST node from the given [`Expression`] AST node with accesses.
     pub fn construct_assignee(expr: Expression) -> Result<Assignee> {
-        let expr_span = expr.span().clone();
         let mut accesses = Vec::new();
-        let identifier = Self::construct_assignee_access(expr, &mut accesses)?;
-
         Ok(Assignee {
-            span: expr_span,
-            identifier,
+            span: expr.span(),
+            identifier: Self::construct_assignee_access(expr, &mut accesses)?,
             accesses,
         })
     }
@@ -66,7 +63,7 @@ impl ParserContext<'_> {
             let assignee = Self::construct_assignee(expr)?;
             self.expect(&Token::Semicolon)?;
             Ok(Statement::Assign(Box::new(AssignStatement {
-                span: &assignee.span + value.span(),
+                span: assignee.span + value.span(),
                 assignee,
                 // Currently only `=` so this is alright.
                 operation: AssignOperation::Assign,
@@ -75,7 +72,7 @@ impl ParserContext<'_> {
         } else {
             self.expect(&Token::Semicolon)?;
             Ok(Statement::Expression(ExpressionStatement {
-                span: expr.span().clone(),
+                span: expr.span(),
                 expression: expr,
             }))
         }
@@ -89,7 +86,7 @@ impl ParserContext<'_> {
         loop {
             if self.eat(&Token::RightCurly) {
                 return Ok(Block {
-                    span: &start + &self.prev_token.span,
+                    span: start + self.prev_token.span,
                     statements,
                 });
             }
@@ -103,7 +100,7 @@ impl ParserContext<'_> {
         let start = self.expect(&Token::Return)?;
         let expression = self.parse_expression()?;
         self.expect(&Token::Semicolon)?;
-        let span = &start + expression.span();
+        let span = start + expression.span();
         Ok(ReturnStatement { span, expression })
     }
 
@@ -117,7 +114,7 @@ impl ParserContext<'_> {
         let next = if self.eat(&Token::Else) {
             let s = self.parse_statement()?;
             if !matches!(s, Statement::Block(_) | Statement::Conditional(_)) {
-                self.emit_err(ParserError::unexpected_statement(&s, "Block or Conditional", s.span()));
+                self.emit_err(ParserError::unexpected_statement(&s, "Block or Conditional", &s.span()));
             }
             Some(Box::new(s))
         } else {
@@ -125,7 +122,7 @@ impl ParserContext<'_> {
         };
 
         Ok(ConditionalStatement {
-            span: &start + next.as_ref().map(|x| x.span()).unwrap_or(&body.span),
+            span: start + next.as_ref().map(|x| x.span()).unwrap_or(body.span),
             condition: expr,
             block: body,
             next,
@@ -151,7 +148,7 @@ impl ParserContext<'_> {
         let block = self.parse_block()?;
 
         Ok(IterationStatement {
-            span: start_span + block.span.clone(),
+            span: start_span + block.span,
             variable: ident,
             type_: type_.0,
             start,
@@ -215,7 +212,7 @@ impl ParserContext<'_> {
         self.expect(&Token::Semicolon)?;
 
         Ok(ConsoleStatement {
-            span: &keyword + function.span(),
+            span: keyword + function.span(),
             function,
         })
     }
@@ -229,7 +226,7 @@ impl ParserContext<'_> {
 
         let name = self.expect_ident()?;
         Ok(VariableName {
-            span: name.span.clone(),
+            span: name.span,
             mutable: matches!(decl_ty, Declare::Let),
             identifier: name,
         })
@@ -238,7 +235,7 @@ impl ParserContext<'_> {
     /// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.
     pub fn parse_definition_statement(&mut self) -> Result<DefinitionStatement> {
         self.expect_any(&[Token::Let, Token::Const])?;
-        let decl_span = self.prev_token.span.clone();
+        let decl_span = self.prev_token.span;
         let decl_type = match &self.prev_token.token {
             Token::Let => Declare::Let,
             Token::Const => Declare::Const,
@@ -251,7 +248,7 @@ impl ParserContext<'_> {
                 .map(|(vars, ..)| vars)?;
 
             if vars.len() == 1 {
-                self.emit_err(ParserError::invalid_parens_around_single_variable(vars[0].span()));
+                self.emit_err(ParserError::invalid_parens_around_single_variable(&vars[0].span()));
             }
 
             vars
@@ -267,7 +264,7 @@ impl ParserContext<'_> {
         self.expect(&Token::Semicolon)?;
 
         Ok(DefinitionStatement {
-            span: &decl_span + expr.span(),
+            span: decl_span + expr.span(),
             declaration_type: decl_type,
             variable_names,
             type_: type_.0,

@@ -37,12 +37,4 @@ impl fmt::Display for VariableName {
     }
 }
 
-impl Node for VariableName {
-    fn span(&self) -> &Span {
-        &self.span
-    }
-
-    fn set_span(&mut self, span: Span) {
-        self.span = span;
-    }
-}
+crate::simple_node_impl!(VariableName);

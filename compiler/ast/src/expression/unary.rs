@@ -52,12 +52,4 @@ impl fmt::Display for UnaryExpression {
     }
 }
 
-impl Node for UnaryExpression {
-    fn span(&self) -> &Span {
-        &self.span
-    }
-
-    fn set_span(&mut self, span: Span) {
-        self.span = span;
-    }
-}
+crate::simple_node_impl!(UnaryExpression);
