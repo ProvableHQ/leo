@@ -4,62 +4,42 @@ expectation: Pass
 outputs:
   - Call:
       function:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x()\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
       arguments: []
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 4
-        path: ""
-        content: x()
+        lo: 0
+        hi: 3
   - Call:
       function:
-        Identifier: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"X()\\\"}\"}"
+        Identifier: "{\"name\":\"X\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
       arguments: []
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 4
-        path: ""
-        content: X()
+        lo: 0
+        hi: 3
   - Call:
       function:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x(y)\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
       arguments:
-        - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x(y)\\\"}\"}"
+        - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 5
-        path: ""
-        content: x(y)
+        lo: 0
+        hi: 4
   - Call:
       function:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x(y, z)\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
       arguments:
-        - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x(y, z)\\\"}\"}"
-        - Identifier: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x(y, z)\\\"}\"}"
+        - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+        - Identifier: "{\"name\":\"z\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 8
-        path: ""
-        content: "x(y, z)"
+        lo: 0
+        hi: 7
   - Call:
       function:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x(x, y, z)\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
       arguments:
-        - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x(x, y, z)\\\"}\"}"
-        - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x(x, y, z)\\\"}\"}"
-        - Identifier: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x(x, y, z)\\\"}\"}"
+        - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+        - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        - Identifier: "{\"name\":\"z\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 11
-        path: ""
-        content: "x(x, y, z)"
+        lo: 0
+        hi: 10

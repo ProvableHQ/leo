@@ -8,84 +8,56 @@ outputs:
           x: SignHigh
           y: Inferred
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 12
-            path: ""
-            content: "(+, _)group"
+            lo: 0
+            hi: 11
   - Value:
       Group:
         Tuple:
           x: Inferred
           y: SignLow
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 12
-            path: ""
-            content: "(_, -)group"
+            lo: 0
+            hi: 11
   - Value:
       Group:
         Tuple:
           x: SignHigh
           y: SignLow
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 12
-            path: ""
-            content: "(+, -)group"
+            lo: 0
+            hi: 11
   - Value:
       Group:
         Tuple:
           x: SignLow
           y: SignHigh
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 12
-            path: ""
-            content: "(-, +)group"
+            lo: 0
+            hi: 11
   - Value:
       Group:
         Tuple:
           x: SignHigh
           y: SignHigh
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 12
-            path: ""
-            content: "(+, +)group"
+            lo: 0
+            hi: 11
   - Value:
       Group:
         Tuple:
           x: SignLow
           y: SignLow
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 12
-            path: ""
-            content: "(-, -)group"
+            lo: 0
+            hi: 11
   - Value:
       Group:
         Tuple:
           x: Inferred
           y: Inferred
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 12
-            path: ""
-            content: "(_, _)group"
+            lo: 0
+            hi: 11
   - Value:
       Group:
         Tuple:
@@ -93,29 +65,17 @@ outputs:
             Number:
               - "123"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 2
-                  col_stop: 5
-                  path: ""
-                  content: "(123,-456)group"
+                  lo: 1
+                  hi: 4
           y:
             Number:
               - "-456"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 7
-                  col_stop: 10
-                  path: ""
-                  content: "(123,-456)group"
+                  lo: 6
+                  hi: 9
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 16
-            path: ""
-            content: "(123,-456)group"
+            lo: 0
+            hi: 15
   - Value:
       Group:
         Tuple:
@@ -123,29 +83,17 @@ outputs:
             Number:
               - "-123"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 3
-                  col_stop: 6
-                  path: ""
-                  content: "(-123,456)group"
+                  lo: 2
+                  hi: 5
           y:
             Number:
               - "456"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 7
-                  col_stop: 10
-                  path: ""
-                  content: "(-123,456)group"
+                  lo: 6
+                  hi: 9
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 16
-            path: ""
-            content: "(-123,456)group"
+            lo: 0
+            hi: 15
   - Value:
       Group:
         Tuple:
@@ -153,29 +101,17 @@ outputs:
             Number:
               - "-123"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 3
-                  col_stop: 6
-                  path: ""
-                  content: "(-123,456)group"
+                  lo: 2
+                  hi: 5
           y:
             Number:
               - "456"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 7
-                  col_stop: 10
-                  path: ""
-                  content: "(-123,456)group"
+                  lo: 6
+                  hi: 9
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 16
-            path: ""
-            content: "(-123,456)group"
+            lo: 0
+            hi: 15
   - Value:
       Group:
         Tuple:
@@ -183,20 +119,12 @@ outputs:
             Number:
               - "123"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 2
-                  col_stop: 5
-                  path: ""
-                  content: "(123, _)group"
+                  lo: 1
+                  hi: 4
           y: Inferred
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 14
-            path: ""
-            content: "(123, _)group"
+            lo: 0
+            hi: 13
   - Value:
       Group:
         Tuple:
@@ -204,20 +132,12 @@ outputs:
             Number:
               - "123"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 2
-                  col_stop: 5
-                  path: ""
-                  content: "(123, -)group"
+                  lo: 1
+                  hi: 4
           y: SignLow
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 14
-            path: ""
-            content: "(123, -)group"
+            lo: 0
+            hi: 13
   - Value:
       Group:
         Tuple:
@@ -225,20 +145,12 @@ outputs:
             Number:
               - "123"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 2
-                  col_stop: 5
-                  path: ""
-                  content: "(123, -)group"
+                  lo: 1
+                  hi: 4
           y: SignLow
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 14
-            path: ""
-            content: "(123, -)group"
+            lo: 0
+            hi: 13
   - Value:
       Group:
         Tuple:
@@ -246,20 +158,12 @@ outputs:
             Number:
               - "123"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 2
-                  col_stop: 5
-                  path: ""
-                  content: "(123, +)group"
+                  lo: 1
+                  hi: 4
           y: SignHigh
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 14
-            path: ""
-            content: "(123, +)group"
+            lo: 0
+            hi: 13
   - Value:
       Group:
         Tuple:
@@ -267,20 +171,12 @@ outputs:
             Number:
               - "123"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 2
-                  col_stop: 5
-                  path: ""
-                  content: "(123, +)group"
+                  lo: 1
+                  hi: 4
           y: SignHigh
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 14
-            path: ""
-            content: "(123, +)group"
+            lo: 0
+            hi: 13
   - Value:
       Group:
         Tuple:
@@ -288,20 +184,12 @@ outputs:
             Number:
               - "123"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 2
-                  col_stop: 5
-                  path: ""
-                  content: "(123, -)group"
+                  lo: 1
+                  hi: 4
           y: SignLow
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 14
-            path: ""
-            content: "(123, -)group"
+            lo: 0
+            hi: 13
   - Value:
       Group:
         Tuple:
@@ -309,20 +197,12 @@ outputs:
             Number:
               - "123"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 2
-                  col_stop: 5
-                  path: ""
-                  content: "(123, _)group"
+                  lo: 1
+                  hi: 4
           y: Inferred
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 14
-            path: ""
-            content: "(123, _)group"
+            lo: 0
+            hi: 13
   - Value:
       Group:
         Tuple:
@@ -331,19 +211,11 @@ outputs:
             Number:
               - "345"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 5
-                  col_stop: 8
-                  path: ""
-                  content: "(+, 345)group"
+                  lo: 4
+                  hi: 7
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 14
-            path: ""
-            content: "(+, 345)group"
+            lo: 0
+            hi: 13
   - Value:
       Group:
         Tuple:
@@ -352,19 +224,11 @@ outputs:
             Number:
               - "345"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 5
-                  col_stop: 8
-                  path: ""
-                  content: "(_, 345)group"
+                  lo: 4
+                  hi: 7
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 14
-            path: ""
-            content: "(_, 345)group"
+            lo: 0
+            hi: 13
   - Value:
       Group:
         Tuple:
@@ -373,19 +237,11 @@ outputs:
             Number:
               - "345"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 5
-                  col_stop: 8
-                  path: ""
-                  content: "(+, 345)group"
+                  lo: 4
+                  hi: 7
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 14
-            path: ""
-            content: "(+, 345)group"
+            lo: 0
+            hi: 13
   - Value:
       Group:
         Tuple:
@@ -394,19 +250,11 @@ outputs:
             Number:
               - "345"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 5
-                  col_stop: 8
-                  path: ""
-                  content: "(-, 345)group"
+                  lo: 4
+                  hi: 7
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 14
-            path: ""
-            content: "(-, 345)group"
+            lo: 0
+            hi: 13
   - Value:
       Group:
         Tuple:
@@ -415,19 +263,11 @@ outputs:
             Number:
               - "345"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 5
-                  col_stop: 8
-                  path: ""
-                  content: "(+, 345)group"
+                  lo: 4
+                  hi: 7
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 14
-            path: ""
-            content: "(+, 345)group"
+            lo: 0
+            hi: 13
   - Value:
       Group:
         Tuple:
@@ -436,19 +276,11 @@ outputs:
             Number:
               - "345"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 5
-                  col_stop: 8
-                  path: ""
-                  content: "(-, 345)group"
+                  lo: 4
+                  hi: 7
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 14
-            path: ""
-            content: "(-, 345)group"
+            lo: 0
+            hi: 13
   - Value:
       Group:
         Tuple:
@@ -457,19 +289,11 @@ outputs:
             Number:
               - "345"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 5
-                  col_stop: 8
-                  path: ""
-                  content: "(_, 345)group"
+                  lo: 4
+                  hi: 7
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 14
-            path: ""
-            content: "(_, 345)group"
+            lo: 0
+            hi: 13
   - Value:
       Group:
         Tuple:
@@ -477,29 +301,17 @@ outputs:
             Number:
               - "123"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 2
-                  col_stop: 5
-                  path: ""
-                  content: "(123, 456)group"
+                  lo: 1
+                  hi: 4
           y:
             Number:
               - "456"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 7
-                  col_stop: 10
-                  path: ""
-                  content: "(123, 456)group"
+                  lo: 6
+                  hi: 9
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 16
-            path: ""
-            content: "(123, 456)group"
+            lo: 0
+            hi: 15
   - Value:
       Group:
         Tuple:
@@ -507,29 +319,17 @@ outputs:
             Number:
               - "123"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 2
-                  col_stop: 5
-                  path: ""
-                  content: "(123, 456)group"
+                  lo: 1
+                  hi: 4
           y:
             Number:
               - "456"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 7
-                  col_stop: 10
-                  path: ""
-                  content: "(123, 456)group"
+                  lo: 6
+                  hi: 9
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 16
-            path: ""
-            content: "(123, 456)group"
+            lo: 0
+            hi: 15
   - Value:
       Group:
         Tuple:
@@ -537,29 +337,17 @@ outputs:
             Number:
               - "123"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 2
-                  col_stop: 5
-                  path: ""
-                  content: "(123, 456)group"
+                  lo: 1
+                  hi: 4
           y:
             Number:
               - "456"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 7
-                  col_stop: 10
-                  path: ""
-                  content: "(123, 456)group"
+                  lo: 6
+                  hi: 9
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 16
-            path: ""
-            content: "(123, 456)group"
+            lo: 0
+            hi: 15
   - Value:
       Group:
         Tuple:
@@ -567,29 +355,17 @@ outputs:
             Number:
               - "123"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 2
-                  col_stop: 5
-                  path: ""
-                  content: "(123, 456)group"
+                  lo: 1
+                  hi: 4
           y:
             Number:
               - "456"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 7
-                  col_stop: 10
-                  path: ""
-                  content: "(123, 456)group"
+                  lo: 6
+                  hi: 9
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 16
-            path: ""
-            content: "(123, 456)group"
+            lo: 0
+            hi: 15
   - Value:
       Group:
         Tuple:
@@ -597,29 +373,17 @@ outputs:
             Number:
               - "123"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 2
-                  col_stop: 5
-                  path: ""
-                  content: "(123, 456)group"
+                  lo: 1
+                  hi: 4
           y:
             Number:
               - "456"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 7
-                  col_stop: 10
-                  path: ""
-                  content: "(123, 456)group"
+                  lo: 6
+                  hi: 9
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 16
-            path: ""
-            content: "(123, 456)group"
+            lo: 0
+            hi: 15
   - Value:
       Group:
         Tuple:
@@ -627,29 +391,17 @@ outputs:
             Number:
               - "123"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 2
-                  col_stop: 5
-                  path: ""
-                  content: "(123, 456)group"
+                  lo: 1
+                  hi: 4
           y:
             Number:
               - "456"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 7
-                  col_stop: 10
-                  path: ""
-                  content: "(123, 456)group"
+                  lo: 6
+                  hi: 9
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 16
-            path: ""
-            content: "(123, 456)group"
+            lo: 0
+            hi: 15
   - Value:
       Group:
         Tuple:
@@ -657,40 +409,24 @@ outputs:
             Number:
               - "123"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 2
-                  col_stop: 5
-                  path: ""
-                  content: "(123, 456)group"
+                  lo: 1
+                  hi: 4
           y:
             Number:
               - "456"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 7
-                  col_stop: 10
-                  path: ""
-                  content: "(123, 456)group"
+                  lo: 6
+                  hi: 9
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 16
-            path: ""
-            content: "(123, 456)group"
+            lo: 0
+            hi: 15
   - Value:
       Group:
         Single:
           - "1"
           - span:
-              line_start: 1
-              line_stop: 1
-              col_start: 1
-              col_stop: 7
-              path: ""
-              content: 1group
+              lo: 0
+              hi: 6
   - Unary:
       inner:
         Value:
@@ -698,17 +434,9 @@ outputs:
             Single:
               - "1"
               - span:
-                  line_start: 1
-                  line_stop: 1
-                  col_start: 2
-                  col_stop: 8
-                  path: ""
-                  content: "-1group"
+                  lo: 1
+                  hi: 7
       op: Negate
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 8
-        path: ""
-        content: "-1group"
+        lo: 0
+        hi: 7

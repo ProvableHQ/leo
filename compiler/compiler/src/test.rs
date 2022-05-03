@@ -28,7 +28,7 @@ use leo_errors::{
     LeoError, LeoWarning,
 };
 use leo_passes::SymbolTable;
-use leo_span::symbol::create_session_if_not_set_then;
+use leo_span::{source_map::FileName, symbol::create_session_if_not_set_then};
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
     Test,
@@ -48,8 +48,9 @@ fn parse_program<'a>(
     program_string: &str,
     cwd: Option<PathBuf>,
 ) -> Result<Compiler<'a>, LeoError> {
-    let mut compiler = new_compiler(handler, cwd.unwrap_or_else(|| "compiler-test".into()));
-    compiler.parse_program_from_string(program_string)?;
+    let mut compiler = new_compiler(handler, cwd.clone().unwrap_or_else(|| "compiler-test".into()));
+    let name = cwd.map_or_else(|| FileName::Custom("compiler-test".into()), FileName::Real);
+    compiler.parse_program_from_string(program_string, name)?;
 
     Ok(compiler)
 }

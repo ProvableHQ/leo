@@ -20,6 +20,7 @@ use backtrace::Backtrace;
 use color_backtrace::{BacktracePrinter, Verbosity};
 use colored::Colorize;
 use derivative::Derivative;
+use leo_span::source_map::is_not_test_framework;
 
 /// The indent for an error message.
 pub(crate) const INDENT: &str = "    ";
@@ -120,12 +121,7 @@ impl fmt::Display for Backtraced {
         let message = format!("{kind} [{code}]: {message}", message = self.message,);
 
         // To avoid the color enabling characters for comparison with test expectations.
-        if std::env::var("LEO_TESTFRAMEWORK")
-            .unwrap_or_default()
-            .trim()
-            .to_owned()
-            .is_empty()
-        {
+        if is_not_test_framework() {
             if self.error {
                 write!(f, "{}", message.bold().red())?;
             } else {

@@ -7,72 +7,48 @@ outputs:
         definitions:
           - mode: Constant
             type_: Boolean
-            name: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"constant a: bool  = true;\\\"}\"}"
+            name: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
             value:
               Value:
                 Boolean:
                   - "true"
                   - span:
-                      line_start: 4
-                      line_stop: 4
-                      col_start: 21
-                      col_stop: 25
-                      path: ""
-                      content: "constant a: bool  = true;"
+                      lo: 29
+                      hi: 33
             span:
-              line_start: 4
-              line_stop: 4
-              col_start: 13
-              col_stop: 17
-              path: ""
-              content: "constant a: bool  = true;"
+              lo: 21
+              hi: 25
           - mode: Constant
             type_:
               IntegerType: U8
-            name: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"constant b: u8    = 2u8;\\\"}\"}"
+            name: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":44,\\\"hi\\\":45}\"}"
             value:
               Value:
                 Integer:
                   - U8
                   - "2"
                   - span:
-                      line_start: 5
-                      line_stop: 5
-                      col_start: 21
-                      col_stop: 24
-                      path: ""
-                      content: "constant b: u8    = 2u8;"
+                      lo: 55
+                      hi: 58
             span:
-              line_start: 5
-              line_stop: 5
-              col_start: 13
-              col_stop: 15
-              path: ""
-              content: "constant b: u8    = 2u8;"
+              lo: 47
+              hi: 49
           - mode: Constant
             type_: Field
-            name: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"constant c: field = 0field;\\\"}\"}"
+            name: "{\"name\":\"c\",\"span\":\"{\\\"lo\\\":69,\\\"hi\\\":70}\"}"
             value:
               Value:
                 Field:
                   - "0"
                   - span:
-                      line_start: 6
-                      line_stop: 6
-                      col_start: 21
-                      col_stop: 27
-                      path: ""
-                      content: "constant c: field = 0field;"
+                      lo: 80
+                      hi: 86
             span:
-              line_start: 6
-              line_stop: 6
-              col_start: 13
-              col_stop: 18
-              path: ""
-              content: "constant c: field = 0field;"
+              lo: 72
+              hi: 77
           - mode: Constant
             type_: Group
-            name: "{\"name\":\"d\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"constant d: group = (0, 1)group;\\\"}\"}"
+            name: "{\"name\":\"d\",\"span\":\"{\\\"lo\\\":97,\\\"hi\\\":98}\"}"
             value:
               Value:
                 Group:
@@ -81,61 +57,37 @@ outputs:
                       Number:
                         - "0"
                         - span:
-                            line_start: 7
-                            line_stop: 7
-                            col_start: 22
-                            col_stop: 23
-                            path: ""
-                            content: "constant d: group = (0, 1)group;"
+                            lo: 109
+                            hi: 110
                     y:
                       Number:
                         - "1"
                         - span:
-                            line_start: 7
-                            line_stop: 7
-                            col_start: 25
-                            col_stop: 26
-                            path: ""
-                            content: "constant d: group = (0, 1)group;"
+                            lo: 112
+                            hi: 113
                     span:
-                      line_start: 7
-                      line_stop: 7
-                      col_start: 21
-                      col_stop: 32
-                      path: ""
-                      content: "constant d: group = (0, 1)group;"
+                      lo: 108
+                      hi: 119
             span:
-              line_start: 7
-              line_stop: 7
-              col_start: 13
-              col_stop: 18
-              path: ""
-              content: "constant d: group = (0, 1)group;"
+              lo: 100
+              hi: 105
           - mode: Constant
             type_: Address
-            name: "{\"name\":\"e\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"constant e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;\\\"}\"}"
+            name: "{\"name\":\"e\",\"span\":\"{\\\"lo\\\":130,\\\"hi\\\":131}\"}"
             value:
               Value:
                 Address:
                   - aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8
                   - span:
-                      line_start: 8
-                      line_stop: 8
-                      col_start: 23
-                      col_stop: 86
-                      path: ""
-                      content: "constant e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;"
+                      lo: 143
+                      hi: 206
             span:
-              line_start: 8
-              line_stop: 8
-              col_start: 13
-              col_stop: 20
-              path: ""
-              content: "constant e: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;"
+              lo: 133
+              hi: 140
           - mode: Constant
             type_:
               IntegerType: I8
-            name: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"constant f: i8    = -2i8;\\\"}\"}"
+            name: "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":217,\\\"hi\\\":218}\"}"
             value:
               Unary:
                 inner:
@@ -144,104 +96,64 @@ outputs:
                       - I8
                       - "2"
                       - span:
-                          line_start: 9
-                          line_stop: 9
-                          col_start: 22
-                          col_stop: 25
-                          path: ""
-                          content: "constant f: i8    = -2i8;"
+                          lo: 229
+                          hi: 232
                 op: Negate
                 span:
-                  line_start: 9
-                  line_stop: 9
-                  col_start: 21
-                  col_stop: 25
-                  path: ""
-                  content: "constant f: i8    = -2i8;"
+                  lo: 228
+                  hi: 232
             span:
-              line_start: 9
-              line_stop: 9
-              col_start: 13
-              col_stop: 15
-              path: ""
-              content: "constant f: i8    = -2i8;"
+              lo: 220
+              hi: 222
         span:
-          line_start: 3
-          line_stop: 3
-          col_start: 2
-          col_stop: 6
-          path: ""
-          content: "[main]"
+          lo: 3
+          hi: 7
       - name: registers
         definitions:
           - mode: Private
             type_: Boolean
-            name: "{\"name\":\"r0\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r0: bool  = true;\\\"}\"}"
+            name: "{\"name\":\"r0\",\"span\":\"{\\\"lo\\\":247,\\\"hi\\\":249}\"}"
             value:
               Value:
                 Boolean:
                   - "true"
                   - span:
-                      line_start: 12
-                      line_stop: 12
-                      col_start: 13
-                      col_stop: 17
-                      path: ""
-                      content: "r0: bool  = true;"
+                      lo: 259
+                      hi: 263
             span:
-              line_start: 12
-              line_stop: 12
-              col_start: 5
-              col_stop: 9
-              path: ""
-              content: "r0: bool  = true;"
+              lo: 251
+              hi: 255
           - mode: Private
             type_:
               IntegerType: U8
-            name: "{\"name\":\"r1\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r1: u8    = 2u8;\\\"}\"}"
+            name: "{\"name\":\"r1\",\"span\":\"{\\\"lo\\\":265,\\\"hi\\\":267}\"}"
             value:
               Value:
                 Integer:
                   - U8
                   - "2"
                   - span:
-                      line_start: 13
-                      line_stop: 13
-                      col_start: 13
-                      col_stop: 16
-                      path: ""
-                      content: "r1: u8    = 2u8;"
+                      lo: 277
+                      hi: 280
             span:
-              line_start: 13
-              line_stop: 13
-              col_start: 5
-              col_stop: 7
-              path: ""
-              content: "r1: u8    = 2u8;"
+              lo: 269
+              hi: 271
           - mode: Private
             type_: Field
-            name: "{\"name\":\"r2\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r2: field = 0field;\\\"}\"}"
+            name: "{\"name\":\"r2\",\"span\":\"{\\\"lo\\\":282,\\\"hi\\\":284}\"}"
             value:
               Value:
                 Field:
                   - "0"
                   - span:
-                      line_start: 14
-                      line_stop: 14
-                      col_start: 13
-                      col_stop: 19
-                      path: ""
-                      content: "r2: field = 0field;"
+                      lo: 294
+                      hi: 300
             span:
-              line_start: 14
-              line_stop: 14
-              col_start: 5
-              col_stop: 10
-              path: ""
-              content: "r2: field = 0field;"
+              lo: 286
+              hi: 291
           - mode: Private
             type_: Group
-            name: "{\"name\":\"r3\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r3: group = (0, 1)group;\\\"}\"}"
+            name: "{\"name\":\"r3\",\"span\":\"{\\\"lo\\\":302,\\\"hi\\\":304}\"}"
             value:
               Value:
                 Group:
@@ -250,61 +162,37 @@ outputs:
                       Number:
                         - "0"
                         - span:
-                            line_start: 15
-                            line_stop: 15
-                            col_start: 14
-                            col_stop: 15
-                            path: ""
-                            content: "r3: group = (0, 1)group;"
+                            lo: 315
+                            hi: 316
                     y:
                       Number:
                         - "1"
                         - span:
-                            line_start: 15
-                            line_stop: 15
-                            col_start: 17
-                            col_stop: 18
-                            path: ""
-                            content: "r3: group = (0, 1)group;"
+                            lo: 318
+                            hi: 319
                     span:
-                      line_start: 15
-                      line_stop: 15
-                      col_start: 13
-                      col_stop: 24
-                      path: ""
-                      content: "r3: group = (0, 1)group;"
+                      lo: 314
+                      hi: 325
             span:
-              line_start: 15
-              line_stop: 15
-              col_start: 5
-              col_stop: 10
-              path: ""
-              content: "r3: group = (0, 1)group;"
+              lo: 306
+              hi: 311
           - mode: Private
             type_: Address
-            name: "{\"name\":\"r4\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r4: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;\\\"}\"}"
+            name: "{\"name\":\"r4\",\"span\":\"{\\\"lo\\\":327,\\\"hi\\\":329}\"}"
             value:
               Value:
                 Address:
                   - aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8
                   - span:
-                      line_start: 16
-                      line_stop: 16
-                      col_start: 15
-                      col_stop: 78
-                      path: ""
-                      content: "r4: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;"
+                      lo: 341
+                      hi: 404
             span:
-              line_start: 16
-              line_stop: 16
-              col_start: 5
-              col_stop: 12
-              path: ""
-              content: "r4: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;"
+              lo: 331
+              hi: 338
           - mode: Private
             type_:
               IntegerType: I8
-            name: "{\"name\":\"r4\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"r4: i8 = -1i8;\\\"}\"}"
+            name: "{\"name\":\"r4\",\"span\":\"{\\\"lo\\\":406,\\\"hi\\\":408}\"}"
             value:
               Unary:
                 inner:
@@ -313,31 +201,15 @@ outputs:
                       - I8
                       - "1"
                       - span:
-                          line_start: 17
-                          line_stop: 17
-                          col_start: 11
-                          col_stop: 14
-                          path: ""
-                          content: "r4: i8 = -1i8;"
+                          lo: 416
+                          hi: 419
                 op: Negate
                 span:
-                  line_start: 17
-                  line_stop: 17
-                  col_start: 10
-                  col_stop: 14
-                  path: ""
-                  content: "r4: i8 = -1i8;"
+                  lo: 415
+                  hi: 419
             span:
-              line_start: 17
-              line_stop: 17
-              col_start: 5
-              col_stop: 7
-              path: ""
-              content: "r4: i8 = -1i8;"
+              lo: 410
+              hi: 412
         span:
-          line_start: 11
-          line_stop: 11
-          col_start: 2
-          col_stop: 11
-          path: ""
-          content: "[registers]"
+          lo: 236
+          hi: 245

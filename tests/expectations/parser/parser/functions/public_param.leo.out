@@ -5,33 +5,25 @@ outputs:
   - name: ""
     expected_input: []
     functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, public y: i32) -> u8 {\\\"}\"}":
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, public y: i32) -> u8 {\\\"}\"}"
+      "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
         input:
           - Variable:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, public y: i32) -> u8 {\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
               mode: Private
               type_:
                 IntegerType: U32
               span:
-                line_start: 3
-                line_stop: 3
-                col_start: 12
-                col_stop: 13
-                path: ""
-                content: "function x(x: u32, public y: i32) -> u8 {"
+                lo: 13
+                hi: 14
           - Variable:
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":27,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, public y: i32) -> u8 {\\\"}\"}"
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":28,\\\"hi\\\":29}\"}"
               mode: Public
               type_:
                 IntegerType: I32
               span:
-                line_start: 3
-                line_stop: 3
-                col_start: 27
-                col_stop: 28
-                path: ""
-                content: "function x(x: u32, public y: i32) -> u8 {"
+                lo: 28
+                hi: 29
         output:
           IntegerType: U8
         core_mapping: ~
@@ -44,60 +36,36 @@ outputs:
                       - U8
                       - "0"
                       - span:
-                          line_start: 4
-                          line_stop: 4
-                          col_start: 12
-                          col_stop: 15
-                          path: ""
-                          content: "    return 0u8;"
+                          lo: 55
+                          hi: 58
                 span:
-                  line_start: 4
-                  line_stop: 4
-                  col_start: 5
-                  col_stop: 15
-                  path: ""
-                  content: "    return 0u8;"
+                  lo: 48
+                  hi: 58
           span:
-            line_start: 3
-            line_stop: 5
-            col_start: 41
-            col_stop: 2
-            path: ""
-            content: "function x(x: u32, public y: i32) -> u8 {\n     ...\n}"
+            lo: 42
+            hi: 61
         span:
-          line_start: 3
-          line_stop: 5
-          col_start: 1
-          col_stop: 2
-          path: ""
-          content: "function x(x: u32, public y: i32) -> u8 {\n     ...\n}"
-      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(public x: u32, y: i32) -> u8 {\\\"}\"}":
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(public x: u32, y: i32) -> u8 {\\\"}\"}"
+          lo: 2
+          hi: 61
+      "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":72,\\\"hi\\\":73}\"}":
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":72,\\\"hi\\\":73}\"}"
         input:
           - Variable:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(public x: u32, y: i32) -> u8 {\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":81,\\\"hi\\\":82}\"}"
               mode: Public
               type_:
                 IntegerType: U32
               span:
-                line_start: 7
-                line_stop: 7
-                col_start: 19
-                col_stop: 20
-                path: ""
-                content: "function x(public x: u32, y: i32) -> u8 {"
+                lo: 81
+                hi: 82
           - Variable:
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":27,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(public x: u32, y: i32) -> u8 {\\\"}\"}"
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":90}\"}"
               mode: Private
               type_:
                 IntegerType: I32
               span:
-                line_start: 7
-                line_stop: 7
-                col_start: 27
-                col_stop: 28
-                path: ""
-                content: "function x(public x: u32, y: i32) -> u8 {"
+                lo: 89
+                hi: 90
         output:
           IntegerType: U8
         core_mapping: ~
@@ -110,30 +78,14 @@ outputs:
                       - U8
                       - "0"
                       - span:
-                          line_start: 8
-                          line_stop: 8
-                          col_start: 12
-                          col_stop: 15
-                          path: ""
-                          content: "    return 0u8;"
+                          lo: 116
+                          hi: 119
                 span:
-                  line_start: 8
-                  line_stop: 8
-                  col_start: 5
-                  col_stop: 15
-                  path: ""
-                  content: "    return 0u8;"
+                  lo: 109
+                  hi: 119
           span:
-            line_start: 7
-            line_stop: 9
-            col_start: 41
-            col_stop: 2
-            path: ""
-            content: "function x(public x: u32, y: i32) -> u8 {\n     ...\n}"
+            lo: 103
+            hi: 122
         span:
-          line_start: 7
-          line_stop: 9
-          col_start: 1
-          col_stop: 2
-          path: ""
-          content: "function x(public x: u32, y: i32) -> u8 {\n     ...\n}"
+          lo: 63
+          hi: 122

@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::dropless::DroplessArena;
+use crate::source_map::SourceMap;
 
 use core::cmp::PartialEq;
 use core::convert::AsRef;
@@ -287,12 +288,15 @@ impl fmt::Display for SymbolStr {
 pub struct SessionGlobals {
     /// The interner for `Symbol`s used in the compiler.
     symbol_interner: Interner,
+    /// The source map used in the compiler.
+    pub source_map: SourceMap,
 }
 
 impl SessionGlobals {
     fn new() -> Self {
         Self {
             symbol_interner: Interner::prefilled(),
+            source_map: SourceMap::default(),
         }
     }
 }

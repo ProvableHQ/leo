@@ -27,6 +27,7 @@ use leo_errors::{ParserError, Result};
 use leo_span::Span;
 
 use indexmap::IndexMap;
+use leo_span::span::BytePos;
 use std::unreachable;
 
 mod context;
@@ -39,10 +40,8 @@ pub mod statement;
 pub mod type_;
 
 pub(crate) fn assert_no_whitespace(left_span: &Span, right_span: &Span, left: &str, right: &str) -> Result<()> {
-    if left_span.col_stop != right_span.col_start {
-        let mut error_span = left_span + right_span;
-        error_span.col_start = left_span.col_stop - 1;
-        error_span.col_stop = right_span.col_start - 1;
+    if left_span.hi != right_span.lo {
+        let error_span = Span::new(left_span.hi, right_span.lo); // The span between them.
         return Err(ParserError::unexpected_whitespace(left, right, &error_span).into());
     }
 
@@ -50,15 +49,15 @@ pub(crate) fn assert_no_whitespace(left_span: &Span, right_span: &Span, left: &s
 }
 
 /// Creates a new program from a given file path and source code text.
-pub fn parse(handler: &Handler, path: &str, source: &str) -> Result<Program> {
-    let mut tokens = ParserContext::new(handler, crate::tokenize(path, source)?);
+pub fn parse(handler: &Handler, source: &str, start_pos: BytePos) -> Result<Program> {
+    let mut tokens = ParserContext::new(handler, crate::tokenize(source, start_pos)?);
 
     tokens.parse_program()
 }
 
 /// Parses an input file at the given file `path` and `source` code text.
-pub fn parse_input<T: AsRef<str>, Y: AsRef<str>>(handler: &Handler, path: T, source: Y) -> Result<InputAst> {
-    let mut tokens = ParserContext::new(handler, crate::tokenize(path.as_ref(), source.as_ref())?);
+pub fn parse_input(handler: &Handler, source: &str, start_pos: BytePos) -> Result<InputAst> {
+    let mut tokens = ParserContext::new(handler, crate::tokenize(source, start_pos)?);
 
     tokens.parse_input()
 }
