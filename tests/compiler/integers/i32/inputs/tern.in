@@ -1,0 +1,8 @@
+[main]
+s: bool = true;
+a: i32 = 10i32;
+b: i32 = 5i32;
+c: i32 = 10i32;
+
+[registers]
+r0: bool = false;

@@ -1,15 +1,8 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - u128_f.in: |
-    [main]
-    a: u128 = 4;
-    b: u128 = 2;
-    c: u128 = 2;
-
-    [registers]
-    r0: bool = true;
+input_file:
+ - inputs/sub.in
 */
 
 function main(a: u128, b: u128, c: u128) -> bool {

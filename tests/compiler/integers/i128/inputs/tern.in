@@ -1,0 +1,8 @@
+[main]
+s: bool = true;
+a: i128 = 10i128;
+b: i128 = 5i128;
+c: i128 = 10i128;
+
+[registers]
+r0: bool = false;

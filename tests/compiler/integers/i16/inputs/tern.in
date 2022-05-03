@@ -1,0 +1,8 @@
+[main]
+s: bool = true;
+a: i16 = 10i16;
+b: i16 = 5i16;
+c: i16 = 10i16;
+
+[registers]
+r0: bool = false;

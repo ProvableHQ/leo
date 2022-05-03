@@ -1,13 +1,8 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - dummy.in: |
-    [main]
-    y: bool = true;
-
-    [registers]
-    r0: bool = false;
+input_file:
+ - ../input/dummy.in
 */
 
 function main(y: bool) -> bool {

@@ -1,21 +1,9 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - i8.in: |
-    [main]
-    a: i8 = 5;
-    b: i8 = -5;
-
-    [registers]
-    r0: bool = false;
- - i8.in: |
-    [main]
-    a: i8 = -5;
-    b: i8 = 5;
-
-    [registers]
-    r0: bool = false;
+input_file:
+ - inputs/neg.in
+ - inputs/neg_rev.in
 */
 
 function main(a: i8, b: i8) -> bool {

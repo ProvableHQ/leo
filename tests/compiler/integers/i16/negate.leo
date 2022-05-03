@@ -1,21 +1,9 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - i16.in: |
-    [main]
-    a: i16 = 5;
-    b: i16 = -5;
-
-    [registers]
-    r0: bool = false;
- - i16.in: |
-    [main]
-    a: i16 = -5;
-    b: i16 = 5;
-
-    [registers]
-    r0: bool = false;
+input_file:
+ - inputs/neg.in
+ - inputs/neg_rev.in
 */
 
 function main(a: i16, b: i16) -> bool {

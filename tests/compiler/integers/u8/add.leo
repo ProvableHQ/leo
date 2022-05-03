@@ -1,15 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - u8.in: |
-    [main]
-    a: u8 = 2;
-    b: u8 = 4;
-    c: u8 = 6;
-
-    [registers]
-    r0: bool = true;
+input_file: inputs/add.in
 */
 
 function main(a: u8, b: u8, c: u8) -> bool {

@@ -1,6 +1,0 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - output: []
-    initial_ast: 193c6dd893f78d99cfba6afa37e9c868ff428135498e5879725ba40b6d71d156

@@ -1,11 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - i128.in: |
-    [main]
-    a: i128 = 1;
-    b: i128 = 1;
+input_file: inputs/eq.in
 */
 
 function main(a: i128, b: i128) -> bool {

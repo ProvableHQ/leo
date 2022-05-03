@@ -1,0 +1,8 @@
+[main]
+s: bool = false;
+a: u8 = 10u8;
+b: u8 = 5u8;
+c: u8 = 5u8;
+
+[registers]
+r0: bool = false;

@@ -1,11 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - i64.in: |
-    [main]
-    a: i64 = 1i64;
-    b: i64 = 1i64;
+input_file: inputs/eq.in
 */
 
 function main(a: i64, b: i64) -> bool {

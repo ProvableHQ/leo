@@ -1,25 +1,9 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - i32.in: |
-    [main]
-    s: bool = true;
-    a: i32 = 10i32;
-    b: i32 = 5i32;
-    c: i32 = 10i32;
-
-    [registers]
-    r0: bool = false;
- - i32_rev.in: |
-    [main]
-    s: bool = false;
-    a: i32 = 10i32;
-    b: i32 = 5i32;
-    c: i32 = 5i32;
-
-    [registers]
-    r0: bool = false;
+input_file:
+ - inputs/tern.in
+ - inputs/tern_rev.in
 */
 
 function main(s: bool, a: i32, b: i32, c: i32) -> bool {

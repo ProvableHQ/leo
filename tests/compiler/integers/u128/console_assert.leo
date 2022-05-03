@@ -1,17 +1,11 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - u128.in: |
-    [main]
-    a: u128 = 2;
-    b: u128 = 2;
-
-    [registers]
-    r0: bool = true;
+input_file: inputs/eq.in
 */
 
 function main(a: u128, b: u128) -> bool {
-    console.assert(a == b);
-    return a == b;
+    let ret: bool = a == b;
+    console.assert(ret);
+    return ret;
 }

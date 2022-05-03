@@ -1,23 +1,9 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - i128_e.in: |
-    [main]
-    a: i128 = 4;
-    b: i128 = 4;
-    c: bool = true;
-    
-    [registers]
-    r0: bool = true;
- - i128_g.in: |
-    [main]
-    a: i128 = 5;
-    b: i128 = 4;
-    c: bool = true;
-    
-    [registers]
-    r0: bool = true;
+input_file:
+ - inputs/eq.in
+ - inputs/ge.in
 */
 
 function main(a: i128, b: i128, c: bool) -> bool {

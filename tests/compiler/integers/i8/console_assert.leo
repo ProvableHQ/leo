@@ -1,11 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - i8.in: |
-    [main]
-    a: i8 = 1i8;
-    b: i8 = 1i8;
+input_file: inputs/eq.in
 */
 
 function main(a: i8, b: i8) -> bool {

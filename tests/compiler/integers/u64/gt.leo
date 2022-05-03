@@ -1,27 +1,11 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - u64_g.in: |
-    [main]
-    a: u64 = 3;
-    b: u64 = 2;
-    c: bool = true;
-
-    [registers]
-    r0: bool = true;
- - u64_f.in: |
-    [main]
-    a: u64 = 1;
-    b: u64 = 2;
-    c: bool = false;
-
-    [registers]
-    r0: bool = true;
+input_file:
+ - inputs/eq.in
+ - inputs/gt.in
 */
 
 function main(a: u64, b: u64, c: bool) -> bool {
-    let ret: bool = a > b == c;
-    console.assert(ret);
-    return ret;
+    return a > b == c;
 }
