@@ -3,9 +3,9 @@ namespace: Parse
 expectation: Pass
 */
 
-function x(constant y: u32) {
+function x(constant y: u32) -> u8 {
     if y < 5u32 {
-        x(y+1);
+        x(y+1u32);
     }
 }
 

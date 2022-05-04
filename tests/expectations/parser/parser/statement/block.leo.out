@@ -16,22 +16,23 @@ outputs:
         - Return:
             expression:
               Value:
-                Implicit:
+                Integer:
+                  - U8
                   - "0"
                   - span:
                       line_start: 2
                       line_stop: 2
                       col_start: 8
-                      col_stop: 9
+                      col_stop: 11
                       path: ""
-                      content: return 0;
+                      content: return 0u8;
             span:
               line_start: 2
               line_stop: 2
               col_start: 1
-              col_stop: 9
+              col_stop: 11
               path: ""
-              content: return 0;
+              content: return 0u8;
       span:
         line_start: 1
         line_stop: 3
@@ -64,22 +65,23 @@ outputs:
               - Return:
                   expression:
                     Value:
-                      Implicit:
+                      Integer:
+                        - U8
                         - "0"
                         - span:
                             line_start: 3
                             line_stop: 3
                             col_start: 8
-                            col_stop: 9
+                            col_stop: 11
                             path: ""
-                            content: return 0;
+                            content: return 0u8;
                   span:
                     line_start: 3
                     line_stop: 3
                     col_start: 1
-                    col_stop: 9
+                    col_stop: 11
                     path: ""
-                    content: return 0;
+                    content: return 0u8;
             span:
               line_start: 2
               line_stop: 4
@@ -104,22 +106,23 @@ outputs:
                 - Return:
                     expression:
                       Value:
-                        Implicit:
+                        Integer:
+                          - U8
                           - "0"
                           - span:
                               line_start: 3
                               line_stop: 3
                               col_start: 8
-                              col_stop: 9
+                              col_stop: 11
                               path: ""
-                              content: return 0;
+                              content: return 0u8;
                     span:
                       line_start: 3
                       line_stop: 3
                       col_start: 1
-                      col_stop: 9
+                      col_stop: 11
                       path: ""
-                      content: return 0;
+                      content: return 0u8;
               span:
                 line_start: 2
                 line_stop: 4

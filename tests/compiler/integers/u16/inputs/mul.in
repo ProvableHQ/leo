@@ -1,0 +1,7 @@
+[main]
+a: u16 = 2u16;
+b: u16 = 5u16;
+c: u16 = 10u16;
+
+[registers]
+r0: bool = false;

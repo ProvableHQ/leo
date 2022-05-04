@@ -5,6 +5,6 @@ input_file: ../input/dummy.in
 */
 
 function main(y: bool) -> bool {
-    const a: i16 = -32768;
+    const a: i16 = -32768i16;
     return y == true;
 }

@@ -37,10 +37,8 @@ pub struct ParserContext<'a> {
     /// The previous token, i.e., if `p.tokens = ['3', *, '4']`,
     /// then after two `p.bump()`s, we'll have `p.token = '*'` and `p.prev_token = '3'`.
     pub(crate) prev_token: SpannedToken,
-
-    // true if parsing an expression for if and loop statements -- means circuit inits are not legal
+    /// true if parsing an expression for if and loop statements -- means circuit inits are not legal
     pub(crate) disallow_circuit_construction: bool,
-
     /// HACK(Centril): Place to store a dummy EOF.
     /// Exists to appease borrow checker for now.
     dummy_eof: SpannedToken,
@@ -166,10 +164,8 @@ impl<'a> ParserContext<'a> {
             .ok_or_else(|| ParserError::unexpected_str(&self.token.token, "ident", &self.token.span).into())
     }
 
-    ///
     /// Returns a reference to the next token if it is a [`GroupCoordinate`], or [None] if
     /// the next token is not a [`GroupCoordinate`].
-    ///
     fn peek_group_coordinate(&self, dist: &mut usize) -> Option<GroupCoordinate> {
         let (advanced, gc) = self.look_ahead(*dist, |t0| match &t0.token {
             Token::Add => Some((1, GroupCoordinate::SignHigh)),

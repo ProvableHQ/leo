@@ -7,17 +7,17 @@ input_file:
 */
 
 function main(x: u32) -> bool {
-    let b = 5u32;
+    let b: u32 = 5u32;
 
-    if x == 3 {
-        b = 1;
+    if x == 3u32 {
+        b = 1u32;
     } else {
-        b = 0;
+        b = 0u32;
     }
 
-    if x == 3 {
-        return (b == 1);
+    if x == 3u32 {
+        return (b == 1u32);
     } else {
-        return (b == 0);
+        return (b == 0u32);
     }
 }

@@ -1,15 +1,9 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - mul.in: |
-    [main]
-    a: u32 = 10;
-    b: u32 = 20;
-    c: u32 = 30;
-
-    [registers]
-    r0: bool = true;
+input_file:
+ - inputs/mul.in
+    
 */
 
 function main(a: u32, b: u32, c: u32) -> bool {

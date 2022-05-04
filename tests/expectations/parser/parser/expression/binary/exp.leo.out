@@ -5,114 +5,121 @@ outputs:
   - Binary:
       left:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "1"
             - span:
                 line_start: 1
                 line_stop: 1
                 col_start: 1
-                col_stop: 2
+                col_stop: 4
                 path: ""
-                content: 1 ** 1
+                content: 1u8 ** 1u8
       right:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "1"
             - span:
                 line_start: 1
                 line_stop: 1
-                col_start: 6
-                col_stop: 7
+                col_start: 8
+                col_stop: 11
                 path: ""
-                content: 1 ** 1
+                content: 1u8 ** 1u8
       op: Pow
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 7
+        col_stop: 11
         path: ""
-        content: 1 ** 1
+        content: 1u8 ** 1u8
   - Binary:
       left:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "2"
             - span:
                 line_start: 1
                 line_stop: 1
                 col_start: 1
-                col_stop: 2
+                col_stop: 4
                 path: ""
-                content: 2**3
+                content: 2u8**3u8
       right:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "3"
             - span:
                 line_start: 1
                 line_stop: 1
-                col_start: 4
-                col_stop: 5
+                col_start: 6
+                col_stop: 9
                 path: ""
-                content: 2**3
+                content: 2u8**3u8
       op: Pow
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 5
+        col_stop: 9
         path: ""
-        content: 2**3
+        content: 2u8**3u8
   - Binary:
       left:
         Value:
-          Implicit:
+          Integer:
+            - U8
             - "1"
             - span:
                 line_start: 1
                 line_stop: 1
                 col_start: 1
-                col_stop: 2
+                col_stop: 4
                 path: ""
-                content: 1 ** 2 ** 3
+                content: 1u8 ** 2u8 ** 3u8
       right:
         Binary:
           left:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "2"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 6
-                    col_stop: 7
+                    col_start: 8
+                    col_stop: 11
                     path: ""
-                    content: 1 ** 2 ** 3
+                    content: 1u8 ** 2u8 ** 3u8
           right:
             Value:
-              Implicit:
+              Integer:
+                - U8
                 - "3"
                 - span:
                     line_start: 1
                     line_stop: 1
-                    col_start: 11
-                    col_stop: 12
+                    col_start: 15
+                    col_stop: 18
                     path: ""
-                    content: 1 ** 2 ** 3
+                    content: 1u8 ** 2u8 ** 3u8
           op: Pow
           span:
             line_start: 1
             line_stop: 1
-            col_start: 6
-            col_stop: 12
+            col_start: 8
+            col_stop: 18
             path: ""
-            content: 1 ** 2 ** 3
+            content: 1u8 ** 2u8 ** 3u8
       op: Pow
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 12
+        col_stop: 18
         path: ""
-        content: 1 ** 2 ** 3
+        content: 1u8 ** 2u8 ** 3u8

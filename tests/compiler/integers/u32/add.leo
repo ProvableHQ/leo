@@ -1,15 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - u32.in: |
-    [main]
-    a: u32 = 2;
-    b: u32 = 4;
-    c: u32 = 6;
-
-    [registers]
-    r0: bool = true;
+input_file: inputs/add.in
 */
 
 function main(a: u32, b: u32, c: u32) -> bool {

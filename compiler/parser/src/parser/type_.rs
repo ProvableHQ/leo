@@ -32,13 +32,10 @@ pub(crate) const TYPE_TOKENS: &[Token] = &[
     Token::Group,
     Token::Address,
     Token::Bool,
-    Token::Char,
 ];
 
 impl ParserContext<'_> {
-    ///
     /// Returns a [`IntegerType`] AST node if the given token is a supported integer type, or [`None`].
-    ///
     pub fn token_to_int_type(token: &Token) -> Option<IntegerType> {
         Some(match token {
             Token::I8 => IntegerType::I8,
@@ -57,7 +54,7 @@ impl ParserContext<'_> {
 
     /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a type.
     /// Also returns the span of the parsed token.
-    pub fn parse_non_ident_types(&mut self) -> Result<(Type, Span)> {
+    pub fn parse_type(&mut self) -> Result<(Type, Span)> {
         let span = self.expect_any(TYPE_TOKENS)?;
         Ok((
             match &self.prev_token.token {
@@ -70,16 +67,5 @@ impl ParserContext<'_> {
             },
             span,
         ))
-    }
-
-    /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a type.
-    /// Also returns the span of the parsed token.
-    pub fn parse_all_types(&mut self) -> Result<(Type, Span)> {
-        Ok(if let Some(ident) = self.eat_identifier() {
-            let span = ident.span.clone();
-            (Type::Identifier(ident), span)
-        } else {
-            self.parse_non_ident_types()?
-        })
     }
 }

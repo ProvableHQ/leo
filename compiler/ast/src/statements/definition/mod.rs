@@ -34,7 +34,7 @@ pub struct DefinitionStatement {
     /// The bindings / variable names to declare.
     pub variable_names: Vec<VariableName>,
     /// The types of the bindings, if specified, or inferred otherwise.
-    pub type_: Option<Type>,
+    pub type_: Type,
     /// An initializer value for the bindings.
     pub value: Expression,
     /// The span excluding the semicolon.
@@ -59,9 +59,7 @@ impl fmt::Display for DefinitionStatement {
             write!(f, "({})", names)?;
         }
 
-        if self.type_.is_some() {
-            write!(f, ": {}", self.type_.as_ref().unwrap())?;
-        }
+        write!(f, ": {}", self.type_)?;
         write!(f, " = {};", self.value)
     }
 }

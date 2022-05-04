@@ -3,6 +3,6 @@ namespace: Compile
 expectation: Pass
 outputs:
   - output:
-      - initial_input_ast: 5f87daedee2388c007b6a79619b20407b8460a41ff30433a611554f9bacd6ecf
+      - initial_input_ast: 26679d48a4f878012c9f9cacccf9d2d1ef568126030a21abf74a5a4d8e5116d4
         symbol_table: 201ed1188a77438794f46c40fd317d61309595d6b8a6964db2391ea33194ba9c
     initial_ast: 9e6a274bbf78b10fc2fe402fb5b75fec31690d4661259dec5695ee38520a9d6f

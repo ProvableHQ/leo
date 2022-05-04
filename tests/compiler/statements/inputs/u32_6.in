@@ -1,5 +1,5 @@
 [main]
-x: u32 = 6;
+x: u32 = 6u32;
 
 [registers]
 a: bool = false;

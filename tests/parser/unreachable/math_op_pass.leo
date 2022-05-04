@@ -4,19 +4,19 @@ expectation: Pass
 */
 
 
-let x = a == b;
+let x: u8 = a == b;
 
-let x = a != b;
+let x: u8 = a != b;
 
-let x = a > b;
+let x: u8 = a > b;
 
-let x = a >= b;
+let x: u8 = a >= b;
 
-let x = a < b;
+let x: u8 = a < b;
 
-let x = a <= b;
+let x: u8 = a <= b;
 
-let x = a > b;
+let x: u8 = a > b;
 
 x_=b;
 

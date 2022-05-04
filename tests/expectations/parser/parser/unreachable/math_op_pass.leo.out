@@ -6,240 +6,247 @@ outputs:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a == b;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a == b;\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 5
             col_stop: 6
             path: ""
-            content: let x = a == b;
-      type_: ~
+            content: "let x: u8 = a == b;"
+      type_:
+        IntegerType: U8
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a == b;\\\"}\"}"
+            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a == b;\\\"}\"}"
           right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a == b;\\\"}\"}"
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a == b;\\\"}\"}"
           op: Eq
           span:
             line_start: 1
             line_stop: 1
-            col_start: 9
-            col_stop: 15
+            col_start: 13
+            col_stop: 19
             path: ""
-            content: let x = a == b;
+            content: "let x: u8 = a == b;"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 15
+        col_stop: 19
         path: ""
-        content: let x = a == b;
+        content: "let x: u8 = a == b;"
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a != b;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a != b;\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 5
             col_stop: 6
             path: ""
-            content: let x = a != b;
-      type_: ~
+            content: "let x: u8 = a != b;"
+      type_:
+        IntegerType: U8
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a != b;\\\"}\"}"
+            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a != b;\\\"}\"}"
           right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a != b;\\\"}\"}"
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a != b;\\\"}\"}"
           op: Ne
           span:
             line_start: 1
             line_stop: 1
-            col_start: 9
-            col_stop: 15
+            col_start: 13
+            col_stop: 19
             path: ""
-            content: let x = a != b;
+            content: "let x: u8 = a != b;"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 15
+        col_stop: 19
         path: ""
-        content: let x = a != b;
+        content: "let x: u8 = a != b;"
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a > b;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a > b;\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 5
             col_stop: 6
             path: ""
-            content: let x = a > b;
-      type_: ~
+            content: "let x: u8 = a > b;"
+      type_:
+        IntegerType: U8
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a > b;\\\"}\"}"
+            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a > b;\\\"}\"}"
           right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a > b;\\\"}\"}"
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":17,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a > b;\\\"}\"}"
           op: Gt
           span:
             line_start: 1
             line_stop: 1
-            col_start: 9
-            col_stop: 14
+            col_start: 13
+            col_stop: 18
             path: ""
-            content: let x = a > b;
+            content: "let x: u8 = a > b;"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 14
+        col_stop: 18
         path: ""
-        content: let x = a > b;
+        content: "let x: u8 = a > b;"
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a >= b;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a >= b;\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 5
             col_stop: 6
             path: ""
-            content: let x = a >= b;
-      type_: ~
+            content: "let x: u8 = a >= b;"
+      type_:
+        IntegerType: U8
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a >= b;\\\"}\"}"
+            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a >= b;\\\"}\"}"
           right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a >= b;\\\"}\"}"
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a >= b;\\\"}\"}"
           op: Ge
           span:
             line_start: 1
             line_stop: 1
-            col_start: 9
-            col_stop: 15
+            col_start: 13
+            col_stop: 19
             path: ""
-            content: let x = a >= b;
+            content: "let x: u8 = a >= b;"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 15
+        col_stop: 19
         path: ""
-        content: let x = a >= b;
+        content: "let x: u8 = a >= b;"
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a < b;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a < b;\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 5
             col_stop: 6
             path: ""
-            content: let x = a < b;
-      type_: ~
+            content: "let x: u8 = a < b;"
+      type_:
+        IntegerType: U8
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a < b;\\\"}\"}"
+            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a < b;\\\"}\"}"
           right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a < b;\\\"}\"}"
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":17,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a < b;\\\"}\"}"
           op: Lt
           span:
             line_start: 1
             line_stop: 1
-            col_start: 9
-            col_stop: 14
+            col_start: 13
+            col_stop: 18
             path: ""
-            content: let x = a < b;
+            content: "let x: u8 = a < b;"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 14
+        col_stop: 18
         path: ""
-        content: let x = a < b;
+        content: "let x: u8 = a < b;"
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a <= b;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a <= b;\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 5
             col_stop: 6
             path: ""
-            content: let x = a <= b;
-      type_: ~
+            content: "let x: u8 = a <= b;"
+      type_:
+        IntegerType: U8
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a <= b;\\\"}\"}"
+            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a <= b;\\\"}\"}"
           right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a <= b;\\\"}\"}"
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a <= b;\\\"}\"}"
           op: Le
           span:
             line_start: 1
             line_stop: 1
-            col_start: 9
-            col_stop: 15
+            col_start: 13
+            col_stop: 19
             path: ""
-            content: let x = a <= b;
+            content: "let x: u8 = a <= b;"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 15
+        col_stop: 19
         path: ""
-        content: let x = a <= b;
+        content: "let x: u8 = a <= b;"
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a > b;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a > b;\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 5
             col_stop: 6
             path: ""
-            content: let x = a > b;
-      type_: ~
+            content: "let x: u8 = a > b;"
+      type_:
+        IntegerType: U8
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a > b;\\\"}\"}"
+            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a > b;\\\"}\"}"
           right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x = a > b;\\\"}\"}"
+            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":17,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a > b;\\\"}\"}"
           op: Gt
           span:
             line_start: 1
             line_stop: 1
-            col_start: 9
-            col_stop: 14
+            col_start: 13
+            col_stop: 18
             path: ""
-            content: let x = a > b;
+            content: "let x: u8 = a > b;"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 14
+        col_stop: 18
         path: ""
-        content: let x = a > b;
+        content: "let x: u8 = a > b;"
   - Assign:
       operation: Assign
       assignee:

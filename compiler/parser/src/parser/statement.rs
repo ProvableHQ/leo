@@ -22,10 +22,8 @@ use leo_span::sym;
 const ASSIGN_TOKENS: &[Token] = &[Token::Assign];
 
 impl ParserContext<'_> {
-    ///
     /// Returns an [`Identifier`] AST node if the given [`Expression`] AST node evaluates to an
     /// identifier access. The access is stored in the given accesses.
-    ///
     pub fn construct_assignee_access(expr: Expression, _accesses: &mut [AssigneeAccess]) -> Result<Identifier> {
         match expr {
             Expression::Identifier(id) => Ok(id),
@@ -33,9 +31,7 @@ impl ParserContext<'_> {
         }
     }
 
-    ///
     /// Returns an [`Assignee`] AST node from the given [`Expression`] AST node with accesses.
-    ///
     pub fn construct_assignee(expr: Expression) -> Result<Assignee> {
         let expr_span = expr.span().clone();
         let mut accesses = Vec::new();
@@ -48,9 +44,7 @@ impl ParserContext<'_> {
         })
     }
 
-    ///
     /// Returns a [`Statement`] AST node if the next tokens represent a statement.
-    ///
     pub fn parse_statement(&mut self) -> Result<Statement> {
         match &self.token.token {
             Token::Return => Ok(Statement::Return(self.parse_return_statement()?)),
@@ -63,9 +57,7 @@ impl ParserContext<'_> {
         }
     }
 
-    ///
     /// Returns a [`Block`] AST node if the next tokens represent a assign, or expression statement.
-    ///
     pub fn parse_assign_statement(&mut self) -> Result<Statement> {
         let expr = self.parse_expression()?;
 
@@ -144,6 +136,8 @@ impl ParserContext<'_> {
     pub fn parse_loop_statement(&mut self) -> Result<IterationStatement> {
         let start_span = self.expect(&Token::For)?;
         let ident = self.expect_ident()?;
+        self.expect(&Token::Colon)?;
+        let type_ = self.parse_type()?;
         self.expect(&Token::In)?;
 
         // Parse iteration range.
@@ -159,6 +153,7 @@ impl ParserContext<'_> {
         Ok(IterationStatement {
             span: start_span + block.span.clone(),
             variable: ident,
+            type_: type_.0,
             start,
             stop,
             inclusive,
@@ -264,11 +259,8 @@ impl ParserContext<'_> {
             vec![self.parse_variable_name(decl_type, &decl_span)?]
         };
 
-        // Parse an optional type ascription.
-        let type_ = self
-            .eat(&Token::Colon)
-            .then(|| self.parse_all_types().map(|t| t.0))
-            .transpose()?;
+        self.expect(&Token::Colon)?;
+        let type_ = self.parse_type()?;
 
         self.expect(&Token::Assign)?;
         let expr = self.parse_expression()?;
@@ -278,7 +270,7 @@ impl ParserContext<'_> {
             span: &decl_span + expr.span(),
             declaration_type: decl_type,
             variable_names,
-            type_,
+            type_: type_.0,
             value: expr,
         })
     }

@@ -288,6 +288,14 @@ create_messages!(
     help: None,
     }
 
+    /// When the user tries to pass an implicit value.
+    @formatted
+    implicit_values_not_allowed {
+    args: (input: impl Display),
+    msg: format!("Could not parse the implicit value: {}.", input),
+    help: None,
+    }
+
     /// When a escaped unicode char was given but no following closing symbol.
     @backtraced
     lexer_unclosed_escaped_unicode_char {

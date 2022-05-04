@@ -17,22 +17,23 @@ outputs:
             - Return:
                 expression:
                   Value:
-                    Implicit:
+                    Integer:
+                      - U8
                       - "0"
                       - span:
                           line_start: 4
                           line_stop: 4
                           col_start: 12
-                          col_stop: 13
+                          col_stop: 15
                           path: ""
-                          content: "    return 0;"
+                          content: "    return 0u8;"
                 span:
                   line_start: 4
                   line_stop: 4
                   col_start: 5
-                  col_stop: 13
+                  col_stop: 15
                   path: ""
-                  content: "    return 0;"
+                  content: "    return 0u8;"
           span:
             line_start: 3
             line_stop: 5

@@ -13,15 +13,15 @@ outputs:
             path: ""
             content: 123field
   - Value:
-      Implicit:
+      Field:
         - "123"
         - span:
             line_start: 1
             line_stop: 1
             col_start: 1
-            col_stop: 4
+            col_stop: 9
             path: ""
-            content: "123"
+            content: 123field
   - Value:
       Field:
         - "456"

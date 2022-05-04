@@ -6,20 +6,20 @@ expectation: Pass
 {}
 
 {
-    return 0;
+    return 0u8;
 }
 
 {{}}
 
 {
     {
-        return 0;
+        return 0u8;
     }
 }
 
 {
     if x {
-        return 0;
+        return 0u8;
     }
 }
 

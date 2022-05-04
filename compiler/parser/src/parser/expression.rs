@@ -35,10 +35,8 @@ const INT_TYPES: &[Token] = &[
 ];
 
 impl ParserContext<'_> {
-    ///
     /// Returns an [`Expression`] AST node if the next token is an expression.
     /// Includes circuit init expressions.
-    ///
     pub fn parse_expression(&mut self) -> Result<Expression> {
         // Store current parser state.
         let prior_fuzzy_state = self.disallow_circuit_construction;
@@ -302,8 +300,7 @@ impl ParserContext<'_> {
                         let int_ty = Self::token_to_int_type(suffix).expect("unknown int type token");
                         Expression::Value(ValueExpression::Integer(int_ty, value, full_span))
                     }
-                    // Just literal and no suffix.
-                    None => Expression::Value(ValueExpression::Implicit(value, span)),
+                    None => return Err(ParserError::implicit_values_not_allowed(value, &span).into()),
                 }
             }
             Token::True => Expression::Value(ValueExpression::Boolean("true".into(), span)),

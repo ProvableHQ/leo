@@ -150,7 +150,7 @@ pub trait ReconstructingReducer {
         &mut self,
         definition: &DefinitionStatement,
         variable_names: Vec<VariableName>,
-        type_: Option<Type>,
+        type_: Type,
         value: Expression,
     ) -> Result<DefinitionStatement> {
         Ok(DefinitionStatement {
@@ -212,12 +212,14 @@ pub trait ReconstructingReducer {
         &mut self,
         iteration: &IterationStatement,
         variable: Identifier,
+        type_: Type,
         start: Expression,
         stop: Expression,
         block: Block,
     ) -> Result<IterationStatement> {
         Ok(IterationStatement {
             variable,
+            type_,
             start,
             stop,
             inclusive: iteration.inclusive,
@@ -295,7 +297,7 @@ pub trait ReconstructingReducer {
         identifier: Identifier,
         input: Vec<FunctionInput>,
         const_: bool,
-        output: Option<Type>,
+        output: Type,
         block: Block,
     ) -> Result<Function> {
         Ok(Function {

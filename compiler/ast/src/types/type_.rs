@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, IntegerType};
+use crate::IntegerType;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -36,22 +36,12 @@ pub enum Type {
     /// An integer type.
     IntegerType(IntegerType),
 
-    /// A reference to either a nominal type (e.g., a `circuit`) or a type alias.
-    Identifier(Identifier),
-
     /// Placeholder for a type that could not be resolved or was not well-formed.
     /// Will eventually lead to a compile error.
     Err,
 }
 
 impl Type {
-    ///
-    /// Returns `true` if the self `Type` is a `Circuit`.
-    ///
-    pub fn is_circuit(&self) -> bool {
-        matches!(self, Type::Identifier(_))
-    }
-
     ///
     /// Returns `true` if the self `Type` is equal to the other `Type`.
     ///
@@ -65,8 +55,6 @@ impl Type {
             (Type::Field, Type::Field) => true,
             (Type::Group, Type::Group) => true,
             (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(right),
-            (Type::Identifier(left), Type::Identifier(right)) => left.eq(right),
-
             _ => false,
         }
     }
@@ -81,7 +69,6 @@ impl fmt::Display for Type {
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
-            Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
             Type::Err => write!(f, "error"),
         }
     }

@@ -1,15 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - u8.in: |
-    [main]
-    a: u8 = 4;
-    b: u8 = 2;
-    c: u8 = 2;
-
-    [registers]
-    r0: bool = true;
+input_file: inputs/div.in
 */
 
 function main(a: u8, b: u8, c: u8) -> bool {

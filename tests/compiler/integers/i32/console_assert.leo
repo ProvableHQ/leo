@@ -1,13 +1,11 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - i32.in: |
-    [main]
-    a: i32 = 1;
-    b: i32 = 1;
+input_file: inputs/eq.in
 */
 
-function main(a: i32, b: i32) {
-    console.assert(a == b);
+function main(a: i32, b: i32) -> bool {
+    let ret: bool = a == b;
+    console.assert(ret);
+    return ret;
 }

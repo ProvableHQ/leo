@@ -1,15 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - i64.in: |
-    [main]
-    a: i64 = 4;
-    b: i64 = 2;
-    c: i64 = 2;
-    
-    [registers]
-    r0: bool = true;
+input_file: inputs/div.in
 */
 
 function main(a: i64, b: i64, c: i64) -> bool {

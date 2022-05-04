@@ -6,4 +6,4 @@ expectation: Pass
 return expr;
 
 return
-5;
+5u8;

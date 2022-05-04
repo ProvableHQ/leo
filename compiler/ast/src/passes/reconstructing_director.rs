@@ -34,12 +34,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_type(&mut self, type_: &Type, span: &Span) -> Result<Type> {
-        let new = match type_ {
-            Type::Identifier(identifier) => Type::Identifier(self.reduce_identifier(identifier)?),
-            _ => type_.clone(),
-        };
-
-        self.reducer.reduce_type(type_, new, span)
+        self.reducer.reduce_type(type_, type_.clone(), span)
     }
 
     // Expressions
@@ -156,11 +151,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             variable_names.push(self.reduce_variable_name(variable_name)?);
         }
 
-        let type_ = definition
-            .type_
-            .as_ref()
-            .map(|type_| self.reduce_type(type_, &definition.span))
-            .transpose()?;
+        let type_ = self.reduce_type(&definition.type_, &definition.span)?;
 
         let value = self.reduce_expression(&definition.value)?;
 
@@ -215,11 +206,13 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
     pub fn reduce_iteration(&mut self, iteration: &IterationStatement) -> Result<IterationStatement> {
         let variable = self.reduce_identifier(&iteration.variable)?;
+        let type_ = self.reduce_type(&iteration.type_, iteration.span())?;
         let start = self.reduce_expression(&iteration.start)?;
         let stop = self.reduce_expression(&iteration.stop)?;
         let block = self.reduce_block(&iteration.block)?;
 
-        self.reducer.reduce_iteration(iteration, variable, start, stop, block)
+        self.reducer
+            .reduce_iteration(iteration, variable, type_, start, stop, block)
     }
 
     pub fn reduce_console(&mut self, console_function_call: &ConsoleStatement) -> Result<ConsoleStatement> {
@@ -305,11 +298,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             inputs.push(self.reduce_function_input(input)?);
         }
 
-        let output = function
-            .output
-            .as_ref()
-            .map(|type_| self.reduce_type(type_, &function.span))
-            .transpose()?;
+        let output = self.reduce_type(&function.output, &function.span)?;
 
         let block = self.reduce_block(&function.block)?;
 

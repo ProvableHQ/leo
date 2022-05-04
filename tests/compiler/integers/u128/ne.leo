@@ -1,17 +1,11 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - ne.in: |
-    [main]
-    a: u128 = 10;
-    b: u128 = 20;
-    c: bool = true;
-
-    [registers]
-    r0: bool = true;
+input_file:
+ - inputs/eq.in
+ - inputs/ne.in
 */
 
-function main(a: u128, b: u128, c: bool) -> bool {
+function main(a: u128, b: u128, c: bool) -> bool{
     return (a != b) == c;
 }

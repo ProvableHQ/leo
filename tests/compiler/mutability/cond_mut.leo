@@ -5,7 +5,7 @@ input_file: input/dummy.in
 */
 
 function main(y: bool) -> bool {
-    let x = 100i8;
+    let x: i8 = 100i8;
     if false {
         x = 1i8;
         x = x * 100i8;

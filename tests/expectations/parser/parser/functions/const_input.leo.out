@@ -5,11 +5,11 @@ outputs:
   - name: ""
     expected_input: []
     functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const x: u8) {}\\\"}\"}":
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const x: u8) {}\\\"}\"}"
+      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const x: u8) -> u8 {}\\\"}\"}":
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const x: u8) -> u8 {}\\\"}\"}"
         input:
           - Variable:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const x: u8) {}\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const x: u8) -> u8 {}\\\"}\"}"
               mode: Constant
               type_:
                 IntegerType: U8
@@ -19,31 +19,32 @@ outputs:
                 col_start: 18
                 col_stop: 19
                 path: ""
-                content: "function x(const x: u8) {}"
+                content: "function x(const x: u8) -> u8 {}"
         const_: false
-        output: ~
+        output:
+          IntegerType: U8
         core_mapping: ~
         block:
           statements: []
           span:
             line_start: 3
             line_stop: 3
-            col_start: 25
-            col_stop: 27
+            col_start: 31
+            col_stop: 33
             path: ""
-            content: "function x(const x: u8) {}"
+            content: "function x(const x: u8) -> u8 {}"
         span:
           line_start: 3
           line_stop: 3
           col_start: 1
-          col_stop: 27
+          col_stop: 33
           path: ""
-          content: "function x(const x: u8) {}"
-      "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function y(constant y: u64) {}\\\"}\"}":
-        identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function y(constant y: u64) {}\\\"}\"}"
+          content: "function x(const x: u8) -> u8 {}"
+      "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function y(constant y: u64) -> u8 {}\\\"}\"}":
+        identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function y(constant y: u64) -> u8 {}\\\"}\"}"
         input:
           - Variable:
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function y(constant y: u64) {}\\\"}\"}"
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function y(constant y: u64) -> u8 {}\\\"}\"}"
               mode: Constant
               type_:
                 IntegerType: U64
@@ -53,23 +54,24 @@ outputs:
                 col_start: 21
                 col_stop: 22
                 path: ""
-                content: "function y(constant y: u64) {}"
+                content: "function y(constant y: u64) -> u8 {}"
         const_: false
-        output: ~
+        output:
+          IntegerType: U8
         core_mapping: ~
         block:
           statements: []
           span:
             line_start: 5
             line_stop: 5
-            col_start: 29
-            col_stop: 31
+            col_start: 35
+            col_stop: 37
             path: ""
-            content: "function y(constant y: u64) {}"
+            content: "function y(constant y: u64) -> u8 {}"
         span:
           line_start: 5
           line_stop: 5
           col_start: 1
-          col_stop: 31
+          col_stop: 37
           path: ""
-          content: "function y(constant y: u64) {}"
+          content: "function y(constant y: u64) -> u8 {}"

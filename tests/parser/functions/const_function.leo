@@ -3,6 +3,6 @@ namespace: Parse
 expectation: Pass
 */
 
-const function x() {
-    return 0;
+const function x() -> u8 {
+    return 0u8;
 }

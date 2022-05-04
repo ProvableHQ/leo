@@ -4,52 +4,52 @@ expectation: Pass
 */
 // These ones do not hit the unreachable as they are treated as valid idents rather than postfix.
 
-let x = aimport;
+let x: u8 = aimport;
 
-let x = a_;
+let x: u8 = a_;
 
-let x = aas;
+let x: u8 = aas;
 
-let x = aconsole;
+let x: u8 = aconsole;
 
-let x = aconst;
+let x: u8 = aconst;
 
-let x = alet;
+let x: u8 = alet;
 
-let x = afor;
+let x: u8 = afor;
 
-let x = aif;
+let x: u8 = aif;
 
-let x = aelse;
+let x: u8 = aelse;
 
-let x = ai8;
+let x: u8 = ai8;
 
-let x = ai16;
+let x: u8 = ai16;
 
-let x = ai32;
+let x: u8 = ai32;
 
-let x = ai64;
+let x: u8 = ai64;
 
-let x = ai128;
+let x: u8 = ai128;
 
-let x = au8;
+let x: u8 = au8;
 
-let x = au16;
+let x: u8 = au16;
 
-let x = au32;
+let x: u8 = au32;
 
-let x = au64;
+let x: u8 = au64;
 
-let x = au128;
+let x: u8 = au128;
 
-let x = areturn;
+let x: u8 = areturn;
 
-let x = aself;
+let x: u8 = aself;
 
-let x = aSelf;
+let x: u8 = aSelf;
 
-let x = atrue;
+let x: u8 = atrue;
 
-let x = afalse;
+let x: u8 = afalse;
 
-let x = a0;
+let x: u8 = a0;
