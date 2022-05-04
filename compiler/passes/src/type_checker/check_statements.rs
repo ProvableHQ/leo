@@ -123,7 +123,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         VisitResult::VisitChildren
     }
 
-    fn visit_expression_statement(&mut self, _input: &'a ExpressionStatement) -> VisitResult {
+    fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) -> VisitResult {
+        self.compare_expr_type(&input.expression, None, input.span());
         VisitResult::SkipChildren
     }
 

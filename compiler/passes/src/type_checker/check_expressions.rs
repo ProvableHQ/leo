@@ -247,8 +247,6 @@ impl<'a> TypeChecker<'a> {
                     self.compare_expr_type(&unary.inner, expected, unary.inner.span())
                 }
                 UnaryOperation::Negate => {
-                    // -128i8
-                    // -(-128i16 + 3i16) = 125i16
                     match expected.as_ref() {
                         Some(
                             Type::IntegerType(
