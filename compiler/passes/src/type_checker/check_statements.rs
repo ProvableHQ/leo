@@ -25,9 +25,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // statements should always have some parent block
         let parent = self.parent.unwrap();
 
-        if let Some(func) = self.symbol_table.lookup_fn(&parent) {
-            self.compare_expr_type(&input.expression, Some(func.output.clone()), input.expression.span());
-        }
+        // Would never be None.
+        let func_output_type = self.symbol_table.lookup_fn(&parent).map(|f| f.output.clone());
+        self.compare_expr_type(&input.expression, func_output_type, input.expression.span());
 
         VisitResult::VisitChildren
     }
@@ -59,7 +59,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
     fn visit_assign(&mut self, input: &'a AssignStatement) -> VisitResult {
         let var_name = &input.assignee.identifier.name;
-        if let Some(var) = self.symbol_table.lookup_variable(var_name) {
+        let var_type = if let Some(var) = self.symbol_table.lookup_variable(var_name) {
             match &var.declaration {
                 Declaration::Const => self
                     .handler
@@ -70,11 +70,17 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 _ => {}
             }
 
-            self.compare_expr_type(&input.value, Some(var.type_.clone()), input.value.span());
+            Some(var.type_.clone())
         } else {
             self.handler.emit_err(
                 TypeCheckerError::unknown_sym("variable", &input.assignee.identifier.name, &input.assignee.span).into(),
-            )
+            );
+
+            None
+        };
+
+        if var_type.is_some() {
+            self.compare_expr_type(&input.value, var_type, input.value.span());
         }
 
         VisitResult::VisitChildren

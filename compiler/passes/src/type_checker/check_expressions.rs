@@ -39,7 +39,7 @@ fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: Option<Ty
 }
 
 impl<'a> TypeChecker<'a> {
-    pub(crate) fn compare_expr_type(&self, expr: &Expression, expected: Option<Type>, span: &Span) -> Option<Type> {
+    pub(crate) fn compare_expr_type(&mut self, expr: &Expression, expected: Option<Type>, span: &Span) -> Option<Type> {
         match expr {
             Expression::Identifier(ident) => {
                 if let Some(var) = self.symbol_table.lookup_variable(&ident.name) {
@@ -55,11 +55,95 @@ impl<'a> TypeChecker<'a> {
                 ValueExpression::Boolean(_, _) => Some(self.assert_type(Type::Boolean, expected, value.span())),
                 ValueExpression::Char(_) => Some(self.assert_type(Type::Char, expected, value.span())),
                 ValueExpression::Field(_, _) => Some(self.assert_type(Type::Field, expected, value.span())),
-                ValueExpression::Integer(type_, _, _) => {
+                ValueExpression::Integer(type_, str_content, _) => {
+                    match type_ {
+                        IntegerType::I8 => {
+                            let int = if self.negate {
+                                self.negate = false;
+                                format!("-{str_content}")
+                            } else {
+                                str_content.clone()
+                            };
+
+                            if int.parse::<i8>().is_err() {
+                                self.handler
+                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i8", value.span()).into());
+                            }
+                        }
+                        IntegerType::I16 => {
+                            let int = if self.negate {
+                                self.negate = false;
+                                format!("-{str_content}")
+                            } else {
+                                str_content.clone()
+                            };
+
+                            if int.parse::<i16>().is_err() {
+                                self.handler
+                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i16", value.span()).into());
+                            }
+                        }
+                        IntegerType::I32 => {
+                            let int = if self.negate {
+                                self.negate = false;
+                                format!("-{str_content}")
+                            } else {
+                                str_content.clone()
+                            };
+
+                            if int.parse::<i32>().is_err() {
+                                self.handler
+                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i32", value.span()).into());
+                            }
+                        }
+                        IntegerType::I64 => {
+                            let int = if self.negate {
+                                self.negate = false;
+                                format!("-{str_content}")
+                            } else {
+                                str_content.clone()
+                            };
+
+                            if int.parse::<i64>().is_err() {
+                                self.handler
+                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i64", value.span()).into());
+                            }
+                        }
+                        IntegerType::I128 => {
+                            let int = if self.negate {
+                                self.negate = false;
+                                format!("-{str_content}")
+                            } else {
+                                str_content.clone()
+                            };
+
+                            if int.parse::<i128>().is_err() {
+                                self.handler
+                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i128", value.span()).into());
+                            }
+                        }
+
+                        IntegerType::U8 if str_content.parse::<u8>().is_err() => self
+                            .handler
+                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u8", value.span()).into()),
+                        IntegerType::U16 if str_content.parse::<u16>().is_err() => self
+                            .handler
+                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u16", value.span()).into()),
+                        IntegerType::U32 if str_content.parse::<u32>().is_err() => self
+                            .handler
+                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u32", value.span()).into()),
+                        IntegerType::U64 if str_content.parse::<u64>().is_err() => self
+                            .handler
+                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u64", value.span()).into()),
+                        IntegerType::U128 if str_content.parse::<u128>().is_err() => self
+                            .handler
+                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u128", value.span()).into()),
+                        _ => {}
+                    }
                     Some(self.assert_type(Type::IntegerType(*type_), expected, value.span()))
                 }
                 ValueExpression::Group(_) => Some(self.assert_type(Type::Group, expected, value.span())),
-                ValueExpression::String(_, _) => None,
+                ValueExpression::String(_, _) => unreachable!("String types are not reachable"),
             },
             Expression::Binary(binary) => match binary.op {
                 BinaryOperation::And | BinaryOperation::Or => {
@@ -163,19 +247,25 @@ impl<'a> TypeChecker<'a> {
                     self.compare_expr_type(&unary.inner, expected, unary.inner.span())
                 }
                 UnaryOperation::Negate => {
-                    /* match expected {
-                        Type::IntegerType(
-                            IntegerType::I8
-                            | IntegerType::I16
-                            | IntegerType::I32
-                            | IntegerType::I64
-                            | IntegerType::I128,
-                        ) => {},
-                        Type::Field | Type::Group => {}
-                        _ => self.handler.emit_err(
-                            TypeCheckerError::type_is_not_negatable(expected.clone(), unary.inner.span()).into(),
-                        ),
-                    } */
+                    // -128i8
+                    // -(-128i16 + 3i16) = 125i16
+                    match expected.as_ref() {
+                        Some(
+                            Type::IntegerType(
+                                IntegerType::I8
+                                | IntegerType::I16
+                                | IntegerType::I32
+                                | IntegerType::I64
+                                | IntegerType::I128,
+                            )
+                            | Type::Field
+                            | Type::Group,
+                        ) => self.negate = !self.negate,
+                        Some(t) => self
+                            .handler
+                            .emit_err(TypeCheckerError::type_is_not_negatable(t, unary.inner.span()).into()),
+                        _ => {}
+                    };
                     self.compare_expr_type(&unary.inner, expected, unary.inner.span())
                 }
             },

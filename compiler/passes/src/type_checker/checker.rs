@@ -24,6 +24,7 @@ pub struct TypeChecker<'a> {
     pub(crate) symbol_table: &'a mut SymbolTable<'a>,
     pub(crate) handler: &'a Handler,
     pub(crate) parent: Option<Symbol>,
+    pub(crate) negate: bool,
 }
 
 const ARITHMATIC_TYPES: &[Type] = &[
@@ -74,6 +75,7 @@ impl<'a> TypeChecker<'a> {
             symbol_table,
             handler,
             parent: None,
+            negate: false,
         }
     }
 

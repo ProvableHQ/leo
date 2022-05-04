@@ -123,12 +123,12 @@ create_messages!(
         help: None,
     }
 
-    /// For when a type is does not exist.
+    /// For when an integer is not in a valid range.
     @formatted
-    unknown_type {
-        args: (),
+    invalid_int_value {
+        args: (value: impl Display, type_: impl Display),
         msg: format!(
-            "The type",
+            "The value {value} is not a valid `{type_}`",
         ),
         help: None,
     }
