@@ -20,13 +20,13 @@ use leo_span::Symbol;
 use crate::SymbolTable;
 
 pub struct TypeChecker<'a> {
-    pub(crate) symbol_table: SymbolTable<'a>,
+    pub(crate) symbol_table: &'a mut SymbolTable<'a>,
     pub(crate) handler: &'a Handler,
     pub(crate) parent: Option<Symbol>,
 }
 
 impl<'a> TypeChecker<'a> {
-    pub fn new(symbol_table: SymbolTable<'a>, handler: &'a Handler) -> Self {
+    pub fn new(symbol_table: &'a mut SymbolTable<'a>, handler: &'a Handler) -> Self {
         Self {
             symbol_table,
             handler,

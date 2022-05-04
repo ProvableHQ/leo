@@ -26,7 +26,7 @@ use leo_ast::{Ast, VisitorDirector};
 use leo_errors::{emitter::Handler, Result};
 
 impl<'a> Pass<'a> for TypeChecker<'a> {
-    type Input = (&'a Ast, SymbolTable<'a>, &'a Handler);
+    type Input = (&'a Ast, &'a mut SymbolTable<'a>, &'a Handler);
     type Output = Result<()>;
 
     fn do_pass((ast, symbol_table, handler): Self::Input) -> Self::Output {

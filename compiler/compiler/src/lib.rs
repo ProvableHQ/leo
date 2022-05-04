@@ -130,6 +130,8 @@ impl<'a> Compiler<'a> {
     fn compiler_stages(&self) -> Result<SymbolTable<'_>> {
         let symbol_table = CreateSymbolTable::do_pass((&self.ast, self.handler))?;
 
+        TypeChecker::do_pass((&self.ast, &mut symbol_table.clone(), self.handler))?;
+
         Ok(symbol_table)
     }
 

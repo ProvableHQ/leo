@@ -49,6 +49,16 @@ impl<'a> VariableScope<'a> {
         self.parent = None;
         self.variables.clear();
     }
+
+    pub fn lookup_variable(&self, symbol: &Symbol) -> Option<&VariableSymbol<'a>> {
+        if let Some(var) = self.variables.get(symbol) {
+            Some(var)
+        } else if let Some(parent) = &self.parent {
+            parent.lookup_variable(symbol)
+        } else {
+            None
+        }
+    }
 }
 
 impl<'a> Display for VariableScope<'a> {

@@ -82,4 +82,14 @@ create_messages!(
         ),
         help: None,
     }
+
+    /// For when the user tries to return a unknown variable.
+    @formatted
+    unknown_returnee {
+        args: (var: impl Display),
+        msg: format!(
+            "Unknown returnee `{var}`",
+        ),
+        help: None,
+    }
 );

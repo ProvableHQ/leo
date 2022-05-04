@@ -48,18 +48,49 @@ impl<'a> TypeChecker<'a> {
             _ => {}
         }
     }
+
+    fn compare_expr_type(&self, compare: Result<Option<Type>>, expr: &Expression, span: &Span) {
+        match expr {
+            Expression::Identifier(ident) => {
+                if let Some(var) = self.symbol_table.lookup_variable(&ident.name) {
+                    self.assert_type(compare, var.type_.clone(), span);
+                } else {
+                    self.handler
+                        .emit_err(TypeCheckerError::unknown_returnee(ident.name, span).into());
+                }
+            }
+            expr => self.compare_types(compare, expr.get_type(), span),
+        }
+    }
+
+    fn assert_expr_type(&self, expr: &Expression, expected: Type, span: &Span) {
+        match expr {
+            Expression::Identifier(ident) => {
+                if let Some(var) = self.symbol_table.lookup_variable(&ident.name) {
+                    if var.type_ != &expected {
+                        self.handler
+                            .emit_err(TypeCheckerError::type_should_be(var.type_, expected, span).into());
+                    }
+                } else {
+                    self.handler
+                        .emit_err(TypeCheckerError::unknown_returnee(ident.name, span).into());
+                }
+            }
+            expr => self.assert_type(expr.get_type(), expected, span),
+        }
+    }
 }
 
 impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {}
 
-// we can safely unwrap all self.parent instances because
-// statements should always have some parent block
 impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_return(&mut self, input: &'a ReturnStatement) -> VisitResult {
+        // we can safely unwrap all self.parent instances because
+        // statements should always have some parent block
         let parent = self.parent.unwrap();
 
         if let Some(func) = self.symbol_table.lookup_fn(&parent) {
-            self.compare_types(func.get_type(), input.get_type(), input.span());
+            self.compare_expr_type(func.get_type(), &input.expression, input.span());
         }
 
         VisitResult::VisitChildren
@@ -103,7 +134,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 _ => {}
             }
 
-            self.assert_type(input.value.get_type(), var.type_.clone(), input.span())
+            self.assert_expr_type(&input.value, var.type_.clone(), input.span())
         } else {
             self.handler
                 .emit_err(TypeCheckerError::unknown_assignee(&input.assignee.identifier.name, input.span()).into())
@@ -113,19 +144,27 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) -> VisitResult {
-        self.assert_type(input.condition.get_type(), Type::Boolean, input.span());
+        self.assert_expr_type(&input.condition, Type::Boolean, input.span());
 
         VisitResult::VisitChildren
     }
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) -> VisitResult {
-        // TODO: need to change symbol table to some other repr for variables.
-        // self.symbol_table.insert_variable(input.variable.name, input);
+        if let Err(err) = self.symbol_table.insert_variable(
+            input.variable.name,
+            VariableSymbol {
+                type_: &input.type_,
+                span: input.span(),
+                declaration: Declaration::Const,
+            },
+        ) {
+            self.handler.emit_err(err);
+        }
 
         let iter_var_type = input.get_type();
 
-        self.compare_types(iter_var_type.clone(), input.start.get_type(), input.span());
-        self.compare_types(iter_var_type, input.stop.get_type(), input.span());
+        self.compare_expr_type(iter_var_type.clone(), &input.start, input.span());
+        self.compare_expr_type(iter_var_type, &input.stop, input.span());
 
         VisitResult::VisitChildren
     }
@@ -133,7 +172,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_console(&mut self, input: &'a ConsoleStatement) -> VisitResult {
         match &input.function {
             ConsoleFunction::Assert(expr) => {
-                self.assert_type(expr.get_type(), Type::Boolean, expr.span());
+                self.assert_expr_type(expr, Type::Boolean, expr.span());
             }
             ConsoleFunction::Error(_) | ConsoleFunction::Log(_) => {
                 todo!("need to discuss this");

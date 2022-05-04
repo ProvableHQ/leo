@@ -65,7 +65,7 @@ impl<'a> SymbolTable<'a> {
     }
 
     pub fn lookup_variable(&self, symbol: &Symbol) -> Option<&VariableSymbol<'a>> {
-        self.variables.variables.get(symbol)
+        self.variables.lookup_variable(symbol)
     }
 
     pub fn push_variable_scope(&mut self) {
