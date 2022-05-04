@@ -35,10 +35,8 @@ const INT_TYPES: &[Token] = &[
 ];
 
 impl ParserContext<'_> {
-    ///
     /// Returns an [`Expression`] AST node if the next token is an expression.
     /// Includes circuit init expressions.
-    ///
     pub fn parse_expression(&mut self) -> Result<Expression> {
         // Store current parser state.
         let prior_fuzzy_state = self.disallow_circuit_construction;

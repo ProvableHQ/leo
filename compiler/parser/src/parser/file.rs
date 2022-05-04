@@ -20,9 +20,7 @@ use leo_errors::{ParserError, ParserWarning, Result};
 use leo_span::sym;
 
 impl ParserContext<'_> {
-    ///
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
-    ///
     pub fn parse_program(&mut self) -> Result<Program> {
         let mut functions = IndexMap::new();
 
@@ -60,9 +58,7 @@ impl ParserContext<'_> {
         )
     }
 
-    ///
     /// Returns a [`ParamMode`] AST node if the next tokens represent a function parameter mode.
-    ///
     pub fn parse_function_parameter_mode(&mut self) -> Result<ParamMode> {
         let public = self.eat(&Token::Public).then(|| self.prev_token.span.clone());
         let constant = self.eat(&Token::Constant).then(|| self.prev_token.span.clone());
@@ -86,9 +82,7 @@ impl ParserContext<'_> {
         }
     }
 
-    ///
     /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
-    ///
     pub fn parse_function_parameter(&mut self) -> Result<FunctionInput> {
         let mode = self.parse_function_parameter_mode()?;
         let mutable = self.eat(&Token::Mut).then(|| self.prev_token.clone());
@@ -143,10 +137,8 @@ impl ParserContext<'_> {
         ))
     }
 
-    ///
     /// Returns an [`(String, DefinitionStatement)`] AST node if the next tokens represent a global
     /// constant declaration.
-    ///
     pub fn parse_global_const_declaration(&mut self) -> Result<(Vec<Identifier>, DefinitionStatement)> {
         let statement = self.parse_definition_statement()?;
         let variable_names = statement

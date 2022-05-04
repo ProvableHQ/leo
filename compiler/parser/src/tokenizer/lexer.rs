@@ -23,10 +23,8 @@ use serde::{Deserialize, Serialize};
 
 use std::{fmt, iter::Peekable, str::FromStr};
 
-///
 /// Returns a new `StrTendril` string if an identifier can be eaten, otherwise returns [`None`].
 /// An identifier can be eaten if its bytes are at the front of the given `input_tendril` string.
-///
 fn eat_identifier(input: &mut Peekable<impl Iterator<Item = char>>) -> Option<String> {
     match input.peek() {
         None => return None,
@@ -41,9 +39,7 @@ fn eat_identifier(input: &mut Peekable<impl Iterator<Item = char>>) -> Option<St
     Some(ident)
 }
 
-///
 /// Checks if a char is a Unicode Bidirectional Override code point
-///
 fn is_bidi_override(c: char) -> bool {
     let i = c as u32;
     (0x202A..=0x202E).contains(&i) || (0x2066..=0x2069).contains(&i)
@@ -150,9 +146,7 @@ impl Token {
         }
     }
 
-    ///
     /// Returns a `char` if a character can be eaten, otherwise returns [`None`].
-    ///
     fn eat_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
         match input.next() {
             None => Err(ParserError::lexer_empty_input_tendril().into()),
@@ -161,10 +155,8 @@ impl Token {
         }
     }
 
-    ///
     /// Returns a tuple: [(integer length, integer token)] if an integer can be eaten, otherwise returns [`None`].
     /// An integer can be eaten if its bytes are at the front of the given `input_tendril` string.
-    ///
     fn eat_integer(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Token)> {
         if input.peek().is_none() {
             return Err(ParserError::lexer_empty_input_tendril().into());
@@ -184,10 +176,8 @@ impl Token {
         Ok((int.len(), Token::Int(int)))
     }
 
-    ///
     /// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns [`None`].
     /// The next token can be eaten if the bytes at the front of the given `input_tendril` string can be scanned into a token.
-    ///
     pub(crate) fn eat(input_tendril: &str) -> Result<(usize, Token)> {
         if input_tendril.is_empty() {
             return Err(ParserError::lexer_empty_input_tendril().into());
@@ -481,9 +471,7 @@ impl fmt::Debug for SpannedToken {
     }
 }
 
-///
 /// Returns true if the given string is a valid Aleo address.
-///
 pub(crate) fn check_address(address: &str) -> bool {
     Address::<Testnet2>::from_str(address).is_ok()
 }
