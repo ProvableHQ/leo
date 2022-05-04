@@ -34,6 +34,17 @@ impl<'a> TypeChecker<'a> {
                 self.handler.emit_err(err1);
                 self.handler.emit_err(err2);
             }
+            // Types match
+            _ => {}
+        }
+    }
+
+    fn assert_type(&self, type_: Result<Option<Type>>, expected: Type, span: &Span) {
+        match type_ {
+            Ok(Some(type_)) if type_ != expected => self
+                .handler
+                .emit_err(TypeCheckerError::type_should_be(type_, expected, span).into()),
+            // Types match
             _ => {}
         }
     }
@@ -103,27 +114,58 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             _ => {}
         }
 
-        Default::default()
+        VisitResult::VisitChildren
     }
 
-    fn visit_conditional(&mut self, _input: &'a ConditionalStatement) -> VisitResult {
-        Default::default()
+    fn visit_conditional(&mut self, input: &'a ConditionalStatement) -> VisitResult {
+        self.assert_type(input.condition.get_type(), Type::Boolean, input.span());
+
+        VisitResult::VisitChildren
     }
 
-    fn visit_iteration(&mut self, _input: &'a IterationStatement) -> VisitResult {
-        Default::default()
+    fn visit_iteration(&mut self, input: &'a IterationStatement) -> VisitResult {
+        // TODO: need to change symbol table to some other repr for variables.
+        // self.symbol_table.insert_variable(input.variable.name, input);
+
+        let iter_var_type = input.get_type();
+
+        self.compare_types(iter_var_type.clone(), input.start.get_type(), input.span());
+        self.compare_types(iter_var_type, input.stop.get_type(), input.span());
+
+        VisitResult::VisitChildren
     }
 
-    fn visit_console(&mut self, _input: &'a ConsoleStatement) -> VisitResult {
-        Default::default()
+    fn visit_console(&mut self, input: &'a ConsoleStatement) -> VisitResult {
+        match &input.function {
+            ConsoleFunction::Assert(expr) => {
+                self.assert_type(expr.get_type(), Type::Boolean, expr.span());
+            }
+            ConsoleFunction::Error(_) | ConsoleFunction::Log(_) => {
+                todo!("need to discuss this");
+            }
+        }
+
+        VisitResult::VisitChildren
     }
 
-    fn visit_expression_statement(&mut self, _input: &'a ExpressionStatement) -> VisitResult {
-        Default::default()
-    }
+    fn visit_block(&mut self, input: &'a Block) -> VisitResult {
+        self.symbol_table.push_variable_scope();
+        // have to redo the logic here so we have scoping
+        input.statements.iter().for_each(|stmt| {
+            match stmt {
+                Statement::Return(stmt) => self.visit_return(stmt),
+                Statement::Definition(stmt) => self.visit_definition(stmt),
+                Statement::Assign(stmt) => self.visit_assign(stmt),
+                Statement::Conditional(stmt) => self.visit_conditional(stmt),
+                Statement::Iteration(stmt) => self.visit_iteration(stmt),
+                Statement::Console(stmt) => self.visit_console(stmt),
+                Statement::Expression(stmt) => self.visit_expression_statement(stmt),
+                Statement::Block(stmt) => self.visit_block(stmt),
+            };
+        });
+        self.symbol_table.pop_variable_scope();
 
-    fn visit_block(&mut self, _input: &'a Block) -> VisitResult {
-        Default::default()
+        VisitResult::SkipChildren
     }
 }
 

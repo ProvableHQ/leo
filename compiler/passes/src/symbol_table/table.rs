@@ -77,6 +77,21 @@ impl<'a> SymbolTable<'a> {
     pub fn lookup_var(&self, symbol: &Symbol) -> Option<&&'a DefinitionStatement> {
         self.variables.variables.get(symbol)
     }
+
+    pub fn push_variable_scope(&mut self) {
+        let current_scope = self.variables.clone();
+        self.variables = VariableSymbol {
+            parent: Some(Box::new(current_scope)),
+            inputs: Default::default(),
+            variables: Default::default(),
+        };
+    }
+
+    pub fn pop_variable_scope(&mut self) {
+        let parent = self.variables.parent.clone().unwrap();
+
+        self.variables = *parent;
+    }
 }
 
 impl<'a> Display for SymbolTable<'a> {

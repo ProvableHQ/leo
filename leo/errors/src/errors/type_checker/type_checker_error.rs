@@ -53,23 +53,33 @@ create_messages!(
         help: None,
     }
 
-     /// For when the user tries to assign to a const input.
-     @formatted
-     cannont_assign_to_const_input {
-         args: (input: impl Display),
-         msg: format!(
-             "Cannot assign to const input `{input}`",
-         ),
-         help: None,
-     }
+    /// For when the user tries to assign to a const input.
+    @formatted
+    cannont_assign_to_const_input {
+        args: (input: impl Display),
+        msg: format!(
+            "Cannot assign to const input `{input}`",
+        ),
+        help: None,
+    }
 
-     /// For when the user tries to assign to a const input.
-     @formatted
-     cannont_assign_to_const_var {
-         args: (var: impl Display),
-         msg: format!(
-             "Cannot assign to const variable `{var}`",
-         ),
-         help: None,
-     }
+    /// For when the user tries to assign to a const input.
+    @formatted
+    cannont_assign_to_const_var {
+        args: (var: impl Display),
+        msg: format!(
+            "Cannot assign to const variable `{var}`",
+        ),
+        help: None,
+    }
+
+    /// For when the user tries to assign to a const input.
+    @formatted
+    type_should_be {
+        args: (type_: impl Display, expected: impl Display),
+        msg: format!(
+            "Found type `{type_}` but type `{expected}` was expected",
+        ),
+        help: None,
+    }
 );
