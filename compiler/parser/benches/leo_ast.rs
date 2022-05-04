@@ -35,6 +35,8 @@ macro_rules! bench {
                 concat!("./", $file_name, ".leo"),
                 include_str!(concat!("./", $file_name, ".leo"),),
             );
+            // TODO(Centril): This benchmark seems like it actually does nothing
+            // but take a reference to `&ast`, which should be optimized out?
             c.bench_function(concat!("Ast::", $file_name), |b| b.iter(|| &ast));
         }
     };
