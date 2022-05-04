@@ -19,7 +19,6 @@ use leo_errors::TypeCheckerError;
 
 use crate::{Declaration, TypeChecker, VariableSymbol};
 
-
 impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_return(&mut self, input: &'a ReturnStatement) -> VisitResult {
         // we can safely unwrap all self.parent instances because
@@ -27,7 +26,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let parent = self.parent.unwrap();
 
         if let Some(func) = self.symbol_table.lookup_fn(&parent) {
-            self.compare_expr_type(&input.expression, func.output.clone(), input.expression.span());
+            self.compare_expr_type(&input.expression, Some(func.output.clone()), input.expression.span());
         }
 
         VisitResult::VisitChildren
@@ -52,7 +51,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 self.handler.emit_err(err);
             }
 
-            self.compare_expr_type(&input.value, input.type_.clone(), input.value.span());
+            self.compare_expr_type(&input.value, Some(input.type_.clone()), input.value.span());
         });
 
         VisitResult::VisitChildren
@@ -71,7 +70,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 _ => {}
             }
 
-            self.compare_expr_type(&input.value, var.type_.clone(), input.value.span())
+            self.compare_expr_type(&input.value, Some(var.type_.clone()), input.value.span());
         } else {
             self.handler.emit_err(
                 TypeCheckerError::unknown_sym("variable", &input.assignee.identifier.name, &input.assignee.span).into(),
@@ -82,7 +81,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) -> VisitResult {
-        self.compare_expr_type(&input.condition, Type::Boolean, input.condition.span());
+        self.compare_expr_type(&input.condition, Some(Type::Boolean), input.condition.span());
 
         VisitResult::VisitChildren
     }
@@ -99,8 +98,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             self.handler.emit_err(err);
         }
 
-        self.compare_expr_type(&input.start, input.type_.clone(), input.start.span());
-        self.compare_expr_type(&input.stop, input.type_.clone(), input.stop.span());
+        self.compare_expr_type(&input.start, Some(input.type_.clone()), input.start.span());
+        self.compare_expr_type(&input.stop, Some(input.type_.clone()), input.stop.span());
 
         VisitResult::VisitChildren
     }
@@ -108,10 +107,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_console(&mut self, input: &'a ConsoleStatement) -> VisitResult {
         match &input.function {
             ConsoleFunction::Assert(expr) => {
-                self.compare_expr_type(expr, Type::Boolean, expr.span());
+                self.compare_expr_type(expr, Some(Type::Boolean), expr.span());
             }
             ConsoleFunction::Error(_) | ConsoleFunction::Log(_) => {
-                todo!("need to discuss this");
+                // TODO: undetermined
             }
         }
 

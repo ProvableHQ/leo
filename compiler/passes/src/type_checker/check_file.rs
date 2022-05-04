@@ -29,7 +29,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 input_var.identifier.name,
                 VariableSymbol {
                     type_: &input_var.type_,
-                    span: input_var.span(),
+                    span: input_var.identifier.span(),
                     declaration: Declaration::Input(input_var.mode()),
                 },
             ) {

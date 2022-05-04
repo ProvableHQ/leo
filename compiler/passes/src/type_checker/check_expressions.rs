@@ -20,78 +20,175 @@ use leo_span::Span;
 
 use crate::TypeChecker;
 
+fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: Option<Type>) -> Option<Type> {
+    match (t1, t2) {
+        (Some(t1), Some(t2)) if t1 == t2 => Some(t1),
+        (Some(t1), Some(t2)) => {
+            if let Some(expected) = expected {
+                if t1 != expected {
+                    Some(t1)
+                } else {
+                    Some(t2)
+                }
+            } else {
+                Some(t1)
+            }
+        }
+        (None, Some(_)) | (Some(_), None) | (None, None) => None,
+    }
+}
+
 impl<'a> TypeChecker<'a> {
-    pub(crate) fn compare_expr_type(&self, expr: &Expression, expected: Type, span: &Span) {
+    pub(crate) fn compare_expr_type(&self, expr: &Expression, expected: Option<Type>, span: &Span) -> Option<Type> {
         match expr {
             Expression::Identifier(ident) => {
                 if let Some(var) = self.symbol_table.lookup_variable(&ident.name) {
-                    self.assert_type(var.type_.clone(), expected, var.span);
+                    Some(self.assert_type(var.type_.clone(), expected, span))
                 } else {
                     self.handler
                         .emit_err(TypeCheckerError::unknown_sym("variable", ident.name, span).into());
+                    None
                 }
             }
             Expression::Value(value) => match value {
-                ValueExpression::Address(_, _) => self.assert_type(Type::Address, expected, value.span()),
-                ValueExpression::Boolean(_, _) => self.assert_type(Type::Boolean, expected, value.span()),
-                ValueExpression::Char(_) => self.assert_type(Type::Char, expected, value.span()),
-                ValueExpression::Field(_, _) => self.assert_type(Type::Field, expected, value.span()),
+                ValueExpression::Address(_, _) => Some(self.assert_type(Type::Address, expected, value.span())),
+                ValueExpression::Boolean(_, _) => Some(self.assert_type(Type::Boolean, expected, value.span())),
+                ValueExpression::Char(_) => Some(self.assert_type(Type::Char, expected, value.span())),
+                ValueExpression::Field(_, _) => Some(self.assert_type(Type::Field, expected, value.span())),
                 ValueExpression::Integer(type_, _, _) => {
-                    self.assert_type(Type::IntegerType(*type_), expected, value.span())
+                    Some(self.assert_type(Type::IntegerType(*type_), expected, value.span()))
                 }
-                ValueExpression::Group(_) => self.assert_type(Type::Group, expected, value.span()),
-                ValueExpression::String(_, _) => {}
+                ValueExpression::Group(_) => Some(self.assert_type(Type::Group, expected, value.span())),
+                ValueExpression::String(_, _) => None,
             },
-            Expression::Binary(binary) => match binary.op.class() {
-                // some ops support more types than listed here
-                BinaryOperationClass::Boolean => {
-                    self.assert_type(Type::Boolean, expected, span);
-                    self.compare_expr_type(&binary.left, Type::Boolean, binary.span());
-                    self.compare_expr_type(&binary.right, Type::Boolean, binary.span());
+            Expression::Binary(binary) => match binary.op {
+                BinaryOperation::And | BinaryOperation::Or => {
+                    self.assert_type(Type::Boolean, expected.clone(), binary.span());
+                    let t1 = self.compare_expr_type(&binary.left, expected.clone(), binary.left.span());
+                    let t2 = self.compare_expr_type(&binary.right, expected.clone(), binary.right.span());
+
+                    return_incorrect_type(t1, t2, expected)
                 }
-                BinaryOperationClass::Numeric => {
-                    // depending on operation could also be field or group
-                    if !matches!(expected, Type::IntegerType(_)) {
-                        self.handler
-                            .emit_err(TypeCheckerError::type_should_be_integer(binary.op, expected.clone(), span).into());
+                BinaryOperation::Add | BinaryOperation::Sub => {
+                    self.assert_arith_type(expected.clone(), binary.span());
+                    let t1 = self.compare_expr_type(&binary.left, expected.clone(), binary.left.span());
+                    let t2 = self.compare_expr_type(&binary.right, expected.clone(), binary.right.span());
+
+                    return_incorrect_type(t1, t2, expected)
+                }
+                BinaryOperation::Mul => {
+                    self.assert_arith_type(expected.clone(), binary.span());
+
+                    let t1 = self.compare_expr_type(&binary.left, None, binary.left.span());
+                    let t2 = self.compare_expr_type(&binary.right, None, binary.right.span());
+
+                    match (t1.as_ref(), t2.as_ref()) {
+                        (Some(Type::Group), Some(other)) | (Some(other), Some(Type::Group)) => {
+                            self.assert_int_type(Some(other.clone()), binary.span());
+                            Some(Type::Group)
+                        }
+                        _ => return_incorrect_type(t1, t2, expected),
+                    }
+                }
+                BinaryOperation::Div => {
+                    self.assert_field_or_int_type(expected.clone(), binary.span());
+
+                    let t1 = self.compare_expr_type(&binary.left, expected.clone(), binary.left.span());
+                    let t2 = self.compare_expr_type(&binary.right, expected.clone(), binary.right.span());
+                    return_incorrect_type(t1, t2, expected)
+                }
+                BinaryOperation::Pow => {
+                    let t1 = self.compare_expr_type(&binary.left, None, binary.left.span());
+                    let t2 = self.compare_expr_type(&binary.right, None, binary.right.span());
+
+                    match (t1.as_ref(), t2.as_ref()) {
+                        // Type A must be an int.
+                        // Type B must be a unsigned int.
+                        (Some(Type::IntegerType(_)), Some(Type::IntegerType(itype))) if !itype.is_signed() => {
+                            self.assert_type(t1.clone().unwrap(), expected, binary.span());
+                        }
+                        // Type A was an int.
+                        // But Type B was not a unsigned int.
+                        (Some(Type::IntegerType(_)), Some(t)) => {
+                            self.handler.emit_err(
+                                TypeCheckerError::incorrect_pow_exponent_type("unsigned int", t, binary.right.span())
+                                    .into(),
+                            );
+                        }
+                        // Type A must be a field.
+                        // Type B must be an int.
+                        (Some(Type::Field), Some(Type::IntegerType(_))) => {
+                            self.assert_type(Type::Field, expected, binary.span());
+                        }
+                        // Type A was a field.
+                        // But Type B was not an int.
+                        (Some(Type::Field), Some(t)) => {
+                            self.handler.emit_err(
+                                TypeCheckerError::incorrect_pow_exponent_type("int", t, binary.right.span()).into(),
+                            );
+                        }
+                        // The base is some type thats not an int or field.
+                        (Some(t), _) => {
+                            self.handler
+                                .emit_err(TypeCheckerError::incorrect_pow_base_type(t, binary.left.span()).into());
+                        }
+                        _ => {}
                     }
 
-                    self.compare_expr_type(&binary.left, expected.clone(), binary.span());
-                    self.compare_expr_type(&binary.right, expected, binary.span());
+                    t1
+                }
+                BinaryOperation::Eq | BinaryOperation::Ne => {
+                    self.assert_type(Type::Boolean, expected.clone(), binary.span());
+
+                    let t1 = self.compare_expr_type(&binary.left, None, binary.left.span());
+                    let t2 = self.compare_expr_type(&binary.right, None, binary.right.span());
+
+                    return_incorrect_type(t1, t2, expected)
+                }
+                BinaryOperation::Lt | BinaryOperation::Gt | BinaryOperation::Le | BinaryOperation::Ge => {
+                    self.assert_type(Type::Boolean, expected.clone(), binary.span());
+
+                    let t1 = self.compare_expr_type(&binary.left, None, binary.left.span());
+                    self.assert_int_type(t1.clone(), binary.left.span());
+
+                    let t2 = self.compare_expr_type(&binary.right, None, binary.right.span());
+                    self.assert_int_type(t2.clone(), binary.right.span());
+
+                    return_incorrect_type(t1, t2, expected)
                 }
             },
             Expression::Unary(unary) => match unary.op {
                 UnaryOperation::Not => {
-                    self.assert_type(Type::Boolean, expected, unary.span());
-                    self.compare_expr_type(&unary.inner, Type::Boolean, unary.inner.span());
+                    self.assert_type(Type::Boolean, expected.clone(), unary.span());
+                    self.compare_expr_type(&unary.inner, expected, unary.inner.span())
                 }
                 UnaryOperation::Negate => {
-                    match expected {
+                    /* match expected {
                         Type::IntegerType(
                             IntegerType::I8
                             | IntegerType::I16
                             | IntegerType::I32
                             | IntegerType::I64
                             | IntegerType::I128,
-                        )
-                        | Type::Field
-                        | Type::Group => {}
+                        ) => {},
+                        Type::Field | Type::Group => {}
                         _ => self.handler.emit_err(
                             TypeCheckerError::type_is_not_negatable(expected.clone(), unary.inner.span()).into(),
                         ),
-                    }
-                    self.compare_expr_type(&unary.inner, expected, unary.inner.span());
+                    } */
+                    self.compare_expr_type(&unary.inner, expected, unary.inner.span())
                 }
             },
             Expression::Ternary(ternary) => {
-                self.compare_expr_type(&ternary.condition, Type::Boolean, ternary.condition.span());
-                self.compare_expr_type(&ternary.if_true, expected.clone(), ternary.if_true.span());
-                self.compare_expr_type(&ternary.if_false, expected, ternary.if_false.span());
+                self.compare_expr_type(&ternary.condition, Some(Type::Boolean), ternary.condition.span());
+                let t1 = self.compare_expr_type(&ternary.if_true, expected.clone(), ternary.if_true.span());
+                let t2 = self.compare_expr_type(&ternary.if_false, expected.clone(), ternary.if_false.span());
+                return_incorrect_type(t1, t2, expected)
             }
             Expression::Call(call) => match &*call.function {
                 Expression::Identifier(ident) => {
                     if let Some(func) = self.symbol_table.lookup_fn(&ident.name) {
-                        self.assert_type(func.output.clone(), expected, ident.span());
+                        let ret = self.assert_type(func.output.clone(), expected, ident.span());
 
                         if func.input.len() != call.arguments.len() {
                             self.handler.emit_err(
@@ -110,18 +207,21 @@ impl<'a> TypeChecker<'a> {
                             .for_each(|(expected, argument)| {
                                 self.compare_expr_type(
                                     argument,
-                                    expected.get_variable().type_.clone(),
+                                    Some(expected.get_variable().type_.clone()),
                                     argument.span(),
                                 );
                             });
+
+                        Some(ret)
                     } else {
                         self.handler
                             .emit_err(TypeCheckerError::unknown_sym("function", &ident.name, ident.span()).into());
+                        None
                     }
                 }
                 expr => self.compare_expr_type(expr, expected, call.span()),
             },
-            Expression::Err(_) => {}
+            Expression::Err(_) => None,
         }
     }
 }

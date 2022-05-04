@@ -88,7 +88,47 @@ create_messages!(
     incorrect_num_args_to_call {
         args: (expected: impl Display, received: impl Display),
         msg: format!(
-            "Call expected `{expected}` args, got `{received}`",
+            "Call expected `{expected}` args, but got `{received}`",
+        ),
+        help: None,
+    }
+
+    /// For when one of the following types was expected.
+    @formatted
+    expected_one_type_of {
+        args: (expected: impl Display, received: impl Display),
+        msg: format!(
+            "Expected one type from `{expected}`, but got `{received}`",
+        ),
+        help: None,
+    }
+
+    /// For when the base of a power is not a valid type.
+    @formatted
+    incorrect_pow_base_type {
+        args: (type_: impl Display),
+        msg: format!(
+            "The first operand must be an integer or field but got type `{type_}`",
+        ),
+        help: None,
+    }
+
+    /// For when the exponent of a power is not a valid type.
+    @formatted
+    incorrect_pow_exponent_type {
+        args: (allowed: impl Display, type_: impl Display),
+        msg: format!(
+            "The second operand must be a {allowed} but got type `{type_}`",
+        ),
+        help: None,
+    }
+
+    /// For when a type is does not exist.
+    @formatted
+    unknown_type {
+        args: (),
+        msg: format!(
+            "The type",
         ),
         help: None,
     }

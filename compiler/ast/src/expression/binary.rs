@@ -47,20 +47,6 @@ pub enum BinaryOperation {
     Le,
     /// Lesser-than relation, i.e. `<`.
     Lt,
-    /// Bitwise-or inclusive, i.e., `|`.
-    BitOr,
-    /// Bitwise-and, i.e., `&`.
-    BitAnd,
-    /// Bitwise-or exclusive, i.e., `^`.
-    BitXor,
-    /// Shift-right, i.e `>>`.
-    Shr,
-    /// Unsigned shift-right, i.e `>>>`.
-    ShrSigned,
-    /// Shift-left, i.e `<<`.
-    Shl,
-    /// Modulus or remainder operation, i.e., `%`.
-    Mod,
 }
 
 /// The category a binary operation belongs to.
@@ -88,13 +74,6 @@ impl AsRef<str> for BinaryOperation {
             BinaryOperation::Gt => ">",
             BinaryOperation::Le => "<=",
             BinaryOperation::Lt => "<",
-            BinaryOperation::BitOr => "|",
-            BinaryOperation::BitAnd => "&",
-            BinaryOperation::BitXor => "^",
-            BinaryOperation::Shr => ">>",
-            BinaryOperation::ShrSigned => ">>>",
-            BinaryOperation::Shl => "<<",
-            BinaryOperation::Mod => "%",
         }
     }
 }
@@ -108,13 +87,6 @@ impl BinaryOperation {
             | BinaryOperation::Sub
             | BinaryOperation::Mul
             | BinaryOperation::Div
-            | BinaryOperation::BitOr
-            | BinaryOperation::BitAnd
-            | BinaryOperation::BitXor
-            | BinaryOperation::Shr
-            | BinaryOperation::ShrSigned
-            | BinaryOperation::Shl
-            | BinaryOperation::Mod
             | BinaryOperation::Pow => BinaryOperationClass::Numeric,
             BinaryOperation::Or
             | BinaryOperation::And
