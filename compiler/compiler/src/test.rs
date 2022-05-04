@@ -86,13 +86,13 @@ impl Namespace for CompileNamespace {
 #[derive(Deserialize, PartialEq, Serialize)]
 struct OutputItem {
     pub initial_input_ast: String,
-    pub symbol_table: String,
 }
 
 #[derive(Deserialize, PartialEq, Serialize)]
 struct CompileOutput {
     pub output: Vec<OutputItem>,
     pub initial_ast: String,
+    pub symbol_table: String,
 }
 
 /// Get the path of the `input_file` given in `input` into `list`.
@@ -126,12 +126,7 @@ fn collect_all_inputs(test: &Test) -> Result<Vec<PathBuf>, String> {
 
 fn compile_and_process<'a>(
     parsed: &'a mut Compiler<'a>,
-    input_file_path: Option<PathBuf>,
-) -> Result<SymbolTable<'a>, LeoError> {
-    if let Some(input_file_path) = input_file_path {
-        parsed.parse_input(input_file_path)?;
-    }
-    
+) -> Result<SymbolTable<'a>, LeoError> {    
     parsed.compiler_stages()
 }
 
@@ -187,7 +182,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         cwd.join(&val.as_str().unwrap())
     });
 
-    let parsed = handler.extend_if_error(parse_program(handler, &test.content, cwd))?;
+    let mut parsed = handler.extend_if_error(parse_program(handler, &test.content, cwd))?;
 
     // (name, content)
     let inputs = buffer_if_err(err_buf, collect_all_inputs(&test))?;
@@ -195,25 +190,23 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     let mut output_items = Vec::with_capacity(inputs.len());
 
     if inputs.is_empty() {
-        let mut parsed = parsed.clone();
-        let symbol_table = handler.extend_if_error(compile_and_process(&mut parsed, None))?;
-
         output_items.push(OutputItem {
             initial_input_ast: "no input".to_string(),
-            symbol_table: hash_content(&symbol_table.to_string()),
         });
     } else {
         for input in inputs {
             let mut parsed = parsed.clone();
-            let symbol_table = handler.extend_if_error(compile_and_process(&mut parsed, Some(input)))?;
+            handler.extend_if_error(parsed.parse_input(input))?;
             let initial_input_ast = hash_file("/tmp/output/inital_input_ast.json");
 
             output_items.push(OutputItem {
                 initial_input_ast,
-                symbol_table: hash_content(&symbol_table.to_string()),
             });
         }
     }
+
+    let symbol_table = handler.extend_if_error(compile_and_process(&mut parsed))?;
+
     
     let initial_ast = hash_file("/tmp/output/initial_ast.json");
 
@@ -224,6 +217,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     let final_output = CompileOutput {
         output: output_items,
         initial_ast,
+        symbol_table: hash_content(&symbol_table.to_string()),
     };
     Ok(serde_yaml::to_value(&final_output).expect("serialization failed"))
 }
