@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConsoleArgs, Expression, Node};
-use leo_errors::Result;
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -58,9 +57,5 @@ impl Node for ConsoleFunction {
             ConsoleFunction::Assert(assert) => assert.set_span(span),
             ConsoleFunction::Error(formatted) | ConsoleFunction::Log(formatted) => formatted.set_span(span),
         }
-    }
-
-    fn get_type(&self) -> Result<Option<crate::Type>> {
-        Ok(None)
     }
 }

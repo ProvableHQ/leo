@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::emitter::Handler;
-use leo_span::Symbol;
+use leo_ast::Type;
+use leo_errors::{emitter::Handler, TypeCheckerError};
+use leo_span::{Symbol, Span};
 
 use crate::SymbolTable;
 
@@ -31,6 +32,13 @@ impl<'a> TypeChecker<'a> {
             symbol_table,
             handler,
             parent: None,
+        }
+    }
+
+    pub(crate) fn assert_type(&self, type_: Type, expected: Type, span: &Span) {
+        if type_ != expected {
+            self.handler
+                .emit_err(TypeCheckerError::type_should_be(type_, expected, span).into());
         }
     }
 }

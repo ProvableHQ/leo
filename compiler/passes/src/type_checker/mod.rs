@@ -14,8 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod check;
-pub use check::*;
+pub mod check_expressions;
+pub use check_expressions::*;
+
+pub mod check_file;
+pub use check_file::*;
+
+pub mod check_statements;
+pub use check_statements::*;
 
 pub mod checker;
 pub use checker::*;

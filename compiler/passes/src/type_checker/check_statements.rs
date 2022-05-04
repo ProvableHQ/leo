@@ -15,73 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::*;
-use leo_errors::{Result, TypeCheckerError};
-use leo_span::Span;
+use leo_errors::TypeCheckerError;
 
 use crate::{Declaration, TypeChecker, VariableSymbol};
 
-impl<'a> TypeChecker<'a> {
-    fn compare_types(&self, t1: Result<Option<Type>>, t2: Result<Option<Type>>, span: &Span) {
-        match (t1, t2) {
-            (Ok(Some(t1)), Ok(Some(t2))) if t1 != t2 => self
-                .handler
-                .emit_err(TypeCheckerError::types_do_not_match(t1, t2, span).into()),
-            (Ok(Some(t)), Ok(None)) | (Ok(None), Ok(Some(t))) => self
-                .handler
-                .emit_err(TypeCheckerError::type_expected_but_not_found(t, span).into()),
-            (Err(err), Ok(None)) | (Ok(None), Err(err)) => self.handler.emit_err(err),
-            (Err(err1), Err(err2)) => {
-                self.handler.emit_err(err1);
-                self.handler.emit_err(err2);
-            }
-            // Types match
-            _ => {}
-        }
-    }
-
-    fn assert_type(&self, type_: Result<Option<Type>>, expected: Type, span: &Span) {
-        match type_ {
-            Ok(Some(type_)) if type_ != expected => self
-                .handler
-                .emit_err(TypeCheckerError::type_should_be(type_, expected, span).into()),
-            // Types match
-            _ => {}
-        }
-    }
-
-    fn compare_expr_type(&self, compare: Result<Option<Type>>, expr: &Expression, span: &Span) {
-        match expr {
-            Expression::Identifier(ident) => {
-                if let Some(var) = self.symbol_table.lookup_variable(&ident.name) {
-                    self.assert_type(compare, var.type_.clone(), span);
-                } else {
-                    self.handler
-                        .emit_err(TypeCheckerError::unknown_returnee(ident.name, span).into());
-                }
-            }
-            expr => self.compare_types(compare, expr.get_type(), span),
-        }
-    }
-
-    fn assert_expr_type(&self, expr: &Expression, expected: Type, span: &Span) {
-        match expr {
-            Expression::Identifier(ident) => {
-                if let Some(var) = self.symbol_table.lookup_variable(&ident.name) {
-                    if var.type_ != &expected {
-                        self.handler
-                            .emit_err(TypeCheckerError::type_should_be(var.type_, expected, span).into());
-                    }
-                } else {
-                    self.handler
-                        .emit_err(TypeCheckerError::unknown_returnee(ident.name, span).into());
-                }
-            }
-            expr => self.assert_type(expr.get_type(), expected, span),
-        }
-    }
-}
-
-impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {}
 
 impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_return(&mut self, input: &'a ReturnStatement) -> VisitResult {
@@ -90,7 +27,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let parent = self.parent.unwrap();
 
         if let Some(func) = self.symbol_table.lookup_fn(&parent) {
-            self.compare_expr_type(func.get_type(), &input.expression, input.span());
+            self.compare_expr_type(&input.expression, func.output.clone(), input.expression.span());
         }
 
         VisitResult::VisitChildren
@@ -115,7 +52,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 self.handler.emit_err(err);
             }
 
-            self.compare_types(input.get_type(), input.get_type(), input.span());
+            self.compare_expr_type(&input.value, input.type_.clone(), input.value.span());
         });
 
         VisitResult::VisitChildren
@@ -134,17 +71,18 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 _ => {}
             }
 
-            self.assert_expr_type(&input.value, var.type_.clone(), input.span())
+            self.compare_expr_type(&input.value, var.type_.clone(), input.value.span())
         } else {
-            self.handler
-                .emit_err(TypeCheckerError::unknown_assignee(&input.assignee.identifier.name, input.span()).into())
+            self.handler.emit_err(
+                TypeCheckerError::unknown_sym("variable", &input.assignee.identifier.name, &input.assignee.span).into(),
+            )
         }
 
         VisitResult::VisitChildren
     }
 
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) -> VisitResult {
-        self.assert_expr_type(&input.condition, Type::Boolean, input.span());
+        self.compare_expr_type(&input.condition, Type::Boolean, input.condition.span());
 
         VisitResult::VisitChildren
     }
@@ -161,10 +99,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             self.handler.emit_err(err);
         }
 
-        let iter_var_type = input.get_type();
-
-        self.compare_expr_type(iter_var_type.clone(), &input.start, input.span());
-        self.compare_expr_type(iter_var_type, &input.stop, input.span());
+        self.compare_expr_type(&input.start, input.type_.clone(), input.start.span());
+        self.compare_expr_type(&input.stop, input.type_.clone(), input.stop.span());
 
         VisitResult::VisitChildren
     }
@@ -172,7 +108,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_console(&mut self, input: &'a ConsoleStatement) -> VisitResult {
         match &input.function {
             ConsoleFunction::Assert(expr) => {
-                self.assert_expr_type(expr, Type::Boolean, expr.span());
+                self.compare_expr_type(expr, Type::Boolean, expr.span());
             }
             ConsoleFunction::Error(_) | ConsoleFunction::Log(_) => {
                 todo!("need to discuss this");
@@ -180,6 +116,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
 
         VisitResult::VisitChildren
+    }
+
+    fn visit_expression_statement(&mut self, _input: &'a ExpressionStatement) -> VisitResult {
+        VisitResult::SkipChildren
     }
 
     fn visit_block(&mut self, input: &'a Block) -> VisitResult {
@@ -200,28 +140,5 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.symbol_table.pop_variable_scope();
 
         VisitResult::SkipChildren
-    }
-}
-
-impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
-    fn visit_function(&mut self, input: &'a Function) -> VisitResult {
-        self.symbol_table.clear_variables();
-        self.parent = Some(input.name());
-        input.input.iter().for_each(|i| {
-            let input_var = i.get_variable();
-
-            if let Err(err) = self.symbol_table.insert_variable(
-                input_var.identifier.name,
-                VariableSymbol {
-                    type_: &input_var.type_,
-                    span: input_var.span(),
-                    declaration: Declaration::Input(input_var.mode()),
-                },
-            ) {
-                self.handler.emit_err(err);
-            }
-        });
-
-        VisitResult::VisitChildren
     }
 }

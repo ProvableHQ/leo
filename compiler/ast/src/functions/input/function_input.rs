@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Identifier, Node, Type};
-use leo_errors::Result;
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -95,9 +94,5 @@ impl Node for FunctionInputVariable {
 
     fn set_span(&mut self, span: Span) {
         self.span = span;
-    }
-
-    fn get_type(&self) -> Result<Option<Type>> {
-        Ok(Some(self.type_.clone()))
     }
 }

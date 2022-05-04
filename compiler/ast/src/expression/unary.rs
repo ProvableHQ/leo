@@ -24,9 +24,6 @@ pub enum UnaryOperation {
     Not,
     /// The arithmetic negation operator, i.e., `-`.
     Negate,
-    /// The bitwise negation operator, i.e., `~`.
-    /// For example, it transforms `1010` to `0101`.
-    BitNot,
 }
 
 impl AsRef<str> for UnaryOperation {
@@ -34,7 +31,6 @@ impl AsRef<str> for UnaryOperation {
         match self {
             UnaryOperation::Not => "!",
             UnaryOperation::Negate => "-",
-            UnaryOperation::BitNot => "~",
         }
     }
 }
@@ -63,9 +59,5 @@ impl Node for UnaryExpression {
 
     fn set_span(&mut self, span: Span) {
         self.span = span;
-    }
-
-    fn get_type(&self) -> Result<Option<crate::Type>> {
-        self.inner.get_type()
     }
 }

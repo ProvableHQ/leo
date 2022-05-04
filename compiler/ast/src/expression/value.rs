@@ -85,17 +85,4 @@ impl Node for ValueExpression {
             },
         }
     }
-
-    fn get_type(&self) -> Result<Option<crate::Type>> {
-        use ValueExpression::*;
-        Ok(Some(match &self {
-            Address(_, _) => Type::Address,
-            Boolean(_, _) => Type::Boolean,
-            Char(_) => Type::Char,
-            Field(_, _) => Type::Field,
-            Integer(type_, _, _) => Type::IntegerType(*type_),
-            Group(_) => Type::Group,
-            String(_, _) => return Ok(None),
-        }))
-    }
 }

@@ -23,36 +23,6 @@ create_messages!(
     code_mask: 2000i32,
     code_prefix: "TYC",
 
-    /// For when types do not match.
-    @formatted
-    types_do_not_match {
-        args: (lhs: impl Display, rhs: impl Display),
-        msg: format!(
-            "unexpected type, lhs type is: '{lhs}', but rhs type is: '{rhs}'",
-        ),
-        help: None,
-    }
-
-    /// For when types do not match.
-    @formatted
-    type_expected_but_not_found {
-        args: (known: impl Display),
-        msg: format!(
-            "One side has type: '{known}', but the other has no type",
-        ),
-        help: None,
-    }
-
-    /// For when the user tries to assign to a unknown variable.
-    @formatted
-    unknown_assignee {
-        args: (var: impl Display),
-        msg: format!(
-            "Unknown assignee `{var}`",
-        ),
-        help: None,
-    }
-
     /// For when the user tries to assign to a const input.
     @formatted
     cannont_assign_to_const_input {
@@ -85,10 +55,40 @@ create_messages!(
 
     /// For when the user tries to return a unknown variable.
     @formatted
-    unknown_returnee {
-        args: (var: impl Display),
+    unknown_sym {
+        args: (kind: impl Display, sym: impl Display),
         msg: format!(
-            "Unknown returnee `{var}`",
+            "Unknown {kind} `{sym}`",
+        ),
+        help: None,
+    }
+
+    /// For when the user tries to expect a non integer type .
+    @formatted
+    type_should_be_integer {
+        args: (op: impl Debug, type_: impl Display),
+        msg: format!(
+            "Binary statement has numeric operation `{op:?}` but has expected type `{type_}`",
+        ),
+        help: None,
+    }
+
+    /// For when the user tries to negate a non negatable type.
+    @formatted
+    type_is_not_negatable {
+        args: (type_: impl Display),
+        msg: format!(
+            "The type `{type_}` is not negatable",
+        ),
+        help: None,
+    }
+
+    /// For when the user tries calls a function with the incorrect number of args.
+    @formatted
+    incorrect_num_args_to_call {
+        args: (expected: impl Display, received: impl Display),
+        msg: format!(
+            "Call expected `{expected}` args, got `{received}`",
         ),
         help: None,
     }

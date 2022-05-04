@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::TypeCheckerError;
-
 use super::*;
 
 /// A binary operator.
@@ -157,24 +155,5 @@ impl Node for BinaryExpression {
 
     fn set_span(&mut self, span: Span) {
         self.span = span;
-    }
-
-    fn get_type(&self) -> Result<Option<crate::Type>> {
-        match self.op.class() {
-            BinaryOperationClass::Boolean => Ok(Some(Type::Boolean)),
-            BinaryOperationClass::Numeric => {
-                let left = self.left.get_type()?;
-                let right = self.right.get_type()?;
-
-                match (left, right) {
-                    (Some(t1), Some(t2)) if t1 == t2 => Ok(Some(t1)),
-                    (None, None) => Ok(None),
-                    (Some(t1), Some(t2)) => Err(TypeCheckerError::types_do_not_match(t1, t2, self.span()).into()),
-                    (None, Some(t)) | (Some(t), None) => {
-                        Err(TypeCheckerError::type_expected_but_not_found(t, self.span()).into())
-                    }
-                }
-            }
-        }
     }
 }

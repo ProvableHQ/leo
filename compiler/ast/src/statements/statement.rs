@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConditionalStatement, Node, Type};
-use leo_errors::Result;
+use crate::{ConditionalStatement, Node};
 use leo_span::Span;
 
 use super::*;
@@ -85,20 +84,6 @@ impl Node for Statement {
             Console(n) => n.set_span(span),
             Expression(n) => n.set_span(span),
             Block(n) => n.set_span(span),
-        }
-    }
-
-    fn get_type(&self) -> Result<Option<Type>> {
-        use Statement::*;
-        match self {
-            Return(n) => n.get_type(),
-            Definition(n) => n.get_type(),
-            Assign(n) => n.get_type(),
-            Conditional(n) => n.get_type(),
-            Iteration(n) => n.get_type(),
-            Console(n) => n.get_type(),
-            Expression(n) => n.get_type(),
-            Block(n) => n.get_type(),
         }
     }
 }

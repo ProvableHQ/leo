@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Node, Statement, Type};
-use leo_errors::Result;
+use crate::{Node, Statement};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -51,9 +50,5 @@ impl Node for Block {
 
     fn set_span(&mut self, span: Span) {
         self.span = span;
-    }
-
-    fn get_type(&self) -> Result<Option<Type>> {
-        Ok(None)
     }
 }
