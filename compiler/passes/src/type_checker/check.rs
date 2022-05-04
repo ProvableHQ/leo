@@ -18,7 +18,7 @@ use leo_ast::*;
 use leo_errors::{Result, TypeCheckerError};
 use leo_span::Span;
 
-use crate::TypeChecker;
+use crate::{Declaration, TypeChecker, VariableSymbol};
 
 impl<'a> TypeChecker<'a> {
     fn compare_types(&self, t1: Result<Option<Type>>, t2: Result<Option<Type>>, span: &Span) {
@@ -66,8 +66,21 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_definition(&mut self, input: &'a DefinitionStatement) -> VisitResult {
+        let declaration = if input.declaration_type == Declare::Const {
+            Declaration::Const
+        } else {
+            Declaration::Mut
+        };
+
         input.variable_names.iter().for_each(|v| {
-            if let Err(err) = self.symbol_table.insert_variable(v.identifier.name, input) {
+            if let Err(err) = self.symbol_table.insert_variable(
+                v.identifier.name,
+                VariableSymbol {
+                    type_: &input.type_,
+                    span: input.span(),
+                    declaration: declaration.clone(),
+                },
+            ) {
                 self.handler.emit_err(err);
             }
 
@@ -78,40 +91,22 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_assign(&mut self, input: &'a AssignStatement) -> VisitResult {
-        let input_var = self.symbol_table.lookup_fn_input(&input.assignee.identifier.name);
-        let var = self.symbol_table.lookup_var(&input.assignee.identifier.name);
-
-        match (input_var, var) {
-            (Some(var), None) => {
-                let inner = var.get_variable();
-                if inner.mode() == ParamMode::Constant {
-                    self.handler.emit_err(
-                        TypeCheckerError::cannont_assign_to_const_input(&inner.identifier.name, var.span()).into(),
-                    );
-                }
-
-                self.compare_types(var.get_type(), input.value.get_type(), input.span());
+        let var_name = &input.assignee.identifier.name;
+        if let Some(var) = self.symbol_table.lookup_variable(var_name) {
+            match &var.declaration {
+                Declaration::Const => self
+                    .handler
+                    .emit_err(TypeCheckerError::cannont_assign_to_const_var(var_name, var.span).into()),
+                Declaration::Input(ParamMode::Constant) => self
+                    .handler
+                    .emit_err(TypeCheckerError::cannont_assign_to_const_input(var_name, var.span).into()),
+                _ => {}
             }
-            (None, Some(var)) => {
-                if var.declaration_type == Declare::Const {
-                    // there will always be one variable name
-                    // as we don't allow tuples at the moment.
-                    self.handler.emit_err(
-                        TypeCheckerError::cannont_assign_to_const_input(
-                            &var.variable_names[0].identifier.name,
-                            var.span(),
-                        )
-                        .into(),
-                    );
-                }
 
-                self.compare_types(var.get_type(), input.value.get_type(), input.span());
-            }
-            (None, None) => self
-                .handler
-                .emit_err(TypeCheckerError::unknown_assignee(&input.assignee.identifier.name, input.span()).into()),
-            // Don't have to error here as shadowing checks are done during insertions.
-            _ => {}
+            self.assert_type(input.value.get_type(), var.type_.clone(), input.span())
+        } else {
+            self.handler
+                .emit_err(TypeCheckerError::unknown_assignee(&input.assignee.identifier.name, input.span()).into())
         }
 
         VisitResult::VisitChildren
@@ -174,8 +169,16 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.symbol_table.clear_variables();
         self.parent = Some(input.name());
         input.input.iter().for_each(|i| {
-            let symbol = i.get_variable().identifier.name;
-            if let Err(err) = self.symbol_table.insert_fn_input(symbol, i) {
+            let input_var = i.get_variable();
+
+            if let Err(err) = self.symbol_table.insert_variable(
+                input_var.identifier.name,
+                VariableSymbol {
+                    type_: &input_var.type_,
+                    span: input_var.span(),
+                    declaration: Declaration::Input(input_var.mode()),
+                },
+            ) {
                 self.handler.emit_err(err);
             }
         });

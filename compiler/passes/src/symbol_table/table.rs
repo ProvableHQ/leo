@@ -16,13 +16,13 @@
 
 use std::fmt::Display;
 
-use leo_ast::{DefinitionStatement, Function, FunctionInput};
+use leo_ast::Function;
 use leo_errors::{AstError, Result};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
 
-use crate::VariableSymbol;
+use crate::{VariableScope, VariableSymbol};
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct SymbolTable<'a> {
@@ -31,7 +31,7 @@ pub struct SymbolTable<'a> {
     functions: IndexMap<Symbol, &'a Function>,
     /// Variables represents functions variable definitions and input variables.
     /// This field is not populated till necessary.
-    pub(crate) variables: VariableSymbol<'a>,
+    pub(crate) variables: VariableScope<'a>,
 }
 
 impl<'a> SymbolTable<'a> {
@@ -54,13 +54,7 @@ impl<'a> SymbolTable<'a> {
         Ok(())
     }
 
-    pub fn insert_fn_input(&mut self, symbol: Symbol, insert: &'a FunctionInput) -> Result<()> {
-        self.check_shadowing(&symbol)?;
-        self.variables.inputs.insert(symbol, insert);
-        Ok(())
-    }
-
-    pub fn insert_variable(&mut self, symbol: Symbol, insert: &'a DefinitionStatement) -> Result<()> {
+    pub fn insert_variable(&mut self, symbol: Symbol, insert: VariableSymbol<'a>) -> Result<()> {
         self.check_shadowing(&symbol)?;
         self.variables.variables.insert(symbol, insert);
         Ok(())
@@ -70,19 +64,14 @@ impl<'a> SymbolTable<'a> {
         self.functions.get(symbol)
     }
 
-    pub fn lookup_fn_input(&self, symbol: &Symbol) -> Option<&&'a FunctionInput> {
-        self.variables.inputs.get(symbol)
-    }
-
-    pub fn lookup_var(&self, symbol: &Symbol) -> Option<&&'a DefinitionStatement> {
+    pub fn lookup_variable(&self, symbol: &Symbol) -> Option<&VariableSymbol<'a>> {
         self.variables.variables.get(symbol)
     }
 
     pub fn push_variable_scope(&mut self) {
         let current_scope = self.variables.clone();
-        self.variables = VariableSymbol {
+        self.variables = VariableScope {
             parent: Some(Box::new(current_scope)),
-            inputs: Default::default(),
             variables: Default::default(),
         };
     }
