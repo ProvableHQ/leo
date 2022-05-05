@@ -106,9 +106,7 @@ fn get_input_file_paths(list: &mut Vec<PathBuf>, test: &Test, input: &Value) {
         for name in seq {
             let mut input_file = input_file.clone();
             input_file.push(name.as_str().expect("input_file was not a string"));
-            list.push(
-                input_file.clone(),
-            );
+            list.push(input_file.clone());
         }
     }
 }
@@ -124,9 +122,7 @@ fn collect_all_inputs(test: &Test) -> Result<Vec<PathBuf>, String> {
     Ok(list)
 }
 
-fn compile_and_process<'a>(
-    parsed: &'a mut Compiler<'a>,
-) -> Result<SymbolTable<'a>, LeoError> {    
+fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<SymbolTable<'a>, LeoError> {
     parsed.compiler_stages()
 }
 
@@ -199,15 +195,12 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
             handler.extend_if_error(parsed.parse_input(input))?;
             let initial_input_ast = hash_file("/tmp/output/inital_input_ast.json");
 
-            output_items.push(OutputItem {
-                initial_input_ast,
-            });
+            output_items.push(OutputItem { initial_input_ast });
         }
     }
 
     let symbol_table = handler.extend_if_error(compile_and_process(&mut parsed))?;
 
-    
     let initial_ast = hash_file("/tmp/output/initial_ast.json");
 
     if fs::read_dir("/tmp/output").is_ok() {
