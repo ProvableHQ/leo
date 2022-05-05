@@ -1,7 +1,7 @@
 /*
 namespace: Compile
 expectation: Fail
-input_file: input/dummy.in
+input_file: inputs/dummy.in
 */
 
 function main(a: u32, a: u32) -> u32 {

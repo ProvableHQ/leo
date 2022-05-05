@@ -2,10 +2,10 @@
 namespace: Compile
 expectation: Pass
 input_file:
- - input/false_false.in
- - input/false_true.in
- - input/true_false.in
- - input/true_true.in
+ - inputs/false_false.in
+ - inputs/false_true.in
+ - inputs/true_false.in
+ - inputs/true_true.in
 */
 
 function main(a: bool, b: bool) -> bool {

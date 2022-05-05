@@ -1,7 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
-input_file: input/main_group.in
+input_file: inputs/main_group.in
 */
 
 function main(const a: group, const b: group, const c: group, y: bool) -> bool {

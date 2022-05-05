@@ -1,0 +1,6 @@
+[main]
+a: u32 = 1u32;
+b: u32 = 1u32;
+
+[registers]
+r0: bool = true;

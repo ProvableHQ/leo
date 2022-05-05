@@ -1,7 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
-input_file: input/dummy.in
+input_file: inputs/dummy.in
 */
 
 // Function input are mutable by default.

@@ -1,7 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
-input_file: input/main.in
+input_file: inputs/main.in
 */
 
 function main(const a: bool, b: bool) -> bool {
