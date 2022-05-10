@@ -303,6 +303,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         let block = self.reduce_block(&function.block)?;
 
         self.reducer
-            .reduce_function(function, identifier, inputs, function.const_, output, block)
+            .reduce_function(function, identifier, inputs, output, block)
     }
 }
