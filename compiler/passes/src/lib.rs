@@ -16,7 +16,7 @@
 
 #![doc = include_str!("../README.md")]
 
-// disable
+// Temporarily disable canonicalization.
 /* pub mod canonicalization;
 pub use canonicalization::*;
  */

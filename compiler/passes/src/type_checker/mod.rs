@@ -38,7 +38,7 @@ impl<'a> Pass<'a> for TypeChecker<'a> {
     fn do_pass((ast, symbol_table, handler): Self::Input) -> Self::Output {
         let mut visitor = VisitorDirector::new(TypeChecker::new(symbol_table, handler));
         visitor.visit_program(ast.as_repr());
-        // awkward cause last error double prints...
+        // todo @gluax: awkward cause last error double prints...
         // but can't os exit or it causes tests to stop.
         handler.last_err()?;
 

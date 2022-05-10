@@ -27,7 +27,7 @@ pub struct TypeChecker<'a> {
     pub(crate) negate: bool,
 }
 
-const ARITHMATIC_TYPES: &[Type] = &[
+const ARITHMETIC_TYPES: &[Type] = &[
     Type::Field,
     Type::Group,
     Type::IntegerType(IntegerType::I8),
@@ -112,7 +112,7 @@ impl<'a> TypeChecker<'a> {
     }
 
     pub(crate) fn assert_arith_type(&self, type_: Option<Type>, span: &Span) -> Option<Type> {
-        self.assert_one_of_types(type_, ARITHMATIC_TYPES, span)
+        self.assert_one_of_types(type_, ARITHMETIC_TYPES, span)
     }
 
     pub(crate) fn assert_field_or_int_type(&self, type_: Option<Type>, span: &Span) -> Option<Type> {
