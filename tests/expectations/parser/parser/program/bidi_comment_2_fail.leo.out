@@ -1,5 +1,0 @@
----
-namespace: Parse
-expectation: Fail
-outputs:
-  - "Error [EPAR0370044]: Unicode bidi override code point encountered."
