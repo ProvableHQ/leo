@@ -1,0 +1,99 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Unary:
+      inner:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":2,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"-x\\\"}\"}"
+      op: Negate
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 3
+        path: ""
+        content: "-x"
+  - Unary:
+      inner:
+        Call:
+          function:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":2,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"-x()\\\"}\"}"
+          arguments: []
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 2
+            col_stop: 5
+            path: ""
+            content: "-x()"
+      op: Negate
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 5
+        path: ""
+        content: "-x()"
+  - Unary:
+      inner:
+        Unary:
+          inner:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"--x\\\"}\"}"
+          op: Negate
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 2
+            col_stop: 4
+            path: ""
+            content: "--x"
+      op: Negate
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 4
+        path: ""
+        content: "--x"
+  - Unary:
+      inner:
+        Unary:
+          inner:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"-!x\\\"}\"}"
+          op: Not
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 2
+            col_stop: 4
+            path: ""
+            content: "-!x"
+      op: Negate
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 4
+        path: ""
+        content: "-!x"
+  - Unary:
+      inner:
+        Value:
+          Integer:
+            - I8
+            - "5"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 2
+                col_stop: 5
+                path: ""
+                content: "-5i8"
+      op: Negate
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 5
+        path: ""
+        content: "-5i8"
