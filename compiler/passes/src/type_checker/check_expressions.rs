@@ -154,29 +154,37 @@ impl<'a> TypeChecker<'a> {
 
                     return_incorrect_type(t1, t2, expected)
                 }
-                BinaryOperation::Add | BinaryOperation::Sub => {
-                    self.assert_arith_type(expected.clone(), binary.span());
+                BinaryOperation::Add => {
+                self.assert_field_group_scalar_int_type(expected.clone(), binary.span());
+                let t1 = self.compare_expr_type(&binary.left, expected.clone(), binary.left.span());
+                let t2 = self.compare_expr_type(&binary.right, expected.clone(), binary.right.span());
+
+                return_incorrect_type(t1, t2, expected)
+                }
+                BinaryOperation::Sub => {
+                    self.assert_field_group_int_type(expected.clone(), binary.span());
                     let t1 = self.compare_expr_type(&binary.left, expected.clone(), binary.left.span());
                     let t2 = self.compare_expr_type(&binary.right, expected.clone(), binary.right.span());
 
                     return_incorrect_type(t1, t2, expected)
                 }
                 BinaryOperation::Mul => {
-                    self.assert_arith_type(expected.clone(), binary.span());
+                    self.assert_field_group_int_type(expected.clone(), binary.span());
 
                     let t1 = self.compare_expr_type(&binary.left, None, binary.left.span());
                     let t2 = self.compare_expr_type(&binary.right, None, binary.right.span());
 
+                    // Allow `group` * `scalar` multiplication.
                     match (t1.as_ref(), t2.as_ref()) {
-                        (Some(Type::Group), Some(other)) | (Some(other), Some(Type::Group)) => {
-                            self.assert_int_type(Some(other.clone()), binary.span());
+                        (Some(Type::Group), Some(Type::Scalar))
+                        | (Some(Type::Scalar), Some(Type::Group)) => {
                             Some(Type::Group)
                         }
                         _ => return_incorrect_type(t1, t2, expected),
                     }
                 }
                 BinaryOperation::Div => {
-                    self.assert_field_or_int_type(expected.clone(), binary.span());
+                    self.assert_field_int_type(expected.clone(), binary.span());
 
                     let t1 = self.compare_expr_type(&binary.left, expected.clone(), binary.left.span());
                     let t2 = self.compare_expr_type(&binary.right, expected.clone(), binary.right.span());

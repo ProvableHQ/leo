@@ -153,7 +153,7 @@ impl ParserContext<'_> {
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// binary relational expression: less than, less than or equals, greater than, greater than or equals.
     ///
-    /// Otherwise, tries to parse the next token using [`parse_shift_expression`].
+    /// Otherwise, tries to parse the next token using [`parse_additive_expression`].
     pub fn parse_ordering_expression(&mut self) -> Result<Expression> {
         self.parse_bin_expr(
             &[Token::Lt, Token::LtEq, Token::Gt, Token::GtEq],
@@ -164,7 +164,7 @@ impl ParserContext<'_> {
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// binary addition or subtraction expression.
     ///
-    /// Otherwise, tries to parse the next token using [`parse_mul_div_pow_expression`].
+    /// Otherwise, tries to parse the next token using [`parse_multiplicative_expression`].
     pub fn parse_additive_expression(&mut self) -> Result<Expression> {
         self.parse_bin_expr(&[Token::Add, Token::Minus], Self::parse_multiplicative_expression)
     }
