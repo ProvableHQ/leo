@@ -18,6 +18,10 @@ use super::*;
 use leo_errors::Result;
 
 pub(crate) const TYPE_TOKENS: &[Token] = &[
+    Token::Address,
+    Token::Bool,
+    Token::Field,
+    Token::Group,
     Token::I8,
     Token::I16,
     Token::I32,
@@ -28,11 +32,8 @@ pub(crate) const TYPE_TOKENS: &[Token] = &[
     Token::U32,
     Token::U64,
     Token::U128,
-    Token::Field,
-    Token::Group,
-    Token::Address,
-    Token::Bool,
     Token::Char,
+    Token::Scalar,
 ];
 
 impl ParserContext<'_> {
@@ -59,11 +60,12 @@ impl ParserContext<'_> {
         let span = self.expect_any(TYPE_TOKENS)?;
         Ok((
             match &self.prev_token.token {
-                Token::Field => Type::Field,
-                Token::Group => Type::Group,
                 Token::Address => Type::Address,
                 Token::Bool => Type::Boolean,
+                Token::Field => Type::Field,
+                Token::Group => Type::Group,
                 Token::Char => Type::Char,
+                // todo @collin parse scalar type here.
                 x => Type::IntegerType(Self::token_to_int_type(x).expect("invalid int type")),
             },
             span,

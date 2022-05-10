@@ -91,25 +91,26 @@ pub enum Token {
     Arrow,
     Underscore,
 
-    // Syntactic Grammr
+    // Syntactic Grammar
     // Types
-    U8,
-    U16,
-    U32,
-    U64,
-    U128,
     I8,
     I16,
     I32,
     I64,
     I128,
+    Address,
+    Bool,
     Field,
     Group,
-    Bool,
-    Address,
+    U8,
+    U16,
+    U32,
+    U64,
+    U128,
     Char,
+    Scalar,
 
-    // primary expresion
+    // primary expression
     Input,
 
     // Regular Keywords
@@ -159,6 +160,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Mut,
     Token::Public,
     Token::Return,
+    Token::Scalar,
     Token::True,
     Token::Type,
     Token::U8,
@@ -201,6 +203,7 @@ impl Token {
             Token::Mut => sym::Mut,
             Token::Public => sym::Public,
             Token::Return => sym::Return,
+            Token::Scalar => sym::scalar,
             Token::True => sym::True,
             Token::Type => sym::Type,
             Token::U8 => sym::u8,
@@ -264,21 +267,22 @@ impl fmt::Display for Token {
             Arrow => write!(f, "->"),
             Underscore => write!(f, "_"),
 
-            U8 => write!(f, "u8"),
-            U16 => write!(f, "u16"),
-            U32 => write!(f, "u32"),
-            U64 => write!(f, "u64"),
-            U128 => write!(f, "u128"),
             I8 => write!(f, "i8"),
             I16 => write!(f, "i16"),
             I32 => write!(f, "i32"),
             I64 => write!(f, "i64"),
             I128 => write!(f, "i128"),
+            Address => write!(f, "address"),
+            Bool => write!(f, "bool"),
             Field => write!(f, "field"),
             Group => write!(f, "group"),
-            Bool => write!(f, "bool"),
-            Address => write!(f, "address"),
+            U8 => write!(f, "u8"),
+            U16 => write!(f, "u16"),
+            U32 => write!(f, "u32"),
+            U64 => write!(f, "u64"),
+            U128 => write!(f, "u128"),
             Char => write!(f, "char"),
+            Scalar => write!(f, "scalar"),
 
             Input => write!(f, "input"),
 

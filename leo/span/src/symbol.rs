@@ -134,6 +134,7 @@ symbols! {
     prelude,
     Public,
     Return: "return",
+    scalar,
     Star: "*",
     std,
     Struct: "struct",

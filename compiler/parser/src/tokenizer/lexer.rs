@@ -426,6 +426,7 @@ impl Token {
                     "mut" => Token::Mut,
                     "public" => Token::Public,
                     "return" => Token::Return,
+                    "scalar" => Token::Scalar,
                     "true" => Token::True,
                     "type" => Token::Type,
                     "u8" => Token::U8,

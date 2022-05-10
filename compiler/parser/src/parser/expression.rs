@@ -294,6 +294,7 @@ impl ParserContext<'_> {
                         assert_no_whitespace("group")?;
                         Expression::Value(ValueExpression::Group(Box::new(GroupValue::Single(value, full_span))))
                     }
+                    // todo @collinc97 parse scalar type here.
                     // Literal followed by other type suffix, e.g., `42u8`.
                     Some(suffix) => {
                         assert_no_whitespace(&suffix.to_string())?;
