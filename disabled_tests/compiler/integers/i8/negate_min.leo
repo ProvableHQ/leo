@@ -1,9 +1,12 @@
 /*
 namespace: Compile
-expectation: Fail
+expectation: Pass
+input_file: ../input/dummy.in
 */
 
-function main() {
-    const a = -128i8;
-    const b = -a;
+function main(y: bool) -> bool {
+    const a: = -128i8;
+    const b: = -a;
+
+    return (b == -a) == y;
 }

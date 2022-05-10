@@ -1,7 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
-input_file: input/main_field.in
+input_file: inputs/main_field.in
 */
 
 function main(a: field, b: field, y: bool) -> bool {

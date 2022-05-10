@@ -41,6 +41,10 @@ pub use self::package::*;
 pub mod parser;
 pub use self::parser::*;
 
+/// Contains the Type Checker error definitions.
+pub mod type_checker;
+pub use self::type_checker::*;
+
 /// The LeoError type that contains all sub error types.
 /// This allows a unified error type throughout the Leo crates.
 #[derive(Clone, Debug, Error)]
@@ -63,6 +67,9 @@ pub enum LeoError {
     /// Represents an Parser Error in a Leo Error.
     #[error(transparent)]
     ParserError(#[from] ParserError),
+    /// Represents an Type Checker Error in a Leo Error.
+    #[error(transparent)]
+    TypeCheckerError(#[from] TypeCheckerError),
 }
 
 impl LeoError {
@@ -77,6 +84,7 @@ impl LeoError {
             InputError(error) => error.error_code(),
             ParserError(error) => error.error_code(),
             PackageError(error) => error.error_code(),
+            TypeCheckerError(error) => error.error_code(),
         }
     }
 
@@ -91,6 +99,7 @@ impl LeoError {
             InputError(error) => error.exit_code(),
             ParserError(error) => error.exit_code(),
             PackageError(error) => error.exit_code(),
+            TypeCheckerError(error) => error.exit_code(),
         }
     }
 }

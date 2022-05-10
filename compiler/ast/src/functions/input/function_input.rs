@@ -47,7 +47,7 @@ pub struct FunctionInputVariable {
     /// The mode of the function parameter.
     mode: ParamMode,
     /// What's the parameter's type?
-    type_: Type,
+    pub type_: Type,
     /// The parameters span from any annotations to its type.
     pub span: Span,
 }
@@ -64,10 +64,6 @@ impl FunctionInputVariable {
 
     pub fn mode(&self) -> ParamMode {
         self.mode
-    }
-
-    pub fn type_(&self) -> Type {
-        self.type_.clone()
     }
 }
 

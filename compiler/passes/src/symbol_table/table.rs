@@ -22,7 +22,7 @@ use leo_span::Symbol;
 
 use indexmap::IndexMap;
 
-use crate::VariableSymbol;
+use crate::{VariableScope, VariableSymbol};
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct SymbolTable<'a> {
@@ -31,7 +31,7 @@ pub struct SymbolTable<'a> {
     functions: IndexMap<Symbol, &'a Function>,
     /// Variables represents functions variable definitions and input variables.
     /// This field is not populated till necessary.
-    variables: VariableSymbol<'a>,
+    pub(crate) variables: VariableScope<'a>,
 }
 
 impl<'a> SymbolTable<'a> {
@@ -48,10 +48,38 @@ impl<'a> SymbolTable<'a> {
         self.variables.clear();
     }
 
-    pub fn insert_fn(&mut self, symbol: Symbol, function: &'a Function) -> Result<()> {
+    pub fn insert_fn(&mut self, symbol: Symbol, insert: &'a Function) -> Result<()> {
         self.check_shadowing(&symbol)?;
-        self.functions.insert(symbol, function);
+        self.functions.insert(symbol, insert);
         Ok(())
+    }
+
+    pub fn insert_variable(&mut self, symbol: Symbol, insert: VariableSymbol<'a>) -> Result<()> {
+        self.check_shadowing(&symbol)?;
+        self.variables.variables.insert(symbol, insert);
+        Ok(())
+    }
+
+    pub fn lookup_fn(&self, symbol: &Symbol) -> Option<&&'a Function> {
+        self.functions.get(symbol)
+    }
+
+    pub fn lookup_variable(&self, symbol: &Symbol) -> Option<&VariableSymbol<'a>> {
+        self.variables.lookup_variable(symbol)
+    }
+
+    pub fn push_variable_scope(&mut self) {
+        let current_scope = self.variables.clone();
+        self.variables = VariableScope {
+            parent: Some(Box::new(current_scope)),
+            variables: Default::default(),
+        };
+    }
+
+    pub fn pop_variable_scope(&mut self) {
+        let parent = self.variables.parent.clone().unwrap();
+
+        self.variables = *parent;
     }
 }
 

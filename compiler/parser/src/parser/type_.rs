@@ -32,6 +32,7 @@ pub(crate) const TYPE_TOKENS: &[Token] = &[
     Token::Group,
     Token::Address,
     Token::Bool,
+    Token::Char,
 ];
 
 impl ParserContext<'_> {

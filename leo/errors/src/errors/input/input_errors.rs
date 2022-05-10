@@ -20,7 +20,7 @@ use std::fmt::{Debug, Display};
 create_messages!(
     /// InputError enum that represents all the errors for the inputs part of `leo-ast` crate.
     InputError,
-    code_mask: 8000i32,
+    code_mask: 1000i32,
     code_prefix: "INP",
 
     /// For when declared variable type mismatches actual type.

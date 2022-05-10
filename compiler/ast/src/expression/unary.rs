@@ -24,9 +24,6 @@ pub enum UnaryOperation {
     Not,
     /// The arithmetic negation operator, i.e., `-`.
     Negate,
-    /// The bitwise negation operator, i.e., `~`.
-    /// For example, it transforms `1010` to `0101`.
-    BitNot,
 }
 
 impl AsRef<str> for UnaryOperation {
@@ -34,7 +31,6 @@ impl AsRef<str> for UnaryOperation {
         match self {
             UnaryOperation::Not => "!",
             UnaryOperation::Negate => "-",
-            UnaryOperation::BitNot => "~",
         }
     }
 }

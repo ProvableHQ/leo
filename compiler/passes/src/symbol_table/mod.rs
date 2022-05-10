@@ -20,6 +20,9 @@ pub use create::*;
 pub mod table;
 pub use table::*;
 
+pub mod variable_scope;
+pub use variable_scope::*;
+
 pub mod variable_symbol;
 pub use variable_symbol::*;
 

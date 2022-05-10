@@ -147,14 +147,6 @@ create_messages!(
         help: None,
     }
 
-    /// For when a user shadows a function input.
-    @formatted
-    shadowed_function_input {
-        args: (fn_input: impl Display),
-        msg: format!("function input `{fn_input}` shadowed"),
-        help: None,
-    }
-
     /// For when a user shadows a variable.
     @formatted
     shadowed_variable {

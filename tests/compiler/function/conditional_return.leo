@@ -1,7 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
-input_file: input/integers.in
+input_file: inputs/integers.in
 */
 
 function main(a: u32) -> u32 {

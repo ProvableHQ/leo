@@ -16,76 +16,38 @@
 
 use std::fmt::Display;
 
-use indexmap::IndexMap;
-use leo_ast::{DefinitionStatement, FunctionInput, FunctionInputVariable};
-use leo_errors::{AstError, Result};
-use leo_span::Symbol;
+use leo_ast::{ParamMode, Type};
+use leo_span::Span;
 
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
-pub struct VariableSymbol<'a> {
-    /// The parent scope of variables if it exists.
-    /// For example if we are in a if block inside a function.
-    /// The parent would be the functions variables and inputs.
-    /// This field is populated as necessary.
-    parent: Option<Box<VariableSymbol<'a>>>,
-    /// The input variables defined in a scope.
-    /// This field is populated as necessary.
-    inputs: IndexMap<Symbol, &'a FunctionInputVariable>,
-    /// The variables defined in a scope.
-    /// This field is populated as necessary.
-    variables: IndexMap<Symbol, &'a DefinitionStatement>,
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum Declaration {
+    Const,
+    Input(ParamMode),
+    Mut,
 }
 
-impl<'a> VariableSymbol<'a> {
-    pub fn new(parent: Option<Box<VariableSymbol<'a>>>, inputs: Vec<&'a FunctionInput>) -> Self {
-        Self {
-            parent,
-            inputs: inputs
-                .iter()
-                .map(|input| {
-                    let inner = input.get_variable();
-                    (inner.identifier.name, inner)
-                })
-                .collect(),
-            variables: IndexMap::new(),
+impl Display for Declaration {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use Declaration::*;
+
+        match self {
+            Const => write!(f, "const var"),
+            Input(m) => write!(f, "{m} input"),
+            Mut => write!(f, "mut var"),
         }
     }
+}
 
-    pub fn check_shadowing(&self, symbol: &Symbol) -> Result<()> {
-        if let Some(input) = self.inputs.get(symbol) {
-            Err(AstError::shadowed_function_input(symbol, &input.span).into())
-        } else if let Some(var) = self.variables.get(symbol) {
-            Err(AstError::shadowed_variable(symbol, &var.span).into())
-        } else if let Some(parent) = &self.parent {
-            parent.check_shadowing(symbol)
-        } else {
-            Ok(())
-        }
-    }
-
-    pub fn clear(&mut self) {
-        self.parent = None;
-        self.inputs.clear();
-        self.variables.clear();
-    }
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct VariableSymbol<'a> {
+    pub type_: &'a Type,
+    pub span: &'a Span,
+    pub declaration: Declaration,
 }
 
 impl<'a> Display for VariableSymbol<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "VariableSymbol")?;
-        self.parent
-            .as_ref()
-            .map(|parent| write!(f, "parent {parent}"))
-            .transpose()?;
-
-        for input in self.inputs.values() {
-            write!(f, "{input}")?;
-        }
-
-        for var in self.variables.values() {
-            write!(f, "{var}")?;
-        }
-
+        write!(f, "{}: {}", self.declaration, self.type_)?;
         Ok(())
     }
 }
