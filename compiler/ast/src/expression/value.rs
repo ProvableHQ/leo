@@ -89,9 +89,7 @@ impl Node for ValueExpression {
             | Field(_, span)
             | Integer(_, _, span)
             | Scalar(_, span)
-            | String(_, span) => {
-                *span = new_span
-            }
+            | String(_, span) => *span = new_span,
             Char(character) => character.span = new_span,
             Group(group) => match &mut **group {
                 GroupValue::Single(_, span) => *span = new_span,

@@ -155,11 +155,11 @@ impl<'a> TypeChecker<'a> {
                     return_incorrect_type(t1, t2, expected)
                 }
                 BinaryOperation::Add => {
-                self.assert_field_group_scalar_int_type(expected.clone(), binary.span());
-                let t1 = self.compare_expr_type(&binary.left, expected.clone(), binary.left.span());
-                let t2 = self.compare_expr_type(&binary.right, expected.clone(), binary.right.span());
+                    self.assert_field_group_scalar_int_type(expected.clone(), binary.span());
+                    let t1 = self.compare_expr_type(&binary.left, expected.clone(), binary.left.span());
+                    let t2 = self.compare_expr_type(&binary.right, expected.clone(), binary.right.span());
 
-                return_incorrect_type(t1, t2, expected)
+                    return_incorrect_type(t1, t2, expected)
                 }
                 BinaryOperation::Sub => {
                     self.assert_field_group_int_type(expected.clone(), binary.span());
@@ -176,8 +176,7 @@ impl<'a> TypeChecker<'a> {
 
                     // Allow `group` * `scalar` multiplication.
                     match (t1.as_ref(), t2.as_ref()) {
-                        (Some(Type::Group), Some(Type::Scalar))
-                        | (Some(Type::Scalar), Some(Type::Group)) => {
+                        (Some(Type::Group), Some(Type::Scalar)) | (Some(Type::Scalar), Some(Type::Group)) => {
                             Some(Type::Group)
                         }
                         _ => return_incorrect_type(t1, t2, expected),
