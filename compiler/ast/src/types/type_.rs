@@ -33,6 +33,8 @@ pub enum Type {
     Field,
     /// The `group` type.
     Group,
+    /// The `scalar` type.
+    Scalar,
     /// An integer type.
     IntegerType(IntegerType),
 
@@ -51,9 +53,10 @@ impl Type {
         match (self, other) {
             (Type::Address, Type::Address) => true,
             (Type::Boolean, Type::Boolean) => true,
-            (Type::Char, Type::Char) => true,
             (Type::Field, Type::Field) => true,
             (Type::Group, Type::Group) => true,
+            (Type::Char, Type::Char) => true,
+            (Type::Scalar, Type::Scalar) => true,
             (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(right),
             _ => false,
         }
@@ -65,9 +68,10 @@ impl fmt::Display for Type {
         match *self {
             Type::Address => write!(f, "address"),
             Type::Boolean => write!(f, "bool"),
-            Type::Char => write!(f, "char"),
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
+            Type::Char => write!(f, "char"),
+            Type::Scalar => write!(f, "scalar"),
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
             Type::Err => write!(f, "error"),
         }

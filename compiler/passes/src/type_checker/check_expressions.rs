@@ -143,6 +143,7 @@ impl<'a> TypeChecker<'a> {
                     Some(self.assert_type(Type::IntegerType(*type_), expected, value.span()))
                 }
                 ValueExpression::Group(_) => Some(self.assert_type(Type::Group, expected, value.span())),
+                ValueExpression::Scalar(_, _) => Some(self.assert_type(Type::Scalar, expected, value.span())),
                 ValueExpression::String(_, _) => unreachable!("String types are not reachable"),
             },
             Expression::Binary(binary) => match binary.op {

@@ -65,7 +65,7 @@ impl ParserContext<'_> {
                 Token::Field => Type::Field,
                 Token::Group => Type::Group,
                 Token::Char => Type::Char,
-                // todo @collin parse scalar type here.
+                Token::Scalar => Type::Scalar,
                 x => Type::IntegerType(Self::token_to_int_type(x).expect("invalid int type")),
             },
             span,

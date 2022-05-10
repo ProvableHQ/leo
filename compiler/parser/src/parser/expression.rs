@@ -32,6 +32,7 @@ const INT_TYPES: &[Token] = &[
     Token::U128,
     Token::Field,
     Token::Group,
+    Token::Scalar,
 ];
 
 impl ParserContext<'_> {
@@ -294,7 +295,11 @@ impl ParserContext<'_> {
                         assert_no_whitespace("group")?;
                         Expression::Value(ValueExpression::Group(Box::new(GroupValue::Single(value, full_span))))
                     }
-                    // todo @collinc97 parse scalar type here.
+                    // Literal followed by `scalar` e.g., `42scalar`.
+                    Some(Token::Scalar) => {
+                        assert_no_whitespace("scalar")?;
+                        Expression::Value(ValueExpression::Scalar(value, full_span))
+                    }
                     // Literal followed by other type suffix, e.g., `42u8`.
                     Some(suffix) => {
                         assert_no_whitespace(&suffix.to_string())?;
