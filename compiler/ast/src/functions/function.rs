@@ -28,8 +28,6 @@ pub struct Function {
     pub identifier: Identifier,
     /// The function's parameters.
     pub input: Vec<FunctionInput>,
-    /// The function returns a constant value.
-    pub const_: bool,
     /// The function return type, if explicitly specified, or `()` if not.
     pub output: Type,
     /// Any mapping to the core library.

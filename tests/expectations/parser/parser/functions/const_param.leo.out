@@ -32,7 +32,6 @@ outputs:
                 col_stop: 30
                 path: ""
                 content: "function x(x: u32, constant y: i32) -> u8 {"
-        const_: false
         output:
           IntegerType: U8
         core_mapping: ~
@@ -99,7 +98,6 @@ outputs:
                 col_stop: 30
                 path: ""
                 content: "function x(constant x: u32, y: i32) -> u8 {"
-        const_: false
         output:
           IntegerType: U8
         core_mapping: ~

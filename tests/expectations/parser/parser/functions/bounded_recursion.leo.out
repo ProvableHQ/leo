@@ -20,7 +20,6 @@ outputs:
                 col_stop: 22
                 path: ""
                 content: "function x(constant y: u32) -> u8 {"
-        const_: false
         output:
           IntegerType: U8
         core_mapping: ~
@@ -139,7 +138,6 @@ outputs:
                 col_stop: 16
                 path: ""
                 content: "function main(y: bool) -> bool {"
-        const_: false
         output: Boolean
         core_mapping: ~
         block:

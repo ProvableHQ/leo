@@ -296,14 +296,12 @@ pub trait ReconstructingReducer {
         function: &Function,
         identifier: Identifier,
         input: Vec<FunctionInput>,
-        const_: bool,
         output: Type,
         block: Block,
     ) -> Result<Function> {
         Ok(Function {
             identifier,
             input,
-            const_,
             output,
             block,
             core_mapping: function.core_mapping.clone(),

@@ -18,5 +18,5 @@ outputs:
       - initial_input_ast: e4ba1106bf3425f620578111bd3c63c0178dbc087ab4c90e873c5b9cc790f6bc
       - initial_input_ast: 4c7f9b03dd308ff3981127c4c12adcb883fd8b3ce1dbd744cd935750961fc1c4
       - initial_input_ast: 2a5e92af845c8a56375cbc6123e92aa87cf4523e059c02dfcde326970d88f5c2
-    initial_ast: b9e8d9b129d27ec2f91d1b4fd811fe6f3e109ecb60af55dea77e8e1832443ac3
+    initial_ast: 890e5d07cf4b2967be0e2f9c82268619015dc3cea62cc1520f406107cdd056e5
     symbol_table: 1cad55eef598e4d05af7c5f88119636a2e6d23d81213bbaad908d66a32906780

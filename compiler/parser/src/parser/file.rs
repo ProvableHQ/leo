@@ -106,9 +106,6 @@ impl ParserContext<'_> {
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
     pub fn parse_function_declaration(&mut self) -> Result<(Identifier, Function)> {
-        // Parse optional const modifier.
-        let const_ = self.eat(&Token::Const);
-
         // Parse `function IDENT`.
         let start = self.expect(&Token::Function)?;
         let name = self.expect_ident()?;
@@ -128,7 +125,6 @@ impl ParserContext<'_> {
             Function {
                 identifier: name,
                 input: inputs,
-                const_,
                 output,
                 span: start + block.span.clone(),
                 block,

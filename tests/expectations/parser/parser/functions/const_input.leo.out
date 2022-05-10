@@ -20,7 +20,6 @@ outputs:
                 col_stop: 19
                 path: ""
                 content: "function x(const x: u8) -> u8 {}"
-        const_: false
         output:
           IntegerType: U8
         core_mapping: ~
@@ -55,7 +54,6 @@ outputs:
                 col_stop: 22
                 path: ""
                 content: "function y(constant y: u64) -> u8 {}"
-        const_: false
         output:
           IntegerType: U8
         core_mapping: ~
