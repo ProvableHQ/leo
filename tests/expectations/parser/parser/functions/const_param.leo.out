@@ -1,0 +1,139 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - name: ""
+    expected_input: []
+    functions:
+      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, constant y: i32) -> u8 {\\\"}\"}":
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, constant y: i32) -> u8 {\\\"}\"}"
+        input:
+          - Variable:
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, constant y: i32) -> u8 {\\\"}\"}"
+              mode: Private
+              type_:
+                IntegerType: U32
+              span:
+                line_start: 3
+                line_stop: 3
+                col_start: 12
+                col_stop: 13
+                path: ""
+                content: "function x(x: u32, constant y: i32) -> u8 {"
+          - Variable:
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":29,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, constant y: i32) -> u8 {\\\"}\"}"
+              mode: Constant
+              type_:
+                IntegerType: I32
+              span:
+                line_start: 3
+                line_stop: 3
+                col_start: 29
+                col_stop: 30
+                path: ""
+                content: "function x(x: u32, constant y: i32) -> u8 {"
+        output:
+          IntegerType: U8
+        core_mapping: ~
+        block:
+          statements:
+            - Return:
+                expression:
+                  Value:
+                    Integer:
+                      - U8
+                      - "0"
+                      - span:
+                          line_start: 4
+                          line_stop: 4
+                          col_start: 12
+                          col_stop: 15
+                          path: ""
+                          content: "    return 0u8;"
+                span:
+                  line_start: 4
+                  line_stop: 4
+                  col_start: 5
+                  col_stop: 15
+                  path: ""
+                  content: "    return 0u8;"
+          span:
+            line_start: 3
+            line_stop: 5
+            col_start: 43
+            col_stop: 2
+            path: ""
+            content: "function x(x: u32, constant y: i32) -> u8 {\n     ...\n}"
+        span:
+          line_start: 3
+          line_stop: 5
+          col_start: 1
+          col_stop: 2
+          path: ""
+          content: "function x(x: u32, constant y: i32) -> u8 {\n     ...\n}"
+      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(constant x: u32, y: i32) -> u8 {\\\"}\"}":
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(constant x: u32, y: i32) -> u8 {\\\"}\"}"
+        input:
+          - Variable:
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(constant x: u32, y: i32) -> u8 {\\\"}\"}"
+              mode: Constant
+              type_:
+                IntegerType: U32
+              span:
+                line_start: 7
+                line_stop: 7
+                col_start: 21
+                col_stop: 22
+                path: ""
+                content: "function x(constant x: u32, y: i32) -> u8 {"
+          - Variable:
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":29,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(constant x: u32, y: i32) -> u8 {\\\"}\"}"
+              mode: Private
+              type_:
+                IntegerType: I32
+              span:
+                line_start: 7
+                line_stop: 7
+                col_start: 29
+                col_stop: 30
+                path: ""
+                content: "function x(constant x: u32, y: i32) -> u8 {"
+        output:
+          IntegerType: U8
+        core_mapping: ~
+        block:
+          statements:
+            - Return:
+                expression:
+                  Value:
+                    Integer:
+                      - U8
+                      - "0"
+                      - span:
+                          line_start: 8
+                          line_stop: 8
+                          col_start: 12
+                          col_stop: 15
+                          path: ""
+                          content: "    return 0u8;"
+                span:
+                  line_start: 8
+                  line_stop: 8
+                  col_start: 5
+                  col_stop: 15
+                  path: ""
+                  content: "    return 0u8;"
+          span:
+            line_start: 7
+            line_stop: 9
+            col_start: 43
+            col_stop: 2
+            path: ""
+            content: "function x(constant x: u32, y: i32) -> u8 {\n     ...\n}"
+        span:
+          line_start: 7
+          line_stop: 9
+          col_start: 1
+          col_stop: 2
+          path: ""
+          content: "function x(constant x: u32, y: i32) -> u8 {\n     ...\n}"

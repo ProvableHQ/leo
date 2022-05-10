@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EAST0372015]: variable `x` shadowed\n    --> compiler-test:4:2\n     |\n   4 | \tlet x: u8 = 1u8;\n     |  ^^^^^^^^^^^^^^^\nError [EAST0372015]: variable `x` shadowed\n    --> compiler-test:4:2\n     |\n   4 | \tlet x: u8 = 1u8;\n     |  ^^^^^^^^^^^^^^^"
