@@ -17,8 +17,8 @@ outputs:
       function:
         Error:
           string:
-            - Scalar: 123
-            - Scalar: 125
+            - Primitive: 123
+            - Primitive: 125
           parameters:
             - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"console.error(\\\\\\\"{}\\\\\\\", x);\\\"}\"}"
           span:
@@ -39,10 +39,10 @@ outputs:
       function:
         Error:
           string:
-            - Scalar: 123
-            - Scalar: 125
-            - Scalar: 123
-            - Scalar: 125
+            - Primitive: 123
+            - Primitive: 125
+            - Primitive: 123
+            - Primitive: 125
           parameters:
             - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"console.error(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
             - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"console.error(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
@@ -64,7 +64,7 @@ outputs:
       function:
         Error:
           string:
-            - Scalar: 120
+            - Primitive: 120
           parameters: []
           span:
             line_start: 1
@@ -84,8 +84,8 @@ outputs:
       function:
         Log:
           string:
-            - Scalar: 123
-            - Scalar: 125
+            - Primitive: 123
+            - Primitive: 125
           parameters:
             - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"console.log(\\\\\\\"{}\\\\\\\", x);\\\"}\"}"
           span:
@@ -106,10 +106,10 @@ outputs:
       function:
         Log:
           string:
-            - Scalar: 123
-            - Scalar: 125
-            - Scalar: 123
-            - Scalar: 125
+            - Primitive: 123
+            - Primitive: 125
+            - Primitive: 123
+            - Primitive: 125
           parameters:
             - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"console.log(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
             - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":24,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"console.log(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
@@ -131,7 +131,7 @@ outputs:
       function:
         Log:
           string:
-            - Scalar: 120
+            - Primitive: 120
           parameters: []
           span:
             line_start: 1

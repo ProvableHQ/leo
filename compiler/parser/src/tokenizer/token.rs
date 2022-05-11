@@ -21,16 +21,16 @@ use std::fmt;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Char {
-    Scalar(char),
-    NonScalar(u32),
+    Primitive(char),
+    NonPrimitive(u32),
 }
 
 #[allow(clippy::from_over_into)]
 impl Into<leo_ast::Char> for Char {
     fn into(self) -> leo_ast::Char {
         match self {
-            Self::Scalar(c) => leo_ast::Char::Scalar(c),
-            Self::NonScalar(c) => leo_ast::Char::NonScalar(c),
+            Self::Primitive(c) => leo_ast::Char::Primitive(c),
+            Self::NonPrimitive(c) => leo_ast::Char::NonPrimitive(c),
         }
     }
 }
@@ -38,8 +38,8 @@ impl Into<leo_ast::Char> for Char {
 impl fmt::Display for Char {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Scalar(c) => write!(f, "{}", c),
-            Self::NonScalar(c) => write!(f, "{:X}", c),
+            Self::Primitive(c) => write!(f, "{}", c),
+            Self::NonPrimitive(c) => write!(f, "{:X}", c),
         }
     }
 }

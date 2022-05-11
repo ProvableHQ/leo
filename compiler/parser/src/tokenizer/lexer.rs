@@ -79,10 +79,9 @@ impl Token {
 
         if let Ok(hex) = u32::from_str_radix(&unicode, 16) {
             if let Some(character) = std::char::from_u32(hex) {
-                // scalar
-                Ok((len, Char::Scalar(character)))
+                Ok((len, Char::Primitive(character)))
             } else if hex <= 0x10FFFF {
-                Ok((len, Char::NonScalar(hex)))
+                Ok((len, Char::NonPrimitive(hex)))
             } else {
                 Err(ParserError::lexer_invalid_character_exceeded_max_value(unicode).into())
             }
@@ -123,7 +122,7 @@ impl Token {
                 return Err(ParserError::lexer_expected_valid_hex_char(hex).into());
             }
 
-            Ok((len, Char::Scalar(ascii_number as char)))
+            Ok((len, Char::Primitive(ascii_number as char)))
         } else {
             Err(ParserError::lexer_expected_valid_hex_char(hex).into())
         }
@@ -133,13 +132,13 @@ impl Token {
         match input.next() {
             None => Err(ParserError::lexer_empty_input_tendril().into()),
             // Length of 2 to account the '\'.
-            Some('0') => Ok((2, Char::Scalar(0 as char))),
-            Some('t') => Ok((2, Char::Scalar(9 as char))),
-            Some('n') => Ok((2, Char::Scalar(10 as char))),
-            Some('r') => Ok((2, Char::Scalar(13 as char))),
-            Some('\"') => Ok((2, Char::Scalar(34 as char))),
-            Some('\'') => Ok((2, Char::Scalar(39 as char))),
-            Some('\\') => Ok((2, Char::Scalar(92 as char))),
+            Some('0') => Ok((2, Char::Primitive(0 as char))),
+            Some('t') => Ok((2, Char::Primitive(9 as char))),
+            Some('n') => Ok((2, Char::Primitive(10 as char))),
+            Some('r') => Ok((2, Char::Primitive(13 as char))),
+            Some('\"') => Ok((2, Char::Primitive(34 as char))),
+            Some('\'') => Ok((2, Char::Primitive(39 as char))),
+            Some('\\') => Ok((2, Char::Primitive(92 as char))),
             Some('u') => Self::eat_unicode_char(input),
             Some('x') => Self::eat_hex_char(input),
             Some(c) => Err(ParserError::lexer_expected_valid_escaped_char(c).into()),
@@ -151,7 +150,7 @@ impl Token {
         match input.next() {
             None => Err(ParserError::lexer_empty_input_tendril().into()),
             Some('\\') => Self::eat_escaped_char(input),
-            Some(c) => Ok((c.len_utf8(), Char::Scalar(c))),
+            Some(c) => Ok((c.len_utf8(), Char::Primitive(c))),
         }
     }
 

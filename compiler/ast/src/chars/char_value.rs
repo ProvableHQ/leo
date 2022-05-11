@@ -31,24 +31,24 @@ where
     D: ::serde::de::Deserializer<'de>,
 {
     let int = u32::deserialize(deserializer)?;
-    std::char::from_u32(int).ok_or_else(|| ::serde::de::Error::custom("Failed to convert u32 to scalar char."))
+    std::char::from_u32(int).ok_or_else(|| ::serde::de::Error::custom("Failed to convert u32 to primitive char."))
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Char {
-    Scalar(
+    Primitive(
         #[serde(deserialize_with = "char_from_u32")]
         #[serde(serialize_with = "char_to_u32")]
         char,
     ),
-    NonScalar(u32),
+    NonPrimitive(u32),
 }
 
 impl fmt::Display for Char {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Scalar(c) => write!(f, "{}", c),
-            Self::NonScalar(c) => write!(f, "{:X}", c),
+            Self::Primitive(c) => write!(f, "{}", c),
+            Self::NonPrimitive(c) => write!(f, "{:X}", c),
         }
     }
 }
