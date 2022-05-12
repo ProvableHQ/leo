@@ -38,7 +38,7 @@ impl TryFrom<(Type, Expression)> for InputValue {
                 match (type_, value) {
                     (Type::Address, ValueExpression::Address(value, _)) => Self::Address(value),
                     (Type::Boolean, ValueExpression::Boolean(value, span)) => {
-                        let bool_value = value.parse::<bool>().map_err(|_| ParserError::unexpected_eof(&span))?; // TODO: change error
+                        let bool_value = value.parse::<bool>().map_err(|_| ParserError::unexpected_eof(span))?; // TODO: change error
                         Self::Boolean(bool_value)
                     }
                     (Type::Char, ValueExpression::Char(value)) => Self::Char(value),
@@ -48,7 +48,7 @@ impl TryFrom<(Type, Expression)> for InputValue {
                         if expected == actual {
                             Self::Integer(expected, value)
                         } else {
-                            return Err(InputError::unexpected_type(expected.to_string(), actual, &span).into());
+                            return Err(InputError::unexpected_type(expected.to_string(), actual, span).into());
                         }
                     }
                     (x, y) => {

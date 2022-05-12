@@ -37,7 +37,7 @@ pub struct SymbolTable<'a> {
 impl<'a> SymbolTable<'a> {
     pub fn check_shadowing(&self, symbol: &Symbol) -> Result<()> {
         if let Some(function) = self.functions.get(symbol) {
-            Err(AstError::shadowed_function(symbol, &function.span).into())
+            Err(AstError::shadowed_function(symbol, function.span).into())
         } else {
             self.variables.check_shadowing(symbol)?;
             Ok(())

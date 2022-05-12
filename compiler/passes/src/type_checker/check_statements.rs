@@ -73,7 +73,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             Some(var.type_.clone())
         } else {
             self.handler.emit_err(
-                TypeCheckerError::unknown_sym("variable", &input.assignee.identifier.name, &input.assignee.span).into(),
+                TypeCheckerError::unknown_sym("variable", &input.assignee.identifier.name, input.assignee.span).into(),
             );
 
             None

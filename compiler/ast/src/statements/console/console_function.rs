@@ -45,10 +45,10 @@ impl fmt::Display for ConsoleFunction {
 }
 
 impl Node for ConsoleFunction {
-    fn span(&self) -> &Span {
+    fn span(&self) -> Span {
         match self {
             ConsoleFunction::Assert(assert) => assert.span(),
-            ConsoleFunction::Error(formatted) | ConsoleFunction::Log(formatted) => &formatted.span,
+            ConsoleFunction::Error(formatted) | ConsoleFunction::Log(formatted) => formatted.span,
         }
     }
 

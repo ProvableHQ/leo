@@ -9,32 +9,20 @@ outputs:
             - U8
             - "1"
             - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 1
-                col_stop: 4
-                path: ""
-                content: 1u8 > 1u8
+                lo: 0
+                hi: 3
       right:
         Value:
           Integer:
             - U8
             - "1"
             - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 7
-                col_stop: 10
-                path: ""
-                content: 1u8 > 1u8
+                lo: 6
+                hi: 9
       op: Gt
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 10
-        path: ""
-        content: 1u8 > 1u8
+        lo: 0
+        hi: 9
   - Binary:
       left:
         Value:
@@ -42,32 +30,20 @@ outputs:
             - U8
             - "2"
             - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 1
-                col_stop: 4
-                path: ""
-                content: 2u8>3u8
+                lo: 0
+                hi: 3
       right:
         Value:
           Integer:
             - U8
             - "3"
             - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 5
-                col_stop: 8
-                path: ""
-                content: 2u8>3u8
+                lo: 4
+                hi: 7
       op: Gt
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 8
-        path: ""
-        content: 2u8>3u8
+        lo: 0
+        hi: 7
   - Binary:
       left:
         Binary:
@@ -77,32 +53,20 @@ outputs:
                 - U8
                 - "1"
                 - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 1
-                    col_stop: 4
-                    path: ""
-                    content: 1u8 + 2u8 > 3u8 + 4u8
+                    lo: 0
+                    hi: 3
           right:
             Value:
               Integer:
                 - U8
                 - "2"
                 - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 7
-                    col_stop: 10
-                    path: ""
-                    content: 1u8 + 2u8 > 3u8 + 4u8
+                    lo: 6
+                    hi: 9
           op: Add
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 10
-            path: ""
-            content: 1u8 + 2u8 > 3u8 + 4u8
+            lo: 0
+            hi: 9
       right:
         Binary:
           left:
@@ -111,37 +75,21 @@ outputs:
                 - U8
                 - "3"
                 - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 13
-                    col_stop: 16
-                    path: ""
-                    content: 1u8 + 2u8 > 3u8 + 4u8
+                    lo: 12
+                    hi: 15
           right:
             Value:
               Integer:
                 - U8
                 - "4"
                 - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 19
-                    col_stop: 22
-                    path: ""
-                    content: 1u8 + 2u8 > 3u8 + 4u8
+                    lo: 18
+                    hi: 21
           op: Add
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 13
-            col_stop: 22
-            path: ""
-            content: 1u8 + 2u8 > 3u8 + 4u8
+            lo: 12
+            hi: 21
       op: Gt
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 22
-        path: ""
-        content: 1u8 + 2u8 > 3u8 + 4u8
+        lo: 0
+        hi: 21

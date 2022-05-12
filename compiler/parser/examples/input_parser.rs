@@ -44,11 +44,14 @@ struct Opt {
 
 fn main() -> Result<(), String> {
     let opt = Opt::from_args();
-    let input_string = fs::read_to_string(&opt.input_path).expect("failed to open an input file");
-    let input_tree = create_session_if_not_set_then(|_| {
+    let input_tree = create_session_if_not_set_then(|s| {
+        let input_string = s
+            .source_map
+            .load_file(&opt.input_path)
+            .expect("failed to open an input file");
+
         Handler::with(|handler| {
-            let input =
-                leo_parser::parse_program_inputs(handler, input_string.clone(), opt.input_path.to_str().unwrap())?;
+            let input = leo_parser::parse_program_inputs(handler, &input_string.src, input_string.start_pos)?;
             input.to_json_string()
         })
         .map_err(|e| e.to_string())

@@ -206,7 +206,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
     pub fn reduce_iteration(&mut self, iteration: &IterationStatement) -> Result<IterationStatement> {
         let variable = self.reduce_identifier(&iteration.variable)?;
-        let type_ = self.reduce_type(&iteration.type_, iteration.span())?;
+        let type_ = self.reduce_type(&iteration.type_, &iteration.span())?;
         let start = self.reduce_expression(&iteration.start)?;
         let stop = self.reduce_expression(&iteration.stop)?;
         let block = self.reduce_block(&iteration.block)?;
@@ -227,13 +227,13 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
                 let formatted = ConsoleArgs {
                     string: args.string.clone(),
                     parameters,
-                    span: args.span.clone(),
+                    span: args.span,
                 };
 
                 match &console_function_call.function {
                     ConsoleFunction::Error(_) => ConsoleFunction::Error(formatted),
                     ConsoleFunction::Log(_) => ConsoleFunction::Log(formatted),
-                    _ => return Err(AstError::impossible_console_assert_call(&args.span).into()),
+                    _ => return Err(AstError::impossible_console_assert_call(args.span).into()),
                 }
             }
         };

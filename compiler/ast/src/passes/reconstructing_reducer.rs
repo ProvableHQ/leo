@@ -43,7 +43,7 @@ pub trait ReconstructingReducer {
     fn reduce_identifier(&mut self, identifier: &Identifier) -> Result<Identifier> {
         Ok(Identifier {
             name: identifier.name,
-            span: identifier.span.clone(),
+            span: identifier.span,
         })
     }
 
@@ -51,7 +51,7 @@ pub trait ReconstructingReducer {
         Ok(GroupTuple {
             x: group_tuple.x.clone(),
             y: group_tuple.y.clone(),
-            span: group_tuple.span.clone(),
+            span: group_tuple.span,
         })
     }
 
@@ -60,10 +60,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_string(&mut self, string: &[Char], span: &Span) -> Result<Expression> {
-        Ok(Expression::Value(ValueExpression::String(
-            string.to_vec(),
-            span.clone(),
-        )))
+        Ok(Expression::Value(ValueExpression::String(string.to_vec(), *span)))
     }
 
     fn reduce_value(&mut self, _value: &ValueExpression, new: Expression) -> Result<Expression> {
@@ -81,7 +78,7 @@ pub trait ReconstructingReducer {
             left: Box::new(left),
             right: Box::new(right),
             op,
-            span: binary.span.clone(),
+            span: binary.span,
         })
     }
 
@@ -94,7 +91,7 @@ pub trait ReconstructingReducer {
         Ok(UnaryExpression {
             inner: Box::new(inner),
             op,
-            span: unary.span.clone(),
+            span: unary.span,
         })
     }
 
@@ -109,7 +106,7 @@ pub trait ReconstructingReducer {
             condition: Box::new(condition),
             if_true: Box::new(if_true),
             if_false: Box::new(if_false),
-            span: ternary.span.clone(),
+            span: ternary.span,
         })
     }
 
@@ -122,7 +119,7 @@ pub trait ReconstructingReducer {
         Ok(CallExpression {
             function: Box::new(function),
             arguments,
-            span: call.span.clone(),
+            span: call.span,
         })
     }
 
@@ -134,7 +131,7 @@ pub trait ReconstructingReducer {
     fn reduce_return(&mut self, return_statement: &ReturnStatement, expression: Expression) -> Result<ReturnStatement> {
         Ok(ReturnStatement {
             expression,
-            span: return_statement.span.clone(),
+            span: return_statement.span,
         })
     }
 
@@ -142,7 +139,7 @@ pub trait ReconstructingReducer {
         Ok(VariableName {
             mutable: variable_name.mutable,
             identifier,
-            span: variable_name.span.clone(),
+            span: variable_name.span,
         })
     }
 
@@ -158,7 +155,7 @@ pub trait ReconstructingReducer {
             variable_names,
             type_,
             value,
-            span: definition.span.clone(),
+            span: definition.span,
         })
     }
 
@@ -175,7 +172,7 @@ pub trait ReconstructingReducer {
         Ok(Assignee {
             identifier,
             accesses,
-            span: assignee.span.clone(),
+            span: assignee.span,
         })
     }
 
@@ -189,7 +186,7 @@ pub trait ReconstructingReducer {
             operation: assign.operation,
             assignee,
             value,
-            span: assign.span.clone(),
+            span: assign.span,
         })
     }
 
@@ -204,7 +201,7 @@ pub trait ReconstructingReducer {
             condition,
             block,
             next: statement.map(|statement| Box::new(statement)),
-            span: conditional.span.clone(),
+            span: conditional.span,
         })
     }
 
@@ -224,14 +221,14 @@ pub trait ReconstructingReducer {
             stop,
             inclusive: iteration.inclusive,
             block,
-            span: iteration.span.clone(),
+            span: iteration.span,
         })
     }
 
     fn reduce_console(&mut self, console: &ConsoleStatement, function: ConsoleFunction) -> Result<ConsoleStatement> {
         Ok(ConsoleStatement {
             function,
-            span: console.span.clone(),
+            span: console.span,
         })
     }
 
@@ -242,14 +239,14 @@ pub trait ReconstructingReducer {
     ) -> Result<ExpressionStatement> {
         Ok(ExpressionStatement {
             expression,
-            span: expression_statement.span.clone(),
+            span: expression_statement.span,
         })
     }
 
     fn reduce_block(&mut self, block: &Block, statements: Vec<Statement>) -> Result<Block> {
         Ok(Block {
             statements,
-            span: block.span.clone(),
+            span: block.span,
         })
     }
 
@@ -278,7 +275,7 @@ pub trait ReconstructingReducer {
             identifier,
             variable.mode(),
             type_,
-            variable.span.clone(),
+            variable.span,
         ))
     }
 
@@ -305,7 +302,7 @@ pub trait ReconstructingReducer {
             output,
             block,
             core_mapping: function.core_mapping.clone(),
-            span: function.span.clone(),
+            span: function.span,
         })
     }
 }

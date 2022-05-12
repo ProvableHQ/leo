@@ -16,7 +16,7 @@
 
 use crate::{Backtraced, INDENT};
 
-use leo_span::Span;
+use leo_span::{source_map::SpanLocation, symbol::with_session_globals, Span};
 
 use backtrace::Backtrace;
 use color_backtrace::{BacktracePrinter, Verbosity};
@@ -50,14 +50,14 @@ impl Formatted {
         code_identifier: i8,
         type_: String,
         error: bool,
-        span: &Span,
+        span: Span,
         backtrace: Backtrace,
     ) -> Self
     where
         S: ToString,
     {
         Self {
-            span: span.clone(),
+            span,
             backtrace: Backtraced::new_from_backtrace(
                 message.to_string(),
                 help,
@@ -107,7 +107,18 @@ impl fmt::Display for Formatted {
             underline
         };
 
-        let underlined = underline(self.span.col_start, self.span.col_stop);
+        let (loc, contents) = with_session_globals(|s| {
+            (
+                s.source_map
+                    .span_to_location(self.span)
+                    .unwrap_or_else(SpanLocation::dummy),
+                s.source_map
+                    .line_contents_of_span(self.span)
+                    .unwrap_or_else(|| "<contents unavailable>".to_owned()),
+            )
+        });
+
+        let underlined = underline(loc.col_start, loc.col_stop);
 
         let (kind, code) = if self.backtrace.error {
             ("Error", self.error_code())
@@ -138,17 +149,17 @@ impl fmt::Display for Formatted {
             "\n{indent     }--> {path}:{line_start}:{start}\n\
             {indent     } |\n",
             indent = INDENT,
-            path = &*self.span.path,
-            line_start = self.span.line_start,
-            start = self.span.col_start,
+            path = &loc.source_file.name,
+            line_start = loc.line_start,
+            start = loc.col_start,
         )?;
 
-        for (line_no, line) in self.span.content.lines().enumerate() {
+        for (line_no, line) in contents.lines().enumerate() {
             writeln!(
                 f,
                 "{line_no:width$} | {text}",
                 width = INDENT.len(),
-                line_no = self.span.line_start + line_no,
+                line_no = loc.line_start + line_no,
                 text = line,
             )?;
         }

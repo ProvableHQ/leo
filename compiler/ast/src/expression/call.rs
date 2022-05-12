@@ -41,12 +41,4 @@ impl fmt::Display for CallExpression {
     }
 }
 
-impl Node for CallExpression {
-    fn span(&self) -> &Span {
-        &self.span
-    }
-
-    fn set_span(&mut self, span: Span) {
-        self.span = span;
-    }
-}
+crate::simple_node_impl!(CallExpression);

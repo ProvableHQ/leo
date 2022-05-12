@@ -96,7 +96,7 @@ macro_rules! create_messages {
         // Formatted errors always takes a span.
         $(#[$error_func_docs])*
         // Expands additional arguments for the error defining function.
-        pub fn $name($($arg_names: $arg_types,)* span: &leo_span::Span) -> Self {
+        pub fn $name($($arg_names: $arg_types,)* span: leo_span::Span) -> Self {
             Self::Formatted(
                 Formatted::new_from_span(
                     $message,

@@ -9,32 +9,20 @@ outputs:
             - U8
             - "1"
             - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 1
-                col_stop: 4
-                path: ""
-                content: 1u8 - 1u8
+                lo: 0
+                hi: 3
       right:
         Value:
           Integer:
             - U8
             - "1"
             - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 7
-                col_stop: 10
-                path: ""
-                content: 1u8 - 1u8
+                lo: 6
+                hi: 9
       op: Sub
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 10
-        path: ""
-        content: 1u8 - 1u8
+        lo: 0
+        hi: 9
   - Binary:
       left:
         Value:
@@ -42,32 +30,20 @@ outputs:
             - U16
             - "2"
             - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 1
-                col_stop: 5
-                path: ""
-                content: 2u16-3u64
+                lo: 0
+                hi: 4
       right:
         Value:
           Integer:
             - U64
             - "3"
             - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 6
-                col_stop: 10
-                path: ""
-                content: 2u16-3u64
+                lo: 5
+                hi: 9
       op: Sub
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 10
-        path: ""
-        content: 2u16-3u64
+        lo: 0
+        hi: 9
   - Binary:
       left:
         Binary:
@@ -77,52 +53,32 @@ outputs:
                 - U32
                 - "1"
                 - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 1
-                    col_stop: 5
-                    path: ""
-                    content: 1u32 - 2u32 - 3u32
+                    lo: 0
+                    hi: 4
           right:
             Value:
               Integer:
                 - U32
                 - "2"
                 - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 8
-                    col_stop: 12
-                    path: ""
-                    content: 1u32 - 2u32 - 3u32
+                    lo: 7
+                    hi: 11
           op: Sub
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 12
-            path: ""
-            content: 1u32 - 2u32 - 3u32
+            lo: 0
+            hi: 11
       right:
         Value:
           Integer:
             - U32
             - "3"
             - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 15
-                col_stop: 19
-                path: ""
-                content: 1u32 - 2u32 - 3u32
+                lo: 14
+                hi: 18
       op: Sub
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 19
-        path: ""
-        content: 1u32 - 2u32 - 3u32
+        lo: 0
+        hi: 18
   - Binary:
       left:
         Binary:
@@ -132,32 +88,20 @@ outputs:
                 - U8
                 - "1"
                 - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 1
-                    col_stop: 4
-                    path: ""
-                    content: 1u8 * 2u16 - 3u32 * 4i64
+                    lo: 0
+                    hi: 3
           right:
             Value:
               Integer:
                 - U16
                 - "2"
                 - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 7
-                    col_stop: 11
-                    path: ""
-                    content: 1u8 * 2u16 - 3u32 * 4i64
+                    lo: 6
+                    hi: 10
           op: Mul
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 11
-            path: ""
-            content: 1u8 * 2u16 - 3u32 * 4i64
+            lo: 0
+            hi: 10
       right:
         Binary:
           left:
@@ -166,37 +110,21 @@ outputs:
                 - U32
                 - "3"
                 - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 14
-                    col_stop: 18
-                    path: ""
-                    content: 1u8 * 2u16 - 3u32 * 4i64
+                    lo: 13
+                    hi: 17
           right:
             Value:
               Integer:
                 - I64
                 - "4"
                 - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 21
-                    col_stop: 25
-                    path: ""
-                    content: 1u8 * 2u16 - 3u32 * 4i64
+                    lo: 20
+                    hi: 24
           op: Mul
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 14
-            col_stop: 25
-            path: ""
-            content: 1u8 * 2u16 - 3u32 * 4i64
+            lo: 13
+            hi: 24
       op: Sub
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 25
-        path: ""
-        content: 1u8 * 2u16 - 3u32 * 4i64
+        lo: 0
+        hi: 24

@@ -17,7 +17,11 @@
 use crate::{tokenizer, ParserContext, SpannedToken};
 use leo_ast::{Expression, ExpressionStatement, Statement, ValueExpression};
 use leo_errors::{emitter::Handler, LeoError};
-use leo_span::{symbol::create_session_if_not_set_then, Span};
+use leo_span::{
+    source_map::FileName,
+    symbol::{create_session_if_not_set_then, SessionGlobals},
+    Span,
+};
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
     Test,
@@ -34,18 +38,16 @@ impl Namespace for TokenNamespace {
     }
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
-        create_session_if_not_set_then(|_| {
-            tokenizer::tokenize("test", &test.content)
-                .map(|tokens| {
-                    Value::String(
-                        tokens
-                            .into_iter()
-                            .map(|x| x.to_string())
-                            .collect::<Vec<String>>()
-                            .join(","),
-                    )
-                })
-                .map_err(|x| x.to_string())
+        create_session_if_not_set_then(|s| {
+            tokenize(test, s).map(|tokens| {
+                Value::String(
+                    tokens
+                        .into_iter()
+                        .map(|x| x.to_string())
+                        .collect::<Vec<String>>()
+                        .join(","),
+                )
+            })
         })
     }
 }
@@ -76,8 +78,9 @@ fn with_handler<T>(
     Ok(parsed)
 }
 
-fn tokenize(test: Test) -> Result<Vec<SpannedToken>, String> {
-    tokenizer::tokenize("test", &test.content).map_err(|x| x.to_string())
+fn tokenize(test: Test, s: &SessionGlobals) -> Result<Vec<SpannedToken>, String> {
+    let sf = s.source_map.new_source(&test.content, FileName::Custom("test".into()));
+    tokenizer::tokenize(&sf.src, sf.start_pos).map_err(|x| x.to_string())
 }
 
 fn all_are_comments(tokens: &[SpannedToken]) -> bool {
@@ -98,8 +101,8 @@ impl Namespace for ParseExpressionNamespace {
     }
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
-        create_session_if_not_set_then(|_| {
-            let tokenizer = tokenize(test)?;
+        create_session_if_not_set_then(|s| {
+            let tokenizer = tokenize(test, s)?;
             if all_are_comments(&tokenizer) {
                 return Ok(yaml_or_fail(""));
             }
@@ -116,8 +119,8 @@ impl Namespace for ParseStatementNamespace {
     }
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
-        create_session_if_not_set_then(|_| {
-            let tokenizer = tokenize(test)?;
+        create_session_if_not_set_then(|s| {
+            let tokenizer = tokenize(test, s)?;
             if all_are_comments(&tokenizer) {
                 return Ok(yaml_or_fail(Statement::Expression(ExpressionStatement {
                     expression: Expression::Value(ValueExpression::String(Vec::new(), Default::default())),
@@ -137,7 +140,7 @@ impl Namespace for ParseNamespace {
     }
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
-        create_session_if_not_set_then(|_| with_handler(tokenize(test)?, |p| p.parse_program()).map(yaml_or_fail))
+        create_session_if_not_set_then(|s| with_handler(tokenize(test, s)?, |p| p.parse_program()).map(yaml_or_fail))
     }
 }
 
@@ -193,8 +196,8 @@ impl Namespace for SerializeNamespace {
     }
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
-        create_session_if_not_set_then(|_| {
-            let tokenizer = tokenize(test)?;
+        create_session_if_not_set_then(|s| {
+            let tokenizer = tokenize(test, s)?;
             let parsed = with_handler(tokenizer, |p| p.parse_program())?;
 
             let mut json = serde_json::to_value(parsed).expect("failed to convert to json value");
@@ -214,7 +217,7 @@ impl Namespace for InputNamespace {
     }
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
-        create_session_if_not_set_then(|_| with_handler(tokenize(test)?, |p| p.parse_input()).map(yaml_or_fail))
+        create_session_if_not_set_then(|s| with_handler(tokenize(test, s)?, |p| p.parse_input()).map(yaml_or_fail))
     }
 }
 
