@@ -83,7 +83,7 @@ impl<'a> TypeChecker<'a> {
         if let Some(expected) = expected {
             if type_ != expected {
                 self.handler
-                    .emit_err(TypeCheckerError::type_should_be(type_.clone(), expected, &span).into());
+                    .emit_err(TypeCheckerError::type_should_be(type_.clone(), expected, span).into());
             }
         }
 
@@ -102,7 +102,7 @@ impl<'a> TypeChecker<'a> {
                 TypeCheckerError::expected_one_type_of(
                     expected.iter().map(|t| t.to_string() + ",").collect::<String>(),
                     type_,
-                    &span,
+                    span,
                 )
                 .into(),
             );

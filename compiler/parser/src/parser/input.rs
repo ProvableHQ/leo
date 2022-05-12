@@ -27,7 +27,7 @@ impl ParserContext<'_> {
             if self.check(&Token::LeftSquare) {
                 sections.push(self.parse_section()?);
             } else {
-                return Err(ParserError::unexpected_token(self.token.token.clone(), &self.token.span).into());
+                return Err(ParserError::unexpected_token(self.token.token.clone(), self.token.span).into());
             }
         }
 

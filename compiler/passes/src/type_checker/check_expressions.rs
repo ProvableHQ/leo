@@ -46,7 +46,7 @@ impl<'a> TypeChecker<'a> {
                     Some(self.assert_type(var.type_.clone(), expected, span))
                 } else {
                     self.handler
-                        .emit_err(TypeCheckerError::unknown_sym("variable", ident.name, &span).into());
+                        .emit_err(TypeCheckerError::unknown_sym("variable", ident.name, span).into());
                     None
                 }
             }
@@ -67,7 +67,7 @@ impl<'a> TypeChecker<'a> {
 
                             if int.parse::<i8>().is_err() {
                                 self.handler
-                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i8", &value.span()).into());
+                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i8", value.span()).into());
                             }
                         }
                         IntegerType::I16 => {
@@ -80,7 +80,7 @@ impl<'a> TypeChecker<'a> {
 
                             if int.parse::<i16>().is_err() {
                                 self.handler
-                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i16", &value.span()).into());
+                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i16", value.span()).into());
                             }
                         }
                         IntegerType::I32 => {
@@ -93,7 +93,7 @@ impl<'a> TypeChecker<'a> {
 
                             if int.parse::<i32>().is_err() {
                                 self.handler
-                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i32", &value.span()).into());
+                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i32", value.span()).into());
                             }
                         }
                         IntegerType::I64 => {
@@ -106,7 +106,7 @@ impl<'a> TypeChecker<'a> {
 
                             if int.parse::<i64>().is_err() {
                                 self.handler
-                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i64", &value.span()).into());
+                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i64", value.span()).into());
                             }
                         }
                         IntegerType::I128 => {
@@ -119,25 +119,25 @@ impl<'a> TypeChecker<'a> {
 
                             if int.parse::<i128>().is_err() {
                                 self.handler
-                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i128", &value.span()).into());
+                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i128", value.span()).into());
                             }
                         }
 
                         IntegerType::U8 if str_content.parse::<u8>().is_err() => self
                             .handler
-                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u8", &value.span()).into()),
+                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u8", value.span()).into()),
                         IntegerType::U16 if str_content.parse::<u16>().is_err() => self
                             .handler
-                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u16", &value.span()).into()),
+                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u16", value.span()).into()),
                         IntegerType::U32 if str_content.parse::<u32>().is_err() => self
                             .handler
-                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u32", &value.span()).into()),
+                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u32", value.span()).into()),
                         IntegerType::U64 if str_content.parse::<u64>().is_err() => self
                             .handler
-                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u64", &value.span()).into()),
+                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u64", value.span()).into()),
                         IntegerType::U128 if str_content.parse::<u128>().is_err() => self
                             .handler
-                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u128", &value.span()).into()),
+                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u128", value.span()).into()),
                         _ => {}
                     }
                     Some(self.assert_type(Type::IntegerType(*type_), expected, value.span()))
@@ -195,7 +195,7 @@ impl<'a> TypeChecker<'a> {
                         // But Type B was not a unsigned int.
                         (Some(Type::IntegerType(_)), Some(t)) => {
                             self.handler.emit_err(
-                                TypeCheckerError::incorrect_pow_exponent_type("unsigned int", t, &binary.right.span())
+                                TypeCheckerError::incorrect_pow_exponent_type("unsigned int", t, binary.right.span())
                                     .into(),
                             );
                         }
@@ -208,13 +208,13 @@ impl<'a> TypeChecker<'a> {
                         // But Type B was not an int.
                         (Some(Type::Field), Some(t)) => {
                             self.handler.emit_err(
-                                TypeCheckerError::incorrect_pow_exponent_type("int", t, &binary.right.span()).into(),
+                                TypeCheckerError::incorrect_pow_exponent_type("int", t, binary.right.span()).into(),
                             );
                         }
                         // The base is some type thats not an int or field.
                         (Some(t), _) => {
                             self.handler
-                                .emit_err(TypeCheckerError::incorrect_pow_base_type(t, &binary.left.span()).into());
+                                .emit_err(TypeCheckerError::incorrect_pow_base_type(t, binary.left.span()).into());
                         }
                         _ => {}
                     }
@@ -261,7 +261,7 @@ impl<'a> TypeChecker<'a> {
                         ) => self.negate = !self.negate,
                         Some(t) => self
                             .handler
-                            .emit_err(TypeCheckerError::type_is_not_negatable(t, &unary.inner.span()).into()),
+                            .emit_err(TypeCheckerError::type_is_not_negatable(t, unary.inner.span()).into()),
                         _ => {}
                     };
                     self.compare_expr_type(&unary.inner, expected, unary.inner.span())
@@ -283,7 +283,7 @@ impl<'a> TypeChecker<'a> {
                                 TypeCheckerError::incorrect_num_args_to_call(
                                     func.input.len(),
                                     call.arguments.len(),
-                                    &call.span(),
+                                    call.span(),
                                 )
                                 .into(),
                             );
@@ -303,7 +303,7 @@ impl<'a> TypeChecker<'a> {
                         Some(ret)
                     } else {
                         self.handler
-                            .emit_err(TypeCheckerError::unknown_sym("function", &ident.name, &ident.span()).into());
+                            .emit_err(TypeCheckerError::unknown_sym("function", &ident.name, ident.span()).into());
                         None
                     }
                 }

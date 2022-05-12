@@ -58,7 +58,7 @@ pub(crate) fn tokenize_iter(input: &str, mut lo: BytePos) -> impl '_ + Iterator<
             match token {
                 Token::WhiteSpace => continue,
                 Token::AddressLit(address) if !check_address(&address) => {
-                    return Some(Err(ParserError::invalid_address_lit(address, &span).into()));
+                    return Some(Err(ParserError::invalid_address_lit(address, span).into()));
                 }
                 _ => return Some(Ok(SpannedToken { token, span })),
             }

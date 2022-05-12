@@ -27,7 +27,7 @@ impl ParserContext<'_> {
     pub fn construct_assignee_access(expr: Expression, _accesses: &mut [AssigneeAccess]) -> Result<Identifier> {
         match expr {
             Expression::Identifier(id) => Ok(id),
-            _ => Err(ParserError::invalid_assignment_target(&expr.span()).into()),
+            _ => Err(ParserError::invalid_assignment_target(expr.span()).into()),
         }
     }
 
@@ -114,7 +114,7 @@ impl ParserContext<'_> {
         let next = if self.eat(&Token::Else) {
             let s = self.parse_statement()?;
             if !matches!(s, Statement::Block(_) | Statement::Conditional(_)) {
-                self.emit_err(ParserError::unexpected_statement(&s, "Block or Conditional", &s.span()));
+                self.emit_err(ParserError::unexpected_statement(&s, "Block or Conditional", s.span()));
             }
             Some(Box::new(s))
         } else {
@@ -168,7 +168,7 @@ impl ParserContext<'_> {
                 string = Some(match token {
                     Token::StringLit(chars) => chars,
                     _ => {
-                        p.emit_err(ParserError::unexpected_str(token, "formatted string", &span));
+                        p.emit_err(ParserError::unexpected_str(token, "formatted string", span));
                         Vec::new()
                     }
                 });
@@ -204,7 +204,7 @@ impl ParserContext<'_> {
                 self.emit_err(ParserError::unexpected_ident(
                     x,
                     &["assert", "error", "log"],
-                    &function.span,
+                    function.span,
                 ));
                 ConsoleFunction::Log(self.parse_console_args()?)
             }
@@ -219,9 +219,9 @@ impl ParserContext<'_> {
 
     /// Returns a [`VariableName`] AST node if the next tokens represent a variable name with
     /// valid keywords.
-    pub fn parse_variable_name(&mut self, decl_ty: Declare, span: &Span) -> Result<VariableName> {
+    pub fn parse_variable_name(&mut self, decl_ty: Declare, span: Span) -> Result<VariableName> {
         if self.eat(&Token::Mut) {
-            self.emit_err(ParserError::let_mut_statement(&(&self.prev_token.span + span)));
+            self.emit_err(ParserError::let_mut_statement(self.prev_token.span + span));
         }
 
         let name = self.expect_ident()?;
@@ -244,16 +244,16 @@ impl ParserContext<'_> {
         // Parse variable names.
         let variable_names = if self.peek_is_left_par() {
             let vars = self
-                .parse_paren_comma_list(|p| p.parse_variable_name(decl_type, &decl_span).map(Some))
+                .parse_paren_comma_list(|p| p.parse_variable_name(decl_type, decl_span).map(Some))
                 .map(|(vars, ..)| vars)?;
 
             if vars.len() == 1 {
-                self.emit_err(ParserError::invalid_parens_around_single_variable(&vars[0].span()));
+                self.emit_err(ParserError::invalid_parens_around_single_variable(vars[0].span()));
             }
 
             vars
         } else {
-            vec![self.parse_variable_name(decl_type, &decl_span)?]
+            vec![self.parse_variable_name(decl_type, decl_span)?]
         };
 
         self.expect(&Token::Colon)?;

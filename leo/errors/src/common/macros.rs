@@ -96,7 +96,7 @@ macro_rules! create_messages {
         // Formatted errors always takes a span.
         $(#[$error_func_docs])*
         // Expands additional arguments for the error defining function.
-        pub fn $name($($arg_names: $arg_types,)* span: &leo_span::Span) -> Self {
+        pub fn $name($($arg_names: $arg_types,)* span: leo_span::Span) -> Self {
             Self::Formatted(
                 Formatted::new_from_span(
                     $message,
@@ -105,7 +105,7 @@ macro_rules! create_messages {
                     Self::code_identifier(),
                     Self::message_type(),
                     Self::is_error(),
-                    *span,
+                    span,
                     // Each function always generates its own backtrace for backtrace clarity to originate from the error function.
                     Backtrace::new(),
                 )

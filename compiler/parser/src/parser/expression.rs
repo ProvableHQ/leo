@@ -230,7 +230,7 @@ impl ParserContext<'_> {
         loop {
             if self.eat(&Token::Dot) {
                 let curr = &self.token;
-                return Err(ParserError::unexpected_str(&curr.token, "int or ident", &curr.span).into());
+                return Err(ParserError::unexpected_str(&curr.token, "int or ident", curr.span).into());
             }
 
             if !self.check(&Token::LeftParen) {
@@ -261,7 +261,7 @@ impl ParserContext<'_> {
         if !trailing && tuple.len() == 1 {
             Ok(tuple.remove(0))
         } else {
-            Err(ParserError::unexpected("A tuple expression.", "A valid expression.", &span).into())
+            Err(ParserError::unexpected("A tuple expression.", "A valid expression.", span).into())
         }
     }
 
@@ -302,7 +302,7 @@ impl ParserContext<'_> {
                         let int_ty = Self::token_to_int_type(suffix).expect("unknown int type token");
                         Expression::Value(ValueExpression::Integer(int_ty, value, full_span))
                     }
-                    None => return Err(ParserError::implicit_values_not_allowed(value, &span).into()),
+                    None => return Err(ParserError::implicit_values_not_allowed(value, span).into()),
                 }
             }
             Token::True => Expression::Value(ValueExpression::Boolean("true".into(), span)),
@@ -323,7 +323,7 @@ impl ParserContext<'_> {
                 span,
             }),
             token => {
-                return Err(ParserError::unexpected_str(token, "expression", &span).into());
+                return Err(ParserError::unexpected_str(token, "expression", span).into());
             }
         })
     }

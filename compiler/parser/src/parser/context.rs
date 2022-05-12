@@ -159,7 +159,7 @@ impl<'a> ParserContext<'a> {
     /// Expects an [`Identifier`], or errors.
     pub fn expect_ident(&mut self) -> Result<Identifier> {
         self.eat_identifier()
-            .ok_or_else(|| ParserError::unexpected_str(&self.token.token, "ident", &self.token.span).into())
+            .ok_or_else(|| ParserError::unexpected_str(&self.token.token, "ident", self.token.span).into())
     }
 
     /// Returns a reference to the next token if it is a [`GroupCoordinate`], or [None] if
@@ -250,7 +250,7 @@ impl<'a> ParserContext<'a> {
 
     /// Returns an unexpected error at the current token.
     fn unexpected<T>(&self, expected: impl Display) -> Result<T> {
-        Err(ParserError::unexpected(&self.token.token, expected, &self.token.span).into())
+        Err(ParserError::unexpected(&self.token.token, expected, self.token.span).into())
     }
 
     /// Eats the expected `token`, or errors.
