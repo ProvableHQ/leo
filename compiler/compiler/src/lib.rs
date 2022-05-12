@@ -80,6 +80,7 @@ impl<'a> Compiler<'a> {
 
     // Parses and stores a program file content from a string, constructs a syntax tree, and generates a program.
     pub fn parse_program_from_string(&mut self, program_string: &str, name: FileName) -> Result<()> {
+        // Register the source (`program_string`) in the source map.
         let prg_sf = with_session_globals(|s| s.source_map.new_source(program_string, name));
 
         // Use the parser to construct the abstract syntax tree (ast).
@@ -104,7 +105,7 @@ impl<'a> Compiler<'a> {
     /// Parses and stores the input file, constructs a syntax tree, and generates a program input.
     pub fn parse_input(&mut self, input_file_path: PathBuf) -> Result<()> {
         if input_file_path.exists() {
-            // Load the input file, as it exists.
+            // Load the input file into the source map.
             let input_sf = with_session_globals(|s| s.source_map.load_file(&input_file_path))
                 .map_err(|e| CompilerError::file_read_error(&input_file_path, e))?;
 
