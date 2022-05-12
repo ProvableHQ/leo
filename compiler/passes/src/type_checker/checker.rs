@@ -79,18 +79,18 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
-    pub(crate) fn assert_type(&self, type_: Type, expected: Option<Type>, span: &Span) -> Type {
+    pub(crate) fn assert_type(&self, type_: Type, expected: Option<Type>, span: Span) -> Type {
         if let Some(expected) = expected {
             if type_ != expected {
                 self.handler
-                    .emit_err(TypeCheckerError::type_should_be(type_.clone(), expected, span).into());
+                    .emit_err(TypeCheckerError::type_should_be(type_.clone(), expected, &span).into());
             }
         }
 
         type_
     }
 
-    pub(crate) fn assert_one_of_types(&self, type_: Option<Type>, expected: &[Type], span: &Span) -> Option<Type> {
+    pub(crate) fn assert_one_of_types(&self, type_: Option<Type>, expected: &[Type], span: Span) -> Option<Type> {
         if let Some(type_) = type_.clone() {
             for t in expected.iter() {
                 if &type_ == t {
@@ -102,7 +102,7 @@ impl<'a> TypeChecker<'a> {
                 TypeCheckerError::expected_one_type_of(
                     expected.iter().map(|t| t.to_string() + ",").collect::<String>(),
                     type_,
-                    span,
+                    &span,
                 )
                 .into(),
             );
@@ -111,15 +111,15 @@ impl<'a> TypeChecker<'a> {
         type_
     }
 
-    pub(crate) fn assert_arith_type(&self, type_: Option<Type>, span: &Span) -> Option<Type> {
+    pub(crate) fn assert_arith_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
         self.assert_one_of_types(type_, ARITHMETIC_TYPES, span)
     }
 
-    pub(crate) fn assert_field_or_int_type(&self, type_: Option<Type>, span: &Span) -> Option<Type> {
+    pub(crate) fn assert_field_or_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
         self.assert_one_of_types(type_, FIELD_AND_INT_TYPES, span)
     }
 
-    pub(crate) fn assert_int_type(&self, type_: Option<Type>, span: &Span) -> Option<Type> {
+    pub(crate) fn assert_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
         self.assert_one_of_types(type_, INT_TYPES, span)
     }
 }

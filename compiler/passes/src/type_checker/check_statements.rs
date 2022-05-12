@@ -63,10 +63,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             match &var.declaration {
                 Declaration::Const => self
                     .handler
-                    .emit_err(TypeCheckerError::cannont_assign_to_const_var(var_name, var.span).into()),
+                    .emit_err(TypeCheckerError::cannont_assign_to_const_var(var_name, &var.span).into()),
                 Declaration::Input(ParamMode::Constant) => self
                     .handler
-                    .emit_err(TypeCheckerError::cannont_assign_to_const_input(var_name, var.span).into()),
+                    .emit_err(TypeCheckerError::cannont_assign_to_const_input(var_name, &var.span).into()),
                 _ => {}
             }
 
