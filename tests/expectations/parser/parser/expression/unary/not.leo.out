@@ -4,75 +4,47 @@ expectation: Pass
 outputs:
   - Unary:
       inner:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":2,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"!x\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
       op: Not
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 3
-        path: ""
-        content: "!x"
+        lo: 0
+        hi: 2
   - Unary:
       inner:
         Call:
           function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":2,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"!x()\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
           arguments: []
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 2
-            col_stop: 5
-            path: ""
-            content: "!x()"
+            lo: 1
+            hi: 4
       op: Not
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 5
-        path: ""
-        content: "!x()"
+        lo: 0
+        hi: 4
   - Unary:
       inner:
         Unary:
           inner:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"!!x\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           op: Not
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 2
-            col_stop: 4
-            path: ""
-            content: "!!x"
+            lo: 1
+            hi: 3
       op: Not
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 4
-        path: ""
-        content: "!!x"
+        lo: 0
+        hi: 3
   - Unary:
       inner:
         Unary:
           inner:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"!-x\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           op: Negate
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 2
-            col_stop: 4
-            path: ""
-            content: "!-x"
+            lo: 1
+            hi: 3
       op: Not
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 4
-        path: ""
-        content: "!-x"
+        lo: 0
+        hi: 3

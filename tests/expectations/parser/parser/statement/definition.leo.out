@@ -6,394 +6,254 @@ outputs:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = expr;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = expr;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = expr;\\\"}\"}"
+        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 17
-        path: ""
-        content: "let x: u8 = expr;"
+        lo: 0
+        hi: 16
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u16 = x+y;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u16 = x+y;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U16
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u16 = x+y;\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u16 = x+y;\\\"}\"}"
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
           op: Add
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 14
-            col_stop: 17
-            path: ""
-            content: "let x: u16 = x+y;"
+            lo: 13
+            hi: 16
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 17
-        path: ""
-        content: "let x: u16 = x+y;"
+        lo: 0
+        hi: 16
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = x();\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = x();"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
         Call:
           function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = x();\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
           arguments: []
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 13
-            col_stop: 16
-            path: ""
-            content: "let x: u8 = x();"
+            lo: 12
+            hi: 15
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 16
-        path: ""
-        content: "let x: u8 = x();"
+        lo: 0
+        hi: 15
   - Definition:
       declaration_type: Const
       variable_names:
         - mutable: false
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: i8 = expr;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 7
-            col_stop: 8
-            path: ""
-            content: "const x: i8 = expr;"
+            lo: 6
+            hi: 7
       type_:
         IntegerType: I8
       value:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":15,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: i8 = expr;\\\"}\"}"
+        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":18}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 19
-        path: ""
-        content: "const x: i8 = expr;"
+        lo: 0
+        hi: 18
   - Definition:
       declaration_type: Const
       variable_names:
         - mutable: false
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: i16 = x+y;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 7
-            col_stop: 8
-            path: ""
-            content: "const x: i16 = x+y;"
+            lo: 6
+            hi: 7
       type_:
         IntegerType: I16
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: i16 = x+y;\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: i16 = x+y;\\\"}\"}"
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
           op: Add
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 16
-            col_stop: 19
-            path: ""
-            content: "const x: i16 = x+y;"
+            lo: 15
+            hi: 18
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 19
-        path: ""
-        content: "const x: i16 = x+y;"
+        lo: 0
+        hi: 18
   - Definition:
       declaration_type: Const
       variable_names:
         - mutable: false
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: i8 = x();\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 7
-            col_stop: 8
-            path: ""
-            content: "const x: i8 = x();"
+            lo: 6
+            hi: 7
       type_:
         IntegerType: I8
       value:
         Call:
           function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: i8 = x();\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
           arguments: []
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 15
-            col_stop: 18
-            path: ""
-            content: "const x: i8 = x();"
+            lo: 14
+            hi: 17
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 18
-        path: ""
-        content: "const x: i8 = x();"
+        lo: 0
+        hi: 17
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u32 = expr;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u32 = expr;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U32
       value:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u32 = expr;\\\"}\"}"
+        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":17}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 18
-        path: ""
-        content: "let x: u32 = expr;"
+        lo: 0
+        hi: 17
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u32 = x+y;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u32 = x+y;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U32
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u32 = x+y;\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u32 = x+y;\\\"}\"}"
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
           op: Add
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 14
-            col_stop: 17
-            path: ""
-            content: "let x: u32 = x+y;"
+            lo: 13
+            hi: 16
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 17
-        path: ""
-        content: "let x: u32 = x+y;"
+        lo: 0
+        hi: 16
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u32 = x();\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u32 = x();"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U32
       value:
         Call:
           function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u32 = x();\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
           arguments: []
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 14
-            col_stop: 17
-            path: ""
-            content: "let x: u32 = x();"
+            lo: 13
+            hi: 16
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 17
-        path: ""
-        content: "let x: u32 = x();"
+        lo: 0
+        hi: 16
   - Definition:
       declaration_type: Const
       variable_names:
         - mutable: false
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: u32 = expr;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 7
-            col_stop: 8
-            path: ""
-            content: "const x: u32 = expr;"
+            lo: 6
+            hi: 7
       type_:
         IntegerType: U32
       value:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: u32 = expr;\\\"}\"}"
+        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":19}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 20
-        path: ""
-        content: "const x: u32 = expr;"
+        lo: 0
+        hi: 19
   - Definition:
       declaration_type: Const
       variable_names:
         - mutable: false
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: u32 = x+y;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 7
-            col_stop: 8
-            path: ""
-            content: "const x: u32 = x+y;"
+            lo: 6
+            hi: 7
       type_:
         IntegerType: U32
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: u32 = x+y;\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: u32 = x+y;\\\"}\"}"
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
           op: Add
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 16
-            col_stop: 19
-            path: ""
-            content: "const x: u32 = x+y;"
+            lo: 15
+            hi: 18
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 19
-        path: ""
-        content: "const x: u32 = x+y;"
+        lo: 0
+        hi: 18
   - Definition:
       declaration_type: Const
       variable_names:
         - mutable: false
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: u32 = x();\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 7
-            col_stop: 8
-            path: ""
-            content: "const x: u32 = x();"
+            lo: 6
+            hi: 7
       type_:
         IntegerType: U32
       value:
         Call:
           function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const x: u32 = x();\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
           arguments: []
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 16
-            col_stop: 19
-            path: ""
-            content: "const x: u32 = x();"
+            lo: 15
+            hi: 18
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 19
-        path: ""
-        content: "const x: u32 = x();"
+        lo: 0
+        hi: 18
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: address = aleo15u4r0gzjtqzepkgurgn7p3u5kkhs9p74rx6aun3uh2s5std6759svgmg53;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: address = aleo15u4r0gzjtqzepkgurgn7p3u5kkhs9p74rx6aun3uh2s5std6759svgmg53;"
+            lo: 4
+            hi: 5
       type_: Address
       value:
         Value:
           Address:
             - aleo15u4r0gzjtqzepkgurgn7p3u5kkhs9p74rx6aun3uh2s5std6759svgmg53
             - span:
-                line_start: 1
-                line_stop: 1
-                col_start: 18
-                col_stop: 81
-                path: ""
-                content: "let x: address = aleo15u4r0gzjtqzepkgurgn7p3u5kkhs9p74rx6aun3uh2s5std6759svgmg53;"
+                lo: 17
+                hi: 80
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 81
-        path: ""
-        content: "let x: address = aleo15u4r0gzjtqzepkgurgn7p3u5kkhs9p74rx6aun3uh2s5std6759svgmg53;"
+        lo: 0
+        hi: 80

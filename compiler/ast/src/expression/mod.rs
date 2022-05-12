@@ -54,9 +54,9 @@ pub enum Expression {
 }
 
 impl Node for Expression {
-    fn span(&self) -> &Span {
+    fn span(&self) -> Span {
         use Expression::*;
-        match &self {
+        match self {
             Identifier(n) => n.span(),
             Value(n) => n.span(),
             Binary(n) => n.span(),

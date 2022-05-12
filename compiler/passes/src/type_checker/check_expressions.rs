@@ -39,7 +39,7 @@ fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: Option<Ty
 }
 
 impl<'a> TypeChecker<'a> {
-    pub(crate) fn compare_expr_type(&mut self, expr: &Expression, expected: Option<Type>, span: &Span) -> Option<Type> {
+    pub(crate) fn compare_expr_type(&mut self, expr: &Expression, expected: Option<Type>, span: Span) -> Option<Type> {
         match expr {
             Expression::Identifier(ident) => {
                 if let Some(var) = self.symbol_table.lookup_variable(&ident.name) {

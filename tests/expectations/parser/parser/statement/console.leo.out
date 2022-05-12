@@ -5,145 +5,93 @@ outputs:
   - Console:
       function:
         Assert:
-          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"console.assert(x);\\\"}\"}"
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 17
-        path: ""
-        content: console.assert(x);
+        lo: 0
+        hi: 16
   - Console:
       function:
         Error:
           string:
-            - Primitive: 123
-            - Primitive: 125
+            - Scalar: 123
+            - Scalar: 125
           parameters:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"console.error(\\\\\\\"{}\\\\\\\", x);\\\"}\"}"
+            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 14
-            col_stop: 23
-            path: ""
-            content: "console.error(\"{}\", x);"
+            lo: 13
+            hi: 22
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 23
-        path: ""
-        content: "console.error(\"{}\", x);"
+        lo: 0
+        hi: 22
   - Console:
       function:
         Error:
           string:
-            - Primitive: 123
-            - Primitive: 125
-            - Primitive: 123
-            - Primitive: 125
+            - Scalar: 123
+            - Scalar: 125
+            - Scalar: 123
+            - Scalar: 125
           parameters:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"console.error(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
-            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"console.error(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
+            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":22,\\\"hi\\\":23}\"}"
+            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":25,\\\"hi\\\":26}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 14
-            col_stop: 28
-            path: ""
-            content: "console.error(\"{}{}\", x, y);"
+            lo: 13
+            hi: 27
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 28
-        path: ""
-        content: "console.error(\"{}{}\", x, y);"
+        lo: 0
+        hi: 27
   - Console:
       function:
         Error:
           string:
-            - Primitive: 120
+            - Scalar: 120
           parameters: []
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 14
-            col_stop: 19
-            path: ""
-            content: "console.error(\"x\");"
+            lo: 13
+            hi: 18
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 19
-        path: ""
-        content: "console.error(\"x\");"
+        lo: 0
+        hi: 18
   - Console:
       function:
         Log:
           string:
-            - Primitive: 123
-            - Primitive: 125
+            - Scalar: 123
+            - Scalar: 125
           parameters:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"console.log(\\\\\\\"{}\\\\\\\", x);\\\"}\"}"
+            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 12
-            col_stop: 21
-            path: ""
-            content: "console.log(\"{}\", x);"
+            lo: 11
+            hi: 20
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 21
-        path: ""
-        content: "console.log(\"{}\", x);"
+        lo: 0
+        hi: 20
   - Console:
       function:
         Log:
           string:
-            - Primitive: 123
-            - Primitive: 125
-            - Primitive: 123
-            - Primitive: 125
+            - Scalar: 123
+            - Scalar: 125
+            - Scalar: 123
+            - Scalar: 125
           parameters:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"console.log(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
-            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":24,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"console.log(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
+            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
+            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":23,\\\"hi\\\":24}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 12
-            col_stop: 26
-            path: ""
-            content: "console.log(\"{}{}\", x, y);"
+            lo: 11
+            hi: 25
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 26
-        path: ""
-        content: "console.log(\"{}{}\", x, y);"
+        lo: 0
+        hi: 25
   - Console:
       function:
         Log:
           string:
-            - Primitive: 120
+            - Scalar: 120
           parameters: []
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 12
-            col_stop: 17
-            path: ""
-            content: "console.log(\"x\");"
+            lo: 11
+            hi: 16
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 17
-        path: ""
-        content: "console.log(\"x\");"
+        lo: 0
+        hi: 16

@@ -21,7 +21,6 @@
 
 pub(crate) mod token;
 use std::iter;
-use std::sync::Arc;
 
 pub use self::token::KEYWORD_TOKENS;
 pub(crate) use self::token::*;
@@ -30,78 +29,38 @@ pub(crate) mod lexer;
 pub(crate) use self::lexer::*;
 
 use leo_errors::{ParserError, Result};
-use leo_span::Span;
+use leo_span::{
+    span::{BytePos, Pos},
+    Span,
+};
 
 /// Creates a new vector of spanned tokens from a given file path and source code text.
-pub(crate) fn tokenize(path: &str, input: &str) -> Result<Vec<SpannedToken>> {
-    tokenize_iter(path, input).collect()
+pub(crate) fn tokenize(input: &str, start_pos: BytePos) -> Result<Vec<SpannedToken>> {
+    tokenize_iter(input, start_pos).collect()
 }
 
-/// Yields spanned tokens from a given file path and source code text.
-pub(crate) fn tokenize_iter<'a>(path: &'a str, input: &'a str) -> impl 'a + Iterator<Item = Result<SpannedToken>> {
-    let path = Arc::new(path.to_string());
+/// Yields spanned tokens from the given source code text.
+///
+/// The `lo` byte position determines where spans will start.
+pub(crate) fn tokenize_iter(input: &str, mut lo: BytePos) -> impl '_ + Iterator<Item = Result<SpannedToken>> {
     let mut index = 0usize;
-    let mut line_no = 1usize;
-    let mut line_start = 0usize;
     iter::from_fn(move || {
         while input.len() > index {
-            let token = match Token::eat(&input[index..]) {
+            let (token_len, token) = match Token::eat(&input[index..]) {
                 Err(e) => return Some(Err(e)),
                 Ok(t) => t,
             };
+            index += token_len;
+
+            let span = Span::new(lo, lo + BytePos::from_usize(token_len));
+            lo = span.hi;
 
             match token {
-                (token_len, Token::WhiteSpace) => {
-                    let bytes = input.as_bytes();
-                    if bytes[index] == 0x000D && matches!(bytes.get(index + 1), Some(0x000A)) {
-                        // Check carriage return followed by newline.
-                        line_no += 1;
-                        line_start = index + token_len + 1;
-                        index += token_len;
-                    } else if matches!(bytes[index], 0x000A | 0x000D) {
-                        // Check new-line or carriage-return
-                        line_no += 1;
-                        line_start = index + token_len;
-                    }
-                    index += token_len;
+                Token::WhiteSpace => continue,
+                Token::AddressLit(address) if !check_address(&address) => {
+                    return Some(Err(ParserError::invalid_address_lit(address, span).into()));
                 }
-                (token_len, token) => {
-                    let mut span = Span::new(
-                        line_no,
-                        line_no,
-                        index - line_start + 1,
-                        index - line_start + token_len + 1,
-                        path.clone(),
-                        input[line_start
-                            ..input[line_start..]
-                                .find('\n')
-                                .map(|i| i + line_start)
-                                .unwrap_or(input.len())]
-                            .to_string(),
-                    );
-                    match &token {
-                        Token::CommentLine(_) => {
-                            line_no += 1;
-                            line_start = index + token_len;
-                        }
-                        Token::CommentBlock(block) => {
-                            let line_ct = block.chars().filter(|x| *x == '\n').count();
-                            line_no += line_ct;
-                            if line_ct > 0 {
-                                let last_line_index = block.rfind('\n').unwrap();
-                                line_start = index + last_line_index + 1;
-                                span.col_stop = index + token_len - line_start + 1;
-                            }
-                            span.line_stop = line_no;
-                        }
-                        Token::AddressLit(address) if !check_address(address) => {
-                            return Some(Err(ParserError::invalid_address_lit(address, &span).into()));
-                        }
-                        _ => (),
-                    }
-                    index += token_len;
-                    return Some(Ok(SpannedToken { token, span }));
-                }
+                _ => return Some(Ok(SpannedToken { token, span })),
             }
         }
 
@@ -112,91 +71,89 @@ pub(crate) fn tokenize_iter<'a>(path: &'a str, input: &'a str) -> impl 'a + Iter
 #[cfg(test)]
 mod tests {
     use super::*;
-    use leo_span::symbol::create_session_if_not_set_then;
+    use leo_span::{source_map::FileName, symbol::create_session_if_not_set_then};
 
     #[test]
     fn test_tokenizer() {
-        create_session_if_not_set_then(|_| {
-            let tokens = tokenize(
-                "test_path",
-                r#"
-        'a'
-        '😭'
-        "test"
-        "test{}test"
-        "test{}"
-        "{}test"
-        "test{"
-        "test}"
-        "test{test"
-        "test}test"
-        "te{{}}"
-        aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8
-        test_ident
-        12345
-        address
-        bool
-        const
-        else
-        false
-        field
-        for
-        function
-        group
-        i128
-        i64
-        i32
-        i16
-        i8
-        if
-        in
-        input
-        let
-        mut
-        return
-        string
-        test
-        true
-        u128
-        u64
-        u32
-        u16
-        u8
-        console
-        !
-        !=
-        &&
-        (
-        )
-        *
-        **
-        +
-        ,
-        -
-        ->
-        _
-        .
-        ..
-        /
-        :
-        ;
-        <
-        <=
-        =
-        ==
-        >
-        >=
-        [
-        ]
-        {{
-        }}
-        ||
-        ?
-        // test
-        /* test */
-        //"#,
-            )
-            .unwrap();
+        create_session_if_not_set_then(|s| {
+            let raw = r#"
+    'a'
+    '😭'
+    "test"
+    "test{}test"
+    "test{}"
+    "{}test"
+    "test{"
+    "test}"
+    "test{test"
+    "test}test"
+    "te{{}}"
+    aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8
+    test_ident
+    12345
+    address
+    bool
+    const
+    else
+    false
+    field
+    for
+    function
+    group
+    i128
+    i64
+    i32
+    i16
+    i8
+    if
+    in
+    input
+    let
+    mut
+    return
+    string
+    test
+    true
+    u128
+    u64
+    u32
+    u16
+    u8
+    console
+    !
+    !=
+    &&
+    (
+    )
+    *
+    **
+    +
+    ,
+    -
+    ->
+    _
+    .
+    ..
+    /
+    :
+    ;
+    <
+    <=
+    =
+    ==
+    >
+    >=
+    [
+    ]
+    {{
+    }}
+    ||
+    ?
+    // test
+    /* test */
+    //"#;
+            let sf = s.source_map.new_source(raw, FileName::Custom("test".into()));
+            let tokens = tokenize(&sf.src, sf.start_pos).unwrap();
             let mut output = String::new();
             for SpannedToken { token, .. } in tokens.iter() {
                 output += &format!("{} ", token);
@@ -212,7 +169,7 @@ mod tests {
 
     #[test]
     fn test_spans() {
-        create_session_if_not_set_then(|_| {
+        create_session_if_not_set_then(|s| {
             let raw = r#"
 ppp            test
             // test
@@ -223,7 +180,10 @@ ppp            test
             test */
             test
             "#;
-            let tokens = tokenize("test_path", raw).unwrap();
+
+            let sm = &s.source_map;
+            let sf = sm.new_source(raw, FileName::Custom("test".into()));
+            let tokens = tokenize(&sf.src, sf.start_pos).unwrap();
             let mut line_indicies = vec![0];
             for (i, c) in raw.chars().enumerate() {
                 if c == '\n' {
@@ -231,11 +191,7 @@ ppp            test
                 }
             }
             for token in tokens.iter() {
-                let token_raw = token.token.to_string();
-                let start = line_indicies.get(token.span.line_start - 1).unwrap();
-                let stop = line_indicies.get(token.span.line_stop - 1).unwrap();
-                let original = &raw[*start + token.span.col_start - 1..*stop + token.span.col_stop - 1];
-                assert_eq!(original, &token_raw);
+                assert_eq!(token.token.to_string(), sm.contents_of_span(token.span).unwrap());
             }
         })
     }

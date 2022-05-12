@@ -60,14 +60,14 @@ impl fmt::Display for ValueExpression {
 }
 
 impl Node for ValueExpression {
-    fn span(&self) -> &Span {
+    fn span(&self) -> Span {
         use ValueExpression::*;
         match &self {
-            Address(_, span) | Boolean(_, span) | Field(_, span) | Integer(_, _, span) | String(_, span) => span,
-            Char(character) => &character.span,
+            Address(_, span) | Boolean(_, span) | Field(_, span) | Integer(_, _, span) | String(_, span) => *span,
+            Char(character) => character.span,
             Group(group) => match &**group {
-                GroupValue::Single(_, span) => span,
-                GroupValue::Tuple(tuple) => &tuple.span,
+                GroupValue::Single(_, span) => *span,
+                GroupValue::Tuple(tuple) => tuple.span,
             },
         }
     }

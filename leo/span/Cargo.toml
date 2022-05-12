@@ -18,16 +18,8 @@ license = "GPL-3.0"
 edition = "2021"
 rust-version = "1.56.1"
 
-[dependencies.fxhash]
-version = "0.2.1"
-
-[dependencies.indexmap]
-version = "1.8"
-features = ["serde"]
-
-[dependencies.serde]
-version = "1.0.133"
-features = [ "derive", "rc" ]
-
-[dependencies.scoped-tls]
-version = "1.0.0"
+[dependencies]
+fxhash = "0.2.1"
+indexmap = { version = "1.8", features = ["serde"] }
+serde = { version = "1.0.133", features = [ "derive", "rc" ] }
+scoped-tls = { version = "1.0.0" }

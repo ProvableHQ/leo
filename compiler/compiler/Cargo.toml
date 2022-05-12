@@ -37,7 +37,7 @@ version = "1.5.3"
 [dependencies.sha2]
 version = "0.10"
 
-[dev-dependencies.leo-span]
+[dependencies.leo-span]
 path = "../../leo/span"
 version = "1.5.3"
 

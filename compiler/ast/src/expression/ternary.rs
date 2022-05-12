@@ -35,12 +35,4 @@ impl fmt::Display for TernaryExpression {
     }
 }
 
-impl Node for TernaryExpression {
-    fn span(&self) -> &Span {
-        &self.span
-    }
-
-    fn set_span(&mut self, span: Span) {
-        self.span = span;
-    }
-}
+crate::simple_node_impl!(TernaryExpression);

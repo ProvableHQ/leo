@@ -5,8 +5,8 @@ outputs:
   - name: ""
     expected_input: []
     functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x() -> u8 {}\\\"}\"}":
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x() -> u8 {}\\\"}\"}"
+      "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
         input: []
         output:
           IntegerType: U8
@@ -14,16 +14,8 @@ outputs:
         block:
           statements: []
           span:
-            line_start: 3
-            line_stop: 3
-            col_start: 20
-            col_stop: 22
-            path: ""
-            content: "function x() -> u8 {}"
+            lo: 21
+            hi: 23
         span:
-          line_start: 3
-          line_stop: 3
-          col_start: 1
-          col_stop: 22
-          path: ""
-          content: "function x() -> u8 {}"
+          lo: 2
+          hi: 23

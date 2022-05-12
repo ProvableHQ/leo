@@ -8,591 +8,383 @@ outputs:
           String:
             - []
             - span:
-                line_start: 0
-                line_stop: 0
-                col_start: 0
-                col_stop: 0
-                path: ""
-                content: ""
+                lo: 0
+                hi: 0
       span:
-        line_start: 0
-        line_stop: 0
-        col_start: 0
-        col_stop: 0
-        path: ""
-        content: ""
+        lo: 0
+        hi: 0
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = aimport;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = aimport;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"aimport\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = aimport;\\\"}\"}"
+        Identifier: "{\"name\":\"aimport\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":19}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 20
-        path: ""
-        content: "let x: u8 = aimport;"
+        lo: 0
+        hi: 19
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a_;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = a_;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"a_\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a_;\\\"}\"}"
+        Identifier: "{\"name\":\"a_\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":14}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 15
-        path: ""
-        content: "let x: u8 = a_;"
+        lo: 0
+        hi: 14
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = aas;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = aas;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"aas\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = aas;\\\"}\"}"
+        Identifier: "{\"name\":\"aas\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":15}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 16
-        path: ""
-        content: "let x: u8 = aas;"
+        lo: 0
+        hi: 15
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = aconsole;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = aconsole;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"aconsole\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = aconsole;\\\"}\"}"
+        Identifier: "{\"name\":\"aconsole\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":20}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 21
-        path: ""
-        content: "let x: u8 = aconsole;"
+        lo: 0
+        hi: 20
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = aconst;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = aconst;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"aconst\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = aconst;\\\"}\"}"
+        Identifier: "{\"name\":\"aconst\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":18}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 19
-        path: ""
-        content: "let x: u8 = aconst;"
+        lo: 0
+        hi: 18
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = alet;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = alet;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"alet\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = alet;\\\"}\"}"
+        Identifier: "{\"name\":\"alet\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 17
-        path: ""
-        content: "let x: u8 = alet;"
+        lo: 0
+        hi: 16
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = afor;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = afor;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"afor\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = afor;\\\"}\"}"
+        Identifier: "{\"name\":\"afor\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 17
-        path: ""
-        content: "let x: u8 = afor;"
+        lo: 0
+        hi: 16
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = aif;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = aif;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"aif\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = aif;\\\"}\"}"
+        Identifier: "{\"name\":\"aif\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":15}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 16
-        path: ""
-        content: "let x: u8 = aif;"
+        lo: 0
+        hi: 15
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = aelse;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = aelse;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"aelse\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = aelse;\\\"}\"}"
+        Identifier: "{\"name\":\"aelse\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 18
-        path: ""
-        content: "let x: u8 = aelse;"
+        lo: 0
+        hi: 17
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = ai8;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = ai8;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"ai8\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = ai8;\\\"}\"}"
+        Identifier: "{\"name\":\"ai8\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":15}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 16
-        path: ""
-        content: "let x: u8 = ai8;"
+        lo: 0
+        hi: 15
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = ai16;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = ai16;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"ai16\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = ai16;\\\"}\"}"
+        Identifier: "{\"name\":\"ai16\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 17
-        path: ""
-        content: "let x: u8 = ai16;"
+        lo: 0
+        hi: 16
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = ai32;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = ai32;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"ai32\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = ai32;\\\"}\"}"
+        Identifier: "{\"name\":\"ai32\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 17
-        path: ""
-        content: "let x: u8 = ai32;"
+        lo: 0
+        hi: 16
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = ai64;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = ai64;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"ai64\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = ai64;\\\"}\"}"
+        Identifier: "{\"name\":\"ai64\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 17
-        path: ""
-        content: "let x: u8 = ai64;"
+        lo: 0
+        hi: 16
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = ai128;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = ai128;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"ai128\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = ai128;\\\"}\"}"
+        Identifier: "{\"name\":\"ai128\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 18
-        path: ""
-        content: "let x: u8 = ai128;"
+        lo: 0
+        hi: 17
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = au8;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = au8;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"au8\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = au8;\\\"}\"}"
+        Identifier: "{\"name\":\"au8\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":15}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 16
-        path: ""
-        content: "let x: u8 = au8;"
+        lo: 0
+        hi: 15
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = au16;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = au16;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"au16\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = au16;\\\"}\"}"
+        Identifier: "{\"name\":\"au16\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 17
-        path: ""
-        content: "let x: u8 = au16;"
+        lo: 0
+        hi: 16
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = au32;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = au32;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"au32\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = au32;\\\"}\"}"
+        Identifier: "{\"name\":\"au32\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 17
-        path: ""
-        content: "let x: u8 = au32;"
+        lo: 0
+        hi: 16
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = au64;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = au64;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"au64\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = au64;\\\"}\"}"
+        Identifier: "{\"name\":\"au64\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 17
-        path: ""
-        content: "let x: u8 = au64;"
+        lo: 0
+        hi: 16
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = au128;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = au128;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"au128\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = au128;\\\"}\"}"
+        Identifier: "{\"name\":\"au128\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 18
-        path: ""
-        content: "let x: u8 = au128;"
+        lo: 0
+        hi: 17
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = areturn;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = areturn;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"areturn\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = areturn;\\\"}\"}"
+        Identifier: "{\"name\":\"areturn\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":19}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 20
-        path: ""
-        content: "let x: u8 = areturn;"
+        lo: 0
+        hi: 19
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = aself;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = aself;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"aself\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = aself;\\\"}\"}"
+        Identifier: "{\"name\":\"aself\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 18
-        path: ""
-        content: "let x: u8 = aself;"
+        lo: 0
+        hi: 17
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = aSelf;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = aSelf;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"aSelf\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = aSelf;\\\"}\"}"
+        Identifier: "{\"name\":\"aSelf\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 18
-        path: ""
-        content: "let x: u8 = aSelf;"
+        lo: 0
+        hi: 17
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = atrue;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = atrue;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"atrue\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = atrue;\\\"}\"}"
+        Identifier: "{\"name\":\"atrue\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 18
-        path: ""
-        content: "let x: u8 = atrue;"
+        lo: 0
+        hi: 17
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = afalse;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = afalse;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"afalse\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = afalse;\\\"}\"}"
+        Identifier: "{\"name\":\"afalse\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":18}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 19
-        path: ""
-        content: "let x: u8 = afalse;"
+        lo: 0
+        hi: 18
   - Definition:
       declaration_type: Let
       variable_names:
         - mutable: true
-          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a0;\\\"}\"}"
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 6
-            path: ""
-            content: "let x: u8 = a0;"
+            lo: 4
+            hi: 5
       type_:
         IntegerType: U8
       value:
-        Identifier: "{\"name\":\"a0\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: u8 = a0;\\\"}\"}"
+        Identifier: "{\"name\":\"a0\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":14}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 15
-        path: ""
-        content: "let x: u8 = a0;"
+        lo: 0
+        hi: 14

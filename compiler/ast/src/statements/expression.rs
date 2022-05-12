@@ -35,12 +35,4 @@ impl fmt::Display for ExpressionStatement {
     }
 }
 
-impl Node for ExpressionStatement {
-    fn span(&self) -> &Span {
-        &self.span
-    }
-
-    fn set_span(&mut self, span: Span) {
-        self.span = span;
-    }
-}
+crate::simple_node_impl!(ExpressionStatement);

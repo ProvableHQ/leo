@@ -23,6 +23,7 @@
 #![doc = include_str!("../README.md")]
 
 pub(crate) mod tokenizer;
+use leo_span::span::BytePos;
 pub use tokenizer::KEYWORD_TOKENS;
 pub(crate) use tokenizer::*;
 
@@ -37,18 +38,13 @@ use leo_errors::Result;
 mod test;
 
 /// Creates a new AST from a given file path and source code text.
-pub fn parse_ast<T: AsRef<str>, Y: AsRef<str>>(handler: &Handler, path: T, source: Y) -> Result<Ast> {
-    Ok(Ast::new(parser::parse(handler, path.as_ref(), source.as_ref())?))
+pub fn parse_ast(handler: &Handler, source: &str, start_pos: BytePos) -> Result<Ast> {
+    Ok(Ast::new(parser::parse(handler, source, start_pos)?))
 }
 
 /// Parses program inputs from from the input file path and state file path
-pub fn parse_program_inputs<T: AsRef<str>, Y: AsRef<str>>(
-    handler: &Handler,
-    input_string: T,
-    input_path: Y,
-) -> Result<Input> {
-    let program_input: ProgramInput =
-        parser::parse_input(handler, input_path.as_ref(), input_string.as_ref())?.try_into()?;
+pub fn parse_program_inputs(handler: &Handler, input_string: &str, start_pos: BytePos) -> Result<Input> {
+    let program_input: ProgramInput = parser::parse_input(handler, input_string, start_pos)?.try_into()?;
 
     Ok(Input {
         program_input,

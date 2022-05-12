@@ -3,20 +3,20 @@ namespace: Compile
 expectation: Pass
 outputs:
   - output:
-      - initial_input_ast: c5014ebe0b04ecf0cfca9befc3cad1725daf451b4a926741ef909fe396007891
-      - initial_input_ast: e754ce377bf760178cf72cf8b0e1597c94eb833bf18e3524c99cd86c6ac4b003
-      - initial_input_ast: ff9ecea579f37e0abbac30d7065f5293b0bf8affc53cfd627e0e1e43227e9b27
-      - initial_input_ast: 72a3e3befe5feac1a922a42ce7fa7f1bc495eeeab43b3be86df09db770c93e73
-      - initial_input_ast: 45237feb75335b96d98682c743ededad68167fcc6ad151eca3caa55b1625b647
-      - initial_input_ast: c14a6deb2a1f0f60320260b189fea801ee942e3e44e0d6334067d6d7972eb4be
-      - initial_input_ast: 38431bcff38b26387d2f41af68d2a6e22d184be6d44dbcdc6e5eda62ae822d40
-      - initial_input_ast: 767918cd56f1bc8a9c6b64cc0e92dab97698e500588a0cf480e0b5838e7067f0
-      - initial_input_ast: c7ba648f22d3b30d4f62a1093a2dcab8def815aa9f7083ee4fe9236dd63b1c0e
-      - initial_input_ast: d6acd30374e64196b072f5a1c68ba379cce1eb5e866afac4acd98643f68d1c03
-      - initial_input_ast: 2aa446f52a535b7918039280d90d098deea58ae0d84445dd31a8c66f05f52449
-      - initial_input_ast: 69a6b4dcd3e363cce68ccdae93f77ead9319af6886aecf775a09a0ed535bb02b
-      - initial_input_ast: c2f4b8b92cb0ee71de7fd532b483c2fb2c9ebcc8a59249a763fc30d05eb5d38e
-      - initial_input_ast: 9196de328711651e75edb7ffba6b85b37ca468d509b0e96e6b5271d6d0785949
-      - initial_input_ast: 012468d79c66ea8de1b7357678f0dd4f12a4188b384ed38696934add946dc72f
-    initial_ast: 3965395dcb477379853989110bf621aefc6a052ee39e06b9e1d15dbe0f0de184
+      - initial_input_ast: 44e0b05b0da70ab554408e1fa7a8578282522b358320cde13231c2136e4df5b1
+      - initial_input_ast: fa8ef1a0d3743224c55ca78079611c87374266313d2254c5b18a99443e038d51
+      - initial_input_ast: 6aa65f48c47c0a70326ee6034a46c38ed25116b02b748827fde3a4a46cb9cb95
+      - initial_input_ast: de106cf7de15ce9b35d00a97dccf6b90077303e8bfcec568d65352107c2a81f8
+      - initial_input_ast: a6badf7eba50a21d6ebc1c82eb70cd4081e37680dd8d4b597ea04192ccbf4e5a
+      - initial_input_ast: 72e2f6ef3f3cb3135dbb46dd1c5808c206cfa762a708a8d5483b6bc2958a33ba
+      - initial_input_ast: 0a5209868d802596f6094912deb7adaef5f21e0ee269eeaa3a661d403a64701e
+      - initial_input_ast: be71fcee4adbb8c7de279825c5fd87d8c55597a97f57f9af28d88e3f51781c79
+      - initial_input_ast: 55aae45600898144d628c1211e2de07794ce4784eef21a6b978aa064d3fa89f4
+      - initial_input_ast: 8f73004838aee69e847d99ab0b284d99c61a8283b91227e1dd890994220da8e1
+      - initial_input_ast: 6de398471c245e863855e68b0b672bcda53467f638ccf2ded60930a930f3de25
+      - initial_input_ast: 1d22c4edd4f3fec707b8cb6e60bf57b4e278913fbb6c15c4fa2bce0e318de232
+      - initial_input_ast: 7642187a32f44ae4d5743ae8f46bb669937490ff926c46cf8af8b36b5bc747c5
+      - initial_input_ast: 4d7b20c6c94064e08e0f19b0f45cbdd740f668fefcafd361865226c5af087440
+      - initial_input_ast: 9de9e1877e523f5aa44d019bba11e7bb58ad1f9952aae3254908e8b151b3ae55
+    initial_ast: 526f77f4386ed6b5dd40f7e352f48e43c04655123bf329dbed9f6dadd43a4963
     symbol_table: 1cad55eef598e4d05af7c5f88119636a2e6d23d81213bbaad908d66a32906780

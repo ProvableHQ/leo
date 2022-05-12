@@ -5,85 +5,53 @@ outputs:
   - Assign:
       operation: Assign
       assignee:
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x = expr;\\\"}\"}"
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
         accesses: []
         span:
-          line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 2
-          path: ""
-          content: x = expr;
+          lo: 0
+          hi: 1
       value:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x = expr;\\\"}\"}"
+        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":8}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 9
-        path: ""
-        content: x = expr;
+        lo: 0
+        hi: 8
   - Assign:
       operation: Assign
       assignee:
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x = x+y;\\\"}\"}"
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
         accesses: []
         span:
-          line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 2
-          path: ""
-          content: x = x+y;
+          lo: 0
+          hi: 1
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x = x+y;\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x = x+y;\\\"}\"}"
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
           op: Add
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 8
-            path: ""
-            content: x = x+y;
+            lo: 4
+            hi: 7
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 8
-        path: ""
-        content: x = x+y;
+        lo: 0
+        hi: 7
   - Assign:
       operation: Assign
       assignee:
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x = x();\\\"}\"}"
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
         accesses: []
         span:
-          line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 2
-          path: ""
-          content: x = x();
+          lo: 0
+          hi: 1
       value:
         Call:
           function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x = x();\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
           arguments: []
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 5
-            col_stop: 8
-            path: ""
-            content: x = x();
+            lo: 4
+            hi: 7
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 8
-        path: ""
-        content: x = x();
+        lo: 0
+        hi: 7

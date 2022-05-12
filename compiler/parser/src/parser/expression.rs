@@ -205,12 +205,12 @@ impl ParserContext<'_> {
                 Token::Minus => UnaryOperation::Negate,
                 _ => unreachable!("parse_unary_expression_ shouldn't produce this"),
             };
-            ops.push((operation, self.prev_token.span.clone()));
+            ops.push((operation, self.prev_token.span));
         }
         let mut inner = self.parse_postfix_expression()?;
         for (op, op_span) in ops.into_iter().rev() {
             inner = Expression::Unary(UnaryExpression {
-                span: &op_span + inner.span(),
+                span: op_span + inner.span(),
                 op,
                 inner: Box::new(inner),
             });
@@ -230,7 +230,7 @@ impl ParserContext<'_> {
         loop {
             if self.eat(&Token::Dot) {
                 let curr = &self.token;
-                return Err(ParserError::unexpected_str(&curr.token, "int or ident", &curr.span).into());
+                return Err(ParserError::unexpected_str(&curr.token, "int or ident", curr.span).into());
             }
 
             if !self.check(&Token::LeftParen) {
@@ -239,7 +239,7 @@ impl ParserContext<'_> {
 
             let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
             expr = Expression::Call(CallExpression {
-                span: expr.span() + &span,
+                span: expr.span() + span,
                 function: Box::new(expr),
                 arguments,
             });
@@ -261,7 +261,7 @@ impl ParserContext<'_> {
         if !trailing && tuple.len() == 1 {
             Ok(tuple.remove(0))
         } else {
-            Err(ParserError::unexpected("A tuple expression.", "A valid expression.", &span).into())
+            Err(ParserError::unexpected("A tuple expression.", "A valid expression.", span).into())
         }
     }
 
@@ -282,9 +282,9 @@ impl ParserContext<'_> {
 
         Ok(match token {
             Token::Int(value) => {
-                let suffix_span = self.token.span.clone();
-                let full_span = &span + &suffix_span;
-                let assert_no_whitespace = |x| assert_no_whitespace(&span, &suffix_span, &value, x);
+                let suffix_span = self.token.span;
+                let full_span = span + suffix_span;
+                let assert_no_whitespace = |x| assert_no_whitespace(span, suffix_span, &value, x);
                 match self.eat_any(INT_TYPES).then(|| &self.prev_token.token) {
                     // Literal followed by `field`, e.g., `42field`.
                     Some(Token::Field) => {
@@ -302,7 +302,7 @@ impl ParserContext<'_> {
                         let int_ty = Self::token_to_int_type(suffix).expect("unknown int type token");
                         Expression::Value(ValueExpression::Integer(int_ty, value, full_span))
                     }
-                    None => return Err(ParserError::implicit_values_not_allowed(value, &span).into()),
+                    None => return Err(ParserError::implicit_values_not_allowed(value, span).into()),
                 }
             }
             Token::True => Expression::Value(ValueExpression::Boolean("true".into(), span)),
@@ -323,7 +323,7 @@ impl ParserContext<'_> {
                 span,
             }),
             token => {
-                return Err(ParserError::unexpected_str(token, "expression", &span).into());
+                return Err(ParserError::unexpected_str(token, "expression", span).into());
             }
         })
     }

@@ -39,7 +39,7 @@ impl TryFrom<InputAst> for ProgramState {
                 return Err(InputError::unexpected_section(
                     &["state", "record", "state_leaf"],
                     section.name,
-                    &section.span,
+                    section.span,
                 )
                 .into());
             }

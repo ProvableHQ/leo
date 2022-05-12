@@ -26,7 +26,7 @@ impl ParserContext<'_> {
 
         while self.has_next() {
             match &self.token.token {
-                Token::Ident(sym::test) => return Err(ParserError::test_function(&self.token.span).into()),
+                Token::Ident(sym::test) => return Err(ParserError::test_function(self.token.span).into()),
                 // Const functions share the first token with the global Const.
                 Token::Const if self.peek_is_function() => {
                     let (id, function) = self.parse_function_declaration()?;
@@ -54,17 +54,17 @@ impl ParserContext<'_> {
                 .map(|x| format!("'{}'", x))
                 .collect::<Vec<_>>()
                 .join(", "),
-            &token.span,
+            token.span,
         )
     }
 
     /// Returns a [`ParamMode`] AST node if the next tokens represent a function parameter mode.
     pub fn parse_function_parameter_mode(&mut self) -> Result<ParamMode> {
-        let public = self.eat(&Token::Public).then(|| self.prev_token.span.clone());
-        let constant = self.eat(&Token::Constant).then(|| self.prev_token.span.clone());
-        let const_ = self.eat(&Token::Const).then(|| self.prev_token.span.clone());
+        let public = self.eat(&Token::Public).then(|| self.prev_token.span);
+        let constant = self.eat(&Token::Constant).then(|| self.prev_token.span);
+        let const_ = self.eat(&Token::Const).then(|| self.prev_token.span);
 
-        if let Some(span) = &const_ {
+        if let Some(span) = const_ {
             self.emit_warning(ParserWarning::const_parameter_or_input(span));
         }
 
@@ -74,10 +74,10 @@ impl ParserContext<'_> {
             (None, None, None) => Ok(ParamMode::Private),
             (Some(_), None, None) => Ok(ParamMode::Public),
             (Some(m1), Some(m2), None) | (Some(m1), None, Some(m2)) | (None, Some(m1), Some(m2)) => {
-                Err(ParserError::inputs_multiple_variable_types_specified(&(m1 + m2)).into())
+                Err(ParserError::inputs_multiple_variable_types_specified(m1 + m2).into())
             }
             (Some(m1), Some(m2), Some(m3)) => {
-                Err(ParserError::inputs_multiple_variable_types_specified(&(m1 + m2 + m3)).into())
+                Err(ParserError::inputs_multiple_variable_types_specified(m1 + m2 + m3).into())
             }
         }
     }
@@ -90,7 +90,7 @@ impl ParserContext<'_> {
         let name = self.expect_ident()?;
 
         if let Some(mutable) = &mutable {
-            self.emit_err(ParserError::mut_function_input(&(&mutable.span + &name.span)));
+            self.emit_err(ParserError::mut_function_input(mutable.span + name.span));
         }
 
         self.expect(&Token::Colon)?;
@@ -126,7 +126,7 @@ impl ParserContext<'_> {
                 identifier: name,
                 input: inputs,
                 output,
-                span: start + block.span.clone(),
+                span: start + block.span,
                 block,
                 core_mapping: <_>::default(),
             },

@@ -4,14 +4,10 @@ expectation: Pass
 outputs:
   - Return:
       expression:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"return expr;\\\"}\"}"
+        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":11}\"}"
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 12
-        path: ""
-        content: return expr;
+        lo: 0
+        hi: 11
   - Return:
       expression:
         Value:
@@ -19,16 +15,8 @@ outputs:
             - U8
             - "5"
             - span:
-                line_start: 2
-                line_stop: 2
-                col_start: 1
-                col_stop: 4
-                path: ""
-                content: 5u8;
+                lo: 7
+                hi: 10
       span:
-        line_start: 1
-        line_stop: 2
-        col_start: 1
-        col_stop: 4
-        path: ""
-        content: "return\n5u8;"
+        lo: 0
+        hi: 10

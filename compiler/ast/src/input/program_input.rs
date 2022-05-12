@@ -35,7 +35,7 @@ impl TryFrom<InputAst> for ProgramInput {
                 sym::registers => &mut registers,
                 _ => {
                     return Err(
-                        InputError::unexpected_section(&["main", "registers"], section.name, &section.span).into(),
+                        InputError::unexpected_section(&["main", "registers"], section.name, section.span).into(),
                     )
                 }
             };

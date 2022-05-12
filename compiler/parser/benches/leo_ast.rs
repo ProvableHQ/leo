@@ -16,14 +16,15 @@
 
 use leo_ast::Ast;
 use leo_errors::emitter::Handler;
-use leo_span::symbol::create_session_if_not_set_then;
+use leo_span::{source_map::FileName, symbol::create_session_if_not_set_then};
 
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::time::Duration;
 
 fn parse_ast(path: &str, input: &str) -> Ast {
-    create_session_if_not_set_then(|_| {
-        leo_parser::parse_ast(&Handler::default(), path, input).expect("failed to parse benchmark")
+    create_session_if_not_set_then(|s| {
+        let sf = s.source_map.new_source(input, FileName::Custom(path.into()));
+        leo_parser::parse_ast(&Handler::default(), &sf.src, sf.start_pos).expect("failed to parse benchmark")
     })
 }
 
@@ -34,6 +35,8 @@ macro_rules! bench {
                 concat!("./", $file_name, ".leo"),
                 include_str!(concat!("./", $file_name, ".leo"),),
             );
+            // TODO(Centril): This benchmark seems like it actually does nothing
+            // but take a reference to `&ast`, which should be optimized out?
             c.bench_function(concat!("Ast::", $file_name), |b| b.iter(|| &ast));
         }
     };
