@@ -5,33 +5,25 @@ outputs:
   - name: ""
     expected_input: []
     functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, y: i32) -> u32 {\\\"}\"}":
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, y: i32) -> u32 {\\\"}\"}"
+      "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
         input:
           - Variable:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, y: i32) -> u32 {\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
               mode: Private
               type_:
                 IntegerType: U32
               span:
-                line_start: 3
-                line_stop: 3
-                col_start: 12
-                col_stop: 13
-                path: ""
-                content: "function x(x: u32, y: i32) -> u32 {"
+                lo: 13
+                hi: 14
           - Variable:
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":20,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: u32, y: i32) -> u32 {\\\"}\"}"
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":21,\\\"hi\\\":22}\"}"
               mode: Private
               type_:
                 IntegerType: I32
               span:
-                line_start: 3
-                line_stop: 3
-                col_start: 20
-                col_stop: 21
-                path: ""
-                content: "function x(x: u32, y: i32) -> u32 {"
+                lo: 21
+                hi: 22
         output:
           IntegerType: U32
         core_mapping: ~
@@ -44,30 +36,14 @@ outputs:
                       - U8
                       - "0"
                       - span:
-                          line_start: 4
-                          line_stop: 4
-                          col_start: 12
-                          col_stop: 15
-                          path: ""
-                          content: "    return 0u8;"
+                          lo: 49
+                          hi: 52
                 span:
-                  line_start: 4
-                  line_stop: 4
-                  col_start: 5
-                  col_stop: 15
-                  path: ""
-                  content: "    return 0u8;"
+                  lo: 42
+                  hi: 52
           span:
-            line_start: 3
-            line_stop: 5
-            col_start: 35
-            col_stop: 2
-            path: ""
-            content: "function x(x: u32, y: i32) -> u32 {\n     ...\n}"
+            lo: 36
+            hi: 55
         span:
-          line_start: 3
-          line_stop: 5
-          col_start: 1
-          col_stop: 2
-          path: ""
-          content: "function x(x: u32, y: i32) -> u32 {\n     ...\n}"
+          lo: 2
+          hi: 55

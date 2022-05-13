@@ -1,0 +1,7 @@
+[main]
+a: i64 = 2i64;
+b: i64 = 2i64;
+c: i64 = 4i64;
+
+[registers]
+r0: bool = true;

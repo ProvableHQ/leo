@@ -39,7 +39,7 @@ fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: Option<Ty
 }
 
 impl<'a> TypeChecker<'a> {
-    pub(crate) fn compare_expr_type(&mut self, expr: &Expression, expected: Option<Type>, span: &Span) -> Option<Type> {
+    pub(crate) fn compare_expr_type(&mut self, expr: &Expression, expected: Option<Type>, span: Span) -> Option<Type> {
         match expr {
             Expression::Identifier(ident) => {
                 if let Some(var) = self.symbol_table.lookup_variable(&ident.name) {
@@ -176,7 +176,8 @@ impl<'a> TypeChecker<'a> {
 
                     // Allow `group` * `scalar` multiplication.
                     match (t1.as_ref(), t2.as_ref()) {
-                        (Some(Type::Group), Some(Type::Scalar)) | (Some(Type::Scalar), Some(Type::Group)) => {
+                        (Some(Type::Group), Some(other)) | (Some(other), Some(Type::Group)) => {
+                            self.assert_type(other.clone(), Some(Type::Scalar), binary.span());
                             Some(Type::Group)
                         }
                         _ => return_incorrect_type(t1, t2, expected),

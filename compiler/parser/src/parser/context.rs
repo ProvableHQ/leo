@@ -39,10 +39,13 @@ pub struct ParserContext<'a> {
     pub(crate) prev_token: SpannedToken,
     /// true if parsing an expression for if and loop statements -- means circuit inits are not legal
     pub(crate) disallow_circuit_construction: bool,
-    /// HACK(Centril): Place to store a dummy EOF.
-    /// Exists to appease borrow checker for now.
-    dummy_eof: SpannedToken,
 }
+
+/// Dummy span used to appease borrow checker.
+const DUMMY_EOF: SpannedToken = SpannedToken {
+    token: Token::Eof,
+    span: Span::dummy(),
+};
 
 impl<'a> ParserContext<'a> {
     /// Returns a new [`ParserContext`] type given a vector of tokens.
@@ -53,14 +56,9 @@ impl<'a> ParserContext<'a> {
         tokens.reverse();
 
         let token = SpannedToken::dummy();
-        let dummy_eof = SpannedToken {
-            token: Token::Eof,
-            span: token.span.clone(),
-        };
         let mut p = Self {
             handler,
             disallow_circuit_construction: false,
-            dummy_eof,
             prev_token: token.clone(),
             token,
             tokens,
@@ -80,9 +78,9 @@ impl<'a> ParserContext<'a> {
         }
 
         // Extract next token, or `Eof` if there was none.
-        let next_token = self.tokens.pop().unwrap_or_else(|| SpannedToken {
+        let next_token = self.tokens.pop().unwrap_or(SpannedToken {
             token: Token::Eof,
-            span: self.token.span.clone(),
+            span: self.token.span,
         });
 
         // Set the new token.
@@ -108,11 +106,11 @@ impl<'a> ParserContext<'a> {
         }
 
         let idx = match self.tokens.len().checked_sub(dist) {
-            None => return looker(&self.dummy_eof),
+            None => return looker(&DUMMY_EOF),
             Some(idx) => idx,
         };
 
-        looker(self.tokens.get(idx).unwrap_or(&self.dummy_eof))
+        looker(self.tokens.get(idx).unwrap_or(&DUMMY_EOF))
     }
 
     /// Emit the error `err`.
@@ -132,7 +130,7 @@ impl<'a> ParserContext<'a> {
 
     /// At the previous token, return and make an identifier with `name`.
     fn mk_ident_prev(&self, name: Symbol) -> Identifier {
-        let span = self.prev_token.span.clone();
+        let span = self.prev_token.span;
         Identifier { name, span }
     }
 
@@ -161,7 +159,7 @@ impl<'a> ParserContext<'a> {
     /// Expects an [`Identifier`], or errors.
     pub fn expect_ident(&mut self) -> Result<Identifier> {
         self.eat_identifier()
-            .ok_or_else(|| ParserError::unexpected_str(&self.token.token, "ident", &self.token.span).into())
+            .ok_or_else(|| ParserError::unexpected_str(&self.token.token, "ident", self.token.span).into())
     }
 
     /// Returns a reference to the next token if it is a [`GroupCoordinate`], or [None] if
@@ -170,11 +168,11 @@ impl<'a> ParserContext<'a> {
         let (advanced, gc) = self.look_ahead(*dist, |t0| match &t0.token {
             Token::Add => Some((1, GroupCoordinate::SignHigh)),
             Token::Minus => self.look_ahead(*dist + 1, |t1| match &t1.token {
-                Token::Int(value) => Some((2, GroupCoordinate::Number(format!("-{}", value), t1.span.clone()))),
+                Token::Int(value) => Some((2, GroupCoordinate::Number(format!("-{}", value), t1.span))),
                 _ => Some((1, GroupCoordinate::SignLow)),
             }),
             Token::Underscore => Some((1, GroupCoordinate::Inferred)),
-            Token::Int(value) => Some((1, GroupCoordinate::Number(value.clone(), t0.span.clone()))),
+            Token::Int(value) => Some((1, GroupCoordinate::Number(value.clone(), t0.span))),
             _ => None,
         })?;
         *dist += advanced;
@@ -200,7 +198,7 @@ impl<'a> ParserContext<'a> {
         let mut dist = 1; // 0th is `(` so 1st is first gc's start.
         let first_gc = self.peek_group_coordinate(&mut dist)?;
 
-        let check_ahead = |d, token: &_| self.look_ahead(d, |t| (&t.token == token).then(|| t.span.clone()));
+        let check_ahead = |d, token: &_| self.look_ahead(d, |t| (&t.token == token).then(|| t.span));
 
         // Peek at `,`.
         check_ahead(dist, &Token::Comma)?;
@@ -228,7 +226,7 @@ impl<'a> ParserContext<'a> {
             self.bump();
         }
 
-        if let Err(e) = assert_no_whitespace(&right_paren_span, &end_span, &format!("({},{})", gt.x, gt.y), "group") {
+        if let Err(e) = assert_no_whitespace(right_paren_span, end_span, &format!("({},{})", gt.x, gt.y), "group") {
             return Some(Err(e));
         }
 
@@ -252,13 +250,13 @@ impl<'a> ParserContext<'a> {
 
     /// Returns an unexpected error at the current token.
     fn unexpected<T>(&self, expected: impl Display) -> Result<T> {
-        Err(ParserError::unexpected(&self.token.token, expected, &self.token.span).into())
+        Err(ParserError::unexpected(&self.token.token, expected, self.token.span).into())
     }
 
     /// Eats the expected `token`, or errors.
     pub fn expect(&mut self, token: &Token) -> Result<Span> {
         if self.eat(token) {
-            Ok(self.prev_token.span.clone())
+            Ok(self.prev_token.span)
         } else {
             self.unexpected(token)
         }
@@ -267,7 +265,7 @@ impl<'a> ParserContext<'a> {
     /// Eats one of the expected `tokens`, or errors.
     pub fn expect_any(&mut self, tokens: &[Token]) -> Result<Span> {
         if self.eat_any(tokens) {
-            Ok(self.prev_token.span.clone())
+            Ok(self.prev_token.span)
         } else {
             self.unexpected(tokens.iter().map(|x| format!("'{}'", x)).collect::<Vec<_>>().join(", "))
         }

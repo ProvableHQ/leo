@@ -1,6 +1,7 @@
-// disabled for now
-// namespace: ParseExpression
-// expectation: Pass
+/*
+namespace: ParseExpression
+expectation: Fail
+*/
 
 123
 

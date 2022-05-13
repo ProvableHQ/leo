@@ -21,8 +21,23 @@ pub trait Node:
     std::fmt::Debug + std::fmt::Display + Clone + PartialEq + Eq + serde::Serialize + serde::de::DeserializeOwned
 {
     /// Returns the span of the node.
-    fn span(&self) -> &Span;
+    fn span(&self) -> Span;
 
     /// Sets the span of the node.
     fn set_span(&mut self, span: Span);
+}
+
+#[macro_export]
+macro_rules! simple_node_impl {
+    ($ty:ty) => {
+        impl Node for $ty {
+            fn span(&self) -> Span {
+                self.span
+            }
+
+            fn set_span(&mut self, span: Span) {
+                self.span = span;
+            }
+        }
+    };
 }

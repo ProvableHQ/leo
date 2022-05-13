@@ -42,12 +42,12 @@ struct Opt {
 
 fn main() -> Result<(), String> {
     let opt = Opt::from_args();
-    let code = fs::read_to_string(&opt.input_path).expect("failed to open file");
-
     // Parses the Leo file constructing an ast which is then serialized.
-    let serialized_leo_tree = create_session_if_not_set_then(|_| {
+    let serialized_leo_tree = create_session_if_not_set_then(|s| {
+        let code = s.source_map.load_file(&opt.input_path).expect("failed to open file");
+
         Handler::with(|h| {
-            let ast = leo_parser::parse_ast(h, opt.input_path.to_str().unwrap(), &code)?;
+            let ast = leo_parser::parse_ast(h, &code.src, code.start_pos)?;
             let json = Ast::to_json_string(&ast)?;
             println!("{}", json);
             Ok(json)

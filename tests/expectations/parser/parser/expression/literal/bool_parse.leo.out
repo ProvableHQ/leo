@@ -6,19 +6,11 @@ outputs:
       Boolean:
         - "true"
         - span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 5
-            path: ""
-            content: "true"
+            lo: 0
+            hi: 4
   - Value:
       Boolean:
         - "false"
         - span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 6
-            path: ""
-            content: "false"
+            lo: 0
+            hi: 5

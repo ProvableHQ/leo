@@ -16,103 +16,47 @@
 
 //! Defines the `Span` type used to track where code comes from.
 
-use std::{fmt, sync::Arc, usize};
+use core::ops::{Add, Sub};
+use serde::{Deserialize, Serialize};
+use std::{fmt, usize};
 
-use serde::ser::{Serialize, SerializeStruct, Serializer};
-use serde::Deserialize;
+use crate::symbol::with_session_globals;
 
 /// The span type which tracks where formatted errors originate from in a Leo file.
 /// This is used in many spots throughout the rest of the Leo crates.
-#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq)]
+#[derive(Copy, Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 pub struct Span {
-    // TODO(Centril): All of could be optimized to just `{ lo: u32, hi: u32 }`,
-    // i.e. 8 bytes by indexing into a global source map of all files concatenated.
-    // That would also give us `Copy` which is quite nice!
-    /// The line number where the error started.
-    pub line_start: usize,
-    /// The line number where the error stopped.
-    pub line_stop: usize,
-    /// The column number where the error started.
-    pub col_start: usize,
-    /// The column number where the error stopped.
-    pub col_stop: usize,
-    /// The path to the Leo file containing the error.
-    pub path: Arc<String>,
-    /// The content of the line(s) that the span is found on.
-    pub content: String,
+    /// The start position of the span.
+    pub lo: BytePos,
+    /// The end position of the span.
+    /// The length is simply `end - start`.
+    pub hi: BytePos,
 }
 
 impl Span {
-    /// Generate a new span from:
-    /// - Where the Leo line starts.
-    /// - Where the Leo line stops.
-    /// - Where the Leo column starts.
-    /// - Where the Leo column stops.
-    /// - The path to the Leo file.
-    /// - The content of those specified bounds.
-    pub fn new(
-        line_start: usize,
-        line_stop: usize,
-        col_start: usize,
-        col_stop: usize,
-        path: Arc<String>,
-        content: String,
-    ) -> Self {
-        Self {
-            line_start,
-            line_stop,
-            col_start,
-            col_stop,
-            path,
-            content,
-        }
+    /// Generate a new span from the `start`ing and `end`ing positions.
+    pub fn new(start: BytePos, end: BytePos) -> Self {
+        Self { lo: start, hi: end }
     }
 
     /// Generates a dummy span with all defaults.
     /// Should only be used in temporary situations.
-    pub fn dummy() -> Self {
-        Self::new(0, 0, 0, 0, <_>::default(), <_>::default())
-    }
-}
-
-impl Serialize for Span {
-    /// Custom serialization for testing purposes.
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut state = serializer.serialize_struct("Color", 3)?;
-        state.serialize_field("line_start", &self.line_start)?;
-        state.serialize_field("line_stop", &self.line_stop)?;
-        state.serialize_field("col_start", &self.col_start)?;
-        state.serialize_field("col_stop", &self.col_stop)?;
-        // This is for testing purposes since the tests are run on a variety of OSes.
-        if std::env::var("LEO_TESTFRAMEWORK")
-            .unwrap_or_default()
-            .trim()
-            .to_owned()
-            .is_empty()
-        {
-            state.serialize_field("path", &self.path)?;
-        } else {
-            state.serialize_field("path", "")?;
+    pub const fn dummy() -> Self {
+        Self {
+            lo: BytePos(0),
+            hi: BytePos(0),
         }
-        state.serialize_field("content", &self.content)?;
-        state.end()
+    }
+
+    /// Is the span a dummy?
+    pub fn is_dummy(&self) -> bool {
+        self == &Self::dummy()
     }
 }
 
 impl fmt::Display for Span {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if self.line_start == self.line_stop {
-            write!(f, "{}:{}-{}", self.line_start, self.col_start, self.col_stop)
-        } else {
-            write!(
-                f,
-                "{}:{}-{}:{}",
-                self.line_start, self.col_start, self.line_stop, self.col_stop
-            )
-        }
+        with_session_globals(|s| write!(f, "{}", s.source_map.span_to_string(*self)))
     }
 }
 
@@ -120,69 +64,95 @@ impl std::ops::Add for &Span {
     type Output = Span;
 
     fn add(self, other: &Span) -> Span {
-        self.clone() + other.clone()
+        *self + *other
     }
 }
 
 impl std::ops::Add for Span {
     type Output = Self;
 
-    #[allow(clippy::comparison_chain)]
     fn add(self, other: Self) -> Self {
-        if self.line_start == other.line_stop {
-            Span {
-                line_start: self.line_start,
-                line_stop: self.line_stop,
-                col_start: self.col_start.min(other.col_start),
-                col_stop: self.col_stop.max(other.col_stop),
-                path: self.path,
-                content: self.content,
-            }
-        } else {
-            let mut new_content = vec![];
-            let self_lines = self.content.lines().collect::<Vec<_>>();
-            let other_lines = other.content.lines().collect::<Vec<_>>();
-            for line in self.line_start.min(other.line_start)..self.line_stop.max(other.line_stop) + 1 {
-                if line >= self.line_start && line <= self.line_stop {
-                    new_content.push(
-                        self_lines
-                            .get(line - self.line_start)
-                            .copied()
-                            .unwrap_or_default()
-                            .to_string(),
-                    );
-                } else if line >= other.line_start && line <= other.line_stop {
-                    new_content.push(
-                        other_lines
-                            .get(line - other.line_start)
-                            .copied()
-                            .unwrap_or_default()
-                            .to_string(),
-                    );
-                } else if new_content.last().map(|x| *x != "...").unwrap_or(true) {
-                    new_content.push(format!("{:<1$}...", " ", other.col_start + 4));
-                }
-            }
-            let new_content = new_content.join("\n");
-            if self.line_start < other.line_stop {
-                Span {
-                    line_start: self.line_start,
-                    line_stop: other.line_stop,
-                    col_start: self.col_start,
-                    col_stop: other.col_stop,
-                    path: self.path,
-                    content: new_content,
-                }
-            } else {
-                Span {
-                    line_start: other.line_start,
-                    line_stop: self.line_stop,
-                    col_start: other.col_start,
-                    col_stop: self.col_stop,
-                    path: self.path,
-                    content: new_content,
-                }
-            }
-        }
+        let lo = self.lo.min(other.lo);
+        let hi = self.hi.max(other.hi);
+        Self::new(lo, hi)
     }
+}
+
+// _____________________________________________________________________________
+// Pos, BytePos, CharPos
+//
+
+pub trait Pos {
+    fn from_usize(n: usize) -> Self;
+    fn to_usize(&self) -> usize;
+    fn from_u32(n: u32) -> Self;
+    fn to_u32(&self) -> u32;
+}
+
+macro_rules! impl_pos {
+    (
+        $(
+            $(#[$attr:meta])*
+            $vis:vis struct $ident:ident($inner_vis:vis $inner_ty:ty);
+        )*
+    ) => {
+        $(
+            $(#[$attr])*
+            $vis struct $ident($inner_vis $inner_ty);
+
+            impl Pos for $ident {
+                #[inline(always)]
+                fn from_usize(n: usize) -> $ident {
+                    $ident(n as $inner_ty)
+                }
+
+                #[inline(always)]
+                fn to_usize(&self) -> usize {
+                    self.0 as usize
+                }
+
+                #[inline(always)]
+                fn from_u32(n: u32) -> $ident {
+                    $ident(n as $inner_ty)
+                }
+
+                #[inline(always)]
+                fn to_u32(&self) -> u32 {
+                    self.0 as u32
+                }
+            }
+
+            impl Add for $ident {
+                type Output = $ident;
+
+                #[inline(always)]
+                fn add(self, rhs: $ident) -> $ident {
+                    $ident(self.0 + rhs.0)
+                }
+            }
+
+            impl Sub for $ident {
+                type Output = $ident;
+
+                #[inline(always)]
+                fn sub(self, rhs: $ident) -> $ident {
+                    $ident(self.0 - rhs.0)
+                }
+            }
+        )*
+    };
+}
+
+impl_pos! {
+    /// A byte offset.
+    #[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Debug, Serialize, Deserialize, Default)]
+    pub struct BytePos(pub u32);
+
+    /// A character offset.
+    ///
+    /// Because of multibyte UTF-8 characters,
+    /// a byte offset is not equivalent to a character offset.
+    /// The [`SourceMap`] will convert [`BytePos`] values to `CharPos` values as necessary.
+    #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
+    pub struct CharPos(pub usize);
 }

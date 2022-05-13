@@ -41,12 +41,4 @@ impl fmt::Debug for ConsoleStatement {
     }
 }
 
-impl Node for ConsoleStatement {
-    fn span(&self) -> &Span {
-        &self.span
-    }
-
-    fn set_span(&mut self, span: Span) {
-        self.span = span;
-    }
-}
+crate::simple_node_impl!(ConsoleStatement);

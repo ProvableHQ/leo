@@ -59,9 +59,9 @@ impl fmt::Display for Statement {
 }
 
 impl Node for Statement {
-    fn span(&self) -> &Span {
+    fn span(&self) -> Span {
         use Statement::*;
-        match &self {
+        match self {
             Return(n) => n.span(),
             Definition(n) => n.span(),
             Assign(n) => n.span(),

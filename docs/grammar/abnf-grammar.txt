@@ -222,9 +222,9 @@ address-type = %s"address"
 
 character-type = %s"char"
 
-scalar-type =  boolean-type / arithmetic-type / address-type / character-type
+primitive-type =  boolean-type / arithmetic-type / address-type / character-type
 
-type = scalar-type
+type = primitive-type
 
 group-coordinate = ( [ "-" ] numeral ) / "+" / "-" / "_"
 

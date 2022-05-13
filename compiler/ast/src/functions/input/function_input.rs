@@ -87,12 +87,4 @@ impl fmt::Debug for FunctionInputVariable {
     }
 }
 
-impl Node for FunctionInputVariable {
-    fn span(&self) -> &Span {
-        &self.span
-    }
-
-    fn set_span(&mut self, span: Span) {
-        self.span = span;
-    }
-}
+crate::simple_node_impl!(FunctionInputVariable);

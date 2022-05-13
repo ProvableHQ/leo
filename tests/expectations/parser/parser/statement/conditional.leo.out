@@ -4,7 +4,7 @@ expectation: Pass
 outputs:
   - Conditional:
       condition:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if x {\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
       block:
         statements:
           - Return:
@@ -14,37 +14,21 @@ outputs:
                     - U8
                     - "0"
                     - span:
-                        line_start: 2
-                        line_stop: 2
-                        col_start: 8
-                        col_stop: 11
-                        path: ""
-                        content: return 0u8;
+                        lo: 14
+                        hi: 17
               span:
-                line_start: 2
-                line_stop: 2
-                col_start: 1
-                col_stop: 11
-                path: ""
-                content: return 0u8;
+                lo: 7
+                hi: 17
         span:
-          line_start: 1
-          line_stop: 3
-          col_start: 6
-          col_stop: 2
-          path: ""
-          content: "if x {\n     ...\n}"
+          lo: 5
+          hi: 20
       next: ~
       span:
-        line_start: 1
-        line_stop: 3
-        col_start: 1
-        col_stop: 2
-        path: ""
-        content: "if x {\n     ...\n}"
+        lo: 0
+        hi: 20
   - Conditional:
       condition:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if (x) {\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       block:
         statements:
           - Return:
@@ -54,163 +38,99 @@ outputs:
                     - U8
                     - "0"
                     - span:
-                        line_start: 2
-                        line_stop: 2
-                        col_start: 8
-                        col_stop: 11
-                        path: ""
-                        content: return 0u8;
+                        lo: 16
+                        hi: 19
               span:
-                line_start: 2
-                line_stop: 2
-                col_start: 1
-                col_stop: 11
-                path: ""
-                content: return 0u8;
+                lo: 9
+                hi: 19
         span:
-          line_start: 1
-          line_stop: 3
-          col_start: 8
-          col_stop: 2
-          path: ""
-          content: "if (x) {\n     ...\n}"
+          lo: 7
+          hi: 22
       next: ~
       span:
-        line_start: 1
-        line_stop: 3
-        col_start: 1
-        col_stop: 2
-        path: ""
-        content: "if (x) {\n     ...\n}"
+        lo: 0
+        hi: 22
   - Conditional:
       condition:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if (x) {} else {}\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       block:
         statements: []
         span:
-          line_start: 1
-          line_stop: 1
-          col_start: 8
-          col_stop: 10
-          path: ""
-          content: "if (x) {} else {}"
+          lo: 7
+          hi: 9
       next:
         Block:
           statements: []
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 16
-            col_stop: 18
-            path: ""
-            content: "if (x) {} else {}"
+            lo: 15
+            hi: 17
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 18
-        path: ""
-        content: "if (x) {} else {}"
+        lo: 0
+        hi: 17
   - Conditional:
       condition:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if x+y {} else if x+z {} else {}\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if x+y {} else if x+z {} else {}\\\"}\"}"
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
           op: Add
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 4
-            col_stop: 7
-            path: ""
-            content: "if x+y {} else if x+z {} else {}"
+            lo: 3
+            hi: 6
       block:
         statements: []
         span:
-          line_start: 1
-          line_stop: 1
-          col_start: 8
-          col_stop: 10
-          path: ""
-          content: "if x+y {} else if x+z {} else {}"
+          lo: 7
+          hi: 9
       next:
         Conditional:
           condition:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if x+y {} else if x+z {} else {}\\\"}\"}"
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
               right:
-                Identifier: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if x+y {} else if x+z {} else {}\\\"}\"}"
+                Identifier: "{\"name\":\"z\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
               op: Add
               span:
-                line_start: 1
-                line_stop: 1
-                col_start: 19
-                col_stop: 22
-                path: ""
-                content: "if x+y {} else if x+z {} else {}"
+                lo: 18
+                hi: 21
           block:
             statements: []
             span:
-              line_start: 1
-              line_stop: 1
-              col_start: 23
-              col_stop: 25
-              path: ""
-              content: "if x+y {} else if x+z {} else {}"
+              lo: 22
+              hi: 24
           next:
             Block:
               statements: []
               span:
-                line_start: 1
-                line_stop: 1
-                col_start: 31
-                col_stop: 33
-                path: ""
-                content: "if x+y {} else if x+z {} else {}"
+                lo: 30
+                hi: 32
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 16
-            col_stop: 33
-            path: ""
-            content: "if x+y {} else if x+z {} else {}"
+            lo: 15
+            hi: 32
       span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 33
-        path: ""
-        content: "if x+y {} else if x+z {} else {}"
+        lo: 0
+        hi: 32
   - Conditional:
       condition:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if x+y {\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"if x+y {\\\"}\"}"
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
           op: Add
           span:
-            line_start: 1
-            line_stop: 1
-            col_start: 4
-            col_stop: 7
-            path: ""
-            content: "if x+y {"
+            lo: 3
+            hi: 6
       block:
         statements:
           - Expression:
               expression:
-                Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"expr;\\\"}\"}"
+                Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":13}\"}"
               span:
-                line_start: 2
-                line_stop: 2
-                col_start: 1
-                col_stop: 5
-                path: ""
-                content: expr;
+                lo: 9
+                hi: 13
           - Return:
               expression:
                 Value:
@@ -218,31 +138,15 @@ outputs:
                     - U8
                     - "0"
                     - span:
-                        line_start: 3
-                        line_stop: 3
-                        col_start: 8
-                        col_stop: 11
-                        path: ""
-                        content: return 0u8;
+                        lo: 22
+                        hi: 25
               span:
-                line_start: 3
-                line_stop: 3
-                col_start: 1
-                col_stop: 11
-                path: ""
-                content: return 0u8;
+                lo: 15
+                hi: 25
         span:
-          line_start: 1
-          line_stop: 4
-          col_start: 8
-          col_stop: 2
-          path: ""
-          content: "if x+y {\n     ...\n     ...\n}"
+          lo: 7
+          hi: 28
       next: ~
       span:
-        line_start: 1
-        line_stop: 4
-        col_start: 1
-        col_stop: 2
-        path: ""
-        content: "if x+y {\n     ...\n     ...\n}"
+        lo: 0
+        hi: 28

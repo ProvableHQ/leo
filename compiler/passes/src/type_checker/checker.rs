@@ -96,7 +96,7 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
-    pub(crate) fn assert_type(&self, type_: Type, expected: Option<Type>, span: &Span) -> Type {
+    pub(crate) fn assert_type(&self, type_: Type, expected: Option<Type>, span: Span) -> Type {
         if let Some(expected) = expected {
             if type_ != expected {
                 self.handler
@@ -107,7 +107,7 @@ impl<'a> TypeChecker<'a> {
         type_
     }
 
-    pub(crate) fn assert_one_of_types(&self, type_: Option<Type>, expected: &[Type], span: &Span) -> Option<Type> {
+    pub(crate) fn assert_one_of_types(&self, type_: Option<Type>, expected: &[Type], span: Span) -> Option<Type> {
         if let Some(type_) = type_.clone() {
             for t in expected.iter() {
                 if &type_ == t {
@@ -128,19 +128,19 @@ impl<'a> TypeChecker<'a> {
         type_
     }
 
-    pub(crate) fn assert_field_group_scalar_int_type(&self, type_: Option<Type>, span: &Span) -> Option<Type> {
+    pub(crate) fn assert_field_group_scalar_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
         self.assert_one_of_types(type_, FIELD_GROUP_SCALAR_INT, span)
     }
 
-    pub(crate) fn assert_field_group_int_type(&self, type_: Option<Type>, span: &Span) -> Option<Type> {
+    pub(crate) fn assert_field_group_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
         self.assert_one_of_types(type_, FIELD_GROUP_INT, span)
     }
 
-    pub(crate) fn assert_field_int_type(&self, type_: Option<Type>, span: &Span) -> Option<Type> {
+    pub(crate) fn assert_field_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
         self.assert_one_of_types(type_, FIELD_INT_TYPES, span)
     }
 
-    pub(crate) fn assert_int_type(&self, type_: Option<Type>, span: &Span) -> Option<Type> {
+    pub(crate) fn assert_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
         self.assert_one_of_types(type_, INT_TYPES, span)
     }
 }

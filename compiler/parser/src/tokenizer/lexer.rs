@@ -79,7 +79,6 @@ impl Token {
 
         if let Ok(hex) = u32::from_str_radix(&unicode, 16) {
             if let Some(character) = std::char::from_u32(hex) {
-                // scalar
                 Ok((len, Char::Scalar(character)))
             } else if hex <= 0x10FFFF {
                 Ok((len, Char::NonScalar(hex)))
@@ -451,7 +450,7 @@ pub struct SpannedToken {
 
 impl SpannedToken {
     /// Returns a dummy token at a dummy span.
-    pub fn dummy() -> Self {
+    pub const fn dummy() -> Self {
         Self {
             token: Token::Question,
             span: Span::dummy(),
