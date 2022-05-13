@@ -1,8 +1,9 @@
 /*
 namespace: ParseStatement
 expectation: Pass
+
+# These ones do not hit the unreachable as they are treated as valid idents rather than postfix.
 */
-// These ones do not hit the unreachable as they are treated as valid idents rather than postfix.
 
 let x: u8 = aimport;
 

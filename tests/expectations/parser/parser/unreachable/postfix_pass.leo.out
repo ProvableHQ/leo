@@ -2,17 +2,6 @@
 namespace: ParseStatement
 expectation: Pass
 outputs:
-  - Expression:
-      expression:
-        Value:
-          String:
-            - []
-            - span:
-                lo: 0
-                hi: 0
-      span:
-        lo: 0
-        hi: 0
   - Definition:
       declaration_type: Let
       variable_names:
