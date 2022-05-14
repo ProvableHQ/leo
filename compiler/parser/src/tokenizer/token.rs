@@ -109,9 +109,6 @@ pub enum Token {
     Address,
     Char,
 
-    // primary expresion
-    Input,
-
     // Regular Keywords
     Console,
     /// Const variable and a const function.
@@ -152,7 +149,6 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::I128,
     Token::If,
     Token::In,
-    Token::Input,
     Token::Let,
     Token::Public,
     Token::Return,
@@ -192,7 +188,6 @@ impl Token {
             Token::I128 => sym::i128,
             Token::If => sym::If,
             Token::In => sym::In,
-            Token::Input => sym::input,
             Token::Let => sym::Let,
             Token::Public => sym::Public,
             Token::Return => sym::Return,
@@ -273,8 +268,6 @@ impl fmt::Display for Token {
             Bool => write!(f, "bool"),
             Address => write!(f, "address"),
             Char => write!(f, "char"),
-
-            Input => write!(f, "input"),
 
             Console => write!(f, "console"),
             Const => write!(f, "const"),

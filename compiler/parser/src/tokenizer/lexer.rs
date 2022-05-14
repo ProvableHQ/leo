@@ -420,7 +420,6 @@ impl Token {
                     "i128" => Token::I128,
                     "if" => Token::If,
                     "in" => Token::In,
-                    "input" => Token::Input,
                     "let" => Token::Let,
                     "public" => Token::Public,
                     "return" => Token::Return,
