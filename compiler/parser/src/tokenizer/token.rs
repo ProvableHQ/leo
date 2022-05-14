@@ -124,11 +124,9 @@ pub enum Token {
     If,
     In,
     Let,
-    Mut,
     /// For public inputs.
     Public,
     Return,
-    Type,
 
     // Meta Tokens
     Eof,
@@ -156,11 +154,9 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::In,
     Token::Input,
     Token::Let,
-    Token::Mut,
     Token::Public,
     Token::Return,
     Token::True,
-    Token::Type,
     Token::U8,
     Token::U16,
     Token::U32,
@@ -198,11 +194,9 @@ impl Token {
             Token::In => sym::In,
             Token::Input => sym::input,
             Token::Let => sym::Let,
-            Token::Mut => sym::Mut,
             Token::Public => sym::Public,
             Token::Return => sym::Return,
             Token::True => sym::True,
-            Token::Type => sym::Type,
             Token::U8 => sym::u8,
             Token::U16 => sym::u16,
             Token::U32 => sym::u32,
@@ -291,10 +285,8 @@ impl fmt::Display for Token {
             If => write!(f, "if"),
             In => write!(f, "in"),
             Let => write!(f, "let"),
-            Mut => write!(f, "mut"),
             Public => write!(f, "public"),
             Return => write!(f, "return"),
-            Type => write!(f, "type"),
             Eof => write!(f, "<eof>"),
         }
     }
