@@ -220,7 +220,6 @@ impl ParserContext<'_> {
     /// Returns a [`VariableName`] AST node if the next tokens represent a variable name with
     /// valid keywords.
     pub fn parse_variable_name(&mut self, decl_ty: Declare, _span: Span) -> Result<VariableName> {
-
         let name = self.expect_ident()?;
         Ok(VariableName {
             span: name.span,
