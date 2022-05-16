@@ -6,5 +6,7 @@ input_file:
 */
 
 function main(a: scalar, b: scalar) -> bool {
-   return -a == -b;
+    let c: bool = a == b;
+    let d: bool = a != b;
+    return d;
 }
