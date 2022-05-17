@@ -91,6 +91,7 @@ keyword = %s"address"
         / %s"let"
         / %s"public"
         / %s"return"
+        / %s"scalar"
         / %s"u8"
         / %s"u16"
         / %s"u32"
@@ -121,6 +122,8 @@ signed-literal = numeral ( %s"i8" / %s"i16" / %s"i32" / %s"i64" / %s"i128" )
 field-literal = numeral %s"field"
 
 product-group-literal = numeral %s"group"
+
+scalar-literal = numeral %s"scalar"
 
 boolean-literal = %s"true" / %s"false"
 
@@ -172,6 +175,7 @@ integer-literal = unsigned-literal
 numeric-literal = integer-literal
                 / field-literal
                 / product-group-literal
+                / scalar-literal
 
 atomic-literal = numeric-literal
                / boolean-literal
@@ -214,7 +218,9 @@ field-type = %s"field"
 
 group-type = %s"group"
 
-arithmetic-type = integer-type / field-type / group-type
+scalar-type = %s"scalar"
+
+arithmetic-type = integer-type / field-type / group-type / scalar-type
 
 boolean-type = %s"bool"
 
