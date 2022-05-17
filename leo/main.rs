@@ -207,7 +207,7 @@ fn set_panic_hook() {
 
 fn main() {
     set_panic_hook();
-    handle_error(create_session_if_not_set_then(|_| run_with_args(Opt::from_args())));
+    create_session_if_not_set_then(|_| handle_error(run_with_args(Opt::from_args())));
 }
 
 /// Run command with custom build arguments.
