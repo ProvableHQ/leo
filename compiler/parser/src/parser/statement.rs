@@ -152,7 +152,7 @@ impl ParserContext<'_> {
             type_: type_.0,
             start,
             stop,
-            inclusive : false,
+            inclusive: false,
             block,
         })
     }
