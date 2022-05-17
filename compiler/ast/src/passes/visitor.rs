@@ -92,10 +92,6 @@ pub trait StatementVisitor<'a> {
         Default::default()
     }
 
-    fn visit_expression_statement(&mut self, _input: &'a ExpressionStatement) -> VisitResult {
-        Default::default()
-    }
-
     fn visit_block(&mut self, _input: &'a Block) -> VisitResult {
         Default::default()
     }

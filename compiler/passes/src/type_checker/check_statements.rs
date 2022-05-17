@@ -123,11 +123,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         VisitResult::VisitChildren
     }
 
-    fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) -> VisitResult {
-        self.compare_expr_type(&input.expression, None, input.span());
-        VisitResult::SkipChildren
-    }
-
     fn visit_block(&mut self, input: &'a Block) -> VisitResult {
         self.symbol_table.push_variable_scope();
         // have to redo the logic here so we have scoping
@@ -139,7 +134,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 Statement::Conditional(stmt) => self.visit_conditional(stmt),
                 Statement::Iteration(stmt) => self.visit_iteration(stmt),
                 Statement::Console(stmt) => self.visit_console(stmt),
-                Statement::Expression(stmt) => self.visit_expression_statement(stmt),
                 Statement::Block(stmt) => self.visit_block(stmt),
             };
         });

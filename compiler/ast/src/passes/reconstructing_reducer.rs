@@ -232,17 +232,6 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_expression_statement(
-        &mut self,
-        expression_statement: &ExpressionStatement,
-        expression: Expression,
-    ) -> Result<ExpressionStatement> {
-        Ok(ExpressionStatement {
-            expression,
-            span: expression_statement.span,
-        })
-    }
-
     fn reduce_block(&mut self, block: &Block, statements: Vec<Statement>) -> Result<Block> {
         Ok(Block {
             statements,

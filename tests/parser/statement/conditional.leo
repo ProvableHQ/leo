@@ -16,6 +16,5 @@ if (x) {} else {}
 if x+y {} else if x+z {} else {}
 
 if x+y {
-    expr;
     return 0u8;
 }

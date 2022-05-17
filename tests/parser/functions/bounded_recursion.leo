@@ -1,6 +1,6 @@
 /*
 namespace: Parse
-expectation: Pass
+expectation: Fail
 */
 
 function x(constant y: u32) -> u8 {

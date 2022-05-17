@@ -390,4 +390,12 @@ create_messages!(
         msg: "Unicode bidi override code point encountered.",
         help: None,
     }
+
+    /// Previously, expression statements were allowed, but not anymore.
+    @formatted
+    expr_stmts_disallowed {
+        args: (),
+        msg: "Expression statements are no longer supported.",
+        help: None,
+    }
 );
