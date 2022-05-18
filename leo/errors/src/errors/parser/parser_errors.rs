@@ -136,22 +136,6 @@ create_messages!(
         help: None,
     }
 
-    /// For when the parser encountered a deprecated `mut` argument in a function.
-    @formatted
-    mut_function_input {
-        args: (),
-        msg: "function func(mut a: u32) { ... } is deprecated. Passed variables are mutable by default.",
-        help: None,
-    }
-
-    /// For when the parser encountered a deprecated `mut` argument in a let statement.
-    @formatted
-    let_mut_statement {
-        args: (),
-        msg: "let mut = ... is deprecated. `let` keyword implies mutabality by default.",
-        help: None,
-    }
-
     /// For when the parser encountered a deprecated `test function`.
     @formatted
     test_function {

@@ -17,7 +17,6 @@
 use super::*;
 
 use leo_errors::{ParserError, Result};
-use leo_span::sym;
 
 const INT_TYPES: &[Token] = &[
     Token::I8,
@@ -317,7 +316,6 @@ impl ParserContext<'_> {
                 let ident = Identifier { name, span };
                 Expression::Identifier(ident)
             }
-            Token::Input => Expression::Identifier(Identifier { name: sym::input, span }),
             t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
                 name: t.keyword_to_symbol().unwrap(),
                 span,

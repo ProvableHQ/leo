@@ -85,13 +85,8 @@ impl ParserContext<'_> {
     /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
     pub fn parse_function_parameter(&mut self) -> Result<FunctionInput> {
         let mode = self.parse_function_parameter_mode()?;
-        let mutable = self.eat(&Token::Mut).then(|| self.prev_token.clone());
 
         let name = self.expect_ident()?;
-
-        if let Some(mutable) = &mutable {
-            self.emit_err(ParserError::mut_function_input(mutable.span + name.span));
-        }
 
         self.expect(&Token::Colon)?;
         let type_ = self.parse_type()?.0;

@@ -140,7 +140,6 @@ impl ParserContext<'_> {
         // Parse iteration range.
         let start = self.parse_expression()?;
         self.expect(&Token::DotDot)?;
-        let inclusive = self.eat(&Token::Assign);
         self.disallow_circuit_construction = true;
         let stop = self.parse_conditional_expression()?;
         self.disallow_circuit_construction = false;
@@ -153,7 +152,7 @@ impl ParserContext<'_> {
             type_: type_.0,
             start,
             stop,
-            inclusive,
+            inclusive: false,
             block,
         })
     }
@@ -219,11 +218,7 @@ impl ParserContext<'_> {
 
     /// Returns a [`VariableName`] AST node if the next tokens represent a variable name with
     /// valid keywords.
-    pub fn parse_variable_name(&mut self, decl_ty: Declare, span: Span) -> Result<VariableName> {
-        if self.eat(&Token::Mut) {
-            self.emit_err(ParserError::let_mut_statement(self.prev_token.span + span));
-        }
-
+    pub fn parse_variable_name(&mut self, decl_ty: Declare, _span: Span) -> Result<VariableName> {
         let name = self.expect_ident()?;
         Ok(VariableName {
             span: name.span,

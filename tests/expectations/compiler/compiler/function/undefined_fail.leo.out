@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370045]: Expression statements are no longer supported.\n    --> compiler-test:4:5\n     |\n   4 |     my_function();\n     |     ^^^^^^^^^^^^^^"
+  - "Error [EPAR0370043]: Expression statements are no longer supported.\n    --> compiler-test:4:5\n     |\n   4 |     my_function();\n     |     ^^^^^^^^^^^^^^"
