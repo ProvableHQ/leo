@@ -140,7 +140,6 @@ impl ParserContext<'_> {
         // Parse iteration range.
         let start = self.parse_expression()?;
         self.expect(&Token::DotDot)?;
-        let inclusive = self.eat(&Token::Assign);
         self.disallow_circuit_construction = true;
         let stop = self.parse_conditional_expression()?;
         self.disallow_circuit_construction = false;
@@ -153,7 +152,7 @@ impl ParserContext<'_> {
             type_: type_.0,
             start,
             stop,
-            inclusive,
+            inclusive: false,
             block,
         })
     }
