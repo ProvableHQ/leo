@@ -27,8 +27,6 @@ pub enum Type {
     Address,
     /// The `bool` type.
     Boolean,
-    /// The `char` type.
-    Char,
     /// The `field` type.
     Field,
     /// The `group` type.
@@ -51,7 +49,6 @@ impl Type {
         match (self, other) {
             (Type::Address, Type::Address) => true,
             (Type::Boolean, Type::Boolean) => true,
-            (Type::Char, Type::Char) => true,
             (Type::Field, Type::Field) => true,
             (Type::Group, Type::Group) => true,
             (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(right),
@@ -65,7 +62,6 @@ impl fmt::Display for Type {
         match *self {
             Type::Address => write!(f, "address"),
             Type::Boolean => write!(f, "bool"),
-            Type::Char => write!(f, "char"),
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),

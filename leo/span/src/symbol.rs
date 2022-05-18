@@ -105,7 +105,6 @@ symbols! {
     array,
     assert,
     bool,
-    char,
     Class: "class",
     context,
     constants,

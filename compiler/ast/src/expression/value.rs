@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::{Char, CharValue};
+use crate::Char;
 
 /// A literal expression.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -25,8 +25,6 @@ pub enum ValueExpression {
     Address(String, #[serde(with = "leo_span::span_json")] Span),
     /// A boolean literal, either `true` or `false`.
     Boolean(String, #[serde(with = "leo_span::span_json")] Span),
-    /// A char literal, e.g., `'a'`, representing a single unicode code point.
-    Char(CharValue),
     /// A field literal, e.g., `42field`.
     /// That is, a signed number followed by the keyword `field`.
     Field(String, #[serde(with = "leo_span::span_json")] Span),
@@ -45,7 +43,6 @@ impl fmt::Display for ValueExpression {
         match &self {
             Address(address, _) => write!(f, "{}", address),
             Boolean(boolean, _) => write!(f, "{}", boolean),
-            Char(character) => write!(f, "{}", character),
             Field(field, _) => write!(f, "{}", field),
             Integer(type_, value, _) => write!(f, "{}{}", value, type_),
             Group(group) => write!(f, "{}", group),
@@ -64,7 +61,6 @@ impl Node for ValueExpression {
         use ValueExpression::*;
         match &self {
             Address(_, span) | Boolean(_, span) | Field(_, span) | Integer(_, _, span) | String(_, span) => *span,
-            Char(character) => character.span,
             Group(group) => match &**group {
                 GroupValue::Single(_, span) => *span,
                 GroupValue::Tuple(tuple) => tuple.span,
@@ -78,7 +74,6 @@ impl Node for ValueExpression {
             Address(_, span) | Boolean(_, span) | Field(_, span) | Integer(_, _, span) | String(_, span) => {
                 *span = new_span
             }
-            Char(character) => character.span = new_span,
             Group(group) => match &mut **group {
                 GroupValue::Single(_, span) => *span = new_span,
                 GroupValue::Tuple(tuple) => tuple.span = new_span,

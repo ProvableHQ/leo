@@ -25,12 +25,11 @@ pub enum Char {
     NonScalar(u32),
 }
 
-#[allow(clippy::from_over_into)]
-impl Into<leo_ast::Char> for Char {
-    fn into(self) -> leo_ast::Char {
-        match self {
-            Self::Scalar(c) => leo_ast::Char::Scalar(c),
-            Self::NonScalar(c) => leo_ast::Char::NonScalar(c),
+impl From<Char> for leo_ast::Char {
+    fn from(val: Char) -> Self {
+        match val {
+            Char::Scalar(c) => Self::Scalar(c),
+            Char::NonScalar(c) => Self::NonScalar(c),
         }
     }
 }
@@ -57,7 +56,6 @@ pub enum Token {
     True,
     False,
     AddressLit(String),
-    CharLit(Char),
     WhiteSpace,
 
     // Symbols
@@ -107,7 +105,6 @@ pub enum Token {
     Group,
     Bool,
     Address,
-    Char,
 
     // Regular Keywords
     Console,
@@ -133,7 +130,6 @@ pub enum Token {
 pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Address,
     Token::Bool,
-    Token::Char,
     Token::Console,
     Token::Const,
     Token::Else,
@@ -171,7 +167,6 @@ impl Token {
         Some(match self {
             Token::Address => sym::address,
             Token::Bool => sym::bool,
-            Token::Char => sym::char,
             Token::Console => sym::console,
             Token::Const => sym::Const,
             Token::Constant => sym::Constant,
@@ -220,7 +215,6 @@ impl fmt::Display for Token {
             True => write!(f, "true"),
             False => write!(f, "false"),
             AddressLit(s) => write!(f, "{}", s),
-            CharLit(s) => write!(f, "'{}'", s),
             WhiteSpace => write!(f, "whitespace"),
 
             Not => write!(f, "!"),
@@ -267,8 +261,6 @@ impl fmt::Display for Token {
             Group => write!(f, "group"),
             Bool => write!(f, "bool"),
             Address => write!(f, "address"),
-            Char => write!(f, "char"),
-
             Console => write!(f, "console"),
             Const => write!(f, "const"),
             Constant => write!(f, "constant"),
