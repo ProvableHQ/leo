@@ -125,12 +125,6 @@ outputs:
             hi: 6
       block:
         statements:
-          - Expression:
-              expression:
-                Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":13}\"}"
-              span:
-                lo: 9
-                hi: 13
           - Return:
               expression:
                 Value:
@@ -138,15 +132,15 @@ outputs:
                     - U8
                     - "0"
                     - span:
-                        lo: 22
-                        hi: 25
+                        lo: 16
+                        hi: 19
               span:
-                lo: 15
-                hi: 25
+                lo: 9
+                hi: 19
         span:
           lo: 7
-          hi: 28
+          hi: 22
       next: ~
       span:
         lo: 0
-        hi: 28
+        hi: 22

@@ -126,7 +126,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             Statement::Conditional(conditional) => Statement::Conditional(self.reduce_conditional(conditional)?),
             Statement::Iteration(iteration) => Statement::Iteration(Box::new(self.reduce_iteration(iteration)?)),
             Statement::Console(console) => Statement::Console(self.reduce_console(console)?),
-            Statement::Expression(expression) => Statement::Expression(self.reduce_expression_statement(expression)?),
             Statement::Block(block) => Statement::Block(self.reduce_block(block)?),
         };
 
@@ -239,11 +238,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         };
 
         self.reducer.reduce_console(console_function_call, function)
-    }
-
-    pub fn reduce_expression_statement(&mut self, expression: &ExpressionStatement) -> Result<ExpressionStatement> {
-        let inner_expression = self.reduce_expression(&expression.expression)?;
-        self.reducer.reduce_expression_statement(expression, inner_expression)
     }
 
     pub fn reduce_block(&mut self, block: &Block) -> Result<Block> {

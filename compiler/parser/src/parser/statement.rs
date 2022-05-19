@@ -70,11 +70,11 @@ impl ParserContext<'_> {
                 value,
             })))
         } else {
+            // Error on `expr;` but recover as an empty block `{}`.
             self.expect(&Token::Semicolon)?;
-            Ok(Statement::Expression(ExpressionStatement {
-                span: expr.span(),
-                expression: expr,
-            }))
+            let span = expr.span() + self.prev_token.span;
+            self.emit_err(ParserError::expr_stmts_disallowed(span));
+            Ok(Statement::dummy(span))
         }
     }
 
