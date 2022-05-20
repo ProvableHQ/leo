@@ -15,15 +15,5 @@ function main(k: bool) -> bool {
         forward = forward + x;
     }
 
-    let reverse_inclusive: u32 = 0u32;
-    for a: u32 in 10u32..=0u32 {
-        reverse_inclusive = reverse_inclusive + a;
-    }
-
-    let forward_inclusive: u32 = 0u32;
-    for b: u32 in 0u32..=10u32 {
-        forward_inclusive = forward_inclusive + b;
-    }
-
-    return (reverse == forward) && (reverse_inclusive == forward_inclusive) && k;
+    return (reverse == forward) && k;
 }

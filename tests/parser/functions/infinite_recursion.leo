@@ -1,6 +1,6 @@
 /*
 namespace: Parse
-expectation: Pass
+expectation: Fail
 */
 
 function inf() -> u8 {

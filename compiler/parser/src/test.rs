@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{tokenizer, ParserContext, SpannedToken};
-use leo_ast::{Expression, ExpressionStatement, Statement, ValueExpression};
+use leo_ast::Statement;
 use leo_errors::{emitter::Handler, LeoError};
 use leo_span::{
     source_map::FileName,
@@ -122,10 +122,7 @@ impl Namespace for ParseStatementNamespace {
         create_session_if_not_set_then(|s| {
             let tokenizer = tokenize(test, s)?;
             if all_are_comments(&tokenizer) {
-                return Ok(yaml_or_fail(Statement::Expression(ExpressionStatement {
-                    expression: Expression::Value(ValueExpression::String(Vec::new(), Default::default())),
-                    span: Span::default(),
-                })));
+                return Ok(yaml_or_fail(Statement::dummy(Span::default())));
             }
             with_handler(tokenizer, |p| p.parse_statement()).map(yaml_or_fail)
         })

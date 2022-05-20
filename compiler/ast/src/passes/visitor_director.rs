@@ -91,7 +91,6 @@ impl<'a, V: ExpressionVisitor<'a> + StatementVisitor<'a>> VisitorDirector<'a, V>
                 Statement::Conditional(stmt) => self.visit_conditional(stmt),
                 Statement::Iteration(stmt) => self.visit_iteration(stmt),
                 Statement::Console(stmt) => self.visit_console(stmt),
-                Statement::Expression(stmt) => self.visit_expression_statement(stmt),
                 Statement::Block(stmt) => self.visit_block(stmt),
             }
         }
@@ -141,12 +140,6 @@ impl<'a, V: ExpressionVisitor<'a> + StatementVisitor<'a>> VisitorDirector<'a, V>
                     fmt.parameters.iter().for_each(|expr| self.visit_expression(expr));
                 }
             }
-        }
-    }
-
-    pub fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) {
-        if let VisitResult::VisitChildren = self.visitor.visit_expression_statement(input) {
-            self.visit_expression(&input.expression);
         }
     }
 

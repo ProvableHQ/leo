@@ -36,11 +36,18 @@ pub enum Statement {
     Iteration(Box<IterationStatement>),
     /// A console logging statement.
     Console(ConsoleStatement),
-    /// An expression statement turning an expression into a statement,
-    /// using the expression only for its side-effects.
-    Expression(ExpressionStatement),
     /// A block statement.
     Block(Block),
+}
+
+impl Statement {
+    /// Returns a dummy statement made from an empty block `{}`.
+    pub fn dummy(span: Span) -> Self {
+        Self::Block(Block {
+            statements: Vec::new(),
+            span,
+        })
+    }
 }
 
 impl fmt::Display for Statement {
@@ -52,7 +59,6 @@ impl fmt::Display for Statement {
             Statement::Conditional(x) => x.fmt(f),
             Statement::Iteration(x) => x.fmt(f),
             Statement::Console(x) => x.fmt(f),
-            Statement::Expression(x) => x.fmt(f),
             Statement::Block(x) => x.fmt(f),
         }
     }
@@ -68,7 +74,6 @@ impl Node for Statement {
             Conditional(n) => n.span(),
             Iteration(n) => n.span(),
             Console(n) => n.span(),
-            Expression(n) => n.span(),
             Block(n) => n.span(),
         }
     }
@@ -82,7 +87,6 @@ impl Node for Statement {
             Conditional(n) => n.set_span(span),
             Iteration(n) => n.set_span(span),
             Console(n) => n.set_span(span),
-            Expression(n) => n.set_span(span),
             Block(n) => n.set_span(span),
         }
     }

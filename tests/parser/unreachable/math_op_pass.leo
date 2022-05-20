@@ -20,16 +20,6 @@ let x: u8 = a > b;
 
 x_=b;
 
-x==b;
-
-x!=b;
-
-x>=b;
-
-x<=b;
-
-x>=b;
-
 xconsole=b;
 
 xconst=b;

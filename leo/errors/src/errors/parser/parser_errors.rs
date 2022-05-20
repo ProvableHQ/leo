@@ -136,22 +136,6 @@ create_messages!(
         help: None,
     }
 
-    /// For when the parser encountered a deprecated `mut` argument in a function.
-    @formatted
-    mut_function_input {
-        args: (),
-        msg: "function func(mut a: u32) { ... } is deprecated. Passed variables are mutable by default.",
-        help: None,
-    }
-
-    /// For when the parser encountered a deprecated `mut` argument in a let statement.
-    @formatted
-    let_mut_statement {
-        args: (),
-        msg: "let mut = ... is deprecated. `let` keyword implies mutabality by default.",
-        help: None,
-    }
-
     /// For when the parser encountered a deprecated `test function`.
     @formatted
     test_function {
@@ -388,6 +372,14 @@ create_messages!(
     lexer_bidi_override {
         args: (),
         msg: "Unicode bidi override code point encountered.",
+        help: None,
+    }
+
+    /// Previously, expression statements were allowed, but not anymore.
+    @formatted
+    expr_stmts_disallowed {
+        args: (),
+        msg: "Expression statements are no longer supported.",
         help: None,
     }
 );
