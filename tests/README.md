@@ -45,27 +45,32 @@ generated instead. A PR should contain changes to expectations as well as to tes
 
 Here is the list of all possible configuration options for compiler and parser tests.
 
-#### namespace
+### namespace
 
-```
+```yaml
 - Mandatory: yes
 - Namespace: all
-- Values: Compile / Parse
+- Values: ...
 ```
 
-Only two values are supported: `Parse` and `Compile`. The former is meant to be a parser test, the latter
-is a full compiler test.
+Several values are supported, but they vary depending on the directory you are in.
 
-Besides the `Parse` value,
-there are actually additional possible values for this field:
-`ParseStatement`, `ParseExpression`, and `Token`.
-Each one of them allows testing Leo parser on different levels - lexer tokens or just expressions/statements.
+Parser Directory namespaces:
 
-Compiler tests always include complete Leo programs.
+- `Parse` - Parses a whole Leo file checking it is parsable.
+- `ParseExpression` - Parses a Leo file line by line to see if it contains a valid expression. 
+- `ParseStatement` - Parses a Leo file consuming multiple lines till a new line to see if it contains a valid statement.
+- `Serialize` - Parses a whole Leo file testing serialization to JSON.
+- `Input` - Parses a whole input file checking if it's a valid input file.
+- `Token` - Parses a Leo file line by line to see if it contains valid tokens.
+
+Compiler Directory namespaces:
+
+- `Compiler` - Parses a whole Leo file and tests it end to end.
 
 ### expectation
 
-```
+```yaml
 - Mandatory: yes
 - Namespace: all
 - Values: Pass / Fail
@@ -77,7 +82,7 @@ you'll know that something went wrong and the test or the compiler/parser needs 
 
 ### input_file (Compile)
 
-```
+```yaml
 - Mandatory: no
 - Namespace: Compile
 - Values: <input file path>, ...
@@ -87,7 +92,7 @@ This setting allows using one or more input files for the Leo program.
 The program will be run with every provided input.
 See this example:
 
-```
+```yaml
 /*
 namespace: Compile
 expectation: Pass
