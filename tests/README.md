@@ -58,11 +58,11 @@ Several values are supported, but they vary depending on the directory you are i
 Parser Directory namespaces:
 
 - `Parse` - Parses a whole Leo file checking it is parsable.
-- `ParseExpression` - Parses a Leo file line by line to see if it contains a valid expression. 
-- `ParseStatement` - Parses a Leo file consuming multiple lines till a new line to see if it contains a valid statement.
+- `ParseExpression` - Parses a Leo file line by line to see if each line contains an expression. 
+- `ParseStatement` - Parses a Leo file consuming multiple lines till a blank line to see if it contains a valid statement.
 - `Serialize` - Parses a whole Leo file testing serialization to JSON.
 - `Input` - Parses a whole input file checking if it's a valid input file.
-- `Token` - Parses a Leo file line by line to see if it contains valid tokens.
+- `Token` - Parses a Leo file line by line to see if it contains zero or more valid tokens.
 
 Compiler Directory namespaces:
 
