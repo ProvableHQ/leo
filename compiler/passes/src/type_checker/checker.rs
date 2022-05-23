@@ -27,53 +27,10 @@ pub struct TypeChecker<'a> {
     pub(crate) negate: bool,
 }
 
-// todo @gluax: find a more scalable way to check for types
-const FIELD_GROUP_SCALAR_INT: &[Type] = &[
-    Type::Field,
-    Type::Group,
-    Type::Scalar,
-    Type::IntegerType(IntegerType::I8),
-    Type::IntegerType(IntegerType::I16),
-    Type::IntegerType(IntegerType::I32),
-    Type::IntegerType(IntegerType::I64),
-    Type::IntegerType(IntegerType::I128),
-    Type::IntegerType(IntegerType::U8),
-    Type::IntegerType(IntegerType::U16),
-    Type::IntegerType(IntegerType::U32),
-    Type::IntegerType(IntegerType::U64),
-    Type::IntegerType(IntegerType::U128),
-];
-
-const FIELD_GROUP_INT: &[Type] = &[
-    Type::Field,
-    Type::Group,
-    Type::IntegerType(IntegerType::I8),
-    Type::IntegerType(IntegerType::I16),
-    Type::IntegerType(IntegerType::I32),
-    Type::IntegerType(IntegerType::I64),
-    Type::IntegerType(IntegerType::I128),
-    Type::IntegerType(IntegerType::U8),
-    Type::IntegerType(IntegerType::U16),
-    Type::IntegerType(IntegerType::U32),
-    Type::IntegerType(IntegerType::U64),
-    Type::IntegerType(IntegerType::U128),
-];
-
-const FIELD_INT_TYPES: &[Type] = &[
-    Type::Field,
-    Type::IntegerType(IntegerType::I8),
-    Type::IntegerType(IntegerType::I16),
-    Type::IntegerType(IntegerType::I32),
-    Type::IntegerType(IntegerType::I64),
-    Type::IntegerType(IntegerType::I128),
-    Type::IntegerType(IntegerType::U8),
-    Type::IntegerType(IntegerType::U16),
-    Type::IntegerType(IntegerType::U32),
-    Type::IntegerType(IntegerType::U64),
-    Type::IntegerType(IntegerType::U128),
-];
-
-const INT_TYPES: &[Type] = &[
+const FIELD_TYPE: Type = Type::Field;
+const GROUP_TYPE: Type = Type::Group;
+const SCALAR_TYPE: Type = Type::Scalar;
+const INT_TYPES: [Type; 10] = [
     Type::IntegerType(IntegerType::I8),
     Type::IntegerType(IntegerType::I16),
     Type::IntegerType(IntegerType::I32),
@@ -129,18 +86,22 @@ impl<'a> TypeChecker<'a> {
     }
 
     pub(crate) fn assert_field_group_scalar_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
-        self.assert_one_of_types(type_, FIELD_GROUP_SCALAR_INT, span)
+        self.assert_one_of_types(type_, , span)
     }
 
     pub(crate) fn assert_field_group_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
-        self.assert_one_of_types(type_, FIELD_GROUP_INT, span)
+        self.assert_one_of_types(type_, , span)
+    }
+
+    pub(crate) fn assert_field_scalar_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
+        self.assert_one_of_types(type_, , span)
     }
 
     pub(crate) fn assert_field_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
-        self.assert_one_of_types(type_, FIELD_INT_TYPES, span)
+        self.assert_one_of_types(type_,  span)
     }
 
     pub(crate) fn assert_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
-        self.assert_one_of_types(type_, INT_TYPES, span)
+        self.assert_one_of_types(type_, , span)
     }
 }

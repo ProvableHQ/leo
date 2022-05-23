@@ -242,10 +242,10 @@ impl<'a> TypeChecker<'a> {
                     self.assert_type(Type::Boolean, expected.clone(), binary.span());
 
                     let t1 = self.compare_expr_type(&binary.left, None, binary.left.span());
-                    self.assert_int_type(t1.clone(), binary.left.span());
+                    self.assert_field_scalar_int_type(t1.clone(), binary.left.span());
 
                     let t2 = self.compare_expr_type(&binary.right, None, binary.right.span());
-                    self.assert_int_type(t2.clone(), binary.right.span());
+                    self.assert_field_scalar_int_type(t2.clone(), binary.right.span());
 
                     return_incorrect_type(t1, t2, expected)
                 }
