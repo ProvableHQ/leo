@@ -57,16 +57,16 @@ Several values are supported, but they vary depending on the directory you are i
 
 Parser Directory namespaces:
 
-- `Parse` - Parses a whole Leo file checking it is parsable.
-- `ParseExpression` - Parses a Leo file line by line to see if each line contains an expression. 
-- `ParseStatement` - Parses a Leo file consuming multiple lines till a blank line to see if it contains a valid statement.
-- `Serialize` - Parses a whole Leo file testing serialization to JSON.
-- `Input` - Parses a whole input file checking if it's a valid input file.
-- `Token` - Parses a Leo file line by line to see if it contains zero or more valid tokens.
+- `Parse` - Test a file to check that it is a valid Leo program.
+- `ParseExpression` - Test a file line by line to check that each line is a valid Leo expression. 
+- `ParseStatement` - Test a file consuming multiple lines till a blank line to check that it contains a valid Leo statement.
+- `Serialize` - Test a file to check that it can be serialized to JSON.
+- `Input` - Test an input file to check that it is a valid Leo input file.
+- `Token` - Test a file line by line to check that it contains zero or more valid Leo parser tokens.
 
 Compiler Directory namespaces:
 
-- `Compiler` - Parses a whole Leo file and tests it end to end.
+- `Compiler` - Test a file to check that it is a valid Leo program, and it can be compiled without errors.
 
 ### expectation
 
