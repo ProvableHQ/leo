@@ -284,3 +284,22 @@ impl fmt::Display for Token {
         }
     }
 }
+
+/// Describes delimiters of a token sequence.
+#[derive(Copy, Clone)]
+pub enum Delimiter {
+    /// `( ... )`
+    Parenthesis,
+    /// `{ ... }`
+    Brace,
+}
+
+impl Delimiter {
+    /// Returns the open/close tokens that the delimiter corresponds to.
+    pub fn open_close_pair(self) -> (Token, Token) {
+        match self {
+            Self::Parenthesis => (Token::LeftParen, Token::RightParen),
+            Self::Brace => (Token::LeftCurly, Token::RightCurly),
+        }
+    }
+}

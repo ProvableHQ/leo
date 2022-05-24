@@ -23,7 +23,7 @@ use crate::{tokenizer::*, Token};
 
 use leo_ast::*;
 use leo_errors::emitter::Handler;
-use leo_errors::{ParserError, Result};
+use leo_errors::Result;
 use leo_span::Span;
 
 use indexmap::IndexMap;
@@ -31,22 +31,13 @@ use leo_span::span::BytePos;
 use std::unreachable;
 
 mod context;
-pub use context::*;
+pub(super) use context::ParserContext;
 
-pub mod expression;
-pub mod file;
-pub mod input;
-pub mod statement;
-pub mod type_;
-
-pub(crate) fn assert_no_whitespace(left_span: Span, right_span: Span, left: &str, right: &str) -> Result<()> {
-    if left_span.hi != right_span.lo {
-        let error_span = Span::new(left_span.hi, right_span.lo); // The span between them.
-        return Err(ParserError::unexpected_whitespace(left, right, error_span).into());
-    }
-
-    Ok(())
-}
+mod expression;
+mod file;
+mod input;
+mod statement;
+pub(super) mod type_;
 
 /// Creates a new program from a given file path and source code text.
 pub fn parse(handler: &Handler, source: &str, start_pos: BytePos) -> Result<Program> {
