@@ -55,7 +55,8 @@ impl Type {
             | (Type::Boolean, Type::Boolean)
             | (Type::Char, Type::Char)
             | (Type::Field, Type::Field)
-            | (Type::Group, Type::Group) => true,
+            | (Type::Group, Type::Group) 
+            | (Type::Scalar, Type::Scalar) => true,
             (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(right),
             _ => false,
         }
