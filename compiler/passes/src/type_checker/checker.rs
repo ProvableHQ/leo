@@ -76,6 +76,16 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
+    pub(crate) fn assert_eq_types(&self, t1: Option<Type>, t2: Option<Type>, span: Span) {
+        match (t1, t2) {
+            (Some(t1), Some(t2)) if t1 != t2 => self.handler
+                    .emit_err(TypeCheckerError::type_should_be(t1, t2, span).into()),
+            (Some(type_), None) | (None, Some(type_)) => self.handler
+                    .emit_err(TypeCheckerError::type_should_be("no type", type_, span).into()),
+            _ => {}
+        }
+    }
+
     pub(crate) fn assert_type(&self, type_: Type, expected: Option<Type>, span: Span) -> Type {
         if let Some(expected) = expected {
             if type_ != expected {
