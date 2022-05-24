@@ -21,14 +21,14 @@ use crate::{Char, CharValue};
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ValueExpression {
     // todo: deserialize values here
-    /// An address literal, e.g., `aleo1..`.
+    /// An address literal, e.g., `aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9`.
     Address(String, #[serde(with = "leo_span::span_json")] Span),
     /// A boolean literal, either `true` or `false`.
     Boolean(String, #[serde(with = "leo_span::span_json")] Span),
     /// A char literal, e.g., `'a'`, representing a single unicode code point.
     Char(CharValue),
     /// A field literal, e.g., `42field`.
-    /// That is, a signed number followed by the keyword `field`.
+    /// A signed number followed by the keyword `field`.
     Field(String, #[serde(with = "leo_span::span_json")] Span),
     /// A group literal, either product or affine.
     /// For example, `42group` or `(12, 52)group`.
