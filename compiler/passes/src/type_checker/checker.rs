@@ -64,9 +64,10 @@ const FIELD_SCALAR_INT_TYPES: [Type; 12] = create_type_superset(FIELD_INT_TYPES,
 
 const FIELD_GROUP_INT_TYPES: [Type; 12] = create_type_superset(FIELD_INT_TYPES, [Type::Group]);
 
-const ALL_NUMERICAL_TYPES: [Type; 13] = create_type_superset(FIELD_GROUP_INT_TYPES, [Type::Scalar]);
+const FIELD_GROUP_SCALAR_INT_TYPES: [Type; 13] = create_type_superset(FIELD_GROUP_INT_TYPES, [Type::Scalar]);
 
 impl<'a> TypeChecker<'a> {
+    /// Returns a new type checker given a symbol table and error handler.
     pub fn new(symbol_table: &'a mut SymbolTable<'a>, handler: &'a Handler) -> Self {
         Self {
             symbol_table,
@@ -76,6 +77,7 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
+    /// Returns the given type if it equals the expected type or the expected type is none.
     pub(crate) fn assert_type(&self, type_: Type, expected: Option<Type>, span: Span) -> Type {
         if let Some(expected) = expected {
             if type_ != expected {
@@ -87,52 +89,39 @@ impl<'a> TypeChecker<'a> {
         type_
     }
 
-    pub(crate) fn assert_one_of_types(&self, type_: Option<Type>, expected: &[Type], span: Span) -> Option<Type> {
+    /// Emits an error to the error handler if the given type is not equal to any of the expected types.
+    pub(crate) fn assert_one_of_types(&self, type_: Option<Type>, expected: &[Type], span: Span) {
         if let Some(type_) = type_ {
-            for t in expected.iter() {
-                if &type_ == t {
-                    return Some(type_);
-                }
+            if !expected.iter().any(|t: &Type| t == &type_) {
+                self.handler.emit_err(
+                    TypeCheckerError::expected_one_type_of(
+                        expected.iter().map(|t| t.to_string() + ",").collect::<String>(),
+                        type_,
+                        span,
+                    )
+                    .into(),
+                );
             }
-
-            self.handler.emit_err(
-                TypeCheckerError::expected_one_type_of(
-                    expected.iter().map(|t| t.to_string() + ",").collect::<String>(),
-                    type_,
-                    span,
-                )
-                .into(),
-            );
         }
-
-        type_
     }
 
-    pub(crate) fn _assert_arith_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
-        self.assert_one_of_types(type_, &FIELD_GROUP_INT_TYPES, span)
-    }
-
-    pub(crate) fn _assert_field_or_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
+    /// Emits an error to the handler if the given type is not a field or integer.
+    pub(crate) fn assert_field_int_type(&self, type_: Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &FIELD_INT_TYPES, span)
     }
 
-    pub(crate) fn _assert_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
-        self.assert_one_of_types(type_, &INT_TYPES, span)
-    }
-
-    pub(crate) fn assert_field_group_scalar_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
-        self.assert_one_of_types(type_, &ALL_NUMERICAL_TYPES, span)
-    }
-
-    pub(crate) fn assert_field_group_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
-        self.assert_one_of_types(type_, &FIELD_GROUP_INT_TYPES, span)
-    }
-
-    pub(crate) fn assert_field_scalar_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
+    /// Emits an error to the handler if the given type is not a field, scalar, or integer.
+    pub(crate) fn assert_field_scalar_int_type(&self, type_: Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &FIELD_SCALAR_INT_TYPES, span)
     }
 
-    pub(crate) fn assert_field_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
-        self.assert_one_of_types(type_, &FIELD_INT_TYPES, span)
+    /// Emits an error to the handler if the given type is not a field, group, or integer.
+    pub(crate) fn assert_field_group_int_type(&self, type_: Option<Type>, span: Span) {
+        self.assert_one_of_types(type_, &FIELD_GROUP_INT_TYPES, span)
+    }
+
+    /// Emits an error to the handler if the given type is not a field, group, scalar or integer.
+    pub(crate) fn assert_field_group_scalar_int_type(&self, type_: Option<Type>, span: Span) {
+        self.assert_one_of_types(type_, &FIELD_GROUP_SCALAR_INT_TYPES, span)
     }
 }
