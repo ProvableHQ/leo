@@ -265,7 +265,7 @@ impl<'a> TypeChecker<'a> {
                             )
                             | Type::Field
                             | Type::Group,
-                        ) => {},
+                        ) => {}
                         Some(t) => self
                             .handler
                             .emit_err(TypeCheckerError::type_is_not_negatable(t, unary.inner.span()).into()),

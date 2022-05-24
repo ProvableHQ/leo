@@ -70,6 +70,10 @@ pub enum LeoError {
     /// Represents an Type Checker Error in a Leo Error.
     #[error(transparent)]
     TypeCheckerError(#[from] TypeCheckerError),
+    /// Purely for just exiting with the correct status code and
+    /// not re-displaying an error.
+    #[error("")]
+    LastErrorCode(i32),
 }
 
 impl LeoError {
@@ -85,6 +89,7 @@ impl LeoError {
             ParserError(error) => error.error_code(),
             PackageError(error) => error.error_code(),
             TypeCheckerError(error) => error.error_code(),
+            LastErrorCode(_) => unreachable!(),
         }
     }
 
@@ -100,6 +105,7 @@ impl LeoError {
             ParserError(error) => error.exit_code(),
             PackageError(error) => error.exit_code(),
             TypeCheckerError(error) => error.exit_code(),
+            LastErrorCode(code) => *code,
         }
     }
 }
