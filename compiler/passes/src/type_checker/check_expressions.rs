@@ -168,14 +168,14 @@ impl<'a> TypeChecker<'a> {
                     let t1 = self.compare_expr_type(&binary.left, None, binary.left.span());
                     let t2 = self.compare_expr_type(&binary.right, None, binary.right.span());
 
-                    
                     // Allow `group` * `scalar` multiplication.
                     match (t1.as_ref(), t2.as_ref()) {
                         (Some(Type::Group), Some(other)) => {
                             self.assert_type(t1.unwrap(), expected, binary.left.span());
                             self.assert_type(*other, Some(Type::Scalar), binary.span());
                             Some(Type::Group)
-                        } (Some(other), Some(Type::Group)) => {
+                        }
+                        (Some(other), Some(Type::Group)) => {
                             self.assert_type(t2.unwrap(), expected, binary.left.span());
                             self.assert_type(*other, Some(Type::Scalar), binary.span());
                             Some(Type::Group)
