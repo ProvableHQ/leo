@@ -21,20 +21,23 @@ use crate::{Char, CharValue};
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ValueExpression {
     // todo: deserialize values here
-    /// An address literal, e.g., `aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8`.
+    /// An address literal, e.g., `aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9`.
     Address(String, #[serde(with = "leo_span::span_json")] Span),
     /// A boolean literal, either `true` or `false`.
     Boolean(String, #[serde(with = "leo_span::span_json")] Span),
     /// A char literal, e.g., `'a'`, representing a single unicode code point.
     Char(CharValue),
     /// A field literal, e.g., `42field`.
-    /// That is, a signed number followed by the keyword `field`.
+    /// A signed number followed by the keyword `field`.
     Field(String, #[serde(with = "leo_span::span_json")] Span),
     /// A group literal, either product or affine.
     /// For example, `42group` or `(12, 52)group`.
     Group(Box<GroupValue>),
     /// An integer literal, e.g., `42`.
     Integer(IntegerType, String, #[serde(with = "leo_span::span_json")] Span),
+    /// A scalar literal, e.g. `1scalar`.
+    /// An unsigned number followed by the keyword `scalar`.
+    Scalar(String, #[serde(with = "leo_span::span_json")] Span),
     /// A string literal, e.g., `"foobar"`.
     String(Vec<Char>, #[serde(with = "leo_span::span_json")] Span),
 }
@@ -47,8 +50,9 @@ impl fmt::Display for ValueExpression {
             Boolean(boolean, _) => write!(f, "{}", boolean),
             Char(character) => write!(f, "{}", character),
             Field(field, _) => write!(f, "{}", field),
-            Integer(type_, value, _) => write!(f, "{}{}", value, type_),
             Group(group) => write!(f, "{}", group),
+            Integer(type_, value, _) => write!(f, "{}{}", value, type_),
+            Scalar(scalar, _) => write!(f, "{}", scalar),
             String(string, _) => {
                 for character in string.iter() {
                     write!(f, "{}", character)?;
@@ -63,7 +67,12 @@ impl Node for ValueExpression {
     fn span(&self) -> Span {
         use ValueExpression::*;
         match &self {
-            Address(_, span) | Boolean(_, span) | Field(_, span) | Integer(_, _, span) | String(_, span) => *span,
+            Address(_, span)
+            | Boolean(_, span)
+            | Field(_, span)
+            | Integer(_, _, span)
+            | Scalar(_, span)
+            | String(_, span) => *span,
             Char(character) => character.span,
             Group(group) => match &**group {
                 GroupValue::Single(_, span) => *span,
@@ -75,9 +84,12 @@ impl Node for ValueExpression {
     fn set_span(&mut self, new_span: Span) {
         use ValueExpression::*;
         match self {
-            Address(_, span) | Boolean(_, span) | Field(_, span) | Integer(_, _, span) | String(_, span) => {
-                *span = new_span
-            }
+            Address(_, span)
+            | Boolean(_, span)
+            | Field(_, span)
+            | Integer(_, _, span)
+            | Scalar(_, span)
+            | String(_, span) => *span = new_span,
             Char(character) => character.span = new_span,
             Group(group) => match &mut **group {
                 GroupValue::Single(_, span) => *span = new_span,
