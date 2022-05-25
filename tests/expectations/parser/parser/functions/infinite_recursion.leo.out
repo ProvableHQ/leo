@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error [EPAR0370043]: Expression statements are no longer supported.\n    --> test:4:5\n     |\n   4 |     inf();\n     |     ^^^^^^\nError [EPAR0370043]: Expression statements are no longer supported.\n    --> test:8:5\n     |\n   8 |     inf();\n     |     ^^^^^^"
+  - "Error [EPAR0370041]: Expression statements are no longer supported.\n    --> test:4:5\n     |\n   4 |     inf();\n     |     ^^^^^^\nError [EPAR0370041]: Expression statements are no longer supported.\n    --> test:8:5\n     |\n   8 |     inf();\n     |     ^^^^^^"

@@ -224,22 +224,6 @@ create_messages!(
     help: None,
     }
 
-    /// When a string is not properly closed.
-    @backtraced
-    lexer_char_not_closed {
-    args: (input: impl Display),
-    msg: format!("Expected a closed char but found `{}`.", input),
-    help: None,
-    }
-
-    /// When a string is not properly closed.
-    @backtraced
-    lexer_invalid_char {
-    args: (input: impl Display),
-    msg: format!("Expected valid character but found `{}`.", input),
-    help: None,
-    }
-
     /// When a block comment is empty.
     @backtraced
     lexer_empty_block_comment {

@@ -27,8 +27,6 @@ pub enum Type {
     Address,
     /// The `bool` type.
     Boolean,
-    /// The `char` type.
-    Char,
     /// The `field` type.
     Field,
     /// The `group` type.
@@ -53,7 +51,6 @@ impl Type {
         match (self, other) {
             (Type::Address, Type::Address)
             | (Type::Boolean, Type::Boolean)
-            | (Type::Char, Type::Char)
             | (Type::Field, Type::Field)
             | (Type::Group, Type::Group)
             | (Type::Scalar, Type::Scalar) => true,
@@ -70,7 +67,6 @@ impl fmt::Display for Type {
             Type::Boolean => write!(f, "bool"),
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
-            Type::Char => write!(f, "char"),
             Type::Scalar => write!(f, "scalar"),
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
             Type::Err => write!(f, "error"),

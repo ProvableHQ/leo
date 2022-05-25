@@ -17,11 +17,12 @@
 use super::*;
 use leo_errors::Result;
 
-pub(crate) const TYPE_TOKENS: &[Token] = &[
+pub(super) const TYPE_TOKENS: &[Token] = &[
     Token::Address,
     Token::Bool,
     Token::Field,
     Token::Group,
+    Token::Scalar,
     Token::I8,
     Token::I16,
     Token::I32,
@@ -32,13 +33,11 @@ pub(crate) const TYPE_TOKENS: &[Token] = &[
     Token::U32,
     Token::U64,
     Token::U128,
-    Token::Char,
-    Token::Scalar,
 ];
 
 impl ParserContext<'_> {
     /// Returns a [`IntegerType`] AST node if the given token is a supported integer type, or [`None`].
-    pub fn token_to_int_type(token: &Token) -> Option<IntegerType> {
+    pub(super) fn token_to_int_type(token: &Token) -> Option<IntegerType> {
         Some(match token {
             Token::I8 => IntegerType::I8,
             Token::I16 => IntegerType::I16,
@@ -64,7 +63,6 @@ impl ParserContext<'_> {
                 Token::Bool => Type::Boolean,
                 Token::Field => Type::Field,
                 Token::Group => Type::Group,
-                Token::Char => Type::Char,
                 Token::Scalar => Type::Scalar,
                 x => Type::IntegerType(Self::token_to_int_type(x).expect("invalid int type")),
             },

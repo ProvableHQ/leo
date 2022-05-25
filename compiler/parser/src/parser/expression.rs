@@ -37,7 +37,7 @@ const INT_TYPES: &[Token] = &[
 impl ParserContext<'_> {
     /// Returns an [`Expression`] AST node if the next token is an expression.
     /// Includes circuit init expressions.
-    pub fn parse_expression(&mut self) -> Result<Expression> {
+    pub(crate) fn parse_expression(&mut self) -> Result<Expression> {
         // Store current parser state.
         let prior_fuzzy_state = self.disallow_circuit_construction;
 
@@ -57,7 +57,7 @@ impl ParserContext<'_> {
     /// a ternary expression. May or may not include circuit init expressions.
     ///
     /// Otherwise, tries to parse the next token using [`parse_disjunctive_expression`].
-    pub fn parse_conditional_expression(&mut self) -> Result<Expression> {
+    pub(super) fn parse_conditional_expression(&mut self) -> Result<Expression> {
         // Try to parse the next expression. Try BinaryOperation::Or.
         let mut expr = self.parse_disjunctive_expression()?;
 
@@ -104,7 +104,7 @@ impl ParserContext<'_> {
     /// a binary or expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_conjunctive_expression`].
-    pub fn parse_disjunctive_expression(&mut self) -> Result<Expression> {
+    fn parse_disjunctive_expression(&mut self) -> Result<Expression> {
         self.parse_bin_expr(&[Token::Or], Self::parse_conjunctive_expression)
     }
 
@@ -112,7 +112,7 @@ impl ParserContext<'_> {
     /// binary and expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_equality_expression`].
-    pub fn parse_conjunctive_expression(&mut self) -> Result<Expression> {
+    fn parse_conjunctive_expression(&mut self) -> Result<Expression> {
         self.parse_bin_expr(&[Token::And], Self::parse_equality_expression)
     }
 
@@ -140,7 +140,7 @@ impl ParserContext<'_> {
     /// binary equals or not equals expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_ordering_expression`].
-    pub fn parse_equality_expression(&mut self) -> Result<Expression> {
+    fn parse_equality_expression(&mut self) -> Result<Expression> {
         let mut expr = self.parse_ordering_expression()?;
         if let Some(op) = self.eat_bin_op(&[Token::Eq, Token::NotEq]) {
             let right = self.parse_ordering_expression()?;
@@ -153,7 +153,7 @@ impl ParserContext<'_> {
     /// binary relational expression: less than, less than or equals, greater than, greater than or equals.
     ///
     /// Otherwise, tries to parse the next token using [`parse_additive_expression`].
-    pub fn parse_ordering_expression(&mut self) -> Result<Expression> {
+    fn parse_ordering_expression(&mut self) -> Result<Expression> {
         let mut expr = self.parse_additive_expression()?;
         if let Some(op) = self.eat_bin_op(&[Token::Lt, Token::LtEq, Token::Gt, Token::GtEq]) {
             let right = self.parse_additive_expression()?;
@@ -165,8 +165,8 @@ impl ParserContext<'_> {
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// binary addition or subtraction expression.
     ///
-    /// Otherwise, tries to parse the next token using [`parse_multiplicative_expression`].
-    pub fn parse_additive_expression(&mut self) -> Result<Expression> {
+    /// Otherwise, tries to parse the next token using [`parse_mul_div_pow_expression`].
+    fn parse_additive_expression(&mut self) -> Result<Expression> {
         self.parse_bin_expr(&[Token::Add, Token::Minus], Self::parse_multiplicative_expression)
     }
 
@@ -174,7 +174,7 @@ impl ParserContext<'_> {
     /// binary multiplication, division, or modulus expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_exponential_expression`].
-    pub fn parse_multiplicative_expression(&mut self) -> Result<Expression> {
+    fn parse_multiplicative_expression(&mut self) -> Result<Expression> {
         self.parse_bin_expr(&[Token::Mul, Token::Div], Self::parse_exponential_expression)
     }
 
@@ -182,7 +182,7 @@ impl ParserContext<'_> {
     /// binary exponentiation expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_unary_expression`].
-    pub fn parse_exponential_expression(&mut self) -> Result<Expression> {
+    fn parse_exponential_expression(&mut self) -> Result<Expression> {
         let mut expr = self.parse_unary_expression()?;
 
         if let Some(op) = self.eat_bin_op(&[Token::Exp]) {
@@ -197,7 +197,7 @@ impl ParserContext<'_> {
     /// unary not, negate, or bitwise not expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_postfix_expression`].
-    pub fn parse_unary_expression(&mut self) -> Result<Expression> {
+    pub(super) fn parse_unary_expression(&mut self) -> Result<Expression> {
         let mut ops = Vec::new();
         while self.eat_any(&[Token::Not, Token::Minus]) {
             let operation = match self.prev_token.token {
@@ -222,7 +222,7 @@ impl ParserContext<'_> {
     /// array access, circuit member access, function call, or static function call expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_primary_expression`].
-    pub fn parse_postfix_expression(&mut self) -> Result<Expression> {
+    fn parse_postfix_expression(&mut self) -> Result<Expression> {
         // We don't directly parse named-type's and Identifier's here as
         // the ABNF states. Rather the primary expression already
         // handle those. The ABNF is more specific for language reasons.
@@ -249,7 +249,7 @@ impl ParserContext<'_> {
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// tuple initialization expression or an affine group literal.
-    pub fn parse_tuple_expression(&mut self) -> Result<Expression> {
+    fn parse_tuple_expression(&mut self) -> Result<Expression> {
         if let Some(gt) = self.eat_group_partial().transpose()? {
             return Ok(Expression::Value(ValueExpression::Group(Box::new(GroupValue::Tuple(
                 gt,
@@ -265,6 +265,68 @@ impl ParserContext<'_> {
         }
     }
 
+    /// Returns a reference to the next token if it is a [`GroupCoordinate`], or [None] if
+    /// the next token is not a [`GroupCoordinate`].
+    fn peek_group_coordinate(&self, dist: &mut usize) -> Option<GroupCoordinate> {
+        let (advanced, gc) = self.look_ahead(*dist, |t0| match &t0.token {
+            Token::Add => Some((1, GroupCoordinate::SignHigh)),
+            Token::Minus => self.look_ahead(*dist + 1, |t1| match &t1.token {
+                Token::Int(value) => Some((2, GroupCoordinate::Number(format!("-{}", value), t1.span))),
+                _ => Some((1, GroupCoordinate::SignLow)),
+            }),
+            Token::Underscore => Some((1, GroupCoordinate::Inferred)),
+            Token::Int(value) => Some((1, GroupCoordinate::Number(value.clone(), t0.span))),
+            _ => None,
+        })?;
+        *dist += advanced;
+        Some(gc)
+    }
+
+    /// Removes the next two tokens if they are a pair of [`GroupCoordinate`] and returns them,
+    /// or [None] if the next token is not a [`GroupCoordinate`].
+    fn eat_group_partial(&mut self) -> Option<Result<GroupTuple>> {
+        assert!(self.check(&Token::LeftParen)); // `(`.
+
+        // Peek at first gc.
+        let start_span = &self.token.span;
+        let mut dist = 1; // 0th is `(` so 1st is first gc's start.
+        let first_gc = self.peek_group_coordinate(&mut dist)?;
+
+        let check_ahead = |d, token: &_| self.look_ahead(d, |t| (&t.token == token).then(|| t.span));
+
+        // Peek at `,`.
+        check_ahead(dist, &Token::Comma)?;
+        dist += 1; // Standing at `,` so advance one for next gc's start.
+
+        // Peek at second gc.
+        let second_gc = self.peek_group_coordinate(&mut dist)?;
+
+        // Peek at `)`.
+        let right_paren_span = check_ahead(dist, &Token::RightParen)?;
+        dist += 1; // Standing at `)` so advance one for 'group'.
+
+        // Peek at `group`.
+        let end_span = check_ahead(dist, &Token::Group)?;
+        dist += 1; // Standing at `)` so advance one for 'group'.
+
+        let gt = GroupTuple {
+            span: start_span + &end_span,
+            x: first_gc,
+            y: second_gc,
+        };
+
+        // Eat everything so that this isn't just peeking.
+        for _ in 0..dist {
+            self.bump();
+        }
+
+        if let Err(e) = assert_no_whitespace(right_paren_span, end_span, &format!("({},{})", gt.x, gt.y), "group") {
+            return Some(Err(e));
+        }
+
+        Some(Ok(gt))
+    }
+
     /// Returns an [`Expression`] AST node if the next token is a primary expression:
     /// - Literals: field, group, unsigned integer, signed integer, boolean, address
     /// - Aggregate types: array, tuple
@@ -272,7 +334,7 @@ impl ParserContext<'_> {
     /// - self
     ///
     /// Returns an expression error if the token cannot be matched.
-    pub fn parse_primary_expression(&mut self) -> Result<Expression> {
+    fn parse_primary_expression(&mut self) -> Result<Expression> {
         if let Token::LeftParen = self.token.token {
             return self.parse_tuple_expression();
         }
@@ -313,10 +375,6 @@ impl ParserContext<'_> {
             Token::True => Expression::Value(ValueExpression::Boolean("true".into(), span)),
             Token::False => Expression::Value(ValueExpression::Boolean("false".into(), span)),
             Token::AddressLit(value) => Expression::Value(ValueExpression::Address(value, span)),
-            Token::CharLit(value) => Expression::Value(ValueExpression::Char(CharValue {
-                character: value.into(),
-                span,
-            })),
             Token::StringLit(value) => Expression::Value(ValueExpression::String(value, span)),
             Token::Ident(name) => {
                 let ident = Identifier { name, span };
@@ -331,4 +389,13 @@ impl ParserContext<'_> {
             }
         })
     }
+}
+
+fn assert_no_whitespace(left_span: Span, right_span: Span, left: &str, right: &str) -> Result<()> {
+    if left_span.hi != right_span.lo {
+        let error_span = Span::new(left_span.hi, right_span.lo); // The span between them.
+        return Err(ParserError::unexpected_whitespace(left, right, error_span).into());
+    }
+
+    Ok(())
 }

@@ -59,7 +59,7 @@ impl ParserContext<'_> {
     }
 
     /// Returns a [`ParamMode`] AST node if the next tokens represent a function parameter mode.
-    pub fn parse_function_parameter_mode(&mut self) -> Result<ParamMode> {
+    pub(super) fn parse_function_parameter_mode(&mut self) -> Result<ParamMode> {
         let public = self.eat(&Token::Public).then(|| self.prev_token.span);
         let constant = self.eat(&Token::Constant).then(|| self.prev_token.span);
         let const_ = self.eat(&Token::Const).then(|| self.prev_token.span);
@@ -83,7 +83,7 @@ impl ParserContext<'_> {
     }
 
     /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
-    pub fn parse_function_parameter(&mut self) -> Result<FunctionInput> {
+    fn parse_function_parameter(&mut self) -> Result<FunctionInput> {
         let mode = self.parse_function_parameter_mode()?;
 
         let name = self.expect_ident()?;
@@ -98,9 +98,18 @@ impl ParserContext<'_> {
         )))
     }
 
+    /// Returns `true` if the next token is Function or if it is a Const followed by Function.
+    /// Returns `false` otherwise.
+    fn peek_is_function(&self) -> bool {
+        matches!(
+            (&self.token.token, self.look_ahead(1, |t| &t.token)),
+            (Token::Function, _) | (Token::Const, Token::Function)
+        )
+    }
+
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
-    pub fn parse_function_declaration(&mut self) -> Result<(Identifier, Function)> {
+    fn parse_function_declaration(&mut self) -> Result<(Identifier, Function)> {
         // Parse `function IDENT`.
         let start = self.expect(&Token::Function)?;
         let name = self.expect_ident()?;
@@ -126,18 +135,5 @@ impl ParserContext<'_> {
                 core_mapping: <_>::default(),
             },
         ))
-    }
-
-    /// Returns an [`(String, DefinitionStatement)`] AST node if the next tokens represent a global
-    /// constant declaration.
-    pub fn parse_global_const_declaration(&mut self) -> Result<(Vec<Identifier>, DefinitionStatement)> {
-        let statement = self.parse_definition_statement()?;
-        let variable_names = statement
-            .variable_names
-            .iter()
-            .map(|variable_name| variable_name.identifier.clone())
-            .collect();
-
-        Ok((variable_names, statement))
     }
 }

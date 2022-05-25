@@ -1,22 +1,5 @@
 ---
 namespace: Compile
-expectation: Pass
+expectation: Fail
 outputs:
-  - output:
-      - initial_input_ast: 1a59d72ff9c08c97f0faa7d32e701487abce48630c3da2ec76dee451ed806c3b
-      - initial_input_ast: 8c79c9fa5fa8422d837bd092a848293d1772fdc97b80c7394146fc759768c868
-      - initial_input_ast: cbf3cfc28c6c396dd5dd24ec3cb59121d2d6615feb4aa9a452ea310248dfb238
-      - initial_input_ast: 8a914ea590d1b978e7f0da8feeebcbe195e925a20424fe0a6611b2115b072c90
-      - initial_input_ast: f37e2792fd64626a0270041c37d587d4929ac2afe6b3b9a576c3ec400271f0db
-      - initial_input_ast: d9a2bd44fa3b8e850b79be10ab046af8d61b5e781cc991250969555eaccf9d23
-      - initial_input_ast: c10a3ffcb8bbbaaa3028e8037fc183214933291d5ecf8ec0354df1b27a83c99a
-      - initial_input_ast: 32628105ebaaed3207a26402f2f7a5075f2d7d865d51e56f2e8f0bade905058c
-      - initial_input_ast: 2bc88f79d4b48e6321c08ba4a6cfeb2a7363b238d79b3a558dbc4383c14a3ebc
-      - initial_input_ast: 5d6794f9c9406df4df4673433c806588bb9ed72992bb58cc62fa63a3a872e153
-      - initial_input_ast: 833c67bb4946711a01be5f564905d83eaf4c4fbc72ff77599ff3b8dd5a5c8691
-      - initial_input_ast: 2a4441d425a2e35c929d92256601e3713c870ef3c9c6206dccb238e42be532cb
-      - initial_input_ast: 3edf030ed195c3ab8278af07fa1592314e2e3f9ad1e6c0ca3e27856be5e6f72c
-      - initial_input_ast: f3dcb662ae0facb7afdd7cee9416261a48d37baa8a4d5d7f09d81e4621b53f3f
-      - initial_input_ast: aebc549a2d2d87e1cca5e6d814b1b6dfdc4c32bb21045ad967bc67978a8ef871
-    initial_ast: 8c9ec5e2c1544bc45c6d4dd9f21caa3121c2ba61c44fb66d8148883460b20820
-    symbol_table: cf3569155d9961e6cab441ea9a60f5c92d2b18e6cd2ecaa64b1529d1774d3585
+  - "Error [EPAR0370026]: Could not lex the following content: `'a' ? 'a' : 'Z';\n}\n`."

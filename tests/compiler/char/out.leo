@@ -1,6 +1,6 @@
 /*
 namespace: Compile
-expectation: Pass
+expectation: Fail
 input_file:
  - inputs/ascii.in
  - inputs/escaped_unicode1.in
@@ -20,6 +20,6 @@ input_file:
 */
 function main(character: char) -> char {
     console.log("{}", character);
-    
+
     return character == 'z' ? 'x' : character;
 }

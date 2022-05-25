@@ -72,7 +72,6 @@ end-of-line-comment = "//" *not-line-feed-or-carriage-return
 
 keyword = %s"address"
         / %s"bool"
-        / %s"char"
         / %s"console"
         / %s"const"
         / %s"constant"
@@ -129,13 +128,6 @@ boolean-literal = %s"true" / %s"false"
 
 address-literal = %s"aleo1" 58( lowercase-letter / decimal-digit )
 
-character-literal = single-quote character-literal-element single-quote
-
-character-literal-element = not-single-quote-or-backslash
-                          / simple-character-escape
-                          / ascii-character-escape
-                          / unicode-character-escape
-
 single-quote-escape = "\" single-quote   ; \'
 
 double-quote-escape = "\" double-quote   ; \"
@@ -180,7 +172,6 @@ numeric-literal = integer-literal
 atomic-literal = numeric-literal
                / boolean-literal
                / address-literal
-               / character-literal
                / string-literal
 
 symbol = "!" / "&&" / "||"
@@ -226,9 +217,7 @@ boolean-type = %s"bool"
 
 address-type = %s"address"
 
-character-type = %s"char"
-
-primitive-type =  boolean-type / arithmetic-type / address-type / character-type
+primitive-type =  boolean-type / arithmetic-type / address-type
 
 type = primitive-type
 
@@ -380,3 +369,18 @@ input-title = "[" ( %s"public" / %s"private" / %s"constant" / %s"const" ) "]"
 input-section = input-title *input-item
 
 input-file = *input-section
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Output Grammar
+; --------------
+
+output-expression = literal
+
+output-item = output-expression ";"
+
+output-title = "[" %s"output" "]"
+
+output-section = output-title output-item
+
+output-file = output-section
