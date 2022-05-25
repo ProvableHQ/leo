@@ -31,6 +31,7 @@ const INT_TYPES: &[Token] = &[
     Token::U128,
     Token::Field,
     Token::Group,
+    Token::Scalar,
 ];
 
 impl ParserContext<'_> {
@@ -164,7 +165,7 @@ impl ParserContext<'_> {
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// binary addition or subtraction expression.
     ///
-    /// Otherwise, tries to parse the next token using [`parse_mul_div_pow_expression`].
+    /// Otherwise, tries to parse the next token using [`parse_multiplicative_expression`].
     pub fn parse_additive_expression(&mut self) -> Result<Expression> {
         self.parse_bin_expr(&[Token::Add, Token::Minus], Self::parse_multiplicative_expression)
     }
@@ -294,6 +295,11 @@ impl ParserContext<'_> {
                     Some(Token::Group) => {
                         assert_no_whitespace("group")?;
                         Expression::Value(ValueExpression::Group(Box::new(GroupValue::Single(value, full_span))))
+                    }
+                    // Literal followed by `scalar` e.g., `42scalar`.
+                    Some(Token::Scalar) => {
+                        assert_no_whitespace("scalar")?;
+                        Expression::Value(ValueExpression::Scalar(value, full_span))
                     }
                     // Literal followed by other type suffix, e.g., `42u8`.
                     Some(suffix) => {
