@@ -963,4 +963,45 @@ Go to: _[input-title](#user-content-input-title)_;
 <a name="input-file"></a>
 ```abnf
 input-file = *input-section
+```
+
+
+--------
+
+
+Output Grammar
+--------------
+
+<a name="output-expression"></a>
+```abnf
+output-expression = literal
+```
+
+Go to: _[literal](#user-content-literal)_;
+
+
+<a name="output-item"></a>
+```abnf
+output-item = output-expression ";"
+```
+
+Go to: _[output-expression](#user-content-output-expression)_;
+
+
+<a name="output-title"></a>
+```abnf
+output-title = "[" %s"output" "]"
+```
+
+<a name="output-section"></a>
+```abnf
+output-section = output-title output-item
+```
+
+Go to: _[output-item](#user-content-output-item), [output-title](#user-content-output-title)_;
+
+
+<a name="output-file"></a>
+```abnf
+output-file = output-section
 
