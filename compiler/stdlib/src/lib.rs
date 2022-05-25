@@ -16,8 +16,14 @@
 
 #![doc = include_str!("../README.md")]
 
+use leo_ast::Type;
+
 mod account;
 pub use account::*;
 
 mod algorithms;
 pub use algorithms::*;
+
+pub trait Types {
+    fn types() -> Vec<Type>;
+}

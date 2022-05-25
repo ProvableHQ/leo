@@ -1327,6 +1327,7 @@ dependencies = [
  "leo-errors",
  "leo-parser",
  "leo-span",
+ "leo-stdlib",
 ]
 
 [[package]]
@@ -1337,6 +1338,15 @@ dependencies = [
  "indexmap",
  "scoped-tls",
  "serde",
+]
+
+[[package]]
+name = "leo-stdlib"
+version = "1.5.3"
+dependencies = [
+ "leo-ast",
+ "leo-errors",
+ "leo-span",
 ]
 
 [[package]]

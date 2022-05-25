@@ -14,3 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::Types;
+
+use leo_ast::{Identifier, Type};
+use leo_span::{Span, Symbol};
+
+pub struct Account;
+
+impl Types for Account {
+    fn types() -> Vec<Type> {
+        vec![
+            Type::Identifier(Identifier {
+                name: Symbol::intern("ComputeKey"),
+                span: Span::dummy(),
+            }),
+            Type::Identifier(Identifier {
+                name: Symbol::intern("PrivateKey"),
+                span: Span::dummy(),
+            }),
+            Type::Identifier(Identifier {
+                name: Symbol::intern("Record"),
+                span: Span::dummy(),
+            }),
+            Type::Identifier(Identifier {
+                name: Symbol::intern("Signature"),
+                span: Span::dummy(),
+            }),
+            Type::Identifier(Identifier {
+                name: Symbol::intern("ViewKey"),
+                span: Span::dummy(),
+            }),
+        ]
+    }
+}

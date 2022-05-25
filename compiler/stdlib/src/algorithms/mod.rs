@@ -14,3 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::Types;
+
+use leo_ast::{Identifier, Type};
+use leo_span::{Span, Symbol};
+
+pub struct Algorithms;
+
+impl Types for Algorithms {
+    fn types() -> Vec<Type> {
+        vec![Type::Identifier(Identifier {
+            name: Symbol::intern("Poseidon"),
+            span: Span::dummy(),
+        })]
+    }
+}
