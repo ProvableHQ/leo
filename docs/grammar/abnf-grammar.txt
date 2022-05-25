@@ -369,3 +369,18 @@ input-title = "[" ( %s"public" / %s"private" / %s"constant" / %s"const" ) "]"
 input-section = input-title *input-item
 
 input-file = *input-section
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Output Grammar
+; --------------
+
+output-expression = literal
+
+output-item = output-expression ";"
+
+output-title = "[" %s"output" "]"
+
+output-section = output-title output-item
+
+output-file = output-section
