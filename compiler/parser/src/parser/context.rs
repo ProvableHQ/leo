@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_no_whitespace, tokenizer::*, Token, KEYWORD_TOKENS};
+use crate::{tokenizer::*, Token};
 
 use leo_ast::*;
 use leo_errors::emitter::Handler;
@@ -26,7 +26,7 @@ use std::mem;
 
 /// Stores a program in tokenized format plus additional context.
 /// May be converted into a [`Program`] AST by parsing all tokens.
-pub struct ParserContext<'a> {
+pub(crate) struct ParserContext<'a> {
     /// Handler used to side-channel emit errors from the parser.
     pub(crate) handler: &'a Handler,
     /// All un-bumped tokens.
@@ -71,7 +71,7 @@ impl<'a> ParserContext<'a> {
     ///
     /// So e.g., if we had `previous = A`, `current = B`, and `tokens = [C, D, E]`,
     /// then after `p.bump()`, the state will be `previous = B`, `current = C`, and `tokens = [D, E]`.
-    pub fn bump(&mut self) {
+    pub(crate) fn bump(&mut self) {
         // Probably a bug (infinite loop), as the previous token was already EOF.
         if let Token::Eof = self.prev_token.token {
             panic!("attempted to bump the parser past EOF (may be stuck in a loop)");
@@ -88,19 +88,19 @@ impl<'a> ParserContext<'a> {
     }
 
     /// Checks whether the current token is `token`.
-    pub fn check(&self, tok: &Token) -> bool {
+    pub(super) fn check(&self, tok: &Token) -> bool {
         &self.token.token == tok
     }
 
     /// Removes the next token if it exists and returns it, or [None] if
     /// the next token does not exist.
-    pub fn eat(&mut self, token: &Token) -> bool {
+    pub(super) fn eat(&mut self, token: &Token) -> bool {
         self.check(token).then(|| self.bump()).is_some()
     }
 
     /// Look-ahead `dist` tokens of `self.token` and get access to that token there.
     /// When `dist == 0` then the current token is looked at.
-    pub fn look_ahead<'s, R>(&'s self, dist: usize, looker: impl FnOnce(&'s SpannedToken) -> R) -> R {
+    pub(super) fn look_ahead<'s, R>(&'s self, dist: usize, looker: impl FnOnce(&'s SpannedToken) -> R) -> R {
         if dist == 0 {
             return looker(&self.token);
         }
@@ -114,17 +114,17 @@ impl<'a> ParserContext<'a> {
     }
 
     /// Emit the error `err`.
-    pub(crate) fn emit_err(&self, err: ParserError) {
+    pub(super) fn emit_err(&self, err: ParserError) {
         self.handler.emit_err(err.into());
     }
 
     /// Emit the error `err`.
-    pub(crate) fn emit_warning(&self, warning: ParserWarning) {
+    pub(super) fn emit_warning(&self, warning: ParserWarning) {
         self.handler.emit_warning(warning.into());
     }
 
     /// Returns true if the next token exists.
-    pub fn has_next(&self) -> bool {
+    pub(crate) fn has_next(&self) -> bool {
         !matches!(self.token.token, Token::Eof)
     }
 
@@ -135,7 +135,7 @@ impl<'a> ParserContext<'a> {
     }
 
     /// Eats the next token if its an identifier and returns it.
-    pub fn eat_identifier(&mut self) -> Option<Identifier> {
+    pub(super) fn eat_identifier(&mut self) -> Option<Identifier> {
         if let Token::Ident(name) = self.token.token {
             self.bump();
             return Some(self.mk_ident_prev(name));
@@ -143,108 +143,14 @@ impl<'a> ParserContext<'a> {
         None
     }
 
-    /// Expects an identifier, "loosely" speaking, or errors.
-    ///
-    /// This could be either a keyword, integer, or a normal identifier.
-    pub fn expect_loose_identifier(&mut self) -> Result<Identifier> {
-        if self.eat_any(KEYWORD_TOKENS) {
-            return Ok(self.mk_ident_prev(self.prev_token.token.keyword_to_symbol().unwrap()));
-        }
-        if let Some(int) = self.eat_int() {
-            return Ok(self.mk_ident_prev(Symbol::intern(&int.value)));
-        }
-        self.expect_ident()
-    }
-
     /// Expects an [`Identifier`], or errors.
-    pub fn expect_ident(&mut self) -> Result<Identifier> {
+    pub(super) fn expect_ident(&mut self) -> Result<Identifier> {
         self.eat_identifier()
             .ok_or_else(|| ParserError::unexpected_str(&self.token.token, "ident", self.token.span).into())
     }
 
-    /// Returns a reference to the next token if it is a [`GroupCoordinate`], or [None] if
-    /// the next token is not a [`GroupCoordinate`].
-    fn peek_group_coordinate(&self, dist: &mut usize) -> Option<GroupCoordinate> {
-        let (advanced, gc) = self.look_ahead(*dist, |t0| match &t0.token {
-            Token::Add => Some((1, GroupCoordinate::SignHigh)),
-            Token::Minus => self.look_ahead(*dist + 1, |t1| match &t1.token {
-                Token::Int(value) => Some((2, GroupCoordinate::Number(format!("-{}", value), t1.span))),
-                _ => Some((1, GroupCoordinate::SignLow)),
-            }),
-            Token::Underscore => Some((1, GroupCoordinate::Inferred)),
-            Token::Int(value) => Some((1, GroupCoordinate::Number(value.clone(), t0.span))),
-            _ => None,
-        })?;
-        *dist += advanced;
-        Some(gc)
-    }
-
-    /// Returns `true` if the next token is Function or if it is a Const followed by Function.
-    /// Returns `false` otherwise.
-    pub fn peek_is_function(&self) -> bool {
-        matches!(
-            (&self.token.token, self.look_ahead(1, |t| &t.token)),
-            (Token::Function, _) | (Token::Const, Token::Function)
-        )
-    }
-
-    /// Removes the next two tokens if they are a pair of [`GroupCoordinate`] and returns them,
-    /// or [None] if the next token is not a [`GroupCoordinate`].
-    pub fn eat_group_partial(&mut self) -> Option<Result<GroupTuple>> {
-        assert!(self.check(&Token::LeftParen)); // `(`.
-
-        // Peek at first gc.
-        let start_span = &self.token.span;
-        let mut dist = 1; // 0th is `(` so 1st is first gc's start.
-        let first_gc = self.peek_group_coordinate(&mut dist)?;
-
-        let check_ahead = |d, token: &_| self.look_ahead(d, |t| (&t.token == token).then(|| t.span));
-
-        // Peek at `,`.
-        check_ahead(dist, &Token::Comma)?;
-        dist += 1; // Standing at `,` so advance one for next gc's start.
-
-        // Peek at second gc.
-        let second_gc = self.peek_group_coordinate(&mut dist)?;
-
-        // Peek at `)`.
-        let right_paren_span = check_ahead(dist, &Token::RightParen)?;
-        dist += 1; // Standing at `)` so advance one for 'group'.
-
-        // Peek at `group`.
-        let end_span = check_ahead(dist, &Token::Group)?;
-        dist += 1; // Standing at `)` so advance one for 'group'.
-
-        let gt = GroupTuple {
-            span: start_span + &end_span,
-            x: first_gc,
-            y: second_gc,
-        };
-
-        // Eat everything so that this isn't just peeking.
-        for _ in 0..dist {
-            self.bump();
-        }
-
-        if let Err(e) = assert_no_whitespace(right_paren_span, end_span, &format!("({},{})", gt.x, gt.y), "group") {
-            return Some(Err(e));
-        }
-
-        Some(Ok(gt))
-    }
-
-    /// Eats the next token if it is a [`Token::Int(_)`] and returns it.
-    pub fn eat_int(&mut self) -> Option<PositiveNumber> {
-        if let Token::Int(value) = &self.token.token {
-            let value = value.clone();
-            self.bump();
-            return Some(PositiveNumber { value });
-        }
-        None
-    }
-
     /// Eats any of the given `tokens`, returning `true` if anything was eaten.
-    pub fn eat_any(&mut self, tokens: &[Token]) -> bool {
+    pub(super) fn eat_any(&mut self, tokens: &[Token]) -> bool {
         tokens.iter().any(|x| self.check(x)).then(|| self.bump()).is_some()
     }
 
@@ -254,7 +160,7 @@ impl<'a> ParserContext<'a> {
     }
 
     /// Eats the expected `token`, or errors.
-    pub fn expect(&mut self, token: &Token) -> Result<Span> {
+    pub(super) fn expect(&mut self, token: &Token) -> Result<Span> {
         if self.eat(token) {
             Ok(self.prev_token.span)
         } else {
@@ -263,7 +169,7 @@ impl<'a> ParserContext<'a> {
     }
 
     /// Eats one of the expected `tokens`, or errors.
-    pub fn expect_any(&mut self, tokens: &[Token]) -> Result<Span> {
+    pub(super) fn expect_any(&mut self, tokens: &[Token]) -> Result<Span> {
         if self.eat_any(tokens) {
             Ok(self.prev_token.span)
         } else {
@@ -273,15 +179,15 @@ impl<'a> ParserContext<'a> {
 
     /// Parses a list of `T`s using `inner`
     /// The opening and closing delimiters are `bra` and `ket`,
-    /// and elements in the list are separated by `sep`.
+    /// and elements in the list are optionally separated by `sep`.
     /// When `(list, true)` is returned, `sep` was a terminator.
     pub(super) fn parse_list<T>(
         &mut self,
-        open: Token,
-        close: Token,
-        sep: Token,
+        delimiter: Delimiter,
+        sep: Option<Token>,
         mut inner: impl FnMut(&mut Self) -> Result<Option<T>>,
     ) -> Result<(Vec<T>, bool, Span)> {
+        let (open, close) = delimiter.open_close_pair();
         let mut list = Vec::new();
         let mut trailing = false;
 
@@ -293,8 +199,8 @@ impl<'a> ParserContext<'a> {
             if let Some(elem) = inner(self)? {
                 list.push(elem);
             }
-            // Parse the separator.
-            if !self.eat(&sep) {
+            // Parse the separator, if any.
+            if sep.as_ref().filter(|sep| !self.eat(sep)).is_some() {
                 trailing = false;
                 break;
             }
@@ -313,7 +219,7 @@ impl<'a> ParserContext<'a> {
         &mut self,
         f: impl FnMut(&mut Self) -> Result<Option<T>>,
     ) -> Result<(Vec<T>, bool, Span)> {
-        self.parse_list(Token::LeftParen, Token::RightParen, Token::Comma, f)
+        self.parse_list(Delimiter::Parenthesis, Some(Token::Comma), f)
     }
 
     /// Returns true if the current token is `(`.

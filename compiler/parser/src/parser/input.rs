@@ -20,7 +20,7 @@ use leo_errors::{ParserError, Result};
 
 impl ParserContext<'_> {
     /// Returns a [`ParsedInputFile`] struct filled with the data acquired in the file.
-    pub fn parse_input(&mut self) -> Result<InputAst> {
+    pub(crate) fn parse_input(&mut self) -> Result<InputAst> {
         let mut sections = Vec::new();
 
         while self.has_next() {
@@ -40,7 +40,7 @@ impl ParserContext<'_> {
     /// <...definition>
     /// `
     /// Returns [`Section`].
-    pub fn parse_section(&mut self) -> Result<Section> {
+    fn parse_section(&mut self) -> Result<Section> {
         self.expect(&Token::LeftSquare)?;
         let section = self.expect_ident()?;
         self.expect(&Token::RightSquare)?;
@@ -60,7 +60,7 @@ impl ParserContext<'_> {
     /// Parses a single parameter definition:
     /// `<identifier> : <type> = <expression>;`
     /// Returns [`Definition`].
-    pub fn parse_input_definition(&mut self) -> Result<Definition> {
+    fn parse_input_definition(&mut self) -> Result<Definition> {
         let mode = self.parse_function_parameter_mode()?;
 
         let name = self.expect_ident()?;
