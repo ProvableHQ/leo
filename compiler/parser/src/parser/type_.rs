@@ -55,7 +55,7 @@ impl ParserContext<'_> {
 
     /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a type.
     /// Also returns the span of the parsed token.
-    pub fn parse_type(&mut self) -> Result<(Type, Span)> {
+    pub fn parse_non_ident_types(&mut self) -> Result<(Type, Span)> {
         let span = self.expect_any(TYPE_TOKENS)?;
         Ok((
             match &self.prev_token.token {
@@ -68,5 +68,16 @@ impl ParserContext<'_> {
             },
             span,
         ))
+    }
+
+    /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a type.
+    /// Also returns the span of the parsed token.
+    pub fn parse_all_types(&mut self) -> Result<(Type, Span)> {
+        Ok(if let Some(ident) = self.eat_identifier() {
+            let span = ident.span;
+            (Type::Identifier(ident), span)
+        } else {
+            self.parse_non_ident_types()?
+        })
     }
 }

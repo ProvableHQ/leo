@@ -89,12 +89,9 @@ impl ParserContext<'_> {
         let name = self.expect_ident()?;
 
         self.expect(&Token::Colon)?;
-        let type_ = self.parse_type()?.0;
+        let type_ = self.parse_all_types()?.0;
         Ok(FunctionInput::Variable(FunctionInputVariable::new(
-            name.clone(),
-            mode,
-            type_,
-            name.span,
+            name, mode, type_, name.span,
         )))
     }
 
@@ -119,13 +116,13 @@ impl ParserContext<'_> {
 
         // Parse return type.
         self.expect(&Token::Arrow)?;
-        let output = self.parse_type()?.0;
+        let output = self.parse_all_types()?.0;
 
         // Parse the function body.
         let block = self.parse_block()?;
 
         Ok((
-            name.clone(),
+            name,
             Function {
                 identifier: name,
                 input: inputs,

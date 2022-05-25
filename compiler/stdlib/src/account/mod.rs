@@ -14,10 +14,3 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![doc = include_str!("../README.md")]
-
-mod account;
-pub use account::*;
-
-mod algorithms;
-pub use algorithms::*;
