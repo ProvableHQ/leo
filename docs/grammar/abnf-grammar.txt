@@ -72,7 +72,6 @@ end-of-line-comment = "//" *not-line-feed-or-carriage-return
 
 keyword = %s"address"
         / %s"bool"
-        / %s"char"
         / %s"console"
         / %s"const"
         / %s"constant"
@@ -91,6 +90,7 @@ keyword = %s"address"
         / %s"let"
         / %s"public"
         / %s"return"
+        / %s"scalar"
         / %s"u8"
         / %s"u16"
         / %s"u32"
@@ -122,16 +122,11 @@ field-literal = numeral %s"field"
 
 product-group-literal = numeral %s"group"
 
+scalar-literal = numeral %s"scalar"
+
 boolean-literal = %s"true" / %s"false"
 
 address-literal = %s"aleo1" 58( lowercase-letter / decimal-digit )
-
-character-literal = single-quote character-literal-element single-quote
-
-character-literal-element = not-single-quote-or-backslash
-                          / simple-character-escape
-                          / ascii-character-escape
-                          / unicode-character-escape
 
 single-quote-escape = "\" single-quote   ; \'
 
@@ -172,11 +167,11 @@ integer-literal = unsigned-literal
 numeric-literal = integer-literal
                 / field-literal
                 / product-group-literal
+                / scalar-literal
 
 atomic-literal = numeric-literal
                / boolean-literal
                / address-literal
-               / character-literal
                / string-literal
 
 symbol = "!" / "&&" / "||"
@@ -214,15 +209,15 @@ field-type = %s"field"
 
 group-type = %s"group"
 
-arithmetic-type = integer-type / field-type / group-type
+scalar-type = %s"scalar"
+
+arithmetic-type = integer-type / field-type / group-type / scalar-type
 
 boolean-type = %s"bool"
 
 address-type = %s"address"
 
-character-type = %s"char"
-
-primitive-type =  boolean-type / arithmetic-type / address-type / character-type
+primitive-type =  boolean-type / arithmetic-type / address-type
 
 type = primitive-type
 

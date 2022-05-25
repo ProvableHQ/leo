@@ -1,0 +1,7 @@
+[main]
+a: scalar = 1scalar;
+b: group = 1group;
+c: scalar = 2scalar;
+
+[registers]
+r: bool = false;

@@ -34,7 +34,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_type(&mut self, type_: &Type, span: &Span) -> Result<Type> {
-        self.reducer.reduce_type(type_, type_.clone(), span)
+        self.reducer.reduce_type(type_, *type_, span)
     }
 
     // Expressions

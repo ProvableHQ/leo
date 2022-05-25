@@ -25,12 +25,11 @@ pub enum Char {
     NonScalar(u32),
 }
 
-#[allow(clippy::from_over_into)]
-impl Into<leo_ast::Char> for Char {
-    fn into(self) -> leo_ast::Char {
-        match self {
-            Self::Scalar(c) => leo_ast::Char::Scalar(c),
-            Self::NonScalar(c) => leo_ast::Char::NonScalar(c),
+impl From<Char> for leo_ast::Char {
+    fn from(val: Char) -> Self {
+        match val {
+            Char::Scalar(c) => Self::Scalar(c),
+            Char::NonScalar(c) => Self::NonScalar(c),
         }
     }
 }
@@ -57,7 +56,6 @@ pub enum Token {
     True,
     False,
     AddressLit(String),
-    CharLit(Char),
     WhiteSpace,
 
     // Symbols
@@ -91,23 +89,23 @@ pub enum Token {
     Arrow,
     Underscore,
 
-    // Syntactic Grammr
+    // Syntactic Grammar
     // Types
-    U8,
-    U16,
-    U32,
-    U64,
-    U128,
+    Address,
+    Bool,
+    Field,
+    Group,
+    Scalar,
     I8,
     I16,
     I32,
     I64,
     I128,
-    Field,
-    Group,
-    Bool,
-    Address,
-    Char,
+    U8,
+    U16,
+    U32,
+    U64,
+    U128,
 
     // Regular Keywords
     Console,
@@ -133,7 +131,6 @@ pub enum Token {
 pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Address,
     Token::Bool,
-    Token::Char,
     Token::Console,
     Token::Const,
     Token::Else,
@@ -152,6 +149,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Let,
     Token::Public,
     Token::Return,
+    Token::Scalar,
     Token::True,
     Token::U8,
     Token::U16,
@@ -171,7 +169,6 @@ impl Token {
         Some(match self {
             Token::Address => sym::address,
             Token::Bool => sym::bool,
-            Token::Char => sym::char,
             Token::Console => sym::console,
             Token::Const => sym::Const,
             Token::Constant => sym::Constant,
@@ -191,6 +188,7 @@ impl Token {
             Token::Let => sym::Let,
             Token::Public => sym::Public,
             Token::Return => sym::Return,
+            Token::Scalar => sym::scalar,
             Token::True => sym::True,
             Token::U8 => sym::u8,
             Token::U16 => sym::u16,
@@ -220,7 +218,6 @@ impl fmt::Display for Token {
             True => write!(f, "true"),
             False => write!(f, "false"),
             AddressLit(s) => write!(f, "{}", s),
-            CharLit(s) => write!(f, "'{}'", s),
             WhiteSpace => write!(f, "whitespace"),
 
             Not => write!(f, "!"),
@@ -253,21 +250,21 @@ impl fmt::Display for Token {
             Arrow => write!(f, "->"),
             Underscore => write!(f, "_"),
 
-            U8 => write!(f, "u8"),
-            U16 => write!(f, "u16"),
-            U32 => write!(f, "u32"),
-            U64 => write!(f, "u64"),
-            U128 => write!(f, "u128"),
+            Address => write!(f, "address"),
+            Bool => write!(f, "bool"),
+            Field => write!(f, "field"),
+            Group => write!(f, "group"),
+            Scalar => write!(f, "scalar"),
             I8 => write!(f, "i8"),
             I16 => write!(f, "i16"),
             I32 => write!(f, "i32"),
             I64 => write!(f, "i64"),
             I128 => write!(f, "i128"),
-            Field => write!(f, "field"),
-            Group => write!(f, "group"),
-            Bool => write!(f, "bool"),
-            Address => write!(f, "address"),
-            Char => write!(f, "char"),
+            U8 => write!(f, "u8"),
+            U16 => write!(f, "u16"),
+            U32 => write!(f, "u32"),
+            U64 => write!(f, "u64"),
+            U128 => write!(f, "u128"),
 
             Console => write!(f, "console"),
             Const => write!(f, "const"),

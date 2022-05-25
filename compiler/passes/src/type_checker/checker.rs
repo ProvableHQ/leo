@@ -27,9 +27,7 @@ pub struct TypeChecker<'a> {
     pub(crate) negate: bool,
 }
 
-const ARITHMETIC_TYPES: &[Type] = &[
-    Type::Field,
-    Type::Group,
+const INT_TYPES: [Type; 10] = [
     Type::IntegerType(IntegerType::I8),
     Type::IntegerType(IntegerType::I16),
     Type::IntegerType(IntegerType::I32),
@@ -42,34 +40,34 @@ const ARITHMETIC_TYPES: &[Type] = &[
     Type::IntegerType(IntegerType::U128),
 ];
 
-const FIELD_AND_INT_TYPES: &[Type] = &[
-    Type::Field,
-    Type::IntegerType(IntegerType::I8),
-    Type::IntegerType(IntegerType::I16),
-    Type::IntegerType(IntegerType::I32),
-    Type::IntegerType(IntegerType::I64),
-    Type::IntegerType(IntegerType::I128),
-    Type::IntegerType(IntegerType::U8),
-    Type::IntegerType(IntegerType::U16),
-    Type::IntegerType(IntegerType::U32),
-    Type::IntegerType(IntegerType::U64),
-    Type::IntegerType(IntegerType::U128),
-];
+const fn create_type_superset<const S: usize, const A: usize, const O: usize>(
+    subset: [Type; S],
+    additional: [Type; A],
+) -> [Type; O] {
+    let mut superset: [Type; O] = [Type::IntegerType(IntegerType::U8); O];
+    let mut i = 0;
+    while i < S {
+        superset[i] = subset[i];
+        i += 1;
+    }
+    let mut j = 0;
+    while j < A {
+        superset[i + j] = additional[j];
+        j += 1;
+    }
+    superset
+}
 
-const INT_TYPES: &[Type] = &[
-    Type::IntegerType(IntegerType::I8),
-    Type::IntegerType(IntegerType::I16),
-    Type::IntegerType(IntegerType::I32),
-    Type::IntegerType(IntegerType::I64),
-    Type::IntegerType(IntegerType::I128),
-    Type::IntegerType(IntegerType::U8),
-    Type::IntegerType(IntegerType::U16),
-    Type::IntegerType(IntegerType::U32),
-    Type::IntegerType(IntegerType::U64),
-    Type::IntegerType(IntegerType::U128),
-];
+const FIELD_INT_TYPES: [Type; 11] = create_type_superset(INT_TYPES, [Type::Field]);
+
+const FIELD_SCALAR_INT_TYPES: [Type; 12] = create_type_superset(FIELD_INT_TYPES, [Type::Scalar]);
+
+const FIELD_GROUP_INT_TYPES: [Type; 12] = create_type_superset(FIELD_INT_TYPES, [Type::Group]);
+
+const FIELD_GROUP_SCALAR_INT_TYPES: [Type; 13] = create_type_superset(FIELD_GROUP_INT_TYPES, [Type::Scalar]);
 
 impl<'a> TypeChecker<'a> {
+    /// Returns a new type checker given a symbol table and error handler.
     pub fn new(symbol_table: &'a mut SymbolTable<'a>, handler: &'a Handler) -> Self {
         Self {
             symbol_table,
@@ -79,47 +77,51 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
+    /// Returns the given type if it equals the expected type or the expected type is none.
     pub(crate) fn assert_type(&self, type_: Type, expected: Option<Type>, span: Span) -> Type {
         if let Some(expected) = expected {
             if type_ != expected {
                 self.handler
-                    .emit_err(TypeCheckerError::type_should_be(type_.clone(), expected, span).into());
+                    .emit_err(TypeCheckerError::type_should_be(type_, expected, span).into());
             }
         }
 
         type_
     }
 
-    pub(crate) fn assert_one_of_types(&self, type_: Option<Type>, expected: &[Type], span: Span) -> Option<Type> {
-        if let Some(type_) = type_.clone() {
-            for t in expected.iter() {
-                if &type_ == t {
-                    return Some(type_);
-                }
+    /// Emits an error to the error handler if the given type is not equal to any of the expected types.
+    pub(crate) fn assert_one_of_types(&self, type_: Option<Type>, expected: &[Type], span: Span) {
+        if let Some(type_) = type_ {
+            if !expected.iter().any(|t: &Type| t == &type_) {
+                self.handler.emit_err(
+                    TypeCheckerError::expected_one_type_of(
+                        expected.iter().map(|t| t.to_string() + ",").collect::<String>(),
+                        type_,
+                        span,
+                    )
+                    .into(),
+                );
             }
-
-            self.handler.emit_err(
-                TypeCheckerError::expected_one_type_of(
-                    expected.iter().map(|t| t.to_string() + ",").collect::<String>(),
-                    type_,
-                    span,
-                )
-                .into(),
-            );
         }
-
-        type_
     }
 
-    pub(crate) fn assert_arith_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
-        self.assert_one_of_types(type_, ARITHMETIC_TYPES, span)
+    /// Emits an error to the handler if the given type is not a field or integer.
+    pub(crate) fn assert_field_int_type(&self, type_: Option<Type>, span: Span) {
+        self.assert_one_of_types(type_, &FIELD_INT_TYPES, span)
     }
 
-    pub(crate) fn assert_field_or_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
-        self.assert_one_of_types(type_, FIELD_AND_INT_TYPES, span)
+    /// Emits an error to the handler if the given type is not a field, scalar, or integer.
+    pub(crate) fn assert_field_scalar_int_type(&self, type_: Option<Type>, span: Span) {
+        self.assert_one_of_types(type_, &FIELD_SCALAR_INT_TYPES, span)
     }
 
-    pub(crate) fn assert_int_type(&self, type_: Option<Type>, span: Span) -> Option<Type> {
-        self.assert_one_of_types(type_, INT_TYPES, span)
+    /// Emits an error to the handler if the given type is not a field, group, or integer.
+    pub(crate) fn assert_field_group_int_type(&self, type_: Option<Type>, span: Span) {
+        self.assert_one_of_types(type_, &FIELD_GROUP_INT_TYPES, span)
+    }
+
+    /// Emits an error to the handler if the given type is not a field, group, scalar or integer.
+    pub(crate) fn assert_field_group_scalar_int_type(&self, type_: Option<Type>, span: Span) {
+        self.assert_one_of_types(type_, &FIELD_GROUP_SCALAR_INT_TYPES, span)
     }
 }

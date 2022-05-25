@@ -1,22 +1,5 @@
 ---
 namespace: Compile
-expectation: Pass
+expectation: Fail
 outputs:
-  - output:
-      - initial_input_ast: 44e0b05b0da70ab554408e1fa7a8578282522b358320cde13231c2136e4df5b1
-      - initial_input_ast: fa8ef1a0d3743224c55ca78079611c87374266313d2254c5b18a99443e038d51
-      - initial_input_ast: 6aa65f48c47c0a70326ee6034a46c38ed25116b02b748827fde3a4a46cb9cb95
-      - initial_input_ast: de106cf7de15ce9b35d00a97dccf6b90077303e8bfcec568d65352107c2a81f8
-      - initial_input_ast: a6badf7eba50a21d6ebc1c82eb70cd4081e37680dd8d4b597ea04192ccbf4e5a
-      - initial_input_ast: 72e2f6ef3f3cb3135dbb46dd1c5808c206cfa762a708a8d5483b6bc2958a33ba
-      - initial_input_ast: 0a5209868d802596f6094912deb7adaef5f21e0ee269eeaa3a661d403a64701e
-      - initial_input_ast: be71fcee4adbb8c7de279825c5fd87d8c55597a97f57f9af28d88e3f51781c79
-      - initial_input_ast: 55aae45600898144d628c1211e2de07794ce4784eef21a6b978aa064d3fa89f4
-      - initial_input_ast: 8f73004838aee69e847d99ab0b284d99c61a8283b91227e1dd890994220da8e1
-      - initial_input_ast: 6de398471c245e863855e68b0b672bcda53467f638ccf2ded60930a930f3de25
-      - initial_input_ast: 1d22c4edd4f3fec707b8cb6e60bf57b4e278913fbb6c15c4fa2bce0e318de232
-      - initial_input_ast: 7642187a32f44ae4d5743ae8f46bb669937490ff926c46cf8af8b36b5bc747c5
-      - initial_input_ast: 4d7b20c6c94064e08e0f19b0f45cbdd740f668fefcafd361865226c5af087440
-      - initial_input_ast: 9de9e1877e523f5aa44d019bba11e7bb58ad1f9952aae3254908e8b151b3ae55
-    initial_ast: 526f77f4386ed6b5dd40f7e352f48e43c04655123bf329dbed9f6dadd43a4963
-    symbol_table: 1cad55eef598e4d05af7c5f88119636a2e6d23d81213bbaad908d66a32906780
+  - "Error [EPAR0370026]: Could not lex the following content: `'z' ? 'x' : character;\n}\n`."

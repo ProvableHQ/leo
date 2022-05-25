@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_span::Span;
-
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -62,27 +60,5 @@ impl fmt::Display for Chars {
         }
 
         Ok(())
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CharValue {
-    pub character: Char,
-    pub span: Span,
-}
-
-impl fmt::Display for CharValue {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.character)
-    }
-}
-
-impl CharValue {
-    pub fn set_span(&mut self, new_span: Span) {
-        self.span = new_span;
-    }
-
-    pub fn span(&self) -> &Span {
-        &self.span
     }
 }

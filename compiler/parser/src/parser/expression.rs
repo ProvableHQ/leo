@@ -31,6 +31,7 @@ const INT_TYPES: &[Token] = &[
     Token::U128,
     Token::Field,
     Token::Group,
+    Token::Scalar,
 ];
 
 impl ParserContext<'_> {
@@ -357,6 +358,11 @@ impl ParserContext<'_> {
                         assert_no_whitespace("group")?;
                         Expression::Value(ValueExpression::Group(Box::new(GroupValue::Single(value, full_span))))
                     }
+                    // Literal followed by `scalar` e.g., `42scalar`.
+                    Some(Token::Scalar) => {
+                        assert_no_whitespace("scalar")?;
+                        Expression::Value(ValueExpression::Scalar(value, full_span))
+                    }
                     // Literal followed by other type suffix, e.g., `42u8`.
                     Some(suffix) => {
                         assert_no_whitespace(&suffix.to_string())?;
@@ -369,10 +375,6 @@ impl ParserContext<'_> {
             Token::True => Expression::Value(ValueExpression::Boolean("true".into(), span)),
             Token::False => Expression::Value(ValueExpression::Boolean("false".into(), span)),
             Token::AddressLit(value) => Expression::Value(ValueExpression::Address(value, span)),
-            Token::CharLit(value) => Expression::Value(ValueExpression::Char(CharValue {
-                character: value.into(),
-                span,
-            })),
             Token::StringLit(value) => Expression::Value(ValueExpression::String(value, span)),
             Token::Ident(name) => {
                 let ident = Identifier { name, span };

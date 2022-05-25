@@ -26,7 +26,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let parent = self.parent.unwrap();
 
         // Would never be None.
-        let func_output_type = self.symbol_table.lookup_fn(&parent).map(|f| f.output.clone());
+        let func_output_type = self.symbol_table.lookup_fn(&parent).map(|f| f.output);
         self.compare_expr_type(&input.expression, func_output_type, input.expression.span());
 
         VisitResult::VisitChildren
@@ -51,7 +51,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 self.handler.emit_err(err);
             }
 
-            self.compare_expr_type(&input.value, Some(input.type_.clone()), input.value.span());
+            self.compare_expr_type(&input.value, Some(input.type_), input.value.span());
         });
 
         VisitResult::VisitChildren
@@ -70,7 +70,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 _ => {}
             }
 
-            Some(var.type_.clone())
+            Some(*var.type_)
         } else {
             self.handler.emit_err(
                 TypeCheckerError::unknown_sym("variable", &input.assignee.identifier.name, input.assignee.span).into(),
@@ -104,8 +104,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             self.handler.emit_err(err);
         }
 
-        self.compare_expr_type(&input.start, Some(input.type_.clone()), input.start.span());
-        self.compare_expr_type(&input.stop, Some(input.type_.clone()), input.stop.span());
+        self.compare_expr_type(&input.start, Some(input.type_), input.start.span());
+        self.compare_expr_type(&input.stop, Some(input.type_), input.stop.span());
 
         VisitResult::VisitChildren
     }

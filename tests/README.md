@@ -45,27 +45,32 @@ generated instead. A PR should contain changes to expectations as well as to tes
 
 Here is the list of all possible configuration options for compiler and parser tests.
 
-#### namespace
+### namespace
 
-```
+```yaml
 - Mandatory: yes
 - Namespace: all
-- Values: Compile / Parse
+- Values: ...
 ```
 
-Only two values are supported: `Parse` and `Compile`. The former is meant to be a parser test, the latter
-is a full compiler test.
+Several values are supported, but they vary depending on the directory you are in.
 
-Besides the `Parse` value,
-there are actually additional possible values for this field:
-`ParseStatement`, `ParseExpression`, and `Token`.
-Each one of them allows testing Leo parser on different levels - lexer tokens or just expressions/statements.
+Parser Directory namespaces:
 
-Compiler tests always include complete Leo programs.
+- `Parse` - Test a file to check that it is a valid Leo program.
+- `ParseExpression` - Test a file line by line to check that each line is a valid Leo expression. 
+- `ParseStatement` - Test a file consuming multiple lines till a blank line to check that it contains a valid Leo statement.
+- `Serialize` - Test a file to check that it can be serialized to JSON.
+- `Input` - Test an input file to check that it is a valid Leo input file.
+- `Token` - Test a file line by line to check that it contains zero or more valid Leo parser tokens.
+
+Compiler Directory namespaces:
+
+- `Compiler` - Test a file to check that it is a valid Leo program, and it can be compiled without errors.
 
 ### expectation
 
-```
+```yaml
 - Mandatory: yes
 - Namespace: all
 - Values: Pass / Fail
@@ -77,7 +82,7 @@ you'll know that something went wrong and the test or the compiler/parser needs 
 
 ### input_file (Compile)
 
-```
+```yaml
 - Mandatory: no
 - Namespace: Compile
 - Values: <input file path>, ...
@@ -87,7 +92,7 @@ This setting allows using one or more input files for the Leo program.
 The program will be run with every provided input.
 See this example:
 
-```
+```yaml
 /*
 namespace: Compile
 expectation: Pass
