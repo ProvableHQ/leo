@@ -20,23 +20,16 @@ use leo_span::{Span, Symbol};
 use snarkvm_dpc::{prelude::*, testnet2::Testnet2};
 
 use serde::{Deserialize, Serialize};
+use std::{
+    fmt,
+    iter::{from_fn, Peekable},
+    str::FromStr,
+};
 
-use std::{fmt, iter::Peekable, str::FromStr};
-
-/// Returns a new `StrTendril` string if an identifier can be eaten, otherwise returns [`None`].
-/// An identifier can be eaten if its bytes are at the front of the given `input_tendril` string.
+/// Eat an identifier, that is, a string matching '[a-zA-Z][a-zA-Z\d_]*', if any.
 fn eat_identifier(input: &mut Peekable<impl Iterator<Item = char>>) -> Option<String> {
-    match input.peek() {
-        None => return None,
-        Some(c) if !c.is_ascii_alphabetic() => return None,
-        _ => {}
-    }
-
-    let mut ident = String::new();
-    while let Some(c) = input.next_if(|c| c.is_ascii_alphanumeric() || c == &'_') {
-        ident.push(c);
-    }
-    Some(ident)
+    input.peek().filter(|c| c.is_ascii_alphabetic())?;
+    Some(from_fn(|| input.next_if(|c| c.is_ascii_alphanumeric() || c == &'_')).collect())
 }
 
 /// Checks if a char is a Unicode Bidirectional Override code point
@@ -212,26 +205,6 @@ impl Token {
 
                 return Err(ParserError::lexer_string_not_closed(leo_ast::Chars(string)).into());
             }
-            Some('\'') => {
-                input.next();
-
-                match input.peek() {
-                    Some(c) if is_bidi_override(*c) => {
-                        return Err(ParserError::lexer_bidi_override().into());
-                    }
-                    _ => {}
-                }
-
-                let (len, character) = Self::eat_char(&mut input)?;
-                if input.next_if_eq(&'\'').is_some() {
-                    input.next();
-                    return Ok((len + 2, Token::CharLit(character)));
-                } else if input.next().is_some() {
-                    return Err(ParserError::lexer_char_not_closed(character).into());
-                } else {
-                    return Err(ParserError::lexer_empty_input_tendril().into());
-                }
-            }
             Some(x) if x.is_ascii_digit() => {
                 return Self::eat_integer(&mut input);
             }
@@ -403,7 +376,6 @@ impl Token {
                     x if x.starts_with("aleo1") => Token::AddressLit(ident),
                     "address" => Token::Address,
                     "bool" => Token::Bool,
-                    "char" => Token::Char,
                     "console" => Token::Console,
                     "const" => Token::Const,
                     "constant" => Token::Constant,

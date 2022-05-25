@@ -53,7 +53,6 @@ impl<'a> TypeChecker<'a> {
             Expression::Value(value) => match value {
                 ValueExpression::Address(_, _) => Some(self.assert_type(Type::Address, expected, value.span())),
                 ValueExpression::Boolean(_, _) => Some(self.assert_type(Type::Boolean, expected, value.span())),
-                ValueExpression::Char(_) => Some(self.assert_type(Type::Char, expected, value.span())),
                 ValueExpression::Field(_, _) => Some(self.assert_type(Type::Field, expected, value.span())),
                 ValueExpression::Integer(type_, str_content, _) => {
                     match type_ {

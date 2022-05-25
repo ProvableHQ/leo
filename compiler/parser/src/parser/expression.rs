@@ -313,10 +313,6 @@ impl ParserContext<'_> {
             Token::True => Expression::Value(ValueExpression::Boolean("true".into(), span)),
             Token::False => Expression::Value(ValueExpression::Boolean("false".into(), span)),
             Token::AddressLit(value) => Expression::Value(ValueExpression::Address(value, span)),
-            Token::CharLit(value) => Expression::Value(ValueExpression::Char(CharValue {
-                character: value.into(),
-                span,
-            })),
             Token::StringLit(value) => Expression::Value(ValueExpression::String(value, span)),
             Token::Ident(name) => {
                 let ident = Identifier { name, span };

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CharValue, Expression, GroupValue, IntegerType, Node, Type, UnaryOperation, ValueExpression};
+use crate::{Expression, GroupValue, IntegerType, Node, Type, UnaryOperation, ValueExpression};
 use leo_errors::{InputError, LeoError, ParserError, Result};
 
 use serde::{Deserialize, Serialize};
@@ -24,7 +24,6 @@ use std::fmt;
 pub enum InputValue {
     Address(String),
     Boolean(bool),
-    Char(CharValue),
     Field(String),
     Group(GroupValue),
     Integer(IntegerType, String),
@@ -41,7 +40,6 @@ impl TryFrom<(Type, Expression)> for InputValue {
                         let bool_value = value.parse::<bool>().map_err(|_| ParserError::unexpected_eof(span))?; // TODO: change error
                         Self::Boolean(bool_value)
                     }
-                    (Type::Char, ValueExpression::Char(value)) => Self::Char(value),
                     (Type::Field, ValueExpression::Field(value, _)) => Self::Field(value),
                     (Type::Group, ValueExpression::Group(value)) => Self::Group(*value),
                     (Type::IntegerType(expected), ValueExpression::Integer(actual, value, span)) => {
@@ -69,7 +67,6 @@ impl fmt::Display for InputValue {
         match self {
             InputValue::Address(ref address) => write!(f, "{}", address),
             InputValue::Boolean(ref boolean) => write!(f, "{}", boolean),
-            InputValue::Char(ref character) => write!(f, "{}", character),
             InputValue::Group(ref group) => write!(f, "{}", group),
             InputValue::Field(ref field) => write!(f, "{}", field),
             InputValue::Integer(ref type_, ref number) => write!(f, "{}{:?}", number, type_),

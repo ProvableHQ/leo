@@ -1,7 +1,7 @@
 [project]
 name = "hello-world"
-version = "0.1.0"
-description = "Returns the sum of two u32 integers"
+version = "0.2.0"
+description = "Logs hello world"
 license = "LICENSE-MIT"
 
 [remote]

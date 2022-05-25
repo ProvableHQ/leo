@@ -22,6 +22,7 @@ pub(crate) const TYPE_TOKENS: &[Token] = &[
     Token::Bool,
     Token::Field,
     Token::Group,
+    Token::Scalar,
     Token::I8,
     Token::I16,
     Token::I32,
@@ -32,8 +33,6 @@ pub(crate) const TYPE_TOKENS: &[Token] = &[
     Token::U32,
     Token::U64,
     Token::U128,
-    Token::Char,
-    Token::Scalar,
 ];
 
 impl ParserContext<'_> {
@@ -64,7 +63,6 @@ impl ParserContext<'_> {
                 Token::Bool => Type::Boolean,
                 Token::Field => Type::Field,
                 Token::Group => Type::Group,
-                Token::Char => Type::Char,
                 Token::Scalar => Type::Scalar,
                 x => Type::IntegerType(Self::token_to_int_type(x).expect("invalid int type")),
             },

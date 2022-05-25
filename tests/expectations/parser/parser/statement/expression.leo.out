@@ -2,6 +2,6 @@
 namespace: ParseStatement
 expectation: Fail
 outputs:
-  - "Error [EPAR0370043]: Expression statements are no longer supported.\n    --> test:1:1\n     |\n   1 | expr;\n     | ^^^^^"
-  - "Error [EPAR0370043]: Expression statements are no longer supported.\n    --> test:1:1\n     |\n   1 | x+y;\n     | ^^^^"
-  - "Error [EPAR0370043]: Expression statements are no longer supported.\n    --> test:1:1\n     |\n   1 | x();\n     | ^^^^"
+  - "Error [EPAR0370041]: Expression statements are no longer supported.\n    --> test:1:1\n     |\n   1 | expr;\n     | ^^^^^"
+  - "Error [EPAR0370041]: Expression statements are no longer supported.\n    --> test:1:1\n     |\n   1 | x+y;\n     | ^^^^"
+  - "Error [EPAR0370041]: Expression statements are no longer supported.\n    --> test:1:1\n     |\n   1 | x();\n     | ^^^^"
