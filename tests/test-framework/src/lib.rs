@@ -22,6 +22,7 @@
 //! To regenerate the tests after a syntax change or failing test, delete the [`tests/expectations/`]
 //! directory and run the [`parser_tests()`] test in [`parser/src/test.rs`].
 
+#![cfg(not(doctest))] // Don't doctest the markdown.
 #![doc = include_str!("../README.md")]
 
 pub mod error;
