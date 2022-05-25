@@ -53,9 +53,9 @@ impl Type {
         match (self, other) {
             (Type::Address, Type::Address)
             | (Type::Boolean, Type::Boolean)
+            | (Type::Char, Type::Char)
             | (Type::Field, Type::Field)
             | (Type::Group, Type::Group)
-            | (Type::Char, Type::Char)
             | (Type::Scalar, Type::Scalar) => true,
             (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(right),
             _ => false,
