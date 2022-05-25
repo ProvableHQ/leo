@@ -21,7 +21,18 @@ jobs:
 
       - name: Generate asts
         run: |
-          cargo -q run -p leo-test-framework --bin tgc
+          # This currently has to be on testnet3 to work:
+          cd compiler/parser
+          cargo -q install --path . --example parser
+          # To ensure full file tests,
+          # just do compiler tests and remove expectation: Fail tests
+          cd ../../tests/compiler
+          find . -type f -exec grep -q 'expectation *: *Fail' {} \; -delete
+          find . -name '*.leo' -execdir parser {} \; > /dev/null
+          # Show how many there are:
+          echo "Counts (.leo / .json):"
+          find . -name '*.leo' -print | wc -l
+          find . -name '*.json' -print | wc -l
 
       # Pull the latest release from the leo-acl2-bin repo, and put it into the
       # repo/acl2 directory. After it's done, unpack the tgz file locally.
@@ -29,7 +40,7 @@ jobs:
         run: |
           mkdir acl2 && cd acl2;
           wget $( curl -s https://api.github.com/repos/AleoHQ/leo-acl2-bin/releases/latest \
-                  | jq -r '.assets[0].browser_download_url' )
+                  | jq -r '.assets[].browser_download_url|scan("^.*leo-acl2--v.*\\.tgz$")' )
 
           echo "Unpacking $(ls):"
           tar -xvzf $(ls)
@@ -37,28 +48,31 @@ jobs:
       # Run theorem generation and checking using the prepared ASTs and the pulled and unzipped leo-acl2 tarball.
       - name: Run tgc over ASTs
         run: |
-          canonicalization_errors=();
-          type_inference_errors=();
-          num_dirs=0;
-          for dir in `ls tmp/tgc`;
+          parsing_errors=();
+          num_cases=0;
+          # Note that PWD gets reset at the beginning of each the step
+          # to /home/runner/work/leo/leo
+          acl2dir="${PWD}"/acl2
+          cd tests/compiler;
+          for tc in `find ${PWD} -name '*.leo' -print`;
           do
-            cd tmp/tgc/$dir; # enter the directory
-            num_dirs=$((num_dirs + 1));
-            ./../../../acl2/tgc canonicalization initial_ast.json canonicalization_ast.json canonicalization-theorem.lisp > canonicalization_result.out || canonicalization_errors+=("$dir");
-            ./../../../acl2/tgc type-inference canonicalization_ast.json type_inferenced_ast.json type-inference-theorem.lisp > type_inference_result.out || type_inference_errors+=("$dir");
-            cd ../../..
+            cd "${tc%/*}";  # enter the directory
+            leofile="${tc##*/}";
+            jsonfile="${leofile%.leo}.json";
+            num_cases=$((num_cases + 1));
+            "$acl2dir"/tgc parsing "$leofile" "$jsonfile" parsing-theorem.lisp > parsing_result.out || parsing_errors+=("$tc");
           done;
 
           echo "----------------"
-          echo "Ran tgc in ${num_dirs} directories."
+          echo "Ran tgc on ${num_cases} programs."
           echo "----------------"
-          if [ ${#canonicalization_errors[@]} -eq 0 ]; then
-            echo "Canonicalization - Success!"
+          if [ ${#parsing_errors[@]} -eq 0 ]; then
+            echo "Parsing - Total Success!"
           else
-            echo "Canonicalization Failures (total: ${#canonicalization_errors[@]}):"
-            for dir in ${canonicalization_errors[@]};
+            echo "Parsing Failures (total: ${#parsing_errors[@]}):"
+            for tc in ${parsing_errors[@]};
             do
-              echo $dir
+              echo $tc
             done;
 
             #echo "Attaching logs:"
@@ -69,24 +83,7 @@ jobs:
             #done;
           fi
 
-          echo "----------------"
-          if [ ${#type_inference_errors[@]} -eq 0 ]; then
-            echo "Type Inference - Success!"
-          else
-            echo "Type Inference Failures (total: ${#type_inference_errors[@]}):"
-            for dir in ${type_inference_errors[@]};
-            do
-              echo $dir
-            done;
-
-            #echo "Attaching logs:"
-            #for dir in ${type_inference_errors[@]};
-            #do
-            # cat tmp/tgc/$dir/type_inference_result.out
-            #done;
-          fi
-
-          if [[ ${#canonicalization_errors[@]} -ne 0 || ${#type_inference_errors[@]} -ne 0 ]]; then
+          if [[ ${#parsing_errors[@]} -ne 0 ]]; then
             echo "----------------"
             echo "Exiting with status 1 due to at least one tgc error."
             exit 1

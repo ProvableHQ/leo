@@ -25,6 +25,7 @@ outputs:
   - "Error [EPAR0370009]: unexpected string: expected 'ident', got ','\n    --> test:1:10\n     |\n   1 | let (x,y,,) = ();\n     |          ^"
   - "Error [EPAR0370009]: unexpected string: expected 'ident', got ','\n    --> test:1:6\n     |\n   1 | let (,x,y) = ();\n     |      ^"
   - "Error [EPAR0370009]: unexpected string: expected 'ident', got ','\n    --> test:1:8\n     |\n   1 | let (x,,y) = ();\n     |        ^"
+<<<<<<< HEAD
   - "Error [EPAR0370005]: expected 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'field', 'group', 'address', 'bool' -- got '['\n    --> test:1:8\n     |\n   1 | let x: [u8; (2,,)] = [[0,0], [0,0]];\n     |        ^"
   - "Error [EPAR0370005]: expected 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'field', 'group', 'address', 'bool' -- got 'const'\n    --> test:1:8\n     |\n   1 | let x: const = expr;\n     |        ^^^^^"
   - "Error [EPAR0370005]: expected 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'field', 'group', 'address', 'bool' -- got 'let'\n    --> test:1:10\n     |\n   1 | const x: let = expr;\n     |          ^^^"
@@ -32,16 +33,32 @@ outputs:
   - "Error [EPAR0370009]: unexpected string: expected 'ident', got '<eof>'\n    --> test:1:1\n     |\n   1 | let\n     | ^^^"
   - "Error [EPAR0370005]: expected : -- got '<eof>'\n    --> test:1:5\n     |\n   1 | let x\n     |     ^"
   - "Error [EPAR0370005]: expected 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'field', 'group', 'address', 'bool' -- got '<eof>'\n    --> test:1:6\n     |\n   1 | let x:\n     |      ^"
+=======
+  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'char', 'scalar' -- got '['\n    --> test:1:8\n     |\n   1 | let x: [u8; (2,,)] = [[0,0], [0,0]];\n     |        ^"
+  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'char', 'scalar' -- got 'const'\n    --> test:1:8\n     |\n   1 | let x: const = expr;\n     |        ^^^^^"
+  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'char', 'scalar' -- got 'let'\n    --> test:1:10\n     |\n   1 | const x: let = expr;\n     |          ^^^"
+  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'char', 'scalar' -- got 'mut'\n    --> test:1:8\n     |\n   1 | let x: mut = expr;\n     |        ^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'ident', got '<eof>'\n    --> test:1:1\n     |\n   1 | let\n     | ^^^"
+  - "Error [EPAR0370005]: expected : -- got '<eof>'\n    --> test:1:5\n     |\n   1 | let x\n     |     ^"
+  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'char', 'scalar' -- got '<eof>'\n    --> test:1:6\n     |\n   1 | let x:\n     |      ^"
+>>>>>>> 0bf4a923a29cda1c3ed947f1cef81f726e451331
   - "Error [EPAR0370005]: expected : -- got '='\n    --> test:1:7\n     |\n   1 | let x = (a, y]);\n     |       ^"
   - "Error [EPAR0370009]: unexpected string: expected 'ident', got '='\n    --> test:1:5\n     |\n   1 | let = 1u8;\n     |     ^"
   - "Error [EPAR0370009]: unexpected string: expected 'ident', got ';'\n    --> test:1:4\n     |\n   1 | let;\n     |    ^"
   - "Error [EPAR0370005]: expected : -- got '1'\n    --> test:1:7\n     |\n   1 | let x 1u8;\n     |       ^"
   - "Error [EPAR0370005]: expected = -- got ';'\n    --> test:1:10\n     |\n   1 | let x: u8;\n     |          ^"
   - "Error [EPAR0370005]: expected = -- got '<eof>'\n    --> test:1:8\n     |\n   1 | let x: u8\n     |        ^^"
+<<<<<<< HEAD
   - "Error [EPAR0370005]: expected 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'field', 'group', 'address', 'bool' -- got '='\n    --> test:1:8\n     |\n   1 | let x: = 1;\n     |        ^"
   - "Error [EPAR0370005]: expected 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'field', 'group', 'address', 'bool' -- got '['\n    --> test:1:8\n     |\n   1 | let x: [u8] = 1;\n     |        ^"
   - "Error [EPAR0370005]: expected 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'field', 'group', 'address', 'bool' -- got '['\n    --> test:1:8\n     |\n   1 | let x: [u8;\n     |        ^"
   - "Error [EPAR0370005]: expected 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'field', 'group', 'address', 'bool' -- got '['\n    --> test:1:8\n     |\n   1 | let x: [u8; 1u8] = [1,\n     |        ^"
+=======
+  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'char', 'scalar' -- got '='\n    --> test:1:8\n     |\n   1 | let x: = 1;\n     |        ^"
+  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'char', 'scalar' -- got '['\n    --> test:1:8\n     |\n   1 | let x: [u8] = 1;\n     |        ^"
+  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'char', 'scalar' -- got '['\n    --> test:1:8\n     |\n   1 | let x: [u8;\n     |        ^"
+  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'char', 'scalar' -- got '['\n    --> test:1:8\n     |\n   1 | let x: [u8; 1u8] = [1,\n     |        ^"
+>>>>>>> 0bf4a923a29cda1c3ed947f1cef81f726e451331
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got ']'\n    --> test:1:15\n     |\n   1 | let dbg: u8 = ];\n     |               ^"
   - "Error [EPAR0370026]: Could not lex the following content: `🦀: u8 = 0;`."
   - "Error [EPAR0370035]: do not put parens around single variable names\n    --> test:1:6\n     |\n   1 | let (x) = ...;\n     |      ^\nError [EPAR0370005]: expected : -- got '='\n    --> test:1:9\n     |\n   1 | let (x) = ...;\n     |         ^"

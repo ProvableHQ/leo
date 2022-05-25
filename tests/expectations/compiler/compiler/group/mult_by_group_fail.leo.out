@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372007]: Expected one type from `i8,i16,i32,i64,i128,u8,u16,u32,u64,u128,`, but got `group`\n    --> compiler-test:4:12\n     |\n   4 |     return (_, _)group * a;\n     |            ^^^^^^^^^^^^^^^\nError [ETYC0372007]: Expected one type from `i8,i16,i32,i64,i128,u8,u16,u32,u64,u128,`, but got `group`\n    --> compiler-test:4:12\n     |\n   4 |     return (_, _)group * a;\n     |            ^^^^^^^^^^^^^^^"
+  - "Error [ETYC0372002]: Found type `group` but type `scalar` was expected\n    --> compiler-test:4:12\n     |\n   4 |     return (_, _)group * a;\n     |            ^^^^^^^^^^^^^^^\nError [ETYC0372002]: Found type `group` but type `scalar` was expected\n    --> compiler-test:4:12\n     |\n   4 |     return (_, _)group * a;\n     |            ^^^^^^^^^^^^^^^"

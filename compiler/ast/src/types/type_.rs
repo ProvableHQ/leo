@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Explicit type used for defining a variable or expression type
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Type {
     // Data types
     /// The `address` type.
@@ -31,6 +31,8 @@ pub enum Type {
     Field,
     /// The `group` type.
     Group,
+    /// The `scalar` type.
+    Scalar,
     /// An integer type.
     IntegerType(IntegerType),
 
@@ -47,10 +49,11 @@ impl Type {
     ///
     pub fn eq_flat(&self, other: &Self) -> bool {
         match (self, other) {
-            (Type::Address, Type::Address) => true,
-            (Type::Boolean, Type::Boolean) => true,
-            (Type::Field, Type::Field) => true,
-            (Type::Group, Type::Group) => true,
+            (Type::Address, Type::Address)
+            | (Type::Boolean, Type::Boolean)
+            | (Type::Field, Type::Field)
+            | (Type::Group, Type::Group)
+            | (Type::Scalar, Type::Scalar) => true,
             (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(right),
             _ => false,
         }
@@ -64,6 +67,7 @@ impl fmt::Display for Type {
             Type::Boolean => write!(f, "bool"),
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
+            Type::Scalar => write!(f, "scalar"),
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
             Type::Err => write!(f, "error"),
         }

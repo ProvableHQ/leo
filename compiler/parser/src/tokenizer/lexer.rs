@@ -395,6 +395,7 @@ impl Token {
                     "let" => Token::Let,
                     "public" => Token::Public,
                     "return" => Token::Return,
+                    "scalar" => Token::Scalar,
                     "true" => Token::True,
                     "u8" => Token::U8,
                     "u16" => Token::U16,
