@@ -36,9 +36,7 @@ impl<'a> CreateSymbolTable<'a> {
     }
 }
 
-impl<'a> ExpressionVisitor<'a> for CreateSymbolTable<'a> {
-    type Output = ();
-}
+impl<'a> ExpressionVisitor<'a> for CreateSymbolTable<'a> {}
 
 impl<'a> StatementVisitor<'a> for CreateSymbolTable<'a> {}
 

@@ -30,37 +30,35 @@ impl Default for VisitResult {
 }
 
 pub trait ExpressionVisitor<'a> {
-    type Output;
-
-    fn visit_expression(&mut self, _input: &'a Expression) -> (VisitResult, Option<Self::Output>) {
+    fn visit_expression(&mut self, _input: &'a Expression) -> VisitResult {
         Default::default()
     }
 
-    fn visit_identifier(&mut self, _input: &'a Identifier) -> (VisitResult, Option<Self::Output>) {
+    fn visit_identifier(&mut self, _input: &'a Identifier) -> VisitResult {
         Default::default()
     }
 
-    fn visit_value(&mut self, _input: &'a ValueExpression) -> (VisitResult, Option<Self::Output>) {
+    fn visit_value(&mut self, _input: &'a ValueExpression) -> VisitResult {
         Default::default()
     }
 
-    fn visit_binary(&mut self, _input: &'a BinaryExpression) -> (VisitResult, Option<Self::Output>) {
+    fn visit_binary(&mut self, _input: &'a BinaryExpression) -> VisitResult {
         Default::default()
     }
 
-    fn visit_unary(&mut self, _input: &'a UnaryExpression) -> (VisitResult, Option<Self::Output>) {
+    fn visit_unary(&mut self, _input: &'a UnaryExpression) -> VisitResult {
         Default::default()
     }
 
-    fn visit_ternary(&mut self, _input: &'a TernaryExpression) -> (VisitResult, Option<Self::Output>) {
+    fn visit_ternary(&mut self, _input: &'a TernaryExpression) -> VisitResult {
         Default::default()
     }
 
-    fn visit_call(&mut self, _input: &'a CallExpression) -> (VisitResult, Option<Self::Output>) {
+    fn visit_call(&mut self, _input: &'a CallExpression) -> VisitResult {
         Default::default()
     }
 
-    fn visit_err(&mut self, _input: &'a ErrExpression) -> (VisitResult, Option<Self::Output>) {
+    fn visit_err(&mut self, _input: &'a ErrExpression) -> VisitResult {
         Default::default()
     }
 }

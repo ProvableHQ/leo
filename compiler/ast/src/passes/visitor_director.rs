@@ -32,7 +32,7 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
     type Output;
 
     fn visit_expression(&mut self, input: &'a Expression) -> Option<Self::Output> {
-        if let VisitResult::VisitChildren = self.visitor_ref().visit_expression(input).0 {
+        if let VisitResult::VisitChildren = self.visitor_ref().visit_expression(input) {
             match input {
                 Expression::Identifier(expr) => self.visit_identifier(expr),
                 Expression::Value(expr) => self.visit_value(expr),
@@ -58,7 +58,7 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
     }
 
     fn visit_binary(&mut self, input: &'a BinaryExpression) -> Option<Self::Output> {
-        if let VisitResult::VisitChildren = self.visitor_ref().visit_binary(input).0 {
+        if let VisitResult::VisitChildren = self.visitor_ref().visit_binary(input) {
             self.visit_expression(&input.left);
             self.visit_expression(&input.right);
         }
@@ -66,14 +66,14 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
     }
 
     fn visit_unary(&mut self, input: &'a UnaryExpression) -> Option<Self::Output> {
-        if let VisitResult::VisitChildren = self.visitor_ref().visit_unary(input).0 {
+        if let VisitResult::VisitChildren = self.visitor_ref().visit_unary(input) {
             self.visit_expression(&input.inner);
         }
         None
     }
 
     fn visit_ternary(&mut self, input: &'a TernaryExpression) -> Option<Self::Output> {
-        if let VisitResult::VisitChildren = self.visitor_ref().visit_ternary(input).0 {
+        if let VisitResult::VisitChildren = self.visitor_ref().visit_ternary(input) {
             self.visit_expression(&input.condition);
             self.visit_expression(&input.if_true);
             self.visit_expression(&input.if_false);
@@ -82,7 +82,7 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
     }
 
     fn visit_call(&mut self, input: &'a CallExpression) -> Option<Self::Output> {
-        if let VisitResult::VisitChildren = self.visitor_ref().visit_call(input).0 {
+        if let VisitResult::VisitChildren = self.visitor_ref().visit_call(input) {
             input.arguments.iter().for_each(|expr| {
                 self.visit_expression(expr);
             });
@@ -113,7 +113,7 @@ pub trait StatementVisitorDirector<'a>: VisitorDirector<'a> + ExpressionVisitorD
 
     fn visit_return(&mut self, input: &'a ReturnStatement) {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_return(input) {
-            self.visitor_ref().visit_expression(&input.expression);
+            self.visit_expression(&input.expression);
         }
     }
 

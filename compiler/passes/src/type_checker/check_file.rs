@@ -18,6 +18,8 @@ use leo_ast::*;
 
 use crate::{Declaration, TypeChecker, VariableSymbol};
 
+use super::director::Director;
+
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_function(&mut self, input: &'a Function) -> VisitResult {
         self.symbol_table.clear_variables();
@@ -40,3 +42,5 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         VisitResult::VisitChildren
     }
 }
+
+impl<'a> ProgramVisitorDirector<'a> for Director<'a> {}
