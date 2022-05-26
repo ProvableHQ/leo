@@ -19,30 +19,6 @@ use leo_span::{sym, Symbol};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub enum Char {
-    Scalar(char),
-    NonScalar(u32),
-}
-
-impl From<Char> for leo_ast::Char {
-    fn from(val: Char) -> Self {
-        match val {
-            Char::Scalar(c) => Self::Scalar(c),
-            Char::NonScalar(c) => Self::NonScalar(c),
-        }
-    }
-}
-
-impl fmt::Display for Char {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Scalar(c) => write!(f, "{}", c),
-            Self::NonScalar(c) => write!(f, "{:X}", c),
-        }
-    }
-}
-
 /// Represents all valid Leo syntax tokens.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Token {
