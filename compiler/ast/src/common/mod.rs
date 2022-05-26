@@ -24,3 +24,6 @@ pub use imported_modules::*;
 
 pub mod positive_number;
 pub use positive_number::*;
+
+pub mod static_string;
+pub use static_string::*;

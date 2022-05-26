@@ -69,7 +69,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_group_value(group_value, new)
     }
 
-    pub fn reduce_string(&mut self, string: &[Char], span: &Span) -> Result<Expression> {
+    pub fn reduce_string(&mut self, string: &String, span: &Span) -> Result<Expression> {
         self.reducer.reduce_string(string, span)
     }
 

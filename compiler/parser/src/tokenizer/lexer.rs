@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::tokenizer::{Char, Token};
+use crate::tokenizer::Token;
 use leo_errors::{ParserError, Result};
 use leo_span::{Span, Symbol};
 use snarkvm_dpc::{prelude::*, testnet2::Testnet2};
@@ -185,6 +185,7 @@ impl Token {
             }
             Some('"') => {
                 let mut string = String::from("\"");
+                input.next();
 
                 let mut ended = false;
                 while let Some(c) = input.next() {
