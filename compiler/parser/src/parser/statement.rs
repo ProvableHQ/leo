@@ -154,7 +154,7 @@ impl ParserContext<'_> {
                 p.bump();
                 let SpannedToken { token, span } = p.prev_token.clone();
                 string = Some(match token {
-                    Token::StringLit(chars) => chars,
+                    Token::StaticString(chars) => chars,
                     _ => {
                         p.emit_err(ParserError::unexpected_str(token, "formatted string", span));
                         Vec::new()

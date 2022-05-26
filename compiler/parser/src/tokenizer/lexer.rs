@@ -39,113 +39,114 @@ fn is_bidi_override(c: char) -> bool {
 }
 
 impl Token {
-    // Eats the parts of the unicode character after \u.
-    fn eat_unicode_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
-        let mut unicode = String::new();
-        // Account for the chars '\' and 'u'.
-        let mut len = 2;
+    // todo: remove this unused code or reference https://github.com/Geal/nom/blob/main/examples/string.rs
+    // // Eats the parts of the unicode character after \u.
+    // fn eat_unicode_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
+    //     let mut unicode = String::new();
+    //     // Account for the chars '\' and 'u'.
+    //     let mut len = 2;
+    //
+    //     if input.next_if_eq(&'{').is_some() {
+    //         len += 1;
+    //     } else if let Some(c) = input.next() {
+    //         return Err(ParserError::lexer_unopened_escaped_unicode_char(c).into());
+    //     } else {
+    //         return Err(ParserError::lexer_empty_input_tendril().into());
+    //     }
+    //
+    //     while let Some(c) = input.next_if(|c| c != &'}') {
+    //         len += 1;
+    //         unicode.push(c);
+    //     }
+    //
+    //     if input.next_if_eq(&'}').is_some() {
+    //         len += 1;
+    //     } else {
+    //         return Err(ParserError::lexer_unclosed_escaped_unicode_char(unicode).into());
+    //     }
+    //
+    //     // Max of 6 digits.
+    //     // Minimum of 1 digit.
+    //     if unicode.len() > 6 || unicode.is_empty() {
+    //         return Err(ParserError::lexer_invalid_escaped_unicode_length(unicode).into());
+    //     }
+    //
+    //     if let Ok(hex) = u32::from_str_radix(&unicode, 16) {
+    //         if let Some(character) = std::char::from_u32(hex) {
+    //             Ok((len, Char::Scalar(character)))
+    //         } else if hex <= 0x10FFFF {
+    //             Ok((len, Char::NonScalar(hex)))
+    //         } else {
+    //             Err(ParserError::lexer_invalid_character_exceeded_max_value(unicode).into())
+    //         }
+    //     } else {
+    //         Err(ParserError::lexer_expected_valid_hex_char(unicode).into())
+    //     }
+    // }
 
-        if input.next_if_eq(&'{').is_some() {
-            len += 1;
-        } else if let Some(c) = input.next() {
-            return Err(ParserError::lexer_unopened_escaped_unicode_char(c).into());
-        } else {
-            return Err(ParserError::lexer_empty_input_tendril().into());
-        }
+    // // Eats the parts of the hex character after \x.
+    // fn eat_hex_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
+    //     let mut hex = String::new();
+    //     // Account for the chars '\' and 'x'.
+    //     let mut len = 2;
+    //
+    //     // First hex character.
+    //     if let Some(c) = input.next_if(|c| c != &'\'') {
+    //         len += 1;
+    //         hex.push(c);
+    //     } else if let Some(c) = input.next() {
+    //         return Err(ParserError::lexer_expected_valid_hex_char(c).into());
+    //     } else {
+    //         return Err(ParserError::lexer_empty_input_tendril().into());
+    //     }
+    //
+    //     // Second hex character.
+    //     if let Some(c) = input.next_if(|c| c != &'\'') {
+    //         len += 1;
+    //         hex.push(c);
+    //     } else if let Some(c) = input.next() {
+    //         return Err(ParserError::lexer_expected_valid_hex_char(c).into());
+    //     } else {
+    //         return Err(ParserError::lexer_empty_input_tendril().into());
+    //     }
+    //
+    //     if let Ok(ascii_number) = u8::from_str_radix(&hex, 16) {
+    //         // According to RFC, we allow only values less than 128.
+    //         if ascii_number > 127 {
+    //             return Err(ParserError::lexer_expected_valid_hex_char(hex).into());
+    //         }
+    //
+    //         Ok((len, Char::Scalar(ascii_number as char)))
+    //     } else {
+    //         Err(ParserError::lexer_expected_valid_hex_char(hex).into())
+    //     }
+    // }
 
-        while let Some(c) = input.next_if(|c| c != &'}') {
-            len += 1;
-            unicode.push(c);
-        }
+    // fn eat_escaped_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
+    //     match input.next() {
+    //         None => Err(ParserError::lexer_empty_input_tendril().into()),
+    //         // Length of 2 to account the '\'.
+    //         Some('0') => Ok((2, Char::Scalar(0 as char))),
+    //         Some('t') => Ok((2, Char::Scalar(9 as char))),
+    //         Some('n') => Ok((2, Char::Scalar(10 as char))),
+    //         Some('r') => Ok((2, Char::Scalar(13 as char))),
+    //         Some('\"') => Ok((2, Char::Scalar(34 as char))),
+    //         Some('\'') => Ok((2, Char::Scalar(39 as char))),
+    //         Some('\\') => Ok((2, Char::Scalar(92 as char))),
+    //         Some('u') => Self::eat_unicode_char(input),
+    //         Some('x') => Self::eat_hex_char(input),
+    //         Some(c) => Err(ParserError::lexer_expected_valid_escaped_char(c).into()),
+    //     }
+    // }
 
-        if input.next_if_eq(&'}').is_some() {
-            len += 1;
-        } else {
-            return Err(ParserError::lexer_unclosed_escaped_unicode_char(unicode).into());
-        }
-
-        // Max of 6 digits.
-        // Minimum of 1 digit.
-        if unicode.len() > 6 || unicode.is_empty() {
-            return Err(ParserError::lexer_invalid_escaped_unicode_length(unicode).into());
-        }
-
-        if let Ok(hex) = u32::from_str_radix(&unicode, 16) {
-            if let Some(character) = std::char::from_u32(hex) {
-                Ok((len, Char::Scalar(character)))
-            } else if hex <= 0x10FFFF {
-                Ok((len, Char::NonScalar(hex)))
-            } else {
-                Err(ParserError::lexer_invalid_character_exceeded_max_value(unicode).into())
-            }
-        } else {
-            Err(ParserError::lexer_expected_valid_hex_char(unicode).into())
-        }
-    }
-
-    // Eats the parts of the hex character after \x.
-    fn eat_hex_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
-        let mut hex = String::new();
-        // Account for the chars '\' and 'x'.
-        let mut len = 2;
-
-        // First hex character.
-        if let Some(c) = input.next_if(|c| c != &'\'') {
-            len += 1;
-            hex.push(c);
-        } else if let Some(c) = input.next() {
-            return Err(ParserError::lexer_expected_valid_hex_char(c).into());
-        } else {
-            return Err(ParserError::lexer_empty_input_tendril().into());
-        }
-
-        // Second hex character.
-        if let Some(c) = input.next_if(|c| c != &'\'') {
-            len += 1;
-            hex.push(c);
-        } else if let Some(c) = input.next() {
-            return Err(ParserError::lexer_expected_valid_hex_char(c).into());
-        } else {
-            return Err(ParserError::lexer_empty_input_tendril().into());
-        }
-
-        if let Ok(ascii_number) = u8::from_str_radix(&hex, 16) {
-            // According to RFC, we allow only values less than 128.
-            if ascii_number > 127 {
-                return Err(ParserError::lexer_expected_valid_hex_char(hex).into());
-            }
-
-            Ok((len, Char::Scalar(ascii_number as char)))
-        } else {
-            Err(ParserError::lexer_expected_valid_hex_char(hex).into())
-        }
-    }
-
-    fn eat_escaped_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
-        match input.next() {
-            None => Err(ParserError::lexer_empty_input_tendril().into()),
-            // Length of 2 to account the '\'.
-            Some('0') => Ok((2, Char::Scalar(0 as char))),
-            Some('t') => Ok((2, Char::Scalar(9 as char))),
-            Some('n') => Ok((2, Char::Scalar(10 as char))),
-            Some('r') => Ok((2, Char::Scalar(13 as char))),
-            Some('\"') => Ok((2, Char::Scalar(34 as char))),
-            Some('\'') => Ok((2, Char::Scalar(39 as char))),
-            Some('\\') => Ok((2, Char::Scalar(92 as char))),
-            Some('u') => Self::eat_unicode_char(input),
-            Some('x') => Self::eat_hex_char(input),
-            Some(c) => Err(ParserError::lexer_expected_valid_escaped_char(c).into()),
-        }
-    }
-
-    /// Returns a `char` if a character can be eaten, otherwise returns [`None`].
-    fn eat_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
-        match input.next() {
-            None => Err(ParserError::lexer_empty_input_tendril().into()),
-            Some('\\') => Self::eat_escaped_char(input),
-            Some(c) => Ok((c.len_utf8(), Char::Scalar(c))),
-        }
-    }
+    // /// Returns a `char` if a character can be eaten, otherwise returns [`None`].
+    // fn eat_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
+    //     match input.next() {
+    //         None => Err(ParserError::lexer_empty_input_tendril().into()),
+    //         Some('\\') => Self::eat_escaped_char(input),
+    //         Some(c) => Ok((c.len_utf8(), Char::Scalar(c))),
+    //     }
+    // }
 
     /// Returns a tuple: [(integer length, integer token)] if an integer can be eaten, otherwise returns [`None`].
     /// An integer can be eaten if its bytes are at the front of the given `input_tendril` string.
@@ -183,27 +184,25 @@ impl Token {
                 return Ok((1, Token::WhiteSpace));
             }
             Some('"') => {
-                let mut string: Vec<leo_ast::Char> = Vec::new();
-                input.next();
+                let mut string = String::from("\"");
 
-                let mut len = 0;
-                while let Some(c) = input.peek() {
-                    if is_bidi_override(*c) {
+                let mut ended = false;
+                while let Some(c) = input.next() {
+                    if is_bidi_override(c) {
                         return Err(ParserError::lexer_bidi_override().into());
                     }
-                    if c == &'"' {
+                    string.push(c);
+                    if c == '"' {
+                        ended = true;
                         break;
                     }
-                    let (char_len, character) = Self::eat_char(&mut input)?;
-                    len += char_len;
-                    string.push(character.into());
                 }
 
-                if input.next_if_eq(&'"').is_some() {
-                    return Ok((len + 2, Token::StringLit(string)));
+                if !ended {
+                    return Err(ParserError::lexer_string_not_closed(string).into());
                 }
 
-                return Err(ParserError::lexer_string_not_closed(leo_ast::Chars(string)).into());
+                return Ok((string.len(), Token::StaticString(string)));
             }
             Some(x) if x.is_ascii_digit() => {
                 return Self::eat_integer(&mut input);
