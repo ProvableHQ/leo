@@ -27,7 +27,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         // Would never be None.
         let func_output_type = self.symbol_table.lookup_fn(&parent).map(|f| f.output);
-        self.compare_expr_type(&input.expression, func_output_type, input.expression.span());
+        // self.compare_expr_type(&input.expression, func_output_type, input.expression.span());
 
         VisitResult::VisitChildren
     }
@@ -51,7 +51,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 self.handler.emit_err(err);
             }
 
-            self.compare_expr_type(&input.value, Some(input.type_), input.value.span());
+            // self.compare_expr_type(&input.value, Some(input.type_), input.value.span());
         });
 
         VisitResult::VisitChildren
@@ -80,14 +80,14 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         };
 
         if var_type.is_some() {
-            self.compare_expr_type(&input.value, var_type, input.value.span());
+            // self.compare_expr_type(&input.value, var_type, input.value.span());
         }
 
         VisitResult::VisitChildren
     }
 
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) -> VisitResult {
-        self.compare_expr_type(&input.condition, Some(Type::Boolean), input.condition.span());
+        // self.compare_expr_type(&input.condition, Some(Type::Boolean), input.condition.span());
 
         VisitResult::VisitChildren
     }
@@ -104,8 +104,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             self.handler.emit_err(err);
         }
 
-        self.compare_expr_type(&input.start, Some(input.type_), input.start.span());
-        self.compare_expr_type(&input.stop, Some(input.type_), input.stop.span());
+        // self.compare_expr_type(&input.start, Some(input.type_), input.start.span());
+        // self.compare_expr_type(&input.stop, Some(input.type_), input.stop.span());
 
         VisitResult::VisitChildren
     }
@@ -113,7 +113,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_console(&mut self, input: &'a ConsoleStatement) -> VisitResult {
         match &input.function {
             ConsoleFunction::Assert(expr) => {
-                self.compare_expr_type(expr, Some(Type::Boolean), expr.span());
+                // self.compare_expr_type(expr, Some(Type::Boolean), expr.span());
             }
             ConsoleFunction::Error(_) | ConsoleFunction::Log(_) => {
                 // TODO: undetermined

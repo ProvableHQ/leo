@@ -25,6 +25,8 @@ pub struct TypeChecker<'a> {
     pub(crate) handler: &'a Handler,
     pub(crate) parent: Option<Symbol>,
     pub(crate) negate: bool,
+    pub(crate) expected_type: Option<Type>,
+    pub(crate) span: Span,
 }
 
 const INT_TYPES: [Type; 10] = [
@@ -74,6 +76,8 @@ impl<'a> TypeChecker<'a> {
             handler,
             parent: None,
             negate: false,
+            expected_type: None,
+            span: Default::default(),
         }
     }
 
@@ -91,11 +95,11 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Returns the given type if it equals the expected type or the expected type is none.
-    pub(crate) fn assert_type(&self, type_: Type, expected: Option<Type>, span: Span) -> Type {
+    pub(crate) fn assert_type(&mut self, type_: Type, expected: Option<Type>) -> Type {
         if let Some(expected) = expected {
             if type_ != expected {
                 self.handler
-                    .emit_err(TypeCheckerError::type_should_be(type_, expected, span).into());
+                    .emit_err(TypeCheckerError::type_should_be(type_, expected, self.span).into());
             }
         }
 

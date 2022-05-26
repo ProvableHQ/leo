@@ -14,39 +14,39 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::*;
+use leo_ast::{ExpressionVisitorDirector, ProgramVisitorDirector, StatementVisitorDirector, VisitorDirector};
 use leo_errors::emitter::Handler;
 
-use crate::SymbolTable;
+use crate::CreateSymbolTable;
 
-pub struct CreateSymbolTable<'a> {
-    symbol_table: SymbolTable<'a>,
-    handler: &'a Handler,
+pub(crate) struct Director<'a> {
+    visitor: CreateSymbolTable<'a>,
 }
 
-impl<'a> CreateSymbolTable<'a> {
-    pub fn new(handler: &'a Handler) -> Self {
+impl<'a> Director<'a> {
+    pub(crate) fn new(handler: &'a Handler) -> Self {
         Self {
-            symbol_table: SymbolTable::default(),
-            handler,
+            visitor: CreateSymbolTable::new(handler),
         }
     }
-    pub fn symbol_table(self) -> SymbolTable<'a> {
-        self.symbol_table
+}
+
+impl<'a> VisitorDirector<'a> for Director<'a> {
+    type Visitor = CreateSymbolTable<'a>;
+
+    fn visitor(self) -> Self::Visitor {
+        self.visitor
+    }
+
+    fn visitor_ref(&mut self) -> &mut Self::Visitor {
+        &mut self.visitor
     }
 }
 
-impl<'a> ExpressionVisitor<'a> for CreateSymbolTable<'a> {
+impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
     type Output = ();
 }
 
-impl<'a> StatementVisitor<'a> for CreateSymbolTable<'a> {}
+impl<'a> StatementVisitorDirector<'a> for Director<'a> {}
 
-impl<'a> ProgramVisitor<'a> for CreateSymbolTable<'a> {
-    fn visit_function(&mut self, input: &'a Function) -> VisitResult {
-        if let Err(err) = self.symbol_table.insert_fn(input.name(), input) {
-            self.handler.emit_err(err);
-        }
-        VisitResult::SkipChildren
-    }
-}
+impl<'a> ProgramVisitorDirector<'a> for Director<'a> {}
