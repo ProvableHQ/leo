@@ -77,7 +77,7 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
-    // Checks wether two given types are the same and if not emits an error.
+    /// Emits an error if the two given types are not equal.
     pub(crate) fn assert_eq_types(&self, t1: Option<Type>, t2: Option<Type>, span: Span) {
         match (t1, t2) {
             (Some(t1), Some(t2)) if t1 != t2 => self

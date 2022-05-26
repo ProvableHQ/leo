@@ -175,7 +175,7 @@ impl<'a> TypeChecker<'a> {
                             Some(Type::Group)
                         }
                         (Some(other), Some(Type::Group)) => {
-                            self.assert_type(Type::Group, expected, binary.left.span());
+                            self.assert_type(Type::Group, expected, binary.right.span());
                             self.assert_type(*other, Some(Type::Scalar), binary.span());
                             Some(Type::Group)
                         }
