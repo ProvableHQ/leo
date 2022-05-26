@@ -156,7 +156,7 @@ impl ParserContext<'_> {
                 match token {
                     Token::StaticString(string) => {
                         static_string = Some(StaticString::new(string));
-                    },
+                    }
                     _ => {
                         p.emit_err(ParserError::unexpected_str(token, "formatted static_string", span));
                     }
