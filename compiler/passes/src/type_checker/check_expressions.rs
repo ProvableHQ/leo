@@ -58,7 +58,6 @@ impl<'a> TypeChecker<'a> {
                     match type_ {
                         IntegerType::I8 => {
                             let int = if self.negate {
-                                self.negate = false;
                                 format!("-{str_content}")
                             } else {
                                 str_content.clone()
@@ -71,7 +70,6 @@ impl<'a> TypeChecker<'a> {
                         }
                         IntegerType::I16 => {
                             let int = if self.negate {
-                                self.negate = false;
                                 format!("-{str_content}")
                             } else {
                                 str_content.clone()
@@ -84,7 +82,6 @@ impl<'a> TypeChecker<'a> {
                         }
                         IntegerType::I32 => {
                             let int = if self.negate {
-                                self.negate = false;
                                 format!("-{str_content}")
                             } else {
                                 str_content.clone()
@@ -97,7 +94,6 @@ impl<'a> TypeChecker<'a> {
                         }
                         IntegerType::I64 => {
                             let int = if self.negate {
-                                self.negate = false;
                                 format!("-{str_content}")
                             } else {
                                 str_content.clone()
@@ -110,7 +106,6 @@ impl<'a> TypeChecker<'a> {
                         }
                         IntegerType::I128 => {
                             let int = if self.negate {
-                                self.negate = false;
                                 format!("-{str_content}")
                             } else {
                                 str_content.clone()
@@ -121,7 +116,6 @@ impl<'a> TypeChecker<'a> {
                                     .emit_err(TypeCheckerError::invalid_int_value(int, "i128", value.span()).into());
                             }
                         }
-
                         IntegerType::U8 if str_content.parse::<u8>().is_err() => self
                             .handler
                             .emit_err(TypeCheckerError::invalid_int_value(str_content, "u8", value.span()).into()),
@@ -175,11 +169,21 @@ impl<'a> TypeChecker<'a> {
 
                     // Allow `group` * `scalar` multiplication.
                     match (t1.as_ref(), t2.as_ref()) {
-                        (Some(Type::Group), Some(other)) | (Some(other), Some(Type::Group)) => {
+                        (Some(Type::Group), Some(other)) => {
+                            self.assert_type(Type::Group, expected, binary.left.span());
                             self.assert_type(*other, Some(Type::Scalar), binary.span());
                             Some(Type::Group)
                         }
-                        _ => return_incorrect_type(t1, t2, expected),
+                        (Some(other), Some(Type::Group)) => {
+                            self.assert_type(Type::Group, expected, binary.right.span());
+                            self.assert_type(*other, Some(Type::Scalar), binary.span());
+                            Some(Type::Group)
+                        }
+                        _ => {
+                            self.assert_type(t1.unwrap(), expected, binary.left.span());
+                            self.assert_type(t2.unwrap(), expected, binary.right.span());
+                            return_incorrect_type(t1, t2, expected)
+                        }
                     }
                 }
                 BinaryOperation::Div => {
@@ -230,23 +234,23 @@ impl<'a> TypeChecker<'a> {
                     t1
                 }
                 BinaryOperation::Eq | BinaryOperation::Ne => {
-                    self.assert_type(Type::Boolean, expected, binary.span());
-
                     let t1 = self.compare_expr_type(&binary.left, None, binary.left.span());
                     let t2 = self.compare_expr_type(&binary.right, None, binary.right.span());
 
-                    return_incorrect_type(t1, t2, expected)
+                    self.assert_eq_types(t1, t2, binary.span());
+
+                    Some(Type::Boolean)
                 }
                 BinaryOperation::Lt | BinaryOperation::Gt | BinaryOperation::Le | BinaryOperation::Ge => {
-                    self.assert_type(Type::Boolean, expected, binary.span());
-
                     let t1 = self.compare_expr_type(&binary.left, None, binary.left.span());
                     self.assert_field_scalar_int_type(t1, binary.left.span());
 
                     let t2 = self.compare_expr_type(&binary.right, None, binary.right.span());
                     self.assert_field_scalar_int_type(t2, binary.right.span());
 
-                    return_incorrect_type(t1, t2, expected)
+                    self.assert_eq_types(t1, t2, binary.span());
+
+                    Some(Type::Boolean)
                 }
             },
             Expression::Unary(unary) => match unary.op {
@@ -255,7 +259,11 @@ impl<'a> TypeChecker<'a> {
                     self.compare_expr_type(&unary.inner, expected, unary.inner.span())
                 }
                 UnaryOperation::Negate => {
-                    match expected.as_ref() {
+                    let prior_negate_state = self.negate;
+                    self.negate = true;
+                    let type_ = self.compare_expr_type(&unary.inner, expected, unary.inner.span());
+                    self.negate = prior_negate_state;
+                    match type_.as_ref() {
                         Some(
                             Type::IntegerType(
                                 IntegerType::I8
@@ -266,13 +274,13 @@ impl<'a> TypeChecker<'a> {
                             )
                             | Type::Field
                             | Type::Group,
-                        ) => self.negate = !self.negate,
+                        ) => {}
                         Some(t) => self
                             .handler
                             .emit_err(TypeCheckerError::type_is_not_negatable(t, unary.inner.span()).into()),
                         _ => {}
                     };
-                    self.compare_expr_type(&unary.inner, expected, unary.inner.span())
+                    type_
                 }
             },
             Expression::Ternary(ternary) => {
