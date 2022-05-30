@@ -23,12 +23,12 @@ use super::director::Director;
 
 impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {}
 
-fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: Option<Type>) -> Option<Type> {
+fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: &Option<Type>) -> Option<Type> {
     match (t1, t2) {
         (Some(t1), Some(t2)) if t1 == t2 => Some(t1),
         (Some(t1), Some(t2)) => {
             if let Some(expected) = expected {
-                if t1 != expected {
+                if &t1 != expected {
                     Some(t1)
                 } else {
                     Some(t2)
@@ -42,28 +42,29 @@ fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: Option<Ty
 }
 
 impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
+    type AdditionalInput = Option<Type>;
     type Output = Type;
 
-    fn visit_expression(&mut self, input: &'a Expression) -> Option<Self::Output> {
+    fn visit_expression(&mut self, input: &'a Expression, expected: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor.visit_expression(input) {
             return match input {
-                Expression::Identifier(expr) => self.visit_identifier(expr),
-                Expression::Value(expr) => self.visit_value(expr),
-                Expression::Binary(expr) => self.visit_binary(expr),
-                Expression::Unary(expr) => self.visit_unary(expr),
-                Expression::Ternary(expr) => self.visit_ternary(expr),
-                Expression::Call(expr) => self.visit_call(expr),
-                Expression::Err(expr) => self.visit_err(expr),
+                Expression::Identifier(expr) => self.visit_identifier(expr, expected),
+                Expression::Value(expr) => self.visit_value(expr, expected),
+                Expression::Binary(expr) => self.visit_binary(expr, expected),
+                Expression::Unary(expr) => self.visit_unary(expr, expected),
+                Expression::Ternary(expr) => self.visit_ternary(expr, expected),
+                Expression::Call(expr) => self.visit_call(expr, expected),
+                Expression::Err(expr) => self.visit_err(expr, expected),
             };
         }
 
         None
     }
 
-    fn visit_identifier(&mut self, input: &'a Identifier) -> Option<Self::Output> {
+    fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor.visit_identifier(input) {
             return if let Some(var) = self.visitor.symbol_table.clone().lookup_variable(&input.name) {
-                Some(self.visitor.assert_type(*var.type_, self.visitor.expected_type))
+                Some(self.visitor.assert_type(*var.type_, expected, var.span))
             } else {
                 self.visitor
                     .handler
@@ -75,12 +76,12 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
         None
     }
 
-    fn visit_value(&mut self, input: &'a ValueExpression) -> Option<Self::Output> {
+    fn visit_value(&mut self, input: &'a ValueExpression, expected: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor.visit_value(input) {
             return Some(match input {
-                ValueExpression::Address(_, _) => self.visitor.assert_type(Type::Address, self.visitor.expected_type),
-                ValueExpression::Boolean(_, _) => self.visitor.assert_type(Type::Boolean, self.visitor.expected_type),
-                ValueExpression::Field(_, _) => self.visitor.assert_type(Type::Field, self.visitor.expected_type),
+                ValueExpression::Address(_, _) => self.visitor.assert_type(Type::Address, expected, input.span()),
+                ValueExpression::Boolean(_, _) => self.visitor.assert_type(Type::Boolean, expected, input.span()),
+                ValueExpression::Field(_, _) => self.visitor.assert_type(Type::Field, expected, input.span()),
                 ValueExpression::Integer(type_, str_content, _) => {
                     match type_ {
                         IntegerType::I8 => {
@@ -171,10 +172,10 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                         _ => {}
                     }
                     self.visitor
-                        .assert_type(Type::IntegerType(*type_), self.visitor.expected_type)
+                        .assert_type(Type::IntegerType(*type_), expected, input.span())
                 }
-                ValueExpression::Group(_) => self.visitor.assert_type(Type::Group, self.visitor.expected_type),
-                ValueExpression::Scalar(_, _) => self.visitor.assert_type(Type::Scalar, self.visitor.expected_type),
+                ValueExpression::Group(_) => self.visitor.assert_type(Type::Group, expected, input.span()),
+                ValueExpression::Scalar(_, _) => self.visitor.assert_type(Type::Scalar, expected, input.span()),
                 ValueExpression::String(_, _) => unreachable!("String types are not reachable"),
             });
         }
@@ -182,80 +183,73 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
         None
     }
 
-    fn visit_binary(&mut self, input: &'a BinaryExpression) -> Option<Self::Output> {
+    fn visit_binary(&mut self, input: &'a BinaryExpression, expected: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor.visit_binary(input) {
             return match input.op {
                 BinaryOperation::And | BinaryOperation::Or => {
-                    self.visitor.assert_type(Type::Boolean, self.visitor.expected_type);
-                    let t1 = self.visit_expression(&input.left);
-                    let t2 = self.visit_expression(&input.right);
+                    self.visitor.assert_type(Type::Boolean, expected, input.span());
+                    let t1 = self.visit_expression(&input.left, expected);
+                    let t2 = self.visit_expression(&input.right, expected);
 
-                    return_incorrect_type(t1, t2, self.visitor.expected_type)
+                    return_incorrect_type(t1, t2, expected)
                 }
                 BinaryOperation::Add => {
-                    self.visitor
-                        .assert_field_group_scalar_int_type(self.visitor.expected_type, input.span());
-                    let t1 = self.visit_expression(&input.left);
-                    let t2 = self.visit_expression(&input.right);
+                    self.visitor.assert_field_group_scalar_int_type(expected, input.span());
+                    let t1 = self.visit_expression(&input.left, expected);
+                    let t2 = self.visit_expression(&input.right, expected);
 
-                    return_incorrect_type(t1, t2, self.visitor.expected_type)
+                    return_incorrect_type(t1, t2, expected)
                 }
                 BinaryOperation::Sub => {
-                    self.visitor
-                        .assert_field_group_int_type(self.visitor.expected_type, input.span());
-                    let t1 = self.visit_expression(&input.left);
-                    let t2 = self.visit_expression(&input.right);
+                    self.visitor.assert_field_group_int_type(expected, input.span());
+                    let t1 = self.visit_expression(&input.left, expected);
+                    let t2 = self.visit_expression(&input.right, expected);
 
-                    return_incorrect_type(t1, t2, self.visitor.expected_type)
+                    return_incorrect_type(t1, t2, expected)
                 }
                 BinaryOperation::Mul => {
-                    self.visitor
-                        .assert_field_group_int_type(self.visitor.expected_type, input.span());
+                    self.visitor.assert_field_group_int_type(expected, input.span());
 
-                    let prev_expected_type = self.visitor.expected_type;
-                    self.visitor.expected_type = None;
-                    let t1 = self.visit_expression(&input.left);
-                    let t2 = self.visit_expression(&input.right);
-                    self.visitor.expected_type = prev_expected_type;
+                    let t1 = self.visit_expression(&input.left, &None);
+                    let t2 = self.visit_expression(&input.right, &None);
 
                     // Allow `group` * `scalar` multiplication.
                     match (t1.as_ref(), t2.as_ref()) {
-                        (Some(Type::Group), Some(other))
-                        | (Some(other), Some(Type::Group)) => {
-                            self.visitor.assert_type(Type::Group, self.visitor.expected_type);
-                            self.visitor.assert_type(*other, Some(Type::Scalar));
+                        (Some(Type::Group), Some(other)) => {
+                            self.visitor.assert_type(Type::Group, expected, input.left.span());
+                            self.visitor
+                                .assert_type(*other, &Some(Type::Scalar), input.right.span());
+                            Some(Type::Group)
+                        }
+                        (Some(other), Some(Type::Group)) => {
+                            self.visitor.assert_type(*other, &Some(Type::Scalar), input.left.span());
+                            self.visitor.assert_type(Type::Group, expected, input.right.span());
                             Some(Type::Group)
                         }
                         _ => {
-                            self.visitor.assert_type(t1.unwrap(), self.visitor.expected_type);
-                            self.visitor.assert_type(t2.unwrap(), self.visitor.expected_type);
-                            return_incorrect_type(t1, t2, self.visitor.expected_type)
+                            self.visitor.assert_type(t1.unwrap(), expected, input.left.span());
+                            self.visitor.assert_type(t2.unwrap(), expected, input.right.span());
+                            return_incorrect_type(t1, t2, expected)
                         }
                     }
                 }
                 BinaryOperation::Div => {
-                    self.visitor
-                        .assert_field_int_type(self.visitor.expected_type, input.span());
+                    self.visitor.assert_field_int_type(expected, input.span());
 
-                    let t1 = self.visit_expression(&input.left);
-                    let t2 = self.visit_expression(&input.right);
-                    
-                    return_incorrect_type(t1, t2, self.visitor.expected_type)
+                    let t1 = self.visit_expression(&input.left, expected);
+                    let t2 = self.visit_expression(&input.right, expected);
+
+                    return_incorrect_type(t1, t2, expected)
                 }
                 BinaryOperation::Pow => {
-                    let prev_expected_type = self.visitor.expected_type;
-                    self.visitor.expected_type = None;
-                    
-                    let t1 = self.visit_expression(&input.left);
-                    let t2 = self.visit_expression(&input.right);
-                    
-                    self.visitor.expected_type = prev_expected_type;
+                    let t1 = self.visit_expression(&input.left, &None);
+                    let t2 = self.visit_expression(&input.right, &None);
 
                     match (t1.as_ref(), t2.as_ref()) {
                         // Type A must be an int.
                         // Type B must be a unsigned int.
                         (Some(Type::IntegerType(_)), Some(Type::IntegerType(itype))) if !itype.is_signed() => {
-                            self.visitor.assert_type(t1.unwrap(), self.visitor.expected_type);
+                            self.visitor.assert_type(t1.unwrap(), expected, input.left.span());
                         }
                         // Type A was an int.
                         // But Type B was not a unsigned int.
@@ -268,7 +262,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                         // Type A must be a field.
                         // Type B must be an int.
                         (Some(Type::Field), Some(Type::IntegerType(_))) => {
-                            self.visitor.assert_type(Type::Field, self.visitor.expected_type);
+                            self.visitor.assert_type(Type::Field, expected, input.left.span());
                         }
                         // Type A was a field.
                         // But Type B was not an int.
@@ -289,28 +283,20 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     t1
                 }
                 BinaryOperation::Eq | BinaryOperation::Ne => {
-                    let prev_expected_type = self.visitor.expected_type;
-                    self.visitor.expected_type = None;
-                    
-                    let t1 = self.visit_expression(&input.left);
-                    let t2 = self.visit_expression(&input.right);
-                    
-                    self.visitor.expected_type = prev_expected_type;
+                    let t1 = self.visit_expression(&input.left, &None);
+                    let t2 = self.visit_expression(&input.right, &None);
+
                     self.visitor.assert_eq_types(t1, t2, input.span());
 
                     Some(Type::Boolean)
                 }
                 BinaryOperation::Lt | BinaryOperation::Gt | BinaryOperation::Le | BinaryOperation::Ge => {
-                    let prev_expected_type = self.visitor.expected_type;
-                    self.visitor.expected_type = None;
-                    
-                    let t1 = self.visit_expression(&input.left);
-                    self.visitor.assert_field_scalar_int_type(t1, input.left.span());
+                    let t1 = self.visit_expression(&input.left, &None);
+                    self.visitor.assert_field_scalar_int_type(&t1, input.left.span());
 
-                    let t2 = self.visit_expression(&input.right);
-                    self.visitor.assert_field_scalar_int_type(t2, input.right.span());
+                    let t2 = self.visit_expression(&input.right, &None);
+                    self.visitor.assert_field_scalar_int_type(&t2, input.right.span());
 
-                    self.visitor.expected_type = prev_expected_type;
                     self.visitor.assert_eq_types(t1, t2, input.span());
 
                     Some(Type::Boolean)
@@ -321,17 +307,17 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
         None
     }
 
-    fn visit_unary(&mut self, input: &'a UnaryExpression) -> Option<Self::Output> {
+    fn visit_unary(&mut self, input: &'a UnaryExpression, expected: &Self::AdditionalInput) -> Option<Self::Output> {
         match input.op {
             UnaryOperation::Not => {
-                self.visitor.assert_type(Type::Boolean, self.visitor.expected_type);
-                self.visit_expression(&input.inner)
+                self.visitor.assert_type(Type::Boolean, expected, input.span());
+                self.visit_expression(&input.inner, expected)
             }
             UnaryOperation::Negate => {
                 let prior_negate_state = self.visitor.negate;
                 self.visitor.negate = true;
 
-                let type_ = self.visit_expression(&input.inner);
+                let type_ = self.visit_expression(&input.inner, expected);
                 self.visitor.negate = prior_negate_state;
                 match type_.as_ref() {
                     Some(
@@ -356,27 +342,28 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
         }
     }
 
-    fn visit_ternary(&mut self, input: &'a TernaryExpression) -> Option<Self::Output> {
+    fn visit_ternary(
+        &mut self,
+        input: &'a TernaryExpression,
+        expected: &Self::AdditionalInput,
+    ) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor.visit_ternary(input) {
-            let prev_expected_type = self.visitor.expected_type;
-            self.visitor.expected_type = Some(Type::Boolean);
-            self.visit_expression(&input.condition);
-            self.visitor.expected_type = prev_expected_type;
+            self.visit_expression(&input.condition, &Some(Type::Boolean));
 
-            let t1 = self.visit_expression(&input.if_true);
-            let t2 = self.visit_expression(&input.if_false);
+            let t1 = self.visit_expression(&input.if_true, expected);
+            let t2 = self.visit_expression(&input.if_false, expected);
 
-            return return_incorrect_type(t1, t2, self.visitor.expected_type);
+            return return_incorrect_type(t1, t2, expected);
         }
 
         None
     }
 
-    fn visit_call(&mut self, input: &'a CallExpression) -> Option<Self::Output> {
+    fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Option<Self::Output> {
         match &*input.function {
             Expression::Identifier(ident) => {
                 if let Some(func) = self.visitor.symbol_table.clone().lookup_fn(&ident.name) {
-                    let ret = self.visitor.assert_type(func.output, self.visitor.expected_type);
+                    let ret = self.visitor.assert_type(func.output, expected, func.span());
 
                     if func.input.len() != input.arguments.len() {
                         self.visitor.handler.emit_err(
@@ -393,10 +380,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                         .iter()
                         .zip(input.arguments.iter())
                         .for_each(|(expected, argument)| {
-                            let prev_expected_type = self.visitor.expected_type;
-                            self.visitor.expected_type = Some(expected.get_variable().type_);
-                            self.visit_expression(argument);
-                            self.visitor.expected_type = prev_expected_type;
+                            self.visit_expression(argument, &Some(expected.get_variable().type_));
                         });
 
                     Some(ret)
@@ -407,7 +391,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     None
                 }
             }
-            expr => self.visit_expression(expr),
+            expr => self.visit_expression(expr, expected),
         }
     }
 }

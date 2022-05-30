@@ -44,6 +44,7 @@ impl<'a> VisitorDirector<'a> for Director<'a> {
 }
 
 impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
+    type AdditionalInput = ();
     type Output = ();
 }
 

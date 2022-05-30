@@ -25,8 +25,6 @@ pub struct TypeChecker<'a> {
     pub(crate) handler: &'a Handler,
     pub(crate) parent: Option<Symbol>,
     pub(crate) negate: bool,
-    pub(crate) expected_type: Option<Type>,
-    pub(crate) span: Span,
 }
 
 const INT_TYPES: [Type; 10] = [
@@ -76,8 +74,6 @@ impl<'a> TypeChecker<'a> {
             handler,
             parent: None,
             negate: false,
-            expected_type: None,
-            span: Default::default(),
         }
     }
 
@@ -95,11 +91,11 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Returns the given type if it equals the expected type or the expected type is none.
-    pub(crate) fn assert_type(&mut self, type_: Type, expected: Option<Type>) -> Type {
+    pub(crate) fn assert_type(&mut self, type_: Type, expected: &Option<Type>, span: Span) -> Type {
         if let Some(expected) = expected {
-            if type_ != expected {
+            if &type_ != expected {
                 self.handler
-                    .emit_err(TypeCheckerError::type_should_be(type_, expected, self.span).into());
+                    .emit_err(TypeCheckerError::type_should_be(type_, expected, span).into());
             }
         }
 
@@ -107,9 +103,9 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Emits an error to the error handler if the given type is not equal to any of the expected types.
-    pub(crate) fn assert_one_of_types(&self, type_: Option<Type>, expected: &[Type], span: Span) {
+    pub(crate) fn assert_one_of_types(&self, type_: &Option<Type>, expected: &[Type], span: Span) {
         if let Some(type_) = type_ {
-            if !expected.iter().any(|t: &Type| t == &type_) {
+            if !expected.iter().any(|t: &Type| t == type_) {
                 self.handler.emit_err(
                     TypeCheckerError::expected_one_type_of(
                         expected.iter().map(|t| t.to_string() + ",").collect::<String>(),
@@ -123,22 +119,22 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Emits an error to the handler if the given type is not a field or integer.
-    pub(crate) fn assert_field_int_type(&self, type_: Option<Type>, span: Span) {
+    pub(crate) fn assert_field_int_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &FIELD_INT_TYPES, span)
     }
 
     /// Emits an error to the handler if the given type is not a field, scalar, or integer.
-    pub(crate) fn assert_field_scalar_int_type(&self, type_: Option<Type>, span: Span) {
+    pub(crate) fn assert_field_scalar_int_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &FIELD_SCALAR_INT_TYPES, span)
     }
 
     /// Emits an error to the handler if the given type is not a field, group, or integer.
-    pub(crate) fn assert_field_group_int_type(&self, type_: Option<Type>, span: Span) {
+    pub(crate) fn assert_field_group_int_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &FIELD_GROUP_INT_TYPES, span)
     }
 
     /// Emits an error to the handler if the given type is not a field, group, scalar or integer.
-    pub(crate) fn assert_field_group_scalar_int_type(&self, type_: Option<Type>, span: Span) {
+    pub(crate) fn assert_field_group_scalar_int_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &FIELD_GROUP_SCALAR_INT_TYPES, span)
     }
 }

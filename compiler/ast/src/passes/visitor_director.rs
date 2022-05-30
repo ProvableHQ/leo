@@ -29,68 +29,77 @@ pub trait VisitorDirector<'a> {
 }
 
 pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
+    type AdditionalInput: Default;
     type Output;
 
-    fn visit_expression(&mut self, input: &'a Expression) -> Option<Self::Output> {
+    fn visit_expression(&mut self, input: &'a Expression, additional: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_expression(input) {
             match input {
-                Expression::Identifier(expr) => self.visit_identifier(expr),
-                Expression::Value(expr) => self.visit_value(expr),
-                Expression::Binary(expr) => self.visit_binary(expr),
-                Expression::Unary(expr) => self.visit_unary(expr),
-                Expression::Ternary(expr) => self.visit_ternary(expr),
-                Expression::Call(expr) => self.visit_call(expr),
-                Expression::Err(expr) => self.visit_err(expr),
+                Expression::Identifier(expr) => self.visit_identifier(expr, additional),
+                Expression::Value(expr) => self.visit_value(expr, additional),
+                Expression::Binary(expr) => self.visit_binary(expr, additional),
+                Expression::Unary(expr) => self.visit_unary(expr, additional),
+                Expression::Ternary(expr) => self.visit_ternary(expr, additional),
+                Expression::Call(expr) => self.visit_call(expr, additional),
+                Expression::Err(expr) => self.visit_err(expr, additional),
             };
         }
 
         None
     }
 
-    fn visit_identifier(&mut self, input: &'a Identifier) -> Option<Self::Output> {
+    fn visit_identifier(&mut self, input: &'a Identifier, _additional: &Self::AdditionalInput) -> Option<Self::Output> {
         self.visitor_ref().visit_identifier(input);
         None
     }
 
-    fn visit_value(&mut self, input: &'a ValueExpression) -> Option<Self::Output> {
+    fn visit_value(&mut self, input: &'a ValueExpression, _additional: &Self::AdditionalInput) -> Option<Self::Output> {
         self.visitor_ref().visit_value(input);
         None
     }
 
-    fn visit_binary(&mut self, input: &'a BinaryExpression) -> Option<Self::Output> {
+    fn visit_binary(
+        &mut self,
+        input: &'a BinaryExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_binary(input) {
-            self.visit_expression(&input.left);
-            self.visit_expression(&input.right);
+            self.visit_expression(&input.left, additional);
+            self.visit_expression(&input.right, additional);
         }
         None
     }
 
-    fn visit_unary(&mut self, input: &'a UnaryExpression) -> Option<Self::Output> {
+    fn visit_unary(&mut self, input: &'a UnaryExpression, additional: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_unary(input) {
-            self.visit_expression(&input.inner);
+            self.visit_expression(&input.inner, additional);
         }
         None
     }
 
-    fn visit_ternary(&mut self, input: &'a TernaryExpression) -> Option<Self::Output> {
+    fn visit_ternary(
+        &mut self,
+        input: &'a TernaryExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_ternary(input) {
-            self.visit_expression(&input.condition);
-            self.visit_expression(&input.if_true);
-            self.visit_expression(&input.if_false);
+            self.visit_expression(&input.condition, additional);
+            self.visit_expression(&input.if_true, additional);
+            self.visit_expression(&input.if_false, additional);
         }
         None
     }
 
-    fn visit_call(&mut self, input: &'a CallExpression) -> Option<Self::Output> {
+    fn visit_call(&mut self, input: &'a CallExpression, additional: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_call(input) {
             input.arguments.iter().for_each(|expr| {
-                self.visit_expression(expr);
+                self.visit_expression(expr, additional);
             });
         }
         None
     }
 
-    fn visit_err(&mut self, input: &'a ErrExpression) -> Option<Self::Output> {
+    fn visit_err(&mut self, input: &'a ErrExpression, _additional: &Self::AdditionalInput) -> Option<Self::Output> {
         self.visitor_ref().visit_err(input);
         None
     }
@@ -113,25 +122,25 @@ pub trait StatementVisitorDirector<'a>: VisitorDirector<'a> + ExpressionVisitorD
 
     fn visit_return(&mut self, input: &'a ReturnStatement) {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_return(input) {
-            self.visit_expression(&input.expression);
+            self.visit_expression(&input.expression, &Default::default());
         }
     }
 
     fn visit_definition(&mut self, input: &'a DefinitionStatement) {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_definition(input) {
-            self.visit_expression(&input.value);
+            self.visit_expression(&input.value, &Default::default());
         }
     }
 
     fn visit_assign(&mut self, input: &'a AssignStatement) {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_assign(input) {
-            self.visit_expression(&input.value);
+            self.visit_expression(&input.value, &Default::default());
         }
     }
 
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_conditional(input) {
-            self.visit_expression(&input.condition);
+            self.visit_expression(&input.condition, &Default::default());
             self.visit_block(&input.block);
             if let Some(stmt) = input.next.as_ref() {
                 self.visit_statement(stmt);
@@ -141,8 +150,8 @@ pub trait StatementVisitorDirector<'a>: VisitorDirector<'a> + ExpressionVisitorD
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_iteration(input) {
-            self.visit_expression(&input.start);
-            self.visit_expression(&input.stop);
+            self.visit_expression(&input.start, &Default::default());
+            self.visit_expression(&input.stop, &Default::default());
             self.visit_block(&input.block);
         }
     }
@@ -150,10 +159,10 @@ pub trait StatementVisitorDirector<'a>: VisitorDirector<'a> + ExpressionVisitorD
     fn visit_console(&mut self, input: &'a ConsoleStatement) {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_console(input) {
             match &input.function {
-                ConsoleFunction::Assert(expr) => self.visit_expression(expr),
+                ConsoleFunction::Assert(expr) => self.visit_expression(expr, &Default::default()),
                 ConsoleFunction::Error(fmt) | ConsoleFunction::Log(fmt) => {
                     fmt.parameters.iter().for_each(|expr| {
-                        self.visit_expression(expr);
+                        self.visit_expression(expr, &Default::default());
                     });
                     None
                 }

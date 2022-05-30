@@ -29,10 +29,10 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
         // statements should always have some parent block
         let parent = self.visitor.parent.unwrap();
 
-        let prev_expected_type = self.visitor.expected_type;
-        self.visitor.expected_type = self.visitor.symbol_table.lookup_fn(&parent).map(|f| f.output);
-        self.visit_expression(&input.expression);
-        self.visitor.expected_type = prev_expected_type;
+        self.visit_expression(
+            &input.expression,
+            &self.visitor.symbol_table.lookup_fn(&parent).map(|f| f.output),
+        );
     }
 
     fn visit_definition(&mut self, input: &'a DefinitionStatement) {
@@ -54,10 +54,7 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
                 self.visitor.handler.emit_err(err);
             }
 
-            let prev_expected_type = self.visitor.expected_type;
-            self.visitor.expected_type = Some(input.type_);
-            self.visit_expression(&input.value);
-            self.visitor.expected_type = prev_expected_type;
+            self.visit_expression(&input.value, &Some(input.type_));
         });
     }
 
@@ -86,18 +83,12 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
         };
 
         if var_type.is_some() {
-            let prev_expected_type = self.visitor.expected_type;
-            self.visitor.expected_type = var_type;
-            self.visit_expression(&input.value);
-            self.visitor.expected_type = prev_expected_type;
+            self.visit_expression(&input.value, &var_type);
         }
     }
 
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
-        let prev_expected_type = self.visitor.expected_type;
-        self.visitor.expected_type = Some(Type::Boolean);
-        self.visit_expression(&input.condition);
-        self.visitor.expected_type = prev_expected_type;
+        self.visit_expression(&input.condition, &Some(Type::Boolean));
     }
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
@@ -112,21 +103,14 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
             self.visitor.handler.emit_err(err);
         }
 
-        let prev_expected_type = self.visitor.expected_type;
-        self.visitor.expected_type = Some(input.type_);
-        self.visit_expression(&input.start);
-        self.visit_expression(&input.stop);
-        self.visitor.expected_type = prev_expected_type;
+        self.visit_expression(&input.start, &Some(input.type_));
+        self.visit_expression(&input.stop, &Some(input.type_));
     }
 
     fn visit_console(&mut self, input: &'a ConsoleStatement) {
         match &input.function {
             ConsoleFunction::Assert(expr) => {
-                let prev_expected_type = self.visitor.expected_type;
-                self.visitor.expected_type = Some(Type::Boolean);
-                self.visit_expression(expr);
-                self.visitor.expected_type = prev_expected_type;
-                // self.compare_expr_type(expr, Some(Type::Boolean), expr.span());
+                self.visit_expression(expr, &Some(Type::Boolean));
             }
             ConsoleFunction::Error(_) | ConsoleFunction::Log(_) => {
                 // TODO: undetermined
