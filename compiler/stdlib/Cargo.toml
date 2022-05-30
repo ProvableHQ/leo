@@ -28,7 +28,9 @@ version = "1.5.3"
 path = "../../leo/errors"
 version = "1.5.3"
 
-
 [dependencies.leo-span]
 path = "../../leo/span"
 version = "1.5.3"
+
+[dependencies]
+indexmap = "1.7.0"

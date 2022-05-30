@@ -16,16 +16,13 @@
 
 use crate::Types;
 
-use leo_ast::{Identifier, Type};
-use leo_span::{Span, Symbol};
+use indexmap::IndexSet;
+use leo_span::Symbol;
 
 pub struct Algorithms;
 
 impl Types for Algorithms {
-    fn types() -> Vec<Type> {
-        vec![Type::Identifier(Identifier {
-            name: Symbol::intern("Poseidon"),
-            span: Span::dummy(),
-        })]
+    fn types() -> IndexSet<Symbol> {
+        IndexSet::from([Symbol::intern("Poseidon")])
     }
 }

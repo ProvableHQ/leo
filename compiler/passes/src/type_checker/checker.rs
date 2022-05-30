@@ -14,9 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{IntegerType, Type};
+use indexmap::IndexSet;
+use leo_ast::{IntegerType, Node, Type};
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
+use leo_stdlib::*;
 
 use crate::SymbolTable;
 
@@ -25,6 +27,8 @@ pub struct TypeChecker<'a> {
     pub(crate) handler: &'a Handler,
     pub(crate) parent: Option<Symbol>,
     pub(crate) negate: bool,
+    pub(crate) account_types: IndexSet<Symbol>,
+    pub(crate) algorithms_types: IndexSet<Symbol>,
 }
 
 const INT_TYPES: [Type; 10] = [
@@ -74,6 +78,18 @@ impl<'a> TypeChecker<'a> {
             handler,
             parent: None,
             negate: false,
+            account_types: Account::types(),
+            algorithms_types: Algorithms::types(),
+        }
+    }
+
+    /// Validates that an ident type is a valid one.
+    pub(crate) fn validate_ident_type(&self, type_: &Option<Type>) {
+        if let Some(Type::Identifier(ident)) = type_ {
+            if !(self.account_types.contains(&ident.name) || self.algorithms_types.contains(&ident.name)) {
+                self.handler
+                    .emit_err(TypeCheckerError::invalid_built_in_type(&ident.name, ident.span()).into());
+            }
         }
     }
 

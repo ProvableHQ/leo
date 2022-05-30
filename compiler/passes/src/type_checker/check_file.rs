@@ -26,6 +26,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.parent = Some(input.name());
         input.input.iter().for_each(|i| {
             let input_var = i.get_variable();
+            self.validate_ident_type(&Some(input_var.type_));
 
             if let Err(err) = self.symbol_table.insert_variable(
                 input_var.identifier.name,

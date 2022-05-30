@@ -29,10 +29,10 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
         // statements should always have some parent block
         let parent = self.visitor.parent.unwrap();
 
-        self.visit_expression(
-            &input.expression,
-            &self.visitor.symbol_table.lookup_fn(&parent).map(|f| f.output),
-        );
+        let return_type = &self.visitor.symbol_table.lookup_fn(&parent).map(|f| f.output);
+        self.visitor.validate_ident_type(return_type);
+
+        self.visit_expression(&input.expression, return_type);
     }
 
     fn visit_definition(&mut self, input: &'a DefinitionStatement) {
@@ -43,6 +43,8 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
         };
 
         input.variable_names.iter().for_each(|v| {
+            self.visitor.validate_ident_type(&Some(input.type_));
+
             if let Err(err) = self.visitor.symbol_table.insert_variable(
                 v.identifier.name,
                 VariableSymbol {
@@ -83,6 +85,7 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
         };
 
         if var_type.is_some() {
+            self.visitor.validate_ident_type(&var_type);
             self.visit_expression(&input.value, &var_type);
         }
     }
@@ -103,8 +106,10 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
             self.visitor.handler.emit_err(err);
         }
 
-        self.visit_expression(&input.start, &Some(input.type_));
-        self.visit_expression(&input.stop, &Some(input.type_));
+        let iter_type = &Some(input.type_);
+        self.visitor.validate_ident_type(iter_type);
+        self.visit_expression(&input.start, iter_type);
+        self.visit_expression(&input.stop, iter_type);
     }
 
     fn visit_console(&mut self, input: &'a ConsoleStatement) {

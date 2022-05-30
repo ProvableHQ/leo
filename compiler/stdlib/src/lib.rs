@@ -16,7 +16,8 @@
 
 #![doc = include_str!("../README.md")]
 
-use leo_ast::Type;
+use indexmap::IndexSet;
+use leo_span::Symbol;
 
 mod account;
 pub use account::*;
@@ -25,5 +26,5 @@ mod algorithms;
 pub use algorithms::*;
 
 pub trait Types {
-    fn types() -> Vec<Type>;
+    fn types() -> IndexSet<Symbol>;
 }

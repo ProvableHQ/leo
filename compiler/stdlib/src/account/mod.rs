@@ -16,34 +16,20 @@
 
 use crate::Types;
 
-use leo_ast::{Identifier, Type};
-use leo_span::{Span, Symbol};
+use indexmap::IndexSet;
+
+use leo_span::Symbol;
 
 pub struct Account;
 
 impl Types for Account {
-    fn types() -> Vec<Type> {
-        vec![
-            Type::Identifier(Identifier {
-                name: Symbol::intern("ComputeKey"),
-                span: Span::dummy(),
-            }),
-            Type::Identifier(Identifier {
-                name: Symbol::intern("PrivateKey"),
-                span: Span::dummy(),
-            }),
-            Type::Identifier(Identifier {
-                name: Symbol::intern("Record"),
-                span: Span::dummy(),
-            }),
-            Type::Identifier(Identifier {
-                name: Symbol::intern("Signature"),
-                span: Span::dummy(),
-            }),
-            Type::Identifier(Identifier {
-                name: Symbol::intern("ViewKey"),
-                span: Span::dummy(),
-            }),
-        ]
+    fn types() -> IndexSet<Symbol> {
+        IndexSet::from([
+            Symbol::intern("ComputeKey"),
+            Symbol::intern("PrivateKey"),
+            Symbol::intern("Record"),
+            Symbol::intern("Signature"),
+            Symbol::intern("ViewKey"),
+        ])
     }
 }
