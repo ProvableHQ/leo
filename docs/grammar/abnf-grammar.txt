@@ -50,9 +50,6 @@ not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-7F / safe-nonascii
 not-double-quote-or-backslash = %x0-21 / %x23-5B / %x5D-7F / safe-nonascii
                                 ; anything but " or \
 
-not-single-quote-or-backslash = %x0-26 / %x28-5B / %x5D-7F / safe-nonascii
-                                ; anything but ' or \
-
 line-terminator = line-feed / carriage-return / carriage-return line-feed
 
 whitespace = space / horizontal-tab / line-terminator
