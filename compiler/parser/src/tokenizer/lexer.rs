@@ -171,18 +171,29 @@ impl Token {
     /// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns [`None`].
     /// The next token can be eaten if the bytes at the front of the given `input_tendril` string can be scanned into a token.
     pub(crate) fn eat(input_tendril: &str) -> Result<(usize, Token)> {
-        if input_tendril.is_empty() {
-            return Err(ParserError::lexer_empty_input_tendril().into());
-        }
-
         let mut input = input_tendril.chars().peekable();
 
-        match input.peek() {
-            Some(x) if x.is_ascii_whitespace() => {
-                input.next();
-                return Ok((1, Token::WhiteSpace));
+        // Error if empty or get the character.
+        let c = input.peek().ok_or_else(|| ParserError::lexer_empty_input_tendril())?;
+
+        let single = |input: &mut Peekable<_>, token| {
+            input.next();
+            Ok((1, token))
+        };
+        let followed_by = |input: &mut Peekable<_>, on, then, els| {
+            input.next();
+            Ok(if input.next_if_eq(&on).is_some() {
+                (2, then)
+            } else {
+                (1, els)
+            })
+        };
+
+        match *c {
+            x if x.is_ascii_whitespace() => {
+                return single(&mut input, Token::WhiteSpace);
             }
-            Some('"') => {
+            '"' => {
                 let mut string: Vec<leo_ast::Char> = Vec::new();
                 input.next();
 
@@ -205,69 +216,27 @@ impl Token {
 
                 return Err(ParserError::lexer_string_not_closed(leo_ast::Chars(string)).into());
             }
-            Some(x) if x.is_ascii_digit() => {
+            x if x.is_ascii_digit() => {
                 return Self::eat_integer(&mut input);
             }
-            Some('!') => {
-                input.next();
-                if input.next_if_eq(&'=').is_some() {
-                    return Ok((2, Token::NotEq));
-                }
-                return Ok((1, Token::Not));
-            }
-            Some('?') => {
-                input.next();
-                return Ok((1, Token::Question));
-            }
-            Some('&') => {
+            '!' => return followed_by(&mut input, '=', Token::NotEq, Token::Not),
+            '?' => return single(&mut input, Token::Question),
+            '&' => {
                 input.next();
                 if input.next_if_eq(&'&').is_some() {
                     return Ok((2, Token::And));
                 }
                 return Err(ParserError::lexer_empty_input_tendril().into());
             }
-            Some('(') => {
-                input.next();
-                return Ok((1, Token::LeftParen));
-            }
-            Some(')') => {
-                input.next();
-                return Ok((1, Token::RightParen));
-            }
-            Some('_') => {
-                input.next();
-                return Ok((1, Token::Underscore));
-            }
-            Some('*') => {
-                input.next();
-                if input.next_if_eq(&'*').is_some() {
-                    return Ok((2, Token::Exp));
-                }
-                return Ok((1, Token::Mul));
-            }
-            Some('+') => {
-                input.next();
-                return Ok((1, Token::Add));
-            }
-            Some(',') => {
-                input.next();
-                return Ok((1, Token::Comma));
-            }
-            Some('-') => {
-                input.next();
-                if input.next_if_eq(&'>').is_some() {
-                    return Ok((2, Token::Arrow));
-                }
-                return Ok((1, Token::Minus));
-            }
-            Some('.') => {
-                input.next();
-                if input.next_if_eq(&'.').is_some() {
-                    return Ok((2, Token::DotDot));
-                }
-                return Ok((1, Token::Dot));
-            }
-            Some(c) if c == &'/' => {
+            '(' => return single(&mut input, Token::LeftParen),
+            ')' => return single(&mut input, Token::RightParen),
+            '_' => return single(&mut input, Token::Underscore),
+            '*' => return followed_by(&mut input, '*', Token::Exp, Token::Mul),
+            '+' => return single(&mut input, Token::Add),
+            ',' => return single(&mut input, Token::Comma),
+            '-' => return followed_by(&mut input, '>', Token::Arrow, Token::Minus),
+            '.' => return followed_by(&mut input, '.', Token::DotDot, Token::Dot),
+            '/' => {
                 input.next();
                 if input.next_if_eq(&'/').is_some() {
                     let mut comment = String::from("//");
@@ -312,60 +281,24 @@ impl Token {
                 }
                 return Ok((1, Token::Div));
             }
-            Some(':') => {
+            ':' => return single(&mut input, Token::Colon),
+            ';' => return single(&mut input, Token::Semicolon),
+            '<' => return followed_by(&mut input, '=', Token::LtEq, Token::Lt),
+            '>' => return followed_by(&mut input, '=', Token::GtEq, Token::Gt),
+            '=' => return followed_by(&mut input, '=', Token::Eq, Token::Assign),
+            '[' => return single(&mut input, Token::LeftSquare),
+            ']' => return single(&mut input, Token::RightSquare),
+            '{' => return single(&mut input, Token::LeftCurly),
+            '}' => return single(&mut input, Token::RightCurly),
+            '|' => {
                 input.next();
-                return Ok((1, Token::Colon));
-            }
-            Some(';') => {
-                input.next();
-                return Ok((1, Token::Semicolon));
-            }
-            Some('<') => {
-                input.next();
-                if input.next_if_eq(&'=').is_some() {
-                    return Ok((2, Token::LtEq));
-                }
-                return Ok((1, Token::Lt));
-            }
-            Some('>') => {
-                input.next();
-                if input.next_if_eq(&'=').is_some() {
-                    return Ok((2, Token::GtEq));
-                }
-                return Ok((1, Token::Gt));
-            }
-            Some('=') => {
-                input.next();
-                if input.next_if_eq(&'=').is_some() {
-                    return Ok((2, Token::Eq));
-                }
-                return Ok((1, Token::Assign));
-            }
-            Some('[') => {
-                input.next();
-                return Ok((1, Token::LeftSquare));
-            }
-            Some(']') => {
-                input.next();
-                return Ok((1, Token::RightSquare));
-            }
-            Some('{') => {
-                input.next();
-                return Ok((1, Token::LeftCurly));
-            }
-            Some('}') => {
-                input.next();
-                return Ok((1, Token::RightCurly));
-            }
-            Some('|') => {
-                input.next();
-                if input.next_if_eq(&'|').is_some() {
-                    return Ok((2, Token::Or));
+                return if input.next_if_eq(&'|').is_some() {
+                    Ok((2, Token::Or))
                 } else if let Some(found) = input.next() {
-                    return Err(ParserError::lexer_expected_but_found(found, '|').into());
+                    Err(ParserError::lexer_expected_but_found(found, '|').into())
                 } else {
-                    return Err(ParserError::lexer_empty_input_tendril().into());
-                }
+                    Err(ParserError::lexer_empty_input_tendril().into())
+                };
             }
             _ => (),
         }
