@@ -50,7 +50,7 @@ impl Token {
         } else if let Some(c) = input.next() {
             return Err(ParserError::lexer_unopened_escaped_unicode_char(c).into());
         } else {
-            return Err(ParserError::lexer_empty_input_tendril().into());
+            return Err(ParserError::lexer_empty_input().into());
         }
 
         while let Some(c) = input.next_if(|c| c != &'}') {
@@ -96,7 +96,7 @@ impl Token {
         } else if let Some(c) = input.next() {
             return Err(ParserError::lexer_expected_valid_hex_char(c).into());
         } else {
-            return Err(ParserError::lexer_empty_input_tendril().into());
+            return Err(ParserError::lexer_empty_input().into());
         }
 
         // Second hex character.
@@ -106,7 +106,7 @@ impl Token {
         } else if let Some(c) = input.next() {
             return Err(ParserError::lexer_expected_valid_hex_char(c).into());
         } else {
-            return Err(ParserError::lexer_empty_input_tendril().into());
+            return Err(ParserError::lexer_empty_input().into());
         }
 
         if let Ok(ascii_number) = u8::from_str_radix(&hex, 16) {
@@ -123,7 +123,7 @@ impl Token {
 
     fn eat_escaped_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
         match input.next() {
-            None => Err(ParserError::lexer_empty_input_tendril().into()),
+            None => Err(ParserError::lexer_empty_input().into()),
             // Length of 2 to account the '\'.
             Some('0') => Ok((2, Char::Scalar(0 as char))),
             Some('t') => Ok((2, Char::Scalar(9 as char))),
@@ -141,17 +141,17 @@ impl Token {
     /// Returns a `char` if a character can be eaten, otherwise returns [`None`].
     fn eat_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
         match input.next() {
-            None => Err(ParserError::lexer_empty_input_tendril().into()),
+            None => Err(ParserError::lexer_empty_input().into()),
             Some('\\') => Self::eat_escaped_char(input),
             Some(c) => Ok((c.len_utf8(), Char::Scalar(c))),
         }
     }
 
     /// Returns a tuple: [(integer length, integer token)] if an integer can be eaten, otherwise returns [`None`].
-    /// An integer can be eaten if its bytes are at the front of the given `input_tendril` string.
+    /// An integer can be eaten if its bytes are at the front of the given `input` string.
     fn eat_integer(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Token)> {
         if input.peek().is_none() {
-            return Err(ParserError::lexer_empty_input_tendril().into());
+            return Err(ParserError::lexer_empty_input().into());
         }
 
         let mut int = String::new();
@@ -169,13 +169,13 @@ impl Token {
     }
 
     /// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns [`None`].
-    /// The next token can be eaten if the bytes at the front of the given `input_tendril` string can be scanned into a token.
-    pub(crate) fn eat(input_tendril: &str) -> Result<(usize, Token)> {
-        if input_tendril.is_empty() {
-            return Err(ParserError::lexer_empty_input_tendril().into());
+    /// The next token can be eaten if the bytes at the front of the given `input` string can be scanned into a token.
+    pub(crate) fn eat(input: &str) -> Result<(usize, Token)> {
+        if input.is_empty() {
+            return Err(ParserError::lexer_empty_input().into());
         }
 
-        let mut input = input_tendril.chars().peekable();
+        let mut input = input.chars().peekable();
 
         match input.peek() {
             Some(x) if x.is_ascii_whitespace() => {
@@ -224,7 +224,7 @@ impl Token {
                 if input.next_if_eq(&'&').is_some() {
                     return Ok((2, Token::And));
                 }
-                return Err(ParserError::lexer_empty_input_tendril().into());
+                return Err(ParserError::lexer_empty_input().into());
             }
             Some('(') => {
                 input.next();
@@ -364,7 +364,7 @@ impl Token {
                 } else if let Some(found) = input.next() {
                     return Err(ParserError::lexer_expected_but_found(found, '|').into());
                 } else {
-                    return Err(ParserError::lexer_empty_input_tendril().into());
+                    return Err(ParserError::lexer_empty_input().into());
                 }
             }
             _ => (),
