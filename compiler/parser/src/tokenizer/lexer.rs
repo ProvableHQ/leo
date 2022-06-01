@@ -189,7 +189,6 @@ impl Token {
 
                 let mut ended = false;
                 while let Some(c) = input.next() {
-
                     // Check for illegal characters.
                     if is_bidi_override(c) {
                         return Err(ParserError::lexer_bidi_override().into());
@@ -202,7 +201,6 @@ impl Token {
                         break;
                     }
                     string.push(c);
-
                 }
 
                 if !ended {
@@ -403,6 +401,7 @@ impl Token {
                     "public" => Token::Public,
                     "return" => Token::Return,
                     "scalar" => Token::Scalar,
+                    "string" => Token::String,
                     "true" => Token::True,
                     "u8" => Token::U8,
                     "u16" => Token::U16,

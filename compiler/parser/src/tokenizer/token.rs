@@ -185,7 +185,7 @@ impl fmt::Display for Token {
         match self {
             CommentLine(s) => write!(f, "{}", s),
             CommentBlock(s) => write!(f, "{}", s),
-            StaticString(s) => write!(f, "{}", s),
+            StaticString(s) => write!(f, "\"{}\"", s),
             Ident(s) => write!(f, "{}", s),
             Int(s) => write!(f, "{}", s),
             True => write!(f, "true"),

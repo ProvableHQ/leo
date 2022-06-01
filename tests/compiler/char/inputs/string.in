@@ -1,0 +1,5 @@
+[main]
+hello: string = "hello";
+
+[registers]
+r: string = "world";

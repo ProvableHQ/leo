@@ -12,9 +12,7 @@ outputs:
   - Console:
       function:
         Error:
-          string:
-            - Scalar: 123
-            - Scalar: 125
+          string: "{}"
           parameters:
             - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
           span:
@@ -26,11 +24,7 @@ outputs:
   - Console:
       function:
         Error:
-          string:
-            - Scalar: 123
-            - Scalar: 125
-            - Scalar: 123
-            - Scalar: 125
+          string: "{}{}"
           parameters:
             - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":22,\\\"hi\\\":23}\"}"
             - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":25,\\\"hi\\\":26}\"}"
@@ -43,8 +37,7 @@ outputs:
   - Console:
       function:
         Error:
-          string:
-            - Scalar: 120
+          string: x
           parameters: []
           span:
             lo: 13
@@ -55,9 +48,7 @@ outputs:
   - Console:
       function:
         Log:
-          string:
-            - Scalar: 123
-            - Scalar: 125
+          string: "{}"
           parameters:
             - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
           span:
@@ -69,11 +60,7 @@ outputs:
   - Console:
       function:
         Log:
-          string:
-            - Scalar: 123
-            - Scalar: 125
-            - Scalar: 123
-            - Scalar: 125
+          string: "{}{}"
           parameters:
             - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
             - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":23,\\\"hi\\\":24}\"}"
@@ -86,8 +73,7 @@ outputs:
   - Console:
       function:
         Log:
-          string:
-            - Scalar: 120
+          string: x
           parameters: []
           span:
             lo: 11
