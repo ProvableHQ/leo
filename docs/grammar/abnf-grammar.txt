@@ -216,7 +216,7 @@ address-type = %s"address"
 
 primitive-type =  boolean-type / arithmetic-type / address-type
 
-type = primitive-type
+type = primitive-type / identifier
 
 group-coordinate = ( [ "-" ] numeral ) / "+" / "-" / "_"
 
@@ -355,7 +355,7 @@ format-string = *format-string-element
 ; Input Grammar
 ; -------------
 
-input-type = type
+input-type = primitive-type
 
 input-expression = literal
 
