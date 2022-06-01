@@ -22,7 +22,7 @@ pub use canonicalization::*;
  */
 
 // Temporarily disable import resolution
-// until we migrate stdlib and then import resolution.
+// until we migrate corelib and then import resolution.
 /* pub mod import_resolution;
 pub use import_resolution::*; */
 
