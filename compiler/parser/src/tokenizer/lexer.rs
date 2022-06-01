@@ -184,26 +184,33 @@ impl Token {
                 return Ok((1, Token::WhiteSpace));
             }
             Some('"') => {
-                let mut string = String::from("\"");
+                let mut string = String::new();
                 input.next();
 
                 let mut ended = false;
                 while let Some(c) = input.next() {
+
+                    // Check for illegal characters.
                     if is_bidi_override(c) {
                         return Err(ParserError::lexer_bidi_override().into());
                     }
-                    string.push(c);
+
+                    // Check for end string quotation mark.
                     if c == '"' {
+                        input.next();
                         ended = true;
                         break;
                     }
+                    string.push(c);
+
                 }
 
                 if !ended {
                     return Err(ParserError::lexer_string_not_closed(string).into());
                 }
 
-                return Ok((string.len(), Token::StaticString(string)));
+                // + 2 to account for parsing quotation marks.
+                return Ok((string.len() + 2, Token::StaticString(string)));
             }
             Some(x) if x.is_ascii_digit() => {
                 return Self::eat_integer(&mut input);
