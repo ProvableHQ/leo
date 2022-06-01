@@ -357,7 +357,7 @@ format-string = *format-string-element
 
 input-type = type
 
-input-expression = literal
+input-expression = expression
 
 input-item = identifier ":" input-type "=" input-expression ";"
 
@@ -372,7 +372,7 @@ input-file = *input-section
 ; Output Grammar
 ; --------------
 
-output-expression = literal
+output-expression = expression
 
 output-item = output-expression ";"
 
