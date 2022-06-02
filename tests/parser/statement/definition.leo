@@ -9,12 +9,16 @@ let x: u16 = x+y;
 
 let x: u8 = x();
 
+let x: string = expr;
+
 
 const x: i8 = expr;
 
 const x: i16 = x+y;
 
 const x: i8 = x();
+
+const x: string = expr;
 
 
 let x: u32 = expr;

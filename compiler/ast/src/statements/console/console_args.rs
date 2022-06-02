@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Char, Expression, Node};
+use crate::{Expression, Node, StaticString};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -24,7 +24,7 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct ConsoleArgs {
     /// The formatting string with `parameters` interpolated into it.
-    pub string: Vec<Char>,
+    pub string: StaticString,
     /// Parameters to interpolate in `string`.
     pub parameters: Vec<Expression>,
     /// The span from `(` to `)`.
@@ -36,7 +36,7 @@ impl fmt::Display for ConsoleArgs {
         write!(
             f,
             "\"{}\", {}",
-            self.string.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(""),
+            self.string,
             self.parameters
                 .iter()
                 .map(|p| p.to_string())
