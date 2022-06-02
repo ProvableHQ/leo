@@ -30,7 +30,7 @@ use std::{
     hash::{Hash, Hasher},
 };
 
-/// An identifier in the constrained program.
+/// An identifier in a program.
 ///
 /// Attention - When adding or removing fields from this struct,
 /// please remember to update its Serialize and Deserialize implementation

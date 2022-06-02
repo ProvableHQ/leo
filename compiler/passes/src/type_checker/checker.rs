@@ -16,7 +16,7 @@
 
 use indexmap::IndexSet;
 use leo_ast::{IntegerType, Node, Type};
-use leo_corelib::*;
+use leo_core::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
 

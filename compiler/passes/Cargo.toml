@@ -40,6 +40,6 @@ version = "1.5.3"
 path = "../../leo/span"
 version = "1.5.3"
 
-[dependencies.leo-corelib]
-path = "../corelib"
+[dependencies.leo-core]
+path = "../core"
 version = "1.5.3"
