@@ -149,10 +149,10 @@ impl Token {
     // }
 
     /// Returns a tuple: [(integer length, integer token)] if an integer can be eaten, otherwise returns [`None`].
-    /// An integer can be eaten if its bytes are at the front of the given `input_tendril` string.
+    /// An integer can be eaten if its bytes are at the front of the given `input` string.
     fn eat_integer(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Token)> {
         if input.peek().is_none() {
-            return Err(ParserError::lexer_empty_input_tendril().into());
+            return Err(ParserError::lexer_empty_input().into());
         }
 
         let mut int = String::new();
@@ -170,9 +170,13 @@ impl Token {
     }
 
     /// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns [`None`].
-    /// The next token can be eaten if the bytes at the front of the given `input_tendril` string can be scanned into a token.
-    pub(crate) fn eat(input_tendril: &str) -> Result<(usize, Token)> {
-        let mut input = input_tendril.chars().peekable();
+    /// The next token can be eaten if the bytes at the front of the given `input` string can be scanned into a token.
+    pub(crate) fn eat(input: &str) -> Result<(usize, Token)> {
+        if input.is_empty() {
+            return Err(ParserError::lexer_empty_input().into());
+        }
+
+        let mut input = input.chars().peekable();
 
         // Consumes a single character token.
         let single = |input: &mut Peekable<_>, token| {
@@ -196,11 +200,11 @@ impl Token {
             } else if let Some(found) = input.next() {
                 Err(ParserError::lexer_expected_but_found(found, on).into())
             } else {
-                Err(ParserError::lexer_empty_input_tendril().into())
+                Err(ParserError::lexer_empty_input().into())
             }
         };
 
-        match *input.peek().ok_or_else(ParserError::lexer_empty_input_tendril)? {
+        match *input.peek().ok_or_else(ParserError::lexer_empty_input)? {
             x if x.is_ascii_whitespace() => return single(&mut input, Token::WhiteSpace),
             '"' => {
                 let mut string = String::new();

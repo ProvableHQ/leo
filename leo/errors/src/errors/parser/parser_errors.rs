@@ -200,9 +200,9 @@ create_messages!(
         help: None,
     }
 
-    /// When an empty input tendril was expected but not found.
+    /// When more input was expected but not found.
     @backtraced
-    lexer_empty_input_tendril {
+    lexer_empty_input {
         args: (),
         msg: "Expected more characters to lex but found none.",
         help: None,
