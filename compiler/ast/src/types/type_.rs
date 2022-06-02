@@ -33,6 +33,8 @@ pub enum Type {
     Group,
     /// The `scalar` type.
     Scalar,
+    /// The `string` type.
+    String,
     /// An integer type.
     IntegerType(IntegerType),
     /// A reference to a built in type.
@@ -55,7 +57,8 @@ impl Type {
             | (Type::Boolean, Type::Boolean)
             | (Type::Field, Type::Field)
             | (Type::Group, Type::Group)
-            | (Type::Scalar, Type::Scalar) => true,
+            | (Type::Scalar, Type::Scalar)
+            | (Type::String, Type::String) => true,
             (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(right),
             (Type::Identifier(left), Type::Identifier(right)) => left.eq(right),
             _ => false,
@@ -71,6 +74,7 @@ impl fmt::Display for Type {
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
             Type::Scalar => write!(f, "scalar"),
+            Type::String => write!(f, "string"),
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
             Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
             Type::Err => write!(f, "error"),

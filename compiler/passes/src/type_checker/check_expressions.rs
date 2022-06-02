@@ -176,7 +176,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                 }
                 ValueExpression::Group(_) => self.visitor.assert_type(Type::Group, expected, input.span()),
                 ValueExpression::Scalar(_, _) => self.visitor.assert_type(Type::Scalar, expected, input.span()),
-                ValueExpression::String(_, _) => unreachable!("String types are not reachable"),
+                ValueExpression::String(_, _) => self.visitor.assert_type(Type::String, expected, input.span()),
             });
         }
 
