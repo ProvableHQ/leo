@@ -142,4 +142,14 @@ create_messages!(
         ),
         help: None,
     }
+
+    /// For when a function doesn't have a return statement.
+    @formatted
+    function_has_no_return {
+        args: (func: impl Display),
+        msg: format!(
+            "The function {func} has no return statement.",
+        ),
+        help: None,
+    }
 );

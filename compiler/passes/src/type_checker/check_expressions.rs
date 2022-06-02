@@ -226,11 +226,20 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                             self.visitor.assert_type(Type::Group, expected, input.right.span());
                             Some(Type::Group)
                         }
-                        _ => {
-                            self.visitor.assert_type(t1.unwrap(), expected, input.left.span());
-                            self.visitor.assert_type(t2.unwrap(), expected, input.right.span());
-                            return_incorrect_type(t1, t2, expected)
+                        (Some(t1), Some(t2)) => {
+                            self.visitor.assert_type(*t1, expected, input.left.span());
+                            self.visitor.assert_type(*t2, expected, input.right.span());
+                            return_incorrect_type(Some(*t1), Some(*t2), expected)
                         }
+                        (Some(type_), None) => {
+                            self.visitor.assert_type(*type_, expected, input.left.span());
+                            None
+                        }
+                        (None, Some(type_)) => {
+                            self.visitor.assert_type(*type_, expected, input.right.span());
+                            None
+                        }
+                        (None, None) => None,
                     }
                 }
                 BinaryOperation::Div => {
@@ -272,7 +281,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                             );
                         }
                         // The base is some type thats not an int or field.
-                        (Some(t), _) => {
+                        (Some(t), _) if !matches!(t, Type::IntegerType(_) | Type::Field) => {
                             self.visitor
                                 .handler
                                 .emit_err(TypeCheckerError::incorrect_pow_base_type(t, input.left.span()).into());

@@ -15,33 +15,42 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::*;
+use leo_errors::TypeCheckerError;
 
 use crate::{Declaration, TypeChecker, VariableSymbol};
 
 use super::director::Director;
 
-impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
-    fn visit_function(&mut self, input: &'a Function) -> VisitResult {
-        self.symbol_table.clear_variables();
-        self.parent = Some(input.name());
-        input.input.iter().for_each(|i| {
-            let input_var = i.get_variable();
-            self.validate_ident_type(&Some(input_var.type_));
+impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {}
 
-            if let Err(err) = self.symbol_table.insert_variable(
-                input_var.identifier.name,
-                VariableSymbol {
-                    type_: &input_var.type_,
-                    span: input_var.identifier.span(),
-                    declaration: Declaration::Input(input_var.mode()),
-                },
-            ) {
-                self.handler.emit_err(err);
+impl<'a> ProgramVisitorDirector<'a> for Director<'a> {
+    fn visit_function(&mut self, input: &'a Function) {
+        if let VisitResult::VisitChildren = self.visitor_ref().visit_function(input) {
+            self.visitor.has_return = false;
+            self.visitor.symbol_table.clear_variables();
+            self.visitor.parent = Some(input.name());
+            input.input.iter().for_each(|i| {
+                let input_var = i.get_variable();
+                self.visitor.validate_ident_type(&Some(input_var.type_));
+
+                if let Err(err) = self.visitor.symbol_table.insert_variable(
+                    input_var.identifier.name,
+                    VariableSymbol {
+                        type_: &input_var.type_,
+                        span: input_var.identifier.span(),
+                        declaration: Declaration::Input(input_var.mode()),
+                    },
+                ) {
+                    self.visitor.handler.emit_err(err);
+                }
+            });
+            self.visit_block(&input.block);
+
+            if !self.visitor.has_return {
+                self.visitor
+                    .handler
+                    .emit_err(TypeCheckerError::function_has_no_return(input.name(), input.span()).into());
             }
-        });
-
-        VisitResult::VisitChildren
+        }
     }
 }
-
-impl<'a> ProgramVisitorDirector<'a> for Director<'a> {}
