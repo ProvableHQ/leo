@@ -214,7 +214,9 @@ boolean-type = %s"bool"
 
 address-type = %s"address"
 
-primitive-type =  boolean-type / arithmetic-type / address-type
+string-type = %s"string"
+
+primitive-type =  boolean-type / arithmetic-type / address-type / string-type
 
 type = primitive-type
 
