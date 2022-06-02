@@ -137,7 +137,20 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
             .unwrap()
             .to_string();
 
-        let expectations: Option<TestExpectation> = None;
+        let expectations: Option<TestExpectation> = if expectation_path.exists() {
+            if !std::env::var("CLEAR_LEO_TEST_EXPECTATIONS")
+                .unwrap_or_default()
+                .trim()
+                .is_empty()
+            {
+                None
+            } else {
+                let raw = std::fs::read_to_string(&expectation_path).expect("failed to read expectations file");
+                Some(serde_yaml::from_str(&raw).expect("invalid yaml in expectations file"))
+            }
+        } else {
+            None
+        };
 
         let end_of_header = content.find("*/").expect("failed to find header block in test");
         let content = &content[end_of_header + 2..];

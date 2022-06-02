@@ -1,5 +1,5 @@
 [package]
-name = "leo-stdlib"
+name = "leo-core"
 version = "1.5.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "The Leo programming language"
@@ -28,12 +28,9 @@ version = "1.5.3"
 path = "../../leo/errors"
 version = "1.5.3"
 
-[dependencies.leo-parser]
-path = "../parser"
+[dependencies.leo-span]
+path = "../../leo/span"
 version = "1.5.3"
 
-[dependencies.include_dir]
-version = "0.6.1"
-
-[dependencies.indexmap]
-version = "1.7.0"
+[dependencies]
+indexmap = "1.7.0"

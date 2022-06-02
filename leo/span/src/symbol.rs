@@ -137,6 +137,7 @@ symbols! {
     scalar,
     Star: "*",
     std,
+    string,
     Struct: "struct",
     test,
     True: "true",

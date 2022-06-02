@@ -22,9 +22,6 @@
 
 #![doc = include_str!("../README.md")]
 
-pub mod chars;
-pub use self::chars::*;
-
 pub mod common;
 pub use self::common::*;
 

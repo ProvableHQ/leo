@@ -123,7 +123,7 @@ impl ParserContext<'_> {
         let start_span = self.expect(&Token::For)?;
         let ident = self.expect_ident()?;
         self.expect(&Token::Colon)?;
-        let type_ = self.parse_type()?;
+        let type_ = self.parse_all_types()?;
         self.expect(&Token::In)?;
 
         // Parse iteration range.
@@ -148,18 +148,19 @@ impl ParserContext<'_> {
 
     /// Returns a [`ConsoleArgs`] AST node if the next tokens represent a formatted string.
     fn parse_console_args(&mut self) -> Result<ConsoleArgs> {
-        let mut string = None;
+        let mut static_string = None;
         let (parameters, _, span) = self.parse_paren_comma_list(|p| {
-            if string.is_none() {
+            if static_string.is_none() {
                 p.bump();
                 let SpannedToken { token, span } = p.prev_token.clone();
-                string = Some(match token {
-                    Token::StringLit(chars) => chars,
-                    _ => {
-                        p.emit_err(ParserError::unexpected_str(token, "formatted string", span));
-                        Vec::new()
+                match token {
+                    Token::StaticString(string) => {
+                        static_string = Some(StaticString::new(string));
                     }
-                });
+                    _ => {
+                        p.emit_err(ParserError::unexpected_str(token, "formatted static_string", span));
+                    }
+                };
                 Ok(None)
             } else {
                 p.parse_expression().map(Some)
@@ -167,7 +168,7 @@ impl ParserContext<'_> {
         })?;
 
         Ok(ConsoleArgs {
-            string: string.unwrap_or_default(),
+            string: static_string.unwrap_or_default(),
             span,
             parameters,
         })
@@ -241,7 +242,7 @@ impl ParserContext<'_> {
         };
 
         self.expect(&Token::Colon)?;
-        let type_ = self.parse_type()?;
+        let type_ = self.parse_all_types()?;
 
         self.expect(&Token::Assign)?;
         let expr = self.parse_expression()?;

@@ -18,12 +18,15 @@ use leo_ast::*;
 
 use crate::{Declaration, TypeChecker, VariableSymbol};
 
+use super::director::Director;
+
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_function(&mut self, input: &'a Function) -> VisitResult {
         self.symbol_table.clear_variables();
         self.parent = Some(input.name());
         input.input.iter().for_each(|i| {
             let input_var = i.get_variable();
+            self.validate_ident_type(&Some(input_var.type_));
 
             if let Err(err) = self.symbol_table.insert_variable(
                 input_var.identifier.name,
@@ -40,3 +43,5 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         VisitResult::VisitChildren
     }
 }
+
+impl<'a> ProgramVisitorDirector<'a> for Director<'a> {}

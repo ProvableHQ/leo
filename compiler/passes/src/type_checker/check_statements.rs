@@ -19,20 +19,23 @@ use leo_errors::TypeCheckerError;
 
 use crate::{Declaration, TypeChecker, VariableSymbol};
 
-impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
-    fn visit_return(&mut self, input: &'a ReturnStatement) -> VisitResult {
+use super::director::Director;
+
+impl<'a> StatementVisitor<'a> for TypeChecker<'a> {}
+
+impl<'a> StatementVisitorDirector<'a> for Director<'a> {
+    fn visit_return(&mut self, input: &'a ReturnStatement) {
         // we can safely unwrap all self.parent instances because
         // statements should always have some parent block
-        let parent = self.parent.unwrap();
+        let parent = self.visitor.parent.unwrap();
 
-        // Would never be None.
-        let func_output_type = self.symbol_table.lookup_fn(&parent).map(|f| f.output);
-        self.compare_expr_type(&input.expression, func_output_type, input.expression.span());
+        let return_type = &self.visitor.symbol_table.lookup_fn(&parent).map(|f| f.output);
+        self.visitor.validate_ident_type(return_type);
 
-        VisitResult::VisitChildren
+        self.visit_expression(&input.expression, return_type);
     }
 
-    fn visit_definition(&mut self, input: &'a DefinitionStatement) -> VisitResult {
+    fn visit_definition(&mut self, input: &'a DefinitionStatement) {
         let declaration = if input.declaration_type == Declare::Const {
             Declaration::Const
         } else {
@@ -40,7 +43,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         };
 
         input.variable_names.iter().for_each(|v| {
-            if let Err(err) = self.symbol_table.insert_variable(
+            self.visitor.validate_ident_type(&Some(input.type_));
+
+            if let Err(err) = self.visitor.symbol_table.insert_variable(
                 v.identifier.name,
                 VariableSymbol {
                     type_: &input.type_,
@@ -48,23 +53,23 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                     declaration: declaration.clone(),
                 },
             ) {
-                self.handler.emit_err(err);
+                self.visitor.handler.emit_err(err);
             }
 
-            self.compare_expr_type(&input.value, Some(input.type_), input.value.span());
+            self.visit_expression(&input.value, &Some(input.type_));
         });
-
-        VisitResult::VisitChildren
     }
 
-    fn visit_assign(&mut self, input: &'a AssignStatement) -> VisitResult {
+    fn visit_assign(&mut self, input: &'a AssignStatement) {
         let var_name = &input.assignee.identifier.name;
-        let var_type = if let Some(var) = self.symbol_table.lookup_variable(var_name) {
+        let var_type = if let Some(var) = self.visitor.symbol_table.lookup_variable(var_name) {
             match &var.declaration {
                 Declaration::Const => self
+                    .visitor
                     .handler
                     .emit_err(TypeCheckerError::cannont_assign_to_const_var(var_name, var.span).into()),
                 Declaration::Input(ParamMode::Constant) => self
+                    .visitor
                     .handler
                     .emit_err(TypeCheckerError::cannont_assign_to_const_input(var_name, var.span).into()),
                 _ => {}
@@ -72,7 +77,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
             Some(*var.type_)
         } else {
-            self.handler.emit_err(
+            self.visitor.handler.emit_err(
                 TypeCheckerError::unknown_sym("variable", &input.assignee.identifier.name, input.assignee.span).into(),
             );
 
@@ -80,20 +85,17 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         };
 
         if var_type.is_some() {
-            self.compare_expr_type(&input.value, var_type, input.value.span());
+            self.visitor.validate_ident_type(&var_type);
+            self.visit_expression(&input.value, &var_type);
         }
-
-        VisitResult::VisitChildren
     }
 
-    fn visit_conditional(&mut self, input: &'a ConditionalStatement) -> VisitResult {
-        self.compare_expr_type(&input.condition, Some(Type::Boolean), input.condition.span());
-
-        VisitResult::VisitChildren
+    fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
+        self.visit_expression(&input.condition, &Some(Type::Boolean));
     }
 
-    fn visit_iteration(&mut self, input: &'a IterationStatement) -> VisitResult {
-        if let Err(err) = self.symbol_table.insert_variable(
+    fn visit_iteration(&mut self, input: &'a IterationStatement) {
+        if let Err(err) = self.visitor.symbol_table.insert_variable(
             input.variable.name,
             VariableSymbol {
                 type_: &input.type_,
@@ -101,30 +103,28 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 declaration: Declaration::Const,
             },
         ) {
-            self.handler.emit_err(err);
+            self.visitor.handler.emit_err(err);
         }
 
-        self.compare_expr_type(&input.start, Some(input.type_), input.start.span());
-        self.compare_expr_type(&input.stop, Some(input.type_), input.stop.span());
-
-        VisitResult::VisitChildren
+        let iter_type = &Some(input.type_);
+        self.visitor.validate_ident_type(iter_type);
+        self.visit_expression(&input.start, iter_type);
+        self.visit_expression(&input.stop, iter_type);
     }
 
-    fn visit_console(&mut self, input: &'a ConsoleStatement) -> VisitResult {
+    fn visit_console(&mut self, input: &'a ConsoleStatement) {
         match &input.function {
             ConsoleFunction::Assert(expr) => {
-                self.compare_expr_type(expr, Some(Type::Boolean), expr.span());
+                self.visit_expression(expr, &Some(Type::Boolean));
             }
             ConsoleFunction::Error(_) | ConsoleFunction::Log(_) => {
                 // TODO: undetermined
             }
         }
-
-        VisitResult::VisitChildren
     }
 
-    fn visit_block(&mut self, input: &'a Block) -> VisitResult {
-        self.symbol_table.push_variable_scope();
+    fn visit_block(&mut self, input: &'a Block) {
+        self.visitor.symbol_table.push_variable_scope();
         // have to redo the logic here so we have scoping
         input.statements.iter().for_each(|stmt| {
             match stmt {
@@ -137,8 +137,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 Statement::Block(stmt) => self.visit_block(stmt),
             };
         });
-        self.symbol_table.pop_variable_scope();
-
-        VisitResult::SkipChildren
+        self.visitor.symbol_table.pop_variable_scope();
     }
 }

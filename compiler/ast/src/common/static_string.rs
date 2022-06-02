@@ -14,5 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod char_value;
-pub use self::char_value::*;
+use serde::{Deserialize, Serialize};
+use std::fmt;
+
+#[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct StaticString(String);
+
+impl StaticString {
+    pub fn new(string: String) -> Self {
+        Self(string)
+    }
+}
+
+impl fmt::Display for StaticString {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}

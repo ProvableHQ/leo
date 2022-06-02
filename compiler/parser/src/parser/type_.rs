@@ -23,6 +23,7 @@ pub(super) const TYPE_TOKENS: &[Token] = &[
     Token::Field,
     Token::Group,
     Token::Scalar,
+    Token::String,
     Token::I8,
     Token::I16,
     Token::I32,
@@ -55,7 +56,7 @@ impl ParserContext<'_> {
 
     /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a type.
     /// Also returns the span of the parsed token.
-    pub fn parse_type(&mut self) -> Result<(Type, Span)> {
+    pub fn parse_non_ident_types(&mut self) -> Result<(Type, Span)> {
         let span = self.expect_any(TYPE_TOKENS)?;
         Ok((
             match &self.prev_token.token {
@@ -64,9 +65,21 @@ impl ParserContext<'_> {
                 Token::Field => Type::Field,
                 Token::Group => Type::Group,
                 Token::Scalar => Type::Scalar,
+                Token::String => Type::String,
                 x => Type::IntegerType(Self::token_to_int_type(x).expect("invalid int type")),
             },
             span,
         ))
+    }
+
+    /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a type.
+    /// Also returns the span of the parsed token.
+    pub fn parse_all_types(&mut self) -> Result<(Type, Span)> {
+        Ok(if let Some(ident) = self.eat_identifier() {
+            let span = ident.span;
+            (Type::Identifier(ident), span)
+        } else {
+            self.parse_non_ident_types()?
+        })
     }
 }

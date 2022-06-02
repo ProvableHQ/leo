@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::tokenizer::{Char, Token};
+use crate::tokenizer::Token;
 use leo_errors::{ParserError, Result};
 use leo_span::{Span, Symbol};
 use snarkvm_dpc::{prelude::*, testnet2::Testnet2};
@@ -39,113 +39,114 @@ fn is_bidi_override(c: char) -> bool {
 }
 
 impl Token {
-    // Eats the parts of the unicode character after \u.
-    fn eat_unicode_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
-        let mut unicode = String::new();
-        // Account for the chars '\' and 'u'.
-        let mut len = 2;
+    // todo: remove this unused code or reference https://github.com/Geal/nom/blob/main/examples/string.rs
+    // // Eats the parts of the unicode character after \u.
+    // fn eat_unicode_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
+    //     let mut unicode = String::new();
+    //     // Account for the chars '\' and 'u'.
+    //     let mut len = 2;
+    //
+    //     if input.next_if_eq(&'{').is_some() {
+    //         len += 1;
+    //     } else if let Some(c) = input.next() {
+    //         return Err(ParserError::lexer_unopened_escaped_unicode_char(c).into());
+    //     } else {
+    //         return Err(ParserError::lexer_empty_input_tendril().into());
+    //     }
+    //
+    //     while let Some(c) = input.next_if(|c| c != &'}') {
+    //         len += 1;
+    //         unicode.push(c);
+    //     }
+    //
+    //     if input.next_if_eq(&'}').is_some() {
+    //         len += 1;
+    //     } else {
+    //         return Err(ParserError::lexer_unclosed_escaped_unicode_char(unicode).into());
+    //     }
+    //
+    //     // Max of 6 digits.
+    //     // Minimum of 1 digit.
+    //     if unicode.len() > 6 || unicode.is_empty() {
+    //         return Err(ParserError::lexer_invalid_escaped_unicode_length(unicode).into());
+    //     }
+    //
+    //     if let Ok(hex) = u32::from_str_radix(&unicode, 16) {
+    //         if let Some(character) = std::char::from_u32(hex) {
+    //             Ok((len, Char::Scalar(character)))
+    //         } else if hex <= 0x10FFFF {
+    //             Ok((len, Char::NonScalar(hex)))
+    //         } else {
+    //             Err(ParserError::lexer_invalid_character_exceeded_max_value(unicode).into())
+    //         }
+    //     } else {
+    //         Err(ParserError::lexer_expected_valid_hex_char(unicode).into())
+    //     }
+    // }
 
-        if input.next_if_eq(&'{').is_some() {
-            len += 1;
-        } else if let Some(c) = input.next() {
-            return Err(ParserError::lexer_unopened_escaped_unicode_char(c).into());
-        } else {
-            return Err(ParserError::lexer_empty_input().into());
-        }
+    // // Eats the parts of the hex character after \x.
+    // fn eat_hex_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
+    //     let mut hex = String::new();
+    //     // Account for the chars '\' and 'x'.
+    //     let mut len = 2;
+    //
+    //     // First hex character.
+    //     if let Some(c) = input.next_if(|c| c != &'\'') {
+    //         len += 1;
+    //         hex.push(c);
+    //     } else if let Some(c) = input.next() {
+    //         return Err(ParserError::lexer_expected_valid_hex_char(c).into());
+    //     } else {
+    //         return Err(ParserError::lexer_empty_input_tendril().into());
+    //     }
+    //
+    //     // Second hex character.
+    //     if let Some(c) = input.next_if(|c| c != &'\'') {
+    //         len += 1;
+    //         hex.push(c);
+    //     } else if let Some(c) = input.next() {
+    //         return Err(ParserError::lexer_expected_valid_hex_char(c).into());
+    //     } else {
+    //         return Err(ParserError::lexer_empty_input_tendril().into());
+    //     }
+    //
+    //     if let Ok(ascii_number) = u8::from_str_radix(&hex, 16) {
+    //         // According to RFC, we allow only values less than 128.
+    //         if ascii_number > 127 {
+    //             return Err(ParserError::lexer_expected_valid_hex_char(hex).into());
+    //         }
+    //
+    //         Ok((len, Char::Scalar(ascii_number as char)))
+    //     } else {
+    //         Err(ParserError::lexer_expected_valid_hex_char(hex).into())
+    //     }
+    // }
 
-        while let Some(c) = input.next_if(|c| c != &'}') {
-            len += 1;
-            unicode.push(c);
-        }
+    // fn eat_escaped_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
+    //     match input.next() {
+    //         None => Err(ParserError::lexer_empty_input_tendril().into()),
+    //         // Length of 2 to account the '\'.
+    //         Some('0') => Ok((2, Char::Scalar(0 as char))),
+    //         Some('t') => Ok((2, Char::Scalar(9 as char))),
+    //         Some('n') => Ok((2, Char::Scalar(10 as char))),
+    //         Some('r') => Ok((2, Char::Scalar(13 as char))),
+    //         Some('\"') => Ok((2, Char::Scalar(34 as char))),
+    //         Some('\'') => Ok((2, Char::Scalar(39 as char))),
+    //         Some('\\') => Ok((2, Char::Scalar(92 as char))),
+    //         Some('u') => Self::eat_unicode_char(input),
+    //         Some('x') => Self::eat_hex_char(input),
+    //         Some(c) => Err(ParserError::lexer_expected_valid_escaped_char(c).into()),
+    //     }
+    // }
 
-        if input.next_if_eq(&'}').is_some() {
-            len += 1;
-        } else {
-            return Err(ParserError::lexer_unclosed_escaped_unicode_char(unicode).into());
-        }
-
-        // Max of 6 digits.
-        // Minimum of 1 digit.
-        if unicode.len() > 6 || unicode.is_empty() {
-            return Err(ParserError::lexer_invalid_escaped_unicode_length(unicode).into());
-        }
-
-        if let Ok(hex) = u32::from_str_radix(&unicode, 16) {
-            if let Some(character) = std::char::from_u32(hex) {
-                Ok((len, Char::Scalar(character)))
-            } else if hex <= 0x10FFFF {
-                Ok((len, Char::NonScalar(hex)))
-            } else {
-                Err(ParserError::lexer_invalid_character_exceeded_max_value(unicode).into())
-            }
-        } else {
-            Err(ParserError::lexer_expected_valid_hex_char(unicode).into())
-        }
-    }
-
-    // Eats the parts of the hex character after \x.
-    fn eat_hex_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
-        let mut hex = String::new();
-        // Account for the chars '\' and 'x'.
-        let mut len = 2;
-
-        // First hex character.
-        if let Some(c) = input.next_if(|c| c != &'\'') {
-            len += 1;
-            hex.push(c);
-        } else if let Some(c) = input.next() {
-            return Err(ParserError::lexer_expected_valid_hex_char(c).into());
-        } else {
-            return Err(ParserError::lexer_empty_input().into());
-        }
-
-        // Second hex character.
-        if let Some(c) = input.next_if(|c| c != &'\'') {
-            len += 1;
-            hex.push(c);
-        } else if let Some(c) = input.next() {
-            return Err(ParserError::lexer_expected_valid_hex_char(c).into());
-        } else {
-            return Err(ParserError::lexer_empty_input().into());
-        }
-
-        if let Ok(ascii_number) = u8::from_str_radix(&hex, 16) {
-            // According to RFC, we allow only values less than 128.
-            if ascii_number > 127 {
-                return Err(ParserError::lexer_expected_valid_hex_char(hex).into());
-            }
-
-            Ok((len, Char::Scalar(ascii_number as char)))
-        } else {
-            Err(ParserError::lexer_expected_valid_hex_char(hex).into())
-        }
-    }
-
-    fn eat_escaped_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
-        match input.next() {
-            None => Err(ParserError::lexer_empty_input().into()),
-            // Length of 2 to account the '\'.
-            Some('0') => Ok((2, Char::Scalar(0 as char))),
-            Some('t') => Ok((2, Char::Scalar(9 as char))),
-            Some('n') => Ok((2, Char::Scalar(10 as char))),
-            Some('r') => Ok((2, Char::Scalar(13 as char))),
-            Some('\"') => Ok((2, Char::Scalar(34 as char))),
-            Some('\'') => Ok((2, Char::Scalar(39 as char))),
-            Some('\\') => Ok((2, Char::Scalar(92 as char))),
-            Some('u') => Self::eat_unicode_char(input),
-            Some('x') => Self::eat_hex_char(input),
-            Some(c) => Err(ParserError::lexer_expected_valid_escaped_char(c).into()),
-        }
-    }
-
-    /// Returns a `char` if a character can be eaten, otherwise returns [`None`].
-    fn eat_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
-        match input.next() {
-            None => Err(ParserError::lexer_empty_input().into()),
-            Some('\\') => Self::eat_escaped_char(input),
-            Some(c) => Ok((c.len_utf8(), Char::Scalar(c))),
-        }
-    }
+    // /// Returns a `char` if a character can be eaten, otherwise returns [`None`].
+    // fn eat_char(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Char)> {
+    //     match input.next() {
+    //         None => Err(ParserError::lexer_empty_input_tendril().into()),
+    //         Some('\\') => Self::eat_escaped_char(input),
+    //         Some(c) => Ok((c.len_utf8(), Char::Scalar(c))),
+    //     }
+    // }
 
     /// Returns a tuple: [(integer length, integer token)] if an integer can be eaten, otherwise returns [`None`].
     /// An integer can be eaten if its bytes are at the front of the given `input` string.
@@ -177,97 +178,74 @@ impl Token {
 
         let mut input = input.chars().peekable();
 
-        match input.peek() {
-            Some(x) if x.is_ascii_whitespace() => {
-                input.next();
-                return Ok((1, Token::WhiteSpace));
+        // Consumes a single character token.
+        let single = |input: &mut Peekable<_>, token| {
+            input.next();
+            Ok((1, token))
+        };
+        // Consumes a character followed by `on` with `then` if found or `els` otherwise.
+        let followed_by = |input: &mut Peekable<_>, on, then, els| {
+            input.next();
+            Ok(if input.next_if_eq(&on).is_some() {
+                (2, then)
+            } else {
+                (1, els)
+            })
+        };
+        // Consumes `on` again and produces `token` if found.
+        let twice = |input: &mut Peekable<_>, on, token| {
+            input.next();
+            if input.next_if_eq(&on).is_some() {
+                Ok((2, token))
+            } else if let Some(found) = input.next() {
+                Err(ParserError::lexer_expected_but_found(found, on).into())
+            } else {
+                Err(ParserError::lexer_empty_input().into())
             }
-            Some('"') => {
-                let mut string: Vec<leo_ast::Char> = Vec::new();
+        };
+
+        match *input.peek().ok_or_else(ParserError::lexer_empty_input)? {
+            x if x.is_ascii_whitespace() => return single(&mut input, Token::WhiteSpace),
+            '"' => {
+                let mut string = String::new();
                 input.next();
 
-                let mut len = 0;
-                while let Some(c) = input.peek() {
-                    if is_bidi_override(*c) {
+                let mut ended = false;
+                while let Some(c) = input.next() {
+                    // Check for illegal characters.
+                    if is_bidi_override(c) {
                         return Err(ParserError::lexer_bidi_override().into());
                     }
-                    if c == &'"' {
+
+                    // Check for end string quotation mark.
+                    if c == '"' {
+                        input.next();
+                        ended = true;
                         break;
                     }
-                    let (char_len, character) = Self::eat_char(&mut input)?;
-                    len += char_len;
-                    string.push(character.into());
+                    string.push(c);
                 }
 
-                if input.next_if_eq(&'"').is_some() {
-                    return Ok((len + 2, Token::StringLit(string)));
+                if !ended {
+                    return Err(ParserError::lexer_string_not_closed(string).into());
                 }
 
-                return Err(ParserError::lexer_string_not_closed(leo_ast::Chars(string)).into());
+                // + 2 to account for parsing quotation marks.
+                return Ok((string.len() + 2, Token::StaticString(string)));
             }
-            Some(x) if x.is_ascii_digit() => {
-                return Self::eat_integer(&mut input);
-            }
-            Some('!') => {
-                input.next();
-                if input.next_if_eq(&'=').is_some() {
-                    return Ok((2, Token::NotEq));
-                }
-                return Ok((1, Token::Not));
-            }
-            Some('?') => {
-                input.next();
-                return Ok((1, Token::Question));
-            }
-            Some('&') => {
-                input.next();
-                if input.next_if_eq(&'&').is_some() {
-                    return Ok((2, Token::And));
-                }
-                return Err(ParserError::lexer_empty_input().into());
-            }
-            Some('(') => {
-                input.next();
-                return Ok((1, Token::LeftParen));
-            }
-            Some(')') => {
-                input.next();
-                return Ok((1, Token::RightParen));
-            }
-            Some('_') => {
-                input.next();
-                return Ok((1, Token::Underscore));
-            }
-            Some('*') => {
-                input.next();
-                if input.next_if_eq(&'*').is_some() {
-                    return Ok((2, Token::Exp));
-                }
-                return Ok((1, Token::Mul));
-            }
-            Some('+') => {
-                input.next();
-                return Ok((1, Token::Add));
-            }
-            Some(',') => {
-                input.next();
-                return Ok((1, Token::Comma));
-            }
-            Some('-') => {
-                input.next();
-                if input.next_if_eq(&'>').is_some() {
-                    return Ok((2, Token::Arrow));
-                }
-                return Ok((1, Token::Minus));
-            }
-            Some('.') => {
-                input.next();
-                if input.next_if_eq(&'.').is_some() {
-                    return Ok((2, Token::DotDot));
-                }
-                return Ok((1, Token::Dot));
-            }
-            Some(c) if c == &'/' => {
+            x if x.is_ascii_digit() => return Self::eat_integer(&mut input),
+            '!' => return followed_by(&mut input, '=', Token::NotEq, Token::Not),
+            '?' => return single(&mut input, Token::Question),
+            '&' => return twice(&mut input, '&', Token::And),
+            '(' => return single(&mut input, Token::LeftParen),
+            ')' => return single(&mut input, Token::RightParen),
+            '_' => return single(&mut input, Token::Underscore),
+            '*' => return followed_by(&mut input, '*', Token::Exp, Token::Mul),
+            '+' => return single(&mut input, Token::Add),
+            ',' => return single(&mut input, Token::Comma),
+            '-' => return followed_by(&mut input, '>', Token::Arrow, Token::Minus),
+            '.' => return followed_by(&mut input, '.', Token::DotDot, Token::Dot),
+            '/' => {
                 input.next();
                 if input.next_if_eq(&'/').is_some() {
                     let mut comment = String::from("//");
@@ -312,61 +290,16 @@ impl Token {
                 }
                 return Ok((1, Token::Div));
             }
-            Some(':') => {
-                input.next();
-                return Ok((1, Token::Colon));
-            }
-            Some(';') => {
-                input.next();
-                return Ok((1, Token::Semicolon));
-            }
-            Some('<') => {
-                input.next();
-                if input.next_if_eq(&'=').is_some() {
-                    return Ok((2, Token::LtEq));
-                }
-                return Ok((1, Token::Lt));
-            }
-            Some('>') => {
-                input.next();
-                if input.next_if_eq(&'=').is_some() {
-                    return Ok((2, Token::GtEq));
-                }
-                return Ok((1, Token::Gt));
-            }
-            Some('=') => {
-                input.next();
-                if input.next_if_eq(&'=').is_some() {
-                    return Ok((2, Token::Eq));
-                }
-                return Ok((1, Token::Assign));
-            }
-            Some('[') => {
-                input.next();
-                return Ok((1, Token::LeftSquare));
-            }
-            Some(']') => {
-                input.next();
-                return Ok((1, Token::RightSquare));
-            }
-            Some('{') => {
-                input.next();
-                return Ok((1, Token::LeftCurly));
-            }
-            Some('}') => {
-                input.next();
-                return Ok((1, Token::RightCurly));
-            }
-            Some('|') => {
-                input.next();
-                if input.next_if_eq(&'|').is_some() {
-                    return Ok((2, Token::Or));
-                } else if let Some(found) = input.next() {
-                    return Err(ParserError::lexer_expected_but_found(found, '|').into());
-                } else {
-                    return Err(ParserError::lexer_empty_input().into());
-                }
-            }
+            ':' => return single(&mut input, Token::Colon),
+            ';' => return single(&mut input, Token::Semicolon),
+            '<' => return followed_by(&mut input, '=', Token::LtEq, Token::Lt),
+            '>' => return followed_by(&mut input, '=', Token::GtEq, Token::Gt),
+            '=' => return followed_by(&mut input, '=', Token::Eq, Token::Assign),
+            '[' => return single(&mut input, Token::LeftSquare),
+            ']' => return single(&mut input, Token::RightSquare),
+            '{' => return single(&mut input, Token::LeftCurly),
+            '}' => return single(&mut input, Token::RightCurly),
+            '|' => return twice(&mut input, '|', Token::Or),
             _ => (),
         }
         if let Some(ident) = eat_identifier(&mut input) {
@@ -396,6 +329,7 @@ impl Token {
                     "public" => Token::Public,
                     "return" => Token::Return,
                     "scalar" => Token::Scalar,
+                    "string" => Token::String,
                     "true" => Token::True,
                     "u8" => Token::U8,
                     "u16" => Token::U16,
