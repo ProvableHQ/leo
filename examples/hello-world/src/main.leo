@@ -1,3 +1,4 @@
-function main() {
-    console.log("Hello World!");
+function main() -> bool {
+    console.log("hello world");
+    return true;
 }

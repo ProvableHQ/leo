@@ -19,30 +19,6 @@ use leo_span::{sym, Symbol};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub enum Char {
-    Scalar(char),
-    NonScalar(u32),
-}
-
-impl From<Char> for leo_ast::Char {
-    fn from(val: Char) -> Self {
-        match val {
-            Char::Scalar(c) => Self::Scalar(c),
-            Char::NonScalar(c) => Self::NonScalar(c),
-        }
-    }
-}
-
-impl fmt::Display for Char {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Scalar(c) => write!(f, "{}", c),
-            Self::NonScalar(c) => write!(f, "{:X}", c),
-        }
-    }
-}
-
 /// Represents all valid Leo syntax tokens.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Token {
@@ -50,7 +26,7 @@ pub enum Token {
     // Literals
     CommentLine(String),
     CommentBlock(String),
-    StringLit(Vec<leo_ast::Char>),
+    StaticString(String),
     Ident(Symbol),
     Int(String),
     True,
@@ -96,6 +72,7 @@ pub enum Token {
     Field,
     Group,
     Scalar,
+    String,
     I8,
     I16,
     I32,
@@ -150,6 +127,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Public,
     Token::Return,
     Token::Scalar,
+    Token::String,
     Token::True,
     Token::U8,
     Token::U16,
@@ -189,6 +167,7 @@ impl Token {
             Token::Public => sym::Public,
             Token::Return => sym::Return,
             Token::Scalar => sym::scalar,
+            Token::String => sym::string,
             Token::True => sym::True,
             Token::U8 => sym::u8,
             Token::U16 => sym::u16,
@@ -206,13 +185,7 @@ impl fmt::Display for Token {
         match self {
             CommentLine(s) => write!(f, "{}", s),
             CommentBlock(s) => write!(f, "{}", s),
-            StringLit(string) => {
-                write!(f, "\"")?;
-                for character in string.iter() {
-                    write!(f, "{}", character)?;
-                }
-                write!(f, "\"")
-            }
+            StaticString(s) => write!(f, "\"{}\"", s),
             Ident(s) => write!(f, "{}", s),
             Int(s) => write!(f, "{}", s),
             True => write!(f, "true"),
@@ -255,6 +228,7 @@ impl fmt::Display for Token {
             Field => write!(f, "field"),
             Group => write!(f, "group"),
             Scalar => write!(f, "scalar"),
+            String => write!(f, "string"),
             I8 => write!(f, "i8"),
             I16 => write!(f, "i16"),
             I32 => write!(f, "i32"),

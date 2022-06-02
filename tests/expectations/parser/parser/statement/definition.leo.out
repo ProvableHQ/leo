@@ -62,6 +62,20 @@ outputs:
         lo: 0
         hi: 15
   - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+          span:
+            lo: 4
+            hi: 5
+      type_: String
+      value:
+        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":20}\"}"
+      span:
+        lo: 0
+        hi: 20
+  - Definition:
       declaration_type: Const
       variable_names:
         - mutable: false
@@ -120,6 +134,20 @@ outputs:
       span:
         lo: 0
         hi: 17
+  - Definition:
+      declaration_type: Const
+      variable_names:
+        - mutable: false
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+          span:
+            lo: 6
+            hi: 7
+      type_: String
+      value:
+        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":22}\"}"
+      span:
+        lo: 0
+        hi: 22
   - Definition:
       declaration_type: Let
       variable_names:

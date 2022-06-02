@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::Char;
 
 /// A literal expression.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -37,7 +36,7 @@ pub enum ValueExpression {
     /// An unsigned number followed by the keyword `scalar`.
     Scalar(String, #[serde(with = "leo_span::span_json")] Span),
     /// A string literal, e.g., `"foobar"`.
-    String(Vec<Char>, #[serde(with = "leo_span::span_json")] Span),
+    String(String, #[serde(with = "leo_span::span_json")] Span),
 }
 
 impl fmt::Display for ValueExpression {
@@ -50,12 +49,7 @@ impl fmt::Display for ValueExpression {
             Group(group) => write!(f, "{}", group),
             Integer(type_, value, _) => write!(f, "{}{}", value, type_),
             Scalar(scalar, _) => write!(f, "{}", scalar),
-            String(string, _) => {
-                for character in string.iter() {
-                    write!(f, "{}", character)?;
-                }
-                Ok(())
-            }
+            String(string, _) => write!(f, "{}", string),
         }
     }
 }
