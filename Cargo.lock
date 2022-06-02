@@ -1236,6 +1236,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-core"
+version = "1.5.3"
+dependencies = [
+ "indexmap",
+ "leo-ast",
+ "leo-errors",
+ "leo-span",
+]
+
+[[package]]
 name = "leo-errors"
 version = "1.5.3"
 dependencies = [
@@ -1324,6 +1334,7 @@ version = "1.5.3"
 dependencies = [
  "indexmap",
  "leo-ast",
+ "leo-core",
  "leo-errors",
  "leo-parser",
  "leo-span",

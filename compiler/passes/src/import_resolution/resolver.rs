@@ -16,7 +16,7 @@
 
 use leo_ast::Program;
 use leo_errors::{Result, Span};
-use leo_stdlib::resolve_stdlib_module;
+use leo_core::resolve_core_module;
 
 use indexmap::IndexMap;
 

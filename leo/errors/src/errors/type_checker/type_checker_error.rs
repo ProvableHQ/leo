@@ -132,4 +132,14 @@ create_messages!(
         ),
         help: None,
     }
+
+    /// For when an invalid built in type is used.
+    @formatted
+    invalid_built_in_type {
+        args: (type_: impl Display),
+        msg: format!(
+            "The type {type_} is not a valid built in type.",
+        ),
+        help: None,
+    }
 );

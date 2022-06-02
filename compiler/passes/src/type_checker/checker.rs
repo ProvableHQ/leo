@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{IntegerType, Type};
+use indexmap::IndexSet;
+use leo_ast::{IntegerType, Node, Type};
+use leo_core::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
 
@@ -25,6 +27,8 @@ pub struct TypeChecker<'a> {
     pub(crate) handler: &'a Handler,
     pub(crate) parent: Option<Symbol>,
     pub(crate) negate: bool,
+    pub(crate) account_types: IndexSet<Symbol>,
+    pub(crate) algorithms_types: IndexSet<Symbol>,
 }
 
 const INT_TYPES: [Type; 10] = [
@@ -74,6 +78,18 @@ impl<'a> TypeChecker<'a> {
             handler,
             parent: None,
             negate: false,
+            account_types: Account::types(),
+            algorithms_types: Algorithms::types(),
+        }
+    }
+
+    /// Validates that an ident type is a valid one.
+    pub(crate) fn validate_ident_type(&self, type_: &Option<Type>) {
+        if let Some(Type::Identifier(ident)) = type_ {
+            if !(self.account_types.contains(&ident.name) || self.algorithms_types.contains(&ident.name)) {
+                self.handler
+                    .emit_err(TypeCheckerError::invalid_built_in_type(&ident.name, ident.span()).into());
+            }
         }
     }
 
@@ -91,9 +107,9 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Returns the given type if it equals the expected type or the expected type is none.
-    pub(crate) fn assert_type(&self, type_: Type, expected: Option<Type>, span: Span) -> Type {
+    pub(crate) fn assert_type(&mut self, type_: Type, expected: &Option<Type>, span: Span) -> Type {
         if let Some(expected) = expected {
-            if type_ != expected {
+            if &type_ != expected {
                 self.handler
                     .emit_err(TypeCheckerError::type_should_be(type_, expected, span).into());
             }
@@ -103,9 +119,9 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Emits an error to the error handler if the given type is not equal to any of the expected types.
-    pub(crate) fn assert_one_of_types(&self, type_: Option<Type>, expected: &[Type], span: Span) {
+    pub(crate) fn assert_one_of_types(&self, type_: &Option<Type>, expected: &[Type], span: Span) {
         if let Some(type_) = type_ {
-            if !expected.iter().any(|t: &Type| t == &type_) {
+            if !expected.iter().any(|t: &Type| t == type_) {
                 self.handler.emit_err(
                     TypeCheckerError::expected_one_type_of(
                         expected.iter().map(|t| t.to_string() + ",").collect::<String>(),
@@ -119,22 +135,22 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Emits an error to the handler if the given type is not a field or integer.
-    pub(crate) fn assert_field_int_type(&self, type_: Option<Type>, span: Span) {
+    pub(crate) fn assert_field_int_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &FIELD_INT_TYPES, span)
     }
 
     /// Emits an error to the handler if the given type is not a field, scalar, or integer.
-    pub(crate) fn assert_field_scalar_int_type(&self, type_: Option<Type>, span: Span) {
+    pub(crate) fn assert_field_scalar_int_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &FIELD_SCALAR_INT_TYPES, span)
     }
 
     /// Emits an error to the handler if the given type is not a field, group, or integer.
-    pub(crate) fn assert_field_group_int_type(&self, type_: Option<Type>, span: Span) {
+    pub(crate) fn assert_field_group_int_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &FIELD_GROUP_INT_TYPES, span)
     }
 
     /// Emits an error to the handler if the given type is not a field, group, scalar or integer.
-    pub(crate) fn assert_field_group_scalar_int_type(&self, type_: Option<Type>, span: Span) {
+    pub(crate) fn assert_field_group_scalar_int_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &FIELD_GROUP_SCALAR_INT_TYPES, span)
     }
 }

@@ -16,21 +16,15 @@
 
 #![doc = include_str!("../README.md")]
 
-// Temporarily disable canonicalization.
-/* pub mod canonicalization;
-pub use canonicalization::*;
- */
+use indexmap::IndexSet;
+use leo_span::Symbol;
 
-// Temporarily disable import resolution
-// until we migrate core and then import resolution.
-/* pub mod import_resolution;
-pub use import_resolution::*; */
+mod account;
+pub use account::*;
 
-pub mod pass;
-pub use self::pass::*;
+mod algorithms;
+pub use algorithms::*;
 
-pub mod symbol_table;
-pub use symbol_table::*;
-
-pub mod type_checker;
-pub use type_checker::*;
+pub trait Types {
+    fn types() -> IndexSet<Symbol>;
+}

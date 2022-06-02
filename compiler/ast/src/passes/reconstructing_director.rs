@@ -258,7 +258,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
         let mut functions = IndexMap::new();
         for (name, function) in program.functions.iter() {
-            functions.insert(name.clone(), self.reduce_function(function)?);
+            functions.insert(*name, self.reduce_function(function)?);
         }
 
         self.reducer.reduce_program(program, inputs, functions)

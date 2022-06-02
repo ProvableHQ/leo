@@ -14,35 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod check_expressions;
-pub use check_expressions::*;
+use leo_ast::*;
+use leo_errors::emitter::Handler;
 
-pub mod check_file;
-pub use check_file::*;
+use crate::{SymbolTable, TypeChecker};
 
-pub mod check_statements;
-pub use check_statements::*;
+pub(crate) struct Director<'a> {
+    pub(crate) visitor: TypeChecker<'a>,
+}
 
-pub mod checker;
-pub use checker::*;
+impl<'a> Director<'a> {
+    pub(crate) fn new(symbol_table: &'a mut SymbolTable<'a>, handler: &'a Handler) -> Self {
+        Self {
+            visitor: TypeChecker::new(symbol_table, handler),
+        }
+    }
+}
 
-pub mod director;
-use director::*;
+impl<'a> VisitorDirector<'a> for Director<'a> {
+    type Visitor = TypeChecker<'a>;
 
-use crate::{Pass, SymbolTable};
+    fn visitor(self) -> Self::Visitor {
+        self.visitor
+    }
 
-use leo_ast::{Ast, ProgramVisitorDirector};
-use leo_errors::{emitter::Handler, Result};
-
-impl<'a> Pass<'a> for TypeChecker<'a> {
-    type Input = (&'a Ast, &'a mut SymbolTable<'a>, &'a Handler);
-    type Output = Result<()>;
-
-    fn do_pass((ast, symbol_table, handler): Self::Input) -> Self::Output {
-        let mut visitor = Director::new(symbol_table, handler);
-        visitor.visit_program(ast.as_repr());
-        handler.last_err()?;
-
-        Ok(())
+    fn visitor_ref(&mut self) -> &mut Self::Visitor {
+        &mut self.visitor
     }
 }

@@ -60,8 +60,6 @@ let x: const = expr;
 
 const x: let = expr;
 
-let x: mut = expr;
-
 let
 
 let x

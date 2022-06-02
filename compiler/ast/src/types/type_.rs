@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::IntegerType;
+use crate::{Identifier, IntegerType};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -37,6 +37,8 @@ pub enum Type {
     String,
     /// An integer type.
     IntegerType(IntegerType),
+    /// A reference to a built in type.
+    Identifier(Identifier),
 
     /// Placeholder for a type that could not be resolved or was not well-formed.
     /// Will eventually lead to a compile error.
@@ -58,6 +60,7 @@ impl Type {
             | (Type::Scalar, Type::Scalar)
             | (Type::String, Type::String) => true,
             (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(right),
+            (Type::Identifier(left), Type::Identifier(right)) => left.eq(right),
             _ => false,
         }
     }
@@ -73,6 +76,7 @@ impl fmt::Display for Type {
             Type::Scalar => write!(f, "scalar"),
             Type::String => write!(f, "string"),
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
+            Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
             Type::Err => write!(f, "error"),
         }
     }

@@ -14,23 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![doc = include_str!("../README.md")]
+use crate::Types;
 
-// Temporarily disable canonicalization.
-/* pub mod canonicalization;
-pub use canonicalization::*;
- */
+use indexmap::IndexSet;
+use leo_span::Symbol;
 
-// Temporarily disable import resolution
-// until we migrate core and then import resolution.
-/* pub mod import_resolution;
-pub use import_resolution::*; */
+pub struct Algorithms;
 
-pub mod pass;
-pub use self::pass::*;
-
-pub mod symbol_table;
-pub use symbol_table::*;
-
-pub mod type_checker;
-pub use type_checker::*;
+impl Types for Algorithms {
+    fn types() -> IndexSet<Symbol> {
+        IndexSet::from([Symbol::intern("Poseidon")])
+    }
+}

@@ -30,12 +30,12 @@ use std::{
     hash::{Hash, Hasher},
 };
 
-/// An identifier in the constrained program.
+/// An identifier in a program.
 ///
 /// Attention - When adding or removing fields from this struct,
 /// please remember to update its Serialize and Deserialize implementation
 /// to reflect the new struct instantiation.
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct Identifier {
     /// The symbol that the user wrote, e.g., `foo`.
     pub name: Symbol,
