@@ -229,10 +229,24 @@ impl ParserContext<'_> {
         let mut expr = self.parse_primary_expression()?;
         loop {
             if self.eat(&Token::Dot) {
+                // Handle method call expression.
+                if let Some(method) = self.eat_identifier() {
+                    if self.check(&Token::LeftParen) {
+                        let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
+                        expr = Expression::Method(MethodCallExpression {
+                            span: expr.span() + span,
+                            receiver: Box::new(expr),
+                            method,
+                            arguments,
+                        });
+                        println!("expr {}", expr);
+                        continue;
+                    }
+                }
                 let curr = &self.token;
                 return Err(ParserError::unexpected_str(&curr.token, "int or ident", curr.span).into());
-            }
 
+            }
             if !self.check(&Token::LeftParen) {
                 break;
             }

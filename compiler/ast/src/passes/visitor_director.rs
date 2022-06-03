@@ -41,6 +41,7 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
                 Expression::Unary(expr) => self.visit_unary(expr, additional),
                 Expression::Ternary(expr) => self.visit_ternary(expr, additional),
                 Expression::Call(expr) => self.visit_call(expr, additional),
+                Expression::Method(expr) => self.visit_method(expr, additional),
                 Expression::Err(expr) => self.visit_err(expr, additional),
             };
         }
@@ -92,6 +93,16 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
 
     fn visit_call(&mut self, input: &'a CallExpression, additional: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_call(input) {
+            input.arguments.iter().for_each(|expr| {
+                self.visit_expression(expr, additional);
+            });
+        }
+        None
+    }
+
+    fn visit_method(&mut self, input: &'a MethodCallExpression, additional: &Self::AdditionalInput) -> Option<Self::Output> {
+        self.visit_expression(&input.receiver, additional);
+        if let VisitResult::VisitChildren = self.visitor_ref().visit_method(input) {
             input.arguments.iter().for_each(|expr| {
                 self.visit_expression(expr, additional);
             });

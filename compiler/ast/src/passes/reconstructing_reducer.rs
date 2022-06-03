@@ -123,6 +123,21 @@ pub trait ReconstructingReducer {
         })
     }
 
+    fn reduce_method(
+        &mut self,
+        method: &MethodCallExpression,
+        receiver: Expression,
+        method_id: Identifier,
+        arguments: Vec<Expression>,
+    ) -> Result<MethodCallExpression> {
+        Ok(MethodCallExpression {
+            receiver: Box::new(receiver),
+            method: method_id,
+            arguments,
+            span: method.span,
+        })
+    }
+
     // Statements
     fn reduce_statement(&mut self, _statement: &Statement, new: Statement) -> Result<Statement> {
         Ok(new)

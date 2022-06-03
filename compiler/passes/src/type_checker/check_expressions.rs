@@ -54,6 +54,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                 Expression::Unary(expr) => self.visit_unary(expr, expected),
                 Expression::Ternary(expr) => self.visit_ternary(expr, expected),
                 Expression::Call(expr) => self.visit_call(expr, expected),
+                Expression::Method(expr) => self.visit_method(expr, expected),
                 Expression::Err(expr) => self.visit_err(expr, expected),
             };
         }
@@ -402,5 +403,39 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
             }
             expr => self.visit_expression(expr, expected),
         }
+    }
+
+    fn visit_method(&mut self, input: &'a MethodCallExpression, expected: &Self::AdditionalInput) -> Option<Self::Output> {
+        None
+        // input.receiver.
+        //
+        // if let Some(func) = self.visitor.symbol_table.clone().lookup_fn(&input.method.name) {
+        //     let ret = self.visitor.assert_type(func.output, expected, func.span());
+        //
+        //     if func.input.len() != input.arguments.len() {
+        //         self.visitor.handler.emit_err(
+        //             TypeCheckerError::incorrect_num_args_to_call(
+        //                 func.input.len(),
+        //                 input.arguments.len(),
+        //                 input.span(),
+        //             )
+        //                 .into(),
+        //         );
+        //     }
+        //
+        //     func.input
+        //         .iter()
+        //         .zip(input.arguments.iter())
+        //         .for_each(|(expected, argument)| {
+        //             self.visit_expression(argument, &Some(expected.get_variable().type_));
+        //         });
+        //
+        //     Some(ret)
+        // } else {
+        //     self.visitor
+        //         .handler
+        //         .emit_err(TypeCheckerError::unknown_sym("method", &ident.name, ident.span()).into());
+        //     None
+        // }
     }
 }

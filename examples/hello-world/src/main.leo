@@ -1,4 +1,3 @@
-function main() -> bool {
-    console.log("hello world");
-    return true;
+function main(a: u8, b: u8) -> u8 {
+    return a.add(b);
 }
