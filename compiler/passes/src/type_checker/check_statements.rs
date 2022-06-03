@@ -31,6 +31,7 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
 
         let return_type = &self.visitor.symbol_table.lookup_fn(&parent).map(|f| f.output);
         self.visitor.validate_ident_type(return_type);
+        self.visitor.has_return = true;
 
         self.visit_expression(&input.expression, return_type);
     }
@@ -45,6 +46,8 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
         input.variable_names.iter().for_each(|v| {
             self.visitor.validate_ident_type(&Some(input.type_));
 
+            self.visit_expression(&input.value, &Some(input.type_));
+
             if let Err(err) = self.visitor.symbol_table.insert_variable(
                 v.identifier.name,
                 VariableSymbol {
@@ -55,8 +58,6 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
             ) {
                 self.visitor.handler.emit_err(err);
             }
-
-            self.visit_expression(&input.value, &Some(input.type_));
         });
     }
 
@@ -92,6 +93,10 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
 
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
         self.visit_expression(&input.condition, &Some(Type::Boolean));
+        self.visit_block(&input.block);
+        if let Some(s) = input.next.as_ref() {
+            self.visit_statement(s)
+        }
     }
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
@@ -124,8 +129,8 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
     }
 
     fn visit_block(&mut self, input: &'a Block) {
+        // creates a new sub-scope since we are in a block.
         self.visitor.symbol_table.push_variable_scope();
-        // have to redo the logic here so we have scoping
         input.statements.iter().for_each(|stmt| {
             match stmt {
                 Statement::Return(stmt) => self.visit_return(stmt),
