@@ -14,15 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![allow(clippy::module_inception)]
-#![allow(clippy::upper_case_acronyms)]
-#![doc = include_str!("../README.md")]
-
-mod compiler;
-pub use compiler::*;
-
-mod options;
-pub use options::*;
-
-#[cfg(test)]
-mod test;
+#[derive(Clone, Default)]
+pub struct OutputOptions {
+    pub spans_enabled: bool,
+    pub ast_initial: bool,
+	pub input_ast_initial: bool,
+}

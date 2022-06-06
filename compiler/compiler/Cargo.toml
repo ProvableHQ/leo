@@ -18,6 +18,11 @@ license = "GPL-3.0"
 edition = "2021"
 rust-version = "1.56.1"
 
+[[bench]]
+name = "leo_compiler"
+path = "benches/leo_compiler.rs"
+harness = false
+
 [dependencies.leo-ast]
 path = "../ast"
 version = "1.5.3"
@@ -40,6 +45,9 @@ version = "0.10"
 [dependencies.leo-span]
 path = "../../leo/span"
 version = "1.5.3"
+
+[dev-dependencies.criterion]
+version = "0.3"
 
 [dev-dependencies.leo-test-framework]
 path = "../../tests/test-framework"

@@ -21,7 +21,7 @@ use std::{
     rc::Rc,
 };
 
-use crate::Compiler;
+use crate::{Compiler, OutputOptions};
 
 use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
@@ -40,7 +40,11 @@ fn new_compiler(handler: &Handler, main_file_path: PathBuf) -> Compiler<'_> {
     let output_dir = PathBuf::from("/tmp/output/");
     fs::create_dir_all(output_dir.clone()).unwrap();
 
-    Compiler::new(handler, main_file_path, output_dir)
+    Compiler::new(handler, main_file_path, output_dir, Some(OutputOptions {
+        spans_enabled: false,
+        input_ast_initial: true,
+        ast_initial: true,
+    }))
 }
 
 fn parse_program<'a>(
@@ -124,7 +128,7 @@ fn collect_all_inputs(test: &Test) -> Result<Vec<PathBuf>, String> {
 }
 
 fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<SymbolTable<'a>, LeoError> {
-    parsed.compiler_stages()
+    parsed.compile()
 }
 
 // Errors used in this module.

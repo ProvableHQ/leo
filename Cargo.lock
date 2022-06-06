@@ -1224,6 +1224,7 @@ dependencies = [
 name = "leo-compiler"
 version = "1.5.3"
 dependencies = [
+ "criterion",
  "leo-ast",
  "leo-errors",
  "leo-parser",
