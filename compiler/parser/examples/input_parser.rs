@@ -17,11 +17,11 @@
 use leo_errors::{emitter::Handler, Result};
 use leo_span::symbol::create_session_if_not_set_then;
 
+use clap::StructOpt;
 use std::{
     fs,
     path::{Path, PathBuf},
 };
-use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -43,7 +43,7 @@ struct Opt {
 }
 
 fn main() -> Result<(), String> {
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
     let input_tree = create_session_if_not_set_then(|s| {
         let input_string = s
             .source_map

@@ -25,7 +25,7 @@ use leo_package::{
     source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
-use structopt::StructOpt;
+use clap::StructOpt;
 use tracing::span::Span;
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
@@ -92,7 +92,6 @@ pub struct BuildOptions {
 
 /// Compile and build program command.
 #[derive(StructOpt, Debug)]
-#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Build {
     #[allow(dead_code)]
     #[structopt(flatten)]

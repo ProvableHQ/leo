@@ -54,8 +54,12 @@ version = "0.8"
 # path = "../compiler"
 # version = "1.5.2"
 
-[dependencies.structopt]
-version = "0.3"
+# [dependencies.structopt]
+# version = "0.3"
+
+[dependencies.clap]
+version = "3.1.18"
+features = ["derive"]
 
 # List of dependencies for errcov
 
