@@ -14,19 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::SymbolTable;
-
 use leo_ast::{Function, Identifier};
 use leo_errors::emitter::Handler;
 
 use std::collections::HashMap;
 
 pub struct CodeGenerator<'a> {
-    /// Symbol table.
-    // TODO: Including this for now. Remove if not needed.
-    symbol_table: &'a mut SymbolTable<'a>,
-    /// Error handler.
-    handler: &'a Handler,
+    _handler: &'a Handler,
     /// A counter to track the next available register.
     pub(crate) next_register: u64,
     /// Reference to the current function.
@@ -37,10 +31,9 @@ pub struct CodeGenerator<'a> {
 
 impl<'a> CodeGenerator<'a> {
     /// Initializes a new `CodeGenerator`.
-    pub fn new(symbol_table: &'a mut SymbolTable<'a>, handler: &'a Handler) -> Self {
+    pub fn new(handler: &'a Handler) -> Self {
         Self {
-            symbol_table,
-            handler,
+            _handler: handler,
             next_register: 0,
             current_function: None,
             variable_mapping: HashMap::new(),

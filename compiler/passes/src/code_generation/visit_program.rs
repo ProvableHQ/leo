@@ -19,6 +19,7 @@ use crate::CodeGenerator;
 use leo_ast::{Function, Program};
 
 use itertools::Itertools;
+use std::collections::HashMap;
 
 impl<'a> CodeGenerator<'a> {
     pub(crate) fn visit_program(&mut self, input: &'a Program) -> String {
@@ -27,12 +28,37 @@ impl<'a> CodeGenerator<'a> {
             .functions
             .values()
             .map(|function| self.visit_function(function))
-            .join("")
+            .join("\n")
     }
 
-    fn visit_function(&mut self, input: &'a Function) -> String {
-        let block_string = self.visit_block(&input.block);
+    fn visit_function(&mut self, function: &'a Function) -> String {
+        // Initialize the state of `self` with the appropriate values before visiting `function`.
+        self.next_register = 0;
+        self.variable_mapping = HashMap::new();
+        self.current_function = Some(function);
 
-        String::new()
+        // Construct the header of the function.
+        let mut function_string = format!("function {}: ", function.identifier);
+
+        // Construct and append the input declarations of the function.
+        for input in function.input.iter() {
+            let register_string = format!("r{}", self.next_register);
+            self.variable_mapping
+                .insert(&input.get_variable().identifier, register_string.clone());
+
+            let type_string = self.visit_type(&input.get_variable().type_);
+            function_string.push_str(&format!(
+                "input {} as {}.{};",
+                register_string,
+                type_string,
+                input.get_variable().mode()
+            ))
+        }
+
+        //  Construct and append the function body.
+        let block_string = self.visit_block(&function.block);
+        function_string.push_str(&block_string);
+
+        function_string
     }
 }

@@ -61,35 +61,31 @@ impl<'a> CodeGenerator<'a> {
         }
     }
 
-    fn visit_assign(&mut self, input: &'a AssignStatement) -> String {
+    fn visit_assign(&mut self, _input: &'a AssignStatement) -> String {
         // Note: SSA form requires that a variable is assigned to only once.
         // Since we do not have a compiler pass that transforms the AST into SSA form,
         // we will disallow `AssignStatement`s. This will only be the case for this prototype.
         unimplemented!("Code generation is not implemented for `AssignStatement`s.")
     }
 
-    fn visit_conditional(&mut self, input: &'a ConditionalStatement) -> String {
+    fn visit_conditional(&mut self, _input: &'a ConditionalStatement) -> String {
         // Note: This requires that the AST is in static-single assignment form.
         // It is not possible to provide an input program with a conditional statement in SSA form as
         // complete SSA has different semantics from source Leo programs.
         unimplemented!("Code generation is not implemented for conditional statements.")
     }
 
-    fn visit_iteration(&mut self, input: &'a IterationStatement) -> String {
+    fn visit_iteration(&mut self, _input: &'a IterationStatement) -> String {
         unreachable!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 
-    fn visit_console(&mut self, input: &'a ConsoleStatement) -> String {
+    fn visit_console(&mut self, _input: &'a ConsoleStatement) -> String {
         // `ConsoleStatement`s do not need to be included in the bytecode.
         String::new()
     }
 
     pub(crate) fn visit_block(&mut self, input: &'a Block) -> String {
         // For each statement in the block, visit it and add its instructions to the list.
-        input
-            .statements
-            .iter()
-            .map(|stmt| self.visit_statement(stmt))
-            .join("")
+        input.statements.iter().map(|stmt| self.visit_statement(stmt)).join("")
     }
 }

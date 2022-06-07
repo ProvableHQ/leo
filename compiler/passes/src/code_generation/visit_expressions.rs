@@ -105,7 +105,7 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_ternary(&mut self, input: &'a TernaryExpression) -> (String, String) {
-        let (condition_operand, mut condition_instructions) = self.visit_expression(&input.condition);
+        let (condition_operand, condition_instructions) = self.visit_expression(&input.condition);
         let (if_true_operand, if_true_instructions) = self.visit_expression(&input.if_true);
         let (if_false_operand, if_false_instructions) = self.visit_expression(&input.if_false);
 
@@ -127,11 +127,11 @@ impl<'a> CodeGenerator<'a> {
         (destination_register, instructions)
     }
 
-    fn visit_call(&mut self, input: &'a CallExpression) -> (String, String) {
+    fn visit_call(&mut self, _input: &'a CallExpression) -> (String, String) {
         unreachable!("`CallExpression`s should not be in the AST at this phase of compilation.")
     }
 
-    fn visit_err(&mut self, input: &'a ErrExpression) -> (String, String) {
+    fn visit_err(&mut self, _input: &'a ErrExpression) -> (String, String) {
         unreachable!("`ErrExpression`s should not be in the AST at this phase of compilation.")
     }
 }

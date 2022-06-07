@@ -50,6 +50,12 @@ pub struct BuildOptions {
     pub enable_canonicalized_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot after the type inference phase.")]
     pub enable_type_inferenced_ast_snapshot: bool,
+    // Note: This is currently made optional since code generation is just a prototype.
+    #[structopt(
+        long,
+        help = "Runs the code generation stage of the compiler and prints the resulting bytecode."
+    )]
+    pub enable_code_generation: bool,
 }
 
 // impl From<BuildOptions> for CompilerOptions {
@@ -187,8 +193,19 @@ impl Command for Build {
         // Compute the current program checksum
         let program_checksum = program.checksum()?;
 
-        // Compile the program
-        program.compile()?;
+        // Compile the program.
+        // TODO: Remove when code generation is ready to be integrated into the compiler.
+        match self.compiler_options.enable_code_generation {
+            false => {
+                program.compile()?;
+            }
+            true => {
+                let (_, bytecode) = program.compile_and_generate_bytecode()?;
+                // TODO: Remove when AVM output file format is stabilized.
+                tracing::info!("Printing bytecode...");
+                println!("{}", bytecode);
+            }
+        }
 
         // Generate the program on the constraint system and verify correctness
         {

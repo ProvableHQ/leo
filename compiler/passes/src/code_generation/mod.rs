@@ -25,22 +25,21 @@ mod visit_statements;
 
 mod visit_type;
 
-use crate::{Pass, SymbolTable};
+use crate::Pass;
 
 use leo_ast::Ast;
 use leo_errors::emitter::Handler;
 use leo_errors::Result;
 
-
 impl<'a> Pass<'a> for CodeGenerator<'a> {
-    type Input = (&'a Ast, &'a mut SymbolTable<'a>, &'a Handler);
-    type Output = Result<()>;
+    type Input = (&'a Ast, &'a Handler);
+    type Output = Result<String>;
 
-    fn do_pass((ast, symbol_table, handler): Self::Input) -> Self::Output {
-        let mut generator = Self::new(symbol_table, handler);
-        generator.visit_program(ast.as_repr());
+    fn do_pass((ast, handler): Self::Input) -> Self::Output {
+        let mut generator = Self::new(handler);
+        let bytecode = generator.visit_program(ast.as_repr());
         handler.last_err()?;
 
-        Ok(())
+        Ok(bytecode)
     }
 }
