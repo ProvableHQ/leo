@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,26 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![doc = include_str!("../README.md")]
+use crate::CodeGenerator;
 
-// Temporarily disable canonicalization.
-/* pub mod canonicalization;
-pub use canonicalization::*;
- */
+use leo_ast::{Function, Program};
 
-// Temporarily disable import resolution
-// until we migrate core and then import resolution.
-/* pub mod import_resolution;
-pub use import_resolution::*; */
+use itertools::Itertools;
 
-pub mod code_generation;
-pub use code_generation::*;
+impl<'a> CodeGenerator<'a> {
+    pub(crate) fn visit_program(&mut self, input: &'a Program) -> String {
+        // Visit each `Function` in the Leo AST and produce a bytecode function.
+        input
+            .functions
+            .values()
+            .map(|function| self.visit_function(function))
+            .join("")
+    }
 
-pub mod pass;
-pub use self::pass::*;
+    fn visit_function(&mut self, input: &'a Function) -> String {
+        let block_string = self.visit_block(&input.block);
 
-pub mod symbol_table;
-pub use symbol_table::*;
-
-pub mod type_checker;
-pub use type_checker::*;
+        String::new()
+    }
+}
