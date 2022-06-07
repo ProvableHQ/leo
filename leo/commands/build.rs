@@ -202,7 +202,7 @@ impl Command for Build {
             true => {
                 let (_, bytecode) = program.compile_and_generate_bytecode()?;
                 // TODO: Remove when AVM output file format is stabilized.
-                tracing::info!("Printing bytecode...");
+                tracing::info!("Printing bytecode...\n");
                 println!("{}", bytecode);
             }
         }

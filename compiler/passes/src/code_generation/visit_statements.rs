@@ -40,7 +40,7 @@ impl<'a> CodeGenerator<'a> {
         let (operand, mut expression_instructions) = self.visit_expression(&input.expression);
         let output_type = self.visit_type(&self.current_function.unwrap().output);
         // TODO: Bytecode functions have an associated output mode. Currently defaulting to private since we do not yet support this at the Leo level.
-        let output_statement = format!("output {} as {}.private;", operand, output_type);
+        let output_statement = format!("    output {} as {}.private;\n", operand, output_type);
         expression_instructions.push_str(&output_statement);
 
         expression_instructions
@@ -55,7 +55,7 @@ impl<'a> CodeGenerator<'a> {
             true => {
                 let (operand, expression_instructions) = self.visit_expression(&input.value);
                 self.variable_mapping
-                    .insert(&input.variable_names[0].identifier, operand.clone());
+                    .insert(&input.variable_names[0].identifier.name, operand.clone());
                 expression_instructions
             }
         }

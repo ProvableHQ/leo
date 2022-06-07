@@ -38,17 +38,19 @@ impl<'a> CodeGenerator<'a> {
         self.current_function = Some(function);
 
         // Construct the header of the function.
-        let mut function_string = format!("function {}: ", function.identifier);
+        let mut function_string = format!("function {}:\n", function.identifier);
 
         // Construct and append the input declarations of the function.
         for input in function.input.iter() {
             let register_string = format!("r{}", self.next_register);
+            self.next_register += 1;
+
             self.variable_mapping
-                .insert(&input.get_variable().identifier, register_string.clone());
+                .insert(&input.get_variable().identifier.name, register_string.clone());
 
             let type_string = self.visit_type(&input.get_variable().type_);
             function_string.push_str(&format!(
-                "input {} as {}.{};",
+                "    input {} as {}.{};\n",
                 register_string,
                 type_string,
                 input.get_variable().mode()

@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Function, Identifier};
+use leo_ast::Function;
 use leo_errors::emitter::Handler;
+use leo_span::Symbol;
 
 use std::collections::HashMap;
 
@@ -26,7 +27,7 @@ pub struct CodeGenerator<'a> {
     /// Reference to the current function.
     pub(crate) current_function: Option<&'a Function>,
     /// Mapping of variables to registers.
-    pub(crate) variable_mapping: HashMap<&'a Identifier, String>,
+    pub(crate) variable_mapping: HashMap<&'a Symbol, String>,
 }
 
 impl<'a> CodeGenerator<'a> {

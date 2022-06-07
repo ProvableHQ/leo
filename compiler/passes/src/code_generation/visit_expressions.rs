@@ -39,7 +39,7 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_identifier(&mut self, input: &'a Identifier) -> (String, String) {
-        (self.variable_mapping.get(input).unwrap().clone(), String::new())
+        (self.variable_mapping.get(&input.name).unwrap().clone(), String::new())
     }
 
     fn visit_value(&mut self, input: &'a ValueExpression) -> (String, String) {
@@ -68,7 +68,7 @@ impl<'a> CodeGenerator<'a> {
 
         let destination_register = format!("r{}", self.next_register);
         let binary_instruction = format!(
-            "{} {} {} into {}",
+            "    {} {} {} into {};\n",
             opcode, left_operand, right_operand, destination_register
         );
 
@@ -92,7 +92,7 @@ impl<'a> CodeGenerator<'a> {
         };
 
         let destination_register = format!("r{}", self.next_register);
-        let unary_instruction = format!("{} {} into {};", opcode, expression_operand, destination_register);
+        let unary_instruction = format!("    {} {} into {};\n", opcode, expression_operand, destination_register);
 
         // Increment the register counter.
         self.next_register += 1;
@@ -111,7 +111,7 @@ impl<'a> CodeGenerator<'a> {
 
         let destination_register = format!("r{}", self.next_register);
         let ternary_instruction = format!(
-            "ternary {} {} {} into r{};",
+            "    ternary {} {} {} into r{};\n",
             condition_operand, if_true_operand, if_false_operand, destination_register
         );
 
