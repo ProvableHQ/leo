@@ -132,8 +132,10 @@ fn collect_all_inputs(test: &Test) -> Result<Vec<PathBuf>, String> {
     Ok(list)
 }
 
-fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<SymbolTable<'a>, LeoError> {
-    parsed.compile()
+fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<SymbolTable<'_>, LeoError> {
+    let mut st = parsed.symbol_table_pass()?;
+    parsed.type_checker_pass(&mut st)?;
+    Ok(st)
 }
 
 // Errors used in this module.
@@ -203,7 +205,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         for input in inputs {
             let mut parsed = parsed.clone();
             handler.extend_if_error(parsed.parse_input(input))?;
-            let initial_input_ast = hash_file("/tmp/output/inital_input_ast.json");
+            let initial_input_ast = hash_file("/tmp/output/initial_input_ast.json");
 
             output_items.push(OutputItem { initial_input_ast });
         }

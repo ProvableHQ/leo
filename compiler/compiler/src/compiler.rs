@@ -147,23 +147,24 @@ impl<'a> Compiler<'a> {
     ///
     /// Runs the type checker pass.
     ///
-    pub fn type_checker_pass(&'a self, symbol_table: &'a mut SymbolTable<'a>) -> Result<()> {
-        TypeChecker::do_pass((&self.ast, symbol_table, self.handler))
+    pub fn type_checker_pass(&'a self, symbol_table: &mut SymbolTable<'_>) -> Result<()> {
+        TypeChecker::do_pass((&self.ast, &mut symbol_table.clone(), self.handler))
     }
 
     ///
     /// Runs the compiler stages.
     ///
-    fn compiler_stages(&self) -> Result<SymbolTable<'_>> {
-        let symbol_table = self.symbol_table_pass()?;
-        self.type_checker_pass(&mut symbol_table.clone())?;
-        Ok(symbol_table)
+    pub fn compiler_stages(&self) -> Result<SymbolTable<'_>> {
+        let mut st = self.symbol_table_pass()?;
+        self.type_checker_pass(&mut st)?;
+        Ok(st)
     }
 
     ///
     /// Returns a compiled Leo program.
     ///
-    pub fn compile(&self) -> Result<SymbolTable<'_>> {
+    pub fn compile(&mut self) -> Result<SymbolTable<'_>> {
+        self.parse_program()?;
         self.compiler_stages()
     }
 }

@@ -1355,6 +1355,7 @@ dependencies = [
 name = "leo-test-framework"
 version = "1.5.3"
 dependencies = [
+ "backtrace",
  "leo-errors",
  "regex",
  "serde",

@@ -181,7 +181,6 @@ impl Command for Build {
             output_directory,
             Some(self.compiler_options.into()),
         );
-        program.parse_program()?;
         program.parse_input(input_path.to_path_buf())?;
 
         // Compute the current program checksum
