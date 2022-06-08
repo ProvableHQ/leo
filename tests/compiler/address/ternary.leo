@@ -7,8 +7,8 @@ input_file:
 */
 
 function main(x: address) -> bool {
-    const sender: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9;
-    const receiver: address = aleo18qgam03qe483tdrcc3fkqwpp38ehff4a2xma6lu7hams6lfpgcpqy3sr3p;
+    const sender: address = aleo1l7ytv5jqjzpxtjqttl5z9mle8ujcpac9t6tkge5f4haah4pxas8sagzecd;
+    const receiver: address = aleo1dtpkpg3d653mdlzh6g028937qdgujecn5gw5tzh7ftcvyz7jxvfqw6t8p6;
 
     return x == sender ? receiver == x : sender == x;
 }

@@ -6,10 +6,10 @@ input_file: inputs/branch.in
 
 
 function main (x: address, y: bool) -> bool {
-    let z: address = aleo18cw5zdez3zhypev3tnfhmwvhre9ramwle4up947gcyy5rnmjw5yqn93wsr;
+    let z: address = aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx;
     if y {
-        z = aleo1f2gs8g0qpumlgzpvmkw3q07y6xrwsdr0lqsu9h9fgnh8d7e44v9qhpgpkj;
+        z = aleo16s003g206rjms5pm4ak48340f7y4z4dsskuqfrd2gvqz6umh2qfq7lajfp;
     }
 
-    return z == aleo1f2gs8g0qpumlgzpvmkw3q07y6xrwsdr0lqsu9h9fgnh8d7e44v9qhpgpkj;
+    return z == aleo1drcl2g8zxhxjzjw63ajp067gzvl94am3z7m7wgrzmr2ecd5sdq8sy66l5k;
 }

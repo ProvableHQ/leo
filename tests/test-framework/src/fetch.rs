@@ -18,22 +18,20 @@ use std::{fs, path::Path};
 
 use walkdir::WalkDir;
 
-pub fn find_tests<T: AsRef<Path> + Copy>(path: T, filter: T) -> Vec<(String, String)> {
-    let count = WalkDir::new(path)
+pub fn find_tests<T: AsRef<Path> + Copy>(path: T) -> Vec<(String, String)> {
+    WalkDir::new(path)
         .into_iter()
         .flatten()
         .filter_map(|f| {
             let path = f.path();
-            if matches!(path.extension(), Some(s) if s == "leo") && !path.starts_with(filter) {
+            if matches!(path.extension(), Some(s) if s == "leo") {
                 let content = fs::read_to_string(path).expect("failed to read test");
                 Some((path.to_str().unwrap_or_default().to_string(), content))
             } else {
                 None
             }
         })
-        .collect::<Vec<(String, String)>>();
-    dbg!("find_tests count {}", count.len());
-    count
+        .collect::<Vec<(String, String)>>()
 }
 
 pub fn split_tests_one_line(source: &str) -> Vec<&str> {

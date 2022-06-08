@@ -15,15 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_compiler::Compiler;
-use leo_errors::emitter::Handler;
+use leo_errors::emitter::{Emitter, Handler};
 use leo_span::{
     source_map::FileName,
     symbol::{SessionGlobals, SESSION_GLOBALS},
 };
-use leo_test_framework::{
-    runner::{Namespace, ParseType, Runner},
-    Test,
-};
+use leo_test_framework::get_benches;
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use std::{
@@ -31,37 +28,65 @@ use std::{
     time::{Duration, Instant},
 };
 
-macro_rules! sample {
-    ($name:expr) => {
-        Sample {
-            name: $name,
-            input: include_str!(concat!("./", $name, ".leo")),
-            path: concat!("./", $name, ".leo"),
-        }
-    };
+enum BenchMode {
+    Parse,
+    Symbol,
+    Type,
+    Full,
 }
 
-#[derive(Clone, Copy)]
+struct BufEmitter;
+
+impl Emitter for BufEmitter {
+    fn emit_err(&mut self, _: leo_errors::LeoError) {}
+
+    fn last_emitted_err_code(&self) -> Option<i32> {
+        Some(0)
+    }
+
+    fn emit_warning(&mut self, _: leo_errors::LeoWarning) {}
+}
+
+impl BufEmitter {
+    fn new_handler() -> Handler {
+        Handler::new(Box::new(Self))
+    }
+}
+
+#[derive(Clone)]
 struct Sample {
-    name: &'static str,
-    input: &'static str,
-    path: &'static str,
+    name: String,
+    input: String,
 }
 
-fn new_compiler<'a>(handler: &'a Handler, main_file_path: &str) -> Compiler<'a> {
+fn new_compiler(handler: &Handler) -> Compiler<'_> {
     Compiler::new(
         handler,
-        PathBuf::from(main_file_path),
-        PathBuf::from("/tmp/output/"),
+        PathBuf::from(String::new()),
+        PathBuf::from(String::new()),
         None,
     )
 }
 
 impl Sample {
-    const SAMPLES: &'static [Sample] = &[sample!("big"), sample!("iteration")];
+    fn load_samples() -> Vec<Self> {
+        get_benches()
+            .into_iter()
+            .map(|(name, input)| Self { name, input })
+            .collect()
+    }
 
     fn data(&self) -> (&str, FileName) {
-        black_box((self.input, FileName::Custom(self.path.into())))
+        black_box((&self.input, FileName::Custom(String::new())))
+    }
+
+    fn bench(&self, c: &mut Criterion, mode: BenchMode) {
+        match mode {
+            BenchMode::Parse => self.bench_parse(c),
+            BenchMode::Symbol => self.bench_symbol_table(c),
+            BenchMode::Type => self.bench_type_checker(c),
+            BenchMode::Full => self.bench_full(c),
+        }
     }
 
     fn bench_parse(&self, c: &mut Criterion) {
@@ -70,8 +95,8 @@ impl Sample {
                 let mut time = Duration::default();
                 for _ in 0..iters {
                     SESSION_GLOBALS.set(&SessionGlobals::default(), || {
-                        let handler = Handler::default();
-                        let mut compiler = new_compiler(&handler, self.path);
+                        let handler = BufEmitter::new_handler();
+                        let mut compiler = new_compiler(&handler);
                         let (input, name) = self.data();
                         let start = Instant::now();
                         let out = compiler.parse_program_from_string(input, name);
@@ -90,8 +115,8 @@ impl Sample {
                 let mut time = Duration::default();
                 for _ in 0..iters {
                     SESSION_GLOBALS.set(&SessionGlobals::default(), || {
-                        let handler = Handler::default();
-                        let mut compiler = new_compiler(&handler, self.path);
+                        let handler = BufEmitter::new_handler();
+                        let mut compiler = new_compiler(&handler);
                         let (input, name) = self.data();
                         compiler
                             .parse_program_from_string(input, name)
@@ -113,8 +138,8 @@ impl Sample {
                 let mut time = Duration::default();
                 for _ in 0..iters {
                     SESSION_GLOBALS.set(&SessionGlobals::default(), || {
-                        let handler = Handler::default();
-                        let mut compiler = new_compiler(&handler, self.path);
+                        let handler = BufEmitter::new_handler();
+                        let mut compiler = new_compiler(&handler);
                         let (input, name) = self.data();
                         compiler
                             .parse_program_from_string(input, name)
@@ -137,8 +162,8 @@ impl Sample {
                 let mut time = Duration::default();
                 for _ in 0..iters {
                     SESSION_GLOBALS.set(&SessionGlobals::default(), || {
-                        let handler = Handler::default();
-                        let mut compiler = new_compiler(&handler, self.path);
+                        let handler = BufEmitter::new_handler();
+                        let mut compiler = new_compiler(&handler);
                         let (input, name) = self.data();
                         let start = Instant::now();
                         compiler
@@ -157,37 +182,26 @@ impl Sample {
     }
 }
 
-fn bench_parse(c: &mut Criterion) {
-    for sample in Sample::SAMPLES {
-        sample.bench_parse(c);
-    }
+macro_rules! bench {
+    ($name:ident, $mode:expr) => {
+        fn $name(c: &mut Criterion) {
+            Sample::load_samples().into_iter().for_each(|s| s.bench(c, $mode))
+        }
+    };
 }
 
-fn bench_symbol_table(c: &mut Criterion) {
-    for sample in Sample::SAMPLES {
-        sample.bench_symbol_table(c);
-    }
-}
-
-fn bench_type_checker(c: &mut Criterion) {
-    for sample in Sample::SAMPLES {
-        sample.bench_type_checker(c);
-    }
-}
-
-fn bench_full(c: &mut Criterion) {
-    for sample in Sample::SAMPLES {
-        sample.bench_full(c);
-    }
-}
+bench!(bench_parse, BenchMode::Parse);
+bench!(bench_symbol, BenchMode::Symbol);
+bench!(bench_type, BenchMode::Type);
+bench!(bench_full, BenchMode::Full);
 
 criterion_group!(
     name = benches;
-    config = Criterion::default().sample_size(200).measurement_time(Duration::from_secs(30)).nresamples(200_000);
+    config = Criterion::default().sample_size(200).measurement_time(Duration::from_secs(5)).nresamples(200_000);
     targets =
         bench_parse,
-        bench_symbol_table,
-        bench_type_checker,
+        bench_symbol,
+        bench_type,
         bench_full
 );
 criterion_main!(benches);

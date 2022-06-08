@@ -88,9 +88,13 @@ pub struct TestCases {
 }
 
 impl TestCases {
-    fn new(additional_check: impl Fn(&TestConfig) -> bool) -> (Self, Vec<TestConfig>) {
+    fn new(expectation_category: &str, additional_check: impl Fn(&TestConfig) -> bool) -> (Self, Vec<TestConfig>) {
         let mut path_prefix = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path_prefix.push("../../tests/");
+        path_prefix.push(expectation_category);
+        if let Ok(p) = std::env::var("TEST_FILTER") {
+            path_prefix.push(p)
+        }
 
         let mut expectation_dir = path_prefix.clone();
         expectation_dir.push("expectations");
@@ -105,10 +109,9 @@ impl TestCases {
     }
 
     fn load_tests(&mut self, additional_check: impl Fn(&TestConfig) -> bool) -> Vec<TestConfig> {
-        let filter = PathBuf::from(std::env::var("TEST_FILTER").unwrap_or_default().trim());
         let mut configs = Vec::new();
 
-        self.tests = find_tests(&self.path_prefix, &filter)
+        self.tests = find_tests(&self.path_prefix)
             .into_iter()
             .filter(|(path, content)| {
                 let config = match extract_test_config(content) {
@@ -131,12 +134,7 @@ impl TestCases {
         configs
     }
 
-    pub(crate) fn process_tests<P, O>(
-        &mut self,
-        configs: Vec<TestConfig>,
-        expectation_category: &str,
-        mut process: P,
-    ) -> Vec<O>
+    pub(crate) fn process_tests<P, O>(&mut self, configs: Vec<TestConfig>, mut process: P) -> Vec<O>
     where
         P: FnMut(&mut Self, (&Path, &str, &str, TestConfig)) -> O,
     {
@@ -144,12 +142,10 @@ impl TestCases {
         std::env::set_var("LEO_TESTFRAMEWORK", "true");
 
         let mut output = Vec::new();
-        dbg!("in proccesing: tests {}, configs {}", self.tests.len(), configs.len());
         for ((path, content), config) in self.tests.clone().iter().zip(configs.into_iter()) {
             let path = Path::new(&path);
-            let relative_path = path.strip_prefix(&self.path_prefix).expect("path error for test");
 
-            let test_name = relative_path
+            let test_name = path
                 .file_stem()
                 .expect("no file name for test")
                 .to_str()
@@ -202,107 +198,94 @@ impl TestCases {
     }
 
     pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
-        let (mut cases, configs) = Self::new(|_| false);
+        let (mut cases, configs) = Self::new(expectation_category, |_| true);
 
         let mut pass_categories = 0;
         let mut pass_tests = 0;
         let mut fail_tests = 0;
 
         let mut outputs = vec![];
-        dbg!("running tests");
-        cases.process_tests(
-            configs,
-            expectation_category,
-            |cases, (path, content, test_name, config)| {
-                dbg!("processing tests");
-                let namespace = match runner.resolve_namespace(&config.namespace) {
-                    None => todo!("continue"),
-                    Some(ns) => ns,
-                };
+        cases.process_tests(configs, |cases, (path, content, test_name, config)| {
+            let namespace = match runner.resolve_namespace(&config.namespace) {
+                Some(ns) => ns,
+                None => return,
+            };
 
-                let (expectation_path, expectations) = cases.clear_expectations(path, expectation_category);
+            let (expectation_path, expectations) = cases.clear_expectations(path, expectation_category);
 
-                let tests = match namespace.parse_type() {
-                    ParseType::Line => crate::fetch::split_tests_one_line(content)
-                        .into_iter()
-                        .map(|x| x.to_string())
-                        .collect(),
-                    ParseType::ContinuousLines => crate::fetch::split_tests_two_line(content),
-                    ParseType::Whole => vec![content.to_string()],
-                };
-                dbg!("tests len{}", tests.len());
+            let tests = match namespace.parse_type() {
+                ParseType::Line => crate::fetch::split_tests_one_line(content)
+                    .into_iter()
+                    .map(|x| x.to_string())
+                    .collect(),
+                ParseType::ContinuousLines => crate::fetch::split_tests_two_line(content),
+                ParseType::Whole => vec![content.to_string()],
+            };
 
-                let mut errors = vec![];
-                if let Some(expectations) = expectations.as_ref() {
-                    if tests.len() != expectations.outputs.len() {
-                        errors.push(TestError::MismatchedTestExpectationLength);
-                    }
+            let mut errors = vec![];
+            if let Some(expectations) = expectations.as_ref() {
+                if tests.len() != expectations.outputs.len() {
+                    errors.push(TestError::MismatchedTestExpectationLength);
                 }
+            }
 
-                let mut new_outputs = vec![];
-                let mut expected_output = expectations.as_ref().map(|x| x.outputs.iter());
-                for (i, test) in tests.into_iter().enumerate() {
-                    let expected_output = expected_output.as_mut().and_then(|x| x.next()).cloned();
-                    println!("running test {} @ '{}'", test_name, path.to_str().unwrap());
-                    let panic_buf = set_hook();
-                    let leo_output = panic::catch_unwind(|| {
-                        namespace.run_test(Test {
-                            name: test_name.to_string(),
-                            content: test.clone(),
-                            path: path.into(),
-                            config: config.extra.clone(),
-                        })
-                    });
-                    let output = take_hook(leo_output, panic_buf);
-                    if let Some(error) = emit_errors(&test, &output, &config.expectation, expected_output, i) {
-                        fail_tests += 1;
-                        errors.push(error);
-                    } else {
-                        pass_tests += 1;
-                        new_outputs.push(
-                            output
-                                .unwrap()
-                                .as_ref()
-                                .map(|x| serde_yaml::to_value(x).expect("serialization failed"))
-                                .unwrap_or_else(|e| Value::String(e.clone())),
-                        );
-                    }
-                }
-
-                if errors.is_empty() {
-                    if expectations.is_none() {
-                        outputs.push((
-                            expectation_path,
-                            TestExpectation {
-                                namespace: config.namespace,
-                                expectation: config.expectation,
-                                outputs: new_outputs,
-                            },
-                        ));
-                    }
-                    pass_categories += 1;
-                } else {
-                    cases.fail_categories.push(TestFailure {
-                        path: path.to_str().unwrap().to_string(),
-                        errors,
+            let mut new_outputs = vec![];
+            let mut expected_output = expectations.as_ref().map(|x| x.outputs.iter());
+            for (i, test) in tests.into_iter().enumerate() {
+                let expected_output = expected_output.as_mut().and_then(|x| x.next()).cloned();
+                println!("running test {} @ '{}'", test_name, path.to_str().unwrap());
+                let panic_buf = set_hook();
+                let leo_output = panic::catch_unwind(|| {
+                    namespace.run_test(Test {
+                        name: test_name.to_string(),
+                        content: test.clone(),
+                        path: path.into(),
+                        config: config.extra.clone(),
                     })
+                });
+                let output = take_hook(leo_output, panic_buf);
+                if let Some(error) = emit_errors(&test, &output, &config.expectation, expected_output, i) {
+                    fail_tests += 1;
+                    errors.push(error);
+                } else {
+                    pass_tests += 1;
+                    new_outputs.push(
+                        output
+                            .unwrap()
+                            .as_ref()
+                            .map(|x| serde_yaml::to_value(x).expect("serialization failed"))
+                            .unwrap_or_else(|e| Value::String(e.clone())),
+                    );
                 }
-            },
-        );
+            }
+
+            if errors.is_empty() {
+                if expectations.is_none() {
+                    outputs.push((
+                        expectation_path,
+                        TestExpectation {
+                            namespace: config.namespace,
+                            expectation: config.expectation,
+                            outputs: new_outputs,
+                        },
+                    ));
+                }
+                pass_categories += 1;
+            } else {
+                cases.fail_categories.push(TestFailure {
+                    path: path.to_str().unwrap().to_string(),
+                    errors,
+                })
+            }
+        });
     }
 }
 
-struct Bencher;
+/// returns (name, content) for all benchmark samples
+pub fn get_benches() -> Vec<(String, String)> {
+    let (mut cases, configs) = TestCases::new("compiler", |config| config.expectation != TestExpectationMode::Fail);
 
-impl Bencher {
-    fn get_benches() -> Vec<(String, String)> {
-        let (mut cases, configs) = TestCases::new(|config| config.expectation == TestExpectationMode::Fail);
-
-        let expectation_category = "compiler";
-        let tests = cases.process_tests(configs, expectation_category, |_, (_, content, test_name, _)| {
-            (test_name.to_string(), content.to_string())
-        });
-
-        tests
-    }
+    cases.process_tests(configs, |_, (_, content, test_name, _)| {
+        (test_name.to_string(), content.to_string())
+    })
 }
