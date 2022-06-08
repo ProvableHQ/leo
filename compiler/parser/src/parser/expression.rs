@@ -239,13 +239,11 @@ impl ParserContext<'_> {
                             method,
                             arguments,
                         });
-                        println!("expr {}", expr);
                         continue;
                     }
                 }
                 let curr = &self.token;
                 return Err(ParserError::unexpected_str(&curr.token, "int or ident", curr.span).into());
-
             }
             if !self.check(&Token::LeftParen) {
                 break;

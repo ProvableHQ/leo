@@ -100,7 +100,11 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
         None
     }
 
-    fn visit_method(&mut self, input: &'a MethodCallExpression, additional: &Self::AdditionalInput) -> Option<Self::Output> {
+    fn visit_method(
+        &mut self,
+        input: &'a MethodCallExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Option<Self::Output> {
         self.visit_expression(&input.receiver, additional);
         if let VisitResult::VisitChildren = self.visitor_ref().visit_method(input) {
             input.arguments.iter().for_each(|expr| {

@@ -53,6 +53,16 @@ create_messages!(
         help: None,
     }
 
+    /// The method name is known but not supported for the given type.
+    @formatted
+    type_method_not_supported {
+        args: (type_: impl Display, method: impl Display),
+        msg: format!(
+            "Type `{type_}` does not support associated method `{method}`",
+        ),
+        help: None,
+    }
+
     /// For when the user tries to return a unknown variable.
     @formatted
     unknown_sym {

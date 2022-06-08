@@ -30,6 +30,7 @@ pub struct TypeChecker<'a> {
     pub(crate) negate: bool,
     pub(crate) account_types: IndexSet<Symbol>,
     pub(crate) algorithms_types: IndexSet<Symbol>,
+    pub(crate) method_table: MethodTable,
 }
 
 const INT_TYPES: [Type; 10] = [
@@ -82,6 +83,7 @@ impl<'a> TypeChecker<'a> {
             negate: false,
             account_types: Account::types(),
             algorithms_types: Algorithms::types(),
+            method_table: MethodTable::load(),
         }
     }
 

@@ -28,7 +28,7 @@ pub struct Function {
     pub identifier: Identifier,
     /// The function's parameters.
     pub input: Vec<FunctionInput>,
-    /// The function return type, if explicitly specified, or `()` if not.
+    /// The function's required return type.
     pub output: Type,
     /// Any mapping to the core library.
     /// Always `None` when initially parsed.
