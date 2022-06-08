@@ -81,51 +81,96 @@ fn take_hook(
     output.map_err(|_| panic_buf.lock().unwrap().take().expect("failed to get panic message"))
 }
 
-pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
-    std::env::remove_var("LEO_BACKTRACE"); // always remove backtrace so it doesn't clog output files
-    std::env::set_var("LEO_TESTFRAMEWORK", "true");
-    let mut pass_categories = 0;
-    let mut pass_tests = 0;
-    let mut fail_tests = 0;
-    let mut fail_categories = Vec::new();
+pub struct TestCases {
+    tests: Vec<(String, String)>,
+    path_prefix: PathBuf,
+    fail_categories: Vec<TestFailure>,
+}
 
-    let mut tests = Vec::new();
-    let mut test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    test_dir.push("../../tests/");
+impl TestCases {
+    fn new(additional_check: impl Fn(&TestConfig) -> bool) -> (Self, Vec<TestConfig>) {
+        let mut path_prefix = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path_prefix.push("../../tests/");
 
-    let mut expectation_dir = test_dir.clone();
-    expectation_dir.push("expectations");
+        let mut expectation_dir = path_prefix.clone();
+        expectation_dir.push("expectations");
 
-    find_tests(&test_dir, &mut tests);
+        let mut new = Self {
+            tests: Vec::new(),
+            path_prefix,
+            fail_categories: Vec::new(),
+        };
+        let tests = new.load_tests(additional_check);
+        (new, tests)
+    }
 
-    let filter = std::env::var("TEST_FILTER").unwrap_or_default();
-    let filter = filter.trim();
+    fn load_tests(&mut self, additional_check: impl Fn(&TestConfig) -> bool) -> Vec<TestConfig> {
+        let filter = PathBuf::from(std::env::var("TEST_FILTER").unwrap_or_default().trim());
+        let mut configs = Vec::new();
 
-    let mut outputs = vec![];
+        self.tests = find_tests(&self.path_prefix, &filter)
+            .into_iter()
+            .filter(|(path, content)| {
+                let config = match extract_test_config(content) {
+                    None => {
+                        self.fail_categories.push(TestFailure {
+                            path: path.to_string(),
+                            errors: vec![TestError::MissingTestConfig],
+                        });
+                        return true;
+                    }
+                    Some(cfg) => cfg,
+                };
 
-    for (path, content) in tests.into_iter() {
-        if !filter.is_empty() && !path.contains(filter) {
-            continue;
+                let res = additional_check(&config);
+                configs.push(config);
+                res
+            })
+            .collect();
+
+        configs
+    }
+
+    pub(crate) fn process_tests<P, O>(
+        &mut self,
+        configs: Vec<TestConfig>,
+        expectation_category: &str,
+        mut process: P,
+    ) -> Vec<O>
+    where
+        P: FnMut(&mut Self, (&Path, &str, &str, TestConfig)) -> O,
+    {
+        std::env::remove_var("LEO_BACKTRACE"); // always remove backtrace so it doesn't clog output files
+        std::env::set_var("LEO_TESTFRAMEWORK", "true");
+
+        let mut output = Vec::new();
+        dbg!("in proccesing: tests {}, configs {}", self.tests.len(), configs.len());
+        for ((path, content), config) in self.tests.clone().iter().zip(configs.into_iter()) {
+            let path = Path::new(&path);
+            let relative_path = path.strip_prefix(&self.path_prefix).expect("path error for test");
+
+            let test_name = relative_path
+                .file_stem()
+                .expect("no file name for test")
+                .to_str()
+                .unwrap()
+                .to_string();
+
+            let end_of_header = content.find("*/").expect("failed to find header block in test");
+            let content = &content[end_of_header + 2..];
+
+            output.push(process(self, (path, content, &test_name, config)));
+
+            std::env::remove_var("LEO_TESTFRAMEWORK");
         }
-        let config = extract_test_config(&content);
-        if config.is_none() {
-            //panic!("missing configuration for {}", path);
-            // fail_categories.push(TestFailure {
-            //     path,
-            //     errors: vec![TestError::MissingTestConfig],
-            // });
-            continue;
-        }
-        let config = config.unwrap();
-        let namespace = runner.resolve_namespace(&config.namespace);
-        if namespace.is_none() {
-            continue;
-        }
-        let namespace = namespace.unwrap();
+        output
+    }
 
+    fn clear_expectations(&self, path: &Path, expectation_category: &str) -> (PathBuf, Option<TestExpectation>) {
         let path = Path::new(&path);
-        let relative_path = path.strip_prefix(&test_dir).expect("path error for test");
-        let mut expectation_path = expectation_dir.clone();
+        let relative_path = path.strip_prefix(&self.path_prefix).expect("path error for test");
+        let expectation_dir = self.path_prefix.clone();
+        let mut expectation_path = expectation_dir;
         expectation_path.push(expectation_category);
         expectation_path.push(relative_path.parent().expect("no parent dir for test"));
         let mut expectation_name = relative_path
@@ -137,132 +182,129 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
         expectation_name += ".out";
         expectation_path.push(&expectation_name);
 
-        let test_name = relative_path
-            .file_stem()
-            .expect("no file name for test")
-            .to_str()
-            .unwrap()
-            .to_string();
-
-        let expectations: Option<TestExpectation> = if expectation_path.exists() {
+        if expectation_path.exists() {
             if !std::env::var("CLEAR_LEO_TEST_EXPECTATIONS")
                 .unwrap_or_default()
                 .trim()
                 .is_empty()
             {
-                None
+                (expectation_path, None)
             } else {
                 let raw = std::fs::read_to_string(&expectation_path).expect("failed to read expectations file");
-                Some(serde_yaml::from_str(&raw).expect("invalid yaml in expectations file"))
-            }
-        } else {
-            None
-        };
-
-        let end_of_header = content.find("*/").expect("failed to find header block in test");
-        let content = &content[end_of_header + 2..];
-
-        let tests = match namespace.parse_type() {
-            ParseType::Line => crate::fetch::split_tests_oneline(content)
-                .into_iter()
-                .map(|x| x.to_string())
-                .collect(),
-            ParseType::ContinuousLines => crate::fetch::split_tests_twoline(content),
-            ParseType::Whole => vec![content.to_string()],
-        };
-
-        let mut errors = vec![];
-        if let Some(expectations) = expectations.as_ref() {
-            if tests.len() != expectations.outputs.len() {
-                errors.push(TestError::MismatchedTestExpectationLength);
-            }
-        }
-
-        let mut new_outputs = vec![];
-
-        let mut expected_output = expectations.as_ref().map(|x| x.outputs.iter());
-        for (i, test) in tests.into_iter().enumerate() {
-            let expected_output = expected_output.as_mut().and_then(|x| x.next()).cloned();
-            println!("running test {} @ '{}'", test_name, path.to_str().unwrap());
-            let panic_buf = set_hook();
-            let leo_output = panic::catch_unwind(|| {
-                namespace.run_test(Test {
-                    name: test_name.clone(),
-                    content: test.clone(),
-                    path: path.into(),
-                    config: config.extra.clone(),
-                })
-            });
-            let output = take_hook(leo_output, panic_buf);
-            if let Some(error) = emit_errors(&test, &output, &config.expectation, expected_output, i) {
-                fail_tests += 1;
-                errors.push(error);
-            } else {
-                pass_tests += 1;
-                new_outputs.push(
-                    output
-                        .unwrap()
-                        .as_ref()
-                        .map(|x| serde_yaml::to_value(x).expect("serialization failed"))
-                        .unwrap_or_else(|e| Value::String(e.clone())),
-                );
-            }
-        }
-
-        if errors.is_empty() {
-            if expectations.is_none() {
-                outputs.push((
+                (
                     expectation_path,
-                    TestExpectation {
-                        namespace: config.namespace,
-                        expectation: config.expectation,
-                        outputs: new_outputs,
-                    },
-                ));
+                    Some(serde_yaml::from_str(&raw).expect("invalid yaml in expectations file")),
+                )
             }
-            pass_categories += 1;
         } else {
-            fail_categories.push(TestFailure {
-                path: path.to_str().unwrap().to_string(),
-                errors,
-            })
+            (expectation_path, None)
         }
-    }
-    if !fail_categories.is_empty() {
-        for (i, fail) in fail_categories.iter().enumerate() {
-            println!(
-                "\n\n-----------------TEST #{} FAILED (and shouldn't have)-----------------",
-                i + 1
-            );
-            println!("File: {}", fail.path);
-            for error in &fail.errors {
-                println!("{}", error);
-            }
-        }
-        panic!(
-            "failed {}/{} tests in {}/{} categories",
-            pass_tests,
-            fail_tests + pass_tests,
-            fail_categories.len(),
-            fail_categories.len() + pass_categories
-        );
-    } else {
-        for (path, new_expectation) in outputs {
-            std::fs::create_dir_all(path.parent().unwrap()).expect("failed to make test expectation parent directory");
-            std::fs::write(
-                &path,
-                serde_yaml::to_string(&new_expectation).expect("failed to serialize expectation yaml"),
-            )
-            .expect("failed to write expectation file");
-        }
-        println!(
-            "passed {}/{} tests in {}/{} categories",
-            pass_tests,
-            fail_tests + pass_tests,
-            pass_categories,
-            pass_categories
-        );
     }
 
-    std::env::remove_var("LEO_TESTFRAMEWORK");
+    pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
+        let (mut cases, configs) = Self::new(|_| false);
+
+        let mut pass_categories = 0;
+        let mut pass_tests = 0;
+        let mut fail_tests = 0;
+
+        let mut outputs = vec![];
+        dbg!("running tests");
+        cases.process_tests(
+            configs,
+            expectation_category,
+            |cases, (path, content, test_name, config)| {
+                dbg!("processing tests");
+                let namespace = match runner.resolve_namespace(&config.namespace) {
+                    None => todo!("continue"),
+                    Some(ns) => ns,
+                };
+
+                let (expectation_path, expectations) = cases.clear_expectations(path, expectation_category);
+
+                let tests = match namespace.parse_type() {
+                    ParseType::Line => crate::fetch::split_tests_one_line(content)
+                        .into_iter()
+                        .map(|x| x.to_string())
+                        .collect(),
+                    ParseType::ContinuousLines => crate::fetch::split_tests_two_line(content),
+                    ParseType::Whole => vec![content.to_string()],
+                };
+                dbg!("tests len{}", tests.len());
+
+                let mut errors = vec![];
+                if let Some(expectations) = expectations.as_ref() {
+                    if tests.len() != expectations.outputs.len() {
+                        errors.push(TestError::MismatchedTestExpectationLength);
+                    }
+                }
+
+                let mut new_outputs = vec![];
+                let mut expected_output = expectations.as_ref().map(|x| x.outputs.iter());
+                for (i, test) in tests.into_iter().enumerate() {
+                    let expected_output = expected_output.as_mut().and_then(|x| x.next()).cloned();
+                    println!("running test {} @ '{}'", test_name, path.to_str().unwrap());
+                    let panic_buf = set_hook();
+                    let leo_output = panic::catch_unwind(|| {
+                        namespace.run_test(Test {
+                            name: test_name.to_string(),
+                            content: test.clone(),
+                            path: path.into(),
+                            config: config.extra.clone(),
+                        })
+                    });
+                    let output = take_hook(leo_output, panic_buf);
+                    if let Some(error) = emit_errors(&test, &output, &config.expectation, expected_output, i) {
+                        fail_tests += 1;
+                        errors.push(error);
+                    } else {
+                        pass_tests += 1;
+                        new_outputs.push(
+                            output
+                                .unwrap()
+                                .as_ref()
+                                .map(|x| serde_yaml::to_value(x).expect("serialization failed"))
+                                .unwrap_or_else(|e| Value::String(e.clone())),
+                        );
+                    }
+                }
+
+                if errors.is_empty() {
+                    if expectations.is_none() {
+                        outputs.push((
+                            expectation_path,
+                            TestExpectation {
+                                namespace: config.namespace,
+                                expectation: config.expectation,
+                                outputs: new_outputs,
+                            },
+                        ));
+                    }
+                    pass_categories += 1;
+                } else {
+                    cases.fail_categories.push(TestFailure {
+                        path: path.to_str().unwrap().to_string(),
+                        errors,
+                    })
+                }
+
+                todo!()
+            },
+        );
+    }
+}
+
+struct Bencher;
+
+impl Bencher {
+    fn get_benches() -> Vec<(String, String)> {
+        let (mut cases, configs) = TestCases::new(|config| config.expectation == TestExpectationMode::Fail);
+
+        let expectation_category = "compiler";
+        let tests = cases.process_tests(configs, expectation_category, |_, (_, content, test_name, _)| {
+            (test_name.to_string(), content.to_string())
+        });
+
+        tests
+    }
 }
