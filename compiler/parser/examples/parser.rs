@@ -18,11 +18,11 @@ use leo_ast::Ast;
 use leo_errors::emitter::Handler;
 use leo_span::symbol::create_session_if_not_set_then;
 
+use clap::StructOpt;
 use std::{
     fs,
     path::{Path, PathBuf},
 };
-use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "leo parser", about = "Parse Leo AST and store it as a JSON")]
@@ -41,7 +41,7 @@ struct Opt {
 }
 
 fn main() -> Result<(), String> {
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
     // Parses the Leo file constructing an ast which is then serialized.
     let serialized_leo_tree = create_session_if_not_set_then(|s| {
         let code = s.source_map.load_file(&opt.input_path).expect("failed to open file");

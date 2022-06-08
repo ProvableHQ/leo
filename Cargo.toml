@@ -58,7 +58,8 @@ rev = "51633e2"
 version = "0.3.65"
 
 [dependencies.clap]
-version = "3.1"
+version = "3.1.18"
+features = ["derive", "env"]
 
 [dependencies.color-backtrace]
 version = "0.5.1"
@@ -102,9 +103,6 @@ features = [ "derive" ]
 
 [dependencies.serde_json]
 version = "1.0"
-
-[dependencies.structopt]
-version = "0.3"
 
 [dependencies.sys-info]
 version = "0.9.1"

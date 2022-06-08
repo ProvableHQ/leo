@@ -21,14 +21,14 @@ use leo_test_framework::{
     test::{extract_test_config, TestExpectationMode as Expectation},
 };
 
+use clap::StructOpt;
 use regex::Regex;
 use serde_yaml::Value;
 use std::collections::{BTreeMap, HashSet};
 use std::{error::Error, fs, io, path::PathBuf};
-use structopt::{clap::AppSettings, StructOpt};
 
 #[derive(StructOpt)]
-#[structopt(name = "error-coverage", author = "The Aleo Team <hello@aleo.org>", setting = AppSettings::ColoredHelp)]
+#[structopt(name = "error-coverage", author = "The Aleo Team <hello@aleo.org>")]
 struct Opt {
     #[structopt(
         short,
@@ -40,7 +40,7 @@ struct Opt {
 }
 
 fn main() {
-    handle_error(run_with_args(Opt::from_args()));
+    handle_error(run_with_args(Opt::parse()));
 }
 
 fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
