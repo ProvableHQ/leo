@@ -18,7 +18,7 @@ use std::fmt::Display;
 
 use indexmap::IndexMap;
 use leo_errors::{AstError, Result};
-use leo_span::Symbol;
+use leo_span::{Span, Symbol};
 
 use crate::VariableSymbol;
 
@@ -35,11 +35,11 @@ pub struct VariableScope<'a> {
 }
 
 impl<'a> VariableScope<'a> {
-    pub fn check_shadowing(&self, symbol: &Symbol) -> Result<()> {
-        if let Some(var) = self.variables.get(symbol) {
-            Err(AstError::shadowed_variable(symbol, var.span).into())
+    pub fn check_shadowing(&self, symbol: &Symbol, span: Span) -> Result<()> {
+        if self.variables.contains_key(symbol) {
+            Err(AstError::shadowed_variable(symbol, span).into())
         } else if let Some(parent) = &self.parent {
-            parent.check_shadowing(symbol)
+            parent.check_shadowing(symbol, span)
         } else {
             Ok(())
         }

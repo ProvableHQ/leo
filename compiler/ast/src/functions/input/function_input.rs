@@ -22,7 +22,7 @@ use std::fmt;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ParamMode {
-    Constant,
+    Const,
     Private,
     Public,
 }
@@ -32,7 +32,7 @@ impl fmt::Display for ParamMode {
         use ParamMode::*;
 
         match self {
-            Constant => write!(f, "constant"),
+            Const => write!(f, "const"),
             Private => write!(f, "private"),
             Public => write!(f, "public"),
         }

@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Represents all valid Leo syntax tokens.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Token {
     // Lexical Grammar
     // Literals
@@ -110,6 +110,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Bool,
     Token::Console,
     Token::Const,
+    Token::Constant,
     Token::Else,
     Token::False,
     Token::Field,

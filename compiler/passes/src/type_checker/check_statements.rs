@@ -69,7 +69,7 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
                     .visitor
                     .handler
                     .emit_err(TypeCheckerError::cannont_assign_to_const_var(var_name, var.span).into()),
-                Declaration::Input(ParamMode::Constant) => self
+                Declaration::Input(ParamMode::Const) => self
                     .visitor
                     .handler
                     .emit_err(TypeCheckerError::cannont_assign_to_const_input(var_name, var.span).into()),
