@@ -42,7 +42,7 @@ pub struct BuildOptions {
     pub enable_spans: bool,
     #[structopt(long, help = "Writes all AST snapshots for the different compiler phases.")]
     pub enable_all_ast_snapshots: bool,
-     #[structopt(long, help = "Writes Input AST snapshot of the initial parse.")]
+    #[structopt(long, help = "Writes Input AST snapshot of the initial parse.")]
     pub enable_initial_input_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot of the initial parse.")]
     pub enable_initial_ast_snapshot: bool,
@@ -78,8 +78,8 @@ impl From<BuildOptions> for OutputOptions {
             ast_initial: options.enable_initial_ast_snapshot,
         };
         if options.enable_all_ast_snapshots {
-               out_options.input_ast_initial = true;
-               out_options.ast_initial = true;
+            out_options.input_ast_initial = true;
+            out_options.ast_initial = true;
         }
 
         out_options
@@ -175,7 +175,12 @@ impl Command for Build {
         // Initialize error handler
         let handler = leo_errors::emitter::Handler::default();
 
-        let mut program = Compiler::new(&handler, main_file_path, output_directory, Some(self.compiler_options.into()));
+        let mut program = Compiler::new(
+            &handler,
+            main_file_path,
+            output_directory,
+            Some(self.compiler_options.into()),
+        );
         program.parse_program()?;
         program.parse_input(input_path.to_path_buf())?;
 

@@ -40,21 +40,26 @@ pub struct Compiler<'a> {
     output_directory: PathBuf,
     pub ast: Ast,
     pub input_ast: Option<InputAst>,
-	output_options: OutputOptions,
+    output_options: OutputOptions,
 }
 
 impl<'a> Compiler<'a> {
     ///
     /// Returns a new Leo compiler.
     ///
-    pub fn new(handler: &'a Handler, main_file_path: PathBuf, output_directory: PathBuf, output_options: Option<OutputOptions>) -> Self {
+    pub fn new(
+        handler: &'a Handler,
+        main_file_path: PathBuf,
+        output_directory: PathBuf,
+        output_options: Option<OutputOptions>,
+    ) -> Self {
         Self {
             handler,
             main_file_path,
             output_directory,
             ast: Ast::new(Program::new("Initial".to_string())),
             input_ast: None,
-			output_options: output_options.unwrap_or_default(),
+            output_options: output_options.unwrap_or_default(),
         }
     }
 
@@ -81,15 +86,15 @@ impl<'a> Compiler<'a> {
 
         // Use the parser to construct the abstract syntax tree (ast).
         let ast: leo_ast::Ast = leo_parser::parse_ast(self.handler, &prg_sf.src, prg_sf.start_pos)?;
-        
-		if self.output_options.ast_initial {
-			// Write the AST snapshot post parsing.
-			if self.output_options.spans_enabled {
-				ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
-			} else {
-				ast.to_json_file_without_keys(self.output_directory.clone(), "initial_ast.json", &["span"])?;
-			}
-		}
+
+        if self.output_options.ast_initial {
+            // Write the AST snapshot post parsing.
+            if self.output_options.spans_enabled {
+                ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
+            } else {
+                ast.to_json_file_without_keys(self.output_directory.clone(), "initial_ast.json", &["span"])?;
+            }
+        }
 
         self.ast = ast;
 
@@ -114,14 +119,18 @@ impl<'a> Compiler<'a> {
 
             // Parse and serialize it.
             let input_ast = leo_parser::parse_input(self.handler, &input_sf.src, input_sf.start_pos)?;
-			if self.output_options.ast_initial {
-			// Write the input AST snapshot post parsing.
-				if self.output_options.spans_enabled {
-					input_ast.to_json_file(self.output_directory.clone(), "inital_input_ast.json")?;
-				} else {
-					input_ast.to_json_file_without_keys(self.output_directory.clone(), "inital_input_ast.json", &["span"])?;
-				}
-			}
+            if self.output_options.ast_initial {
+                // Write the input AST snapshot post parsing.
+                if self.output_options.spans_enabled {
+                    input_ast.to_json_file(self.output_directory.clone(), "initial_input_ast.json")?;
+                } else {
+                    input_ast.to_json_file_without_keys(
+                        self.output_directory.clone(),
+                        "initial_input_ast.json",
+                        &["span"],
+                    )?;
+                }
+            }
 
             self.input_ast = Some(input_ast);
         }
@@ -129,13 +138,25 @@ impl<'a> Compiler<'a> {
     }
 
     ///
+    /// Runs the symbol table pass.
+    ///
+    pub fn symbol_table_pass(&self) -> Result<SymbolTable<'_>> {
+        CreateSymbolTable::do_pass((&self.ast, self.handler))
+    }
+
+    ///
+    /// Runs the type checker pass.
+    ///
+    pub fn type_checker_pass(&'a self, symbol_table: &'a mut SymbolTable<'a>) -> Result<()> {
+        TypeChecker::do_pass((&self.ast, symbol_table, self.handler))
+    }
+
+    ///
     /// Runs the compiler stages.
     ///
     fn compiler_stages(&self) -> Result<SymbolTable<'_>> {
-        let symbol_table = CreateSymbolTable::do_pass((&self.ast, self.handler))?;
-
-        TypeChecker::do_pass((&self.ast, &mut symbol_table.clone(), self.handler))?;
-
+        let symbol_table = self.symbol_table_pass()?;
+        self.type_checker_pass(&mut symbol_table.clone())?;
         Ok(symbol_table)
     }
 

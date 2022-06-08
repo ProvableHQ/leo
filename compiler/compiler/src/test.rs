@@ -40,11 +40,16 @@ fn new_compiler(handler: &Handler, main_file_path: PathBuf) -> Compiler<'_> {
     let output_dir = PathBuf::from("/tmp/output/");
     fs::create_dir_all(output_dir.clone()).unwrap();
 
-    Compiler::new(handler, main_file_path, output_dir, Some(OutputOptions {
-        spans_enabled: false,
-        input_ast_initial: true,
-        ast_initial: true,
-    }))
+    Compiler::new(
+        handler,
+        main_file_path,
+        output_dir,
+        Some(OutputOptions {
+            spans_enabled: false,
+            input_ast_initial: true,
+            ast_initial: true,
+        }),
+    )
 }
 
 fn parse_program<'a>(

@@ -18,5 +18,5 @@
 pub struct OutputOptions {
     pub spans_enabled: bool,
     pub ast_initial: bool,
-	pub input_ast_initial: bool,
+    pub input_ast_initial: bool,
 }
