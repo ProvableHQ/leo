@@ -15,7 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 //! This module defines AVM opcodes as associated method calls on Leo types.
-use indexmap::IndexSet;
+
+use indexmap::{indexmap, indexset, IndexMap, IndexSet};
+use leo_ast::Type;
 use leo_span::Symbol;
 
 #[derive(Clone, Debug, Hash, Eq, PartialEq)]
@@ -38,9 +40,6 @@ impl Method {
         }
     }
 }
-
-use indexmap::{indexmap, indexset, IndexMap};
-use leo_ast::Type;
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct MethodTable {
