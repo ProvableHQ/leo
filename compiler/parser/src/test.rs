@@ -236,5 +236,5 @@ impl Runner for TestRunner {
 
 #[test]
 pub fn parser_tests() {
-    leo_test_framework::run_tests(&TestRunner, "parser");
+    leo_test_framework::TestCases::run_tests(&TestRunner, "parser");
 }

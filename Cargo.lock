@@ -1224,7 +1224,6 @@ dependencies = [
 name = "leo-compiler"
 version = "1.5.3"
 dependencies = [
- "criterion",
  "leo-ast",
  "leo-errors",
  "leo-parser",
@@ -1356,12 +1355,16 @@ name = "leo-test-framework"
 version = "1.5.3"
 dependencies = [
  "backtrace",
+ "criterion",
+ "leo-compiler",
  "leo-errors",
+ "leo-span",
  "regex",
  "serde",
  "serde_json",
  "serde_yaml",
  "structopt",
+ "walkdir",
 ]
 
 [[package]]
