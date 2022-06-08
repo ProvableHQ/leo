@@ -57,7 +57,14 @@ fn set_hook() -> Arc<Mutex<Option<String>>> {
         let panic_buf = panic_buf.clone();
         Box::new(move |e| {
             if thread::current().id() == thread_id {
-                *panic_buf.lock().unwrap() = Some(e.to_string());
+                if !std::env::var("RUST_BACKTRACE")
+                    .unwrap_or_else(|_| "".to_string())
+                    .is_empty()
+                {
+                    *panic_buf.lock().unwrap() = Some(format!("{:?}", backtrace::Backtrace::new()));
+                } else {
+                    *panic_buf.lock().unwrap() = Some(e.to_string());
+                }
             } else {
                 println!("{}", e)
             }
