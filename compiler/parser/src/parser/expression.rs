@@ -226,11 +226,11 @@ impl ParserContext<'_> {
             // Check if the method exists.
             let index = method.as_u32();
 
-            if index <= 2  {
+            if index <= 1  {
                 // Binary operators.
                 let operator = match index {
-                    1 => BinaryOperation::Add,
-                    2 => BinaryOperation::AddWrapped,
+                    0 => BinaryOperation::Add,
+                    1 => BinaryOperation::AddWrapped,
                     _ => unimplemented!("throw error for invalid method call")
                 };
 

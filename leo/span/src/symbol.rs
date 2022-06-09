@@ -104,7 +104,7 @@ symbols! {
 
     // binary operators
     add,
-    add_w,
+    add_wrapped,
 
     // arity three operators
 
