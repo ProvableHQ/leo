@@ -25,9 +25,6 @@ pub use account::*;
 mod algorithms;
 pub use algorithms::*;
 
-mod methods;
-pub use methods::*;
-
 pub trait Types {
     fn types() -> IndexSet<Symbol>;
 }

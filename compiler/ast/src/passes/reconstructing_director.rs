@@ -46,7 +46,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             Expression::Unary(unary) => Expression::Unary(self.reduce_unary(unary)?),
             Expression::Ternary(ternary) => Expression::Ternary(self.reduce_ternary(ternary)?),
             Expression::Call(call) => Expression::Call(self.reduce_call(call)?),
-            Expression::Method(method) => Expression::Method(self.reduce_method(method)?),
             Expression::Err(s) => Expression::Err(s.clone()),
         };
 
@@ -105,18 +104,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         let if_false = self.reduce_expression(&ternary.if_false)?;
 
         self.reducer.reduce_ternary(ternary, condition, if_true, if_false)
-    }
-
-    pub fn reduce_method(&mut self, method: &MethodCallExpression) -> Result<MethodCallExpression> {
-        let receiver = self.reduce_expression(&method.receiver)?;
-        let method_id = self.reduce_identifier(&method.method)?;
-
-        let mut arguments = vec![];
-        for argument in method.arguments.iter() {
-            arguments.push(self.reduce_expression(argument)?);
-        }
-
-        self.reducer.reduce_method(method, receiver, method_id, arguments)
     }
 
     pub fn reduce_call(&mut self, call: &CallExpression) -> Result<CallExpression> {

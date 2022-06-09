@@ -58,10 +58,6 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_method(&mut self, _input: &'a MethodCallExpression) -> VisitResult {
-        Default::default()
-    }
-
     fn visit_err(&mut self, _input: &'a ErrExpression) -> VisitResult {
         Default::default()
     }

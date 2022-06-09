@@ -24,8 +24,6 @@ mod binary;
 pub use binary::*;
 mod unary;
 pub use unary::*;
-mod method;
-pub use method::*;
 mod ternary;
 pub use ternary::*;
 mod value;
@@ -50,8 +48,6 @@ pub enum Expression {
     Ternary(TernaryExpression),
     /// A call expression, e.g., `my_fun(args)`.
     Call(CallExpression),
-    /// A method call expression, e.g., `a.add(b)`.
-    Method(MethodCallExpression),
     /// An expression of type "error".
     /// Will result in a compile error eventually.
     Err(ErrExpression),
@@ -67,7 +63,6 @@ impl Node for Expression {
             Unary(n) => n.span(),
             Ternary(n) => n.span(),
             Call(n) => n.span(),
-            Method(n) => n.span(),
             Err(n) => n.span(),
         }
     }
@@ -81,7 +76,6 @@ impl Node for Expression {
             Unary(n) => n.set_span(span),
             Ternary(n) => n.set_span(span),
             Call(n) => n.set_span(span),
-            Method(n) => n.set_span(span),
             Err(n) => n.set_span(span),
         }
     }
@@ -97,7 +91,6 @@ impl fmt::Display for Expression {
             Unary(n) => n.fmt(f),
             Ternary(n) => n.fmt(f),
             Call(n) => n.fmt(f),
-            Method(n) => n.fmt(f),
             Err(n) => n.fmt(f),
         }
     }

@@ -54,7 +54,6 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                 Expression::Unary(expr) => self.visit_unary(expr, expected),
                 Expression::Ternary(expr) => self.visit_ternary(expr, expected),
                 Expression::Call(expr) => self.visit_call(expr, expected),
-                Expression::Method(expr) => self.visit_method(expr, expected),
                 Expression::Err(expr) => self.visit_err(expr, expected),
             };
         }
@@ -409,57 +408,6 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                 }
             }
             expr => self.visit_expression(expr, expected),
-        }
-    }
-
-    fn visit_method(
-        &mut self,
-        input: &'a MethodCallExpression,
-        expected: &Self::AdditionalInput,
-    ) -> Option<Self::Output> {
-        // Check if the method exists.
-        if let Some(method) = self.visitor.method_table.clone().lookup_method(&input.method.name) {
-            // Check number of arguments is correct.
-            if method.num_arguments != input.arguments.len() {
-                self.visitor.handler.emit_err(
-                    TypeCheckerError::incorrect_num_args_to_call(
-                        method.num_arguments,
-                        input.arguments.len(),
-                        input.span(),
-                    )
-                    .into(),
-                );
-            }
-
-            // Handle case where receiver type == argument type == return type.
-            if method.types_are_equal {
-                // Check if the method is supported for the type.
-                if let Some(type_) = expected {
-                    if !self.visitor.method_table.type_method_is_supported(type_, &method.name) {
-                        self.visitor.handler.emit_err(
-                            TypeCheckerError::type_method_not_supported(type_, &input.method.name, input.span()).into(),
-                        );
-                    }
-                }
-
-                // Check if receiver is correct type for method.
-                let ret = self.visit_expression(&input.receiver, expected);
-
-                // Check if arguments are correct types for method.
-                input.arguments.iter().for_each(|arg| {
-                    self.visit_expression(arg, expected);
-                });
-
-                ret
-            } else {
-                // Handle case where the method types are not known yet.
-                *expected
-            }
-        } else {
-            self.visitor
-                .handler
-                .emit_err(TypeCheckerError::unknown_sym("method", &input.method.name, input.span()).into());
-            None
         }
     }
 }
