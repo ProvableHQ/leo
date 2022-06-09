@@ -41,7 +41,7 @@ impl Emitter for BufEmitter {
     fn emit_err(&mut self, _: leo_errors::LeoError) {}
 
     fn last_emitted_err_code(&self) -> Option<i32> {
-        Some(0)
+        None
     }
 
     fn emit_warning(&mut self, _: leo_errors::LeoWarning) {}
@@ -197,7 +197,7 @@ bench!(bench_full, BenchMode::Full);
 
 criterion_group!(
     name = benches;
-    config = Criterion::default().sample_size(200).measurement_time(Duration::from_secs(5)).nresamples(200_000);
+    config = Criterion::default().sample_size(200).measurement_time(Duration::from_secs(10)).nresamples(200_000);
     targets =
         bench_parse,
         bench_symbol,

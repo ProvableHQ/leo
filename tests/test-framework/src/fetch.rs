@@ -14,11 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{fs, path::Path};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use walkdir::WalkDir;
 
-pub fn find_tests<T: AsRef<Path> + Copy>(path: T) -> Vec<(String, String)> {
+pub fn find_tests<T: AsRef<Path> + Copy>(path: T) -> Vec<(PathBuf, String)> {
     WalkDir::new(path)
         .into_iter()
         .flatten()
@@ -26,12 +29,12 @@ pub fn find_tests<T: AsRef<Path> + Copy>(path: T) -> Vec<(String, String)> {
             let path = f.path();
             if matches!(path.extension(), Some(s) if s == "leo") {
                 let content = fs::read_to_string(path).expect("failed to read test");
-                Some((path.to_str().unwrap_or_default().to_string(), content))
+                Some((path.to_path_buf(), content))
             } else {
                 None
             }
         })
-        .collect::<Vec<(String, String)>>()
+        .collect::<Vec<(PathBuf, String)>>()
 }
 
 pub fn split_tests_one_line(source: &str) -> Vec<&str> {

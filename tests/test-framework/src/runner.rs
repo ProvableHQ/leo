@@ -82,7 +82,7 @@ fn take_hook(
 }
 
 pub struct TestCases {
-    tests: Vec<(String, String)>,
+    tests: Vec<(PathBuf, String)>,
     path_prefix: PathBuf,
     fail_categories: Vec<TestFailure>,
 }
@@ -117,7 +117,7 @@ impl TestCases {
                 let config = match extract_test_config(content) {
                     None => {
                         self.fail_categories.push(TestFailure {
-                            path: path.to_string(),
+                            path: path.to_str().unwrap_or("").to_string(),
                             errors: vec![TestError::MissingTestConfig],
                         });
                         return true;
@@ -143,8 +143,6 @@ impl TestCases {
 
         let mut output = Vec::new();
         for ((path, content), config) in self.tests.clone().iter().zip(configs.into_iter()) {
-            let path = Path::new(&path);
-
             let test_name = path
                 .file_stem()
                 .expect("no file name for test")
@@ -196,89 +194,89 @@ impl TestCases {
             (expectation_path, None)
         }
     }
+}
 
-    pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
-        let (mut cases, configs) = Self::new(expectation_category, |_| true);
+pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
+    let (mut cases, configs) = TestCases::new(expectation_category, |_| true);
 
-        let mut pass_categories = 0;
-        let mut pass_tests = 0;
-        let mut fail_tests = 0;
+    let mut pass_categories = 0;
+    let mut pass_tests = 0;
+    let mut fail_tests = 0;
 
-        let mut outputs = vec![];
-        cases.process_tests(configs, |cases, (path, content, test_name, config)| {
-            let namespace = match runner.resolve_namespace(&config.namespace) {
-                Some(ns) => ns,
-                None => return,
-            };
+    let mut outputs = vec![];
+    cases.process_tests(configs, |cases, (path, content, test_name, config)| {
+        let namespace = match runner.resolve_namespace(&config.namespace) {
+            Some(ns) => ns,
+            None => return,
+        };
 
-            let (expectation_path, expectations) = cases.clear_expectations(path, expectation_category);
+        let (expectation_path, expectations) = cases.clear_expectations(path, expectation_category);
 
-            let tests = match namespace.parse_type() {
-                ParseType::Line => crate::fetch::split_tests_one_line(content)
-                    .into_iter()
-                    .map(|x| x.to_string())
-                    .collect(),
-                ParseType::ContinuousLines => crate::fetch::split_tests_two_line(content),
-                ParseType::Whole => vec![content.to_string()],
-            };
+        let tests = match namespace.parse_type() {
+            ParseType::Line => crate::fetch::split_tests_one_line(content)
+                .into_iter()
+                .map(|x| x.to_string())
+                .collect(),
+            ParseType::ContinuousLines => crate::fetch::split_tests_two_line(content),
+            ParseType::Whole => vec![content.to_string()],
+        };
 
-            let mut errors = vec![];
-            if let Some(expectations) = expectations.as_ref() {
-                if tests.len() != expectations.outputs.len() {
-                    errors.push(TestError::MismatchedTestExpectationLength);
-                }
+        let mut errors = vec![];
+        if let Some(expectations) = expectations.as_ref() {
+            if tests.len() != expectations.outputs.len() {
+                errors.push(TestError::MismatchedTestExpectationLength);
             }
+        }
 
-            let mut new_outputs = vec![];
-            let mut expected_output = expectations.as_ref().map(|x| x.outputs.iter());
-            for (i, test) in tests.into_iter().enumerate() {
-                let expected_output = expected_output.as_mut().and_then(|x| x.next()).cloned();
-                println!("running test {} @ '{}'", test_name, path.to_str().unwrap());
-                let panic_buf = set_hook();
-                let leo_output = panic::catch_unwind(|| {
-                    namespace.run_test(Test {
-                        name: test_name.to_string(),
-                        content: test.clone(),
-                        path: path.into(),
-                        config: config.extra.clone(),
-                    })
-                });
-                let output = take_hook(leo_output, panic_buf);
-                if let Some(error) = emit_errors(&test, &output, &config.expectation, expected_output, i) {
-                    fail_tests += 1;
-                    errors.push(error);
-                } else {
-                    pass_tests += 1;
-                    new_outputs.push(
-                        output
-                            .unwrap()
-                            .as_ref()
-                            .map(|x| serde_yaml::to_value(x).expect("serialization failed"))
-                            .unwrap_or_else(|e| Value::String(e.clone())),
-                    );
-                }
-            }
-
-            if errors.is_empty() {
-                if expectations.is_none() {
-                    outputs.push((
-                        expectation_path,
-                        TestExpectation {
-                            namespace: config.namespace,
-                            expectation: config.expectation,
-                            outputs: new_outputs,
-                        },
-                    ));
-                }
-                pass_categories += 1;
-            } else {
-                cases.fail_categories.push(TestFailure {
-                    path: path.to_str().unwrap().to_string(),
-                    errors,
+        let mut new_outputs = vec![];
+        let mut expected_output = expectations.as_ref().map(|x| x.outputs.iter());
+        for (i, test) in tests.into_iter().enumerate() {
+            let expected_output = expected_output.as_mut().and_then(|x| x.next()).cloned();
+            println!("running test {} @ '{}'", test_name, path.to_str().unwrap());
+            let panic_buf = set_hook();
+            let leo_output = panic::catch_unwind(|| {
+                namespace.run_test(Test {
+                    name: test_name.to_string(),
+                    content: test.clone(),
+                    path: path.into(),
+                    config: config.extra.clone(),
                 })
+            });
+            let output = take_hook(leo_output, panic_buf);
+            if let Some(error) = emit_errors(&test, &output, &config.expectation, expected_output, i) {
+                fail_tests += 1;
+                errors.push(error);
+            } else {
+                pass_tests += 1;
+                new_outputs.push(
+                    output
+                        .unwrap()
+                        .as_ref()
+                        .map(|x| serde_yaml::to_value(x).expect("serialization failed"))
+                        .unwrap_or_else(|e| Value::String(e.clone())),
+                );
             }
-        });
-    }
+        }
+
+        if errors.is_empty() {
+            if expectations.is_none() {
+                outputs.push((
+                    expectation_path,
+                    TestExpectation {
+                        namespace: config.namespace,
+                        expectation: config.expectation,
+                        outputs: new_outputs,
+                    },
+                ));
+            }
+            pass_categories += 1;
+        } else {
+            cases.fail_categories.push(TestFailure {
+                path: path.to_str().unwrap().to_string(),
+                errors,
+            })
+        }
+    });
 }
 
 /// returns (name, content) for all benchmark samples
