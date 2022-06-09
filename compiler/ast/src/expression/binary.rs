@@ -21,8 +21,10 @@ use super::*;
 /// Precedence is defined in the parser.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BinaryOperation {
-    /// Addition, i.e. `+`.
+    /// Addition, i.e. `+`, `.add()`.
     Add,
+    /// Wrapped addition, i.e. `.add_wrapped()`.
+    AddWrapped,
     /// Subtraction, i.e. `-`.
     Sub,
     /// Multiplication, i.e. `*`.
@@ -61,41 +63,20 @@ pub enum BinaryOperationClass {
 impl AsRef<str> for BinaryOperation {
     fn as_ref(&self) -> &'static str {
         match self {
-            BinaryOperation::Add => "+",
-            BinaryOperation::Sub => "-",
-            BinaryOperation::Mul => "*",
-            BinaryOperation::Div => "/",
-            BinaryOperation::Pow => "**",
-            BinaryOperation::Or => "||",
-            BinaryOperation::And => "&&",
-            BinaryOperation::Eq => "==",
-            BinaryOperation::Ne => "!=",
-            BinaryOperation::Ge => ">=",
-            BinaryOperation::Gt => ">",
-            BinaryOperation::Le => "<=",
-            BinaryOperation::Lt => "<",
-        }
-    }
-}
-
-impl BinaryOperation {
-    /// The class ("category") that the binary operation belongs to.
-    /// For example, the `+` operator is numeric and `==` results in a boolean value.
-    pub fn class(&self) -> BinaryOperationClass {
-        match self {
-            BinaryOperation::Add
-            | BinaryOperation::Sub
-            | BinaryOperation::Mul
-            | BinaryOperation::Div
-            | BinaryOperation::Pow => BinaryOperationClass::Numeric,
-            BinaryOperation::Or
-            | BinaryOperation::And
-            | BinaryOperation::Eq
-            | BinaryOperation::Ne
-            | BinaryOperation::Ge
-            | BinaryOperation::Gt
-            | BinaryOperation::Le
-            | BinaryOperation::Lt => BinaryOperationClass::Boolean,
+            BinaryOperation::Add => "add",
+            BinaryOperation::AddWrapped => "add_wrapped",
+            BinaryOperation::Sub => "sub",
+            BinaryOperation::Mul => "mul",
+            BinaryOperation::Div => "div",
+            BinaryOperation::Pow => "pow",
+            BinaryOperation::Or => "or",
+            BinaryOperation::And => "and",
+            BinaryOperation::Eq => "eq",
+            BinaryOperation::Ne => "ne",
+            BinaryOperation::Ge => "ge",
+            BinaryOperation::Gt => "gt",
+            BinaryOperation::Le => "le",
+            BinaryOperation::Lt => "lt",
         }
     }
 }
@@ -116,7 +97,7 @@ pub struct BinaryExpression {
 
 impl fmt::Display for BinaryExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} {} {}", self.left, self.op.as_ref(), self.right)
+        write!(f, "{}.{}({})", self.left, self.op.as_ref(), self.right)
     }
 }
 

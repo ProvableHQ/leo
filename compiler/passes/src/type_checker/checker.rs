@@ -138,6 +138,11 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
+    /// Emits an error to the handler if the given type is not an integer.
+    pub(crate) fn assert_int_type(&self, type_: &Option<Type>, span: Span) {
+        self.assert_one_of_types(type_, &INT_TYPES, span)
+    }
+
     /// Emits an error to the handler if the given type is not a field or integer.
     pub(crate) fn assert_field_int_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &FIELD_INT_TYPES, span)

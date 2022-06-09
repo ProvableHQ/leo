@@ -100,30 +100,51 @@ macro_rules! symbols {
 }
 
 symbols! {
+    // unary operators
+
+    // binary operators
+    add,
+    add_w,
+
+    // arity three operators
+
+    // types
     address,
-    AlwaysConst,
     array,
-    assert,
     bool,
-    Class: "class",
-    context,
-    constants,
-    CoreFunction,
-    console,
     Const: "const",
     Constant,
-    Else: "else",
-    error,
-    False: "false",
+    constants,
     field,
-    For: "for",
-    function,
     group,
     i8,
     i16,
     i32,
     i64,
     i128,
+    scalar,
+    string,
+    u8,
+    u16,
+    u32,
+    u64,
+    u128,
+
+    // values
+    False: "false",
+    True: "true",
+
+    // general keywords
+    AlwaysConst,
+    assert,
+    Class: "class",
+    context,
+    CoreFunction,
+    console,
+    Else: "else",
+    error,
+    For: "for",
+    function,
     If: "if",
     In: "in",
     input,
@@ -134,19 +155,11 @@ symbols! {
     prelude,
     Public,
     Return: "return",
-    scalar,
     Star: "*",
     std,
-    string,
     Struct: "struct",
     test,
-    True: "true",
     Type: "type",
-    u8,
-    u16,
-    u32,
-    u64,
-    u128,
 
     CONTAINER_PSEUDO_CIRCUIT: "$InputContainer",
     REGISTERS_PSEUDO_CIRCUIT: "$InputRegister",
@@ -154,11 +167,11 @@ symbols! {
     STATE_PSEUDO_CIRCUIT: "$InputState",
     STATE_LEAF_PSEUDO_CIRCUIT: "$InputStateLeaf",
 
+    // input file
     registers,
     record,
     state,
     state_leaf,
-
     public,
     private,
 }

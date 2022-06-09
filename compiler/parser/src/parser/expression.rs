@@ -218,6 +218,48 @@ impl ParserContext<'_> {
         Ok(inner)
     }
 
+    fn parse_method_call_expression(&mut self, receiver: Expression) -> Result<Expression> {
+        // Get the name of the method.
+        if let Token::Ident(method) = self.token.token {
+            self.bump();
+
+            // Check if the method exists.
+            let index = method.as_u32();
+
+            if index <= 2  {
+                // Binary operators.
+                let operator = match index {
+                    1 => BinaryOperation::Add,
+                    2 => BinaryOperation::AddWrapped,
+                    _ => unimplemented!("throw error for invalid method call")
+                };
+
+                // Parse left parenthesis `(`.
+                self.expect(&Token::LeftParen)?;
+
+                // Parse operand.
+                let operand = self.parse_expression()?;
+
+                // Parse close parenthesis `)`.
+                let right_span = self.expect(&Token::RightParen)?;
+
+                return Ok(Expression::Binary(BinaryExpression {
+                    span: receiver.span() + right_span,
+                    op: operator,
+                    left: Box::new(receiver),
+                    right: Box::new(operand),
+                }))
+
+            } else {
+                // handle core module operators `commit`, `hash` etc.
+                unimplemented!("throw error for invalid method call")
+            }
+        } else {
+            let curr = &self.token;
+            Err(ParserError::unexpected_str(&curr.token, "int or ident", curr.span).into())
+        }
+    }
+
     /// Returns an [`Expression`] AST node if the next tokens represent an
     /// array access, circuit member access, function call, or static function call expression.
     ///
@@ -229,21 +271,7 @@ impl ParserContext<'_> {
         let mut expr = self.parse_primary_expression()?;
         loop {
             if self.eat(&Token::Dot) {
-                // Handle method call expression.
-                if let Some(method) = self.eat_identifier() {
-                    if self.check(&Token::LeftParen) {
-                        let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
-                        expr = Expression::Method(MethodCallExpression {
-                            span: expr.span() + span,
-                            receiver: Box::new(expr),
-                            method,
-                            arguments,
-                        });
-                        continue;
-                    }
-                }
-                let curr = &self.token;
-                return Err(ParserError::unexpected_str(&curr.token, "int or ident", curr.span).into());
+                expr = self.parse_method_call_expression(expr)?
             }
             if !self.check(&Token::LeftParen) {
                 break;
