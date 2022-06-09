@@ -177,5 +177,6 @@ pub fn emit_errors(
             }
             None
         }
+        (Ok(_), TestExpectationMode::Skip) => None,
     }
 }

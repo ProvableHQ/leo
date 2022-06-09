@@ -1,4 +1,9 @@
-function main() {
+/*
+namespace: Bench
+expectation: Pass
+*/
+
+function main() -> u8 {
     return x191(0u32);
 }
 

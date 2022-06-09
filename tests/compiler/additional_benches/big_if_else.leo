@@ -1,4 +1,9 @@
-function main() {
+/*
+namespace: Bench
+expectation: Skip
+*/
+
+function main() -> u8 {
     const x: u8 = 191;
 
     if x == 0 {

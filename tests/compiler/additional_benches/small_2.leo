@@ -1,3 +1,8 @@
+/*
+namespace: Bench
+expectation: Skip
+*/
+
 type uxXY = (u32, char);
 
 type gzOiV = bool;

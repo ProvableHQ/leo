@@ -1,3 +1,8 @@
+/*
+namespace: Bench
+expectation: Skip
+*/
+
 type f7emM = i32;
 
 type D7DUI = field;

@@ -1,3 +1,8 @@
+/*
+namespace: Bench
+expectation: Skip
+*/
+
 function main() {
     const x0: u8 = 0;
     const x1: u8 = x0;

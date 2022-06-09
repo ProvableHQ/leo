@@ -93,7 +93,7 @@ impl TestCases {
         path_prefix.push("../../tests/");
         path_prefix.push(expectation_category);
         if let Ok(p) = std::env::var("TEST_FILTER") {
-            path_prefix.push(p)
+            path_prefix.push(p);
         }
 
         let mut expectation_dir = path_prefix.clone();
@@ -281,7 +281,12 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
 
 /// returns (name, content) for all benchmark samples
 pub fn get_benches() -> Vec<(String, String)> {
-    let (mut cases, configs) = TestCases::new("compiler", |config| config.expectation != TestExpectationMode::Fail);
+    let (mut cases, configs) = TestCases::new("compiler", |config| {
+        (&config.namespace == "Bench" && config.expectation == TestExpectationMode::Pass)
+            || (&config.namespace == "Compile"
+                && config.expectation != TestExpectationMode::Fail
+                && config.expectation != TestExpectationMode::Skip)
+    });
 
     cases.process_tests(configs, |_, (_, content, test_name, _)| {
         (test_name.to_string(), content.to_string())

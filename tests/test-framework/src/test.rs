@@ -20,6 +20,7 @@ use std::collections::BTreeMap;
 pub enum TestExpectationMode {
     Pass,
     Fail,
+    Skip,
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]

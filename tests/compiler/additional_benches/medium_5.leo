@@ -1,3 +1,8 @@
+/*
+namespace: Bench
+expectation: Skip
+*/
+
 type pD0X5 = i8;
 
 type XKaI = i16;

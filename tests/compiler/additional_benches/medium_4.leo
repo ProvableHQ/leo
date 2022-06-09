@@ -1,3 +1,8 @@
+/*
+namespace: Bench
+expectation: Skip
+*/
+
 type LWClh = u128;
 
 type IWJoY = i64;

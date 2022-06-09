@@ -1,3 +1,8 @@
+/*
+namespace: Bench
+expectation: Skip
+*/
+
 type Rx6fk = u8;
 
 type Sq9N = i8;

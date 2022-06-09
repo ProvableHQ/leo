@@ -1,3 +1,8 @@
+/*
+namespace: Bench
+expectation: Skip
+*/
+
 type JzT3X = t5RQ;
 
 type RaEnk = JzT3X;

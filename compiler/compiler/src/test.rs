@@ -240,5 +240,5 @@ impl Runner for TestRunner {
 
 #[test]
 pub fn compiler_tests() {
-    leo_test_framework::TestCases::run_tests(&TestRunner, "compiler");
+    leo_test_framework::run_tests(&TestRunner, "compiler");
 }
