@@ -32,12 +32,12 @@ use leo_errors::Result;
 use leo_span::symbol::create_session_if_not_set_then;
 // use snarkvm_utilities::Write;
 
+use clap::StructOpt;
 use std::{path::PathBuf, process::exit};
-use structopt::{clap::AppSettings, StructOpt};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
 #[derive(StructOpt, Debug)]
-#[structopt(name = "leo", author = "The Aleo Team <hello@aleo.org>", setting = AppSettings::ColoredHelp)]
+#[structopt(name = "leo", author = "The Aleo Team <hello@aleo.org>")]
 struct Opt {
     #[structopt(short, global = true, help = "Print additional information for debugging")]
     debug: bool,
@@ -62,7 +62,6 @@ struct Opt {
 
 ///Leo compiler and package manager
 #[derive(StructOpt, Debug)]
-#[structopt(setting = AppSettings::ColoredHelp)]
 enum CommandOpts {
     // #[structopt(about = "Create a new Leo package in an existing directory")]
     // Init {
@@ -200,14 +199,14 @@ fn set_panic_hook() {
                 "note: compiler args: {}\n",
                 std::env::args().collect::<Vec<_>>().join(" ")
             );
-            eprintln!("note: compiler flags: {:?}\n", Opt::from_args());
+            eprintln!("note: compiler flags: {:?}\n", Opt::parse());
         })
     });
 }
 
 fn main() {
     set_panic_hook();
-    create_session_if_not_set_then(|_| handle_error(run_with_args(Opt::from_args())));
+    create_session_if_not_set_then(|_| handle_error(run_with_args(Opt::parse())));
 }
 
 /// Run command with custom build arguments.

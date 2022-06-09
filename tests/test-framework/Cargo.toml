@@ -36,8 +36,9 @@ features = ["preserve_order"]
 [dependencies.serde_yaml]
 version = "0.8"
 
-[dependencies.structopt]
-version = "0.3"
+[dependencies.clap]
+version = "3.1.18"
+features = ["derive"]
 
 [dependencies.leo-errors]
 path = "../../leo/errors"
