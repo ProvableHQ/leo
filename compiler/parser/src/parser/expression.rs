@@ -120,7 +120,7 @@ impl ParserContext<'_> {
     fn eat_bin_op(&mut self, tokens: &[Token]) -> Option<BinaryOperation> {
         self.eat_any(tokens).then(|| match &self.prev_token.token {
             Token::Eq => BinaryOperation::Eq,
-            Token::NotEq => BinaryOperation::Ne,
+            Token::NotEq => BinaryOperation::Neq,
             Token::Lt => BinaryOperation::Lt,
             Token::LtEq => BinaryOperation::Le,
             Token::Gt => BinaryOperation::Gt,
@@ -224,15 +224,8 @@ impl ParserContext<'_> {
             self.bump();
 
             // Check if the method exists.
-            let index = method.as_u32();
-
-            if index <= 1 {
-                // Binary operators.
-                let operator = match index {
-                    0 => BinaryOperation::Add,
-                    1 => BinaryOperation::AddWrapped,
-                    _ => unimplemented!("throw error for invalid method call"),
-                };
+            if let Some(operator) = BinaryOperation::from_symbol(&method) {
+                // Handle binary operators.
 
                 // Parse left parenthesis `(`.
                 self.expect(&Token::LeftParen)?;

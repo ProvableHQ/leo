@@ -63,6 +63,8 @@ const fn create_type_superset<const S: usize, const A: usize, const O: usize>(
     superset
 }
 
+const BOOL_INT_TYPES: [Type; 11] = create_type_superset(INT_TYPES, [Type::Boolean]);
+
 const FIELD_INT_TYPES: [Type; 11] = create_type_superset(INT_TYPES, [Type::Field]);
 
 const FIELD_SCALAR_INT_TYPES: [Type; 12] = create_type_superset(FIELD_INT_TYPES, [Type::Scalar]);
@@ -134,6 +136,11 @@ impl<'a> TypeChecker<'a> {
                 );
             }
         }
+    }
+
+    /// Emits an error to the handler if the given type is not a boolean or an integer.
+    pub(crate) fn assert_bool_int_type(&self, type_: &Option<Type>, span: Span) {
+        self.assert_one_of_types(type_, &BOOL_INT_TYPES, span)
     }
 
     /// Emits an error to the handler if the given type is not an integer.

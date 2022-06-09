@@ -100,13 +100,56 @@ macro_rules! symbols {
 }
 
 symbols! {
-    // unary operators
+    // unary operators index 0-7
+    abs,
+    abs_wrapped,
+    double,
+    inv,
+    neg,
+    not,
+    square,
+    sqrt,
 
-    // binary operators
+    // binary operators index 8-32
     add,
     add_wrapped,
+    and,
+    div,
+    div_wrapped,
+    eq,
+    ge,
+    gt,
+    le,
+    lt,
+    mul,
+    mul_wrapped,
+    nand,
+    neq,
+    nor,
+    or,
+    pow,
+    pow_wrapped,
+    shl,
+    shl_wrapped,
+    shr,
+    shr_wrapped,
+    sub,
+    sub_wrapped,
+    xor,
 
-    // arity three operators
+    // arity three operators 33-44
+    bhp256,
+    bhp512,
+    bhp768,
+    bhp1024,
+    commit,
+    hash,
+    ped64,
+    ped128,
+    prf,
+    psd2,
+    psd4,
+    psd8,
 
     // types
     address,

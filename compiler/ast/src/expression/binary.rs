@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use leo_span::Symbol;
 
 /// A binary operator.
 ///
@@ -23,41 +24,88 @@ use super::*;
 pub enum BinaryOperation {
     /// Addition, i.e. `+`, `.add()`.
     Add,
-    /// Wrapped addition, i.e. `.add_wrapped()`.
+    /// Wrapping addition, i.e. `.add_wrapped()`.
     AddWrapped,
-    /// Subtraction, i.e. `-`.
-    Sub,
-    /// Multiplication, i.e. `*`.
-    Mul,
-    /// Division, i.e. `/`.
-    Div,
-    /// Exponentiation, i.e. `**` in `a ** b`.
-    Pow,
-    /// Logical-or, i.e., `||`.
-    Or,
-    /// Logical-and, i.e., `&&`.
+    /// Bitwise AND, i.e. `&&`, `.and()`.
     And,
-    /// Equality relation, i.e., `==`.
+    /// Division, i.e. `/`, `.div()`.
+    Div,
+    /// Wrapping division, i.e. `.div_wrapped()`.
+    DivWrapped,
+    /// Equality relation, i.e. `==`, `.eq()`.
     Eq,
-    /// In-equality relation, i.e. `!=`.
-    Ne,
-    /// Greater-or-equal relation, i.e. `>=`.
+    /// Greater-or-equal relation, i.e. `>=`, `.ge()`.
     Ge,
-    /// Greater-than relation, i.e. `>=`.
+    /// Greater-than relation, i.e. `>`, `.gt()`.
     Gt,
-    /// Lesser-or-equal relation, i.e. `<=`.
+    /// Lesser-or-equal relation, i.e. `<=`, `.le()`.
     Le,
-    /// Lesser-than relation, i.e. `<`.
+    /// Lesser-than relation, i.e. `<`, `.lt()`.
     Lt,
+    /// Multiplication, i.e. `*`, `.mul()`.
+    Mul,
+    /// Wrapping multiplication, i.e. `.mul_wrapped()`.
+    MulWrapped,
+    /// Boolean NAND, i.e. `.nand()`.
+    Nand,
+    /// In-equality relation, i.e. `!=`, `.neq()`.
+    Neq,
+    /// Boolean NOR, i.e. `.nor()`.
+    Nor,
+    /// Logical-or, i.e. `||`.
+    Or,
+    /// Exponentiation, i.e. `**` in `a ** b`, `.pow()`.
+    Pow,
+    /// Wrapping exponentiation, i.e. `.pow_wrapped()`.
+    PowWrapped,
+    /// Shift left operation, i.e. `<<`, `.shl()`.
+    Shl,
+    /// Wrapping shift left operation, i.e. `<<`, `.shl_wrapped()`.
+    ShlWrapped,
+    /// Shift right operation, i.e. >>, `.shr()`.
+    Shr,
+    /// Wrapping shift right operation, i.e. >>, `.shr_wrapped()`.
+    ShrWrapped,
+    /// Subtraction, i.e. `-`, `.sub()`.
+    Sub,
+    /// Wrapped subtraction, i.e. `.sub_wrapped()`.
+    SubWrapped,
+    /// Bitwise XOR, i.e. `.xor()`.
+    Xor,
 }
 
-/// The category a binary operation belongs to.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum BinaryOperationClass {
-    /// A numeric one, that is, the result is numeric.
-    Numeric,
-    /// A boolean one, meaning the result is of type `bool`.
-    Boolean,
+impl BinaryOperation {
+    /// Returns a `BinaryOperation` from the given `Symbol`.
+    pub fn from_symbol(symbol: &Symbol) -> Option<BinaryOperation> {
+        Some(match symbol.as_u32() {
+            8 => BinaryOperation::Add,
+            9 => BinaryOperation::AddWrapped,
+            10 => BinaryOperation::And,
+            11 => BinaryOperation::Div,
+            12 => BinaryOperation::DivWrapped,
+            13 => BinaryOperation::Eq,
+            14 => BinaryOperation::Ge,
+            15 => BinaryOperation::Gt,
+            16 => BinaryOperation::Le,
+            17 => BinaryOperation::Lt,
+            18 => BinaryOperation::Mul,
+            19 => BinaryOperation::MulWrapped,
+            20 => BinaryOperation::Nand,
+            21 => BinaryOperation::Neq,
+            22 => BinaryOperation::Nor,
+            23 => BinaryOperation::Or,
+            24 => BinaryOperation::Pow,
+            25 => BinaryOperation::PowWrapped,
+            26 => BinaryOperation::Shl,
+            27 => BinaryOperation::ShlWrapped,
+            28 => BinaryOperation::Shr,
+            29 => BinaryOperation::ShrWrapped,
+            30 => BinaryOperation::Sub,
+            31 => BinaryOperation::SubWrapped,
+            32 => BinaryOperation::Xor,
+            _ => return None
+        })
+    }
 }
 
 impl AsRef<str> for BinaryOperation {
@@ -65,18 +113,29 @@ impl AsRef<str> for BinaryOperation {
         match self {
             BinaryOperation::Add => "add",
             BinaryOperation::AddWrapped => "add_wrapped",
-            BinaryOperation::Sub => "sub",
-            BinaryOperation::Mul => "mul",
-            BinaryOperation::Div => "div",
-            BinaryOperation::Pow => "pow",
-            BinaryOperation::Or => "or",
             BinaryOperation::And => "and",
+            BinaryOperation::Div => "div",
+            BinaryOperation::DivWrapped => "div_wrapped",
             BinaryOperation::Eq => "eq",
-            BinaryOperation::Ne => "ne",
             BinaryOperation::Ge => "ge",
             BinaryOperation::Gt => "gt",
             BinaryOperation::Le => "le",
             BinaryOperation::Lt => "lt",
+            BinaryOperation::Mul => "mul",
+            BinaryOperation::MulWrapped => "mul_wrapped",
+            BinaryOperation::Nand => "nand",
+            BinaryOperation::Neq => "neq",
+            BinaryOperation::Nor => "nor",
+            BinaryOperation::Or => "or",
+            BinaryOperation::Pow => "pow",
+            BinaryOperation::PowWrapped => "pow_wrapped",
+            BinaryOperation::Shl => "shl",
+            BinaryOperation::ShlWrapped => "shl_wrapped",
+            BinaryOperation::Shr => "shr",
+            BinaryOperation::ShrWrapped => "shr_wrapped",
+            BinaryOperation::Sub => "sub",
+            BinaryOperation::SubWrapped => "sub_wrapped",
+            BinaryOperation::Xor => "xor",
         }
     }
 }

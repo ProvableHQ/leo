@@ -186,8 +186,15 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
     fn visit_binary(&mut self, input: &'a BinaryExpression, expected: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor.visit_binary(input) {
             return match input.op {
-                BinaryOperation::And | BinaryOperation::Or => {
+                BinaryOperation::Nand | BinaryOperation::Nor => {
                     self.visitor.assert_type(Type::Boolean, expected, input.span());
+                    let t1 = self.visit_expression(&input.left, expected);
+                    let t2 = self.visit_expression(&input.right, expected);
+
+                    return_incorrect_type(t1, t2, expected)
+                }
+                BinaryOperation::And | BinaryOperation::Or | BinaryOperation::Xor => {
+                    self.visitor.assert_bool_int_type(expected, input.span());
                     let t1 = self.visit_expression(&input.left, expected);
                     let t2 = self.visit_expression(&input.right, expected);
 
@@ -291,7 +298,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
 
                     t1
                 }
-                BinaryOperation::Eq | BinaryOperation::Ne => {
+                BinaryOperation::Eq | BinaryOperation::Neq => {
                     let t1 = self.visit_expression(&input.left, &None);
                     let t2 = self.visit_expression(&input.right, &None);
 
@@ -310,7 +317,15 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
 
                     Some(Type::Boolean)
                 }
-                BinaryOperation::AddWrapped => {
+                BinaryOperation::AddWrapped | BinaryOperation::SubWrapped | BinaryOperation::DivWrapped | BinaryOperation::MulWrapped | BinaryOperation::PowWrapped => {
+                    self.visitor.assert_int_type(expected, input.span);
+                    let t1 = self.visit_expression(&input.left, expected);
+                    let t2 = self.visit_expression(&input.right, expected);
+
+                    return_incorrect_type(t1, t2, expected)
+                }
+                BinaryOperation::Shl| BinaryOperation::ShlWrapped | BinaryOperation::Shr | BinaryOperation::ShrWrapped => {
+                    // todo @collinc97: add magnitude check for second operand (u8, u16, u32).
                     self.visitor.assert_int_type(expected, input.span);
                     let t1 = self.visit_expression(&input.left, expected);
                     let t2 = self.visit_expression(&input.right, expected);
