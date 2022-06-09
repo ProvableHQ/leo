@@ -105,6 +105,9 @@ pub enum Token {
 }
 
 /// Represents all valid Leo keyword tokens.
+/// This defers from the ABNF for the following reasons:
+/// Adding true and false to the keywords of the ABNF grammar makes the lexical grammar ambiguous,
+/// because true and false are also boolean literals, which are different tokens from keywords
 pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Address,
     Token::Bool,
