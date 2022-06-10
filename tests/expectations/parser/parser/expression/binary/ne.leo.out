@@ -19,7 +19,7 @@ outputs:
             - span:
                 lo: 7
                 hi: 10
-      op: Ne
+      op: Neq
       span:
         lo: 0
         hi: 10
@@ -40,7 +40,7 @@ outputs:
             - span:
                 lo: 5
                 hi: 8
-      op: Ne
+      op: Neq
       span:
         lo: 0
         hi: 8
@@ -89,7 +89,7 @@ outputs:
           span:
             lo: 13
             hi: 22
-      op: Ne
+      op: Neq
       span:
         lo: 0
         hi: 22
@@ -140,7 +140,7 @@ outputs:
               span:
                 lo: 13
                 hi: 22
-          op: Ne
+          op: Neq
           span:
             lo: 0
             hi: 22
@@ -190,7 +190,7 @@ outputs:
               span:
                 lo: 39
                 hi: 48
-          op: Ne
+          op: Neq
           span:
             lo: 26
             hi: 48

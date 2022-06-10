@@ -103,7 +103,7 @@ impl BinaryOperation {
             30 => BinaryOperation::Sub,
             31 => BinaryOperation::SubWrapped,
             32 => BinaryOperation::Xor,
-            _ => return None
+            _ => return None,
         })
     }
 }

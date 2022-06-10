@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372009]: The second operand must be a unsigned int but got type `i8`\n    --> compiler-test:4:17\n     |\n   4 |     return a ** b == c;\n     |                 ^\n"
+  - "Error [ETYC0372010]: The second operand must be a unsigned int but got type `i8`\n    --> compiler-test:4:17\n     |\n   4 |     return a ** b == c;\n     |                 ^\n"

@@ -317,14 +317,21 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
 
                     Some(Type::Boolean)
                 }
-                BinaryOperation::AddWrapped | BinaryOperation::SubWrapped | BinaryOperation::DivWrapped | BinaryOperation::MulWrapped | BinaryOperation::PowWrapped => {
+                BinaryOperation::AddWrapped
+                | BinaryOperation::SubWrapped
+                | BinaryOperation::DivWrapped
+                | BinaryOperation::MulWrapped
+                | BinaryOperation::PowWrapped => {
                     self.visitor.assert_int_type(expected, input.span);
                     let t1 = self.visit_expression(&input.left, expected);
                     let t2 = self.visit_expression(&input.right, expected);
 
                     return_incorrect_type(t1, t2, expected)
                 }
-                BinaryOperation::Shl| BinaryOperation::ShlWrapped | BinaryOperation::Shr | BinaryOperation::ShrWrapped => {
+                BinaryOperation::Shl
+                | BinaryOperation::ShlWrapped
+                | BinaryOperation::Shr
+                | BinaryOperation::ShrWrapped => {
                     // todo @collinc97: add magnitude check for second operand (u8, u16, u32).
                     self.visitor.assert_int_type(expected, input.span);
                     let t1 = self.visit_expression(&input.left, expected);
