@@ -341,7 +341,12 @@ impl Token {
             ));
         }
 
-        Err(ParserError::could_not_lex(input.collect::<String>()).into())
+        Err(ParserError::could_not_lex(
+            input
+                .take_while(|c| *c != ';' && !c.is_whitespace())
+                .collect::<String>(),
+        )
+        .into())
     }
 }
 

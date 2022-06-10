@@ -191,7 +191,7 @@ where
                             .get::<FormattedFields<N>>()
                             .expect("Unable to find FormattedFields in extensions; this is a bug");
                         if !fields.is_empty() {
-                            message += &format!("{{{}}}", fields);
+                            message = format!("{message} {{{fields}}}");
                         }
                     }
                 }

@@ -18,7 +18,7 @@ outputs:
                 hi: 14
           - Variable:
               identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":30,\\\"hi\\\":31}\"}"
-              mode: Constant
+              mode: Const
               type_:
                 IntegerType: I32
               span:
@@ -52,7 +52,7 @@ outputs:
         input:
           - Variable:
               identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":85,\\\"hi\\\":86}\"}"
-              mode: Constant
+              mode: Const
               type_:
                 IntegerType: U32
               span:

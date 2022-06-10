@@ -18,7 +18,7 @@ use std::fmt::Display;
 
 use leo_ast::Function;
 use leo_errors::{AstError, Result};
-use leo_span::Symbol;
+use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
 
@@ -35,11 +35,11 @@ pub struct SymbolTable<'a> {
 }
 
 impl<'a> SymbolTable<'a> {
-    pub fn check_shadowing(&self, symbol: &Symbol) -> Result<()> {
-        if let Some(function) = self.functions.get(symbol) {
-            Err(AstError::shadowed_function(symbol, function.span).into())
+    pub fn check_shadowing(&self, symbol: &Symbol, span: Span) -> Result<()> {
+        if self.functions.contains_key(symbol) {
+            Err(AstError::shadowed_function(symbol, span).into())
         } else {
-            self.variables.check_shadowing(symbol)?;
+            self.variables.check_shadowing(symbol, span)?;
             Ok(())
         }
     }
@@ -49,13 +49,13 @@ impl<'a> SymbolTable<'a> {
     }
 
     pub fn insert_fn(&mut self, symbol: Symbol, insert: &'a Function) -> Result<()> {
-        self.check_shadowing(&symbol)?;
+        self.check_shadowing(&symbol, insert.span)?;
         self.functions.insert(symbol, insert);
         Ok(())
     }
 
     pub fn insert_variable(&mut self, symbol: Symbol, insert: VariableSymbol<'a>) -> Result<()> {
-        self.check_shadowing(&symbol)?;
+        self.check_shadowing(&symbol, insert.span)?;
         self.variables.variables.insert(symbol, insert);
         Ok(())
     }
