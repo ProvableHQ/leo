@@ -45,6 +45,12 @@ const INT_TYPES: [Type; 10] = [
     Type::IntegerType(IntegerType::U128),
 ];
 
+const MAGNITUDE_TYPES: [Type; 3] = [
+    Type::IntegerType(IntegerType::U8),
+    Type::IntegerType(IntegerType::U16),
+    Type::IntegerType(IntegerType::U32),
+];
+
 const fn create_type_superset<const S: usize, const A: usize, const O: usize>(
     subset: [Type; S],
     additional: [Type; A],
@@ -146,6 +152,11 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error to the handler if the given type is not an integer.
     pub(crate) fn assert_int_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &INT_TYPES, span)
+    }
+
+    /// Emits an error to the handler if the given type is not a magnitude (u8, u16, u32).
+    pub(crate) fn assert_magnitude_type(&self, type_: &Option<Type>, span: Span) {
+        self.assert_one_of_types(type_, &MAGNITUDE_TYPES, span)
     }
 
     /// Emits an error to the handler if the given type is not a field or integer.

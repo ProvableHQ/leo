@@ -101,7 +101,7 @@ impl ParserContext<'_> {
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent
-    /// a binary or expression.
+    /// a binary OR expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_conjunctive_expression`].
     fn parse_disjunctive_expression(&mut self) -> Result<Expression> {
@@ -109,11 +109,19 @@ impl ParserContext<'_> {
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
-    /// binary and expression.
+    /// binary AND expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_equality_expression`].
     fn parse_conjunctive_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(&[Token::And], Self::parse_equality_expression)
+        self.parse_bin_expr(&[Token::And], Self::parse_shift_expression)
+    }
+
+    /// Returns an [`Expression`] AST node if the next tokens represent a
+    /// shift left or a shift right expression.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_equality_expression`].
+    fn parse_shift_expression(&mut self) -> Result<Expression> {
+        self.parse_bin_expr(&[Token::Shl, Token::Shr], Self::parse_equality_expression)
     }
 
     /// Eats one of binary operators matching any in `tokens`.
@@ -132,6 +140,8 @@ impl ParserContext<'_> {
             Token::Or => BinaryOperation::Or,
             Token::And => BinaryOperation::And,
             Token::Exp => BinaryOperation::Pow,
+            Token::Shl => BinaryOperation::Shl,
+            Token::Shr => BinaryOperation::Shr,
             _ => unreachable!("`eat_bin_op` shouldn't produce this"),
         })
     }
@@ -218,6 +228,8 @@ impl ParserContext<'_> {
         Ok(inner)
     }
 
+    /// Returns an [`Expression`] AST node if the next tokens represent a
+    /// method call expression.
     fn parse_method_call_expression(&mut self, receiver: Expression) -> Result<Expression> {
         // Get the name of the method.
         if let Token::Ident(method) = self.token.token {

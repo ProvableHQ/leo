@@ -258,45 +258,38 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     return_incorrect_type(t1, t2, expected)
                 }
                 BinaryOperation::Pow => {
+                    self.visitor.assert_field_int_type(expected, input.span());
+
                     let t1 = self.visit_expression(&input.left, &None);
-                    let t2 = self.visit_expression(&input.right, &None);
+                    let t2 = self.visit_expression(&input.left, &None);
 
                     match (t1.as_ref(), t2.as_ref()) {
-                        // Type A must be an int.
-                        // Type B must be a unsigned int.
-                        (Some(Type::IntegerType(_)), Some(Type::IntegerType(itype))) if !itype.is_signed() => {
-                            self.visitor.assert_type(t1.unwrap(), expected, input.left.span());
-                        }
-                        // Type A was an int.
-                        // But Type B was not a unsigned int.
-                        (Some(Type::IntegerType(_)), Some(t)) => {
-                            self.visitor.handler.emit_err(
-                                TypeCheckerError::incorrect_pow_exponent_type("unsigned int", t, input.right.span())
-                                    .into(),
-                            );
-                        }
-                        // Type A must be a field.
-                        // Type B must be an int.
-                        (Some(Type::Field), Some(Type::IntegerType(_))) => {
+                        (Some(Type::Field), Some(other)) => {
                             self.visitor.assert_type(Type::Field, expected, input.left.span());
+                            self.visitor.assert_type(*other, &Some(Type::Field), input.left.span());
+                            Some(Type::Field)
                         }
-                        // Type A was a field.
-                        // But Type B was not an int.
-                        (Some(Type::Field), Some(t)) => {
-                            self.visitor.handler.emit_err(
-                                TypeCheckerError::incorrect_pow_exponent_type("int", t, input.right.span()).into(),
-                            );
+                        (Some(other), Some(Type::Field)) => {
+                            self.visitor.assert_type(*other, &Some(Type::Field), input.left.span());
+                            self.visitor.assert_type(Type::Field, expected, input.right.span());
+                            Some(Type::Field)
                         }
-                        // The base is some type thats not an int or field.
-                        (Some(t), _) if !matches!(t, Type::IntegerType(_) | Type::Field) => {
-                            self.visitor
-                                .handler
-                                .emit_err(TypeCheckerError::incorrect_pow_base_type(t, input.left.span()).into());
+                        (Some(t1), Some(t2)) => {
+                            // Allow integer exponentiation.
+                            self.visitor.assert_type(*t1, expected, input.left.span());
+                            self.visitor.assert_type(*t2, expected, input.right.span());
+                            return_incorrect_type(Some(*t1), Some(*t2), expected)
                         }
-                        _ => {}
+                        (Some(type_), None) => {
+                            self.visitor.assert_type(*type_, expected, input.left.span());
+                            None
+                        }
+                        (None, Some(type_)) => {
+                            self.visitor.assert_type(*type_, expected, input.right.span());
+                            None
+                        }
+                        (None, None) => None,
                     }
-
-                    t1
                 }
                 BinaryOperation::Eq | BinaryOperation::Neq => {
                     let t1 = self.visit_expression(&input.left, &None);
@@ -320,8 +313,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                 BinaryOperation::AddWrapped
                 | BinaryOperation::SubWrapped
                 | BinaryOperation::DivWrapped
-                | BinaryOperation::MulWrapped
-                | BinaryOperation::PowWrapped => {
+                | BinaryOperation::MulWrapped => {
                     self.visitor.assert_int_type(expected, input.span);
                     let t1 = self.visit_expression(&input.left, expected);
                     let t2 = self.visit_expression(&input.right, expected);
@@ -331,11 +323,13 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                 BinaryOperation::Shl
                 | BinaryOperation::ShlWrapped
                 | BinaryOperation::Shr
-                | BinaryOperation::ShrWrapped => {
-                    // todo @collinc97: add magnitude check for second operand (u8, u16, u32).
+                | BinaryOperation::ShrWrapped
+                | BinaryOperation::PowWrapped => {
                     self.visitor.assert_int_type(expected, input.span);
+
                     let t1 = self.visit_expression(&input.left, expected);
-                    let t2 = self.visit_expression(&input.right, expected);
+                    let t2 = self.visit_expression(&input.left, &None);
+                    self.visitor.assert_magnitude_type(&t2, input.right.span());
 
                     return_incorrect_type(t1, t2, expected)
                 }

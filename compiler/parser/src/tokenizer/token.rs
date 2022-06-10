@@ -63,6 +63,8 @@ pub enum Token {
     Colon,
     Question,
     Arrow,
+    Shl,
+    Shr,
     Underscore,
 
     // Syntactic Grammar
@@ -221,6 +223,8 @@ impl fmt::Display for Token {
             Colon => write!(f, ":"),
             Question => write!(f, "?"),
             Arrow => write!(f, "->"),
+            Shl => write!(f, "<<"),
+            Shr => write!(f, ">>"),
             Underscore => write!(f, "_"),
 
             Address => write!(f, "address"),
