@@ -193,14 +193,7 @@ impl Token {
             })
         };
         // Consumes a character followed by `on_1`, `on_2` or none. Outputs case_1, case_2, or els.
-        let three_cases = |
-            input: &mut Peekable<_>,
-            on_1,
-            case_1,
-            on_2,
-            case_2,
-            els
-        | {
+        let three_cases = |input: &mut Peekable<_>, on_1, case_1, on_2, case_2, els| {
             input.next();
             Ok(if input.next_if_eq(&on_1).is_some() {
                 (2, case_1)
@@ -310,14 +303,8 @@ impl Token {
             }
             ':' => return single(&mut input, Token::Colon),
             ';' => return single(&mut input, Token::Semicolon),
-            '<' => return three_cases(&mut input,
-                                      '=', Token::LtEq,
-                                      '<', Token::Shl,
-                                      Token::Lt),
-            '>' => return three_cases(&mut input,
-                                      '=', Token::GtEq,
-                                      '>', Token::Shr,
-                                      Token::Gt),
+            '<' => return three_cases(&mut input, '=', Token::LtEq, '<', Token::Shl, Token::Lt),
+            '>' => return three_cases(&mut input, '=', Token::GtEq, '>', Token::Shr, Token::Gt),
             '=' => return followed_by(&mut input, '=', Token::Eq, Token::Assign),
             '[' => return single(&mut input, Token::LeftSquare),
             ']' => return single(&mut input, Token::RightSquare),

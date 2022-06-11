@@ -183,39 +183,49 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
         None
     }
 
-    fn visit_binary(&mut self, input: &'a BinaryExpression, expected: &Self::AdditionalInput) -> Option<Self::Output> {
+    fn visit_binary(
+        &mut self,
+        input: &'a BinaryExpression,
+        destination: &Self::AdditionalInput,
+    ) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor.visit_binary(input) {
             return match input.op {
                 BinaryOperation::Nand | BinaryOperation::Nor => {
-                    self.visitor.assert_type(Type::Boolean, expected, input.span());
-                    let t1 = self.visit_expression(&input.left, expected);
-                    let t2 = self.visit_expression(&input.right, expected);
+                    // Assert equal boolean types.
+                    self.visitor.assert_type(Type::Boolean, destination, input.span());
+                    let t1 = self.visit_expression(&input.left, destination);
+                    let t2 = self.visit_expression(&input.right, destination);
 
-                    return_incorrect_type(t1, t2, expected)
+                    return_incorrect_type(t1, t2, destination)
                 }
                 BinaryOperation::And | BinaryOperation::Or | BinaryOperation::Xor => {
-                    self.visitor.assert_bool_int_type(expected, input.span());
-                    let t1 = self.visit_expression(&input.left, expected);
-                    let t2 = self.visit_expression(&input.right, expected);
+                    // Assert equal boolean or integer types.
+                    self.visitor.assert_bool_int_type(destination, input.span());
+                    let t1 = self.visit_expression(&input.left, destination);
+                    let t2 = self.visit_expression(&input.right, destination);
 
-                    return_incorrect_type(t1, t2, expected)
+                    return_incorrect_type(t1, t2, destination)
                 }
                 BinaryOperation::Add => {
-                    self.visitor.assert_field_group_scalar_int_type(expected, input.span());
-                    let t1 = self.visit_expression(&input.left, expected);
-                    let t2 = self.visit_expression(&input.right, expected);
+                    // Assert equal field, group, scalar, or integer types.
+                    self.visitor
+                        .assert_field_group_scalar_int_type(destination, input.span());
+                    let t1 = self.visit_expression(&input.left, destination);
+                    let t2 = self.visit_expression(&input.right, destination);
 
-                    return_incorrect_type(t1, t2, expected)
+                    return_incorrect_type(t1, t2, destination)
                 }
                 BinaryOperation::Sub => {
-                    self.visitor.assert_field_group_int_type(expected, input.span());
-                    let t1 = self.visit_expression(&input.left, expected);
-                    let t2 = self.visit_expression(&input.right, expected);
+                    // Assert equal field, group, or integer types.
+                    self.visitor.assert_field_group_int_type(destination, input.span());
+                    let t1 = self.visit_expression(&input.left, destination);
+                    let t2 = self.visit_expression(&input.right, destination);
 
-                    return_incorrect_type(t1, t2, expected)
+                    return_incorrect_type(t1, t2, destination)
                 }
                 BinaryOperation::Mul => {
-                    self.visitor.assert_field_group_int_type(expected, input.span());
+                    // Assert field, group or integer types.
+                    self.visitor.assert_field_group_int_type(destination, input.span());
 
                     let t1 = self.visit_expression(&input.left, &None);
                     let t2 = self.visit_expression(&input.right, &None);
@@ -223,75 +233,76 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     // Allow `group` * `scalar` multiplication.
                     match (t1.as_ref(), t2.as_ref()) {
                         (Some(Type::Group), Some(other)) => {
-                            self.visitor.assert_type(Type::Group, expected, input.left.span());
+                            self.visitor.assert_type(Type::Group, destination, input.left.span());
                             self.visitor
                                 .assert_type(*other, &Some(Type::Scalar), input.right.span());
                             Some(Type::Group)
                         }
                         (Some(other), Some(Type::Group)) => {
                             self.visitor.assert_type(*other, &Some(Type::Scalar), input.left.span());
-                            self.visitor.assert_type(Type::Group, expected, input.right.span());
+                            self.visitor.assert_type(Type::Group, destination, input.right.span());
                             Some(Type::Group)
                         }
                         (Some(t1), Some(t2)) => {
-                            self.visitor.assert_type(*t1, expected, input.left.span());
-                            self.visitor.assert_type(*t2, expected, input.right.span());
-                            return_incorrect_type(Some(*t1), Some(*t2), expected)
+                            // Assert equal field or integer types.
+                            self.visitor.assert_type(*t1, destination, input.left.span());
+                            self.visitor.assert_type(*t2, destination, input.right.span());
+                            return_incorrect_type(Some(*t1), Some(*t2), destination)
                         }
                         (Some(type_), None) => {
-                            self.visitor.assert_type(*type_, expected, input.left.span());
+                            self.visitor.assert_type(*type_, destination, input.left.span());
                             None
                         }
                         (None, Some(type_)) => {
-                            self.visitor.assert_type(*type_, expected, input.right.span());
+                            self.visitor.assert_type(*type_, destination, input.right.span());
                             None
                         }
                         (None, None) => None,
                     }
                 }
                 BinaryOperation::Div => {
-                    self.visitor.assert_field_int_type(expected, input.span());
+                    // Assert equal field or integer types.
+                    self.visitor.assert_field_int_type(destination, input.span());
 
-                    let t1 = self.visit_expression(&input.left, expected);
-                    let t2 = self.visit_expression(&input.right, expected);
+                    let t1 = self.visit_expression(&input.left, destination);
+                    let t2 = self.visit_expression(&input.right, destination);
 
-                    return_incorrect_type(t1, t2, expected)
+                    return_incorrect_type(t1, t2, destination)
                 }
                 BinaryOperation::Pow => {
-                    self.visitor.assert_field_int_type(expected, input.span());
+                    // Assert field or integer types.
+                    self.visitor.assert_field_int_type(destination, input.span());
 
                     let t1 = self.visit_expression(&input.left, &None);
-                    let t2 = self.visit_expression(&input.left, &None);
+                    let t2 = self.visit_expression(&input.right, &None);
 
-                    match (t1.as_ref(), t2.as_ref()) {
-                        (Some(Type::Field), Some(other)) => {
-                            self.visitor.assert_type(Type::Field, expected, input.left.span());
-                            self.visitor.assert_type(*other, &Some(Type::Field), input.left.span());
+                    // Allow field * field.
+                    match (t1, t2) {
+                        (Some(Type::Field), type_) => {
+                            self.visitor.assert_type(Type::Field, &type_, input.left.span());
+                            self.visitor.assert_type(Type::Field, destination, input.left.span());
                             Some(Type::Field)
                         }
-                        (Some(other), Some(Type::Field)) => {
-                            self.visitor.assert_type(*other, &Some(Type::Field), input.left.span());
-                            self.visitor.assert_type(Type::Field, expected, input.right.span());
+                        (type_, Some(Type::Field)) => {
+                            self.visitor.assert_type(Type::Field, &type_, input.right.span());
+                            self.visitor.assert_type(Type::Field, destination, input.right.span());
                             Some(Type::Field)
                         }
-                        (Some(t1), Some(t2)) => {
-                            // Allow integer exponentiation.
-                            self.visitor.assert_type(*t1, expected, input.left.span());
-                            self.visitor.assert_type(*t2, expected, input.right.span());
-                            return_incorrect_type(Some(*t1), Some(*t2), expected)
+                        (Some(t1), t2) => {
+                            // Allow integer  magnitude (u8, u16, u32)
+                            self.visitor.assert_magnitude_type(&t2, input.left.span());
+                            Some(self.visitor.assert_type(t1, destination, input.left.span()))
                         }
-                        (Some(type_), None) => {
-                            self.visitor.assert_type(*type_, expected, input.left.span());
-                            None
+                        (t1, t2) => {
+                            // Allow integer  magnitude (u8, u16, u32)
+                            self.visitor.assert_magnitude_type(&t2, input.span());
+                            self.visitor.assert_eq_types(t1, *destination, input.span());
+                            t1
                         }
-                        (None, Some(type_)) => {
-                            self.visitor.assert_type(*type_, expected, input.right.span());
-                            None
-                        }
-                        (None, None) => None,
                     }
                 }
                 BinaryOperation::Eq | BinaryOperation::Neq => {
+                    // Assert equal address, boolean, field, group, scalar, or integer types.
                     let t1 = self.visit_expression(&input.left, &None);
                     let t2 = self.visit_expression(&input.right, &None);
 
@@ -300,6 +311,10 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     Some(Type::Boolean)
                 }
                 BinaryOperation::Lt | BinaryOperation::Gt | BinaryOperation::Le | BinaryOperation::Ge => {
+                    // Assert the destination type is boolean.
+                    self.visitor.assert_type(Type::Boolean, destination, input.span());
+
+                    // Assert left and right are equal field, scalar, or integer types.
                     let t1 = self.visit_expression(&input.left, &None);
                     self.visitor.assert_field_scalar_int_type(&t1, input.left.span());
 
@@ -314,24 +329,27 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                 | BinaryOperation::SubWrapped
                 | BinaryOperation::DivWrapped
                 | BinaryOperation::MulWrapped => {
-                    self.visitor.assert_int_type(expected, input.span);
-                    let t1 = self.visit_expression(&input.left, expected);
-                    let t2 = self.visit_expression(&input.right, expected);
+                    // Assert equal integer types.
+                    self.visitor.assert_int_type(destination, input.span);
+                    let t1 = self.visit_expression(&input.left, destination);
+                    let t2 = self.visit_expression(&input.right, destination);
 
-                    return_incorrect_type(t1, t2, expected)
+                    return_incorrect_type(t1, t2, destination)
                 }
                 BinaryOperation::Shl
                 | BinaryOperation::ShlWrapped
                 | BinaryOperation::Shr
                 | BinaryOperation::ShrWrapped
                 | BinaryOperation::PowWrapped => {
-                    self.visitor.assert_int_type(expected, input.span);
+                    // Assert left and destination are equal integer types.
+                    self.visitor.assert_int_type(destination, input.span);
+                    let t1 = self.visit_expression(&input.left, destination);
 
-                    let t1 = self.visit_expression(&input.left, expected);
+                    // Assert right type is a magnitude (u8, u16, u32).
                     let t2 = self.visit_expression(&input.left, &None);
                     self.visitor.assert_magnitude_type(&t2, input.right.span());
 
-                    return_incorrect_type(t1, t2, expected)
+                    return_incorrect_type(t1, t2, destination)
                 }
             };
         }
