@@ -21,6 +21,7 @@ use std::fmt::Write as _;
 
 use colored::Colorize;
 use self_update::{backends::github, version::bump_is_greater, Status};
+use std::fmt::Write as _;
 
 pub struct Updater;
 

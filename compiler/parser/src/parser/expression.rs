@@ -454,7 +454,7 @@ impl ParserContext<'_> {
             Token::False => Expression::Literal(LiteralExpression::Boolean(false, span)),
             Token::AddressLit(addr) => {
                 if addr.parse::<Address<Testnet2>>().is_err() {
-                    self.emit_err(ParserError::invalid_address_lit(&addr, span).into());
+                    self.emit_err(ParserError::invalid_address_lit(&addr, span));
                 }
                 Expression::Literal(LiteralExpression::Address(addr, span))
             }
