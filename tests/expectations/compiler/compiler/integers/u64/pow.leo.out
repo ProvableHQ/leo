@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372009]: Expected one type from `u8,u16,u32,`, but got `u64`\n    --> compiler-test:4:17\n     |\n   4 |     return a ** b == c;\n     |                 ^\n"

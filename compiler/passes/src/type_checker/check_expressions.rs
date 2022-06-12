@@ -61,14 +61,14 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
         None
     }
 
-    fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Option<Self::Output> {
-        if let VisitResult::VisitChildren = self.visitor.visit_identifier(input) {
-            return if let Some(var) = self.visitor.symbol_table.clone().lookup_variable(&input.name) {
-                Some(self.visitor.assert_expected_option(*var.type_, expected, input.span))
+    fn visit_identifier(&mut self, var: &'a Identifier, expected: &Self::AdditionalInput) -> Option<Self::Output> {
+        if let VisitResult::VisitChildren = self.visitor.visit_identifier(var) {
+            return if let Some(var) = self.visitor.symbol_table.clone().lookup_variable(var.name) {
+                Some(self.visitor.assert_expected_option(*var.type_, expected, var.span))
             } else {
                 self.visitor
                     .handler
-                    .emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span()).into());
+                    .emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()).into());
                 None
             };
         }
@@ -503,7 +503,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
     fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Option<Self::Output> {
         match &*input.function {
             Expression::Identifier(ident) => {
-                if let Some(func) = self.visitor.symbol_table.clone().lookup_fn(&ident.name) {
+                if let Some(func) = self.visitor.symbol_table.clone().lookup_fn(ident.name) {
                     let ret = self.visitor.assert_expected_option(func.output, expected, func.span());
 
                     if func.input.len() != input.arguments.len() {

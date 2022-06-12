@@ -28,11 +28,8 @@ pub(crate) use self::token::*;
 pub(crate) mod lexer;
 pub(crate) use self::lexer::*;
 
-use leo_errors::{ParserError, Result};
-use leo_span::{
-    span::{BytePos, Pos},
-    Span,
-};
+use leo_errors::Result;
+use leo_span::span::{BytePos, Pos, Span};
 
 /// Creates a new vector of spanned tokens from a given file path and source code text.
 pub(crate) fn tokenize(input: &str, start_pos: BytePos) -> Result<Vec<SpannedToken>> {
@@ -57,9 +54,6 @@ pub(crate) fn tokenize_iter(input: &str, mut lo: BytePos) -> impl '_ + Iterator<
 
             match token {
                 Token::WhiteSpace => continue,
-                Token::AddressLit(address) if !check_address(&address) => {
-                    return Some(Err(ParserError::invalid_address_lit(address, span).into()));
-                }
                 _ => return Some(Ok(SpannedToken { token, span })),
             }
         }

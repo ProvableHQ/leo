@@ -157,38 +157,11 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_definition(definition, variable_names, type_, value)
     }
 
-    pub fn reduce_assignee_access(&mut self, access: &AssigneeAccess) -> Result<AssigneeAccess> {
-        let new = match access {
-            AssigneeAccess::ArrayRange(left, right) => {
-                let left = left.as_ref().map(|left| self.reduce_expression(left)).transpose()?;
-                let right = right.as_ref().map(|right| self.reduce_expression(right)).transpose()?;
-
-                AssigneeAccess::ArrayRange(left, right)
-            }
-            AssigneeAccess::ArrayIndex(index) => AssigneeAccess::ArrayIndex(self.reduce_expression(index)?),
-            AssigneeAccess::Member(identifier) => AssigneeAccess::Member(self.reduce_identifier(identifier)?),
-            _ => access.clone(),
-        };
-
-        self.reducer.reduce_assignee_access(access, new)
-    }
-
-    pub fn reduce_assignee(&mut self, assignee: &Assignee) -> Result<Assignee> {
-        let identifier = self.reduce_identifier(&assignee.identifier)?;
-
-        let mut accesses = vec![];
-        for access in assignee.accesses.iter() {
-            accesses.push(self.reduce_assignee_access(access)?);
-        }
-
-        self.reducer.reduce_assignee(assignee, identifier, accesses)
-    }
-
     pub fn reduce_assign(&mut self, assign: &AssignStatement) -> Result<AssignStatement> {
-        let assignee = self.reduce_assignee(&assign.assignee)?;
+        let place = self.reduce_expression(&assign.place)?;
         let value = self.reduce_expression(&assign.value)?;
 
-        self.reducer.reduce_assign(assign, assignee, value)
+        self.reducer.reduce_assign(assign, place, value)
     }
 
     pub fn reduce_conditional(&mut self, conditional: &ConditionalStatement) -> Result<ConditionalStatement> {

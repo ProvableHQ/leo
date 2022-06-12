@@ -159,32 +159,15 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_assignee_access(&mut self, _access: &AssigneeAccess, new: AssigneeAccess) -> Result<AssigneeAccess> {
-        Ok(new)
-    }
-
-    fn reduce_assignee(
-        &mut self,
-        assignee: &Assignee,
-        identifier: Identifier,
-        accesses: Vec<AssigneeAccess>,
-    ) -> Result<Assignee> {
-        Ok(Assignee {
-            identifier,
-            accesses,
-            span: assignee.span,
-        })
-    }
-
     fn reduce_assign(
         &mut self,
         assign: &AssignStatement,
-        assignee: Assignee,
+        place: Expression,
         value: Expression,
     ) -> Result<AssignStatement> {
         Ok(AssignStatement {
             operation: assign.operation,
-            assignee,
+            place,
             value,
             span: assign.span,
         })

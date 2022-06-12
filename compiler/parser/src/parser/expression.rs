@@ -17,6 +17,7 @@
 use super::*;
 
 use leo_errors::{ParserError, Result};
+use snarkvm_dpc::{prelude::Address, testnet2::Testnet2};
 
 const INT_TYPES: &[Token] = &[
     Token::I8,
@@ -449,7 +450,12 @@ impl ParserContext<'_> {
             }
             Token::True => Expression::Value(ValueExpression::Boolean("true".into(), span)),
             Token::False => Expression::Value(ValueExpression::Boolean("false".into(), span)),
-            Token::AddressLit(value) => Expression::Value(ValueExpression::Address(value, span)),
+            Token::AddressLit(addr) => {
+                if addr.parse::<Address<Testnet2>>().is_err() {
+                    self.emit_err(ParserError::invalid_address_lit(&addr, span).into());
+                }
+                Expression::Value(ValueExpression::Address(addr, span))
+            }
             Token::StaticString(value) => Expression::Value(ValueExpression::String(value, span)),
             Token::Ident(name) => {
                 let ident = Identifier { name, span };

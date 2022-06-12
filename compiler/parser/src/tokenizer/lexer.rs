@@ -17,13 +17,11 @@
 use crate::tokenizer::Token;
 use leo_errors::{ParserError, Result};
 use leo_span::{Span, Symbol};
-use snarkvm_dpc::{prelude::*, testnet2::Testnet2};
 
 use serde::{Deserialize, Serialize};
 use std::{
     fmt,
     iter::{from_fn, Peekable},
-    str::FromStr,
 };
 
 /// Eat an identifier, that is, a string matching '[a-zA-Z][a-zA-Z\d_]*', if any.
@@ -176,6 +174,7 @@ impl Token {
             return Err(ParserError::lexer_empty_input().into());
         }
 
+        let input_str = input;
         let mut input = input.chars().peekable();
 
         // Consumes a single character token.
@@ -207,28 +206,18 @@ impl Token {
         match *input.peek().ok_or_else(ParserError::lexer_empty_input)? {
             x if x.is_ascii_whitespace() => return single(&mut input, Token::WhiteSpace),
             '"' => {
-                let mut string = String::new();
-                input.next();
-
-                let mut ended = false;
-                while let Some(c) = input.next() {
-                    // Check for illegal characters.
-                    if is_bidi_override(c) {
-                        return Err(ParserError::lexer_bidi_override().into());
-                    }
-
-                    // Check for end string quotation mark.
-                    if c == '"' {
-                        input.next();
-                        ended = true;
-                        break;
-                    }
-                    string.push(c);
+                // Check for illegal characters.
+                if input_str.chars().any(is_bidi_override) {
+                    return Err(ParserError::lexer_bidi_override().into());
                 }
 
-                if !ended {
-                    return Err(ParserError::lexer_string_not_closed(string).into());
-                }
+                // Find end string quotation mark.
+                // Instead of checking each `char` and pushing, we can avoid reallocations.
+                let rest = &input_str[1..];
+                let string = match rest.as_bytes().iter().position(|c| *c == b'"') {
+                    None => return Err(ParserError::lexer_string_not_closed(rest).into()),
+                    Some(idx) => rest[..idx].to_owned(),
+                };
 
                 // + 2 to account for parsing quotation marks.
                 return Ok((string.len() + 2, Token::StaticString(string)));
@@ -378,9 +367,4 @@ impl fmt::Debug for SpannedToken {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         <SpannedToken as fmt::Display>::fmt(self, f)
     }
-}
-
-/// Returns true if the given string is a valid Aleo address.
-pub(crate) fn check_address(address: &str) -> bool {
-    Address::<Testnet2>::from_str(address).is_ok()
 }

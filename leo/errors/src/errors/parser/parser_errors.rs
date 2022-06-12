@@ -120,14 +120,6 @@ create_messages!(
         help: None,
     }
 
-    /// For when the parser encountered an invalid assignment target.
-    @formatted
-    invalid_assignment_target {
-        args: (),
-        msg: "invalid assignment target",
-        help: None,
-    }
-
     /// For when the parser encountered an invalid package name.
     @formatted
     invalid_package_name {

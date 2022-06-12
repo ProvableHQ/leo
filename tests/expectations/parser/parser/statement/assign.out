@@ -4,12 +4,8 @@ expectation: Pass
 outputs:
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 1
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
       value:
         Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":8}\"}"
       span:
@@ -17,12 +13,8 @@ outputs:
         hi: 8
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 1
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
       value:
         Binary:
           left:
@@ -38,12 +30,8 @@ outputs:
         hi: 7
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 1
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
       value:
         Call:
           function:
