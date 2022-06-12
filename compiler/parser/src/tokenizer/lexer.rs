@@ -36,6 +36,14 @@ fn is_bidi_override(c: char) -> bool {
     (0x202A..=0x202E).contains(&i) || (0x2066..=0x2069).contains(&i)
 }
 
+/// Ensure that `string` contains no Unicode Bidirectional Override code points.
+fn ensure_no_bidi_override(string: &str) -> Result<()> {
+    if string.chars().any(is_bidi_override) {
+        return Err(ParserError::lexer_bidi_override().into());
+    }
+    Ok(())
+}
+
 impl Token {
     // todo: remove this unused code or reference https://github.com/Geal/nom/blob/main/examples/string.rs
     // // Eats the parts of the unicode character after \u.
@@ -214,10 +222,7 @@ impl Token {
                     Some(idx) => rest[..idx].to_owned(),
                 };
 
-                // Check for illegal characters.
-                if string.chars().any(is_bidi_override) {
-                    return Err(ParserError::lexer_bidi_override().into());
-                }
+                ensure_no_bidi_override(&string)?;
 
                 // + 2 to account for parsing quotation marks.
                 return Ok((string.len() + 2, Token::StaticString(string)));
@@ -237,21 +242,14 @@ impl Token {
             '/' => {
                 input.next();
                 if input.next_if_eq(&'/').is_some() {
-                    let mut comment = String::from("//");
+                    // Find the end of the comment line.
+                    let comment = match input_str.as_bytes().iter().position(|c| *c == b'\n') {
+                        None => input_str,
+                        Some(idx) => &input_str[..idx + 1],
+                    };
 
-                    while let Some(c) = input.next_if(|c| c != &'\n') {
-                        if is_bidi_override(c) {
-                            return Err(ParserError::lexer_bidi_override().into());
-                        }
-                        comment.push(c);
-                    }
-
-                    if let Some(newline) = input.next_if_eq(&'\n') {
-                        comment.push(newline);
-                        return Ok((comment.len(), Token::CommentLine(comment)));
-                    }
-
-                    return Ok((comment.len(), Token::CommentLine(comment)));
+                    ensure_no_bidi_override(comment)?;
+                    return Ok((comment.len(), Token::CommentLine(comment.to_owned())));
                 } else if input.next_if_eq(&'*').is_some() {
                     let mut comment = String::from("/*");
 
@@ -261,9 +259,6 @@ impl Token {
 
                     let mut ended = false;
                     while let Some(c) = input.next() {
-                        if is_bidi_override(c) {
-                            return Err(ParserError::lexer_bidi_override().into());
-                        }
                         comment.push(c);
                         if c == '*' && input.next_if_eq(&'/').is_some() {
                             comment.push('/');
@@ -271,6 +266,8 @@ impl Token {
                             break;
                         }
                     }
+
+                    ensure_no_bidi_override(&comment)?;
 
                     if !ended {
                         return Err(ParserError::lexer_block_comment_does_not_close_before_eof(comment).into());
