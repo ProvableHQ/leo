@@ -28,7 +28,7 @@ macro_rules! create_messages {
     };
     ($(#[$error_type_docs:meta])* $type_:ident, code_mask: $code_mask:expr, code_prefix: $code_prefix:expr, $($(#[$docs:meta])* @$formatted_or_backtraced_list:ident $names:ident { args: ($($arg_names:ident: $arg_types:ty$(,)?)*), msg: $messages:expr, help: $helps:expr, })*) => {
         #[allow(unused_imports)] // Allow unused for errors that only use formatted or backtraced errors.
-        use crate::{Backtraced, Formatted, LeoMessageCode};
+        use $crate::{Backtraced, Formatted, LeoMessageCode};
 
         use backtrace::Backtrace;
 

@@ -69,8 +69,8 @@ impl ParserContext<'_> {
         }
 
         match (public, constant, const_) {
-            (None, Some(_), None) => Ok(ParamMode::Constant),
-            (None, None, Some(_)) => Ok(ParamMode::Constant),
+            (None, Some(_), None) => Ok(ParamMode::Const),
+            (None, None, Some(_)) => Ok(ParamMode::Const),
             (None, None, None) => Ok(ParamMode::Private),
             (Some(_), None, None) => Ok(ParamMode::Public),
             (Some(m1), Some(m2), None) | (Some(m1), None, Some(m2)) | (None, Some(m1), Some(m2)) => {

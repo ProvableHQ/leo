@@ -26,7 +26,7 @@ use std::{
 
 use crate::{error::*, fetch::find_tests, output::TestExpectation, test::*};
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum ParseType {
     Line,
     ContinuousLines,
