@@ -206,11 +206,6 @@ impl Token {
         match *input.peek().ok_or_else(ParserError::lexer_empty_input)? {
             x if x.is_ascii_whitespace() => return single(&mut input, Token::WhiteSpace),
             '"' => {
-                // Check for illegal characters.
-                if input_str.chars().any(is_bidi_override) {
-                    return Err(ParserError::lexer_bidi_override().into());
-                }
-
                 // Find end string quotation mark.
                 // Instead of checking each `char` and pushing, we can avoid reallocations.
                 let rest = &input_str[1..];
@@ -218,6 +213,11 @@ impl Token {
                     None => return Err(ParserError::lexer_string_not_closed(rest).into()),
                     Some(idx) => rest[..idx].to_owned(),
                 };
+
+                // Check for illegal characters.
+                if string.chars().any(is_bidi_override) {
+                    return Err(ParserError::lexer_bidi_override().into());
+                }
 
                 // + 2 to account for parsing quotation marks.
                 return Ok((string.len() + 2, Token::StaticString(string)));
