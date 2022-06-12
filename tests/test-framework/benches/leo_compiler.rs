@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! This file contains tools for benchmarking the Leo compiler and its stages.
+
 use leo_compiler::Compiler;
 use leo_errors::emitter::{Emitter, Handler};
 use leo_span::{
@@ -28,13 +30,19 @@ use std::{
     time::{Duration, Instant},
 };
 
+/// An enum to represent the stage of the Compiler we are benchmarking.
 enum BenchMode {
+    /// Benchmarks parsing.
     Parse,
+    /// Benchmarks symbol table generation.
     Symbol,
+    /// Benchmarks type checking.
     Type,
+    /// Benchmarks all the above stages.
     Full,
 }
 
+/// A dummy buffer emitter since we only test on valid programs.
 struct BufEmitter;
 
 impl Emitter for BufEmitter {
@@ -53,12 +61,14 @@ impl BufEmitter {
     }
 }
 
+/// The name of the test, and the test content.
 #[derive(Clone)]
 struct Sample {
     name: String,
     input: String,
 }
 
+/// A helper function to help create a Leo Compiler struct.
 fn new_compiler(handler: &Handler) -> Compiler<'_> {
     Compiler::new(
         handler,
@@ -69,6 +79,9 @@ fn new_compiler(handler: &Handler) -> Compiler<'_> {
 }
 
 impl Sample {
+    /// Loads all the benchmark samples.
+    /// Leverages the test-framework to grab all tests
+    /// that are passing compiler tests or marked as benchmark tests.
     fn load_samples() -> Vec<Self> {
         get_benches()
             .into_iter()
@@ -91,6 +104,8 @@ impl Sample {
 
     fn bench_parse(&self, c: &mut Criterion) {
         c.bench_function(&format!("parse {}", self.name), |b| {
+            // Iter custom is used so we can use custom timings around the compiler stages.
+            // This way we can only time the necessary stage.
             b.iter_custom(|iters| {
                 let mut time = Duration::default();
                 for _ in 0..iters {
@@ -111,6 +126,8 @@ impl Sample {
 
     fn bench_symbol_table(&self, c: &mut Criterion) {
         c.bench_function(&format!("symbol table pass {}", self.name), |b| {
+            // Iter custom is used so we can use custom timings around the compiler stages.
+            // This way we can only time the necessary stage.
             b.iter_custom(|iters| {
                 let mut time = Duration::default();
                 for _ in 0..iters {
@@ -134,6 +151,8 @@ impl Sample {
 
     fn bench_type_checker(&self, c: &mut Criterion) {
         c.bench_function(&format!("type checker pass {}", self.name), |b| {
+            // Iter custom is used so we can use custom timings around the compiler stages.
+            // This way we can only time the necessary stage.
             b.iter_custom(|iters| {
                 let mut time = Duration::default();
                 for _ in 0..iters {
@@ -158,6 +177,8 @@ impl Sample {
 
     fn bench_full(&self, c: &mut Criterion) {
         c.bench_function(&format!("full {}", self.name), |b| {
+            // Iter custom is used so we can use custom timings around the compiler stages.
+            // This way we can only time the necessary stages.
             b.iter_custom(|iters| {
                 let mut time = Duration::default();
                 for _ in 0..iters {

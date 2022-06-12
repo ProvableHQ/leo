@@ -50,6 +50,10 @@ pub trait Runner {
     fn resolve_namespace(&self, name: &str) -> Option<Box<dyn Namespace>>;
 }
 
+fn is_env_var_set(var: &str) -> bool {
+    std::env::var(var).unwrap_or_else(|_| "".to_string()).trim().is_empty()
+}
+
 fn set_hook() -> Arc<Mutex<Option<String>>> {
     let panic_buf = Arc::new(Mutex::new(None));
     let thread_id = thread::current().id();
@@ -57,10 +61,7 @@ fn set_hook() -> Arc<Mutex<Option<String>>> {
         let panic_buf = panic_buf.clone();
         Box::new(move |e| {
             if thread::current().id() == thread_id {
-                if !std::env::var("RUST_BACKTRACE")
-                    .unwrap_or_else(|_| "".to_string())
-                    .is_empty()
-                {
+                if !is_env_var_set("RUST_BACKTRACE") {
                     *panic_buf.lock().unwrap() = Some(format!("{:?}", backtrace::Backtrace::new()));
                 } else {
                     *panic_buf.lock().unwrap() = Some(e.to_string());
@@ -111,7 +112,7 @@ impl TestCases {
     fn load_tests(&mut self, additional_check: impl Fn(&TestConfig) -> bool) -> Vec<TestConfig> {
         let mut configs = Vec::new();
 
-        self.tests = find_tests(&self.path_prefix)
+        self.tests = find_tests(&self.path_prefix.clone())
             .into_iter()
             .filter(|(path, content)| {
                 let config = match extract_test_config(content) {
@@ -130,6 +131,7 @@ impl TestCases {
                 res
             })
             .collect();
+        dbg!(self.tests.len());
 
         configs
     }
@@ -177,11 +179,7 @@ impl TestCases {
         expectation_path.push(&expectation_name);
 
         if expectation_path.exists() {
-            if !std::env::var("CLEAR_LEO_TEST_EXPECTATIONS")
-                .unwrap_or_default()
-                .trim()
-                .is_empty()
-            {
+            if !is_env_var_set("CLEAR_LEO_TEST_EXPECTATIONS") {
                 (expectation_path, None)
             } else {
                 let raw = std::fs::read_to_string(&expectation_path).expect("failed to read expectations file");
@@ -284,8 +282,10 @@ pub fn get_benches() -> Vec<(String, String)> {
     let (mut cases, configs) = TestCases::new("compiler", |config| {
         (&config.namespace == "Bench" && config.expectation == TestExpectationMode::Pass)
             || (&config.namespace == "Compile"
-                && config.expectation != TestExpectationMode::Fail
-                && config.expectation != TestExpectationMode::Skip)
+                && !matches!(
+                    config.expectation,
+                    TestExpectationMode::Fail | TestExpectationMode::Skip
+                ))
     });
 
     cases.process_tests(configs, |_, (_, content, test_name, _)| {

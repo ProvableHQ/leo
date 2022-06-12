@@ -32,14 +32,20 @@ use std::path::PathBuf;
 
 use crate::OutputOptions;
 
-#[derive(Clone)]
 /// The primary entry point of the Leo compiler.
+#[derive(Clone)]
 pub struct Compiler<'a> {
+    /// The handler is used for error and warning emissions.
     handler: &'a Handler,
+    /// The path to the main leo file.
     main_file_path: PathBuf,
+    /// The path to where the compiler outputs all generated files.
     output_directory: PathBuf,
+    /// The AST for the program.
     pub ast: Ast,
+    /// The input ast for the program if it exists.
     pub input_ast: Option<InputAst>,
+    /// Compiler options on some optional output files.
     output_options: OutputOptions,
 }
 

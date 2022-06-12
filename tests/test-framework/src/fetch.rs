@@ -21,20 +21,16 @@ use std::{
 
 use walkdir::WalkDir;
 
-pub fn find_tests<T: AsRef<Path> + Copy>(path: T) -> Vec<(PathBuf, String)> {
-    WalkDir::new(path)
-        .into_iter()
-        .flatten()
-        .filter_map(|f| {
-            let path = f.path();
-            if matches!(path.extension(), Some(s) if s == "leo") {
-                let content = fs::read_to_string(path).expect("failed to read test");
-                Some((path.to_path_buf(), content))
-            } else {
-                None
-            }
+pub fn find_tests(path: &'_ Path) -> impl Iterator<Item = (PathBuf, String)> + '_ {
+    WalkDir::new(path).into_iter().flatten().filter_map(move |f| {
+        let path = f.path();
+        path.extension().filter(|s| *s == "leo").map(|_| {
+            (
+                path.to_path_buf(),
+                fs::read_to_string(path).expect("failed to read test"),
+            )
         })
-        .collect::<Vec<(PathBuf, String)>>()
+    })
 }
 
 pub fn split_tests_one_line(source: &str) -> Vec<&str> {
