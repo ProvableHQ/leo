@@ -22,34 +22,34 @@ use std::fmt;
 
 /// A group literal.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum GroupValue {
+pub enum GroupLiteral {
     /// Product group literal, e.g., `42group`.
     Single(String, #[serde(with = "leo_span::span_json")] Span),
     /// An affine group literal with (x, y) coordinates.
     Tuple(GroupTuple),
 }
 
-impl GroupValue {
+impl GroupLiteral {
     pub fn set_span(&mut self, new_span: Span) {
         match self {
-            GroupValue::Single(_, old_span) => *old_span = new_span,
-            GroupValue::Tuple(tuple) => tuple.span = new_span,
+            Self::Single(_, old_span) => *old_span = new_span,
+            Self::Tuple(tuple) => tuple.span = new_span,
         }
     }
 
     pub fn span(&self) -> &Span {
         match self {
-            GroupValue::Single(_, span) => span,
-            GroupValue::Tuple(tuple) => &tuple.span,
+            Self::Single(_, span) => span,
+            Self::Tuple(tuple) => &tuple.span,
         }
     }
 }
 
-impl fmt::Display for GroupValue {
+impl fmt::Display for GroupLiteral {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            GroupValue::Single(string, _) => write!(f, "{}", string),
-            GroupValue::Tuple(tuple) => write!(f, "{}", tuple),
+            Self::Single(string, _) => write!(f, "{}", string),
+            Self::Tuple(tuple) => write!(f, "{}", tuple),
         }
     }
 }

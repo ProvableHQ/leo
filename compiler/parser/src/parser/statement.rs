@@ -22,7 +22,6 @@ use leo_span::sym;
 const ASSIGN_TOKENS: &[Token] = &[Token::Assign];
 
 impl ParserContext<'_> {
-
     /// Returns a [`Statement`] AST node if the next tokens represent a statement.
     pub(crate) fn parse_statement(&mut self) -> Result<Statement> {
         match &self.token.token {

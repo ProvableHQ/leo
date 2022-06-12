@@ -55,15 +55,18 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_group_value(&mut self, _group_value: &GroupValue, new: GroupValue) -> Result<GroupValue> {
+    fn reduce_group_literal(&mut self, _group_lit: &GroupLiteral, new: GroupLiteral) -> Result<GroupLiteral> {
         Ok(new)
     }
 
     fn reduce_string(&mut self, string: &str, span: &Span) -> Result<Expression> {
-        Ok(Expression::Value(ValueExpression::String(string.to_string(), *span)))
+        Ok(Expression::Literal(LiteralExpression::String(
+            string.to_string(),
+            *span,
+        )))
     }
 
-    fn reduce_value(&mut self, _value: &ValueExpression, new: Expression) -> Result<Expression> {
+    fn reduce_literal(&mut self, _lit: &LiteralExpression, new: Expression) -> Result<Expression> {
         Ok(new)
     }
 

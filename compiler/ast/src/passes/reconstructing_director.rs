@@ -41,7 +41,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_expression(&mut self, expression: &Expression) -> Result<Expression> {
         let new = match expression {
             Expression::Identifier(identifier) => Expression::Identifier(self.reduce_identifier(identifier)?),
-            Expression::Value(value) => self.reduce_value(value)?,
+            Expression::Literal(lit) => self.reduce_literal(lit)?,
             Expression::Binary(binary) => Expression::Binary(self.reduce_binary(binary)?),
             Expression::Unary(unary) => Expression::Unary(self.reduce_unary(unary)?),
             Expression::Ternary(ternary) => Expression::Ternary(self.reduce_ternary(ternary)?),
@@ -60,29 +60,29 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_group_tuple(group_tuple)
     }
 
-    pub fn reduce_group_value(&mut self, group_value: &GroupValue) -> Result<GroupValue> {
-        let new = match group_value {
-            GroupValue::Tuple(group_tuple) => GroupValue::Tuple(self.reduce_group_tuple(group_tuple)?),
-            _ => group_value.clone(),
+    pub fn reduce_group_literal(&mut self, group_lit: &GroupLiteral) -> Result<GroupLiteral> {
+        let new = match group_lit {
+            GroupLiteral::Tuple(group_tuple) => GroupLiteral::Tuple(self.reduce_group_tuple(group_tuple)?),
+            _ => group_lit.clone(),
         };
 
-        self.reducer.reduce_group_value(group_value, new)
+        self.reducer.reduce_group_literal(group_lit, new)
     }
 
     pub fn reduce_string(&mut self, string: &str, span: &Span) -> Result<Expression> {
         self.reducer.reduce_string(string, span)
     }
 
-    pub fn reduce_value(&mut self, value: &ValueExpression) -> Result<Expression> {
-        let new = match value {
-            ValueExpression::Group(group_value) => {
-                Expression::Value(ValueExpression::Group(Box::new(self.reduce_group_value(group_value)?)))
-            }
-            ValueExpression::String(string, span) => self.reduce_string(string, span)?,
-            _ => Expression::Value(value.clone()),
+    pub fn reduce_literal(&mut self, lit: &LiteralExpression) -> Result<Expression> {
+        let new = match lit {
+            LiteralExpression::Group(group_value) => Expression::Literal(LiteralExpression::Group(Box::new(
+                self.reduce_group_literal(group_value)?,
+            ))),
+            LiteralExpression::String(string, span) => self.reduce_string(string, span)?,
+            _ => Expression::Literal(lit.clone()),
         };
 
-        self.reducer.reduce_value(value, new)
+        self.reducer.reduce_literal(lit, new)
     }
 
     pub fn reduce_binary(&mut self, binary: &BinaryExpression) -> Result<BinaryExpression> {

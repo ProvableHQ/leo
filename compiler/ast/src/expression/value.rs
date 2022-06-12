@@ -14,22 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::GroupLiteral;
+
 use super::*;
 
 /// A literal expression.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ValueExpression {
+pub enum LiteralExpression {
     // todo: deserialize values here
     /// An address literal, e.g., `aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9`.
     Address(String, #[serde(with = "leo_span::span_json")] Span),
     /// A boolean literal, either `true` or `false`.
-    Boolean(String, #[serde(with = "leo_span::span_json")] Span),
+    Boolean(bool, #[serde(with = "leo_span::span_json")] Span),
     /// A field literal, e.g., `42field`.
     /// A signed number followed by the keyword `field`.
     Field(String, #[serde(with = "leo_span::span_json")] Span),
     /// A group literal, either product or affine.
     /// For example, `42group` or `(12, 52)group`.
-    Group(Box<GroupValue>),
+    Group(Box<GroupLiteral>),
     /// An integer literal, e.g., `42`.
     Integer(IntegerType, String, #[serde(with = "leo_span::span_json")] Span),
     /// A scalar literal, e.g. `1scalar`.
@@ -39,50 +41,47 @@ pub enum ValueExpression {
     String(String, #[serde(with = "leo_span::span_json")] Span),
 }
 
-impl fmt::Display for ValueExpression {
+impl fmt::Display for LiteralExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use ValueExpression::*;
         match &self {
-            Address(address, _) => write!(f, "{}", address),
-            Boolean(boolean, _) => write!(f, "{}", boolean),
-            Field(field, _) => write!(f, "{}", field),
-            Group(group) => write!(f, "{}", group),
-            Integer(type_, value, _) => write!(f, "{}{}", value, type_),
-            Scalar(scalar, _) => write!(f, "{}", scalar),
-            String(string, _) => write!(f, "{}", string),
+            Self::Address(address, _) => write!(f, "{}", address),
+            Self::Boolean(boolean, _) => write!(f, "{}", boolean),
+            Self::Field(field, _) => write!(f, "{}", field),
+            Self::Group(group) => write!(f, "{}", group),
+            Self::Integer(type_, value, _) => write!(f, "{}{}", value, type_),
+            Self::Scalar(scalar, _) => write!(f, "{}", scalar),
+            Self::String(string, _) => write!(f, "{}", string),
         }
     }
 }
 
-impl Node for ValueExpression {
+impl Node for LiteralExpression {
     fn span(&self) -> Span {
-        use ValueExpression::*;
         match &self {
-            Address(_, span)
-            | Boolean(_, span)
-            | Field(_, span)
-            | Integer(_, _, span)
-            | Scalar(_, span)
-            | String(_, span) => *span,
-            Group(group) => match &**group {
-                GroupValue::Single(_, span) => *span,
-                GroupValue::Tuple(tuple) => tuple.span,
+            Self::Address(_, span)
+            | Self::Boolean(_, span)
+            | Self::Field(_, span)
+            | Self::Integer(_, _, span)
+            | Self::Scalar(_, span)
+            | Self::String(_, span) => *span,
+            Self::Group(group) => match &**group {
+                GroupLiteral::Single(_, span) => *span,
+                GroupLiteral::Tuple(tuple) => tuple.span,
             },
         }
     }
 
     fn set_span(&mut self, new_span: Span) {
-        use ValueExpression::*;
         match self {
-            Address(_, span)
-            | Boolean(_, span)
-            | Field(_, span)
-            | Integer(_, _, span)
-            | Scalar(_, span)
-            | String(_, span) => *span = new_span,
-            Group(group) => match &mut **group {
-                GroupValue::Single(_, span) => *span = new_span,
-                GroupValue::Tuple(tuple) => tuple.span = new_span,
+            Self::Address(_, span)
+            | Self::Boolean(_, span)
+            | Self::Field(_, span)
+            | Self::Integer(_, _, span)
+            | Self::Scalar(_, span)
+            | Self::String(_, span) => *span = new_span,
+            Self::Group(group) => match &mut **group {
+                GroupLiteral::Single(_, span) => *span = new_span,
+                GroupLiteral::Tuple(tuple) => tuple.span = new_span,
             },
         }
     }

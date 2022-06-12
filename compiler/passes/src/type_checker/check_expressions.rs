@@ -49,7 +49,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
         if let VisitResult::VisitChildren = self.visitor.visit_expression(input) {
             return match input {
                 Expression::Identifier(expr) => self.visit_identifier(expr, expected),
-                Expression::Value(expr) => self.visit_value(expr, expected),
+                Expression::Literal(expr) => self.visit_literal(expr, expected),
                 Expression::Binary(expr) => self.visit_binary(expr, expected),
                 Expression::Unary(expr) => self.visit_unary(expr, expected),
                 Expression::Ternary(expr) => self.visit_ternary(expr, expected),
@@ -76,21 +76,25 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
         None
     }
 
-    fn visit_value(&mut self, input: &'a ValueExpression, expected: &Self::AdditionalInput) -> Option<Self::Output> {
-        if let VisitResult::VisitChildren = self.visitor.visit_value(input) {
+    fn visit_literal(
+        &mut self,
+        input: &'a LiteralExpression,
+        expected: &Self::AdditionalInput,
+    ) -> Option<Self::Output> {
+        if let VisitResult::VisitChildren = self.visitor.visit_literal(input) {
             return Some(match input {
-                ValueExpression::Address(_, _) => {
+                LiteralExpression::Address(_, _) => {
                     self.visitor
                         .assert_expected_option(Type::Address, expected, input.span())
                 }
-                ValueExpression::Boolean(_, _) => {
+                LiteralExpression::Boolean(_, _) => {
                     self.visitor
                         .assert_expected_option(Type::Boolean, expected, input.span())
                 }
-                ValueExpression::Field(_, _) => {
+                LiteralExpression::Field(_, _) => {
                     self.visitor.assert_expected_option(Type::Field, expected, input.span())
                 }
-                ValueExpression::Integer(type_, str_content, _) => {
+                LiteralExpression::Integer(type_, str_content, _) => {
                     match type_ {
                         IntegerType::I8 => {
                             let int = if self.visitor.negate {
@@ -182,12 +186,12 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     self.visitor
                         .assert_expected_option(Type::IntegerType(*type_), expected, input.span())
                 }
-                ValueExpression::Group(_) => self.visitor.assert_expected_option(Type::Group, expected, input.span()),
-                ValueExpression::Scalar(_, _) => {
+                LiteralExpression::Group(_) => self.visitor.assert_expected_option(Type::Group, expected, input.span()),
+                LiteralExpression::Scalar(_, _) => {
                     self.visitor
                         .assert_expected_option(Type::Scalar, expected, input.span())
                 }
-                ValueExpression::String(_, _) => {
+                LiteralExpression::String(_, _) => {
                     self.visitor
                         .assert_expected_option(Type::String, expected, input.span())
                 }
