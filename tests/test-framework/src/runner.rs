@@ -113,7 +113,6 @@ impl TestCases {
         let mut configs = Vec::new();
 
         self.tests = find_tests(&self.path_prefix.clone())
-            .into_iter()
             .filter(|(path, content)| {
                 let config = match extract_test_config(content) {
                     None => {
@@ -131,7 +130,6 @@ impl TestCases {
                 res
             })
             .collect();
-        dbg!(self.tests.len());
 
         configs
     }
