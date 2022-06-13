@@ -231,30 +231,30 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     let t2 = self.visit_expression(&input.right, &None);
 
                     // Allow `group` * `scalar` multiplication.
-                    match (t1.as_ref(), t2.as_ref()) {
-                        (Some(Type::Group), Some(other)) => {
-                            self.visitor.assert_type(Type::Group, destination, input.left.span());
+                    match (t1, t2) {
+                        (Some(Type::Group), other) => {
+                            self.visitor.assert_type_exact(destination, &Type::Group, input.span());
                             self.visitor
-                                .assert_type(*other, &Some(Type::Scalar), input.right.span());
+                                .assert_type_exact(&other, &Type::Scalar, input.right.span());
                             Some(Type::Group)
                         }
-                        (Some(other), Some(Type::Group)) => {
-                            self.visitor.assert_type(*other, &Some(Type::Scalar), input.left.span());
-                            self.visitor.assert_type(Type::Group, destination, input.right.span());
+                        (other, Some(Type::Group)) => {
+                            self.visitor.assert_type_exact(destination, &Type::Group, input.span());
+                            self.visitor.assert_type_exact(&other, &Type::Scalar, input.left.span());
                             Some(Type::Group)
                         }
                         (Some(t1), Some(t2)) => {
                             // Assert equal field or integer types.
-                            self.visitor.assert_type(*t1, destination, input.left.span());
-                            self.visitor.assert_type(*t2, destination, input.right.span());
-                            return_incorrect_type(Some(*t1), Some(*t2), destination)
+                            self.visitor.assert_type(t1, destination, input.left.span());
+                            self.visitor.assert_type(t2, destination, input.right.span());
+                            return_incorrect_type(Some(t1), Some(t2), destination)
                         }
                         (Some(type_), None) => {
-                            self.visitor.assert_type(*type_, destination, input.left.span());
+                            self.visitor.assert_type(type_, destination, input.left.span());
                             None
                         }
                         (None, Some(type_)) => {
-                            self.visitor.assert_type(*type_, destination, input.right.span());
+                            self.visitor.assert_type(type_, destination, input.right.span());
                             None
                         }
                         (None, None) => None,
@@ -279,25 +279,25 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     // Allow field * field.
                     match (t1, t2) {
                         (Some(Type::Field), type_) => {
-                            self.visitor.assert_type(Type::Field, &type_, input.left.span());
-                            self.visitor.assert_type(Type::Field, destination, input.left.span());
+                            self.visitor.assert_type_exact(&type_, &Type::Field, input.right.span());
+                            self.visitor.assert_type_exact(destination, &Type::Field, input.span());
                             Some(Type::Field)
                         }
                         (type_, Some(Type::Field)) => {
-                            self.visitor.assert_type(Type::Field, &type_, input.right.span());
-                            self.visitor.assert_type(Type::Field, destination, input.right.span());
+                            self.visitor.assert_type_exact(&type_, &Type::Field, input.left.span());
+                            self.visitor.assert_type_exact(destination, &Type::Field, input.span());
                             Some(Type::Field)
                         }
                         (Some(t1), t2) => {
-                            // Allow integer  magnitude (u8, u16, u32)
-                            self.visitor.assert_magnitude_type(&t2, input.left.span());
-                            Some(self.visitor.assert_type(t1, destination, input.left.span()))
+                            // Allow integer t2 magnitude (u8, u16, u32)
+                            self.visitor.assert_magnitude_type(&t2, input.right.span());
+                            self.visitor.assert_type_exact(destination, &t1, input.span());
+                            Some(t1)
                         }
-                        (t1, t2) => {
-                            // Allow integer  magnitude (u8, u16, u32)
-                            self.visitor.assert_magnitude_type(&t2, input.span());
-                            self.visitor.assert_eq_types(t1, *destination, input.span());
-                            t1
+                        (None, t2) => {
+                            // Allow integer t2 magnitude (u8, u16, u32)
+                            self.visitor.assert_magnitude_type(&t2, input.right.span());
+                            *destination
                         }
                     }
                 }
@@ -312,7 +312,8 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                 }
                 BinaryOperation::Lt | BinaryOperation::Gt | BinaryOperation::Le | BinaryOperation::Ge => {
                     // Assert the destination type is boolean.
-                    self.visitor.assert_type(Type::Boolean, destination, input.span());
+                    self.visitor
+                        .assert_type_exact(destination, &Type::Boolean, input.span());
 
                     // Assert left and right are equal field, scalar, or integer types.
                     let t1 = self.visit_expression(&input.left, &None);

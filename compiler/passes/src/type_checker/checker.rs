@@ -117,6 +117,7 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Returns the given type if it equals the expected type or the expected type is none.
+    /// Use this method if the expected type is an unknown Option.
     pub(crate) fn assert_type(&mut self, type_: Type, expected: &Option<Type>, span: Span) -> Type {
         if let Some(expected) = expected {
             if &type_ != expected {
@@ -126,6 +127,17 @@ impl<'a> TypeChecker<'a> {
         }
 
         type_
+    }
+
+    /// Emits an error if the given type_ does not match the expected type.
+    /// Use this method if the expected type is known.
+    pub(crate) fn assert_type_exact(&mut self, type_: &Option<Type>, expected: &Type, span: Span) {
+        if let Some(type_) = type_ {
+            if type_ != expected {
+                self.handler
+                    .emit_err(TypeCheckerError::type_should_be(type_, expected, span).into());
+            }
+        }
     }
 
     /// Emits an error to the error handler if the given type is not equal to any of the expected types.

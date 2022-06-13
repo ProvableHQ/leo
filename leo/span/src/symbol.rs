@@ -137,7 +137,7 @@ symbols! {
     sub_wrapped,
     xor,
 
-    // arity three operators 33-44
+    // algorithm operator names 33-44
     bhp256,
     bhp512,
     bhp768,

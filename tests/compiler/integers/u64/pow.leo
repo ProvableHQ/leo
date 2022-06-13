@@ -1,10 +1,9 @@
 /*
 namespace: Compile
-expectation: Pass
+expectation: Fail
 input_file: inputs/pow.in
 
-# This test might take to long to fully compile.
-# If necessary we could move it to disabled_tests.
+# The exponent must be u8, u16, or u32
 */
 
 function main(a: u64, b: u64, c: u64) -> bool {
