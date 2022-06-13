@@ -38,9 +38,13 @@ impl<'a> ReconstructingReducer for Flattener<'a> {
                 let stop = stop_str_content.parse::<usize>().unwrap();
 
                 Ok(Statement::Block(Block {
-                    // will panic if stop == usize::MAX || start > stop
+                    // will panic if stop == usize::MAX
                     statements: repeat(iteration.block.statements.clone())
-                        .take(stop + iteration.inclusive as usize - start)
+                        .take(if start > stop {
+                            start + iteration.inclusive as usize - stop
+                        } else {
+                            stop + iteration.inclusive as usize - start
+                        })
                         .flatten()
                         .collect(),
                     span: iteration.span(),
