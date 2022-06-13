@@ -58,7 +58,7 @@ use leo_errors::{AstError, Result};
 ///
 /// The [`Ast`] type represents a Leo program as a series of recursive data types.
 /// These data types form a tree that begins from a [`Program`] type root.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Ast {
     ast: Program,
 }

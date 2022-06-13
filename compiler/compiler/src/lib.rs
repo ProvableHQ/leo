@@ -119,20 +119,44 @@ impl<'a> Compiler<'a> {
     }
 
     ///
+    /// Runs the symbol table pass.
+    ///
+    pub fn symbol_table_pass(&self) -> Result<SymbolTable<'_>> {
+        CreateSymbolTable::do_pass((&self.ast, self.handler))
+    }
+
+    ///
+    /// Runs the type checker pass.
+    ///
+    pub fn type_checker_pass(&'a self, symbol_table: &mut SymbolTable<'_>) -> Result<()> {
+        TypeChecker::do_pass((&self.ast, &mut symbol_table.clone(), self.handler))
+    }
+
+    ///
+    /// Runs the flattening pass.
+    ///
+    pub fn flattening_pass(&mut self) -> Result<()> {
+        self.ast = Flattener::do_pass((std::mem::take(&mut self.ast), self.handler))?;
+        self.ast
+            .to_json_file_without_keys(self.output_directory.clone(), "flattened_ast.json", &["span"])?;
+
+        Ok(())
+    }
+
+    ///
     /// Runs the compiler stages.
     ///
-    fn compiler_stages(&self) -> Result<SymbolTable<'_>> {
-        let symbol_table = CreateSymbolTable::do_pass((&self.ast, self.handler))?;
-
-        TypeChecker::do_pass((&self.ast, &mut symbol_table.clone(), self.handler))?;
-
-        Ok(symbol_table)
+    pub fn compiler_stages(&mut self) -> Result<()> {
+        let mut st = self.symbol_table_pass()?;
+        self.type_checker_pass(&mut st)?;
+        self.flattening_pass()
     }
 
     ///
     /// Returns a compiled Leo program.
     ///
-    pub fn compile(&self) -> Result<SymbolTable<'_>> {
+    pub fn compile(&mut self) -> Result<()> {
+        self.parse_program()?;
         self.compiler_stages()
     }
 }

@@ -180,7 +180,6 @@ impl Command for Build {
         let handler = leo_errors::emitter::Handler::default();
 
         let mut program = Compiler::new(&handler, main_file_path, output_directory);
-        program.parse_program()?;
         program.parse_input(input_path.to_path_buf())?;
 
         // Compute the current program checksum

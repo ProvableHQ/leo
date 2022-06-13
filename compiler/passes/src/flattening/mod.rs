@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,26 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![doc = include_str!("../README.md")]
+use leo_ast::{Ast, ReconstructingDirector};
+use leo_errors::{emitter::Handler, Result};
 
-// Temporarily disable canonicalization.
-/* pub mod canonicalization;
-pub use canonicalization::*;
- */
+pub mod flattener;
+pub use flattener::*;
 
-// Temporarily disable import resolution
-// until we migrate core and then import resolution.
-/* pub mod import_resolution;
-pub use import_resolution::*; */
+pub mod reducer;
+pub use reducer::*;
 
-pub mod flattening;
-pub use flattening::*;
+use crate::Pass;
 
-pub mod pass;
-pub use self::pass::*;
+impl<'a> Pass<'a> for Flattener<'a> {
+    type Input = (Ast, &'a Handler);
+    type Output = Result<Ast>;
 
-pub mod symbol_table;
-pub use symbol_table::*;
+    fn do_pass((ast, handler): Self::Input) -> Self::Output {
+        let mut director = ReconstructingDirector::new(Self::new(handler));
+        let program = director.reduce_program(&ast.into_repr())?;
+        handler.last_err()?;
 
-pub mod type_checker;
-pub use type_checker::*;
+        Ok(Ast::new(program))
+    }
+}

@@ -27,7 +27,6 @@ use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
     LeoError, LeoWarning,
 };
-use leo_passes::SymbolTable;
 use leo_span::{source_map::FileName, symbol::create_session_if_not_set_then};
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
@@ -93,7 +92,6 @@ struct OutputItem {
 struct CompileOutput {
     pub output: Vec<OutputItem>,
     pub initial_ast: String,
-    pub symbol_table: String,
 }
 
 /// Get the path of the `input_file` given in `input` into `list`.
@@ -123,7 +121,7 @@ fn collect_all_inputs(test: &Test) -> Result<Vec<PathBuf>, String> {
     Ok(list)
 }
 
-fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<SymbolTable<'a>, LeoError> {
+fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<(), LeoError> {
     parsed.compiler_stages()
 }
 
@@ -200,7 +198,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         }
     }
 
-    let symbol_table = handler.extend_if_error(compile_and_process(&mut parsed))?;
+    handler.extend_if_error(compile_and_process(&mut parsed))?;
 
     let initial_ast = hash_file("/tmp/output/initial_ast.json");
 
@@ -211,7 +209,6 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     let final_output = CompileOutput {
         output: output_items,
         initial_ast,
-        symbol_table: hash_content(&symbol_table.to_string()),
     };
     Ok(serde_yaml::to_value(&final_output).expect("serialization failed"))
 }
