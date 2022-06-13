@@ -161,20 +161,14 @@ impl TestCases {
     }
 
     fn clear_expectations(&self, path: &Path, expectation_category: &str) -> (PathBuf, Option<TestExpectation>) {
-        let path = Path::new(&path);
-        let relative_path = path.strip_prefix(&self.path_prefix).expect("path error for test");
-        let expectation_dir = self.path_prefix.clone();
-        let mut expectation_path = expectation_dir;
-        expectation_path.push(expectation_category);
-        expectation_path.push(relative_path.parent().expect("no parent dir for test"));
-        let mut expectation_name = relative_path
-            .file_name()
-            .expect("no file name for test")
-            .to_str()
-            .unwrap()
-            .to_string();
-        expectation_name += ".out";
-        expectation_path.push(&expectation_name);
+        let test_dir = [env!("CARGO_MANIFEST_DIR"), "../../tests/"].iter().collect::<PathBuf>();
+        let relative_path = path.strip_prefix(&test_dir).expect("path error for test");
+        let expectation_path = test_dir
+            .join("expectations")
+            .join(expectation_category)
+            .join(relative_path.parent().expect("no parent dir for test"))
+            .join(relative_path.file_name().expect("no file name for test"))
+            .with_extension("out");
 
         if expectation_path.exists() {
             if !is_env_var_set("CLEAR_LEO_TEST_EXPECTATIONS") {

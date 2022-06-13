@@ -21,7 +21,7 @@ use std::{
 
 use walkdir::WalkDir;
 
-pub fn find_tests(path: &'_ Path) -> impl Iterator<Item = (PathBuf, String)> + '_ {
+pub fn find_tests(path: &Path) -> impl Iterator<Item = (PathBuf, String)> {
     WalkDir::new(path).into_iter().flatten().filter_map(move |f| {
         let path = f.path();
         path.extension().filter(|s| *s == "leo").map(|_| {
