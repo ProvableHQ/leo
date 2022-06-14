@@ -22,9 +22,9 @@ use crate::*;
 
 pub trait ExpressionVisitor<'a> {
     type AdditionalInput: Default;
-    type Output;
+    type Output: Default;
 
-    fn visit_expression(&mut self, input: &'a Expression, additional: &Self::AdditionalInput) -> Option<Self::Output> {
+    fn visit_expression(&mut self, input: &'a Expression, additional: &Self::AdditionalInput) -> Self::Output {
         match input {
             Expression::Identifier(expr) => self.visit_identifier(expr, additional),
             Expression::Value(expr) => self.visit_value(expr, additional),
@@ -36,57 +36,41 @@ pub trait ExpressionVisitor<'a> {
         }
     }
 
-    fn visit_identifier(
-        &mut self,
-        _input: &'a Identifier,
-        _additional: &Self::AdditionalInput,
-    ) -> Option<Self::Output> {
-        None
+    fn visit_identifier(&mut self, _input: &'a Identifier, _additional: &Self::AdditionalInput) -> Self::Output {
+        Default::default()
     }
 
-    fn visit_value(
-        &mut self,
-        _input: &'a ValueExpression,
-        _additional: &Self::AdditionalInput,
-    ) -> Option<Self::Output> {
-        None
+    fn visit_value(&mut self, _input: &'a ValueExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        Default::default()
     }
 
-    fn visit_binary(
-        &mut self,
-        input: &'a BinaryExpression,
-        additional: &Self::AdditionalInput,
-    ) -> Option<Self::Output> {
+    fn visit_binary(&mut self, input: &'a BinaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.left, additional);
         self.visit_expression(&input.right, additional);
-        None
+        Default::default()
     }
 
-    fn visit_unary(&mut self, input: &'a UnaryExpression, additional: &Self::AdditionalInput) -> Option<Self::Output> {
+    fn visit_unary(&mut self, input: &'a UnaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.inner, additional);
-        None
+        Default::default()
     }
 
-    fn visit_ternary(
-        &mut self,
-        input: &'a TernaryExpression,
-        additional: &Self::AdditionalInput,
-    ) -> Option<Self::Output> {
+    fn visit_ternary(&mut self, input: &'a TernaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.condition, additional);
         self.visit_expression(&input.if_true, additional);
         self.visit_expression(&input.if_false, additional);
-        None
+        Default::default()
     }
 
-    fn visit_call(&mut self, input: &'a CallExpression, additional: &Self::AdditionalInput) -> Option<Self::Output> {
+    fn visit_call(&mut self, input: &'a CallExpression, additional: &Self::AdditionalInput) -> Self::Output {
         input.arguments.iter().for_each(|expr| {
             self.visit_expression(expr, additional);
         });
-        None
+        Default::default()
     }
 
-    fn visit_err(&mut self, _input: &'a ErrExpression, _additional: &Self::AdditionalInput) -> Option<Self::Output> {
-        None
+    fn visit_err(&mut self, _input: &'a ErrExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        Default::default()
     }
 }
 
@@ -131,12 +115,13 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
 
     fn visit_console(&mut self, input: &'a ConsoleStatement) {
         match &input.function {
-            ConsoleFunction::Assert(expr) => self.visit_expression(expr, &Default::default()),
+            ConsoleFunction::Assert(expr) => {
+                self.visit_expression(expr, &Default::default());
+            }
             ConsoleFunction::Error(fmt) | ConsoleFunction::Log(fmt) => {
                 fmt.parameters.iter().for_each(|expr| {
                     self.visit_expression(expr, &Default::default());
                 });
-                None
             }
         };
     }

@@ -372,8 +372,8 @@ impl ParserContext<'_> {
                     None => return Err(ParserError::implicit_values_not_allowed(value, span).into()),
                 }
             }
-            Token::True => Expression::Value(ValueExpression::Boolean("true".into(), span)),
-            Token::False => Expression::Value(ValueExpression::Boolean("false".into(), span)),
+            Token::True => Expression::Value(ValueExpression::Boolean(true, span)),
+            Token::False => Expression::Value(ValueExpression::Boolean(false, span)),
             Token::AddressLit(value) => Expression::Value(ValueExpression::Address(value, span)),
             Token::StaticString(value) => Expression::Value(ValueExpression::String(value, span)),
             Token::Ident(name) => {

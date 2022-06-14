@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Expression, GroupValue, IntegerType, Node, Type, UnaryOperation, ValueExpression};
-use leo_errors::{InputError, LeoError, ParserError, Result};
+use leo_errors::{InputError, LeoError, Result};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -33,27 +33,22 @@ impl TryFrom<(Type, Expression)> for InputValue {
     type Error = LeoError;
     fn try_from(value: (Type, Expression)) -> Result<Self> {
         Ok(match value {
-            (type_, Expression::Value(value)) => {
-                match (type_, value) {
-                    (Type::Address, ValueExpression::Address(value, _)) => Self::Address(value),
-                    (Type::Boolean, ValueExpression::Boolean(value, span)) => {
-                        let bool_value = value.parse::<bool>().map_err(|_| ParserError::unexpected_eof(span))?; // TODO: change error
-                        Self::Boolean(bool_value)
-                    }
-                    (Type::Field, ValueExpression::Field(value, _)) => Self::Field(value),
-                    (Type::Group, ValueExpression::Group(value)) => Self::Group(*value),
-                    (Type::IntegerType(expected), ValueExpression::Integer(actual, value, span)) => {
-                        if expected == actual {
-                            Self::Integer(expected, value)
-                        } else {
-                            return Err(InputError::unexpected_type(expected.to_string(), actual, span).into());
-                        }
-                    }
-                    (x, y) => {
-                        return Err(InputError::unexpected_type(x, &y, y.span()).into());
+            (type_, Expression::Value(value)) => match (type_, value) {
+                (Type::Address, ValueExpression::Address(value, _)) => Self::Address(value),
+                (Type::Boolean, ValueExpression::Boolean(value, _)) => Self::Boolean(value),
+                (Type::Field, ValueExpression::Field(value, _)) => Self::Field(value),
+                (Type::Group, ValueExpression::Group(value)) => Self::Group(*value),
+                (Type::IntegerType(expected), ValueExpression::Integer(actual, value, span)) => {
+                    if expected == actual {
+                        Self::Integer(expected, value)
+                    } else {
+                        return Err(InputError::unexpected_type(expected.to_string(), actual, span).into());
                     }
                 }
-            }
+                (x, y) => {
+                    return Err(InputError::unexpected_type(x, &y, y.span()).into());
+                }
+            },
             (type_, Expression::Unary(unary)) if unary.op == UnaryOperation::Negate => {
                 InputValue::try_from((type_, *unary.inner))?
             }

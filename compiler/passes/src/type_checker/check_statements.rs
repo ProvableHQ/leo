@@ -34,9 +34,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
     fn visit_definition(&mut self, input: &'a DefinitionStatement) {
         let declaration = if input.declaration_type == Declare::Const {
-            Declaration::Const
+            Declaration::Const(None)
         } else {
-            Declaration::Mut
+            Declaration::Mut(None)
         };
 
         input.variable_names.iter().for_each(|v| {
@@ -47,7 +47,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             let var = self.arena.alloc(VariableSymbol {
                 type_: &input.type_,
                 span: input.span(),
-                declaration: declaration.clone(),
+                declaration,
             });
             if let Err(err) = self.symbol_table.insert_variable(v.identifier.name, var) {
                 self.handler.emit_err(err);
@@ -59,7 +59,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let var_name = input.assignee.identifier.name;
         let var_type = if let Some(var) = self.symbol_table.lookup_variable(var_name) {
             match &var.declaration {
-                Declaration::Const => self
+                Declaration::Const(_) => self
                     .handler
                     .emit_err(TypeCheckerError::cannont_assign_to_const_var(var_name, var.span).into()),
                 Declaration::Input(ParamMode::Const) => self
@@ -95,7 +95,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let var = self.arena.alloc(VariableSymbol {
             type_: &input.type_,
             span: input.span(),
-            declaration: Declaration::Const,
+            declaration: Declaration::Const(None),
         });
         if let Err(err) = self.symbol_table.insert_variable(input.variable.name, var) {
             self.handler.emit_err(err);

@@ -23,7 +23,7 @@ pub enum ValueExpression {
     /// An address literal, e.g., `aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9`.
     Address(String, #[serde(with = "leo_span::span_json")] Span),
     /// A boolean literal, either `true` or `false`.
-    Boolean(String, #[serde(with = "leo_span::span_json")] Span),
+    Boolean(bool, #[serde(with = "leo_span::span_json")] Span),
     /// A field literal, e.g., `42field`.
     /// A signed number followed by the keyword `field`.
     Field(String, #[serde(with = "leo_span::span_json")] Span),

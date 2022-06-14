@@ -16,24 +16,121 @@
 
 use std::fmt::Display;
 
-use leo_ast::{ParamMode, Type};
+use leo_ast::{GroupValue, IntegerType, ParamMode, Type};
+use leo_errors::{Result, TypeCheckerError};
 use leo_span::Span;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub enum Declaration {
-    Const,
-    Input(ParamMode),
-    Mut,
+pub enum Value {
+    Address(String),
+    Boolean(bool),
+    Field(String),
+    Group(Box<GroupValue>),
+    I8(i8),
+    I16(i16),
+    I32(i32),
+    I64(i64),
+    I128(i128),
+    U8(u8),
+    U16(u16),
+    U32(u32),
+    U64(u64),
+    U128(u128),
+    Scalar(String),
+    String(String),
 }
 
-impl Display for Declaration {
+impl Display for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use Value::*;
+        match self {
+            Address(val) => write!(f, "{val}"),
+            Boolean(val) => write!(f, "{val}"),
+            Field(val) => write!(f, "{val}"),
+            Group(val) => write!(f, "{val}"),
+            I8(val) => write!(f, "{val}"),
+            I16(val) => write!(f, "{val}"),
+            I32(val) => write!(f, "{val}"),
+            I64(val) => write!(f, "{val}"),
+            I128(val) => write!(f, "{val}"),
+            U8(val) => write!(f, "{val}"),
+            U16(val) => write!(f, "{val}"),
+            U32(val) => write!(f, "{val}"),
+            U64(val) => write!(f, "{val}"),
+            U128(val) => write!(f, "{val}"),
+            Scalar(val) => write!(f, "{val}"),
+            String(val) => write!(f, "{val}"),
+        }
+    }
+}
+
+impl Value {
+    pub(crate) fn get_as_usize(&self, span: Span) -> Result<usize> {
+        use Value::*;
+        match self {
+            I8(val) => usize::try_from(*val),
+            I16(val) => usize::try_from(*val),
+            I32(val) => usize::try_from(*val),
+            I64(val) => usize::try_from(*val),
+            I128(val) => usize::try_from(*val),
+            U8(val) => Ok(*val as usize),
+            U16(val) => Ok(*val as usize),
+            U32(val) => Ok(*val as usize),
+            U64(val) => Ok(*val as usize),
+            U128(val) => Ok(*val as usize),
+            _ => return Err(TypeCheckerError::cannot_use_type_as_loop_bound(self, span).into()),
+        }
+        .map_err(|_| TypeCheckerError::loop_has_neg_value(self.get_type(), span).into())
+    }
+
+    pub(crate) fn get_type(&self) -> Type {
+        use Value::*;
+        match self {
+            Address(_) => Type::Address,
+            Boolean(_) => Type::Boolean,
+            Field(_) => Type::Field,
+            Group(_) => Type::Group,
+            I8(_) => Type::IntegerType(IntegerType::I8),
+            I16(_) => Type::IntegerType(IntegerType::I16),
+            I32(_) => Type::IntegerType(IntegerType::I32),
+            I64(_) => Type::IntegerType(IntegerType::I64),
+            I128(_) => Type::IntegerType(IntegerType::I128),
+            U8(_) => Type::IntegerType(IntegerType::U8),
+            U16(_) => Type::IntegerType(IntegerType::U16),
+            U32(_) => Type::IntegerType(IntegerType::U32),
+            U64(_) => Type::IntegerType(IntegerType::U64),
+            U128(_) => Type::IntegerType(IntegerType::U128),
+            Scalar(_) => Type::Scalar,
+            String(_) => Type::String,
+        }
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum Declaration {
+    Const(Option<Value>),
+    Input(ParamMode),
+    Mut(Option<Value>),
+}
+
+impl Declaration {
+    pub fn get_as_usize(&self, span: Span) -> Result<Option<usize>> {
         use Declaration::*;
 
         match self {
-            Const => write!(f, "const var"),
-            Input(m) => write!(f, "{m} input"),
-            Mut => write!(f, "mut var"),
+            Const(Some(value)) | Mut(Some(value)) => Ok(Some(value.get_as_usize(span)?)),
+            Input(_) => Ok(None),
+            _ => Ok(None),
+        }
+    }
+
+    pub fn get_type(&self) -> Option<Type> {
+        use Declaration::*;
+
+        match self {
+            Const(Some(value)) | Mut(Some(value)) => Some(value.get_type()),
+            Input(_) => None,
+            _ => None,
         }
     }
 }
@@ -43,11 +140,4 @@ pub struct VariableSymbol<'a> {
     pub type_: &'a Type,
     pub span: Span,
     pub declaration: Declaration,
-}
-
-impl<'a> Display for VariableSymbol<'a> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}: {}", self.declaration, self.type_)?;
-        Ok(())
-    }
 }

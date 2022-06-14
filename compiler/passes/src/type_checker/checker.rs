@@ -21,7 +21,7 @@ use leo_core::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
 
-use crate::SymbolTable;
+use crate::{CheckOutput, SymbolTable, Value};
 
 pub struct TypeChecker<'a> {
     pub(crate) symbol_table: &'a SymbolTable<'a>,
@@ -112,15 +112,24 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Returns the given type if it equals the expected type or the expected type is none.
-    pub(crate) fn assert_type(&mut self, type_: Type, expected: &Option<Type>, span: Span) -> Type {
+    pub(crate) fn assert_type(
+        &mut self,
+        type_: Type,
+        const_value: Option<Value>,
+        expected: &Option<Type>,
+        span: Span,
+    ) -> CheckOutput {
         if let Some(expected) = expected {
             if &type_ != expected {
                 self.handler
                     .emit_err(TypeCheckerError::type_should_be(type_, expected, span).into());
             }
         }
-
-        type_
+        if let Some(v) = const_value {
+            CheckOutput::Const(v)
+        } else {
+            CheckOutput::Type(type_)
+        }
     }
 
     /// Emits an error to the error handler if the given type is not equal to any of the expected types.
