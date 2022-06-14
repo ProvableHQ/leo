@@ -79,6 +79,10 @@ const FIELD_GROUP_INT_TYPES: [Type; 12] = create_type_superset(FIELD_INT_TYPES, 
 
 const FIELD_GROUP_SCALAR_INT_TYPES: [Type; 13] = create_type_superset(FIELD_GROUP_INT_TYPES, [Type::Scalar]);
 
+const FIELD_GROUP_TYPES: [Type; 2] = [Type::Field, Type::Group];
+
+const FIELD_SCALAR_TYPES: [Type; 2] = [Type::Field, Type::Scalar];
+
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
     pub fn new(symbol_table: &'a mut SymbolTable<'a>, handler: &'a Handler) -> Self {
@@ -116,28 +120,28 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
-    /// Returns the given type if it equals the expected type or the expected type is none.
-    /// Use this method if the expected type is an unknown Option.
-    pub(crate) fn assert_type(&mut self, type_: Type, expected: &Option<Type>, span: Span) -> Type {
+    /// Returns the given `actual` type and emits an error if the `expected` type does not match.
+    pub(crate) fn assert_expected_option(&mut self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
         if let Some(expected) = expected {
-            if &type_ != expected {
+            if &actual != expected {
                 self.handler
-                    .emit_err(TypeCheckerError::type_should_be(type_, expected, span).into());
+                    .emit_err(TypeCheckerError::type_should_be(actual, expected, span).into());
             }
         }
 
-        type_
+        actual
     }
 
-    /// Emits an error if the given type_ does not match the expected type.
-    /// Use this method if the expected type is known.
-    pub(crate) fn assert_type_exact(&mut self, type_: &Option<Type>, expected: &Type, span: Span) {
-        if let Some(type_) = type_ {
-            if type_ != expected {
+    /// Returns the given `expected` type and emits an error if the `actual` type does not match.
+    pub(crate) fn assert_expected_type(&mut self, actual: &Option<Type>, expected: Type, span: Span) -> Type {
+        if let Some(actual) = actual {
+            if actual != &expected {
                 self.handler
-                    .emit_err(TypeCheckerError::type_should_be(type_, expected, span).into());
+                    .emit_err(TypeCheckerError::type_should_be(actual, expected, span).into());
             }
         }
+
+        expected
     }
 
     /// Emits an error to the error handler if the given type is not equal to any of the expected types.
@@ -161,24 +165,15 @@ impl<'a> TypeChecker<'a> {
         self.assert_one_of_types(type_, &BOOL_INT_TYPES, span)
     }
 
-    /// Emits an error to the handler if the given type is not an integer.
-    pub(crate) fn assert_int_type(&self, type_: &Option<Type>, span: Span) {
-        self.assert_one_of_types(type_, &INT_TYPES, span)
-    }
-
-    /// Emits an error to the handler if the given type is not a magnitude (u8, u16, u32).
-    pub(crate) fn assert_magnitude_type(&self, type_: &Option<Type>, span: Span) {
-        self.assert_one_of_types(type_, &MAGNITUDE_TYPES, span)
-    }
 
     /// Emits an error to the handler if the given type is not a field or integer.
     pub(crate) fn assert_field_int_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &FIELD_INT_TYPES, span)
     }
 
-    /// Emits an error to the handler if the given type is not a field, scalar, or integer.
-    pub(crate) fn assert_field_scalar_int_type(&self, type_: &Option<Type>, span: Span) {
-        self.assert_one_of_types(type_, &FIELD_SCALAR_INT_TYPES, span)
+    /// Emits an error to the handler if the given type is not a field or group.
+    pub(crate) fn assert_field_group_type(&self, type_: &Option<Type>, span: Span) {
+        self.assert_one_of_types(type_, &FIELD_GROUP_TYPES, span)
     }
 
     /// Emits an error to the handler if the given type is not a field, group, or integer.
@@ -189,5 +184,24 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error to the handler if the given type is not a field, group, scalar or integer.
     pub(crate) fn assert_field_group_scalar_int_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &FIELD_GROUP_SCALAR_INT_TYPES, span)
+    }
+    /// Emits an error to the handler if the given type is not a field or scalar.
+    pub(crate) fn assert_field_scalar_type(&self, type_: &Option<Type>, span: Span) {
+        self.assert_one_of_types(type_, &FIELD_SCALAR_TYPES, span)
+    }
+
+    /// Emits an error to the handler if the given type is not a field, scalar, or integer.
+    pub(crate) fn assert_field_scalar_int_type(&self, type_: &Option<Type>, span: Span) {
+        self.assert_one_of_types(type_, &FIELD_SCALAR_INT_TYPES, span)
+    }
+
+    /// Emits an error to the handler if the given type is not an integer.
+    pub(crate) fn assert_int_type(&self, type_: &Option<Type>, span: Span) {
+        self.assert_one_of_types(type_, &INT_TYPES, span)
+    }
+
+    /// Emits an error to the handler if the given type is not a magnitude (u8, u16, u32).
+    pub(crate) fn assert_magnitude_type(&self, type_: &Option<Type>, span: Span) {
+        self.assert_one_of_types(type_, &MAGNITUDE_TYPES, span)
     }
 }

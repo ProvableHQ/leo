@@ -55,7 +55,7 @@ impl TryFrom<(Type, Expression)> for InputValue {
                 }
             }
             (type_, Expression::Unary(unary)) if unary.op == UnaryOperation::Negate => {
-                InputValue::try_from((type_, *unary.inner))?
+                InputValue::try_from((type_, *unary.receiver))?
             }
             (_type_, expr) => return Err(InputError::illegal_expression(&expr, expr.span()).into()),
         })

@@ -15,22 +15,57 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use leo_span::Symbol;
 
 /// A unary operator for a unary expression.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum UnaryOperation {
-    /// The logical negation operator, i.e., `!`.
-    /// For example, it transforms `true` to `false`.
-    Not,
-    /// The arithmetic negation operator, i.e., `-`.
+    /// Absolute value checking for overflow, i.e. `.abs()`.
+    Abs,
+    /// Absolute value wrapping around at the boundary of the type, i.e. `.abs_wrapped()`.
+    AbsWrapped,
+    /// Double operation, i.e. `.double()`.
+    Double,
+    /// Multiplicative inverse, i.e. `.inv()`.
+    Inverse,
+    /// Negate operation, i.e. `.neg()`.
     Negate,
+    /// Bitwise NOT, i.e. `!`, `.not()`.
+    Not,
+    /// Square operation, i.e. `.square()`.
+    Square,
+    /// Square root operation, i.e. `.sqrt()`.
+    SquareRoot,
+}
+
+impl UnaryOperation {
+    /// Returns a `UnaryOperation` from the given `Symbol`.
+    pub fn from_symbol(symbol: &Symbol) -> Option<UnaryOperation> {
+        Some(match symbol.as_u32() {
+            0 => UnaryOperation::Abs,
+            1 => UnaryOperation::AbsWrapped,
+            2 => UnaryOperation::Double,
+            3 => UnaryOperation::Inverse,
+            4 => UnaryOperation::Negate,
+            5 => UnaryOperation::Not,
+            6 => UnaryOperation::Square,
+            7 => UnaryOperation::SquareRoot,
+            _ => return None,
+        })
+    }
 }
 
 impl AsRef<str> for UnaryOperation {
     fn as_ref(&self) -> &'static str {
         match self {
-            UnaryOperation::Not => "!",
+            UnaryOperation::Abs => "abs",
+            UnaryOperation::AbsWrapped => "abs_wrapped",
+            UnaryOperation::Double => "double",
+            UnaryOperation::Inverse => "inv",
             UnaryOperation::Negate => "-",
+            UnaryOperation::Not => "!",
+            UnaryOperation::Square => ".square",
+            UnaryOperation::SquareRoot => "sqrt"
         }
     }
 }
@@ -39,7 +74,7 @@ impl AsRef<str> for UnaryOperation {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct UnaryExpression {
     /// The inner expression `op` is applied to.
-    pub inner: Box<Expression>,
+    pub receiver: Box<Expression>,
     /// The unary operator to apply to `inner`.
     pub op: UnaryOperation,
     /// The span covering `op inner`.
@@ -48,7 +83,7 @@ pub struct UnaryExpression {
 
 impl fmt::Display for UnaryExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}{}", self.op.as_ref(), self.inner)
+        write!(f, "{}{}", self.op.as_ref(), self.receiver)
     }
 }
 

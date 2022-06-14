@@ -222,7 +222,7 @@ impl ParserContext<'_> {
             inner = Expression::Unary(UnaryExpression {
                 span: op_span + inner.span(),
                 op,
-                inner: Box::new(inner),
+                receiver: Box::new(inner),
             });
         }
         Ok(inner)
@@ -236,7 +236,22 @@ impl ParserContext<'_> {
             self.bump();
 
             // Check if the method exists.
-            if let Some(operator) = BinaryOperation::from_symbol(&method) {
+            if let Some(operator) = UnaryOperation::from_symbol(&method) {
+                // Handle unary operators.
+
+                // Parse left parenthesis `(`.
+                self.expect(&Token::LeftParen)?;
+
+                // Parse right parenthesis `)`.
+                let right_span = self.expect(&Token::RightParen)?;
+
+                return Ok(Expression::Unary(UnaryExpression {
+                    span: receiver.span() + right_span,
+                    op: operator,
+                    receiver: Box::new(receiver),
+                }));
+
+            } else if let Some(operator) = BinaryOperation::from_symbol(&method) {
                 // Handle binary operators.
 
                 // Parse left parenthesis `(`.
@@ -245,7 +260,7 @@ impl ParserContext<'_> {
                 // Parse operand.
                 let operand = self.parse_expression()?;
 
-                // Parse close parenthesis `)`.
+                // Parse right parenthesis `)`.
                 let right_span = self.expect(&Token::RightParen)?;
 
                 return Ok(Expression::Binary(BinaryExpression {
