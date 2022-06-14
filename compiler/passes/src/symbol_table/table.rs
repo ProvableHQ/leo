@@ -39,12 +39,10 @@ pub struct SymbolTable<'a> {
 impl<'a> SymbolTable<'a> {
     pub fn check_shadowing(&self, symbol: Symbol, span: Span) -> Result<()> {
         if self.variables.borrow().contains_key(&symbol) {
-            dbg!("our scope");
             Err(AstError::shadowed_variable(symbol, span).into())
         } else if self.functions.borrow().contains_key(&symbol) {
             Err(AstError::shadowed_function(symbol, span).into())
         } else if let Some(parent) = self.parent.get() {
-            dbg!("parent scope");
             parent.check_shadowing(symbol, span)
         } else {
             Ok(())

@@ -28,7 +28,6 @@ pub struct BlockSymbol<'a> {
 
 impl<'a> CreateSymbolTable<'a> {
     pub(crate) fn new_block_symbol(&self, block: &'a Block, scope: &'a SymbolTable<'a>) -> BlockSymbol<'a> {
-        let scope = self.arena.alloc(scope.subscope());
         BlockSymbol {
             scope,
             span: block.span,

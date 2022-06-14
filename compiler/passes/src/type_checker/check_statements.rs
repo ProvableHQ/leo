@@ -120,7 +120,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
     fn visit_block(&mut self, input: &'a Block) {
         // creates a new sub-scope since we are in a block.
-        // self.symbol_table.push_variable_scope();
+        let prev_st = self.symbol_table;
+        self.symbol_table = self.arena.alloc(self.symbol_table.subscope());
         input.statements.iter().for_each(|stmt| {
             match stmt {
                 Statement::Return(stmt) => self.visit_return(stmt),
@@ -132,6 +133,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 Statement::Block(stmt) => self.visit_block(stmt),
             };
         });
-        // self.symbol_table.pop_variable_scope();
+        self.symbol_table = prev_st;
     }
 }

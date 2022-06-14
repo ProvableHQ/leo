@@ -14,9 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod block_symbol;
-pub use block_symbol::*;
-
 pub mod create;
 use bumpalo::Bump;
 pub use create::*;
