@@ -58,7 +58,7 @@ rev = "51633e2"
 version = "0.3.65"
 
 [dependencies.clap]
-version = "3.1.18"
+version = "3.2.1"
 features = ["derive", "env"]
 
 [dependencies.color-backtrace]
