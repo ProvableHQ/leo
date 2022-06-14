@@ -14,11 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+pub mod block_symbol;
+pub use block_symbol::*;
+
 pub mod create;
 pub use create::*;
 
-pub mod director;
-use director::*;
+pub mod function_symbol;
+pub use function_symbol::*;
 
 pub mod table;
 pub use table::*;
@@ -31,18 +34,18 @@ pub use variable_symbol::*;
 
 use crate::Pass;
 
-use leo_ast::{Ast, ProgramVisitorDirector, VisitorDirector};
+use leo_ast::{Ast, ProgramVisitor};
 use leo_errors::{emitter::Handler, Result};
 
 impl<'a> Pass<'a> for CreateSymbolTable<'a> {
     type Input = (&'a Ast, &'a Handler);
-    type Output = Result<SymbolTable<'a>>;
+    type Output = Result<&'a SymbolTable<'a>>;
 
     fn do_pass((ast, handler): Self::Input) -> Self::Output {
-        let mut visitor = Director::new(handler);
+        let mut visitor = CreateSymbolTable::new(handler);
         visitor.visit_program(ast.as_repr());
         handler.last_err()?;
 
-        Ok(visitor.visitor().symbol_table())
+        Ok(visitor.symbol_table)
     }
 }

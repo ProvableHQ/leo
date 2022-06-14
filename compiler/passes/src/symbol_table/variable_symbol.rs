@@ -38,7 +38,7 @@ impl Display for Declaration {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone)]
 pub struct VariableSymbol<'a> {
     pub type_: &'a Type,
     pub span: Span,

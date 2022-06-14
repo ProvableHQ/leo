@@ -27,6 +27,3 @@ pub use reconstructing_director::*;
 
 pub mod visitor;
 pub use visitor::*;
-
-pub mod visitor_director;
-pub use visitor_director::*;

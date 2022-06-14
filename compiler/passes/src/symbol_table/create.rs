@@ -17,34 +17,36 @@
 use leo_ast::*;
 use leo_errors::emitter::Handler;
 
-use crate::SymbolTable;
+use crate::{FunctionSymbol, SymbolTable};
 
 pub struct CreateSymbolTable<'a> {
-    symbol_table: SymbolTable<'a>,
+    pub(crate) symbol_table: &'a SymbolTable<'a>,
     handler: &'a Handler,
 }
 
 impl<'a> CreateSymbolTable<'a> {
     pub fn new(handler: &'a Handler) -> Self {
         Self {
-            symbol_table: SymbolTable::default(),
+            symbol_table: &SymbolTable::default(),
             handler,
         }
     }
-    pub fn symbol_table(self) -> SymbolTable<'a> {
-        self.symbol_table
-    }
 }
 
-impl<'a> ExpressionVisitor<'a> for CreateSymbolTable<'a> {}
+impl<'a> ExpressionVisitor<'a> for CreateSymbolTable<'a> {
+    type AdditionalInput = ();
+    type Output = ();
+}
 
 impl<'a> StatementVisitor<'a> for CreateSymbolTable<'a> {}
 
 impl<'a> ProgramVisitor<'a> for CreateSymbolTable<'a> {
-    fn visit_function(&mut self, input: &'a Function) -> VisitResult {
-        if let Err(err) = self.symbol_table.insert_fn(input.name(), input) {
+    fn visit_function(&mut self, input: &'a Function) {
+        if let Err(err) = self
+            .symbol_table
+            .insert_fn(input.name(), FunctionSymbol::new(input, self.symbol_table))
+        {
             self.handler.emit_err(err);
         }
-        VisitResult::SkipChildren
     }
 }

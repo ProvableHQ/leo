@@ -12,33 +12,27 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>
 
-use leo_ast::*;
-use leo_errors::emitter::Handler;
+use leo_ast::{Block, Statement};
+use leo_span::Span;
 
-use crate::{SymbolTable, TypeChecker};
+use crate::SymbolTable;
 
-pub(crate) struct Director<'a> {
-    pub(crate) visitor: TypeChecker<'a>,
+#[derive(Clone)]
+pub struct BlockSymbol<'a> {
+    pub(crate) scope: SymbolTable<'a>,
+    pub(crate) span: Span,
+    pub(crate) statements: &'a [Statement],
 }
 
-impl<'a> Director<'a> {
-    pub(crate) fn new(symbol_table: &'a mut SymbolTable<'a>, handler: &'a Handler) -> Self {
+impl<'a> BlockSymbol<'a> {
+    pub(crate) fn new(block: &'a Block, scope: &'a SymbolTable<'a>) -> Self {
+        let scope = scope.subscope();
         Self {
-            visitor: TypeChecker::new(symbol_table, handler),
+            scope,
+            span: block.span,
+            statements: &block.statements,
         }
-    }
-}
-
-impl<'a> VisitorDirector<'a> for Director<'a> {
-    type Visitor = TypeChecker<'a>;
-
-    fn visitor(self) -> Self::Visitor {
-        self.visitor
-    }
-
-    fn visitor_ref(&mut self) -> &mut Self::Visitor {
-        &mut self.visitor
     }
 }

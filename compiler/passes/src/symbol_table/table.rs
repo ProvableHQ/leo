@@ -14,83 +14,77 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::fmt::Display;
+use std::cell::{Cell, RefCell};
 
-use leo_ast::Function;
 use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
 
-use crate::{VariableScope, VariableSymbol};
+use crate::{FunctionSymbol, VariableSymbol};
 
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
+#[derive(Clone, Default)]
 pub struct SymbolTable<'a> {
+    /// The parent scope if it exists.
+    /// For example if we are in a if block inside a function.
+    pub(crate) parent: Cell<Option<&'a SymbolTable<'a>>>,
     /// Functions represents the name of each function mapped to the Ast's function definition.
     /// This field is populated at a first pass.
-    functions: IndexMap<Symbol, &'a Function>,
-    /// Variables represents functions variable definitions and input variables.
-    /// This field is not populated till necessary.
-    pub(crate) variables: VariableScope<'a>,
+    functions: RefCell<IndexMap<Symbol, FunctionSymbol<'a>>>,
+    /// The variables defined in a scope.
+    /// This field is populated as necessary.
+    pub(crate) variables: RefCell<IndexMap<Symbol, VariableSymbol<'a>>>,
 }
 
 impl<'a> SymbolTable<'a> {
-    pub fn check_shadowing(&self, symbol: &Symbol, span: Span) -> Result<()> {
-        if self.functions.contains_key(symbol) {
+    pub fn check_shadowing(&self, symbol: Symbol, span: Span) -> Result<()> {
+        if self.variables.borrow().contains_key(&symbol) {
+            Err(AstError::shadowed_variable(symbol, span).into())
+        } else if self.functions.borrow().contains_key(&symbol) {
             Err(AstError::shadowed_function(symbol, span).into())
+        } else if let Some(parent) = self.parent.get() {
+            parent.check_shadowing(symbol, span)
         } else {
-            self.variables.check_shadowing(symbol, span)?;
             Ok(())
         }
     }
 
-    pub fn clear_variables(&mut self) {
-        self.variables.clear();
-    }
-
-    pub fn insert_fn(&mut self, symbol: Symbol, insert: &'a Function) -> Result<()> {
-        self.check_shadowing(&symbol, insert.span)?;
-        self.functions.insert(symbol, insert);
+    pub fn insert_fn(&self, symbol: Symbol, insert: FunctionSymbol<'a>) -> Result<()> {
+        self.check_shadowing(symbol, insert.span)?;
+        self.functions.borrow_mut().insert(symbol, insert);
         Ok(())
     }
 
-    pub fn insert_variable(&mut self, symbol: Symbol, insert: VariableSymbol<'a>) -> Result<()> {
-        self.check_shadowing(&symbol, insert.span)?;
-        self.variables.variables.insert(symbol, insert);
+    pub fn insert_variable(&self, symbol: Symbol, insert: VariableSymbol<'a>) -> Result<()> {
+        self.check_shadowing(symbol, insert.span)?;
+        self.variables.borrow_mut().insert(symbol, insert);
         Ok(())
     }
 
-    pub fn lookup_fn(&self, symbol: &Symbol) -> Option<&&'a Function> {
-        self.functions.get(symbol)
-    }
-
-    pub fn lookup_variable(&self, symbol: &Symbol) -> Option<&VariableSymbol<'a>> {
-        self.variables.lookup_variable(symbol)
-    }
-
-    pub fn push_variable_scope(&mut self) {
-        let current_scope = self.variables.clone();
-        self.variables = VariableScope {
-            parent: Some(Box::new(current_scope)),
-            variables: Default::default(),
-        };
-    }
-
-    pub fn pop_variable_scope(&mut self) {
-        let parent = self.variables.parent.clone().unwrap();
-
-        self.variables = *parent;
-    }
-}
-
-impl<'a> Display for SymbolTable<'a> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "SymbolTable")?;
-
-        for func in self.functions.values() {
-            write!(f, "{func}")?;
+    pub fn lookup_fn(&self, symbol: Symbol) -> Option<&FunctionSymbol<'a>> {
+        if let Some(func) = self.functions.borrow().get(&symbol) {
+            Some(func)
+        } else if let Some(parent) = self.parent.get() {
+            parent.lookup_fn(symbol)
+        } else {
+            None
         }
+    }
 
-        write!(f, "{}", self.variables)
+    pub fn lookup_variable(&self, symbol: Symbol) -> Option<&VariableSymbol<'a>> {
+        if let Some(var) = self.variables.borrow().get(&symbol) {
+            Some(var)
+        } else if let Some(parent) = self.parent.get() {
+            parent.lookup_variable(symbol)
+        } else {
+            None
+        }
+    }
+
+    pub fn subscope(self: &'a SymbolTable<'a>) -> Self {
+        Self {
+            parent: Cell::new(Some(self)),
+            ..Default::default()
+        }
     }
 }

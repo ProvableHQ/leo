@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use std::cell::RefCell;
+
 use indexmap::IndexSet;
 use leo_ast::{IntegerType, Node, Type};
 use leo_core::*;
@@ -23,7 +25,7 @@ use leo_span::{Span, Symbol};
 use crate::SymbolTable;
 
 pub struct TypeChecker<'a> {
-    pub(crate) symbol_table: &'a mut SymbolTable<'a>,
+    pub(crate) symbol_table: &'a RefCell<SymbolTable<'a>>,
     pub(crate) handler: &'a Handler,
     pub(crate) parent: Option<Symbol>,
     pub(crate) has_return: bool,
@@ -73,7 +75,7 @@ const FIELD_GROUP_SCALAR_INT_TYPES: [Type; 13] = create_type_superset(FIELD_GROU
 
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
-    pub fn new(symbol_table: &'a mut SymbolTable<'a>, handler: &'a Handler) -> Self {
+    pub fn new(symbol_table: &'a RefCell<SymbolTable<'a>>, handler: &'a Handler) -> Self {
         Self {
             symbol_table,
             handler,

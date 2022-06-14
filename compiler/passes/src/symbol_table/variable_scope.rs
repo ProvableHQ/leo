@@ -22,7 +22,7 @@ use leo_span::{Span, Symbol};
 
 use crate::VariableSymbol;
 
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
+#[derive(Clone)]
 pub struct VariableScope<'a> {
     /// The parent scope of variables if it exists.
     /// For example if we are in a if block inside a function.
