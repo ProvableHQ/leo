@@ -32,12 +32,6 @@ use tracing::span::Span;
 /// require Build command output as their input.
 #[derive(StructOpt, Clone, Debug, Default)]
 pub struct BuildOptions {
-    // #[structopt(long, help = "Disable constant folding compiler optimization")]
-    // pub disable_constant_folding: bool,
-    // #[structopt(long, help = "Disable dead code elimination compiler optimization")]
-    // pub disable_code_elimination: bool,
-    // #[structopt(long, help = "Disable all compiler optimizations")]
-    // pub disable_all_optimizations: bool,
     #[structopt(long, help = "Enable spans in AST snapshots.")]
     pub enable_spans: bool,
     #[structopt(long, help = "Writes all AST snapshots for the different compiler phases.")]
@@ -46,29 +40,7 @@ pub struct BuildOptions {
     pub enable_initial_input_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot of the initial parse.")]
     pub enable_initial_ast_snapshot: bool,
-    // #[structopt(long, help = "Writes AST snapshot after the import resolution phase.")]
-    // pub enable_imports_resolved_ast_snapshot: bool,
-    // #[structopt(long, help = "Writes AST snapshot after the canonicalization phase.")]
-    // pub enable_canonicalized_ast_snapshot: bool,
-    // #[structopt(long, help = "Writes AST snapshot after the type inference phase.")]
-    // pub enable_type_inferenced_ast_snapshot: bool,
 }
-
-// impl From<BuildOptions> for CompilerOptions {
-//     fn from(options: BuildOptions) -> Self {
-//         if options.disable_all_optimizations {
-//             CompilerOptions {
-//                 constant_folding_enabled: false,
-//                 dead_code_elimination_enabled: false,
-//             }
-//         } else {
-//             CompilerOptions {
-//                 constant_folding_enabled: !options.disable_constant_folding,
-//                 dead_code_elimination_enabled: !options.disable_code_elimination,
-//             }
-//         }
-//     }
-// }
 
 impl From<BuildOptions> for OutputOptions {
     fn from(options: BuildOptions) -> Self {
