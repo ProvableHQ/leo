@@ -194,7 +194,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         for input in inputs {
             let mut parsed = parsed.clone();
             handler.extend_if_error(parsed.parse_input(input))?;
-            let initial_input_ast = hash_file("/tmp/output/inital_input_ast.json");
+            let initial_input_ast = hash_file("/tmp/output/initial_input_ast.json");
 
             output_items.push(OutputItem { initial_input_ast });
         }

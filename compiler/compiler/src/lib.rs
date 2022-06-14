@@ -111,7 +111,7 @@ impl<'a> Compiler<'a> {
 
             // Parse and serialize it.
             let input_ast = leo_parser::parse_input(self.handler, &input_sf.src, input_sf.start_pos)?;
-            input_ast.to_json_file_without_keys(self.output_directory.clone(), "inital_input_ast.json", &["span"])?;
+            input_ast.to_json_file_without_keys(self.output_directory.clone(), "initial_input_ast.json", &["span"])?;
 
             self.input_ast = Some(input_ast);
         }
