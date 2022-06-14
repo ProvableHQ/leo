@@ -25,7 +25,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // statements should always have some parent block
         let parent = self.parent.unwrap();
 
-        let return_type = &self.symbol_table.borrow().lookup_fn(parent).map(|f| *f.type_);
+        let return_type = &self.symbol_table.lookup_fn(parent).map(|f| *f.type_);
         self.validate_ident_type(return_type);
         self.has_return = true;
 
@@ -44,14 +44,12 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
             self.visit_expression(&input.value, &Some(input.type_));
 
-            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                v.identifier.name,
-                VariableSymbol {
-                    type_: &input.type_,
-                    span: input.span(),
-                    declaration: declaration.clone(),
-                },
-            ) {
+            let var = self.arena.alloc(VariableSymbol {
+                type_: &input.type_,
+                span: input.span(),
+                declaration: declaration.clone(),
+            });
+            if let Err(err) = self.symbol_table.insert_variable(v.identifier.name, var) {
                 self.handler.emit_err(err);
             }
         });
@@ -59,7 +57,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
     fn visit_assign(&mut self, input: &'a AssignStatement) {
         let var_name = input.assignee.identifier.name;
-        let var_type = if let Some(var) = self.symbol_table.borrow().lookup_variable(var_name) {
+        let var_type = if let Some(var) = self.symbol_table.lookup_variable(var_name) {
             match &var.declaration {
                 Declaration::Const => self
                     .handler
@@ -94,14 +92,12 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
-        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-            input.variable.name,
-            VariableSymbol {
-                type_: &input.type_,
-                span: input.span(),
-                declaration: Declaration::Const,
-            },
-        ) {
+        let var = self.arena.alloc(VariableSymbol {
+            type_: &input.type_,
+            span: input.span(),
+            declaration: Declaration::Const,
+        });
+        if let Err(err) = self.symbol_table.insert_variable(input.variable.name, var) {
             self.handler.emit_err(err);
         }
 

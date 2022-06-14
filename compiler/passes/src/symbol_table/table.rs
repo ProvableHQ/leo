@@ -30,10 +30,10 @@ pub struct SymbolTable<'a> {
     pub(crate) parent: Cell<Option<&'a SymbolTable<'a>>>,
     /// Functions represents the name of each function mapped to the Ast's function definition.
     /// This field is populated at a first pass.
-    functions: RefCell<IndexMap<Symbol, FunctionSymbol<'a>>>,
+    functions: RefCell<IndexMap<Symbol, &'a FunctionSymbol<'a>>>,
     /// The variables defined in a scope.
     /// This field is populated as necessary.
-    pub(crate) variables: RefCell<IndexMap<Symbol, VariableSymbol<'a>>>,
+    pub(crate) variables: RefCell<IndexMap<Symbol, &'a VariableSymbol<'a>>>,
 }
 
 impl<'a> SymbolTable<'a> {
@@ -49,19 +49,19 @@ impl<'a> SymbolTable<'a> {
         }
     }
 
-    pub fn insert_fn(&self, symbol: Symbol, insert: FunctionSymbol<'a>) -> Result<()> {
+    pub fn insert_fn(&self, symbol: Symbol, insert: &'a FunctionSymbol<'a>) -> Result<()> {
         self.check_shadowing(symbol, insert.span)?;
         self.functions.borrow_mut().insert(symbol, insert);
         Ok(())
     }
 
-    pub fn insert_variable(&self, symbol: Symbol, insert: VariableSymbol<'a>) -> Result<()> {
+    pub fn insert_variable(&self, symbol: Symbol, insert: &'a VariableSymbol<'a>) -> Result<()> {
         self.check_shadowing(symbol, insert.span)?;
         self.variables.borrow_mut().insert(symbol, insert);
         Ok(())
     }
 
-    pub fn lookup_fn(&self, symbol: Symbol) -> Option<&FunctionSymbol<'a>> {
+    pub fn lookup_fn(&self, symbol: Symbol) -> Option<&'a FunctionSymbol<'a>> {
         if let Some(func) = self.functions.borrow().get(&symbol) {
             Some(func)
         } else if let Some(parent) = self.parent.get() {
@@ -71,7 +71,7 @@ impl<'a> SymbolTable<'a> {
         }
     }
 
-    pub fn lookup_variable(&self, symbol: Symbol) -> Option<&VariableSymbol<'a>> {
+    pub fn lookup_variable(&self, symbol: Symbol) -> Option<&'a VariableSymbol<'a>> {
         if let Some(var) = self.variables.borrow().get(&symbol) {
             Some(var)
         } else if let Some(parent) = self.parent.get() {

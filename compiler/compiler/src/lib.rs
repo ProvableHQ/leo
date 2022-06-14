@@ -25,6 +25,7 @@
 #[cfg(test)]
 mod test;
 
+use bumpalo::Bump;
 use leo_ast::Program;
 pub use leo_ast::{Ast, InputAst};
 use leo_errors::emitter::Handler;
@@ -121,15 +122,15 @@ impl<'a> Compiler<'a> {
     ///
     /// Runs the symbol table pass.
     ///
-    pub fn symbol_table_pass(&self) -> Result<SymbolTable<'_>> {
-        CreateSymbolTable::do_pass((&self.ast, self.handler))
+    pub fn symbol_table_pass(&'a self, st: &'a SymbolTable<'a>, arena: &'a Bump) -> Result<()> {
+        CreateSymbolTable::do_pass((&self.ast, self.handler, st, arena))
     }
 
     ///
     /// Runs the type checker pass.
     ///
-    pub fn type_checker_pass(&'a self, symbol_table: &mut SymbolTable<'_>) -> Result<()> {
-        TypeChecker::do_pass((&self.ast, &mut symbol_table.clone(), self.handler))
+    pub fn type_checker_pass(&'a self, symbol_table: &'a SymbolTable<'a>, arena: &'a Bump) -> Result<()> {
+        TypeChecker::do_pass((&self.ast, self.handler, symbol_table, arena))
     }
 
     ///
@@ -147,8 +148,10 @@ impl<'a> Compiler<'a> {
     /// Runs the compiler stages.
     ///
     pub fn compiler_stages(&mut self) -> Result<()> {
-        let mut st = self.symbol_table_pass()?;
-        self.type_checker_pass(&mut st)?;
+        let arena = Bump::new();
+        let st = arena.alloc(SymbolTable::default());
+        self.symbol_table_pass(st, &arena)?;
+        self.type_checker_pass(st, &arena)?;
         self.flattening_pass()
     }
 

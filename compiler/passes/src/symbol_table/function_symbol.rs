@@ -17,7 +17,7 @@
 use leo_ast::{Function, FunctionInput, Type};
 use leo_span::Span;
 
-use crate::{BlockSymbol, SymbolTable};
+use crate::{BlockSymbol, CreateSymbolTable, SymbolTable};
 
 #[derive(Clone)]
 pub struct FunctionSymbol<'a> {
@@ -28,12 +28,12 @@ pub struct FunctionSymbol<'a> {
     pub(crate) block: BlockSymbol<'a>,
 }
 
-impl<'a> FunctionSymbol<'a> {
-    pub(crate) fn new(func: &'a Function, scope: &'a SymbolTable<'a>) -> Self {
-        let scope = scope.subscope();
-        let block = BlockSymbol::new(&func.block, &scope);
-        Self {
-            scope: &scope,
+impl<'a> CreateSymbolTable<'a> {
+    pub(crate) fn new_function_symbol(&self, func: &'a Function) -> FunctionSymbol<'a> {
+        let scope = self.arena.alloc(self.symbol_table.subscope());
+        let block = self.new_block_symbol(&func.block, scope);
+        FunctionSymbol {
+            scope,
             type_: &func.output,
             span: func.span,
             input: &func.input,

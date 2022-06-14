@@ -18,6 +18,10 @@ license = "GPL-3.0"
 edition = "2021"
 rust-version = "1.56.1"
 
+[dependencies]
+typed-arena = "2.0.1"
+bumpalo = "3.10.0"
+
 [dependencies.leo-ast]
 path = "../ast"
 version = "1.5.3"

@@ -18,6 +18,7 @@ pub mod block_symbol;
 pub use block_symbol::*;
 
 pub mod create;
+use bumpalo::Bump;
 pub use create::*;
 
 pub mod function_symbol;
@@ -25,9 +26,6 @@ pub use function_symbol::*;
 
 pub mod table;
 pub use table::*;
-
-pub mod variable_scope;
-pub use variable_scope::*;
 
 pub mod variable_symbol;
 pub use variable_symbol::*;
@@ -38,14 +36,14 @@ use leo_ast::{Ast, ProgramVisitor};
 use leo_errors::{emitter::Handler, Result};
 
 impl<'a> Pass<'a> for CreateSymbolTable<'a> {
-    type Input = (&'a Ast, &'a Handler);
-    type Output = Result<&'a SymbolTable<'a>>;
+    type Input = (&'a Ast, &'a Handler, &'a SymbolTable<'a>, &'a Bump);
+    type Output = Result<()>;
 
-    fn do_pass((ast, handler): Self::Input) -> Self::Output {
-        let mut visitor = CreateSymbolTable::new(handler);
+    fn do_pass((ast, handler, st, arena): Self::Input) -> Self::Output {
+        let mut visitor = CreateSymbolTable::new(st, handler, arena);
         visitor.visit_program(ast.as_repr());
         handler.last_err()?;
 
-        Ok(visitor.symbol_table)
+        Ok(())
     }
 }

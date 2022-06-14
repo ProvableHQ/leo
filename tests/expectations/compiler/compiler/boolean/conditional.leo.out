@@ -8,4 +8,3 @@ outputs:
       - initial_input_ast: 695d879ad212b23fb3e91fae782c701c5f0469bbcaabdcfc6e5dcadc5b7e6c9a
       - initial_input_ast: 390e951d2b90cf150acd9bc6eeeffbc3a8d7af3ce3781f14ebdce3f1054de4c8
     initial_ast: adb3d21c4da2e7538a95ba689373f870d370001c8fb60e38a96ed6e6cf87ae6c
-    symbol_table: 4fd4e476609947028fbffe357ffb9d962e96c30a9abe3677d75675ae37b12587

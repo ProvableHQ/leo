@@ -17,19 +17,19 @@
 use leo_ast::{Block, Statement};
 use leo_span::Span;
 
-use crate::SymbolTable;
+use crate::{CreateSymbolTable, SymbolTable};
 
 #[derive(Clone)]
 pub struct BlockSymbol<'a> {
-    pub(crate) scope: SymbolTable<'a>,
+    pub(crate) scope: &'a SymbolTable<'a>,
     pub(crate) span: Span,
     pub(crate) statements: &'a [Statement],
 }
 
-impl<'a> BlockSymbol<'a> {
-    pub(crate) fn new(block: &'a Block, scope: &'a SymbolTable<'a>) -> Self {
-        let scope = scope.subscope();
-        Self {
+impl<'a> CreateSymbolTable<'a> {
+    pub(crate) fn new_block_symbol(&self, block: &'a Block, scope: &'a SymbolTable<'a>) -> BlockSymbol<'a> {
+        let scope = self.arena.alloc(scope.subscope());
+        BlockSymbol {
             scope,
             span: block.span,
             statements: &block.statements,

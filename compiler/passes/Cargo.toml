@@ -23,6 +23,8 @@ path = "src/lib.rs"
 
 [dependencies]
 indexmap = "1.7.0"
+typed-arena = "2.0.1"
+bumpalo = "3.10.0"
 
 [dependencies.leo-ast]
 path = "../ast"

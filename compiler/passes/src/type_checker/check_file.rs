@@ -21,21 +21,21 @@ use crate::{Declaration, TypeChecker, VariableSymbol};
 
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_function(&mut self, input: &'a Function) {
+        let prev_st = self.symbol_table;
+        self.symbol_table = self.symbol_table.lookup_fn(input.name()).unwrap().scope;
+
         self.has_return = false;
-        
         self.parent = Some(input.name());
         input.input.iter().for_each(|i| {
             let input_var = i.get_variable();
             self.validate_ident_type(&Some(input_var.type_));
 
-            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                input_var.identifier.name,
-                VariableSymbol {
-                    type_: &input_var.type_,
-                    span: input_var.identifier.span(),
-                    declaration: Declaration::Input(input_var.mode()),
-                },
-            ) {
+            let var = self.arena.alloc(VariableSymbol {
+                type_: &input_var.type_,
+                span: input_var.identifier.span(),
+                declaration: Declaration::Input(input_var.mode()),
+            });
+            if let Err(err) = self.symbol_table.insert_variable(input_var.identifier.name, var) {
                 self.handler.emit_err(err);
             }
         });
@@ -46,6 +46,6 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 .emit_err(TypeCheckerError::function_has_no_return(input.name(), input.span()).into());
         }
 
-        // self.symbol_table.replace(*self.symbol_table.borrow_mut().parent.unwrap());
+        self.symbol_table = prev_st;
     }
 }

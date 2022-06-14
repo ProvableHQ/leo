@@ -54,7 +54,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Option<Self::Output> {
-        if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(input.name) {
+        if let Some(var) = self.symbol_table.lookup_variable(input.name) {
             Some(self.assert_type(*var.type_, expected, var.span))
         } else {
             self.handler
@@ -331,7 +331,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Option<Self::Output> {
         match &*input.function {
             Expression::Identifier(ident) => {
-                if let Some(func) = self.symbol_table.borrow_mut().lookup_fn(ident.name) {
+                if let Some(func) = self.symbol_table.lookup_fn(ident.name) {
                     let ret = self.assert_type(*func.type_, expected, func.span);
 
                     if func.input.len() != input.arguments.len() {
