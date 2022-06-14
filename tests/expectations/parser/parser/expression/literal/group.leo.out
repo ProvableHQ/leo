@@ -428,7 +428,7 @@ outputs:
               lo: 0
               hi: 6
   - Unary:
-      inner:
+      receiver:
         Value:
           Group:
             Single:

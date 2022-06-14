@@ -3,14 +3,14 @@ namespace: ParseExpression
 expectation: Pass
 outputs:
   - Unary:
-      inner:
+      receiver:
         Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
       op: Negate
       span:
         lo: 0
         hi: 2
   - Unary:
-      inner:
+      receiver:
         Call:
           function:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
@@ -23,9 +23,9 @@ outputs:
         lo: 0
         hi: 4
   - Unary:
-      inner:
+      receiver:
         Unary:
-          inner:
+          receiver:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           op: Negate
           span:
@@ -36,9 +36,9 @@ outputs:
         lo: 0
         hi: 3
   - Unary:
-      inner:
+      receiver:
         Unary:
-          inner:
+          receiver:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           op: Not
           span:
@@ -49,7 +49,7 @@ outputs:
         lo: 0
         hi: 3
   - Unary:
-      inner:
+      receiver:
         Value:
           Integer:
             - I8

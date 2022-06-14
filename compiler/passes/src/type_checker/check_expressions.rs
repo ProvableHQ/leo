@@ -294,7 +294,19 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     let t1 = self.visit_expression(&input.left, &None);
                     let t2 = self.visit_expression(&input.right, &None);
 
-                    self.visitor.assert_eq_types(t1, t2, input.span());
+                    match (t1, t2) {
+                        (Some(Type::IntegerType(_)), t2) => {
+                            // Assert rhs is integer.
+                            self.visitor.assert_int_type(&t2, input.left.span());
+                        }
+                        (t1, Some(Type::IntegerType(_))) => {
+                            // Assert lhs is integer.
+                            self.visitor.assert_int_type(&t1, input.right.span());
+                        }
+                        (t1, t2) => {
+                            self.visitor.assert_eq_types(t1, t2, input.span());
+                        }
+                    }
 
                     // Assert destination is boolean.
                     Some(self.visitor.assert_expected_type(destination, Type::Boolean, input.span()))
@@ -302,12 +314,37 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                 BinaryOperation::Lt | BinaryOperation::Gt | BinaryOperation::Le | BinaryOperation::Ge => {
                     // Assert left and right are equal field, scalar, or integer types.
                     let t1 = self.visit_expression(&input.left, &None);
-                    self.visitor.assert_field_scalar_int_type(&t1, input.left.span());
-
                     let t2 = self.visit_expression(&input.right, &None);
-                    self.visitor.assert_field_scalar_int_type(&t2, input.right.span());
 
-                    self.visitor.assert_eq_types(t1, t2, input.span());
+                    match (t1, t2) {
+                        (Some(Type::Field), t2) => {
+                            // Assert rhs is field.
+                            self.visitor.assert_expected_type(&t2, Type::Field, input.left.span());
+                        }
+                        (t1, Some(Type::Field)) => {
+                            // Assert lhs is field.
+                            self.visitor.assert_expected_type(&t1, Type::Field, input.right.span());
+                        }
+                        (Some(Type::Scalar), t2) => {
+                            // Assert rhs is scalar.
+                            self.visitor.assert_expected_type(&t2, Type::Scalar, input.left.span());
+                        }
+                        (t1, Some(Type::Scalar)) => {
+                            // Assert lhs is scalar.
+                            self.visitor.assert_expected_type(&t1, Type::Scalar, input.right.span());
+                        }
+                        (Some(Type::IntegerType(_)), t2) => {
+                            // Assert rhs is integer.
+                            self.visitor.assert_int_type(&t2,input.left.span());
+                        }
+                        (t1, Some(Type::IntegerType(_))) => {
+                            // Assert lhs is integer.
+                            self.visitor.assert_int_type(&t1, input.right.span());
+                        }
+                        (_, _) => {
+                            // Not enough info to assert type.
+                        }
+                    }
 
                     // Assert destination is boolean.
                     Some(self.visitor

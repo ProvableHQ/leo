@@ -133,6 +133,7 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Returns the given `expected` type and emits an error if the `actual` type does not match.
+    /// `span` should be the location of the expected type.
     pub(crate) fn assert_expected_type(&mut self, actual: &Option<Type>, expected: Type, span: Span) -> Type {
         if let Some(actual) = actual {
             if actual != &expected {
