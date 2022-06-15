@@ -46,6 +46,15 @@ impl InputAst {
         Ok(serde_json::to_value(&self).map_err(|e| AstError::failed_to_convert_ast_to_json_value(&e))?)
     }
 
+    /// Serializes the input into a JSON file.
+    pub fn to_json_file(&self, mut path: std::path::PathBuf, file_name: &str) -> Result<()> {
+        path.push(file_name);
+        let file = std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_ast_json_file(&path, &e))?;
+        let writer = std::io::BufWriter::new(file);
+        Ok(serde_json::to_writer_pretty(writer, &self)
+            .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e))?)
+    }
+
     /// Serializes the `Input` into a JSON value and removes keys from object mappings before writing to a file.
     pub fn to_json_file_without_keys(
         &self,

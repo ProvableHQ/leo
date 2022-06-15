@@ -1,3 +1,8 @@
+/*
+namespace: Bench
+expectation: Skip
+*/
+
 type NmYjQ = i32;
 
 const K_baB = [85i8; 3];

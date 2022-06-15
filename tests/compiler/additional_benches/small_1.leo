@@ -1,3 +1,8 @@
+/*
+namespace: Bench
+expectation: Skip
+*/
+
 type Ol3w = field;
 
 type Ahe2 = bool;

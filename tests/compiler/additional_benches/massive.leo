@@ -1,3 +1,8 @@
+/*
+namespace: Bench
+expectation: Skip
+*/
+
 type ipD5 = i8;
 
 type g52FJ = (field, u128);

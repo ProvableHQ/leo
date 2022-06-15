@@ -1,3 +1,8 @@
+/*
+namespace: Bench
+expectation: Skip
+*/
+
 type g8SH = u8;
 
 type V8fkp = u128;

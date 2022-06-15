@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 /// A pass consuming a `Program` and possibly returning an `Ast`.
-pub trait Pass<'a> {
+pub trait Pass {
     type Input;
     type Output;
 

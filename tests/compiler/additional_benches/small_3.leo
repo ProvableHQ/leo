@@ -1,3 +1,8 @@
+/*
+namespace: Bench
+expectation: Skip
+*/
+
 type RoqL = i64;
 
 type AaPhh = u8;

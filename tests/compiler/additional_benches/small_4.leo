@@ -1,3 +1,8 @@
+/*
+namespace: Bench
+expectation: Skip
+*/
+
 type km8Fr = u32;
 
 type kzW6 = i32;

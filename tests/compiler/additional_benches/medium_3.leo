@@ -1,3 +1,8 @@
+/*
+namespace: Bench
+expectation: Skip
+*/
+
 type HGvc = char;
 
 type gOJKD = u64;

@@ -1,3 +1,8 @@
+/*
+namespace: Bench
+expectation: Skip
+*/
+
 type TESjC = u8;
 
 type XgJbM = ud9u;

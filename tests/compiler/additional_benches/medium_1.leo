@@ -1,3 +1,8 @@
+/*
+namespace: Bench
+expectation: Skip
+*/
+
 const Hqyz7: address = aleo1nr8us4x0p4yyd99qa878e06jwddqr79gavznpxc6degn2gcv8syseq4dqu;
 
 

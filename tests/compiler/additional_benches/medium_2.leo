@@ -1,3 +1,8 @@
+/*
+namespace: Bench
+expectation: Skip
+*/
+
 type xs1w = i8;
 
 type Z5tB = field;
