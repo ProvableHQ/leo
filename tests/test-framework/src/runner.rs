@@ -164,7 +164,7 @@ impl TestCases {
             .join(expectation_category)
             .join(relative_path.parent().expect("no parent dir for test"))
             .join(relative_path.file_name().expect("no file name for test"))
-            .with_extension("leo.out");
+            .with_extension("out");
 
         if expectation_path.exists() {
             if !is_env_var_set("CLEAR_LEO_TEST_EXPECTATIONS") {
