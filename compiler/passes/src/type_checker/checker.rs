@@ -21,7 +21,7 @@ use leo_core::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
 
-use crate::{CheckOutput, SymbolTable, Value};
+use crate::{SymbolTable, TypeOutput, Value};
 
 pub struct TypeChecker<'a> {
     pub(crate) symbol_table: &'a SymbolTable<'a>,
@@ -118,7 +118,7 @@ impl<'a> TypeChecker<'a> {
         const_value: Option<Value>,
         expected: &Option<Type>,
         span: Span,
-    ) -> CheckOutput {
+    ) -> TypeOutput {
         if let Some(expected) = expected {
             if &type_ != expected {
                 self.handler
@@ -126,9 +126,9 @@ impl<'a> TypeChecker<'a> {
             }
         }
         if let Some(v) = const_value {
-            CheckOutput::Const(v)
+            TypeOutput::Const(v)
         } else {
-            CheckOutput::Type(type_)
+            TypeOutput::Type(type_)
         }
     }
 

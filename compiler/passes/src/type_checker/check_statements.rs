@@ -47,7 +47,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             let var = self.arena.alloc(VariableSymbol {
                 type_: &input.type_,
                 span: input.span(),
-                declaration,
+                declaration: declaration.clone(),
             });
             if let Err(err) = self.symbol_table.insert_variable(v.identifier.name, var) {
                 self.handler.emit_err(err);
@@ -61,10 +61,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             match &var.declaration {
                 Declaration::Const(_) => self
                     .handler
-                    .emit_err(TypeCheckerError::cannont_assign_to_const_var(var_name, var.span).into()),
+                    .emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span).into()),
                 Declaration::Input(ParamMode::Const) => self
                     .handler
-                    .emit_err(TypeCheckerError::cannont_assign_to_const_input(var_name, var.span).into()),
+                    .emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span).into()),
                 _ => {}
             }
 

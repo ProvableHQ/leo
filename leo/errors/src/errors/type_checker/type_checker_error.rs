@@ -25,7 +25,7 @@ create_messages!(
 
     /// For when the user tries to assign to a const input.
     @formatted
-    cannont_assign_to_const_input {
+    cannot_assign_to_const_input {
         args: (input: impl Display),
         msg: format!(
             "Cannot assign to const input `{input}`",
@@ -35,7 +35,7 @@ create_messages!(
 
     /// For when the user tries to assign to a const input.
     @formatted
-    cannont_assign_to_const_var {
+    cannot_assign_to_const_var {
         args: (var: impl Display),
         msg: format!(
             "Cannot assign to const variable `{var}`",

@@ -80,12 +80,20 @@ impl Value {
             U128(val) => Ok(*val as usize),
             _ => return Err(TypeCheckerError::cannot_use_type_as_loop_bound(self, span).into()),
         }
-        .map_err(|_| TypeCheckerError::loop_has_neg_value(self.get_type(), span).into())
+        .map_err(|_| TypeCheckerError::loop_has_neg_value(Type::from(self), span).into())
     }
+}
 
-    pub(crate) fn get_type(&self) -> Type {
+impl From<Value> for Type {
+    fn from(v: Value) -> Self {
+        v.into()
+    }
+}
+
+impl From<&Value> for Type {
+    fn from(v: &Value) -> Self {
         use Value::*;
-        match self {
+        match v {
             Address(_) => Type::Address,
             Boolean(_) => Type::Boolean,
             Field(_) => Type::Field,
@@ -124,11 +132,19 @@ impl Declaration {
         }
     }
 
+    pub fn get_const_value(&self) -> Option<Value> {
+        if let Self::Const(Some(v)) = self {
+            Some(v.clone())
+        } else {
+            None
+        }
+    }
+
     pub fn get_type(&self) -> Option<Type> {
         use Declaration::*;
 
         match self {
-            Const(Some(value)) | Mut(Some(value)) => Some(value.get_type()),
+            Const(Some(value)) | Mut(Some(value)) => Some(value.into()),
             Input(_) => None,
             _ => None,
         }
