@@ -20,18 +20,30 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+mod access;
+pub use access::*;
+
 mod binary;
 pub use binary::*;
-mod unary;
-pub use unary::*;
-mod ternary;
-pub use ternary::*;
-mod value;
-pub use value::*;
+
 mod call;
 pub use call::*;
+
+mod circuit_init;
+pub use circuit_init::*;
+
 mod err;
 pub use err::*;
+
+mod ternary;
+pub use ternary::*;
+
+mod unary;
+pub use unary::*;
+
+mod value;
+pub use value::*;
+
 
 /// Expression that evaluates to a value.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
