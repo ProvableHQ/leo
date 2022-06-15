@@ -46,6 +46,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             Expression::Unary(unary) => Expression::Unary(self.reduce_unary(unary)?),
             Expression::Ternary(ternary) => Expression::Ternary(self.reduce_ternary(ternary)?),
             Expression::Call(call) => Expression::Call(self.reduce_call(call)?),
+            Expression::CircuitInit(circuit_init) => Expression::CircuitInit(self.reduce_circuit_init(circuit_init)?),
             Expression::Err(s) => Expression::Err(s.clone()),
         };
 
@@ -257,12 +258,18 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         }
 
         let mut functions = IndexMap::new();
+        let mut circuits = IndexMap::new();
         for (name, function) in program.functions.iter() {
             functions.insert(*name, self.reduce_function(function)?);
         }
+        for (name, circuit) in program.circuits.iter() {
+            circuits.insert(*name, self.reduce_circuit(circuit)?);
+        }
 
-        self.reducer.reduce_program(program, inputs, functions)
+        self.reducer.reduce_program(program, inputs, functions, circuits)
     }
+
+    // Functions
 
     pub fn reduce_function_input_variable(
         &mut self,
@@ -298,5 +305,63 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
         self.reducer
             .reduce_function(function, identifier, inputs, output, block)
+    }
+
+    // Circuits
+
+    pub fn reduce_circuit_variable_initializer(
+        &mut self,
+        variable: &CircuitVariableInitializer,
+    ) -> Result<CircuitVariableInitializer> {
+        let identifier = self.reduce_identifier(&variable.identifier)?;
+        let expression = variable
+            .expression
+            .as_ref()
+            .map(|expr| self.reduce_expression(expr))
+            .transpose()?;
+
+        self.reducer
+            .reduce_circuit_variable_initializer(variable, identifier, expression)
+    }
+
+    pub fn reduce_circuit_init(&mut self, circuit_init: &CircuitInitExpression) -> Result<CircuitInitExpression> {
+        let name = self.reduce_identifier(&circuit_init.name)?;
+
+        let mut members = vec![];
+        for member in circuit_init.members.iter() {
+            members.push(self.reduce_circuit_variable_initializer(member)?);
+        }
+
+        self.reducer.reduce_circuit_init(circuit_init, name, members)
+    }
+
+    pub fn reduce_circuit_member(&mut self, circuit_member: &CircuitMember) -> Result<CircuitMember> {
+        let new = match circuit_member {
+            CircuitMember::CircuitConst(identifier, type_, value) => CircuitMember::CircuitConst(
+                self.reduce_identifier(identifier)?,
+                self.reduce_type(type_, &identifier.span)?,
+                self.reduce_expression(value)?,
+            ),
+            CircuitMember::CircuitVariable(identifier, type_) => CircuitMember::CircuitVariable(
+                self.reduce_identifier(identifier)?,
+                self.reduce_type(type_, &identifier.span)?,
+            ),
+            CircuitMember::CircuitFunction(function) => {
+                CircuitMember::CircuitFunction(Box::new(self.reduce_function(function)?))
+            }
+        };
+
+        self.reducer.reduce_circuit_member(circuit_member, new)
+    }
+
+    pub fn reduce_circuit(&mut self, circuit: &Circuit) -> Result<Circuit> {
+        let circuit_name = self.reduce_identifier(&circuit.circuit_name)?;
+
+        let mut members = vec![];
+        for member in circuit.members.iter() {
+            members.push(self.reduce_circuit_member(member)?);
+        }
+
+        self.reducer.reduce_circuit(circuit, circuit_name, members)
     }
 }

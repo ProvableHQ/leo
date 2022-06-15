@@ -53,4 +53,11 @@ impl<'a> ProgramVisitorDirector<'a> for Director<'a> {
             }
         }
     }
+
+    fn visit_circuit(&mut self, input: &'a Circuit) {
+        todo!()
+        // if let VisitResult::VisitChildren = self.visitor_ref().visit_function(input) {
+        //     self.
+        // }
+    }
 }

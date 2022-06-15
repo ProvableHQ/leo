@@ -44,25 +44,26 @@ pub use unary::*;
 mod value;
 pub use value::*;
 
-
 /// Expression that evaluates to a value.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Expression {
-    /// An identifier expression.
-    Identifier(Identifier),
-    /// A literal expression.
-    Value(ValueExpression),
     /// A binary expression, e.g., `42 + 24`.
     Binary(BinaryExpression),
-    /// An unary expression.
-    Unary(UnaryExpression),
-    /// A ternary conditional expression `cond ? if_expr : else_expr`.
-    Ternary(TernaryExpression),
     /// A call expression, e.g., `my_fun(args)`.
     Call(CallExpression),
+    /// An expression constructing a structure like `Foo { bar: 42, baz }`.
+    CircuitInit(CircuitInitExpression),
     /// An expression of type "error".
     /// Will result in a compile error eventually.
     Err(ErrExpression),
+    /// An identifier expression.
+    Identifier(Identifier),
+    /// A ternary conditional expression `cond ? if_expr : else_expr`.
+    Ternary(TernaryExpression),
+    /// An unary expression.
+    Unary(UnaryExpression),
+    /// A literal expression.
+    Value(ValueExpression),
 }
 
 impl Node for Expression {
@@ -75,6 +76,7 @@ impl Node for Expression {
             Unary(n) => n.span(),
             Ternary(n) => n.span(),
             Call(n) => n.span(),
+            CircuitInit(n) => n.span(),
             Err(n) => n.span(),
         }
     }
@@ -88,6 +90,7 @@ impl Node for Expression {
             Unary(n) => n.set_span(span),
             Ternary(n) => n.set_span(span),
             Call(n) => n.set_span(span),
+            CircuitInit(n) => n.set_span(span),
             Err(n) => n.set_span(span),
         }
     }
@@ -103,6 +106,7 @@ impl fmt::Display for Expression {
             Unary(n) => n.fmt(f),
             Ternary(n) => n.fmt(f),
             Call(n) => n.fmt(f),
+            CircuitInit(n) => n.fmt(f),
             Err(n) => n.fmt(f),
         }
     }

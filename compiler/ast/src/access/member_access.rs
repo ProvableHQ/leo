@@ -36,4 +36,3 @@ impl fmt::Display for MemberAccess {
         write!(f, "{}.{}", self.inner, self.name)
     }
 }
-

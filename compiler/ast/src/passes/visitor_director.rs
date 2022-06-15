@@ -41,6 +41,7 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
                 Expression::Unary(expr) => self.visit_unary(expr, additional),
                 Expression::Ternary(expr) => self.visit_ternary(expr, additional),
                 Expression::Call(expr) => self.visit_call(expr, additional),
+                Expression::CircuitInit(expr) => self.visit_circuit_init(expr, additional),
                 Expression::Err(expr) => self.visit_err(expr, additional),
             };
         }
@@ -94,6 +95,21 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_call(input) {
             input.arguments.iter().for_each(|expr| {
                 self.visit_expression(expr, additional);
+            });
+        }
+        None
+    }
+
+    fn visit_circuit_init(
+        &mut self,
+        input: &'a CircuitInitExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Option<Self::Output> {
+        if let VisitResult::VisitChildren = self.visitor_ref().visit_circuit_init(input) {
+            input.members.iter().for_each(|member| {
+                if let Some(expr) = &member.expression {
+                    self.visit_expression(expr, additional);
+                }
             });
         }
         None
@@ -184,12 +200,29 @@ pub trait ProgramVisitorDirector<'a>: VisitorDirector<'a> + StatementVisitorDire
                 .functions
                 .values()
                 .for_each(|function| self.visit_function(function));
+            input.circuits.values().for_each(|circuit| self.visit_circuit(circuit));
         }
     }
 
     fn visit_function(&mut self, input: &'a Function) {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_function(input) {
             self.visit_block(&input.block);
+        }
+    }
+
+    fn visit_circuit(&mut self, input: &'a Circuit) {
+        if let VisitResult::VisitChildren = self.visitor_ref().visit_circuit(input) {
+            input.members.iter().for_each(|member| {
+                match member {
+                    CircuitMember::CircuitConst(_, _, expr) => {
+                        self.visit_expression(expr, &Default::default());
+                    }
+                    CircuitMember::CircuitFunction(func) => {
+                        self.visit_function(func);
+                    }
+                    CircuitMember::CircuitVariable(_, _) => {}
+                };
+            })
         }
     }
 }

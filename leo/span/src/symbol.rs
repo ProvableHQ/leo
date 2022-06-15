@@ -180,6 +180,7 @@ symbols! {
     // general keywords
     AlwaysConst,
     assert,
+    circuit,
     Class: "class",
     context,
     CoreFunction,
@@ -198,6 +199,9 @@ symbols! {
     prelude,
     Public,
     Return: "return",
+    SelfLower: "self",
+    SelfUpper: "Self",
+    Static: "static",
     Star: "*",
     std,
     Struct: "struct",

@@ -61,6 +61,10 @@ pub trait ExpressionVisitor<'a> {
     fn visit_err(&mut self, _input: &'a ErrExpression) -> VisitResult {
         Default::default()
     }
+
+    fn visit_circuit_init(&mut self, _input: &'a CircuitInitExpression) -> VisitResult {
+        Default::default()
+    }
 }
 
 pub trait StatementVisitor<'a> {
@@ -103,6 +107,10 @@ pub trait ProgramVisitor<'a> {
     }
 
     fn visit_function(&mut self, _input: &'a Function) -> VisitResult {
+        Default::default()
+    }
+
+    fn visit_circuit(&mut self, _input: &'a Circuit) -> VisitResult {
         Default::default()
     }
 }

@@ -38,4 +38,3 @@ impl fmt::Display for StaticAccess {
         write!(f, "{}::{}", self.inner, self.name)
     }
 }
-

@@ -48,13 +48,14 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
     fn visit_expression(&mut self, input: &'a Expression, expected: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor.visit_expression(input) {
             return match input {
-                Expression::Identifier(expr) => self.visit_identifier(expr, expected),
-                Expression::Value(expr) => self.visit_value(expr, expected),
                 Expression::Binary(expr) => self.visit_binary(expr, expected),
-                Expression::Unary(expr) => self.visit_unary(expr, expected),
-                Expression::Ternary(expr) => self.visit_ternary(expr, expected),
                 Expression::Call(expr) => self.visit_call(expr, expected),
+                Expression::CircuitInit(expr) => self.visit_circuit_init(expr, expected),
                 Expression::Err(expr) => self.visit_err(expr, expected),
+                Expression::Identifier(expr) => self.visit_identifier(expr, expected),
+                Expression::Ternary(expr) => self.visit_ternary(expr, expected),
+                Expression::Unary(expr) => self.visit_unary(expr, expected),
+                Expression::Value(expr) => self.visit_value(expr, expected),
             };
         }
 
@@ -534,5 +535,9 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
             }
             expr => self.visit_expression(expr, expected),
         }
+    }
+
+    fn visit_circuit_init(&mut self, input: &'a CircuitInitExpression, additional: &Self::AdditionalInput) -> Option<Self::Output> {
+        todo!()
     }
 }

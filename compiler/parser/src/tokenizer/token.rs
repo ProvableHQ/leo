@@ -87,8 +87,10 @@ pub enum Token {
     U32,
     U64,
     U128,
+    SelfUpper,
 
     // Regular Keywords
+    Circuit,
     Console,
     /// Const variable and a const function.
     Const,
@@ -103,6 +105,8 @@ pub enum Token {
     /// For public inputs.
     Public,
     Return,
+    SelfLower,
+    Static,
 
     // Meta Tokens
     Eof,
@@ -115,6 +119,7 @@ pub enum Token {
 pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Address,
     Token::Bool,
+    Token::Circuit,
     Token::Console,
     Token::Const,
     Token::Constant,
@@ -134,7 +139,10 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Let,
     Token::Public,
     Token::Return,
+    Token::SelfLower,
+    Token::SelfUpper,
     Token::Scalar,
+    Token::Static,
     Token::String,
     Token::True,
     Token::U8,
@@ -155,6 +163,7 @@ impl Token {
         Some(match self {
             Token::Address => sym::address,
             Token::Bool => sym::bool,
+            Token::Circuit => sym::circuit,
             Token::Console => sym::console,
             Token::Const => sym::Const,
             Token::Constant => sym::Constant,
@@ -175,6 +184,9 @@ impl Token {
             Token::Public => sym::Public,
             Token::Return => sym::Return,
             Token::Scalar => sym::scalar,
+            Token::SelfLower => sym::SelfLower,
+            Token::SelfUpper => sym::SelfUpper,
+            Token::Static => sym::Static,
             Token::String => sym::string,
             Token::True => sym::True,
             Token::U8 => sym::u8,
@@ -251,7 +263,9 @@ impl fmt::Display for Token {
             U32 => write!(f, "u32"),
             U64 => write!(f, "u64"),
             U128 => write!(f, "u128"),
+            SelfUpper => write!(f, "Self"),
 
+            Circuit => write!(f, "circuit"),
             Console => write!(f, "console"),
             Const => write!(f, "const"),
             Constant => write!(f, "constant"),
@@ -261,8 +275,10 @@ impl fmt::Display for Token {
             If => write!(f, "if"),
             In => write!(f, "in"),
             Let => write!(f, "let"),
+            SelfLower => write!(f, "self"),
             Public => write!(f, "public"),
             Return => write!(f, "return"),
+            Static => write!(f, "static"),
             Eof => write!(f, "<eof>"),
         }
     }

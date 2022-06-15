@@ -92,8 +92,8 @@ impl<'a> ParserContext<'a> {
         &self.token.token == tok
     }
 
-    /// Removes the next token if it exists and returns it, or [None] if
-    /// the next token does not exist.
+    /// Returns `true` if the next token is equal to the given token.
+    /// Advances the parser to the next token.
     pub(super) fn eat(&mut self, token: &Token) -> bool {
         self.check(token).then(|| self.bump()).is_some()
     }

@@ -17,6 +17,7 @@
 use super::*;
 
 use leo_errors::{ParserError, Result};
+use leo_span::sym;
 
 const INT_TYPES: &[Token] = &[
     Token::I8,
@@ -374,6 +375,29 @@ impl ParserContext<'_> {
         Some(Ok(gt))
     }
 
+    /// Returns an [`Expression`] AST node if the next tokens represent a
+    /// circuit initialization expression.
+    pub fn parse_circuit_expression(&mut self, identifier: Identifier) -> Result<Expression> {
+        let (members, _, span) = self.parse_list(Delimiter::Brace, Some(Token::Comma), |p| {
+            let expression = if p.eat(&Token::Colon) {
+                // Parse individual circuit variable declarations.
+                Some(p.parse_expression()?)
+            } else {
+                None
+            };
+
+            Ok(Some(CircuitVariableInitializer {
+                identifier: p.expect_ident()?,
+                expression,
+            }))
+        })?;
+        Ok(Expression::CircuitInit(CircuitInitExpression {
+            span: &identifier.span + &span,
+            name: identifier,
+            members,
+        }))
+    }
+
     /// Returns an [`Expression`] AST node if the next token is a primary expression:
     /// - Literals: field, group, unsigned integer, signed integer, boolean, address
     /// - Aggregate types: array, tuple
@@ -425,7 +449,22 @@ impl ParserContext<'_> {
             Token::StaticString(value) => Expression::Value(ValueExpression::String(value, span)),
             Token::Ident(name) => {
                 let ident = Identifier { name, span };
-                Expression::Identifier(ident)
+                if !self.disallow_circuit_construction && self.eat(&Token::LeftCurly) {
+                    self.parse_circuit_expression(ident)?
+                } else {
+                    Expression::Identifier(ident)
+                }
+            }
+            Token::SelfUpper => {
+                let ident = Identifier {
+                    name: sym::SelfUpper,
+                    span,
+                };
+                if !self.disallow_circuit_construction && self.eat(&Token::LeftCurly) {
+                    self.parse_circuit_expression(ident)?
+                } else {
+                    Expression::Identifier(ident)
+                }
             }
             t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
                 name: t.keyword_to_symbol().unwrap(),
