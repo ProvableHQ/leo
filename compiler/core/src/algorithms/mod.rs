@@ -20,7 +20,7 @@ use leo_span::{sym, Symbol};
 use indexmap::IndexSet;
 
 /// A core library circuit
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq)]
 pub enum CoreCircuit {
     BHP256,
     BHP512,

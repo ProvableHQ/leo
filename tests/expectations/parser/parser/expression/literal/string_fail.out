@@ -1,0 +1,8 @@
+---
+namespace: Token
+expectation: Fail
+outputs:
+  - "Error [EPAR0370023]: Expected a closed string but found `Hello world!`."
+  - "Error [EPAR0370023]: Expected a closed string but found `\\`."
+  - "Error [EPAR0370023]: Expected a closed string but found `⭇😍;`."
+  - "Error [EPAR0370040]: Unicode bidi override code point encountered."

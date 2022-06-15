@@ -1,0 +1,74 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Binary:
+      left:
+        Value:
+          Boolean:
+            - "true"
+            - span:
+                lo: 0
+                hi: 4
+      right:
+        Value:
+          Boolean:
+            - "false"
+            - span:
+                lo: 8
+                hi: 13
+      op: And
+      span:
+        lo: 0
+        hi: 13
+  - Binary:
+      left:
+        Value:
+          Boolean:
+            - "false"
+            - span:
+                lo: 0
+                hi: 5
+      right:
+        Value:
+          Boolean:
+            - "true"
+            - span:
+                lo: 7
+                hi: 11
+      op: And
+      span:
+        lo: 0
+        hi: 11
+  - Binary:
+      left:
+        Binary:
+          left:
+            Value:
+              Boolean:
+                - "true"
+                - span:
+                    lo: 0
+                    hi: 4
+          right:
+            Value:
+              Boolean:
+                - "false"
+                - span:
+                    lo: 6
+                    hi: 11
+          op: And
+          span:
+            lo: 0
+            hi: 11
+      right:
+        Value:
+          Boolean:
+            - "true"
+            - span:
+                lo: 13
+                hi: 17
+      op: And
+      span:
+        lo: 0
+        hi: 17
