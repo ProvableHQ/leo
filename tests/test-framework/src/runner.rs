@@ -113,21 +113,19 @@ impl TestCases {
         let mut configs = Vec::new();
 
         self.tests = find_tests(&self.path_prefix.clone())
-            .filter(|(path, content)| {
-                let config = match extract_test_config(content) {
-                    None => {
-                        self.fail_categories.push(TestFailure {
-                            path: path.to_str().unwrap_or("").to_string(),
-                            errors: vec![TestError::MissingTestConfig],
-                        });
-                        return true;
-                    }
-                    Some(cfg) => cfg,
-                };
-
-                let res = additional_check(&config);
-                configs.push(config);
-                res
+            .filter(|(path, content)| match extract_test_config(content) {
+                None => {
+                    self.fail_categories.push(TestFailure {
+                        path: path.to_str().unwrap_or("").to_string(),
+                        errors: vec![TestError::MissingTestConfig],
+                    });
+                    true
+                }
+                Some(cfg) => {
+                    let res = additional_check(&cfg);
+                    configs.push(cfg);
+                    res
+                }
             })
             .collect();
 
@@ -155,12 +153,11 @@ impl TestCases {
 
             output.push(process(self, (path, content, &test_name, config)));
 
-            std::env::remove_var("LEO_TESTFRAMEWORK");
         }
         output
     }
 
-    fn clear_expectations(&self, path: &Path, expectation_category: &str) -> (PathBuf, Option<TestExpectation>) {
+    fn load_expectations(&self, path: &Path, expectation_category: &str) -> (PathBuf, Option<TestExpectation>) {
         let test_dir = [env!("CARGO_MANIFEST_DIR"), "../../tests/"].iter().collect::<PathBuf>();
         let relative_path = path.strip_prefix(&test_dir).expect("path error for test");
         let expectation_path = test_dir
@@ -168,7 +165,7 @@ impl TestCases {
             .join(expectation_category)
             .join(relative_path.parent().expect("no parent dir for test"))
             .join(relative_path.file_name().expect("no file name for test"))
-            .with_extension("out");
+            .with_extension("leo.out");
 
         if expectation_path.exists() {
             if !is_env_var_set("CLEAR_LEO_TEST_EXPECTATIONS") {
@@ -200,7 +197,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
             None => return,
         };
 
-        let (expectation_path, expectations) = cases.clear_expectations(path, expectation_category);
+        let (expectation_path, expectations) = cases.load_expectations(path, expectation_category);
 
         let tests = match namespace.parse_type() {
             ParseType::Line => crate::fetch::split_tests_one_line(content)
@@ -267,6 +264,45 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
             })
         }
     });
+
+    if !cases.fail_categories.is_empty() {
+        for (i, fail) in cases.fail_categories.iter().enumerate() {
+            println!(
+                "\n\n-----------------TEST #{} FAILED (and shouldn't have)-----------------",
+                i + 1
+            );
+            println!("File: {}", fail.path);
+            for error in &fail.errors {
+                println!("{}", error);
+            }
+        }
+        panic!(
+            "failed {}/{} tests in {}/{} categories",
+            pass_tests,
+            fail_tests + pass_tests,
+            cases.fail_categories.len(),
+            cases.fail_categories.len() + pass_categories
+        );
+    } else {
+        for (path, new_expectation) in outputs {
+            std::fs::create_dir_all(path.parent().unwrap()).expect("failed to make test expectation parent directory");
+            std::fs::write(
+                &path,
+                serde_yaml::to_string(&new_expectation).expect("failed to serialize expectation yaml"),
+            )
+            .expect("failed to write expectation file");
+        }
+        println!(
+            "passed {}/{} tests in {}/{} categories",
+            pass_tests,
+            fail_tests + pass_tests,
+            pass_categories,
+            pass_categories
+        );
+    }
+
+    std::env::remove_var("LEO_TESTFRAMEWORK");
+
 }
 
 /// returns (name, content) for all benchmark samples
