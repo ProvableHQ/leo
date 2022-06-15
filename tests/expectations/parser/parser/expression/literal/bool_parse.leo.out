@@ -4,13 +4,13 @@ expectation: Pass
 outputs:
   - Value:
       Boolean:
-        - "true"
+        - true
         - span:
             lo: 0
             hi: 4
   - Value:
       Boolean:
-        - "false"
+        - false
         - span:
             lo: 0
             hi: 5

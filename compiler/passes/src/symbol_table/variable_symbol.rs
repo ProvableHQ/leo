@@ -84,9 +84,15 @@ impl Value {
     }
 }
 
+impl AsRef<Value> for Value {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}
+
 impl From<Value> for Type {
     fn from(v: Value) -> Self {
-        v.into()
+        v.as_ref().into()
     }
 }
 

@@ -51,7 +51,7 @@ pub enum TypeOutput {
 
 impl From<TypeOutput> for Option<Type> {
     fn from(t: TypeOutput) -> Self {
-        t.into()
+        t.as_ref().into()
     }
 }
 

@@ -3,5 +3,5 @@ namespace: Compile
 expectation: Pass
 outputs:
   - output:
-      - initial_input_ast: 7b7095a0091c987107da507db19783551e50a6fb1db32edb6a068299fbb14fa1
+      - initial_input_ast: 26814cdf727456d45a51a7f7c4248d32aba2d1bdfe4a072c1d6bb0b46fb0db25
     initial_ast: a8bfb50b7dfb85f7d826621a33bdec2674c423d6047c4a39520965214d846a50

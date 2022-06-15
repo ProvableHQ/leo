@@ -11,7 +11,7 @@ outputs:
             value:
               Value:
                 Boolean:
-                  - "true"
+                  - true
                   - span:
                       lo: 27
                       hi: 31
@@ -116,7 +116,7 @@ outputs:
             value:
               Value:
                 Boolean:
-                  - "true"
+                  - true
                   - span:
                       lo: 314
                       hi: 318

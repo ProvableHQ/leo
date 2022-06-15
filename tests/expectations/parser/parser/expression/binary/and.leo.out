@@ -6,14 +6,14 @@ outputs:
       left:
         Value:
           Boolean:
-            - "true"
+            - true
             - span:
                 lo: 0
                 hi: 4
       right:
         Value:
           Boolean:
-            - "false"
+            - false
             - span:
                 lo: 8
                 hi: 13
@@ -25,14 +25,14 @@ outputs:
       left:
         Value:
           Boolean:
-            - "false"
+            - false
             - span:
                 lo: 0
                 hi: 5
       right:
         Value:
           Boolean:
-            - "true"
+            - true
             - span:
                 lo: 7
                 hi: 11
@@ -46,14 +46,14 @@ outputs:
           left:
             Value:
               Boolean:
-                - "true"
+                - true
                 - span:
                     lo: 0
                     hi: 4
           right:
             Value:
               Boolean:
-                - "false"
+                - false
                 - span:
                     lo: 6
                     hi: 11
@@ -64,7 +64,7 @@ outputs:
       right:
         Value:
           Boolean:
-            - "true"
+            - true
             - span:
                 lo: 13
                 hi: 17
