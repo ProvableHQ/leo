@@ -138,18 +138,18 @@ symbols! {
     xor,
 
     // algorithm operator names 33-44
-    bhp256,
-    bhp512,
-    bhp768,
-    bhp1024,
+    bhp256: "BHP256",
+    bhp512: "BHP512",
+    bhp768: "BHP768",
+    bhp1024: "BHP1024",
     commit,
     hash,
-    ped64,
-    ped128,
+    ped64: "Pedersen64",
+    ped128: "Pedersen128",
     prf,
-    psd2,
-    psd4,
-    psd8,
+    psd2: "Poseidon2",
+    psd4: "Poseidon4",
+    psd8: "Poseidon8",
 
     // types
     address,

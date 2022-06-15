@@ -15,10 +15,42 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Types;
+use leo_span::{sym, Symbol};
 
 use indexmap::IndexSet;
-use leo_span::Symbol;
 
+/// A core library circuit
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CoreCircuit {
+    BHP256,
+    BHP512,
+    BHP768,
+    BHP1024,
+    Pedersen64,
+    Pedersen128,
+    Poseidon2,
+    Poseidon4,
+    Poseidon8,
+}
+
+impl CoreCircuit {
+    /// Returns a `CoreCircuit` from the given `Symbol`.
+    pub fn from_symbol(symbol: Symbol) -> Option<Self> {
+        Some(match symbol {
+            sym::bhp256 => Self::BHP256,
+            sym::bhp512 => Self::BHP512,
+            sym::bhp1024 => Self::BHP1024,
+            sym::ped64 => Self::Pedersen64,
+            sym::ped128 => Self::Pedersen128,
+            sym::psd2 => Self::Poseidon2,
+            sym::psd4 => Self::Poseidon4,
+            sym::psd8 => Self::Poseidon8,
+            _ => return None,
+        })
+    }
+}
+
+// todo (collin): deprecate this code
 pub struct Algorithms;
 
 impl Types for Algorithms {
