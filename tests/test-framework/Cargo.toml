@@ -58,7 +58,7 @@ version = "0.8"
 # version = "0.3"
 
 [dependencies.clap]
-version = "3.2.1"
+version = "3.2.4"
 features = ["derive"]
 
 # List of dependencies for errcov
