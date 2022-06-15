@@ -95,7 +95,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_unary(&mut self, unary: &UnaryExpression) -> Result<UnaryExpression> {
         let inner = self.reduce_expression(&unary.receiver)?;
 
-        self.reducer.reduce_unary(unary, inner, unary.op.clone())
+        self.reducer.reduce_unary(unary, inner, unary.op)
     }
 
     pub fn reduce_ternary(&mut self, ternary: &TernaryExpression) -> Result<TernaryExpression> {

@@ -16,6 +16,7 @@
 
 use leo_errors::Result;
 
+use std::fmt::Write as _;
 use std::{fmt, sync::Once};
 
 use colored::Colorize;
@@ -191,7 +192,7 @@ where
                             .get::<FormattedFields<N>>()
                             .expect("Unable to find FormattedFields in extensions; this is a bug");
                         if !fields.is_empty() {
-                            message += &format!("{{{}}}", fields);
+                            let _ = write!(message, "{{{}}}", fields);
                         }
                     }
                 }

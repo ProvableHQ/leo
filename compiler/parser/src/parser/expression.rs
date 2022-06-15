@@ -139,6 +139,8 @@ impl ParserContext<'_> {
             Token::Div => BinaryOperation::Div,
             Token::Or => BinaryOperation::Or,
             Token::And => BinaryOperation::And,
+            Token::BitwiseOr => BinaryOperation::BitwiseOr,
+            Token::BitwiseAnd => BinaryOperation::BitwiseAnd,
             Token::Exp => BinaryOperation::Pow,
             Token::Shl => BinaryOperation::Shl,
             Token::Shr => BinaryOperation::Shr,
@@ -231,52 +233,38 @@ impl ParserContext<'_> {
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// method call expression.
     fn parse_method_call_expression(&mut self, receiver: Expression) -> Result<Expression> {
-        // Get the name of the method.
-        if let Token::Ident(method) = self.token.token {
-            self.bump();
+        // Parse the method name.
+        let method = self.expect_ident()?;
 
-            // Check if the method exists.
-            if let Some(operator) = UnaryOperation::from_symbol(&method) {
-                // Handle unary operators.
+        // Parse the argument list.
+        let (mut args, _, span) = self.parse_expr_tuple()?;
+        let span = receiver.span() + span;
 
-                // Parse left parenthesis `(`.
-                self.expect(&Token::LeftParen)?;
-
-                // Parse right parenthesis `)`.
-                let right_span = self.expect(&Token::RightParen)?;
-
-                return Ok(Expression::Unary(UnaryExpression {
-                    span: receiver.span() + right_span,
-                    op: operator,
-                    receiver: Box::new(receiver),
-                }));
-
-            } else if let Some(operator) = BinaryOperation::from_symbol(&method) {
-                // Handle binary operators.
-
-                // Parse left parenthesis `(`.
-                self.expect(&Token::LeftParen)?;
-
-                // Parse operand.
-                let operand = self.parse_expression()?;
-
-                // Parse right parenthesis `)`.
-                let right_span = self.expect(&Token::RightParen)?;
-
-                return Ok(Expression::Binary(BinaryExpression {
-                    span: receiver.span() + right_span,
-                    op: operator,
-                    left: Box::new(receiver),
-                    right: Box::new(operand),
-                }));
-            } else {
-                // handle core module operators `commit`, `hash` etc.
-                unimplemented!("throw error for invalid method call")
-            }
+        if let ([], Some(operator)) = (&*args, UnaryOperation::from_symbol(method.name)) {
+            // Found an unary operator and the argument list is empty.
+            Ok(Expression::Unary(UnaryExpression {
+                span,
+                op: operator,
+                receiver: Box::new(receiver),
+            }))
+        } else if let (true, Some(operator)) = (args.len() == 1, BinaryOperation::from_symbol(method.name)) {
+            // Found a binary operator and the argument list contains a single argument.
+            Ok(Expression::Binary(BinaryExpression {
+                span,
+                op: operator,
+                left: Box::new(receiver),
+                right: Box::new(args.swap_remove(0)),
+            }))
         } else {
-            let curr = &self.token;
-            Err(ParserError::unexpected_str(&curr.token, "int or ident", curr.span).into())
+            // Either an invalid unary/binary operator, or more arguments given.
+            self.emit_err(ParserError::expr_arbitrary_method_call(span));
+            Ok(Expression::Err(ErrExpression { span }))
         }
+    }
+
+    /// Parses a tuple of expressions.
+    fn parse_expr_tuple(&mut self) -> Result<(Vec<Expression>, bool, Span)> {
+        self.parse_paren_comma_list(|p| p.parse_expression().map(Some))
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent an
@@ -296,7 +284,7 @@ impl ParserContext<'_> {
                 break;
             }
 
-            let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
+            let (arguments, _, span) = self.parse_expr_tuple()?;
             expr = Expression::Call(CallExpression {
                 span: expr.span() + span,
                 function: Box::new(expr),
@@ -315,10 +303,10 @@ impl ParserContext<'_> {
             )))));
         }
 
-        let (mut tuple, trailing, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
+        let (mut tuple, trailing, span) = self.parse_expr_tuple()?;
 
         if !trailing && tuple.len() == 1 {
-            Ok(tuple.remove(0))
+            Ok(tuple.swap_remove(0))
         } else {
             Err(ParserError::unexpected("A tuple expression.", "A valid expression.", span).into())
         }

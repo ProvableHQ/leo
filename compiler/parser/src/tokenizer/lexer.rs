@@ -203,17 +203,6 @@ impl Token {
                 (1, els)
             })
         };
-        // Consumes `on` again and produces `token` if found.
-        let twice = |input: &mut Peekable<_>, on, token| {
-            input.next();
-            if input.next_if_eq(&on).is_some() {
-                Ok((2, token))
-            } else if let Some(found) = input.next() {
-                Err(ParserError::lexer_expected_but_found(found, on).into())
-            } else {
-                Err(ParserError::lexer_empty_input().into())
-            }
-        };
 
         match *input.peek().ok_or_else(ParserError::lexer_empty_input)? {
             x if x.is_ascii_whitespace() => return single(&mut input, Token::WhiteSpace),
@@ -247,7 +236,7 @@ impl Token {
             x if x.is_ascii_digit() => return Self::eat_integer(&mut input),
             '!' => return followed_by(&mut input, '=', Token::NotEq, Token::Not),
             '?' => return single(&mut input, Token::Question),
-            '&' => return twice(&mut input, '&', Token::And),
+            '&' => return followed_by(&mut input, '&', Token::And, Token::BitwiseAnd),
             '(' => return single(&mut input, Token::LeftParen),
             ')' => return single(&mut input, Token::RightParen),
             '_' => return single(&mut input, Token::Underscore),
@@ -310,7 +299,7 @@ impl Token {
             ']' => return single(&mut input, Token::RightSquare),
             '{' => return single(&mut input, Token::LeftCurly),
             '}' => return single(&mut input, Token::RightCurly),
-            '|' => return twice(&mut input, '|', Token::Or),
+            '|' => return followed_by(&mut input, '|', Token::Or, Token::BitwiseOr),
             _ => (),
         }
         if let Some(ident) = eat_identifier(&mut input) {

@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Represents all valid Leo syntax tokens.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Token {
     // Lexical Grammar
     // Literals
@@ -38,6 +38,8 @@ pub enum Token {
     Not,
     And,
     Or,
+    BitwiseAnd,
+    BitwiseOr,
     Eq,
     NotEq,
     Lt,
@@ -198,6 +200,8 @@ impl fmt::Display for Token {
             Not => write!(f, "!"),
             And => write!(f, "&&"),
             Or => write!(f, "||"),
+            BitwiseAnd => write!(f, "&"),
+            BitwiseOr => write!(f, "|"),
             Eq => write!(f, "=="),
             NotEq => write!(f, "!="),
             Lt => write!(f, "<"),

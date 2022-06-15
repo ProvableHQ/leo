@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_span::Symbol;
+use leo_span::{sym, Symbol};
 
 /// A binary operator.
 ///
@@ -26,8 +26,10 @@ pub enum BinaryOperation {
     Add,
     /// Wrapping addition, i.e. `.add_wrapped()`.
     AddWrapped,
-    /// Bitwise AND, i.e. `&&`, `.and()`.
+    /// Logical AND, i.e. `&&`.
     And,
+    /// Bitwise AND, i.e. `&`, `.and()`.
+    BitwiseAnd,
     /// Division, i.e. `/`, `.div()`.
     Div,
     /// Wrapping division, i.e. `.div_wrapped()`.
@@ -52,8 +54,10 @@ pub enum BinaryOperation {
     Neq,
     /// Boolean NOR, i.e. `.nor()`.
     Nor,
-    /// Logical-or, i.e. `||`.
+    /// Logical OR, i.e. `||`.
     Or,
+    /// Bitwise OR, i.e. `|`, `.or()`.
+    BitwiseOr,
     /// Exponentiation, i.e. `**` in `a ** b`, `.pow()`.
     Pow,
     /// Wrapping exponentiation, i.e. `.pow_wrapped()`.
@@ -76,66 +80,67 @@ pub enum BinaryOperation {
 
 impl BinaryOperation {
     /// Returns a `BinaryOperation` from the given `Symbol`.
-    pub fn from_symbol(symbol: &Symbol) -> Option<BinaryOperation> {
-        Some(match symbol.as_u32() {
-            8 => BinaryOperation::Add,
-            9 => BinaryOperation::AddWrapped,
-            10 => BinaryOperation::And,
-            11 => BinaryOperation::Div,
-            12 => BinaryOperation::DivWrapped,
-            13 => BinaryOperation::Eq,
-            14 => BinaryOperation::Ge,
-            15 => BinaryOperation::Gt,
-            16 => BinaryOperation::Le,
-            17 => BinaryOperation::Lt,
-            18 => BinaryOperation::Mul,
-            19 => BinaryOperation::MulWrapped,
-            20 => BinaryOperation::Nand,
-            21 => BinaryOperation::Neq,
-            22 => BinaryOperation::Nor,
-            23 => BinaryOperation::Or,
-            24 => BinaryOperation::Pow,
-            25 => BinaryOperation::PowWrapped,
-            26 => BinaryOperation::Shl,
-            27 => BinaryOperation::ShlWrapped,
-            28 => BinaryOperation::Shr,
-            29 => BinaryOperation::ShrWrapped,
-            30 => BinaryOperation::Sub,
-            31 => BinaryOperation::SubWrapped,
-            32 => BinaryOperation::Xor,
+    pub fn from_symbol(symbol: Symbol) -> Option<Self> {
+        Some(match symbol {
+            sym::add => Self::Add,
+            sym::add_wrapped => Self::AddWrapped,
+            sym::and => Self::BitwiseAnd,
+            sym::div => Self::Div,
+            sym::div_wrapped => Self::DivWrapped,
+            sym::eq => Self::Eq,
+            sym::ge => Self::Ge,
+            sym::gt => Self::Gt,
+            sym::le => Self::Le,
+            sym::lt => Self::Lt,
+            sym::mul => Self::Mul,
+            sym::mul_wrapped => Self::MulWrapped,
+            sym::nand => Self::Nand,
+            sym::neq => Self::Neq,
+            sym::nor => Self::Nor,
+            sym::or => Self::Or,
+            sym::pow => Self::Pow,
+            sym::pow_wrapped => Self::PowWrapped,
+            sym::shl => Self::Shl,
+            sym::shl_wrapped => Self::ShlWrapped,
+            sym::shr => Self::Shr,
+            sym::shr_wrapped => Self::ShrWrapped,
+            sym::sub => Self::Sub,
+            sym::sub_wrapped => Self::SubWrapped,
+            sym::xor => Self::Xor,
             _ => return None,
         })
     }
-}
 
-impl AsRef<str> for BinaryOperation {
-    fn as_ref(&self) -> &'static str {
+    /// Represents the operator as a string.
+    fn as_str(self) -> &'static str {
         match self {
-            BinaryOperation::Add => "add",
-            BinaryOperation::AddWrapped => "add_wrapped",
-            BinaryOperation::And => "and",
-            BinaryOperation::Div => "div",
-            BinaryOperation::DivWrapped => "div_wrapped",
-            BinaryOperation::Eq => "eq",
-            BinaryOperation::Ge => "ge",
-            BinaryOperation::Gt => "gt",
-            BinaryOperation::Le => "le",
-            BinaryOperation::Lt => "lt",
-            BinaryOperation::Mul => "mul",
-            BinaryOperation::MulWrapped => "mul_wrapped",
-            BinaryOperation::Nand => "nand",
-            BinaryOperation::Neq => "neq",
-            BinaryOperation::Nor => "nor",
-            BinaryOperation::Or => "or",
-            BinaryOperation::Pow => "pow",
-            BinaryOperation::PowWrapped => "pow_wrapped",
-            BinaryOperation::Shl => "shl",
-            BinaryOperation::ShlWrapped => "shl_wrapped",
-            BinaryOperation::Shr => "shr",
-            BinaryOperation::ShrWrapped => "shr_wrapped",
-            BinaryOperation::Sub => "sub",
-            BinaryOperation::SubWrapped => "sub_wrapped",
-            BinaryOperation::Xor => "xor",
+            Self::Add => "add",
+            Self::AddWrapped => "add_wrapped",
+            Self::And => "&&",
+            Self::BitwiseAnd => "and",
+            Self::Div => "div",
+            Self::DivWrapped => "div_wrapped",
+            Self::Eq => "eq",
+            Self::Ge => "ge",
+            Self::Gt => "gt",
+            Self::Le => "le",
+            Self::Lt => "lt",
+            Self::Mul => "mul",
+            Self::MulWrapped => "mul_wrapped",
+            Self::Nand => "nand",
+            Self::Neq => "neq",
+            Self::Nor => "nor",
+            Self::Or => "||",
+            Self::BitwiseOr => "or",
+            Self::Pow => "pow",
+            Self::PowWrapped => "pow_wrapped",
+            Self::Shl => "shl",
+            Self::ShlWrapped => "shl_wrapped",
+            Self::Shr => "shr",
+            Self::ShrWrapped => "shr_wrapped",
+            Self::Sub => "sub",
+            Self::SubWrapped => "sub_wrapped",
+            Self::Xor => "xor",
         }
     }
 }
@@ -156,7 +161,7 @@ pub struct BinaryExpression {
 
 impl fmt::Display for BinaryExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}({})", self.left, self.op.as_ref(), self.right)
+        write!(f, "{}.{}({})", self.left, self.op.as_str(), self.right)
     }
 }
 

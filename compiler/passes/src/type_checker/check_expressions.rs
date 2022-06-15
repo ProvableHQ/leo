@@ -79,9 +79,17 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
     fn visit_value(&mut self, input: &'a ValueExpression, expected: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor.visit_value(input) {
             return Some(match input {
-                ValueExpression::Address(_, _) => self.visitor.assert_expected_option(Type::Address, expected, input.span()),
-                ValueExpression::Boolean(_, _) => self.visitor.assert_expected_option(Type::Boolean, expected, input.span()),
-                ValueExpression::Field(_, _) => self.visitor.assert_expected_option(Type::Field, expected, input.span()),
+                ValueExpression::Address(_, _) => {
+                    self.visitor
+                        .assert_expected_option(Type::Address, expected, input.span())
+                }
+                ValueExpression::Boolean(_, _) => {
+                    self.visitor
+                        .assert_expected_option(Type::Boolean, expected, input.span())
+                }
+                ValueExpression::Field(_, _) => {
+                    self.visitor.assert_expected_option(Type::Field, expected, input.span())
+                }
                 ValueExpression::Integer(type_, str_content, _) => {
                     match type_ {
                         IntegerType::I8 => {
@@ -175,8 +183,14 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                         .assert_expected_option(Type::IntegerType(*type_), expected, input.span())
                 }
                 ValueExpression::Group(_) => self.visitor.assert_expected_option(Type::Group, expected, input.span()),
-                ValueExpression::Scalar(_, _) => self.visitor.assert_expected_option(Type::Scalar, expected, input.span()),
-                ValueExpression::String(_, _) => self.visitor.assert_expected_option(Type::String, expected, input.span()),
+                ValueExpression::Scalar(_, _) => {
+                    self.visitor
+                        .assert_expected_option(Type::Scalar, expected, input.span())
+                }
+                ValueExpression::String(_, _) => {
+                    self.visitor
+                        .assert_expected_option(Type::String, expected, input.span())
+                }
             });
         }
 
@@ -190,15 +204,16 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
     ) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor.visit_binary(input) {
             return match input.op {
-                BinaryOperation::Nand | BinaryOperation::Nor => {
+                BinaryOperation::And | BinaryOperation::Or | BinaryOperation::Nand | BinaryOperation::Nor => {
                     // Assert equal boolean types.
-                    self.visitor.assert_expected_option(Type::Boolean, destination, input.span());
+                    self.visitor
+                        .assert_expected_option(Type::Boolean, destination, input.span());
                     let t1 = self.visit_expression(&input.left, destination);
                     let t2 = self.visit_expression(&input.right, destination);
 
                     return_incorrect_type(t1, t2, destination)
                 }
-                BinaryOperation::And | BinaryOperation::Or | BinaryOperation::Xor => {
+                BinaryOperation::BitwiseAnd | BinaryOperation::BitwiseOr | BinaryOperation::Xor => {
                     // Assert equal boolean or integer types.
                     self.visitor.assert_bool_int_type(destination, input.span());
                     let t1 = self.visit_expression(&input.left, destination);
@@ -235,19 +250,24 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                         (Some(Type::Group), other) => {
                             self.visitor
                                 .assert_expected_type(&other, Type::Scalar, input.right.span());
-                            Some(self.visitor.assert_expected_type(destination, Type::Group, input.span()))
+                            Some(
+                                self.visitor
+                                    .assert_expected_type(destination, Type::Group, input.span()),
+                            )
                         }
                         (other, Some(Type::Group)) => {
-                            self.visitor.assert_expected_type(&other, Type::Scalar, input.left.span());
-                            Some(self.visitor.assert_expected_type(destination, Type::Group, input.span()))
+                            self.visitor
+                                .assert_expected_type(&other, Type::Scalar, input.left.span());
+                            Some(
+                                self.visitor
+                                    .assert_expected_type(destination, Type::Group, input.span()),
+                            )
                         }
                         (t1, t2) => {
                             // Assert equal field or integer types.
                             self.visitor.assert_field_int_type(destination, input.span());
 
                             return_incorrect_type(t1, t2, destination)
-
-
                         }
                     }
                 }
@@ -270,12 +290,20 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     // Allow field * field.
                     match (t1, t2) {
                         (Some(Type::Field), type_) => {
-                            self.visitor.assert_expected_type(&type_, Type::Field, input.right.span());
-                            Some(self.visitor.assert_expected_type(destination, Type::Field, input.span()))
+                            self.visitor
+                                .assert_expected_type(&type_, Type::Field, input.right.span());
+                            Some(
+                                self.visitor
+                                    .assert_expected_type(destination, Type::Field, input.span()),
+                            )
                         }
                         (type_, Some(Type::Field)) => {
-                            self.visitor.assert_expected_type(&type_, Type::Field, input.left.span());
-                            Some(self.visitor.assert_expected_type(destination, Type::Field, input.span()))
+                            self.visitor
+                                .assert_expected_type(&type_, Type::Field, input.left.span());
+                            Some(
+                                self.visitor
+                                    .assert_expected_type(destination, Type::Field, input.span()),
+                            )
                         }
                         (Some(t1), t2) => {
                             // Allow integer t2 magnitude (u8, u16, u32)
@@ -309,7 +337,10 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     }
 
                     // Assert destination is boolean.
-                    Some(self.visitor.assert_expected_type(destination, Type::Boolean, input.span()))
+                    Some(
+                        self.visitor
+                            .assert_expected_type(destination, Type::Boolean, input.span()),
+                    )
                 }
                 BinaryOperation::Lt | BinaryOperation::Gt | BinaryOperation::Le | BinaryOperation::Ge => {
                     // Assert left and right are equal field, scalar, or integer types.
@@ -335,7 +366,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                         }
                         (Some(Type::IntegerType(_)), t2) => {
                             // Assert rhs is integer.
-                            self.visitor.assert_int_type(&t2,input.left.span());
+                            self.visitor.assert_int_type(&t2, input.left.span());
                         }
                         (t1, Some(Type::IntegerType(_))) => {
                             // Assert lhs is integer.
@@ -347,8 +378,10 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     }
 
                     // Assert destination is boolean.
-                    Some(self.visitor
-                        .assert_expected_type(destination, Type::Boolean, input.span()))
+                    Some(
+                        self.visitor
+                            .assert_expected_type(destination, Type::Boolean, input.span()),
+                    )
                 }
                 BinaryOperation::AddWrapped
                 | BinaryOperation::SubWrapped
@@ -401,7 +434,8 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
             }
             UnaryOperation::Inverse => {
                 // Assert field type only.
-                self.visitor.assert_expected_type(destination, Type::Field, input.span());
+                self.visitor
+                    .assert_expected_type(destination, Type::Field, input.span());
                 self.visit_expression(&input.receiver, destination)
             }
             UnaryOperation::Negate => {
@@ -437,7 +471,8 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
             }
             UnaryOperation::Square => {
                 // Assert field type only.
-                self.visitor.assert_expected_type(destination, Type::Field, input.span());
+                self.visitor
+                    .assert_expected_type(destination, Type::Field, input.span());
                 self.visit_expression(&input.receiver, destination)
             }
             UnaryOperation::SquareRoot => {

@@ -73,8 +73,6 @@ const BOOL_INT_TYPES: [Type; 11] = create_type_superset(INT_TYPES, [Type::Boolea
 
 const FIELD_INT_TYPES: [Type; 11] = create_type_superset(INT_TYPES, [Type::Field]);
 
-const FIELD_SCALAR_INT_TYPES: [Type; 12] = create_type_superset(FIELD_INT_TYPES, [Type::Scalar]);
-
 const FIELD_GROUP_INT_TYPES: [Type; 12] = create_type_superset(FIELD_INT_TYPES, [Type::Group]);
 
 const FIELD_GROUP_SCALAR_INT_TYPES: [Type; 13] = create_type_superset(FIELD_GROUP_INT_TYPES, [Type::Scalar]);
@@ -166,7 +164,6 @@ impl<'a> TypeChecker<'a> {
         self.assert_one_of_types(type_, &BOOL_INT_TYPES, span)
     }
 
-
     /// Emits an error to the handler if the given type is not a field or integer.
     pub(crate) fn assert_field_int_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &FIELD_INT_TYPES, span)
@@ -189,11 +186,6 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error to the handler if the given type is not a field or scalar.
     pub(crate) fn assert_field_scalar_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &FIELD_SCALAR_TYPES, span)
-    }
-
-    /// Emits an error to the handler if the given type is not a field, scalar, or integer.
-    pub(crate) fn assert_field_scalar_int_type(&self, type_: &Option<Type>, span: Span) {
-        self.assert_one_of_types(type_, &FIELD_SCALAR_INT_TYPES, span)
     }
 
     /// Emits an error to the handler if the given type is not an integer.

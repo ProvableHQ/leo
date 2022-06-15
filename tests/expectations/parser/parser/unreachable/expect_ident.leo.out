@@ -47,7 +47,7 @@ outputs:
   - "Error [EPAR0370005]: expected ; -- got ':'\n    --> test:1:2\n     |\n   1 | x::u32\n     |  ^"
   - "Error [EPAR0370005]: expected ; -- got ':'\n    --> test:1:2\n     |\n   1 | x::u64\n     |  ^"
   - "Error [EPAR0370005]: expected ; -- got ':'\n    --> test:1:2\n     |\n   1 | x::u128\n     |  ^"
-  - "Error [EPAR0370021]: Expected more characters to lex but found none."
+  - "Error [EPAR0370005]: expected ; -- got ':'\n    --> test:1:2\n     |\n   1 | x::&\n     |  ^"
   - "Error [EPAR0370005]: expected ; -- got ':'\n    --> test:1:2\n     |\n   1 | x::return\n     |  ^"
   - "Error [EPAR0370005]: expected ; -- got ':'\n    --> test:1:2\n     |\n   1 | x::self\n     |  ^"
   - "Error [EPAR0370005]: expected ; -- got ':'\n    --> test:1:2\n     |\n   1 | x::Self\n     |  ^"

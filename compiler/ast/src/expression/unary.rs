@@ -15,10 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_span::Symbol;
+use leo_span::{sym, Symbol};
 
 /// A unary operator for a unary expression.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum UnaryOperation {
     /// Absolute value checking for overflow, i.e. `.abs()`.
     Abs,
@@ -40,32 +40,31 @@ pub enum UnaryOperation {
 
 impl UnaryOperation {
     /// Returns a `UnaryOperation` from the given `Symbol`.
-    pub fn from_symbol(symbol: &Symbol) -> Option<UnaryOperation> {
-        Some(match symbol.as_u32() {
-            0 => UnaryOperation::Abs,
-            1 => UnaryOperation::AbsWrapped,
-            2 => UnaryOperation::Double,
-            3 => UnaryOperation::Inverse,
-            4 => UnaryOperation::Negate,
-            5 => UnaryOperation::Not,
-            6 => UnaryOperation::Square,
-            7 => UnaryOperation::SquareRoot,
+    pub fn from_symbol(symbol: Symbol) -> Option<Self> {
+        Some(match symbol {
+            sym::abs => Self::Abs,
+            sym::abs_wrapped => Self::AbsWrapped,
+            sym::double => Self::Double,
+            sym::inv => Self::Inverse,
+            sym::neg => Self::Negate,
+            sym::not => Self::Not,
+            sym::square => Self::Square,
+            sym::sqrt => Self::SquareRoot,
             _ => return None,
         })
     }
-}
 
-impl AsRef<str> for UnaryOperation {
-    fn as_ref(&self) -> &'static str {
+    /// Represents the opera.tor as a string.
+    fn as_str(self) -> &'static str {
         match self {
-            UnaryOperation::Abs => "abs",
-            UnaryOperation::AbsWrapped => "abs_wrapped",
-            UnaryOperation::Double => "double",
-            UnaryOperation::Inverse => "inv",
-            UnaryOperation::Negate => "-",
-            UnaryOperation::Not => "!",
-            UnaryOperation::Square => ".square",
-            UnaryOperation::SquareRoot => "sqrt"
+            Self::Abs => "abs",
+            Self::AbsWrapped => "abs_wrapped",
+            Self::Double => "double",
+            Self::Inverse => "inv",
+            Self::Negate => "neg",
+            Self::Not => "not",
+            Self::Square => "square",
+            Self::SquareRoot => "sqrt",
         }
     }
 }
@@ -83,7 +82,7 @@ pub struct UnaryExpression {
 
 impl fmt::Display for UnaryExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}{}", self.op.as_ref(), self.receiver)
+        write!(f, "{}{}", self.op.as_str(), self.receiver)
     }
 }
 
