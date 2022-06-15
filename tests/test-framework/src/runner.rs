@@ -152,7 +152,6 @@ impl TestCases {
             let content = &content[end_of_header + 2..];
 
             output.push(process(self, (path, content, &test_name, config)));
-
         }
         output
     }
@@ -302,7 +301,6 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
     }
 
     std::env::remove_var("LEO_TESTFRAMEWORK");
-
 }
 
 /// returns (name, content) for all benchmark samples
