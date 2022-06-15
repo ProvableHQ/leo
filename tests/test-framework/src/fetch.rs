@@ -14,27 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{fs, path::Path};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
-pub fn find_tests<T: AsRef<Path>>(path: T, out: &mut Vec<(String, String)>) {
-    for entry in fs::read_dir(path).expect("fail to read tests") {
-        let entry = entry.expect("fail to read tests").path();
-        if entry.is_dir() {
-            find_tests(entry.as_path(), out);
-            continue;
-        } else if entry.extension().and_then(|x| x.to_str()).unwrap_or_default() != "leo" {
-            continue;
-        }
-        let content = fs::read_to_string(entry.as_path()).expect("failed to read test");
-        out.push((entry.as_path().to_str().unwrap_or_default().to_string(), content));
-    }
+use walkdir::WalkDir;
+
+pub fn find_tests(path: &Path) -> impl Iterator<Item = (PathBuf, String)> {
+    WalkDir::new(path).into_iter().flatten().filter_map(move |f| {
+        let path = f.path();
+        path.extension().filter(|s| *s == "leo").map(|_| {
+            (
+                path.to_path_buf(),
+                fs::read_to_string(path).expect("failed to read test"),
+            )
+        })
+    })
 }
 
-pub fn split_tests_oneline(source: &str) -> Vec<&str> {
+pub fn split_tests_one_line(source: &str) -> Vec<&str> {
     source.lines().map(|x| x.trim()).filter(|x| !x.is_empty()).collect()
 }
 
-pub fn split_tests_twoline(source: &str) -> Vec<String> {
+pub fn split_tests_two_line(source: &str) -> Vec<String> {
     let mut out = vec![];
     let mut lines = vec![];
     for line in source.lines() {

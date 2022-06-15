@@ -16,10 +16,8 @@
 
 use leo_errors::Result;
 
-use std::fmt::Write as _;
-use std::{fmt, sync::Once};
-
 use colored::Colorize;
+use std::{fmt, sync::Once};
 use tracing::{event::Event, subscriber::Subscriber};
 use tracing_subscriber::{
     fmt::{format::*, time::*, FmtContext, FormattedFields},
@@ -192,7 +190,7 @@ where
                             .get::<FormattedFields<N>>()
                             .expect("Unable to find FormattedFields in extensions; this is a bug");
                         if !fields.is_empty() {
-                            let _ = write!(message, "{{{}}}", fields);
+                            message = format!("{message} {{{fields}}}");
                         }
                     }
                 }

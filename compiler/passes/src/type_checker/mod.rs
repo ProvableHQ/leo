@@ -34,7 +34,7 @@ use crate::{Pass, SymbolTable};
 use leo_ast::{Ast, ProgramVisitorDirector};
 use leo_errors::{emitter::Handler, Result};
 
-impl<'a> Pass<'a> for TypeChecker<'a> {
+impl<'a> Pass for TypeChecker<'a> {
     type Input = (&'a Ast, &'a mut SymbolTable<'a>, &'a Handler);
     type Output = Result<()>;
 

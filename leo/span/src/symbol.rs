@@ -349,8 +349,8 @@ pub struct SessionGlobals {
     pub source_map: SourceMap,
 }
 
-impl SessionGlobals {
-    fn new() -> Self {
+impl Default for SessionGlobals {
+    fn default() -> Self {
         Self {
             symbol_interner: Interner::prefilled(),
             source_map: SourceMap::default(),
@@ -358,13 +358,13 @@ impl SessionGlobals {
     }
 }
 
-scoped_tls::scoped_thread_local!(static SESSION_GLOBALS: SessionGlobals);
+scoped_tls::scoped_thread_local!(pub static SESSION_GLOBALS: SessionGlobals);
 
 /// Creates the session globals and then runs the closure `f`.
 #[inline]
 pub fn create_session_if_not_set_then<R>(f: impl FnOnce(&SessionGlobals) -> R) -> R {
     if !SESSION_GLOBALS.is_set() {
-        let sg = SessionGlobals::new();
+        let sg = SessionGlobals::default();
         SESSION_GLOBALS.set(&sg, || SESSION_GLOBALS.with(f))
     } else {
         SESSION_GLOBALS.with(f)

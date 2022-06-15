@@ -58,7 +58,8 @@ rev = "51633e2"
 version = "0.3.65"
 
 [dependencies.clap]
-version = "3.1"
+version = "3.2.1"
+features = ["derive", "env"]
 
 [dependencies.color-backtrace]
 version = "0.5.1"
@@ -79,9 +80,6 @@ features = ["serde"]
 [dependencies.lazy_static]
 version = "1.4.0"
 
-[dependencies.notify]
-version = "4.0.17"
-
 [dependencies.rand]
 version = "0.8"
 
@@ -89,7 +87,7 @@ version = "0.8"
 version = "0.6.3"
 
 [dependencies.reqwest]
-version = "0.11.10"
+version = "0.11.11"
 features = [ "blocking", "json", "multipart" ]
 
 [dependencies.self_update]
@@ -102,9 +100,6 @@ features = [ "derive" ]
 
 [dependencies.serde_json]
 version = "1.0"
-
-[dependencies.structopt]
-version = "0.3"
 
 [dependencies.sys-info]
 version = "0.9.1"

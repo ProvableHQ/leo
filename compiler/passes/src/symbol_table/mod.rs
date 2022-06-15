@@ -34,7 +34,7 @@ use crate::Pass;
 use leo_ast::{Ast, ProgramVisitorDirector, VisitorDirector};
 use leo_errors::{emitter::Handler, Result};
 
-impl<'a> Pass<'a> for CreateSymbolTable<'a> {
+impl<'a> Pass for CreateSymbolTable<'a> {
     type Input = (&'a Ast, &'a Handler);
     type Output = Result<SymbolTable<'a>>;
 

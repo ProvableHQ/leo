@@ -1,7 +1,0 @@
----
-namespace: Parse
-expectation: Pass
-outputs:
-  - name: ""
-    expected_input: []
-    functions: {}

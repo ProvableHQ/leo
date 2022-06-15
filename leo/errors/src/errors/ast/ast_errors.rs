@@ -143,7 +143,7 @@ create_messages!(
     @formatted
     shadowed_function {
         args: (func: impl Display),
-        msg: format!("function `{func}` shadowed"),
+        msg: format!("function `{func}` shadowed by"),
         help: None,
     }
 
@@ -151,7 +151,7 @@ create_messages!(
     @formatted
     shadowed_variable {
         args: (var: impl Display),
-        msg: format!("variable `{var}` shadowed"),
+        msg: format!("variable `{var}` shadowed by"),
         help: None,
     }
 );

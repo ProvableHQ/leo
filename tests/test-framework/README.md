@@ -74,9 +74,32 @@ To do so you can simply remove the corresponding `.out` file in the `tests/expec
 
 To make several aspects of the test framework easier to work with there are several environment variables:
 
-- `TEST_FILTER` - runs all tests that contain the specified name.
-- `CLEAR_LEO_TEST_EXPECTATIONS` - which if set clears all current expectations and regenerates them all.
+- `TEST_FILTER` - Now runs all tests in the given directory, or the exact given test.
+  - `TEST_FILTER="address" cargo test -p leo-compiler` will run all tests in the located in `tests/compiler/address`.
+  - `TEST_FILTER="address/branch.leo" cargo test -p leo-compiler` will run the test located in `tests/compiler/address/branch.leo`.
+- `CLEAR_LEO_TEST_EXPECTATIONS` - which if set clears all current expectations for the tests being run and regenerates them all.
 
 To set environment variables please look at your Shell(bash/powershell/cmd/fish/etc) specific implementation for doing so
 
 **NOTE**: Don't forget to clear the environment variable after running it with that setting, or set a temporary env variable if your shell supports it.
+
+### Benchmarking
+
+The test-framework is now used to easily benchmark Leo, by running on all compiler tests that have the `Pass` expectation.
+Additionally, you can create additional benchmark tests by adding them in the test directory by giving them the namespace of `Bench`.
+
+#### Running
+
+There are currently four different kinds of benchmarks to run:
+
+- parse - benchmarks parsing of Leo files.
+- symbol - benchmarks the symbol table generation pass.
+- type - benchmarks the type checking pass.
+- full - benchmarks all aspects of compilation.
+
+To run the benchmarks the command is `cargo bench -p leo-test-framework`.
+This by default runs all the above-mentioned benchmark suites.
+To specify a specific one you would do `cargo bench -p leo-test-framework parse` or any of the above-listed benchmark suites.
+
+**NOTE** Benchmarks are affected by the `TEST_FILTER` environment variable.
+They are also machine dependent on your pc and are impacted by other open applications.

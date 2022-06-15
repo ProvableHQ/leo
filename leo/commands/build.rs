@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{commands::Command, context::Context};
-use leo_compiler::{Ast, Compiler, InputAst};
+use leo_compiler::{Ast, Compiler, InputAst, OutputOptions};
 use leo_errors::{CliError, Result};
 use leo_package::{
     inputs::InputFile,
@@ -25,76 +25,42 @@ use leo_package::{
     source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
-use structopt::StructOpt;
+use clap::StructOpt;
 use tracing::span::Span;
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
 /// require Build command output as their input.
 #[derive(StructOpt, Clone, Debug, Default)]
 pub struct BuildOptions {
-    #[structopt(long, help = "Disable constant folding compiler optimization")]
-    pub disable_constant_folding: bool,
-    #[structopt(long, help = "Disable dead code elimination compiler optimization")]
-    pub disable_code_elimination: bool,
-    #[structopt(long, help = "Disable all compiler optimizations")]
-    pub disable_all_optimizations: bool,
     #[structopt(long, help = "Enable spans in AST snapshots.")]
     pub enable_spans: bool,
     #[structopt(long, help = "Writes all AST snapshots for the different compiler phases.")]
     pub enable_all_ast_snapshots: bool,
+    #[structopt(long, help = "Writes Input AST snapshot of the initial parse.")]
+    pub enable_initial_input_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot of the initial parse.")]
     pub enable_initial_ast_snapshot: bool,
-    #[structopt(long, help = "Writes AST snapshot after the import resolution phase.")]
-    pub enable_imports_resolved_ast_snapshot: bool,
-    #[structopt(long, help = "Writes AST snapshot after the canonicalization phase.")]
-    pub enable_canonicalized_ast_snapshot: bool,
-    #[structopt(long, help = "Writes AST snapshot after the type inference phase.")]
-    pub enable_type_inferenced_ast_snapshot: bool,
 }
 
-// impl From<BuildOptions> for CompilerOptions {
-//     fn from(options: BuildOptions) -> Self {
-//         if options.disable_all_optimizations {
-//             CompilerOptions {
-//                 constant_folding_enabled: false,
-//                 dead_code_elimination_enabled: false,
-//             }
-//         } else {
-//             CompilerOptions {
-//                 constant_folding_enabled: !options.disable_constant_folding,
-//                 dead_code_elimination_enabled: !options.disable_code_elimination,
-//             }
-//         }
-//     }
-// }
+impl From<BuildOptions> for OutputOptions {
+    fn from(options: BuildOptions) -> Self {
+        let mut out_options = Self {
+            spans_enabled: options.enable_spans,
+            input_ast_initial: options.enable_initial_input_ast_snapshot,
+            ast_initial: options.enable_initial_ast_snapshot,
+        };
+        if options.enable_all_ast_snapshots {
+            out_options.input_ast_initial = true;
+            out_options.ast_initial = true;
+        }
 
-// impl From<BuildOptions> for AstSnapshotOptions {
-//     fn from(options: BuildOptions) -> Self {
-//         if options.enable_all_ast_snapshots {
-//             AstSnapshotOptions {
-//                 spans_enabled: options.enable_spans,
-//                 initial: true,
-//                 imports_resolved: true,
-//                 canonicalized: true,
-//                 type_inferenced: true,
-//             }
-//         } else {
-//             AstSnapshotOptions {
-//                 spans_enabled: options.enable_spans,
-//                 initial: options.enable_initial_ast_snapshot,
-//                 imports_resolved: options.enable_imports_resolved_ast_snapshot,
-//                 canonicalized: options.enable_canonicalized_ast_snapshot,
-//                 type_inferenced: options.enable_type_inferenced_ast_snapshot,
-//             }
-//         }
-//     }
-// }
+        out_options
+    }
+}
 
 /// Compile and build program command.
 #[derive(StructOpt, Debug)]
-#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Build {
-    #[allow(dead_code)]
     #[structopt(flatten)]
     pub(crate) compiler_options: BuildOptions,
 }
@@ -180,8 +146,12 @@ impl Command for Build {
         // Initialize error handler
         let handler = leo_errors::emitter::Handler::default();
 
-        let mut program = Compiler::new(&handler, main_file_path, output_directory);
-        program.parse_program()?;
+        let mut program = Compiler::new(
+            &handler,
+            main_file_path,
+            output_directory,
+            Some(self.compiler_options.into()),
+        );
         program.parse_input(input_path.to_path_buf())?;
 
         // Compute the current program checksum

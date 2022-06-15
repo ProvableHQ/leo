@@ -244,7 +244,7 @@ create_messages!(
     @backtraced
     could_not_lex {
     args: (input: impl Display),
-    msg: format!("Could not lex the following content: `{}`.", input),
+    msg: format!("Could not lex the following content: `{}`.\n", input),
     help: None,
     }
 
