@@ -1,0 +1,81 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Binary:
+      left:
+        Value:
+          Integer:
+            - U8
+            - "1"
+            - span:
+                lo: 0
+                hi: 3
+      right:
+        Value:
+          Integer:
+            - U8
+            - "1"
+            - span:
+                lo: 7
+                hi: 10
+      op: Pow
+      span:
+        lo: 0
+        hi: 10
+  - Binary:
+      left:
+        Value:
+          Integer:
+            - U8
+            - "2"
+            - span:
+                lo: 0
+                hi: 3
+      right:
+        Value:
+          Integer:
+            - U8
+            - "3"
+            - span:
+                lo: 5
+                hi: 8
+      op: Pow
+      span:
+        lo: 0
+        hi: 8
+  - Binary:
+      left:
+        Value:
+          Integer:
+            - U8
+            - "1"
+            - span:
+                lo: 0
+                hi: 3
+      right:
+        Binary:
+          left:
+            Value:
+              Integer:
+                - U8
+                - "2"
+                - span:
+                    lo: 7
+                    hi: 10
+          right:
+            Value:
+              Integer:
+                - U8
+                - "3"
+                - span:
+                    lo: 14
+                    hi: 17
+          op: Pow
+          span:
+            lo: 7
+            hi: 17
+      op: Pow
+      span:
+        lo: 0
+        hi: 17

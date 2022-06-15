@@ -1,0 +1,63 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Unary:
+      receiver:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+      op: Negate
+      span:
+        lo: 0
+        hi: 2
+  - Unary:
+      receiver:
+        Call:
+          function:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+          arguments: []
+          span:
+            lo: 1
+            hi: 4
+      op: Negate
+      span:
+        lo: 0
+        hi: 4
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: Negate
+          span:
+            lo: 1
+            hi: 3
+      op: Negate
+      span:
+        lo: 0
+        hi: 3
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: Not
+          span:
+            lo: 1
+            hi: 3
+      op: Negate
+      span:
+        lo: 0
+        hi: 3
+  - Unary:
+      receiver:
+        Value:
+          Integer:
+            - I8
+            - "5"
+            - span:
+                lo: 1
+                hi: 4
+      op: Negate
+      span:
+        lo: 0
+        hi: 4
