@@ -6,6 +6,9 @@ input_file:
 */
 
 function main(a: scalar, b: scalar) -> bool {
+   // unary
+   let i: scalar = a.sqrt();
+
    // binary
    let j: scalar = a.add(b);
    let o: bool = a.eq(b);

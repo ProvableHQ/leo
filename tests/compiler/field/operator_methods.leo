@@ -10,9 +10,10 @@ function main(a: field, b: field) -> bool {
    let f: field = a.inv();
    let g: field = a.neg();
    let i: field = a.square();
+   let j: field = a.sqrt();
 
    // binary
-   let j: field = a.add(b);
+   let k: field = a.add(b);
    let m: field = a.div(b);
    let o: bool = a.eq(b);
    let p: bool = a.ge(b);
