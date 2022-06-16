@@ -3,11 +3,17 @@ namespace: ParseExpression
 expectation: Pass
 */
 
-true && false
+1 & 1
 
-false&&true
+2&3
 
-true&&false&&true
+1 & 2 & 3
+
+1 == 2 & 3 == 4
+
+1 & 2 & 3
+
+1 == 2 & 3 == 4 & 5 == 6
 
 !-x.and(y)
 x.and(y).and(y).and(y)
@@ -19,4 +25,4 @@ x.and(y).and(y).and(y)
 (!x).and(y)
 !(x.and(y))
 (!x.and(y)).and(y)
-(x.and(y) + x.and(y)).and(x.and(y) + x.and(y))
+(x.and(y) & x.and(y)).and(x.and(y) & x.and(y))

@@ -8,7 +8,7 @@ expectation: Pass
 !!x
 
 
-!-xx.not()
+!-x.not()
 x.not().not().not()
 -x.not()
 (-x).not()
