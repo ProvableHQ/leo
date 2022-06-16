@@ -242,19 +242,25 @@ impl ParserContext<'_> {
 
         if let ([], Some(operator)) = (&*args, UnaryOperation::from_symbol(method.name)) {
             // Found an unary operator and the argument list is empty.
-            Ok(Expression::Unary(UnaryExpression {
+            let ret = Expression::Unary(UnaryExpression {
                 span,
                 op: operator,
                 receiver: Box::new(receiver),
-            }))
+            });
+            self.eat(&Token::LeftParen);
+            self.eat(&Token::RightParen);
+            Ok(ret)
         } else if let (true, Some(operator)) = (args.len() == 1, BinaryOperation::from_symbol(method.name)) {
             // Found a binary operator and the argument list contains a single argument.
-            Ok(Expression::Binary(BinaryExpression {
+            let ret = Expression::Binary(BinaryExpression {
                 span,
                 op: operator,
                 left: Box::new(receiver),
                 right: Box::new(args.swap_remove(0)),
-            }))
+            });
+            self.eat(&Token::LeftParen);
+            self.eat(&Token::RightParen);
+            Ok(ret)
         } else {
             // Either an invalid unary/binary operator, or more arguments given.
             self.emit_err(ParserError::expr_arbitrary_method_call(span));
@@ -280,16 +286,9 @@ impl ParserContext<'_> {
             if self.eat(&Token::Dot) {
                 expr = self.parse_method_call_expression(expr)?
             }
-            if !self.check(&Token::LeftParen) {
+            if !self.check(&Token::Dot) {
                 break;
             }
-
-            let (arguments, _, span) = self.parse_expr_tuple()?;
-            expr = Expression::Call(CallExpression {
-                span: expr.span() + span,
-                function: Box::new(expr),
-                arguments,
-            });
         }
         Ok(expr)
     }
