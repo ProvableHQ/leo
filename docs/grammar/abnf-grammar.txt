@@ -278,11 +278,12 @@ bitwise-exclusive-or-expression =
       bitwise-inclusive-or-expression
     / bitwise-exclusive-or-expression "^" bitwise-inclusive-or-expression
 
-ordering-expression = bitwise-exclusive-or-expression
-                    / bitwise-exclusive-or-expression "<" additive-expression
-                    / bitwise-exclusive-or-expression ">" additive-expression
-                    / bitwise-exclusive-or-expression "<=" additive-expression
-                    / bitwise-exclusive-or-expression ">=" additive-expression
+ordering-expression =
+      bitwise-exclusive-or-expression
+    / bitwise-exclusive-or-expression "<" bitwise-exclusive-or-expression
+    / bitwise-exclusive-or-expression ">" bitwise-exclusive-or-expression
+    / bitwise-exclusive-or-expression "<=" bitwise-exclusive-or-expression
+    / bitwise-exclusive-or-expression ">=" bitwise-exclusive-or-expression
 
 equality-expression = ordering-expression
                     / ordering-expression "==" ordering-expression
