@@ -1,5 +1,8 @@
 ---
 namespace: Compile
-expectation: Fail
+expectation: Pass
 outputs:
-  - "Error [ETYC0372008]: Expected one type from `u8,u16,u32,`, but got `u128`\n    --> compiler-test:4:17\n     |\n   4 |     return a ** b == c;\n     |                 ^\n"
+  - output:
+      - initial_input_ast: no input
+    initial_ast: abcb9b7e4c5706800b2599b81dadb2e25e2e46811b1c88683562e5a1aa45b087
+    symbol_table: 3369bb224fc76977901bd0c162932d08760213d30a0f1ccdf06fd25c45610ade
