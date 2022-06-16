@@ -14,152 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! The compiler for Leo programs.
-//!
-//! The [`Compiler`] type compiles Leo programs into R1CS circuits.
-
 #![allow(clippy::module_inception)]
 #![allow(clippy::upper_case_acronyms)]
 #![doc = include_str!("../README.md")]
 
+mod compiler;
+pub use compiler::*;
+
+mod options;
+pub use options::*;
+
 #[cfg(test)]
 mod test;
-
-use bumpalo::Bump;
-use leo_ast::Program;
-pub use leo_ast::{Ast, InputAst};
-use leo_errors::emitter::Handler;
-use leo_errors::{CompilerError, Result};
-pub use leo_passes::SymbolTable;
-use leo_passes::*;
-use leo_span::source_map::FileName;
-use leo_span::symbol::with_session_globals;
-
-use sha2::{Digest, Sha256};
-use std::fs;
-use std::path::PathBuf;
-
-#[derive(Clone)]
-/// The primary entry point of the Leo compiler.
-pub struct Compiler<'a> {
-    handler: &'a Handler,
-    main_file_path: PathBuf,
-    output_directory: PathBuf,
-    pub ast: Ast,
-    pub input_ast: Option<InputAst>,
-}
-
-impl<'a> Compiler<'a> {
-    ///
-    /// Returns a new Leo compiler.
-    ///
-    pub fn new(handler: &'a Handler, main_file_path: PathBuf, output_directory: PathBuf) -> Self {
-        Self {
-            handler,
-            main_file_path,
-            output_directory,
-            ast: Ast::new(Program::new("Initial".to_string())),
-            input_ast: None,
-        }
-    }
-
-    ///
-    /// Returns a SHA256 checksum of the program file.
-    ///
-    pub fn checksum(&self) -> Result<String> {
-        // Read in the main file as string
-        let unparsed_file = fs::read_to_string(&self.main_file_path)
-            .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;
-
-        // Hash the file contents
-        let mut hasher = Sha256::new();
-        hasher.update(unparsed_file.as_bytes());
-        let hash = hasher.finalize();
-
-        Ok(format!("{:x}", hash))
-    }
-
-    // Parses and stores a program file content from a string, constructs a syntax tree, and generates a program.
-    pub fn parse_program_from_string(&mut self, program_string: &str, name: FileName) -> Result<()> {
-        // Register the source (`program_string`) in the source map.
-        let prg_sf = with_session_globals(|s| s.source_map.new_source(program_string, name));
-
-        // Use the parser to construct the abstract syntax tree (ast).
-        let ast: leo_ast::Ast = leo_parser::parse_ast(self.handler, &prg_sf.src, prg_sf.start_pos)?;
-        // Write the AST snapshot post parsing.
-        ast.to_json_file_without_keys(self.output_directory.clone(), "initial_ast.json", &["span"])?;
-
-        self.ast = ast;
-
-        Ok(())
-    }
-
-    /// Parses and stores the main program file, constructs a syntax tree, and generates a program.
-    pub fn parse_program(&mut self) -> Result<()> {
-        // Load the program file.
-        let program_string = fs::read_to_string(&self.main_file_path)
-            .map_err(|e| CompilerError::file_read_error(&self.main_file_path, e))?;
-
-        self.parse_program_from_string(&program_string, FileName::Real(self.main_file_path.clone()))
-    }
-
-    /// Parses and stores the input file, constructs a syntax tree, and generates a program input.
-    pub fn parse_input(&mut self, input_file_path: PathBuf) -> Result<()> {
-        if input_file_path.exists() {
-            // Load the input file into the source map.
-            let input_sf = with_session_globals(|s| s.source_map.load_file(&input_file_path))
-                .map_err(|e| CompilerError::file_read_error(&input_file_path, e))?;
-
-            // Parse and serialize it.
-            let input_ast = leo_parser::parse_input(self.handler, &input_sf.src, input_sf.start_pos)?;
-            input_ast.to_json_file_without_keys(self.output_directory.clone(), "inital_input_ast.json", &["span"])?;
-
-            self.input_ast = Some(input_ast);
-        }
-        Ok(())
-    }
-
-    ///
-    /// Runs the symbol table pass.
-    ///
-    pub fn symbol_table_pass(&'a self, st: &'a SymbolTable<'a>, arena: &'a Bump) -> Result<()> {
-        CreateSymbolTable::do_pass((&self.ast, self.handler, st, arena))
-    }
-
-    ///
-    /// Runs the type checker pass.
-    ///
-    pub fn type_checker_pass(&'a self, symbol_table: &'a SymbolTable<'a>, arena: &'a Bump) -> Result<()> {
-        TypeChecker::do_pass((&self.ast, self.handler, symbol_table, arena))
-    }
-
-    ///
-    /// Runs the flattening pass.
-    ///
-    pub fn flattening_pass(&mut self) -> Result<()> {
-        self.ast = Flattener::do_pass((std::mem::take(&mut self.ast), self.handler))?;
-        self.ast
-            .to_json_file_without_keys(self.output_directory.clone(), "flattened_ast.json", &["span"])?;
-
-        Ok(())
-    }
-
-    ///
-    /// Runs the compiler stages.
-    ///
-    pub fn compiler_stages(&mut self) -> Result<()> {
-        let arena = Bump::new();
-        let st = arena.alloc(SymbolTable::default());
-        self.symbol_table_pass(st, &arena)?;
-        self.type_checker_pass(st, &arena)?;
-        self.flattening_pass()
-    }
-
-    ///
-    /// Returns a compiled Leo program.
-    ///
-    pub fn compile(&mut self) -> Result<()> {
-        self.parse_program()?;
-        self.compiler_stages()
-    }
-}

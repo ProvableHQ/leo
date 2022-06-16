@@ -21,7 +21,7 @@ use std::{
     rc::Rc,
 };
 
-use crate::Compiler;
+use crate::{Compiler, OutputOptions};
 
 use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
@@ -39,7 +39,16 @@ fn new_compiler(handler: &Handler, main_file_path: PathBuf) -> Compiler<'_> {
     let output_dir = PathBuf::from("/tmp/output/");
     fs::create_dir_all(output_dir.clone()).unwrap();
 
-    Compiler::new(handler, main_file_path, output_dir)
+    Compiler::new(
+        handler,
+        main_file_path,
+        output_dir,
+        Some(OutputOptions {
+            spans_enabled: false,
+            input_ast_initial: true,
+            ast_initial: true,
+        }),
+    )
 }
 
 fn parse_program<'a>(
@@ -192,7 +201,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         for input in inputs {
             let mut parsed = parsed.clone();
             handler.extend_if_error(parsed.parse_input(input))?;
-            let initial_input_ast = hash_file("/tmp/output/inital_input_ast.json");
+            let initial_input_ast = hash_file("/tmp/output/initial_input_ast.json");
 
             output_items.push(OutputItem { initial_input_ast });
         }

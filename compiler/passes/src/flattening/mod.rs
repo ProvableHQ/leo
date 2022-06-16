@@ -25,7 +25,7 @@ pub use reducer::*;
 
 use crate::Pass;
 
-impl<'a> Pass<'a> for Flattener<'a> {
+impl<'a> Pass for Flattener<'a> {
     type Input = (Ast, &'a Handler);
     type Output = Result<Ast>;
 

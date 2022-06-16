@@ -32,7 +32,7 @@ use crate::Pass;
 use leo_ast::{Ast, ProgramVisitor};
 use leo_errors::{emitter::Handler, Result};
 
-impl<'a> Pass<'a> for CreateSymbolTable<'a> {
+impl<'a> Pass for CreateSymbolTable<'a> {
     type Input = (&'a Ast, &'a Handler, &'a SymbolTable<'a>, &'a Bump);
     type Output = Result<()>;
 

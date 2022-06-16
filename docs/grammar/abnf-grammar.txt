@@ -39,31 +39,40 @@ double-quote = %x22   ; "
 
 single-quote = %x27   ; '
 
-not-star = %x0-29 / %x2B-7F / safe-nonascii  ; anything but *
-
-not-star-or-slash = %x0-29 / %x2B-2E / %x30-7F / safe-nonascii
-                    ; anything but * or /
-
-not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-7F / safe-nonascii
-                                   ; anything but <LF> or <CR>
-
-not-double-quote-or-backslash = %x0-21 / %x23-5B / %x5D-7F / safe-nonascii
-                                ; anything but " or \
-
 line-terminator = line-feed / carriage-return / carriage-return line-feed
 
 whitespace = space / horizontal-tab / line-terminator
+
+not-line-feed-or-carriage-return =
+    %x0-9 / %xB-C / %xE-7F / safe-nonascii
+    ; anything but <LF> or <CR>
+
+not-star-or-line-feed-or-carriage-return =
+    %x0-9/ %xB-C / %xD-29 / %x2B-7F / safe-nonascii
+    ; anything but * or <LF> or <CR>
+
+not-star-or-slash-or-line-feed-or-carriage-return =
+    %x0-9 / %xB-C / %xD-29 / %x2B-2E / %x30-7F / safe-nonascii
+    ; anything but * or / or <LF> or <CR>
+
+not-double-quote-or-backslash-or-line-feed-or-carriage-return =
+    %x0-9 / %xB-C / %xD-21 / %x23-5B / %x5D-7F / safe-nonascii
+    ; anything but " or \ or <LF> or <CR>
 
 comment = block-comment / end-of-line-comment
 
 block-comment = "/*" rest-of-block-comment
 
-rest-of-block-comment = "*" rest-of-block-comment-after-star
-                      / not-star rest-of-block-comment
+rest-of-block-comment =
+      "*" rest-of-block-comment-after-star
+    / not-star-or-line-feed-or-carriage-return rest-of-block-comment
+    / line-terminator rest-of-block-comment
 
-rest-of-block-comment-after-star = "/"
-                                 / "*" rest-of-block-comment-after-star
-                                 / not-star-or-slash rest-of-block-comment
+rest-of-block-comment-after-star =
+      "/"
+    / "*" rest-of-block-comment-after-star
+    / not-star-or-slash-or-line-feed-or-carriage-return rest-of-block-comment
+    / line-terminator rest-of-block-comment
 
 end-of-line-comment = "//" *not-line-feed-or-carriage-return
 
@@ -154,10 +163,11 @@ unicode-character-escape = %s"\u{" 1*6hexadecimal-digit "}"
 
 string-literal = double-quote *string-literal-element double-quote
 
-string-literal-element = not-double-quote-or-backslash
-                       / simple-character-escape
-                       / ascii-character-escape
-                       / unicode-character-escape
+string-literal-element =
+      not-double-quote-or-backslash-or-line-feed-or-carriage-return
+    / simple-character-escape
+    / ascii-character-escape
+    / unicode-character-escape
 
 integer-literal = unsigned-literal
                 / signed-literal

@@ -1,4 +1,8 @@
-
+/*
+namespace: Compile
+expectation: Skip
+input_file: inputs/u32_3.in
+*/
 
 function main(x: u32) -> bool {
     const COUNT: u32 = 2u32;
