@@ -240,14 +240,14 @@ impl ParserContext<'_> {
         let (mut args, _, span) = self.parse_expr_tuple()?;
         let span = receiver.span() + span;
 
-        if let ([], Some(operator)) = (&*args, UnaryOperation::from_symbol(method.name)) {
+        if let (true, Some(operator)) = (args.is_empty(), UnaryOperation::from_symbol(method.name)) {
             // Found an unary operator and the argument list is empty.
             Ok(Expression::Unary(UnaryExpression {
                 span,
                 op: operator,
                 receiver: Box::new(receiver),
             }))
-        } else if let (true, Some(operator)) = (args.len() == 1, BinaryOperation::from_symbol(method.name)) {
+        } else if let (1, Some(operator)) = (args.len(), BinaryOperation::from_symbol(method.name)) {
             // Found a binary operator and the argument list contains a single argument.
             Ok(Expression::Binary(BinaryExpression {
                 span,
@@ -278,8 +278,18 @@ impl ParserContext<'_> {
         let mut expr = self.parse_primary_expression()?;
         loop {
             if self.eat(&Token::Dot) {
+                // Eat a method call on a type
                 expr = self.parse_method_call_expression(expr)?
+            } else if self.check(&Token::LeftParen) {
+                // Parse a function call that's by itself.
+                let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
+                expr = Expression::Call(CallExpression {
+                    span: expr.span() + span,
+                    function: Box::new(expr),
+                    arguments,
+                });
             }
+            // Check if next token is a dot to see if we are calling recursive method.
             if !self.check(&Token::Dot) {
                 break;
             }
