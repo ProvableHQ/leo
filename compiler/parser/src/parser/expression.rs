@@ -56,16 +56,16 @@ impl ParserContext<'_> {
     /// Returns an [`Expression`] AST node if the next tokens represent
     /// a ternary expression. May or may not include circuit init expressions.
     ///
-    /// Otherwise, tries to parse the next token using [`parse_disjunctive_expression`].
+    /// Otherwise, tries to parse the next token using [`parse_boolean_or_expression`].
     pub(super) fn parse_conditional_expression(&mut self) -> Result<Expression> {
         // Try to parse the next expression. Try BinaryOperation::Or.
-        let mut expr = self.parse_disjunctive_expression()?;
+        let mut expr = self.parse_boolean_or_expression()?;
 
         // Parse the rest of the ternary expression.
         if self.eat(&Token::Question) {
             let if_true = self.parse_expression()?;
             self.expect(&Token::Colon)?;
-            let if_false = self.parse_conditional_expression()?;
+            let if_false = self.parse_expression()?;
             expr = Expression::Ternary(TernaryExpression {
                 span: expr.span() + if_false.span(),
                 condition: Box::new(expr),
@@ -100,28 +100,20 @@ impl ParserContext<'_> {
         Ok(expr)
     }
 
-    /// Returns an [`Expression`] AST node if the next tokens represent
-    /// a binary OR expression.
-    ///
-    /// Otherwise, tries to parse the next token using [`parse_conjunctive_expression`].
-    fn parse_disjunctive_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(&[Token::Or], Self::parse_conjunctive_expression)
-    }
-
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// binary AND expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_equality_expression`].
-    fn parse_conjunctive_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(&[Token::And], Self::parse_shift_expression)
+    fn parse_boolean_and_expression(&mut self) -> Result<Expression> {
+        self.parse_bin_expr(&[Token::And], Self::parse_equality_expression)
     }
 
-    /// Returns an [`Expression`] AST node if the next tokens represent a
-    /// shift left or a shift right expression.
+    /// Returns an [`Expression`] AST node if the next tokens represent
+    /// a binary OR expression.
     ///
-    /// Otherwise, tries to parse the next token using [`parse_equality_expression`].
-    fn parse_shift_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(&[Token::Shl, Token::Shr], Self::parse_equality_expression)
+    /// Otherwise, tries to parse the next token using [`parse_boolean_and_expression`].
+    fn parse_boolean_or_expression(&mut self) -> Result<Expression> {
+        self.parse_bin_expr(&[Token::Or], Self::parse_boolean_and_expression)
     }
 
     /// Eats one of binary operators matching any in `tokens`.
@@ -144,8 +136,22 @@ impl ParserContext<'_> {
             Token::Exp => BinaryOperation::Pow,
             Token::Shl => BinaryOperation::Shl,
             Token::Shr => BinaryOperation::Shr,
+            Token::Xor => BinaryOperation::Xor,
             _ => unreachable!("`eat_bin_op` shouldn't produce this"),
         })
+    }
+
+    /// Returns an [`Expression`] AST node if the next tokens represent a
+    /// binary relational expression: less than, less than or equals, greater than, greater than or equals.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_additive_expression`].
+    fn parse_ordering_expression(&mut self) -> Result<Expression> {
+        let mut expr = self.parse_bitwise_exclusive_or_expression()?;
+        if let Some(op) = self.eat_bin_op(&[Token::Lt, Token::LtEq, Token::Gt, Token::GtEq]) {
+            let right = self.parse_bitwise_exclusive_or_expression()?;
+            expr = Self::bin_expr(expr, right, op);
+        }
+        Ok(expr)
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -162,16 +168,35 @@ impl ParserContext<'_> {
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
-    /// binary relational expression: less than, less than or equals, greater than, greater than or equals.
+    /// bitwise exclusive or expression.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_bitwise_inclusive_or_expression`].
+    fn parse_bitwise_exclusive_or_expression(&mut self) -> Result<Expression> {
+        self.parse_bin_expr(&[Token::Xor], Self::parse_bitwise_inclusive_or_expression)
+    }
+
+    /// Returns an [`Expression`] AST node if the next tokens represent a
+    /// bitwise inclusive or expression.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_bitwise_and_expression`].
+    fn parse_bitwise_inclusive_or_expression(&mut self) -> Result<Expression> {
+        self.parse_bin_expr(&[Token::BitwiseOr], Self::parse_bitwise_and_expression)
+    }
+
+    /// Returns an [`Expression`] AST node if the next tokens represent a
+    /// bitwise and expression.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_shift_expression`].
+    fn parse_bitwise_and_expression(&mut self) -> Result<Expression> {
+        self.parse_bin_expr(&[Token::BitwiseAnd], Self::parse_shift_expression)
+    }
+
+    /// Returns an [`Expression`] AST node if the next tokens represent a
+    /// shift left or a shift right expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_additive_expression`].
-    fn parse_ordering_expression(&mut self) -> Result<Expression> {
-        let mut expr = self.parse_additive_expression()?;
-        if let Some(op) = self.eat_bin_op(&[Token::Lt, Token::LtEq, Token::Gt, Token::GtEq]) {
-            let right = self.parse_additive_expression()?;
-            expr = Self::bin_expr(expr, right, op);
-        }
-        Ok(expr)
+    fn parse_shift_expression(&mut self) -> Result<Expression> {
+        self.parse_bin_expr(&[Token::Shl, Token::Shr], Self::parse_additive_expression)
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a

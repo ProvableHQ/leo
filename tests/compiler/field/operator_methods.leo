@@ -23,5 +23,5 @@ function main(a: field, b: field) -> bool {
    let w: bool = a.neq(b);
    let z: field = a.pow(b);
 
-   return f;
+   return w;
 }

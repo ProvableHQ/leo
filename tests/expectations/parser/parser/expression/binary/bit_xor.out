@@ -19,7 +19,7 @@ outputs:
             - span:
                 lo: 6
                 hi: 9
-      op: Div
+      op: Xor
       span:
         lo: 0
         hi: 9
@@ -40,7 +40,7 @@ outputs:
             - span:
                 lo: 4
                 hi: 7
-      op: Div
+      op: Xor
       span:
         lo: 0
         hi: 7
@@ -63,7 +63,7 @@ outputs:
                 - span:
                     lo: 6
                     hi: 9
-          op: Div
+          op: Xor
           span:
             lo: 0
             hi: 9
@@ -75,7 +75,7 @@ outputs:
             - span:
                 lo: 12
                 hi: 15
-      op: Div
+      op: Xor
       span:
         lo: 0
         hi: 15
@@ -96,12 +96,12 @@ outputs:
                 - U8
                 - "2"
                 - span:
-                    lo: 7
-                    hi: 10
-          op: Pow
+                    lo: 6
+                    hi: 9
+          op: BitwiseAnd
           span:
             lo: 0
-            hi: 10
+            hi: 9
       right:
         Binary:
           left:
@@ -110,24 +110,136 @@ outputs:
                 - U8
                 - "3"
                 - span:
-                    lo: 13
-                    hi: 16
+                    lo: 12
+                    hi: 15
           right:
             Value:
               Integer:
                 - U8
                 - "4"
                 - span:
-                    lo: 20
-                    hi: 23
-          op: Pow
+                    lo: 18
+                    hi: 21
+          op: BitwiseAnd
           span:
-            lo: 13
-            hi: 23
-      op: Div
+            lo: 12
+            hi: 21
+      op: Xor
       span:
         lo: 0
-        hi: 23
+        hi: 21
+  - Binary:
+      left:
+        Binary:
+          left:
+            Value:
+              Integer:
+                - U8
+                - "1"
+                - span:
+                    lo: 0
+                    hi: 3
+          right:
+            Value:
+              Integer:
+                - U8
+                - "2"
+                - span:
+                    lo: 6
+                    hi: 9
+          op: Xor
+          span:
+            lo: 0
+            hi: 9
+      right:
+        Value:
+          Integer:
+            - U8
+            - "3"
+            - span:
+                lo: 12
+                hi: 15
+      op: Xor
+      span:
+        lo: 0
+        hi: 15
+  - Binary:
+      left:
+        Binary:
+          left:
+            Binary:
+              left:
+                Value:
+                  Integer:
+                    - U8
+                    - "1"
+                    - span:
+                        lo: 0
+                        hi: 3
+              right:
+                Value:
+                  Integer:
+                    - U8
+                    - "2"
+                    - span:
+                        lo: 6
+                        hi: 9
+              op: BitwiseAnd
+              span:
+                lo: 0
+                hi: 9
+          right:
+            Binary:
+              left:
+                Value:
+                  Integer:
+                    - U8
+                    - "3"
+                    - span:
+                        lo: 12
+                        hi: 15
+              right:
+                Value:
+                  Integer:
+                    - U8
+                    - "4"
+                    - span:
+                        lo: 18
+                        hi: 21
+              op: BitwiseAnd
+              span:
+                lo: 12
+                hi: 21
+          op: Xor
+          span:
+            lo: 0
+            hi: 21
+      right:
+        Binary:
+          left:
+            Value:
+              Integer:
+                - U8
+                - "5"
+                - span:
+                    lo: 24
+                    hi: 27
+          right:
+            Value:
+              Integer:
+                - U8
+                - "6"
+                - span:
+                    lo: 30
+                    hi: 33
+          op: BitwiseAnd
+          span:
+            lo: 24
+            hi: 33
+      op: Xor
+      span:
+        lo: 0
+        hi: 33
   - Unary:
       receiver:
         Unary:
@@ -137,7 +249,7 @@ outputs:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
               right:
                 Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-              op: Div
+              op: Xor
               span:
                 lo: 2
                 hi: 10
@@ -158,19 +270,19 @@ outputs:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
               right:
                 Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
-              op: Div
+              op: Xor
               span:
                 lo: 0
                 hi: 8
           right:
             Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-          op: Div
+          op: Xor
           span:
             lo: 0
             hi: 15
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
-      op: Div
+      op: Xor
       span:
         lo: 0
         hi: 22
@@ -181,7 +293,7 @@ outputs:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
           right:
             Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-          op: Div
+          op: Xor
           span:
             lo: 1
             hi: 9
@@ -200,7 +312,7 @@ outputs:
             hi: 3
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
-      op: Div
+      op: Xor
       span:
         lo: 1
         hi: 11
@@ -211,7 +323,7 @@ outputs:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           right:
             Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-          op: Div
+          op: Xor
           span:
             lo: 2
             hi: 10
@@ -228,7 +340,7 @@ outputs:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
               right:
                 Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-              op: Div
+              op: Xor
               span:
                 lo: 2
                 hi: 10
@@ -238,7 +350,7 @@ outputs:
             hi: 10
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-      op: Div
+      op: Xor
       span:
         lo: 1
         hi: 18
@@ -249,7 +361,7 @@ outputs:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
           right:
             Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-          op: Div
+          op: Xor
           span:
             lo: 1
             hi: 9
@@ -268,7 +380,7 @@ outputs:
             hi: 3
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
-      op: Div
+      op: Xor
       span:
         lo: 1
         hi: 11
@@ -279,7 +391,7 @@ outputs:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           right:
             Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-          op: Div
+          op: Xor
           span:
             lo: 2
             hi: 10
@@ -296,7 +408,7 @@ outputs:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
               right:
                 Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-              op: Div
+              op: Xor
               span:
                 lo: 2
                 hi: 10
@@ -306,7 +418,7 @@ outputs:
             hi: 10
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-      op: Div
+      op: Xor
       span:
         lo: 1
         hi: 18
@@ -319,7 +431,7 @@ outputs:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
               right:
                 Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-              op: Div
+              op: Xor
               span:
                 lo: 1
                 hi: 9
@@ -329,11 +441,11 @@ outputs:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
               right:
                 Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
-              op: Div
+              op: Xor
               span:
                 lo: 12
                 hi: 20
-          op: Div
+          op: Xor
           span:
             lo: 1
             hi: 20
@@ -345,7 +457,7 @@ outputs:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":27}\"}"
               right:
                 Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":32,\\\"hi\\\":33}\"}"
-              op: Div
+              op: Xor
               span:
                 lo: 26
                 hi: 34
@@ -355,15 +467,15 @@ outputs:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":37,\\\"hi\\\":38}\"}"
               right:
                 Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":43,\\\"hi\\\":44}\"}"
-              op: Div
+              op: Xor
               span:
                 lo: 37
                 hi: 45
-          op: Div
+          op: Xor
           span:
             lo: 26
             hi: 45
-      op: Div
+      op: Xor
       span:
         lo: 1
         hi: 46

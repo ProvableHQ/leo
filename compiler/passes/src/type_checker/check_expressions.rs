@@ -64,7 +64,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
     fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor.visit_identifier(input) {
             return if let Some(var) = self.visitor.symbol_table.clone().lookup_variable(&input.name) {
-                Some(self.visitor.assert_expected_option(*var.type_, expected, var.span))
+                Some(self.visitor.assert_expected_option(*var.type_, expected, input.span))
             } else {
                 self.visitor
                     .handler

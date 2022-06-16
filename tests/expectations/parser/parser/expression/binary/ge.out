@@ -17,12 +17,12 @@ outputs:
             - U8
             - "1"
             - span:
-                lo: 6
-                hi: 9
-      op: Div
+                lo: 7
+                hi: 10
+      op: Ge
       span:
         lo: 0
-        hi: 9
+        hi: 10
   - Binary:
       left:
         Value:
@@ -38,12 +38,12 @@ outputs:
             - U8
             - "3"
             - span:
-                lo: 4
-                hi: 7
-      op: Div
+                lo: 7
+                hi: 10
+      op: Ge
       span:
         lo: 0
-        hi: 7
+        hi: 10
   - Binary:
       left:
         Binary:
@@ -63,45 +63,10 @@ outputs:
                 - span:
                     lo: 6
                     hi: 9
-          op: Div
+          op: Add
           span:
             lo: 0
             hi: 9
-      right:
-        Value:
-          Integer:
-            - U8
-            - "3"
-            - span:
-                lo: 12
-                hi: 15
-      op: Div
-      span:
-        lo: 0
-        hi: 15
-  - Binary:
-      left:
-        Binary:
-          left:
-            Value:
-              Integer:
-                - U8
-                - "1"
-                - span:
-                    lo: 0
-                    hi: 3
-          right:
-            Value:
-              Integer:
-                - U8
-                - "2"
-                - span:
-                    lo: 7
-                    hi: 10
-          op: Pow
-          span:
-            lo: 0
-            hi: 10
       right:
         Binary:
           left:
@@ -118,16 +83,16 @@ outputs:
                 - U8
                 - "4"
                 - span:
-                    lo: 20
-                    hi: 23
-          op: Pow
+                    lo: 19
+                    hi: 22
+          op: Add
           span:
             lo: 13
-            hi: 23
-      op: Div
+            hi: 22
+      op: Ge
       span:
         lo: 0
-        hi: 23
+        hi: 22
   - Unary:
       receiver:
         Unary:
@@ -136,19 +101,19 @@ outputs:
               left:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-              op: Div
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+              op: Ge
               span:
                 lo: 2
-                hi: 10
+                hi: 9
           op: Negate
           span:
             lo: 1
-            hi: 10
+            hi: 9
       op: Not
       span:
         lo: 0
-        hi: 10
+        hi: 9
   - Binary:
       left:
         Binary:
@@ -157,38 +122,38 @@ outputs:
               left:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
-              op: Div
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+              op: Ge
               span:
                 lo: 0
-                hi: 8
+                hi: 7
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-          op: Div
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
+          op: Ge
           span:
             lo: 0
-            hi: 15
+            hi: 13
       right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
-      op: Div
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
+      op: Ge
       span:
         lo: 0
-        hi: 22
+        hi: 19
   - Unary:
       receiver:
         Binary:
           left:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-          op: Div
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+          op: Ge
           span:
             lo: 1
-            hi: 9
+            hi: 8
       op: Negate
       span:
         lo: 0
-        hi: 9
+        hi: 8
   - Binary:
       left:
         Unary:
@@ -199,26 +164,26 @@ outputs:
             lo: 1
             hi: 3
       right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
-      op: Div
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+      op: Ge
       span:
         lo: 1
-        hi: 11
+        hi: 10
   - Unary:
       receiver:
         Binary:
           left:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-          op: Div
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+          op: Ge
           span:
             lo: 2
-            hi: 10
+            hi: 9
       op: Negate
       span:
         lo: 0
-        hi: 10
+        hi: 9
   - Binary:
       left:
         Unary:
@@ -227,36 +192,36 @@ outputs:
               left:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-              op: Div
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+              op: Ge
               span:
                 lo: 2
-                hi: 10
+                hi: 9
           op: Negate
           span:
             lo: 1
-            hi: 10
+            hi: 9
       right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-      op: Div
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
+      op: Ge
       span:
         lo: 1
-        hi: 18
+        hi: 16
   - Unary:
       receiver:
         Binary:
           left:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-          op: Div
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+          op: Ge
           span:
             lo: 1
-            hi: 9
+            hi: 8
       op: Not
       span:
         lo: 0
-        hi: 9
+        hi: 8
   - Binary:
       left:
         Unary:
@@ -267,26 +232,26 @@ outputs:
             lo: 1
             hi: 3
       right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
-      op: Div
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+      op: Ge
       span:
         lo: 1
-        hi: 11
+        hi: 10
   - Unary:
       receiver:
         Binary:
           left:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-          op: Div
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+          op: Ge
           span:
             lo: 2
-            hi: 10
+            hi: 9
       op: Not
       span:
         lo: 0
-        hi: 10
+        hi: 9
   - Binary:
       left:
         Unary:
@@ -295,21 +260,21 @@ outputs:
               left:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-              op: Div
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+              op: Ge
               span:
                 lo: 2
-                hi: 10
+                hi: 9
           op: Not
           span:
             lo: 1
-            hi: 10
+            hi: 9
       right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-      op: Div
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
+      op: Ge
       span:
         lo: 1
-        hi: 18
+        hi: 16
   - Binary:
       left:
         Binary:
@@ -318,52 +283,52 @@ outputs:
               left:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-              op: Div
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+              op: Ge
               span:
                 lo: 1
-                hi: 9
+                hi: 8
           right:
             Binary:
               left:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
-              op: Div
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
+              op: Ge
               span:
                 lo: 12
-                hi: 20
-          op: Div
+                hi: 19
+          op: Ge
           span:
             lo: 1
-            hi: 20
+            hi: 19
       right:
         Binary:
           left:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":27}\"}"
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":24,\\\"hi\\\":25}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":32,\\\"hi\\\":33}\"}"
-              op: Div
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":29,\\\"hi\\\":30}\"}"
+              op: Ge
               span:
-                lo: 26
-                hi: 34
+                lo: 24
+                hi: 31
           right:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":37,\\\"hi\\\":38}\"}"
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":35,\\\"hi\\\":36}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":43,\\\"hi\\\":44}\"}"
-              op: Div
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":40,\\\"hi\\\":41}\"}"
+              op: Ge
               span:
-                lo: 37
-                hi: 45
-          op: Div
+                lo: 35
+                hi: 42
+          op: Ge
           span:
-            lo: 26
-            hi: 45
-      op: Div
+            lo: 24
+            hi: 42
+      op: Ge
       span:
         lo: 1
-        hi: 46
+        hi: 43

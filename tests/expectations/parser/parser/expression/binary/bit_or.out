@@ -19,7 +19,7 @@ outputs:
             - span:
                 lo: 6
                 hi: 9
-      op: Gt
+      op: BitwiseOr
       span:
         lo: 0
         hi: 9
@@ -40,7 +40,7 @@ outputs:
             - span:
                 lo: 4
                 hi: 7
-      op: Gt
+      op: BitwiseOr
       span:
         lo: 0
         hi: 7
@@ -63,36 +63,183 @@ outputs:
                 - span:
                     lo: 6
                     hi: 9
-          op: Add
+          op: BitwiseOr
           span:
             lo: 0
             hi: 9
       right:
+        Value:
+          Integer:
+            - U8
+            - "3"
+            - span:
+                lo: 12
+                hi: 15
+      op: BitwiseOr
+      span:
+        lo: 0
+        hi: 15
+  - Binary:
+      left:
         Binary:
           left:
             Value:
               Integer:
                 - U8
-                - "3"
+                - "1"
                 - span:
-                    lo: 12
-                    hi: 15
+                    lo: 0
+                    hi: 3
+          right:
+            Binary:
+              left:
+                Value:
+                  Integer:
+                    - U8
+                    - "2"
+                    - span:
+                        lo: 6
+                        hi: 9
+              right:
+                Value:
+                  Integer:
+                    - U8
+                    - "3"
+                    - span:
+                        lo: 12
+                        hi: 15
+              op: BitwiseOr
+              span:
+                lo: 6
+                hi: 15
+          op: Xor
+          span:
+            lo: 0
+            hi: 15
+      right:
+        Value:
+          Integer:
+            - U8
+            - "4"
+            - span:
+                lo: 18
+                hi: 21
+      op: Xor
+      span:
+        lo: 0
+        hi: 21
+  - Binary:
+      left:
+        Binary:
+          left:
+            Value:
+              Integer:
+                - U8
+                - "1"
+                - span:
+                    lo: 0
+                    hi: 3
           right:
             Value:
               Integer:
                 - U8
-                - "4"
+                - "2"
                 - span:
-                    lo: 18
-                    hi: 21
-          op: Add
+                    lo: 6
+                    hi: 9
+          op: BitwiseOr
           span:
-            lo: 12
-            hi: 21
-      op: Gt
+            lo: 0
+            hi: 9
+      right:
+        Value:
+          Integer:
+            - U8
+            - "3"
+            - span:
+                lo: 12
+                hi: 15
+      op: BitwiseOr
       span:
         lo: 0
-        hi: 21
+        hi: 15
+  - Binary:
+      left:
+        Binary:
+          left:
+            Binary:
+              left:
+                Value:
+                  Integer:
+                    - U8
+                    - "1"
+                    - span:
+                        lo: 0
+                        hi: 3
+              right:
+                Binary:
+                  left:
+                    Value:
+                      Integer:
+                        - U8
+                        - "2"
+                        - span:
+                            lo: 6
+                            hi: 9
+                  right:
+                    Value:
+                      Integer:
+                        - U8
+                        - "3"
+                        - span:
+                            lo: 12
+                            hi: 15
+                  op: BitwiseOr
+                  span:
+                    lo: 6
+                    hi: 15
+              op: Xor
+              span:
+                lo: 0
+                hi: 15
+          right:
+            Binary:
+              left:
+                Value:
+                  Integer:
+                    - U8
+                    - "4"
+                    - span:
+                        lo: 18
+                        hi: 21
+              right:
+                Value:
+                  Integer:
+                    - U8
+                    - "5"
+                    - span:
+                        lo: 24
+                        hi: 27
+              op: BitwiseOr
+              span:
+                lo: 18
+                hi: 27
+          op: Xor
+          span:
+            lo: 0
+            hi: 27
+      right:
+        Value:
+          Integer:
+            - U8
+            - "6"
+            - span:
+                lo: 30
+                hi: 33
+      op: Xor
+      span:
+        lo: 0
+        hi: 33
   - Unary:
       receiver:
         Unary:
@@ -102,7 +249,7 @@ outputs:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
               right:
                 Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-              op: Gt
+              op: BitwiseOr
               span:
                 lo: 2
                 hi: 9
@@ -123,19 +270,19 @@ outputs:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
               right:
                 Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
-              op: Gt
+              op: BitwiseOr
               span:
                 lo: 0
                 hi: 7
           right:
             Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
-          op: Gt
+          op: BitwiseOr
           span:
             lo: 0
             hi: 13
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
-      op: Gt
+      op: BitwiseOr
       span:
         lo: 0
         hi: 19
@@ -146,7 +293,7 @@ outputs:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
           right:
             Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
-          op: Gt
+          op: BitwiseOr
           span:
             lo: 1
             hi: 8
@@ -165,7 +312,7 @@ outputs:
             hi: 3
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-      op: Gt
+      op: BitwiseOr
       span:
         lo: 1
         hi: 10
@@ -176,7 +323,7 @@ outputs:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           right:
             Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-          op: Gt
+          op: BitwiseOr
           span:
             lo: 2
             hi: 9
@@ -193,7 +340,7 @@ outputs:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
               right:
                 Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-              op: Gt
+              op: BitwiseOr
               span:
                 lo: 2
                 hi: 9
@@ -203,7 +350,7 @@ outputs:
             hi: 9
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
-      op: Gt
+      op: BitwiseOr
       span:
         lo: 1
         hi: 16
@@ -214,7 +361,7 @@ outputs:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
           right:
             Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
-          op: Gt
+          op: BitwiseOr
           span:
             lo: 1
             hi: 8
@@ -233,7 +380,7 @@ outputs:
             hi: 3
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-      op: Gt
+      op: BitwiseOr
       span:
         lo: 1
         hi: 10
@@ -244,7 +391,7 @@ outputs:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           right:
             Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-          op: Gt
+          op: BitwiseOr
           span:
             lo: 2
             hi: 9
@@ -261,7 +408,7 @@ outputs:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
               right:
                 Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-              op: Gt
+              op: BitwiseOr
               span:
                 lo: 2
                 hi: 9
@@ -271,7 +418,7 @@ outputs:
             hi: 9
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
-      op: Gt
+      op: BitwiseOr
       span:
         lo: 1
         hi: 16
@@ -284,7 +431,7 @@ outputs:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
               right:
                 Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
-              op: Gt
+              op: BitwiseOr
               span:
                 lo: 1
                 hi: 8
@@ -294,11 +441,11 @@ outputs:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
               right:
                 Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-              op: Gt
+              op: BitwiseOr
               span:
                 lo: 11
                 hi: 18
-          op: Gt
+          op: BitwiseOr
           span:
             lo: 1
             hi: 18
@@ -310,7 +457,7 @@ outputs:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":23,\\\"hi\\\":24}\"}"
               right:
                 Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":28,\\\"hi\\\":29}\"}"
-              op: Gt
+              op: BitwiseOr
               span:
                 lo: 23
                 hi: 30
@@ -320,15 +467,15 @@ outputs:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":33,\\\"hi\\\":34}\"}"
               right:
                 Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":38,\\\"hi\\\":39}\"}"
-              op: Gt
+              op: BitwiseOr
               span:
                 lo: 33
                 hi: 40
-          op: Gt
+          op: BitwiseOr
           span:
             lo: 23
             hi: 40
-      op: Gt
+      op: BitwiseOr
       span:
         lo: 1
         hi: 41

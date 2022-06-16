@@ -1,0 +1,243 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
+              op: Nand
+              span:
+                lo: 2
+                hi: 11
+          op: Negate
+          span:
+            lo: 1
+            hi: 11
+      op: Not
+      span:
+        lo: 0
+        hi: 11
+  - Binary:
+      left:
+        Binary:
+          left:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+              op: Nand
+              span:
+                lo: 0
+                hi: 9
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+          op: Nand
+          span:
+            lo: 0
+            hi: 17
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":23,\\\"hi\\\":24}\"}"
+      op: Nand
+      span:
+        lo: 0
+        hi: 25
+  - Unary:
+      receiver:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+          op: Nand
+          span:
+            lo: 1
+            hi: 10
+      op: Negate
+      span:
+        lo: 0
+        hi: 10
+  - Binary:
+      left:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: Negate
+          span:
+            lo: 1
+            hi: 3
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":11}\"}"
+      op: Nand
+      span:
+        lo: 1
+        hi: 12
+  - Unary:
+      receiver:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
+          op: Nand
+          span:
+            lo: 2
+            hi: 11
+      op: Negate
+      span:
+        lo: 0
+        hi: 11
+  - Binary:
+      left:
+        Unary:
+          receiver:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
+              op: Nand
+              span:
+                lo: 2
+                hi: 11
+          op: Negate
+          span:
+            lo: 1
+            hi: 11
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
+      op: Nand
+      span:
+        lo: 1
+        hi: 20
+  - Unary:
+      receiver:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+          op: Nand
+          span:
+            lo: 1
+            hi: 10
+      op: Not
+      span:
+        lo: 0
+        hi: 10
+  - Binary:
+      left:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: Not
+          span:
+            lo: 1
+            hi: 3
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":11}\"}"
+      op: Nand
+      span:
+        lo: 1
+        hi: 12
+  - Unary:
+      receiver:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
+          op: Nand
+          span:
+            lo: 2
+            hi: 11
+      op: Not
+      span:
+        lo: 0
+        hi: 11
+  - Binary:
+      left:
+        Unary:
+          receiver:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
+              op: Nand
+              span:
+                lo: 2
+                hi: 11
+          op: Not
+          span:
+            lo: 1
+            hi: 11
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
+      op: Nand
+      span:
+        lo: 1
+        hi: 20
+  - Binary:
+      left:
+        Binary:
+          left:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+              op: Nand
+              span:
+                lo: 1
+                hi: 10
+          right:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
+              op: Nand
+              span:
+                lo: 13
+                hi: 22
+          op: BitwiseAnd
+          span:
+            lo: 1
+            hi: 22
+      right:
+        Binary:
+          left:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":29,\\\"hi\\\":30}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":36,\\\"hi\\\":37}\"}"
+              op: Nand
+              span:
+                lo: 29
+                hi: 38
+          right:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":41,\\\"hi\\\":42}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":48,\\\"hi\\\":49}\"}"
+              op: Nand
+              span:
+                lo: 41
+                hi: 50
+          op: BitwiseAnd
+          span:
+            lo: 29
+            hi: 50
+      op: Nand
+      span:
+        lo: 1
+        hi: 51

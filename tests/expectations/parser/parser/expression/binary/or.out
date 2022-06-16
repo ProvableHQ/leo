@@ -5,164 +5,73 @@ outputs:
   - Binary:
       left:
         Value:
-          Integer:
-            - U8
-            - "1"
+          Boolean:
+            - "true"
             - span:
                 lo: 0
-                hi: 3
+                hi: 4
       right:
         Value:
-          Integer:
-            - U8
-            - "1"
+          Boolean:
+            - "true"
             - span:
-                lo: 6
-                hi: 9
-      op: Add
+                lo: 8
+                hi: 12
+      op: Or
       span:
         lo: 0
-        hi: 9
+        hi: 12
   - Binary:
       left:
         Value:
-          Integer:
-            - U8
-            - "2"
+          Boolean:
+            - "false"
             - span:
                 lo: 0
-                hi: 3
+                hi: 5
       right:
         Value:
-          Integer:
-            - U16
-            - "3"
+          Boolean:
+            - "true"
             - span:
-                lo: 4
-                hi: 8
-      op: Add
+                lo: 7
+                hi: 11
+      op: Or
       span:
         lo: 0
-        hi: 8
+        hi: 11
   - Binary:
       left:
         Binary:
           left:
             Value:
-              Integer:
-                - U8
-                - "1"
+              Boolean:
+                - "true"
                 - span:
                     lo: 0
-                    hi: 3
+                    hi: 4
           right:
             Value:
-              Integer:
-                - U8
-                - "2"
+              Boolean:
+                - "false"
                 - span:
                     lo: 6
-                    hi: 9
-          op: Add
+                    hi: 11
+          op: Or
           span:
             lo: 0
-            hi: 9
+            hi: 11
       right:
         Value:
-          Integer:
-            - U8
-            - "3"
+          Boolean:
+            - "false"
             - span:
-                lo: 12
-                hi: 15
-      op: Add
+                lo: 15
+                hi: 20
+      op: Or
       span:
         lo: 0
-        hi: 15
-  - Binary:
-      left:
-        Binary:
-          left:
-            Value:
-              Integer:
-                - U8
-                - "1"
-                - span:
-                    lo: 0
-                    hi: 3
-          right:
-            Value:
-              Integer:
-                - U8
-                - "2"
-                - span:
-                    lo: 6
-                    hi: 9
-          op: Mul
-          span:
-            lo: 0
-            hi: 9
-      right:
-        Binary:
-          left:
-            Value:
-              Integer:
-                - U8
-                - "3"
-                - span:
-                    lo: 12
-                    hi: 15
-          right:
-            Value:
-              Integer:
-                - U8
-                - "4"
-                - span:
-                    lo: 18
-                    hi: 21
-          op: Mul
-          span:
-            lo: 12
-            hi: 21
-      op: Add
-      span:
-        lo: 0
-        hi: 21
-  - Binary:
-      left:
-        Binary:
-          left:
-            Value:
-              Integer:
-                - I8
-                - "1"
-                - span:
-                    lo: 0
-                    hi: 3
-          right:
-            Value:
-              Integer:
-                - I8
-                - "2"
-                - span:
-                    lo: 6
-                    hi: 9
-          op: Add
-          span:
-            lo: 0
-            hi: 9
-      right:
-        Value:
-          Integer:
-            - I8
-            - "3"
-            - span:
-                lo: 12
-                hi: 15
-      op: Sub
-      span:
-        lo: 0
-        hi: 15
+        hi: 20
   - Binary:
       left:
         Binary:
@@ -170,73 +79,86 @@ outputs:
             Binary:
               left:
                 Value:
-                  Integer:
-                    - U8
-                    - "1"
+                  Boolean:
+                    - "true"
                     - span:
                         lo: 0
-                        hi: 3
+                        hi: 4
               right:
                 Value:
-                  Integer:
-                    - U8
-                    - "2"
+                  Boolean:
+                    - "false"
                     - span:
-                        lo: 6
-                        hi: 9
-              op: Mul
+                        lo: 8
+                        hi: 13
+              op: Or
               span:
                 lo: 0
-                hi: 9
+                hi: 13
           right:
-            Binary:
-              left:
-                Value:
-                  Integer:
-                    - U8
-                    - "3"
-                    - span:
-                        lo: 12
-                        hi: 15
-              right:
-                Value:
-                  Integer:
-                    - U8
-                    - "4"
-                    - span:
-                        lo: 18
-                        hi: 21
-              op: Mul
-              span:
-                lo: 12
-                hi: 21
-          op: Add
+            Value:
+              Boolean:
+                - "true"
+                - span:
+                    lo: 17
+                    hi: 21
+          op: Or
           span:
             lo: 0
             hi: 21
       right:
+        Value:
+          Boolean:
+            - "false"
+            - span:
+                lo: 25
+                hi: 30
+      op: Or
+      span:
+        lo: 0
+        hi: 30
+  - Binary:
+      left:
         Binary:
           left:
             Value:
-              Integer:
-                - U8
-                - "5"
+              Boolean:
+                - "true"
                 - span:
-                    lo: 24
-                    hi: 27
+                    lo: 0
+                    hi: 4
           right:
-            Value:
-              Integer:
-                - U8
-                - "6"
-                - span:
-                    lo: 30
-                    hi: 33
-          op: Mul
+            Binary:
+              left:
+                Value:
+                  Boolean:
+                    - "true"
+                    - span:
+                        lo: 9
+                        hi: 13
+              right:
+                Value:
+                  Boolean:
+                    - "false"
+                    - span:
+                        lo: 17
+                        hi: 22
+              op: Or
+              span:
+                lo: 9
+                hi: 22
+          op: Or
           span:
-            lo: 24
-            hi: 33
-      op: Sub
+            lo: 0
+            hi: 22
+      right:
+        Value:
+          Boolean:
+            - "true"
+            - span:
+                lo: 27
+                hi: 31
+      op: Or
       span:
         lo: 0
-        hi: 33
+        hi: 31

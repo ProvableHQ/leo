@@ -41,19 +41,19 @@ outputs:
           receiver:
             Unary:
               receiver:
-                Identifier: "{\"name\":\"xx\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":4}\"}"
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
               op: Not
               span:
                 lo: 2
-                hi: 10
+                hi: 9
           op: Negate
           span:
             lo: 1
-            hi: 10
+            hi: 9
       op: Not
       span:
         lo: 0
-        hi: 10
+        hi: 9
   - Unary:
       receiver:
         Unary:
