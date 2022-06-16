@@ -240,18 +240,18 @@ impl ParserContext<'_> {
         let (mut args, _, span) = self.parse_expr_tuple()?;
         let span = receiver.span() + span;
 
-        if let (true, Some(operator)) = (args.is_empty(), UnaryOperation::from_symbol(method.name)) {
+        if let (true, Some(op)) = (args.is_empty(), UnaryOperation::from_symbol(method.name)) {
             // Found an unary operator and the argument list is empty.
             Ok(Expression::Unary(UnaryExpression {
                 span,
-                op: operator,
+                op,
                 receiver: Box::new(receiver),
             }))
-        } else if let (1, Some(operator)) = (args.len(), BinaryOperation::from_symbol(method.name)) {
+        } else if let (1, Some(op)) = (args.len(), BinaryOperation::from_symbol(method.name)) {
             // Found a binary operator and the argument list contains a single argument.
             Ok(Expression::Binary(BinaryExpression {
                 span,
-                op: operator,
+                op,
                 left: Box::new(receiver),
                 right: Box::new(args.swap_remove(0)),
             }))
