@@ -5,7 +5,7 @@ outputs:
   - Unary:
       receiver:
         Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-      op: Not
+      op: Negate
       span:
         lo: 0
         hi: 2
@@ -18,7 +18,7 @@ outputs:
           span:
             lo: 1
             hi: 4
-      op: Not
+      op: Negate
       span:
         lo: 0
         hi: 4
@@ -27,11 +27,11 @@ outputs:
         Unary:
           receiver:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Not
+          op: Negate
           span:
             lo: 1
             hi: 3
-      op: Not
+      op: Negate
       span:
         lo: 0
         hi: 3
@@ -39,21 +39,35 @@ outputs:
       receiver:
         Unary:
           receiver:
-            Unary:
-              receiver:
-                Identifier: "{\"name\":\"xx\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":4}\"}"
-              op: Not
-              span:
-                lo: 2
-                hi: 10
-          op: Negate
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: Not
           span:
             lo: 1
-            hi: 10
-      op: Not
+            hi: 3
+      op: Negate
       span:
         lo: 0
-        hi: 10
+        hi: 3
+  - Unary:
+      receiver:
+        Value:
+          Integer:
+            - I8
+            - "5"
+            - span:
+                lo: 1
+                hi: 4
+      op: Negate
+      span:
+        lo: 0
+        hi: 4
+  - Unary:
+      receiver:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+      op: Negate
+      span:
+        lo: 0
+        hi: 7
   - Unary:
       receiver:
         Unary:
@@ -61,15 +75,15 @@ outputs:
             Unary:
               receiver:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-              op: Not
+              op: Negate
               span:
                 lo: 0
                 hi: 7
-          op: Not
+          op: Negate
           span:
             lo: 0
             hi: 13
-      op: Not
+      op: Negate
       span:
         lo: 0
         hi: 19
@@ -78,7 +92,7 @@ outputs:
         Unary:
           receiver:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          op: Not
+          op: Negate
           span:
             lo: 1
             hi: 8
@@ -95,7 +109,7 @@ outputs:
           span:
             lo: 1
             hi: 3
-      op: Not
+      op: Negate
       span:
         lo: 1
         hi: 10
@@ -104,7 +118,7 @@ outputs:
         Unary:
           receiver:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Not
+          op: Negate
           span:
             lo: 2
             hi: 9
@@ -119,7 +133,7 @@ outputs:
             Unary:
               receiver:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              op: Not
+              op: Negate
               span:
                 lo: 2
                 hi: 9
@@ -127,7 +141,7 @@ outputs:
           span:
             lo: 1
             hi: 9
-      op: Not
+      op: Negate
       span:
         lo: 1
         hi: 16
@@ -136,7 +150,7 @@ outputs:
         Unary:
           receiver:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          op: Not
+          op: Negate
           span:
             lo: 1
             hi: 8
@@ -153,7 +167,7 @@ outputs:
           span:
             lo: 1
             hi: 3
-      op: Not
+      op: Negate
       span:
         lo: 1
         hi: 10
@@ -162,7 +176,7 @@ outputs:
         Unary:
           receiver:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Not
+          op: Negate
           span:
             lo: 2
             hi: 9
@@ -177,7 +191,7 @@ outputs:
             Unary:
               receiver:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              op: Not
+              op: Negate
               span:
                 lo: 2
                 hi: 9
@@ -185,7 +199,7 @@ outputs:
           span:
             lo: 1
             hi: 9
-      op: Not
+      op: Negate
       span:
         lo: 1
         hi: 16

@@ -4,56 +4,23 @@ expectation: Pass
 outputs:
   - Unary:
       receiver:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-      op: Not
-      span:
-        lo: 0
-        hi: 2
-  - Unary:
-      receiver:
-        Call:
-          function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          arguments: []
-          span:
-            lo: 1
-            hi: 4
-      op: Not
-      span:
-        lo: 0
-        hi: 4
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Not
-          span:
-            lo: 1
-            hi: 3
-      op: Not
-      span:
-        lo: 0
-        hi: 3
-  - Unary:
-      receiver:
         Unary:
           receiver:
             Unary:
               receiver:
                 Identifier: "{\"name\":\"xx\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":4}\"}"
-              op: Not
+              op: Square
               span:
                 lo: 2
-                hi: 10
+                hi: 13
           op: Negate
           span:
             lo: 1
-            hi: 10
+            hi: 13
       op: Not
       span:
         lo: 0
-        hi: 10
+        hi: 13
   - Unary:
       receiver:
         Unary:
@@ -61,31 +28,31 @@ outputs:
             Unary:
               receiver:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-              op: Not
+              op: Square
               span:
                 lo: 0
-                hi: 7
-          op: Not
+                hi: 10
+          op: Square
           span:
             lo: 0
-            hi: 13
-      op: Not
+            hi: 19
+      op: Square
       span:
         lo: 0
-        hi: 19
+        hi: 28
   - Unary:
       receiver:
         Unary:
           receiver:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          op: Not
+          op: Square
           span:
             lo: 1
-            hi: 8
+            hi: 11
       op: Negate
       span:
         lo: 0
-        hi: 8
+        hi: 11
   - Unary:
       receiver:
         Unary:
@@ -95,23 +62,23 @@ outputs:
           span:
             lo: 1
             hi: 3
-      op: Not
+      op: Square
       span:
         lo: 1
-        hi: 10
+        hi: 13
   - Unary:
       receiver:
         Unary:
           receiver:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Not
+          op: Square
           span:
             lo: 2
-            hi: 9
+            hi: 12
       op: Negate
       span:
         lo: 0
-        hi: 9
+        hi: 12
   - Unary:
       receiver:
         Unary:
@@ -119,31 +86,31 @@ outputs:
             Unary:
               receiver:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              op: Not
+              op: Square
               span:
                 lo: 2
-                hi: 9
+                hi: 12
           op: Negate
           span:
             lo: 1
-            hi: 9
-      op: Not
+            hi: 12
+      op: Square
       span:
         lo: 1
-        hi: 16
+        hi: 22
   - Unary:
       receiver:
         Unary:
           receiver:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          op: Not
+          op: Square
           span:
             lo: 1
-            hi: 8
+            hi: 11
       op: Not
       span:
         lo: 0
-        hi: 8
+        hi: 11
   - Unary:
       receiver:
         Unary:
@@ -153,23 +120,23 @@ outputs:
           span:
             lo: 1
             hi: 3
-      op: Not
+      op: Square
       span:
         lo: 1
-        hi: 10
+        hi: 13
   - Unary:
       receiver:
         Unary:
           receiver:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Not
+          op: Square
           span:
             lo: 2
-            hi: 9
+            hi: 12
       op: Not
       span:
         lo: 0
-        hi: 9
+        hi: 12
   - Unary:
       receiver:
         Unary:
@@ -177,15 +144,15 @@ outputs:
             Unary:
               receiver:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              op: Not
+              op: Square
               span:
                 lo: 2
-                hi: 9
+                hi: 12
           op: Not
           span:
             lo: 1
-            hi: 9
-      op: Not
+            hi: 12
+      op: Square
       span:
         lo: 1
-        hi: 16
+        hi: 22

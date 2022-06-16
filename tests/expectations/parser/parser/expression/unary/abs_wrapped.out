@@ -4,56 +4,11 @@ expectation: Pass
 outputs:
   - Unary:
       receiver:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-      op: Not
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+      op: AbsWrapped
       span:
         lo: 0
-        hi: 2
-  - Unary:
-      receiver:
-        Call:
-          function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          arguments: []
-          span:
-            lo: 1
-            hi: 4
-      op: Not
-      span:
-        lo: 0
-        hi: 4
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Not
-          span:
-            lo: 1
-            hi: 3
-      op: Not
-      span:
-        lo: 0
-        hi: 3
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Unary:
-              receiver:
-                Identifier: "{\"name\":\"xx\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":4}\"}"
-              op: Not
-              span:
-                lo: 2
-                hi: 10
-          op: Negate
-          span:
-            lo: 1
-            hi: 10
-      op: Not
-      span:
-        lo: 0
-        hi: 10
+        hi: 15
   - Unary:
       receiver:
         Unary:
@@ -61,31 +16,31 @@ outputs:
             Unary:
               receiver:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-              op: Not
+              op: AbsWrapped
               span:
                 lo: 0
-                hi: 7
-          op: Not
+                hi: 15
+          op: AbsWrapped
           span:
             lo: 0
-            hi: 13
-      op: Not
+            hi: 29
+      op: AbsWrapped
       span:
         lo: 0
-        hi: 19
+        hi: 43
   - Unary:
       receiver:
         Unary:
           receiver:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          op: Not
+          op: AbsWrapped
           span:
             lo: 1
-            hi: 8
+            hi: 16
       op: Negate
       span:
         lo: 0
-        hi: 8
+        hi: 16
   - Unary:
       receiver:
         Unary:
@@ -95,23 +50,23 @@ outputs:
           span:
             lo: 1
             hi: 3
-      op: Not
+      op: AbsWrapped
       span:
         lo: 1
-        hi: 10
+        hi: 18
   - Unary:
       receiver:
         Unary:
           receiver:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Not
+          op: AbsWrapped
           span:
             lo: 2
-            hi: 9
+            hi: 17
       op: Negate
       span:
         lo: 0
-        hi: 9
+        hi: 17
   - Unary:
       receiver:
         Unary:
@@ -119,31 +74,31 @@ outputs:
             Unary:
               receiver:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              op: Not
+              op: AbsWrapped
               span:
                 lo: 2
-                hi: 9
+                hi: 17
           op: Negate
           span:
             lo: 1
-            hi: 9
-      op: Not
+            hi: 17
+      op: AbsWrapped
       span:
         lo: 1
-        hi: 16
+        hi: 32
   - Unary:
       receiver:
         Unary:
           receiver:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          op: Not
+          op: AbsWrapped
           span:
             lo: 1
-            hi: 8
+            hi: 16
       op: Not
       span:
         lo: 0
-        hi: 8
+        hi: 16
   - Unary:
       receiver:
         Unary:
@@ -153,23 +108,23 @@ outputs:
           span:
             lo: 1
             hi: 3
-      op: Not
+      op: AbsWrapped
       span:
         lo: 1
-        hi: 10
+        hi: 18
   - Unary:
       receiver:
         Unary:
           receiver:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Not
+          op: AbsWrapped
           span:
             lo: 2
-            hi: 9
+            hi: 17
       op: Not
       span:
         lo: 0
-        hi: 9
+        hi: 17
   - Unary:
       receiver:
         Unary:
@@ -177,15 +132,15 @@ outputs:
             Unary:
               receiver:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              op: Not
+              op: AbsWrapped
               span:
                 lo: 2
-                hi: 9
+                hi: 17
           op: Not
           span:
             lo: 1
-            hi: 9
-      op: Not
+            hi: 17
+      op: AbsWrapped
       span:
         lo: 1
-        hi: 16
+        hi: 32

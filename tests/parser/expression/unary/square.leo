@@ -1,0 +1,15 @@
+/*
+namespace: ParseExpression
+expectation: Pass
+*/
+
+!-xx.square()
+x.square().square().square()
+-x.square()
+(-x).square()
+-(x.square())
+(-x.square()).square()
+!x.square()
+(!x).square()
+!(x.square())
+(!x.square()).square()
