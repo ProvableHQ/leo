@@ -14,14 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Ast, ReconstructingDirector};
+use leo_ast::{Ast, ProgramReconstructor};
 use leo_errors::{emitter::Handler, Result};
 
 pub mod flattener;
 pub use flattener::*;
 
-pub mod reducer;
-pub use reducer::*;
+pub mod flatten_expression;
+pub use flatten_expression::*;
+
+pub mod flatten_program;
+pub use flatten_program::*;
+
+pub mod flatten_statement;
+pub use flatten_statement::*;
 
 use crate::Pass;
 
@@ -30,8 +36,8 @@ impl<'a> Pass for Flattener<'a> {
     type Output = Result<Ast>;
 
     fn do_pass((ast, handler): Self::Input) -> Self::Output {
-        let mut director = ReconstructingDirector::new(Self::new(handler));
-        let program = director.reduce_program(&ast.into_repr())?;
+        let mut reconstructor = Self::new(handler);
+        let program = reconstructor.reconstruct_program(ast.into_repr());
         handler.last_err()?;
 
         Ok(Ast::new(program))

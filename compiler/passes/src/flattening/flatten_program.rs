@@ -14,13 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! This module contains both a Reducer and Visitor design pattern.
-//! These both iterate over the AST.
+use leo_ast::*;
 
-// todo @gluax: Move the files in this module into `leo-passes` in a future PR.
+use crate::Flattener;
 
-pub mod reconstructor;
-pub use reconstructor::*;
-
-pub mod visitor;
-pub use visitor::*;
+impl<'a> ProgramReconstructor for Flattener<'a> {}
