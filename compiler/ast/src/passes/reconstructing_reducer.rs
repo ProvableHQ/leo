@@ -325,10 +325,10 @@ pub trait ReconstructingReducer {
 
     fn reduce_circuit(
         &mut self,
-        _circuit: &Circuit,
+        circuit: &Circuit,
         circuit_name: Identifier,
         members: Vec<CircuitMember>,
     ) -> Result<Circuit> {
-        Ok(Circuit { circuit_name, members })
+        Ok(Circuit { identifier: circuit_name, members, span: circuit.span.clone() })
     }
 }

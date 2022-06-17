@@ -47,6 +47,8 @@ pub use value::*;
 /// Expression that evaluates to a value.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Expression {
+    /// A circuit access expression, e.g., `Foo.bar`.
+    Access(AccessExpression),
     /// A binary expression, e.g., `42 + 24`.
     Binary(BinaryExpression),
     /// A call expression, e.g., `my_fun(args)`.
@@ -70,28 +72,30 @@ impl Node for Expression {
     fn span(&self) -> Span {
         use Expression::*;
         match self {
-            Identifier(n) => n.span(),
-            Value(n) => n.span(),
+            Access(n) => n.span(),
             Binary(n) => n.span(),
-            Unary(n) => n.span(),
-            Ternary(n) => n.span(),
             Call(n) => n.span(),
             CircuitInit(n) => n.span(),
             Err(n) => n.span(),
+            Identifier(n) => n.span(),
+            Ternary(n) => n.span(),
+            Unary(n) => n.span(),
+            Value(n) => n.span(),
         }
     }
 
     fn set_span(&mut self, span: Span) {
         use Expression::*;
         match self {
-            Identifier(n) => n.set_span(span),
-            Value(n) => n.set_span(span),
+            Access(n) => n.set_span(span),
             Binary(n) => n.set_span(span),
-            Unary(n) => n.set_span(span),
-            Ternary(n) => n.set_span(span),
             Call(n) => n.set_span(span),
             CircuitInit(n) => n.set_span(span),
             Err(n) => n.set_span(span),
+            Identifier(n) => n.set_span(span),
+            Ternary(n) => n.set_span(span),
+            Unary(n) => n.set_span(span),
+            Value(n) => n.set_span(span),
         }
     }
 }
@@ -100,14 +104,15 @@ impl fmt::Display for Expression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use Expression::*;
         match &self {
-            Identifier(n) => n.fmt(f),
-            Value(n) => n.fmt(f),
+            Access(n) => n.fmt(f),
             Binary(n) => n.fmt(f),
-            Unary(n) => n.fmt(f),
-            Ternary(n) => n.fmt(f),
             Call(n) => n.fmt(f),
             CircuitInit(n) => n.fmt(f),
             Err(n) => n.fmt(f),
+            Identifier(n) => n.fmt(f),
+            Ternary(n) => n.fmt(f),
+            Unary(n) => n.fmt(f),
+            Value(n) => n.fmt(f),
         }
     }
 }

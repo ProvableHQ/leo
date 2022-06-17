@@ -31,7 +31,7 @@ impl<'a> ProgramVisitorDirector<'a> for Director<'a> {
             self.visitor.parent = Some(input.name());
             input.input.iter().for_each(|i| {
                 let input_var = i.get_variable();
-                self.visitor.validate_ident_type(&Some(input_var.type_));
+                self.visitor.check_ident_type(&Some(input_var.type_));
 
                 if let Err(err) = self.visitor.symbol_table.insert_variable(
                     input_var.identifier.name,
@@ -54,11 +54,7 @@ impl<'a> ProgramVisitorDirector<'a> for Director<'a> {
         }
     }
 
-    fn visit_circuit(&mut self, input: &'a Circuit) {
-        // circuit Foo { x: u8, y: u8 };
+    fn visit_circuit(&mut self, _input: &'a Circuit) {
         todo!()
-        // if let VisitResult::VisitChildren = self.visitor_ref().visit_function(input) {
-        //     self.
-        // }
     }
 }

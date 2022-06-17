@@ -14,29 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Circuit, CircuitMember, Function, Identifier};
-use leo_span::sym;
+use crate::algorithms::{CoreFunction, ALL_TYPES};
+use leo_ast::Type;
 
-pub struct BHP256(Circuit);
+pub struct BHP256Hash;
 
-impl BHP256 {
-    pub fn new() -> Self {
-        Self(Circuit {
-            circuit_name: Identifier::new(sym::bhp256),
-            members: vec![
-                CircuitMember::CircuitFunction(Box::new(
-                    Function {
-                        identifier: Identifier {},
-                        input: vec![],
-                        output: Type::Address,
-                        core_mapping: Cell::new(None),
-                        block: Block {},
-                        span: Default::default()
-                    }
-                ))
-            ]
-        })
+impl CoreFunction for BHP256Hash {
+    const NUM_ARGS: usize = 1;
+
+    fn first_arg_types() -> &'static [Type] {
+        &ALL_TYPES
+    }
+
+    fn return_type() -> Type {
+        Type::Field
     }
 }
-
-pub struct BHP512(Circuit);

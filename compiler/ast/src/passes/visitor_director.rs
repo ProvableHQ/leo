@@ -35,14 +35,15 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
     fn visit_expression(&mut self, input: &'a Expression, additional: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_expression(input) {
             match input {
-                Expression::Identifier(expr) => self.visit_identifier(expr, additional),
-                Expression::Value(expr) => self.visit_value(expr, additional),
+                Expression::Access(expr) => self.visit_access(expr, additional),
                 Expression::Binary(expr) => self.visit_binary(expr, additional),
-                Expression::Unary(expr) => self.visit_unary(expr, additional),
-                Expression::Ternary(expr) => self.visit_ternary(expr, additional),
                 Expression::Call(expr) => self.visit_call(expr, additional),
                 Expression::CircuitInit(expr) => self.visit_circuit_init(expr, additional),
                 Expression::Err(expr) => self.visit_err(expr, additional),
+                Expression::Identifier(expr) => self.visit_identifier(expr, additional),
+                Expression::Ternary(expr) => self.visit_ternary(expr, additional),
+                Expression::Unary(expr) => self.visit_unary(expr, additional),
+                Expression::Value(expr) => self.visit_value(expr, additional),
             };
         }
 
@@ -56,6 +57,26 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
 
     fn visit_value(&mut self, input: &'a ValueExpression, _additional: &Self::AdditionalInput) -> Option<Self::Output> {
         self.visitor_ref().visit_value(input);
+        None
+    }
+
+    fn visit_access(
+        &mut self,
+        input: &'a AccessExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Option<Self::Output> {
+        if let VisitResult::VisitChildren = self.visitor_ref().visit_access(input) {
+            match input {
+                AccessExpression::Member(member) => self.visit_expression(&member.inner, additional),
+                AccessExpression::StaticVariable(member) => self.visit_expression(&member.inner, additional),
+                AccessExpression::StaticFunction(member) => {
+                    member.input.iter().for_each(|member| {
+                        self.visit_expression(member, additional);
+                    });
+                    self.visit_expression(&member.inner, additional)
+                }
+            };
+        }
         None
     }
 

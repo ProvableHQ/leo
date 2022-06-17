@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier};
+use crate::{Expression, Identifier, Node};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -23,9 +23,9 @@ use std::fmt;
 /// A circuit member access expression `inner.name` to some structure with *named members*.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MemberAccess {
-    /// The structure that the member `name` is being extracted from.
+    /// The inner circuit that is being accessed.
     pub inner: Box<Expression>,
-    /// The name of the member to extract in `inner`.
+    /// The name of the circuit member to access.
     pub name: Identifier,
     /// The span covering all of `inner.name`.
     pub span: Span,
@@ -36,3 +36,5 @@ impl fmt::Display for MemberAccess {
         write!(f, "{}.{}", self.inner, self.name)
     }
 }
+
+crate::simple_node_impl!(MemberAccess);

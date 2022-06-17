@@ -258,9 +258,38 @@ impl ParserContext<'_> {
             }))
         } else {
             // Either an invalid unary/binary operator, or more arguments given.
+            // todo: add circuit member access
             self.emit_err(ParserError::expr_arbitrary_method_call(span));
             Ok(Expression::Err(ErrExpression { span }))
         }
+    }
+
+    /// Returns an [`Expression`] AST node if the next tokens represent a
+    /// static access expression.
+    fn parse_static_access_expression(&mut self, circuit_name: Expression) -> Result<Expression> {
+        // Parse the circuit member name (can be variable or function name).
+        let member_name = self.expect_ident()?;
+
+        // Check if there are arguments.
+        Ok(Expression::Access(if self.check(&Token::LeftParen) {
+            // Parse the arguments
+            let (input, _, end) = self.parse_expr_tuple()?;
+
+            // Return the static function access expression.
+            AccessExpression::StaticFunction(StaticFunctionAccess {
+                span: circuit_name.span() + end,
+                inner: Box::new(circuit_name),
+                name: member_name,
+                input,
+            })
+        } else {
+            // Return the static variable access expression.
+            AccessExpression::StaticVariable(StaticVariableAccess {
+                span: circuit_name.span() + member_name.span(),
+                inner: Box::new(circuit_name),
+                name: member_name,
+            })
+        }))
     }
 
     /// Parses a tuple of expressions.
@@ -280,6 +309,8 @@ impl ParserContext<'_> {
         loop {
             if self.eat(&Token::Dot) {
                 expr = self.parse_method_call_expression(expr)?
+            } else if self.eat(&Token::DoubleColon) {
+                expr = self.parse_static_access_expression(expr)?;
             }
             if !self.check(&Token::LeftParen) {
                 break;

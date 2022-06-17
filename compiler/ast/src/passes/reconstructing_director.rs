@@ -355,7 +355,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_circuit(&mut self, circuit: &Circuit) -> Result<Circuit> {
-        let circuit_name = self.reduce_identifier(&circuit.circuit_name)?;
+        let circuit_name = self.reduce_identifier(&circuit.identifier)?;
 
         let mut members = vec![];
         for member in circuit.members.iter() {

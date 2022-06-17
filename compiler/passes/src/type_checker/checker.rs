@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use indexmap::IndexSet;
-use leo_ast::{IntegerType, Node, Type};
+use leo_ast::{Identifier, IntegerType, Node, Type};
 use leo_core::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
@@ -95,14 +95,36 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
-    /// Validates that an ident type is a valid one.
-    pub(crate) fn validate_ident_type(&self, type_: &Option<Type>) {
+    /// Emits an error if the given type conflicts with a core library type.
+    pub(crate) fn check_ident_type(&self, type_: &Option<Type>) {
         if let Some(Type::Identifier(ident)) = type_ {
             if !(self.account_types.contains(&ident.name) || self.algorithms_types.contains(&ident.name)) {
                 self.handler
-                    .emit_err(TypeCheckerError::invalid_built_in_type(&ident.name, ident.span()).into());
+                    .emit_err(TypeCheckerError::invalid_core_type(&ident.name, ident.span()).into());
             }
         }
+    }
+
+    /// Emits an error if the `circuit` is not a core library circuit.
+    /// Emits an error if the `function` is not supported by the circuit.
+    pub(crate) fn assert_core_circuit_call(
+        &self,
+        circuit: &Option<Type>,
+        function: &Identifier,
+    ) -> Option<CoreInstruction> {
+        if let Some(Type::Identifier(ident)) = circuit {
+            // Lookup core circuit
+            match CoreInstruction::from_symbols(ident.name, function.name) {
+                None => {
+                    // Not a core library circuit.
+                    self.handler.emit_err(
+                        TypeCheckerError::invalid_core_instruction(&ident.name, function.name, ident.span()).into(),
+                    );
+                }
+                Some(core_circuit) => return Some(core_circuit),
+            }
+        }
+        None
     }
 
     /// Emits an error if the two given types are not equal.

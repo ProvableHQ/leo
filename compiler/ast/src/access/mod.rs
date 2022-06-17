@@ -17,5 +17,8 @@
 mod member_access;
 pub use member_access::*;
 
-mod static_access;
-pub use static_access::*;
+mod static_function_access;
+pub use static_function_access::*;
+
+mod static_variable_access;
+pub use static_variable_access::*;

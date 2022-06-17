@@ -13,16 +13,19 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+mod bhp;
+pub use bhp::*;
 
 use crate::Types;
 use leo_span::{sym, Symbol};
 
 use indexmap::IndexSet;
+use leo_ast::{IntegerType, Type};
 
-/// A core library circuit
+/// A core instruction that maps directly to an AVM bytecode instruction.
 #[derive(Clone, PartialEq, Eq)]
-pub enum CoreCircuit {
-    BHP256,
+pub enum CoreInstruction {
+    BHP256Hash,
     BHP512,
     BHP768,
     BHP1024,
@@ -33,22 +36,79 @@ pub enum CoreCircuit {
     Poseidon8,
 }
 
-impl CoreCircuit {
-    /// Returns a `CoreCircuit` from the given `Symbol`.
-    pub fn from_symbol(symbol: Symbol) -> Option<Self> {
-        Some(match symbol {
-            sym::bhp256 => Self::BHP256,
-            sym::bhp512 => Self::BHP512,
-            sym::bhp1024 => Self::BHP1024,
-            sym::ped64 => Self::Pedersen64,
-            sym::ped128 => Self::Pedersen128,
-            sym::psd2 => Self::Poseidon2,
-            sym::psd4 => Self::Poseidon4,
-            sym::psd8 => Self::Poseidon8,
+impl CoreInstruction {
+    /// Returns a `CoreInstruction` from the given circuit and method symbols.
+    pub fn from_symbols(circuit: Symbol, function: Symbol) -> Option<Self> {
+        Some(match (circuit, function) {
+            (sym::bhp256, sym::hash) => Self::BHP256Hash,
             _ => return None,
         })
     }
+
+    pub fn num_args(&self) -> usize {
+        match self {
+            CoreInstruction::BHP256Hash => BHP256Hash::NUM_ARGS,
+            _ => unimplemented!(),
+        }
+    }
+
+    pub fn first_arg_types(&self) -> &'static [Type] {
+        match self {
+            CoreInstruction::BHP256Hash => BHP256Hash::first_arg_types(),
+            _ => unimplemented!(),
+        }
+    }
+
+    pub fn second_arg_types(&self) -> &'static [Type] {
+        match self {
+            _ => unimplemented!(),
+        }
+    }
+
+    pub fn return_type(&self) -> Type {
+        match self {
+            CoreInstruction::BHP256Hash => BHP256Hash::return_type(),
+            _ => unimplemented!(),
+        }
+    }
 }
+
+/// A core function of a core circuit, e.g. `hash` or `commit`
+/// Provides required type information to the type checker.
+trait CoreFunction {
+    const NUM_ARGS: usize;
+
+    /// Returns first argument allowed types.
+    fn first_arg_types() -> &'static [Type];
+
+    /// Returns the second argument allowed types.
+    /// Implementing this method is optional since some functions may not require a second argument.
+    fn second_arg_types() -> &'static [Type] {
+        &[]
+    }
+
+    /// The return type of the core function.
+    fn return_type() -> Type;
+}
+
+const ALL_TYPES: [Type; 16] = [
+    Type::Address,
+    Type::Boolean,
+    Type::Field,
+    Type::Group,
+    Type::IntegerType(IntegerType::I8),
+    Type::IntegerType(IntegerType::I16),
+    Type::IntegerType(IntegerType::I32),
+    Type::IntegerType(IntegerType::I64),
+    Type::IntegerType(IntegerType::I128),
+    Type::IntegerType(IntegerType::U8),
+    Type::IntegerType(IntegerType::U16),
+    Type::IntegerType(IntegerType::U32),
+    Type::IntegerType(IntegerType::U64),
+    Type::IntegerType(IntegerType::U128),
+    Type::Scalar,
+    Type::String,
+];
 
 // todo (collin): deprecate this code
 pub struct Algorithms;

@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CircuitMember, Identifier};
+use crate::{CircuitMember, Identifier, Node};
+use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -25,17 +26,32 @@ use std::fmt;
 /// Type identity is decided by the full path including `circuit_name`,
 /// as the record is nominal, not structural.
 /// The fields are named so `circuit Foo(u8, u16)` is not allowed.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Circuit {
     /// The name of the type in the type system in this module.
-    pub circuit_name: Identifier,
+    pub identifier: Identifier,
     /// The fields, constant variables, and functions of this structure.
     pub members: Vec<CircuitMember>,
+    /// The entire span of the circuit definition.
+    pub span: Span,
 }
 
+impl PartialEq for Circuit {
+    fn eq(&self, other: &Self) -> bool {
+        self.identifier == other.identifier
+    }
+}
+
+impl Eq for Circuit {}
+
 impl Circuit {
+    /// Returns the circuit name as a Symbol.
+    pub fn name(&self) -> Symbol {
+        self.identifier.name
+    }
+
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "circuit {} {{ ", self.circuit_name)?;
+        writeln!(f, "circuit {} {{ ", self.identifier)?;
         for field in self.members.iter() {
             writeln!(f, "    {}", field)?;
         }
@@ -54,3 +70,5 @@ impl fmt::Display for Circuit {
         self.format(f)
     }
 }
+
+crate::simple_node_impl!(Circuit);

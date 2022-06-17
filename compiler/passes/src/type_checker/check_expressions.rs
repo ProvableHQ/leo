@@ -48,6 +48,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
     fn visit_expression(&mut self, input: &'a Expression, expected: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor.visit_expression(input) {
             return match input {
+                Expression::Access(expr) => self.visit_access(expr, expected),
                 Expression::Binary(expr) => self.visit_binary(expr, expected),
                 Expression::Call(expr) => self.visit_call(expr, expected),
                 Expression::CircuitInit(expr) => self.visit_circuit_init(expr, expected),
@@ -195,6 +196,61 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
             });
         }
 
+        None
+    }
+
+    fn visit_access(&mut self, input: &'a AccessExpression, expected: &Self::AdditionalInput) -> Option<Self::Output> {
+        // CAUTION: This implementation only allows access to core circuits.
+        if let VisitResult::VisitChildren = self.visitor.visit_access(input) {
+            match input {
+                AccessExpression::StaticFunction(access) => {
+                    // Visit core circuit function
+                    let circuit = self.visit_expression(&access.inner, &None);
+                    if let Some(core_instruction) = self.visitor.assert_core_circuit_call(&circuit, &access.name) {
+                        // Check num input arguments.
+                        if core_instruction.num_args() != access.input.len() {
+                            self.visitor.handler.emit_err(
+                                TypeCheckerError::incorrect_num_args_to_call(
+                                    core_instruction.num_args(),
+                                    access.input.len(),
+                                    input.span(),
+                                )
+                                .into(),
+                            );
+                        }
+
+                        // Check input argument types.
+                        access.input.iter().enumerate().for_each(|(index, input_expr)| {
+                            let input_type = self.visit_expression(input_expr, &None);
+
+                            match index {
+                                0 => self.visitor.assert_one_of_types(
+                                    &input_type,
+                                    core_instruction.first_arg_types(),
+                                    access.span(),
+                                ),
+                                1 => self.visitor.assert_one_of_types(
+                                    &input_type,
+                                    core_instruction.second_arg_types(),
+                                    access.span(),
+                                ),
+                                _ => unreachable!(),
+                            };
+                        });
+
+                        // Check return type.
+                        return Some(self.visitor.assert_expected_option(
+                            core_instruction.return_type(),
+                            expected,
+                            access.span(),
+                        ));
+                    } else {
+                        // todo: return Err for unknown circuit or function
+                    }
+                }
+                _ => unimplemented!("only static core circuit function calls are supported"),
+            }
+        }
         None
     }
 
@@ -417,70 +473,74 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
     }
 
     fn visit_unary(&mut self, input: &'a UnaryExpression, destination: &Self::AdditionalInput) -> Option<Self::Output> {
-        match input.op {
-            UnaryOperation::Abs => {
-                // Assert integer type only.
-                self.visitor.assert_int_type(destination, input.span());
-                self.visit_expression(&input.receiver, destination)
-            }
-            UnaryOperation::AbsWrapped => {
-                // Assert integer type only.
-                self.visitor.assert_int_type(destination, input.span());
-                self.visit_expression(&input.receiver, destination)
-            }
-            UnaryOperation::Double => {
-                // Assert field and group type only.
-                self.visitor.assert_field_group_type(destination, input.span());
-                self.visit_expression(&input.receiver, destination)
-            }
-            UnaryOperation::Inverse => {
-                // Assert field type only.
-                self.visitor
-                    .assert_expected_type(destination, Type::Field, input.span());
-                self.visit_expression(&input.receiver, destination)
-            }
-            UnaryOperation::Negate => {
-                let prior_negate_state = self.visitor.negate;
-                self.visitor.negate = true;
+        if let VisitResult::VisitChildren = self.visitor.visit_unary(input) {
+            match input.op {
+                UnaryOperation::Abs => {
+                    // Assert integer type only.
+                    self.visitor.assert_int_type(destination, input.span());
+                    self.visit_expression(&input.receiver, destination)
+                }
+                UnaryOperation::AbsWrapped => {
+                    // Assert integer type only.
+                    self.visitor.assert_int_type(destination, input.span());
+                    self.visit_expression(&input.receiver, destination)
+                }
+                UnaryOperation::Double => {
+                    // Assert field and group type only.
+                    self.visitor.assert_field_group_type(destination, input.span());
+                    self.visit_expression(&input.receiver, destination)
+                }
+                UnaryOperation::Inverse => {
+                    // Assert field type only.
+                    self.visitor
+                        .assert_expected_type(destination, Type::Field, input.span());
+                    self.visit_expression(&input.receiver, destination)
+                }
+                UnaryOperation::Negate => {
+                    let prior_negate_state = self.visitor.negate;
+                    self.visitor.negate = true;
 
-                let type_ = self.visit_expression(&input.receiver, destination);
-                self.visitor.negate = prior_negate_state;
-                match type_.as_ref() {
-                    Some(
-                        Type::IntegerType(
-                            IntegerType::I8
-                            | IntegerType::I16
-                            | IntegerType::I32
-                            | IntegerType::I64
-                            | IntegerType::I128,
-                        )
-                        | Type::Field
-                        | Type::Group,
-                    ) => {}
-                    Some(t) => self
-                        .visitor
-                        .handler
-                        .emit_err(TypeCheckerError::type_is_not_negatable(t, input.receiver.span()).into()),
-                    _ => {}
-                };
-                type_
+                    let type_ = self.visit_expression(&input.receiver, destination);
+                    self.visitor.negate = prior_negate_state;
+                    match type_.as_ref() {
+                        Some(
+                            Type::IntegerType(
+                                IntegerType::I8
+                                | IntegerType::I16
+                                | IntegerType::I32
+                                | IntegerType::I64
+                                | IntegerType::I128,
+                            )
+                            | Type::Field
+                            | Type::Group,
+                        ) => {}
+                        Some(t) => self
+                            .visitor
+                            .handler
+                            .emit_err(TypeCheckerError::type_is_not_negatable(t, input.receiver.span()).into()),
+                        _ => {}
+                    };
+                    type_
+                }
+                UnaryOperation::Not => {
+                    // Assert boolean, integer types only.
+                    self.visitor.assert_bool_int_type(destination, input.span());
+                    self.visit_expression(&input.receiver, destination)
+                }
+                UnaryOperation::Square => {
+                    // Assert field type only.
+                    self.visitor
+                        .assert_expected_type(destination, Type::Field, input.span());
+                    self.visit_expression(&input.receiver, destination)
+                }
+                UnaryOperation::SquareRoot => {
+                    // Assert field and scalar types only.
+                    self.visitor.assert_field_scalar_type(destination, input.span());
+                    self.visit_expression(&input.receiver, destination)
+                }
             }
-            UnaryOperation::Not => {
-                // Assert boolean, integer types only.
-                self.visitor.assert_bool_int_type(destination, input.span());
-                self.visit_expression(&input.receiver, destination)
-            }
-            UnaryOperation::Square => {
-                // Assert field type only.
-                self.visitor
-                    .assert_expected_type(destination, Type::Field, input.span());
-                self.visit_expression(&input.receiver, destination)
-            }
-            UnaryOperation::SquareRoot => {
-                // Assert field and scalar types only.
-                self.visitor.assert_field_scalar_type(destination, input.span());
-                self.visit_expression(&input.receiver, destination)
-            }
+        } else {
+            None
         }
     }
 
@@ -537,7 +597,11 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
         }
     }
 
-    fn visit_circuit_init(&mut self, input: &'a CircuitInitExpression, additional: &Self::AdditionalInput) -> Option<Self::Output> {
-        todo!()
+    fn visit_circuit_init(
+        &mut self,
+        _input: &'a CircuitInitExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> Option<Self::Output> {
+        unimplemented!("disable circuit inits for now")
     }
 }

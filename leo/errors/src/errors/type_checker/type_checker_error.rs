@@ -143,12 +143,22 @@ create_messages!(
         help: None,
     }
 
-    /// For when an invalid built in type is used.
+    /// For when an invalid core instruction is used.
     @formatted
-    invalid_built_in_type {
+    invalid_core_instruction {
+        args: (circuit: impl Display, function: impl Display),
+        msg: format!(
+            "The instruction {circuit}::{function} is not a valid core instruction.",
+        ),
+        help: None,
+    }
+
+    /// For when an invalid core type is used.
+    @formatted
+    invalid_core_type {
         args: (type_: impl Display),
         msg: format!(
-            "The type {type_} is not a valid built in type.",
+            "The type {type_} is not a valid core type.",
         ),
         help: None,
     }

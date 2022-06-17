@@ -14,19 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! This module contains both a Reducer and Visitor design pattern.
-//! These both iterate over the AST.
+use crate::{Expression, Identifier, Node};
+use leo_span::Span;
 
-// todo @gluax: Move the files in this module into `leo-passes` in a future PR.
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-// pub mod reconstructing_reducer;
-// pub use reconstructing_reducer::*;
-//
-// pub mod reconstructing_director;
-// pub use reconstructing_director::*;
+/// An access expression to a static member variable, e.g. `Foo::BAR`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct StaticVariableAccess {
+    /// The inner circuit type.
+    pub inner: Box<Expression>,
+    /// The static circuit member variable that is being accessed.
+    pub name: Identifier,
+    /// The span for the entire expression `Foo::bar()`.
+    pub span: Span,
+}
 
-pub mod visitor;
-pub use visitor::*;
+impl fmt::Display for StaticVariableAccess {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}::{}", self.inner, self.name)
+    }
+}
 
-pub mod visitor_director;
-pub use visitor_director::*;
+crate::simple_node_impl!(StaticVariableAccess);

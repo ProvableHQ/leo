@@ -34,11 +34,7 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_identifier(&mut self, _input: &'a Identifier) -> VisitResult {
-        Default::default()
-    }
-
-    fn visit_value(&mut self, _input: &'a ValueExpression) -> VisitResult {
+    fn visit_access(&mut self, _input: &'a AccessExpression) -> VisitResult {
         Default::default()
     }
 
@@ -46,15 +42,11 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_unary(&mut self, _input: &'a UnaryExpression) -> VisitResult {
-        Default::default()
-    }
-
-    fn visit_ternary(&mut self, _input: &'a TernaryExpression) -> VisitResult {
-        Default::default()
-    }
-
     fn visit_call(&mut self, _input: &'a CallExpression) -> VisitResult {
+        Default::default()
+    }
+
+    fn visit_circuit_init(&mut self, _input: &'a CircuitInitExpression) -> VisitResult {
         Default::default()
     }
 
@@ -62,7 +54,19 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_circuit_init(&mut self, _input: &'a CircuitInitExpression) -> VisitResult {
+    fn visit_identifier(&mut self, _input: &'a Identifier) -> VisitResult {
+        Default::default()
+    }
+
+    fn visit_ternary(&mut self, _input: &'a TernaryExpression) -> VisitResult {
+        Default::default()
+    }
+
+    fn visit_unary(&mut self, _input: &'a UnaryExpression) -> VisitResult {
+        Default::default()
+    }
+
+    fn visit_value(&mut self, _input: &'a ValueExpression) -> VisitResult {
         Default::default()
     }
 }

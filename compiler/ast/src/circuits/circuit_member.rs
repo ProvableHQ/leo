@@ -21,7 +21,7 @@ use std::fmt;
 
 #[allow(clippy::large_enum_variant)]
 /// A member of a circuit definition.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CircuitMember {
     /// A static constant in a circuit.
     /// For example: `const foobar: u8 = 42;`.

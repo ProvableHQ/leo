@@ -56,9 +56,7 @@ impl ParserContext<'_> {
     fn unexpected_item(token: &SpannedToken) -> ParserError {
         ParserError::unexpected(
             &token.token,
-            [Token::Function,
-                Token::Circuit,
-                Token::Ident(sym::test)]
+            [Token::Function, Token::Circuit, Token::Ident(sym::test)]
                 .iter()
                 .map(|x| format!("'{}'", x))
                 .collect::<Vec<_>>()
@@ -69,12 +67,12 @@ impl ParserContext<'_> {
 
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
     /// or circuit member function or circuit member constant.
-    pub fn parse_circuit_declaration(&mut self) -> Result<Vec<CircuitMember>> {
+    pub fn parse_circuit_declaration(&mut self) -> Result<(Vec<CircuitMember>, Span)> {
         let mut members = Vec::new();
 
         let (mut semi_colons, mut commas) = (false, false);
 
-        while self.eat(&Token::RightCurly) {
+        while !self.check(&Token::RightCurly) {
             members.push(if self.peek_is_function() {
                 // function
                 self.parse_member_function_declaration()?
@@ -102,10 +100,11 @@ impl ParserContext<'_> {
                 variable
             });
         }
+        let span = self.expect(&Token::RightCurly)?;
 
         self.ban_mixed_member_order(&members);
 
-        Ok(members)
+        Ok((members, span))
     }
 
     /// Emits errors if order isn't `consts variables functions`.
@@ -173,13 +172,20 @@ impl ParserContext<'_> {
 
     /// Returns an [`(Identifier, Function)`] ast node if the next tokens represent a circuit declaration.
     pub(super) fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
-        self.expect(&Token::Circuit)?;
+        let start = self.expect(&Token::Circuit)?;
         let circuit_name = self.expect_ident()?;
 
         self.expect(&Token::LeftCurly)?;
-        let members = self.parse_circuit_declaration()?;
+        let (members, end) = self.parse_circuit_declaration()?;
 
-        Ok((circuit_name.clone(), Circuit { circuit_name, members }))
+        Ok((
+            circuit_name.clone(),
+            Circuit {
+                identifier: circuit_name,
+                members,
+                span: start + end,
+            },
+        ))
     }
 
     /// Returns a [`ParamMode`] AST node if the next tokens represent a function parameter mode.

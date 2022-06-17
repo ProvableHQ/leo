@@ -14,27 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier};
+use crate::{Expression, Identifier, Node};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// An access expression to a static member, e.g., a constant in a circuit.
-/// An example would be `Foo::Const` or `Foo::function` in `Foo::function()`.
+/// An access expression to a static function in a circuit, e.g.`Foo::bar()`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct StaticAccess {
-    /// Represents the container for the static member to access.
-    /// Usually this is a circuit.
+pub struct StaticFunctionAccess {
+    /// The inner circuit type.
     pub inner: Box<Expression>,
-    /// The static member in `inner` that is being accessed.
+    /// The static circuit member function that is being accessed.
     pub name: Identifier,
-    /// The span for the entire expression `inner::name`.
+    /// The function parameters.
+    pub input: Vec<Expression>,
+    /// The span for the entire expression `Foo::bar()`.
     pub span: Span,
 }
 
-impl fmt::Display for StaticAccess {
+impl fmt::Display for StaticFunctionAccess {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}::{}", self.inner, self.name)
     }
 }
+
+crate::simple_node_impl!(StaticFunctionAccess);

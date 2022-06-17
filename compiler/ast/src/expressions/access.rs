@@ -14,8 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::*;
-use crate::access::*;
+use crate::{access::*, Node};
+use leo_span::Span;
+
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
 /// An access expressions, extracting a smaller part out of a whole.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -28,8 +31,28 @@ pub enum AccessExpression {
     Member(MemberAccess),
     // /// Access to a tuple field using its position, e.g., `tuple.1`.
     // Tuple(TupleAccess),
-    /// Access to a member constant or a static function of a circuit.
-    Static(StaticAccess),
+    /// Access to a static variable of a circuit.
+    StaticVariable(StaticVariableAccess),
+    /// Access to a static function of a circuit.
+    StaticFunction(StaticFunctionAccess),
+}
+
+impl Node for AccessExpression {
+    fn span(&self) -> Span {
+        match self {
+            AccessExpression::Member(n) => n.span(),
+            AccessExpression::StaticVariable(n) => n.span(),
+            AccessExpression::StaticFunction(n) => n.span(),
+        }
+    }
+
+    fn set_span(&mut self, span: Span) {
+        match self {
+            AccessExpression::Member(n) => n.set_span(span),
+            AccessExpression::StaticVariable(n) => n.set_span(span),
+            AccessExpression::StaticFunction(n) => n.set_span(span),
+        }
+    }
 }
 
 impl fmt::Display for AccessExpression {
@@ -41,7 +64,8 @@ impl fmt::Display for AccessExpression {
             // ArrayRange(access) => access.fmt(f),
             Member(access) => access.fmt(f),
             // Tuple(access) => access.fmt(f),
-            Static(access) => access.fmt(f),
+            StaticVariable(access) => access.fmt(f),
+            StaticFunction(access) => access.fmt(f),
         }
     }
 }
