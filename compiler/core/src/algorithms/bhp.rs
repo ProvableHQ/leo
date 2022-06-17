@@ -81,7 +81,6 @@ impl CoreFunction for BHP512Commit {
     }
 }
 
-
 pub struct BHP768Hash;
 
 impl CoreFunction for BHP768Hash {
@@ -113,7 +112,6 @@ impl CoreFunction for BHP768Commit {
         Type::Field
     }
 }
-
 
 pub struct BHP1024Hash;
 

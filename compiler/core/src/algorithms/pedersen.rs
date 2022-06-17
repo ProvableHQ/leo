@@ -49,7 +49,6 @@ impl CoreFunction for Pedersen64Commit {
     }
 }
 
-
 pub struct Pedersen128Hash;
 
 impl CoreFunction for Pedersen128Hash {
@@ -81,4 +80,3 @@ impl CoreFunction for Pedersen128Commit {
         Type::Group
     }
 }
-

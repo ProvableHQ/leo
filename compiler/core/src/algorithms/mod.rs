@@ -23,8 +23,8 @@ mod poseidon;
 pub use poseidon::*;
 
 use crate::Types;
-use leo_span::{sym, Symbol};
 use leo_ast::{IntegerType, Type};
+use leo_span::{sym, Symbol};
 
 use indexmap::IndexSet;
 
