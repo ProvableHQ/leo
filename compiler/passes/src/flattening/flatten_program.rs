@@ -18,4 +18,33 @@ use leo_ast::*;
 
 use crate::Flattener;
 
-impl<'a> ProgramReconstructor for Flattener<'a> {}
+impl<'a> ProgramReconstructor for Flattener<'a> {
+    fn reconstruct_function(&mut self, input: Function) -> Function {
+        /* let f_inputs = if input.is_main() {
+            let (non_consts, consts): (Vec<_>, Vec<_>) = input
+                .input
+                .iter()
+                .partition(|fi| matches!(fi, FunctionInput::Variable(v) if v.mode() != ParamMode::Const));
+
+            if let Some(main) = self.symbol_table.functions.borrow_mut().get_mut(&input.identifier.name) {
+                main.input = &non_consts;
+            } else {
+                // self.handler
+                todo!();
+            }
+
+            non_consts
+        } else {
+            input.input.clone()
+        }; */
+
+        Function {
+            identifier: input.identifier,
+            input: input.input.clone(),
+            output: input.output,
+            core_mapping: input.core_mapping.clone(),
+            block: self.reconstruct_block(input.block),
+            span: input.span,
+        }
+    }
+}
