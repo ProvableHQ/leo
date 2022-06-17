@@ -17,9 +17,9 @@
 use crate::algorithms::{CoreFunction, ALL_TYPES};
 use leo_ast::Type;
 
-pub struct BHP256Hash;
+pub struct Poseidon2Hash;
 
-impl CoreFunction for BHP256Hash {
+impl CoreFunction for Poseidon2Hash {
     const NUM_ARGS: usize = 1;
 
     fn first_arg_types() -> &'static [Type] {
@@ -31,17 +31,17 @@ impl CoreFunction for BHP256Hash {
     }
 }
 
-pub struct BHP256Commit;
+pub struct Poseidon2PRF;
 
-impl CoreFunction for BHP256Commit {
+impl CoreFunction for Poseidon2PRF {
     const NUM_ARGS: usize = 2;
 
     fn first_arg_types() -> &'static [Type] {
-        &ALL_TYPES
+        &[Type::Field]
     }
 
     fn second_arg_types() -> &'static [Type] {
-        &[Type::Scalar]
+        &ALL_TYPES
     }
 
     fn return_type() -> Type {
@@ -49,9 +49,9 @@ impl CoreFunction for BHP256Commit {
     }
 }
 
-pub struct BHP512Hash;
+pub struct Poseidon4Hash;
 
-impl CoreFunction for BHP512Hash {
+impl CoreFunction for Poseidon4Hash {
     const NUM_ARGS: usize = 1;
 
     fn first_arg_types() -> &'static [Type] {
@@ -63,17 +63,17 @@ impl CoreFunction for BHP512Hash {
     }
 }
 
-pub struct BHP512Commit;
+pub struct Poseidon4PRF;
 
-impl CoreFunction for BHP512Commit {
+impl CoreFunction for Poseidon4PRF {
     const NUM_ARGS: usize = 2;
 
     fn first_arg_types() -> &'static [Type] {
-        &ALL_TYPES
+        &[Type::Field]
     }
 
     fn second_arg_types() -> &'static [Type] {
-        &[Type::Scalar]
+        &ALL_TYPES
     }
 
     fn return_type() -> Type {
@@ -81,10 +81,9 @@ impl CoreFunction for BHP512Commit {
     }
 }
 
+pub struct Poseidon8Hash;
 
-pub struct BHP768Hash;
-
-impl CoreFunction for BHP768Hash {
+impl CoreFunction for Poseidon8Hash {
     const NUM_ARGS: usize = 1;
 
     fn first_arg_types() -> &'static [Type] {
@@ -96,50 +95,17 @@ impl CoreFunction for BHP768Hash {
     }
 }
 
-pub struct BHP768Commit;
+pub struct Poseidon8PRF;
 
-impl CoreFunction for BHP768Commit {
+impl CoreFunction for Poseidon8PRF {
     const NUM_ARGS: usize = 2;
 
     fn first_arg_types() -> &'static [Type] {
-        &ALL_TYPES
+        &[Type::Field]
     }
 
     fn second_arg_types() -> &'static [Type] {
-        &[Type::Scalar]
-    }
-
-    fn return_type() -> Type {
-        Type::Field
-    }
-}
-
-
-pub struct BHP1024Hash;
-
-impl CoreFunction for BHP1024Hash {
-    const NUM_ARGS: usize = 1;
-
-    fn first_arg_types() -> &'static [Type] {
         &ALL_TYPES
-    }
-
-    fn return_type() -> Type {
-        Type::Field
-    }
-}
-
-pub struct BHP1024Commit;
-
-impl CoreFunction for BHP1024Commit {
-    const NUM_ARGS: usize = 2;
-
-    fn first_arg_types() -> &'static [Type] {
-        &ALL_TYPES
-    }
-
-    fn second_arg_types() -> &'static [Type] {
-        &[Type::Scalar]
     }
 
     fn return_type() -> Type {

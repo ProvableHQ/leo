@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::*;
+use leo_core::is_core_circuit;
 use leo_errors::TypeCheckerError;
 
 use crate::TypeChecker;
@@ -65,7 +66,9 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
 
     fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor.visit_identifier(input) {
-            return if let Some(var) = self.visitor.symbol_table.clone().lookup_variable(&input.name) {
+            return if is_core_circuit(input.name) {
+                Some(Type::Identifier(*input))
+            } else if let Some(var) = self.visitor.symbol_table.clone().lookup_variable(&input.name) {
                 Some(self.visitor.assert_expected_option(*var.type_, expected, var.span))
             } else {
                 self.visitor

@@ -290,7 +290,7 @@ impl Token {
                 }
                 return Ok((1, Token::Div));
             }
-            ':' => return single(&mut input, Token::Colon),
+            ':' => return followed_by(&mut input, ':', Token::DoubleColon, Token::Colon),
             ';' => return single(&mut input, Token::Semicolon),
             '<' => return three_cases(&mut input, '=', Token::LtEq, '<', Token::Shl, Token::Lt),
             '>' => return three_cases(&mut input, '=', Token::GtEq, '>', Token::Shr, Token::Gt),
