@@ -47,6 +47,7 @@ fn new_compiler(handler: &Handler, main_file_path: PathBuf) -> Compiler<'_> {
             spans_enabled: false,
             input_ast_initial: true,
             ast_initial: true,
+            flattened_ast: true,
         }),
     )
 }

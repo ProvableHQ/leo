@@ -22,4 +22,6 @@ pub struct OutputOptions {
     pub ast_initial: bool,
     /// If enabled writes the input AST after parsing.
     pub input_ast_initial: bool,
+    /// If enabled writes the flattened AST after parsing.
+    pub flattened_ast: bool,
 }

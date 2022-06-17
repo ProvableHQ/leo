@@ -32,14 +32,16 @@ use tracing::span::Span;
 /// require Build command output as their input.
 #[derive(StructOpt, Clone, Debug, Default)]
 pub struct BuildOptions {
-    #[structopt(long, help = "Enable spans in AST snapshots.")]
+    #[clap(long, help = "Enable spans in AST snapshots.")]
     pub enable_spans: bool,
-    #[structopt(long, help = "Writes all AST snapshots for the different compiler phases.")]
+    #[clap(long, help = "Writes all AST snapshots for the different compiler phases.")]
     pub enable_all_ast_snapshots: bool,
-    #[structopt(long, help = "Writes Input AST snapshot of the initial parse.")]
+    #[clap(long, help = "Writes Input AST snapshot of the initial parse.")]
     pub enable_initial_input_ast_snapshot: bool,
-    #[structopt(long, help = "Writes AST snapshot of the initial parse.")]
+    #[clap(long, help = "Writes AST snapshot of the initial parse.")]
     pub enable_initial_ast_snapshot: bool,
+    #[clap(long, help = "Writes AST snapshot after the flattening pass.")]
+    pub enable_flattened_ast_snapshot: bool,
 }
 
 impl From<BuildOptions> for OutputOptions {
@@ -48,10 +50,12 @@ impl From<BuildOptions> for OutputOptions {
             spans_enabled: options.enable_spans,
             input_ast_initial: options.enable_initial_input_ast_snapshot,
             ast_initial: options.enable_initial_ast_snapshot,
+            flattened_ast: options.enable_flattened_ast_snapshot,
         };
         if options.enable_all_ast_snapshots {
             out_options.input_ast_initial = true;
             out_options.ast_initial = true;
+            out_options.flattened_ast = true;
         }
 
         out_options

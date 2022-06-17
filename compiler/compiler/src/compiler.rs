@@ -163,8 +163,17 @@ impl<'a> Compiler<'a> {
     ///
     pub fn flattening_pass(&mut self) -> Result<()> {
         self.ast = Flattener::do_pass((std::mem::take(&mut self.ast), self.handler))?;
-        self.ast
-            .to_json_file_without_keys(self.output_directory.clone(), "flattened_ast.json", &["span"])?;
+
+        if self.output_options.ast_initial {
+            // Write the input AST snapshot post parsing.
+            if self.output_options.spans_enabled {
+                self.ast
+                    .to_json_file(self.output_directory.clone(), "flattened_ast.json")?;
+            } else {
+                self.ast
+                    .to_json_file_without_keys(self.output_directory.clone(), "flattened_ast.json", &["span"])?;
+            }
+        }
 
         Ok(())
     }
