@@ -39,6 +39,8 @@ enum BenchMode {
     Symbol,
     /// Benchmarks type checking.
     Type,
+    /// Benchmarks flattening.
+    Flatten,
     /// Benchmarks all the above stages.
     Full,
 }
@@ -99,6 +101,7 @@ impl Sample {
             BenchMode::Parse => self.bench_parse(c),
             BenchMode::Symbol => self.bench_symbol_table(c),
             BenchMode::Type => self.bench_type_checker(c),
+            BenchMode::Flatten => self.bench_flattening(c),
             BenchMode::Full => self.bench_full(c),
         }
     }
@@ -177,6 +180,36 @@ impl Sample {
         });
     }
 
+    fn bench_flattening(&self, c: &mut Criterion) {
+        c.bench_function(&format!("flattening pass {}", self.name), |b| {
+            // Iter custom is used so we can use custom timings around the compiler stages.
+            // This way we can only time the necessary stage.
+            b.iter_custom(|iters| {
+                let mut time = Duration::default();
+                for _ in 0..iters {
+                    SESSION_GLOBALS.set(&SessionGlobals::default(), || {
+                        let handler = BufEmitter::new_handler();
+                        let mut compiler = new_compiler(&handler);
+                        let (input, name) = self.data();
+                        compiler
+                            .parse_program_from_string(input, name)
+                            .expect("Failed to parse program");
+                        let symbol_table =
+                            RefCell::new(compiler.symbol_table_pass().expect("failed to generate symbol table"));
+                        compiler
+                            .type_checker_pass(symbol_table)
+                            .expect("failed to run type check pass");
+                        let start = Instant::now();
+                        let out = compiler.flattening_pass();
+                        time += start.elapsed();
+                        out.expect("failed to run flattening pass")
+                    });
+                }
+                time
+            })
+        });
+    }
+
     fn bench_full(&self, c: &mut Criterion) {
         c.bench_function(&format!("full {}", self.name), |b| {
             // Iter custom is used so we can use custom timings around the compiler stages.
@@ -197,6 +230,7 @@ impl Sample {
                         compiler
                             .type_checker_pass(symbol_table)
                             .expect("failed to run type check pass");
+                        compiler.flattening_pass().expect("failed to run flattening pass");
                         time += start.elapsed();
                     });
                 }
@@ -217,6 +251,7 @@ macro_rules! bench {
 bench!(bench_parse, BenchMode::Parse);
 bench!(bench_symbol, BenchMode::Symbol);
 bench!(bench_type, BenchMode::Type);
+bench!(bench_flattening, BenchMode::Flatten);
 bench!(bench_full, BenchMode::Full);
 
 criterion_group!(
@@ -226,6 +261,7 @@ criterion_group!(
         bench_parse,
         bench_symbol,
         bench_type,
+        bench_flattening,
         bench_full
 );
 criterion_main!(benches);
