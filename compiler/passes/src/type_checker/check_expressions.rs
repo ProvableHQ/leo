@@ -94,8 +94,8 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
-        if let Some(var) = self.symbol_table.lookup_variable(input.name) {
-            self.assert_type(*var.type_, var.declaration.get_const_value(), expected, var.span)
+        if let Some(var) = self.symbol_table.borrow().lookup_variable(input.name).cloned() {
+            self.assert_type(var.type_, var.declaration.get_const_value(), expected, var.span)
         } else {
             self.handler
                 .emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span()).into());
@@ -403,8 +403,8 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match &*input.function {
             Expression::Identifier(ident) => {
-                if let Some(func) = self.symbol_table.lookup_fn(ident.name) {
-                    let ret = self.assert_type(*func.type_, None, expected, func.span);
+                if let Some(func) = self.symbol_table.clone().borrow().lookup_fn(ident.name) {
+                    let ret = self.assert_type(func.type_, None, expected, func.span);
 
                     if func.input.len() != input.arguments.len() {
                         self.handler.emit_err(

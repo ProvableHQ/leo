@@ -21,8 +21,10 @@ use crate::{Declaration, TypeChecker, VariableSymbol};
 
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_function(&mut self, input: &'a Function) {
-        let prev_st = self.symbol_table;
-        self.symbol_table = self.symbol_table.lookup_fn(input.name()).unwrap().scope;
+        let prev_st = std::mem::take(&mut self.symbol_table);
+        self.symbol_table
+            .swap(prev_st.borrow().get_fn_scope(input.name()).unwrap());
+        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.clone().into_inner()));
 
         self.has_return = false;
         self.parent = Some(input.name());
@@ -30,12 +32,16 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             let input_var = i.get_variable();
             self.validate_ident_type(&Some(input_var.type_));
 
-            let var = self.arena.alloc(VariableSymbol {
-                type_: &input_var.type_,
+            let var = VariableSymbol {
+                type_: input_var.type_,
                 span: input_var.identifier.span(),
                 declaration: Declaration::Input(input_var.mode()),
-            });
-            if let Err(err) = self.symbol_table.insert_variable(input_var.identifier.name, var) {
+            };
+            if let Err(err) = self
+                .symbol_table
+                .borrow_mut()
+                .insert_variable(input_var.identifier.name, var)
+            {
                 self.handler.emit_err(err);
             }
         });
@@ -46,6 +52,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 .emit_err(TypeCheckerError::function_has_no_return(input.name(), input.span()).into());
         }
 
+        self.symbol_table
+            .swap(prev_st.borrow().get_fn_scope(input.name()).unwrap());
         self.symbol_table = prev_st;
     }
 }

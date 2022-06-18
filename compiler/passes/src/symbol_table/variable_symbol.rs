@@ -157,9 +157,9 @@ impl Declaration {
     }
 }
 
-#[derive(Clone)]
-pub struct VariableSymbol<'a> {
-    pub type_: &'a Type,
+#[derive(Clone, Debug)]
+pub struct VariableSymbol {
+    pub type_: Type,
     pub span: Span,
     pub declaration: Declaration,
 }

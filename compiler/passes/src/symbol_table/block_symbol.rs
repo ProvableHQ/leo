@@ -21,9 +21,9 @@ use crate::{CreateSymbolTable, SymbolTable};
 
 #[derive(Clone)]
 pub struct BlockSymbol<'a> {
-    pub(crate) scope: &'a SymbolTable<'a>,
+    pub(crate) scope: SymbolTable<'a>,
     pub(crate) span: Span,
-    pub(crate) statements: &'a [Statement],
+    pub(crate) statements: Vec<Statement>,
 }
 
 impl<'a> CreateSymbolTable<'a> {

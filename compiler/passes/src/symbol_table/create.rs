@@ -14,24 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use bumpalo::Bump;
 use leo_ast::*;
 use leo_errors::emitter::Handler;
 
 use crate::SymbolTable;
 
 pub struct CreateSymbolTable<'a> {
-    pub(crate) symbol_table: &'a SymbolTable<'a>,
+    pub(crate) symbol_table: SymbolTable,
     handler: &'a Handler,
-    pub(crate) arena: &'a Bump,
 }
 
 impl<'a> CreateSymbolTable<'a> {
-    pub fn new(symbol_table: &'a SymbolTable<'a>, handler: &'a Handler, arena: &'a Bump) -> Self {
+    pub fn new(handler: &'a Handler) -> Self {
         Self {
-            symbol_table,
+            symbol_table: Default::default(),
             handler,
-            arena,
         }
     }
 }
@@ -45,8 +42,7 @@ impl<'a> StatementVisitor<'a> for CreateSymbolTable<'a> {}
 
 impl<'a> ProgramVisitor<'a> for CreateSymbolTable<'a> {
     fn visit_function(&mut self, input: &'a Function) {
-        let func = self.arena.alloc(self.new_function_symbol(input));
-        if let Err(err) = self.symbol_table.insert_fn(input.name(), func) {
+        if let Err(err) = self.symbol_table.insert_fn(input.name(), input) {
             self.handler.emit_err(err);
         }
     }

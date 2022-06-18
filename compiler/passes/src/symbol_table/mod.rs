@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 pub mod create;
-use bumpalo::Bump;
 pub use create::*;
 
 pub mod function_symbol;
@@ -33,14 +32,14 @@ use leo_ast::{Ast, ProgramVisitor};
 use leo_errors::{emitter::Handler, Result};
 
 impl<'a> Pass for CreateSymbolTable<'a> {
-    type Input = (&'a Ast, &'a Handler, &'a SymbolTable<'a>, &'a Bump);
-    type Output = Result<()>;
+    type Input = (&'a Ast, &'a Handler);
+    type Output = Result<SymbolTable>;
 
-    fn do_pass((ast, handler, st, arena): Self::Input) -> Self::Output {
-        let mut visitor = CreateSymbolTable::new(st, handler, arena);
+    fn do_pass((ast, handler): Self::Input) -> Self::Output {
+        let mut visitor = CreateSymbolTable::new(handler);
         visitor.visit_program(ast.as_repr());
         handler.last_err()?;
 
-        Ok(())
+        Ok(visitor.symbol_table)
     }
 }

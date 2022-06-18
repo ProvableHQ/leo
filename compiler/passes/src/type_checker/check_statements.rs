@@ -25,7 +25,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // statements should always have some parent block
         let parent = self.parent.unwrap();
 
-        let return_type = &self.symbol_table.lookup_fn(parent).map(|f| *f.type_);
+        let return_type = &self.symbol_table.borrow().lookup_fn(parent).map(|f| f.type_);
         self.validate_ident_type(return_type);
         self.has_return = true;
 
@@ -44,12 +44,12 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
             self.visit_expression(&input.value, &Some(input.type_));
 
-            let var = self.arena.alloc(VariableSymbol {
-                type_: &input.type_,
+            let var = VariableSymbol {
+                type_: input.type_,
                 span: input.span(),
                 declaration: declaration.clone(),
-            });
-            if let Err(err) = self.symbol_table.insert_variable(v.identifier.name, var) {
+            };
+            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(v.identifier.name, var) {
                 self.handler.emit_err(err);
             }
         });
@@ -57,7 +57,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
     fn visit_assign(&mut self, input: &'a AssignStatement) {
         let var_name = input.assignee.identifier.name;
-        let var_type = if let Some(var) = self.symbol_table.lookup_variable(var_name) {
+        let var_type = if let Some(var) = self.symbol_table.borrow().lookup_variable(var_name) {
             match &var.declaration {
                 Declaration::Const(_) => self
                     .handler
@@ -68,7 +68,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 _ => {}
             }
 
-            Some(*var.type_)
+            Some(var.type_)
         } else {
             self.handler.emit_err(
                 TypeCheckerError::unknown_sym("variable", &input.assignee.identifier.name, input.assignee.span).into(),
@@ -92,12 +92,12 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
-        let var = self.arena.alloc(VariableSymbol {
-            type_: &input.type_,
+        let var = VariableSymbol {
+            type_: input.type_,
             span: input.span(),
             declaration: Declaration::Const(None),
-        });
-        if let Err(err) = self.symbol_table.insert_variable(input.variable.name, var) {
+        };
+        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(input.variable.name, var) {
             self.handler.emit_err(err);
         }
 
@@ -120,8 +120,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
     fn visit_block(&mut self, input: &'a Block) {
         // creates a new sub-scope since we are in a block.
-        let prev_st = self.symbol_table;
-        self.symbol_table = self.arena.alloc(self.symbol_table.subscope());
+
+        let scope_index = self.symbol_table.borrow_mut().insert_block();
+        let prev_st = std::mem::take(&mut self.symbol_table);
+        self.symbol_table
+            .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
+        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.clone().into_inner()));
+
         input.statements.iter().for_each(|stmt| {
             match stmt {
                 Statement::Return(stmt) => self.visit_return(stmt),
@@ -133,6 +138,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 Statement::Block(stmt) => self.visit_block(stmt),
             };
         });
+
+        self.symbol_table
+            .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
         self.symbol_table = prev_st;
     }
 }

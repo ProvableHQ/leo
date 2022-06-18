@@ -217,7 +217,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
 
         let mut errors = vec![];
         if let Some(expectations) = expectations.as_ref() {
-            if tests.len() != expectations.outputs.len() {
+            if expectations.expectation != TestExpectationMode::Skip && tests.len() != expectations.outputs.len() {
                 errors.push(TestError::MismatchedTestExpectationLength);
             }
         }

@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use bumpalo::Bump;
+use std::cell::RefCell;
+
 use indexmap::IndexSet;
 use leo_ast::{IntegerType, Node, Type};
 use leo_core::*;
@@ -24,9 +25,8 @@ use leo_span::{Span, Symbol};
 use crate::{SymbolTable, TypeOutput, Value};
 
 pub struct TypeChecker<'a> {
-    pub(crate) symbol_table: &'a SymbolTable<'a>,
+    pub(crate) symbol_table: RefCell<SymbolTable>,
     pub(crate) handler: &'a Handler,
-    pub(crate) arena: &'a Bump,
     pub(crate) parent: Option<Symbol>,
     pub(crate) has_return: bool,
     pub(crate) negate: bool,
@@ -75,11 +75,10 @@ const FIELD_GROUP_SCALAR_INT_TYPES: [Type; 13] = create_type_superset(FIELD_GROU
 
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
-    pub fn new(symbol_table: &'a SymbolTable<'a>, handler: &'a Handler, arena: &'a Bump) -> Self {
+    pub fn new(symbol_table: RefCell<SymbolTable>, handler: &'a Handler) -> Self {
         Self {
             symbol_table,
             handler,
-            arena,
             parent: None,
             has_return: false,
             negate: false,
@@ -113,7 +112,7 @@ impl<'a> TypeChecker<'a> {
 
     /// Returns the given type if it equals the expected type or the expected type is none.
     pub(crate) fn assert_type(
-        &mut self,
+        &self,
         type_: Type,
         const_value: Option<Value>,
         expected: &Option<Type>,

@@ -17,24 +17,23 @@
 use leo_ast::{Function, FunctionInput, Type};
 use leo_span::Span;
 
-use crate::{CreateSymbolTable, SymbolTable};
+use crate::SymbolTable;
 
-#[derive(Clone)]
-pub struct FunctionSymbol<'a> {
-    pub(crate) scope: &'a SymbolTable<'a>,
-    pub(crate) type_: &'a Type,
+#[derive(Clone, Debug)]
+pub struct FunctionSymbol {
+    pub(crate) id: usize,
+    pub(crate) type_: Type,
     pub(crate) span: Span,
-    pub(crate) input: &'a [FunctionInput],
+    pub(crate) input: Vec<FunctionInput>,
 }
 
-impl<'a> CreateSymbolTable<'a> {
-    pub(crate) fn new_function_symbol(&self, func: &'a Function) -> FunctionSymbol<'a> {
-        let scope = self.arena.alloc(self.symbol_table.subscope());
+impl SymbolTable {
+    pub(crate) fn new_function_symbol(id: usize, func: &Function) -> FunctionSymbol {
         FunctionSymbol {
-            scope,
-            type_: &func.output,
+            id,
+            type_: func.output,
             span: func.span,
-            input: &func.input,
+            input: func.input.clone(),
         }
     }
 }

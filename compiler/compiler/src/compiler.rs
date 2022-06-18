@@ -26,8 +26,8 @@ use leo_passes::*;
 use leo_span::source_map::FileName;
 use leo_span::symbol::with_session_globals;
 
-use bumpalo::Bump;
 use sha2::{Digest, Sha256};
+use std::cell::RefCell;
 use std::fs;
 use std::path::PathBuf;
 
@@ -147,15 +147,15 @@ impl<'a> Compiler<'a> {
     ///
     /// Runs the symbol table pass.
     ///
-    pub fn symbol_table_pass(&'a self, st: &'a SymbolTable<'a>, arena: &'a Bump) -> Result<()> {
-        CreateSymbolTable::do_pass((&self.ast, self.handler, st, arena))
+    pub fn symbol_table_pass(&'a self) -> Result<SymbolTable> {
+        CreateSymbolTable::do_pass((&self.ast, self.handler))
     }
 
     ///
     /// Runs the type checker pass.
     ///
-    pub fn type_checker_pass(&'a self, symbol_table: &'a SymbolTable<'a>, arena: &'a Bump) -> Result<()> {
-        TypeChecker::do_pass((&self.ast, self.handler, symbol_table, arena))
+    pub fn type_checker_pass(&'a self, symbol_table: RefCell<SymbolTable>) -> Result<RefCell<SymbolTable>> {
+        TypeChecker::do_pass((&self.ast, self.handler, symbol_table))
     }
 
     ///
@@ -182,10 +182,8 @@ impl<'a> Compiler<'a> {
     /// Runs the compiler stages.
     ///
     pub fn compiler_stages(&mut self) -> Result<()> {
-        let arena = Bump::new();
-        let st = arena.alloc(SymbolTable::default());
-        self.symbol_table_pass(st, &arena)?;
-        self.type_checker_pass(st, &arena)?;
+        let mut st = RefCell::new(self.symbol_table_pass()?);
+        st = self.type_checker_pass(st)?;
         self.flattening_pass()
     }
 

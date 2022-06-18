@@ -16,7 +16,8 @@
 
 pub mod check_expressions;
 
-use bumpalo::Bump;
+use std::cell::RefCell;
+
 pub use check_expressions::*;
 
 pub mod check_file;
@@ -34,14 +35,14 @@ use leo_ast::{Ast, ProgramVisitor};
 use leo_errors::{emitter::Handler, Result};
 
 impl<'a> Pass for TypeChecker<'a> {
-    type Input = (&'a Ast, &'a Handler, &'a SymbolTable<'a>, &'a Bump);
-    type Output = Result<()>;
+    type Input = (&'a Ast, &'a Handler, RefCell<SymbolTable>);
+    type Output = Result<RefCell<SymbolTable>>;
 
-    fn do_pass((ast, handler, st, arena): Self::Input) -> Self::Output {
-        let mut visitor = TypeChecker::new(st, handler, arena);
+    fn do_pass((ast, handler, st): Self::Input) -> Self::Output {
+        let mut visitor = TypeChecker::new(st, handler);
         visitor.visit_program(ast.as_repr());
         handler.last_err()?;
 
-        Ok(())
+        Ok(visitor.symbol_table)
     }
 }

@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::cell::{Cell, RefCell};
+use std::cell::RefCell;
 
+use leo_ast::Function;
 use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
@@ -23,68 +24,90 @@ use indexmap::IndexMap;
 
 use crate::{FunctionSymbol, VariableSymbol};
 
-#[derive(Clone, Default)]
-pub struct SymbolTable<'a> {
+#[derive(Clone, Debug, Default)]
+pub struct SymbolTable {
     /// The parent scope if it exists.
     /// For example if we are in a if block inside a function.
-    pub(crate) parent: Cell<Option<&'a SymbolTable<'a>>>,
+    pub(crate) parent: Option<Box<SymbolTable>>,
     /// Functions represents the name of each function mapped to the Ast's function definition.
     /// This field is populated at a first pass.
-    functions: RefCell<IndexMap<Symbol, &'a FunctionSymbol<'a>>>,
+    pub functions: IndexMap<Symbol, FunctionSymbol>,
     /// The variables defined in a scope.
     /// This field is populated as necessary.
-    pub(crate) variables: RefCell<IndexMap<Symbol, &'a VariableSymbol<'a>>>,
+    pub(crate) variables: IndexMap<Symbol, VariableSymbol>,
+    scope_index: usize,
+    pub(crate) scopes: Vec<RefCell<SymbolTable>>,
 }
 
-impl<'a> SymbolTable<'a> {
+impl SymbolTable {
     pub fn check_shadowing(&self, symbol: Symbol, span: Span) -> Result<()> {
-        if self.variables.borrow().contains_key(&symbol) {
+        if self.variables.contains_key(&symbol) {
             Err(AstError::shadowed_variable(symbol, span).into())
-        } else if self.functions.borrow().contains_key(&symbol) {
+        } else if self.functions.contains_key(&symbol) {
             Err(AstError::shadowed_function(symbol, span).into())
-        } else if let Some(parent) = self.parent.get() {
+        } else if let Some(parent) = self.parent.as_ref() {
             parent.check_shadowing(symbol, span)
         } else {
             Ok(())
         }
     }
 
-    pub fn insert_fn(&self, symbol: Symbol, insert: &'a FunctionSymbol<'a>) -> Result<()> {
+    pub fn scope_index(&mut self) -> usize {
+        let index = self.scope_index;
+        self.scope_index = self.scope_index.saturating_add(1);
+        index
+    }
+
+    pub fn insert_fn(&mut self, symbol: Symbol, insert: &Function) -> Result<()> {
         self.check_shadowing(symbol, insert.span)?;
-        self.functions.borrow_mut().insert(symbol, insert);
+        let id = self.scope_index();
+        self.functions.insert(symbol, Self::new_function_symbol(id, insert));
+        self.scopes.push(Default::default());
         Ok(())
     }
 
-    pub fn insert_variable(&self, symbol: Symbol, insert: &'a VariableSymbol<'a>) -> Result<()> {
+    pub fn insert_variable(&mut self, symbol: Symbol, insert: VariableSymbol) -> Result<()> {
         self.check_shadowing(symbol, insert.span)?;
-        self.variables.borrow_mut().insert(symbol, insert);
+        self.variables.insert(symbol, insert);
         Ok(())
     }
 
-    pub fn lookup_fn(&self, symbol: Symbol) -> Option<&'a FunctionSymbol<'a>> {
-        if let Some(func) = self.functions.borrow().get(&symbol) {
+    pub fn insert_block(&mut self) -> usize {
+        self.scopes.push(Default::default());
+        self.scope_index()
+    }
+
+    pub fn lookup_fn(&self, symbol: Symbol) -> Option<&FunctionSymbol> {
+        if let Some(func) = self.functions.get(&symbol) {
             Some(func)
-        } else if let Some(parent) = self.parent.get() {
+        } else if let Some(parent) = self.parent.as_ref() {
             parent.lookup_fn(symbol)
         } else {
             None
         }
     }
 
-    pub fn lookup_variable(&self, symbol: Symbol) -> Option<&'a VariableSymbol<'a>> {
-        if let Some(var) = self.variables.borrow().get(&symbol) {
+    pub fn lookup_variable(&self, symbol: Symbol) -> Option<&VariableSymbol> {
+        if let Some(var) = self.variables.get(&symbol) {
             Some(var)
-        } else if let Some(parent) = self.parent.get() {
+        } else if let Some(parent) = self.parent.as_ref() {
             parent.lookup_variable(symbol)
         } else {
             None
         }
     }
 
-    pub fn subscope(self: &'a SymbolTable<'a>) -> Self {
-        Self {
-            parent: Cell::new(Some(self)),
-            ..Default::default()
+    pub fn get_fn_scope(&self, symbol: Symbol) -> Option<&RefCell<Self>> {
+        if let Some(func) = self.functions.get(&symbol) {
+            self.scopes.get(func.id)
+        } else if let Some(parent) = self.parent.as_ref() {
+            parent.get_fn_scope(symbol)
+        } else {
+            None
         }
+    }
+
+    pub fn get_block_scope(&self, index: usize) -> Option<&RefCell<Self>> {
+        self.scopes.get(index)
     }
 }
