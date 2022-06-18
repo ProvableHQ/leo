@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::*;
-use leo_core::is_core_circuit;
 use leo_errors::TypeCheckerError;
 
 use crate::TypeChecker;
@@ -66,8 +65,8 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
 
     fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor.visit_identifier(input) {
-            return if is_core_circuit(input.name) {
-                Some(Type::Identifier(*input))
+            return if let Some(circuit) = self.visitor.symbol_table.clone().lookup_circuit(&input.name) {
+                Some(self.visitor.assert_expected_option(Type::Identifier(circuit.identifier.clone()), expected, circuit.span()))
             } else if let Some(var) = self.visitor.symbol_table.clone().lookup_variable(&input.name) {
                 Some(self.visitor.assert_expected_option(*var.type_, expected, var.span))
             } else {
@@ -602,9 +601,45 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
 
     fn visit_circuit_init(
         &mut self,
-        _input: &'a CircuitInitExpression,
-        _additional: &Self::AdditionalInput,
+        input: &'a CircuitInitExpression,
+        additional: &Self::AdditionalInput,
     ) -> Option<Self::Output> {
-        unimplemented!("disable circuit inits for now")
+        if let Some(circ) = self.visitor.symbol_table.clone().lookup_circuit(&input.name.name) {
+            // Check circuit type name.
+            let ret = self.visitor.assert_expected_circuit(circ.identifier, additional, input.name.span());
+
+            // Check number of circuit members.
+            if circ.members.len() != input.members.len() {
+                self.visitor.handler.emit_err(
+                    TypeCheckerError::incorrect_num_circuit_members(
+                        circ.members.len(),
+                        input.members.len(),
+                        input.span(),
+                    )
+                        .into(),
+                );
+            }
+            // Check circuit member types
+            circ.members
+                .iter()
+                .zip(input.members.iter())
+                .for_each(|(expected, actual)| {
+                    match expected {
+                        CircuitMember::CircuitVariable(_name, type_) => {
+                            if let Some(expr) = &actual.expression {
+                                self.visit_expression(expr, &Some(*type_));
+                            }
+                        }
+                        _ => {/* Circuit functions cannot be inside circuit init expressions */}
+                    }
+                });
+
+            Some(ret)
+        } else {
+            self.visitor
+                .handler
+                .emit_err(TypeCheckerError::unknown_sym("circuit", &input.name.name, input.name.span()).into());
+            None
+        }
     }
 }

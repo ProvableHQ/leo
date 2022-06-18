@@ -406,24 +406,26 @@ impl ParserContext<'_> {
         Some(Ok(gt))
     }
 
+    fn parse_circuit_member(&mut self) -> Result<CircuitVariableInitializer> {
+        let identifier = self.expect_ident()?;
+        let expression = if self.eat(&Token::Colon) {
+            // Parse individual circuit variable declarations.
+            Some(self.parse_expression()?)
+        } else {
+            None
+        };
+
+        Ok(CircuitVariableInitializer { identifier, expression })
+    }
+
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// circuit initialization expression.
+    /// let foo = Foo { x: 1u8 };
     pub fn parse_circuit_expression(&mut self, identifier: Identifier) -> Result<Expression> {
-        let (members, _, span) = self.parse_list(Delimiter::Brace, Some(Token::Comma), |p| {
-            let expression = if p.eat(&Token::Colon) {
-                // Parse individual circuit variable declarations.
-                Some(p.parse_expression()?)
-            } else {
-                None
-            };
+        let (members, _, end) = self.parse_list(Delimiter::Brace, Some(Token::Comma), |p| p.parse_circuit_member().map(Some))?;
 
-            Ok(Some(CircuitVariableInitializer {
-                identifier: p.expect_ident()?,
-                expression,
-            }))
-        })?;
         Ok(Expression::CircuitInit(CircuitInitExpression {
-            span: &identifier.span + &span,
+            span: identifier.span + end,
             name: identifier,
             members,
         }))
@@ -480,7 +482,7 @@ impl ParserContext<'_> {
             Token::StaticString(value) => Expression::Value(ValueExpression::String(value, span)),
             Token::Ident(name) => {
                 let ident = Identifier { name, span };
-                if !self.disallow_circuit_construction && self.eat(&Token::LeftCurly) {
+                if !self.disallow_circuit_construction && self.check(&Token::LeftCurly) {
                     self.parse_circuit_expression(ident)?
                 } else {
                     Expression::Identifier(ident)
@@ -491,7 +493,7 @@ impl ParserContext<'_> {
                     name: sym::SelfUpper,
                     span,
                 };
-                if !self.disallow_circuit_construction && self.eat(&Token::LeftCurly) {
+                if !self.disallow_circuit_construction && self.check(&Token::LeftCurly) {
                     self.parse_circuit_expression(ident)?
                 } else {
                     Expression::Identifier(ident)

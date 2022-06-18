@@ -52,7 +52,7 @@ pub struct CircuitInitExpression {
 
 impl fmt::Display for CircuitInitExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} {{", self.name)?;
+        write!(f, "{} {{ ", self.name)?;
         for member in self.members.iter() {
             write!(f, "{}", member)?;
             write!(f, ", ")?;

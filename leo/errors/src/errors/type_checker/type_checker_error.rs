@@ -153,12 +153,12 @@ create_messages!(
         help: None,
     }
 
-    /// For when an invalid core type is used.
+    /// For when a circuit is created with the same name as a core type.
     @formatted
-    invalid_core_type {
+    core_type_name_conflict {
         args: (type_: impl Display),
         msg: format!(
-            "The type {type_} is not a valid core type.",
+            "The type {type_} is a reserved core type name.",
         ),
         help: None,
     }
@@ -169,6 +169,16 @@ create_messages!(
         args: (func: impl Display),
         msg: format!(
             "The function {func} has no return statement.",
+        ),
+        help: None,
+    }
+
+    /// For when the user tries initialize a circuit with the incorrect number of args.
+    @formatted
+    incorrect_num_circuit_members {
+        args: (expected: impl Display, received: impl Display),
+        msg: format!(
+            "Circuit expected `{expected}` members, but got `{received}`",
         ),
         help: None,
     }

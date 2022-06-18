@@ -98,9 +98,9 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error if the given type conflicts with a core library type.
     pub(crate) fn check_ident_type(&self, type_: &Option<Type>) {
         if let Some(Type::Identifier(ident)) = type_ {
-            if !(self.account_types.contains(&ident.name) || self.algorithms_types.contains(&ident.name)) {
+            if self.account_types.contains(&ident.name) || self.algorithms_types.contains(&ident.name) {
                 self.handler
-                    .emit_err(TypeCheckerError::invalid_core_type(&ident.name, ident.span()).into());
+                    .emit_err(TypeCheckerError::core_type_name_conflict(&ident.name, ident.span()).into());
             }
         }
     }
@@ -138,6 +138,18 @@ impl<'a> TypeChecker<'a> {
                 .emit_err(TypeCheckerError::type_should_be("no type", type_, span).into()),
             _ => {}
         }
+    }
+
+    /// Returns the `circuit` type and emits an error if the `expected` type does not match.
+    pub(crate) fn assert_expected_circuit(&mut self, circuit: Identifier, expected: &Option<Type>, span: Span) -> Type {
+        if let Some(Type::Identifier(expected)) = expected {
+            if expected.name != circuit.name {
+                self.handler
+                    .emit_err(TypeCheckerError::type_should_be(circuit.name, expected.name, span).into());
+            }
+        }
+
+        Type::Identifier(circuit)
     }
 
     /// Returns the given `actual` type and emits an error if the `expected` type does not match.

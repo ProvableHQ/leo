@@ -163,8 +163,11 @@ impl ParserContext<'_> {
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member function.
     pub fn parse_member_function_declaration(&mut self) -> Result<CircuitMember> {
         if self.peek_is_function() {
+            // CAUTION: function members are unstable for testnet3.
             let function = self.parse_function()?;
-            Ok(CircuitMember::CircuitFunction(Box::new(function.1)))
+
+            return Err(ParserError::circuit_functions_unstable(function.1.span()).into())
+            // Ok(CircuitMember::CircuitFunction(Box::new(function.1)))
         } else {
             return Err(Self::unexpected_item(&self.token).into());
         }
@@ -246,7 +249,9 @@ impl ParserContext<'_> {
 
         // Parse return type.
         self.expect(&Token::Arrow)?;
+        self.disallow_circuit_construction = true;
         let output = self.parse_all_types()?.0;
+        self.disallow_circuit_construction = false;
 
         // Parse the function body.
         let block = self.parse_block()?;

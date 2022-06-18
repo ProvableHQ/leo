@@ -374,4 +374,12 @@ create_messages!(
         msg: "Arbitrary methods calls are not supported. Only special ones are.",
         help: None,
     }
+
+    /// Circuit functions are unstable in testnet3.
+    @formatted
+    circuit_functions_unstable {
+        args: (),
+        msg: "Circuit functions are currently an unstable feature and are disabled in Leo for testnet3",
+        help: None,
+    }
 );

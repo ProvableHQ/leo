@@ -28,21 +28,21 @@ use leo_span::{sym, Symbol};
 
 use indexmap::IndexSet;
 
-/// Returns `true` if the given symbol matches the name of a core circuit.
-pub fn is_core_circuit(circuit: Symbol) -> bool {
-    match circuit {
-        sym::bhp256
-        | sym::bhp512
-        | sym::bhp768
-        | sym::bhp1024
-        | sym::ped64
-        | sym::ped128
-        | sym::psd2
-        | sym::psd4
-        | sym::psd8 => true,
-        _ => false,
-    }
-}
+// /// Returns `true` if the given symbol matches the name of a core circuit.
+// pub fn is_core_circuit(circuit: Symbol) -> bool {
+//     match circuit {
+//         sym::bhp256
+//         | sym::bhp512
+//         | sym::bhp768
+//         | sym::bhp1024
+//         | sym::ped64
+//         | sym::ped128
+//         | sym::psd2
+//         | sym::psd4
+//         | sym::psd8 => true,
+//         _ => false,
+//     }
+// }
 
 /// A core instruction that maps directly to an AVM bytecode instruction.
 #[derive(Clone, PartialEq, Eq)]

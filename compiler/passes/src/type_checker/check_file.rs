@@ -53,8 +53,4 @@ impl<'a> ProgramVisitorDirector<'a> for Director<'a> {
             }
         }
     }
-
-    fn visit_circuit(&mut self, _input: &'a Circuit) {
-        todo!()
-    }
 }
