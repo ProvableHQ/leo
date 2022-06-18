@@ -233,20 +233,22 @@ primary-expression = identifier
                    / literal
                    / "(" expression ")"
                    / function-call
-                   / operator-call
 
 function-call = identifier function-arguments
 
-operator-call = unary-operator-call / binary-operator-call
-
-unary-operator-call = primary-expression "." identifier "(" ")"
-
-binary-operator-call =
-    primary-expression "." identifier "(" expression [ "," ] ")"
-
 function-arguments = "(" [ expression *( "," expression ) [ "," ] ] ")"
 
-unary-expression = primary-expression
+postfix-expression = primary-expression
+                   / operator-call
+
+operator-call = unary-operator-call / binary-operator-call
+
+unary-operator-call = postfix-expression "." identifier "(" ")"
+
+binary-operator-call =
+    postfix-expression "." identifier "(" expression [ "," ] ")"
+
+unary-expression = postfix-expression
                  / "!" unary-expression
                  / "-" unary-expression
 
