@@ -405,7 +405,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                             .assert_expected_type(destination, Type::Boolean, input.span()),
                     )
                 }
-                BinaryOperation::Lt | BinaryOperation::Gt | BinaryOperation::Le | BinaryOperation::Ge => {
+                BinaryOperation::Lt | BinaryOperation::Gt | BinaryOperation::Lte | BinaryOperation::Gte => {
                     // Assert left and right are equal field, scalar, or integer types.
                     let t1 = self.visit_expression(&input.left, &None);
                     let t2 = self.visit_expression(&input.right, &None);
@@ -483,12 +483,12 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
             match input.op {
                 UnaryOperation::Abs => {
                     // Assert integer type only.
-                    self.visitor.assert_singed_int_type(destination, input.span());
+                    self.visitor.assert_signed_int_type(destination, input.span());
                     self.visit_expression(&input.receiver, destination)
                 }
                 UnaryOperation::AbsWrapped => {
                     // Assert integer type only.
-                    self.visitor.assert_singed_int_type(destination, input.span());
+                    self.visitor.assert_signed_int_type(destination, input.span());
                     self.visit_expression(&input.receiver, destination)
                 }
                 UnaryOperation::Double => {

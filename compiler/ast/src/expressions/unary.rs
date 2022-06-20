@@ -64,7 +64,7 @@ impl UnaryOperation {
             Self::Negate => "neg",
             Self::Not => "not",
             Self::Square => "square",
-            Self::SquareRoot => "sqrt",
+            Self::SquareRoot => "square_root",
         }
     }
 }

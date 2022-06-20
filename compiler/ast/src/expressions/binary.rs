@@ -36,12 +36,12 @@ pub enum BinaryOperation {
     DivWrapped,
     /// Equality relation, i.e. `==`, `.eq()`.
     Eq,
-    /// Greater-or-equal relation, i.e. `>=`, `.ge()`.
-    Ge,
+    /// Greater-or-equal relation, i.e. `>=`, `.gte()`.
+    Gte,
     /// Greater-than relation, i.e. `>`, `.gt()`.
     Gt,
-    /// Lesser-or-equal relation, i.e. `<=`, `.le()`.
-    Le,
+    /// Lesser-or-equal relation, i.e. `<=`, `.lte()`.
+    Lte,
     /// Lesser-than relation, i.e. `<`, `.lt()`.
     Lt,
     /// Multiplication, i.e. `*`, `.mul()`.
@@ -88,9 +88,9 @@ impl BinaryOperation {
             sym::div => Self::Div,
             sym::div_wrapped => Self::DivWrapped,
             sym::eq => Self::Eq,
-            sym::ge => Self::Ge,
+            sym::gte => Self::Gte,
             sym::gt => Self::Gt,
-            sym::le => Self::Le,
+            sym::lte => Self::Lte,
             sym::lt => Self::Lt,
             sym::mul => Self::Mul,
             sym::mul_wrapped => Self::MulWrapped,
@@ -121,9 +121,9 @@ impl BinaryOperation {
             Self::Div => "div",
             Self::DivWrapped => "div_wrapped",
             Self::Eq => "eq",
-            Self::Ge => "ge",
+            Self::Gte => "gte",
             Self::Gt => "gt",
-            Self::Le => "le",
+            Self::Lte => "lte",
             Self::Lt => "lt",
             Self::Mul => "mul",
             Self::MulWrapped => "mul_wrapped",
