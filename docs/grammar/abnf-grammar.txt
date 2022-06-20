@@ -190,7 +190,7 @@ symbol = "!" / "&&" / "||"
        / "(" / ")"
        / "[" / "]"
        / "{" / "}"
-       / "," / "." / ".." / ";" / ":" / "?"
+       / "," / "." / ".." / ";" / ":" / "::" / "?"
        / "->" / "_"
        / %s")group"
 
@@ -229,7 +229,9 @@ string-type = %s"string"
 
 primitive-type =  boolean-type / arithmetic-type / address-type / string-type
 
-type = primitive-type / identifier
+named-type = primitive-type / identifier
+
+type = named-type
 
 group-coordinate = ( [ "-" ] numeral ) / "+" / "-" / "_"
 
@@ -242,9 +244,12 @@ group-literal = product-group-literal / affine-group-literal
 primary-expression = identifier
                    / literal
                    / "(" expression ")"
-                   / function-call
+                   / free-function-call
+                   / static-function-call
 
-function-call = identifier function-arguments
+free-function-call = identifier function-arguments
+
+static-function-call = named-type "::" identifier function-arguments
 
 function-arguments = "(" [ expression *( "," expression ) [ "," ] ] ")"
 
