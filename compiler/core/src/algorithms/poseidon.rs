@@ -31,48 +31,12 @@ impl CoreFunction for Poseidon2Hash {
     }
 }
 
-pub struct Poseidon2PRF;
-
-impl CoreFunction for Poseidon2PRF {
-    const NUM_ARGS: usize = 2;
-
-    fn first_arg_types() -> &'static [Type] {
-        &[Type::Field]
-    }
-
-    fn second_arg_types() -> &'static [Type] {
-        &ALL_TYPES
-    }
-
-    fn return_type() -> Type {
-        Type::Field
-    }
-}
-
 pub struct Poseidon4Hash;
 
 impl CoreFunction for Poseidon4Hash {
     const NUM_ARGS: usize = 1;
 
     fn first_arg_types() -> &'static [Type] {
-        &ALL_TYPES
-    }
-
-    fn return_type() -> Type {
-        Type::Field
-    }
-}
-
-pub struct Poseidon4PRF;
-
-impl CoreFunction for Poseidon4PRF {
-    const NUM_ARGS: usize = 2;
-
-    fn first_arg_types() -> &'static [Type] {
-        &[Type::Field]
-    }
-
-    fn second_arg_types() -> &'static [Type] {
         &ALL_TYPES
     }
 
@@ -95,20 +59,3 @@ impl CoreFunction for Poseidon8Hash {
     }
 }
 
-pub struct Poseidon8PRF;
-
-impl CoreFunction for Poseidon8PRF {
-    const NUM_ARGS: usize = 2;
-
-    fn first_arg_types() -> &'static [Type] {
-        &[Type::Field]
-    }
-
-    fn second_arg_types() -> &'static [Type] {
-        &ALL_TYPES
-    }
-
-    fn return_type() -> Type {
-        Type::Field
-    }
-}

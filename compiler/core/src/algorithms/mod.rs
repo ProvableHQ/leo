@@ -28,22 +28,6 @@ use leo_span::{sym, Symbol};
 
 use indexmap::IndexSet;
 
-// /// Returns `true` if the given symbol matches the name of a core circuit.
-// pub fn is_core_circuit(circuit: Symbol) -> bool {
-//     match circuit {
-//         sym::bhp256
-//         | sym::bhp512
-//         | sym::bhp768
-//         | sym::bhp1024
-//         | sym::ped64
-//         | sym::ped128
-//         | sym::psd2
-//         | sym::psd4
-//         | sym::psd8 => true,
-//         _ => false,
-//     }
-// }
-
 /// A core instruction that maps directly to an AVM bytecode instruction.
 #[derive(Clone, PartialEq, Eq)]
 pub enum CoreInstruction {
@@ -62,11 +46,8 @@ pub enum CoreInstruction {
     Pedersen128Hash,
 
     Poseidon2Hash,
-    Poseidon2PRF,
     Poseidon4Hash,
-    Poseidon4PRF,
     Poseidon8Hash,
-    Poseidon8PRF,
 }
 
 impl CoreInstruction {
@@ -88,11 +69,8 @@ impl CoreInstruction {
             (sym::ped128, sym::hash) => Self::Pedersen128Hash,
 
             (sym::psd2, sym::hash) => Self::Poseidon2Hash,
-            (sym::psd2, sym::prf) => Self::Poseidon2PRF,
             (sym::psd4, sym::hash) => Self::Poseidon4Hash,
-            (sym::psd4, sym::prf) => Self::Poseidon4PRF,
             (sym::psd8, sym::hash) => Self::Poseidon8Hash,
-            (sym::psd8, sym::prf) => Self::Poseidon8PRF,
             _ => return None,
         })
     }
@@ -115,11 +93,8 @@ impl CoreInstruction {
             CoreInstruction::Pedersen128Hash => Pedersen128Hash::NUM_ARGS,
 
             CoreInstruction::Poseidon2Hash => Poseidon2Hash::NUM_ARGS,
-            CoreInstruction::Poseidon2PRF => Poseidon2PRF::NUM_ARGS,
             CoreInstruction::Poseidon4Hash => Poseidon4Hash::NUM_ARGS,
-            CoreInstruction::Poseidon4PRF => Poseidon4PRF::NUM_ARGS,
             CoreInstruction::Poseidon8Hash => Poseidon8Hash::NUM_ARGS,
-            CoreInstruction::Poseidon8PRF => Poseidon8PRF::NUM_ARGS,
         }
     }
 
@@ -141,11 +116,8 @@ impl CoreInstruction {
             CoreInstruction::Pedersen128Hash => Pedersen128Hash::first_arg_types(),
 
             CoreInstruction::Poseidon2Hash => Poseidon2Hash::first_arg_types(),
-            CoreInstruction::Poseidon2PRF => Poseidon2PRF::first_arg_types(),
             CoreInstruction::Poseidon4Hash => Poseidon4Hash::first_arg_types(),
-            CoreInstruction::Poseidon4PRF => Poseidon4PRF::first_arg_types(),
             CoreInstruction::Poseidon8Hash => Poseidon8Hash::first_arg_types(),
-            CoreInstruction::Poseidon8PRF => Poseidon8PRF::first_arg_types(),
         }
     }
 
@@ -167,11 +139,8 @@ impl CoreInstruction {
             CoreInstruction::Pedersen128Hash => Pedersen128Hash::second_arg_types(),
 
             CoreInstruction::Poseidon2Hash => Poseidon2Hash::second_arg_types(),
-            CoreInstruction::Poseidon2PRF => Poseidon2PRF::second_arg_types(),
             CoreInstruction::Poseidon4Hash => Poseidon4Hash::second_arg_types(),
-            CoreInstruction::Poseidon4PRF => Poseidon4PRF::second_arg_types(),
             CoreInstruction::Poseidon8Hash => Poseidon8Hash::second_arg_types(),
-            CoreInstruction::Poseidon8PRF => Poseidon8PRF::second_arg_types(),
         }
     }
 
@@ -193,11 +162,8 @@ impl CoreInstruction {
             CoreInstruction::Pedersen128Hash => Pedersen128Hash::return_type(),
 
             CoreInstruction::Poseidon2Hash => Poseidon2Hash::return_type(),
-            CoreInstruction::Poseidon2PRF => Poseidon2PRF::return_type(),
             CoreInstruction::Poseidon4Hash => Poseidon4Hash::return_type(),
-            CoreInstruction::Poseidon4PRF => Poseidon4PRF::return_type(),
             CoreInstruction::Poseidon8Hash => Poseidon8Hash::return_type(),
-            CoreInstruction::Poseidon8PRF => Poseidon8PRF::return_type(),
         }
     }
 }
