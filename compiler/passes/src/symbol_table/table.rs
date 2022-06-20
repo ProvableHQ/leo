@@ -60,7 +60,7 @@ impl<'a> SymbolTable<'a> {
     pub fn insert_circuit(&mut self, symbol: Symbol, insert: &'a Circuit) -> Result<()> {
         if self.circuits.contains_key(&symbol) {
             // Return an error if the circuit name has already been inserted.
-            return Err(AstError::shadowed_circuit(symbol, insert.span).into())
+            return Err(AstError::shadowed_circuit(symbol, insert.span).into());
         }
         self.circuits.insert(symbol, insert);
         Ok(())

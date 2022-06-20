@@ -166,7 +166,7 @@ impl ParserContext<'_> {
             // CAUTION: function members are unstable for testnet3.
             let function = self.parse_function()?;
 
-            return Err(ParserError::circuit_functions_unstable(function.1.span()).into())
+            return Err(ParserError::circuit_functions_unstable(function.1.span()).into());
             // Ok(CircuitMember::CircuitFunction(Box::new(function.1)))
         } else {
             return Err(Self::unexpected_item(&self.token).into());

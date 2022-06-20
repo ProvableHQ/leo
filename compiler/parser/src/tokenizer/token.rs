@@ -69,6 +69,7 @@ pub enum Token {
     Shl,
     Shr,
     Underscore,
+    Xor,
 
     // Syntactic Grammar
     // Types
@@ -248,6 +249,7 @@ impl fmt::Display for Token {
             Shl => write!(f, "<<"),
             Shr => write!(f, ">>"),
             Underscore => write!(f, "_"),
+            Xor => write!(f, "^"),
 
             Address => write!(f, "address"),
             Bool => write!(f, "bool"),

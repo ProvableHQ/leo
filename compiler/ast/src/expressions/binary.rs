@@ -97,7 +97,7 @@ impl BinaryOperation {
             sym::nand => Self::Nand,
             sym::neq => Self::Neq,
             sym::nor => Self::Nor,
-            sym::or => Self::Or,
+            sym::or => Self::BitwiseOr,
             sym::pow => Self::Pow,
             sym::pow_wrapped => Self::PowWrapped,
             sym::shl => Self::Shl,

@@ -2,7 +2,7 @@
 namespace: ParseStatement
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected ; -- got ':'\n    --> test:1:2\n     |\n   1 | x::y = y;\n     |  ^"
+  - "Error [EPAR0370011]: invalid assignment target\n    --> test:1:1\n     |\n   1 | x::y = y;\n     | ^^^^"
   - "Error [EPAR0370028]: Could not parse the implicit value: 5.\n    --> test:1:1\n     |\n   1 | 5 = y;\n     | ^"
   - "Error [EPAR0370011]: invalid assignment target\n    --> test:1:1\n     |\n   1 | x + x = y;\n     | ^^^^^"
   - "Error [EPAR0370011]: invalid assignment target\n    --> test:1:1\n     |\n   1 | -x = y;\n     | ^^"
@@ -12,6 +12,6 @@ outputs:
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got '['\n    --> test:1:1\n     |\n   1 | [x, x, x] = y;\n     | ^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got '['\n    --> test:1:1\n     |\n   1 | [x; 3] = y;\n     | ^"
   - "Error [EPAR0370005]: expected A valid expression. -- got 'A tuple expression.'\n    --> test:1:1\n     |\n   1 | (x, x, x) = y;\n     | ^^^^^^^^^"
-  - "Error [EPAR0370005]: expected { -- got 'x'\n    --> test:1:4\n     |\n   1 | x {x: y, y: z} = y;\n     |    ^"
+  - "Error [EPAR0370011]: invalid assignment target\n    --> test:1:1\n     |\n   1 | x {x: y, y: z} = y;\n     | ^^^^^^^^^^^^^^"
   - "Error [EPAR0370011]: invalid assignment target\n    --> test:1:1\n     |\n   1 | x() = y;\n     | ^^^"
   - "Error [EPAR0370026]: Could not lex the following content: `🦀`.\n"

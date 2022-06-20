@@ -66,7 +66,11 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
     fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor.visit_identifier(input) {
             return if let Some(circuit) = self.visitor.symbol_table.clone().lookup_circuit(&input.name) {
-                Some(self.visitor.assert_expected_option(Type::Identifier(circuit.identifier.clone()), expected, circuit.span()))
+                Some(self.visitor.assert_expected_option(
+                    Type::Identifier(circuit.identifier.clone()),
+                    expected,
+                    circuit.span(),
+                ))
             } else if let Some(var) = self.visitor.symbol_table.clone().lookup_variable(&input.name) {
                 Some(self.visitor.assert_expected_option(*var.type_, expected, var.span))
             } else {
@@ -463,7 +467,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     let t1 = self.visit_expression(&input.left, destination);
 
                     // Assert right type is a magnitude (u8, u16, u32).
-                    let t2 = self.visit_expression(&input.left, &None);
+                    let t2 = self.visit_expression(&input.right, &None);
                     self.visitor.assert_magnitude_type(&t2, input.right.span());
 
                     return_incorrect_type(t1, t2, destination)
@@ -606,7 +610,9 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
     ) -> Option<Self::Output> {
         if let Some(circ) = self.visitor.symbol_table.clone().lookup_circuit(&input.name.name) {
             // Check circuit type name.
-            let ret = self.visitor.assert_expected_circuit(circ.identifier, additional, input.name.span());
+            let ret = self
+                .visitor
+                .assert_expected_circuit(circ.identifier, additional, input.name.span());
 
             // Check number of circuit members.
             if circ.members.len() != input.members.len() {
@@ -616,7 +622,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                         input.members.len(),
                         input.span(),
                     )
-                        .into(),
+                    .into(),
                 );
             }
             // Check circuit member types
@@ -630,7 +636,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                                 self.visit_expression(expr, &Some(*type_));
                             }
                         }
-                        _ => {/* Circuit functions cannot be inside circuit init expressions */}
+                        _ => { /* Circuit functions cannot be inside circuit init expressions */ }
                     }
                 });
 

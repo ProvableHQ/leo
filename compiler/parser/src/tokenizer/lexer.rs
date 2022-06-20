@@ -300,6 +300,7 @@ impl Token {
             '{' => return single(&mut input, Token::LeftCurly),
             '}' => return single(&mut input, Token::RightCurly),
             '|' => return followed_by(&mut input, '|', Token::Or, Token::BitwiseOr),
+            '^' => return single(&mut input, Token::Xor),
             _ => (),
         }
         if let Some(ident) = eat_identifier(&mut input) {

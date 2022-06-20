@@ -1,8 +1,5 @@
 ---
 namespace: Compile
-expectation: Pass
+expectation: Fail
 outputs:
-  - output:
-      - initial_input_ast: no input
-    initial_ast: ffea1f8b75a3b70278c4a5c44e73229a094f173cedb289425a72222b84ec289d
-    symbol_table: 60346efb6af3df0487aa077b29387e80e2be0c429e831460100cfea88f9877e6
+  - "Error [ETYC0372013]: The type Poseidon is a reserved core type name.\n    --> compiler-test:4:32\n     |\n   4 | function main(public poseidon: Poseidon, a: bool) -> bool {\n     |                                ^^^^^^^^\n"

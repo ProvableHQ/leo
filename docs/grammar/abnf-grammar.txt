@@ -248,7 +248,17 @@ function-call = identifier function-arguments
 
 function-arguments = "(" [ expression *( "," expression ) [ "," ] ] ")"
 
-unary-expression = primary-expression
+postfix-expression = primary-expression
+                   / operator-call
+
+operator-call = unary-operator-call / binary-operator-call
+
+unary-operator-call = postfix-expression "." identifier "(" ")"
+
+binary-operator-call =
+    postfix-expression "." identifier "(" expression [ "," ] ")"
+
+unary-expression = postfix-expression
                  / "!" unary-expression
                  / "-" unary-expression
 
@@ -263,23 +273,39 @@ additive-expression = multiplicative-expression
                     / additive-expression "+" multiplicative-expression
                     / additive-expression "-" multiplicative-expression
 
-ordering-expression = additive-expression
-                    / additive-expression "<" additive-expression
-                    / additive-expression ">" additive-expression
-                    / additive-expression "<=" additive-expression
-                    / additive-expression ">=" additive-expression
+shift-expression = additive-expression
+                 / shift-expression "<<" additive-expression
+                 / shift-expression ">>" additive-expression
+
+bitwise-and-expression = shift-expression
+                       / bitwise-and-expression "&" shift-expression
+
+bitwise-inclusive-or-expression =
+      bitwise-and-expression
+    / bitwise-inclusive-or-expression "|" bitwise-and-expression
+
+bitwise-exclusive-or-expression =
+      bitwise-inclusive-or-expression
+    / bitwise-exclusive-or-expression "^" bitwise-inclusive-or-expression
+
+ordering-expression =
+      bitwise-exclusive-or-expression
+    / bitwise-exclusive-or-expression "<" bitwise-exclusive-or-expression
+    / bitwise-exclusive-or-expression ">" bitwise-exclusive-or-expression
+    / bitwise-exclusive-or-expression "<=" bitwise-exclusive-or-expression
+    / bitwise-exclusive-or-expression ">=" bitwise-exclusive-or-expression
 
 equality-expression = ordering-expression
                     / ordering-expression "==" ordering-expression
                     / ordering-expression "!=" ordering-expression
 
-conjunctive-expression = equality-expression
-                       / conjunctive-expression "&&" equality-expression
+boolean-and-expression = equality-expression
+                       / boolean-and-expression "&&" equality-expression
 
-disjunctive-expression = conjunctive-expression
-                       / disjunctive-expression "||" conjunctive-expression
+boolean-or-expression = boolean-and-expression
+                      / boolean-or-expression "||" boolean-and-expression
 
-binary-expression = disjunctive-expression
+binary-expression = boolean-or-expression
 
 conditional-expression = binary-expression
                        / binary-expression "?" expression ":" expression

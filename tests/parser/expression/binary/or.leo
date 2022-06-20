@@ -3,14 +3,12 @@ namespace: ParseExpression
 expectation: Pass
 */
 
-1u8 + 1u8
+true || true
 
-2u8+3u16
+false||true
 
-1u8 + 2u8 + 3u8
+true||false || false
 
-1u8 * 2u8 + 3u8 * 4u8
+true || false || true || false
 
-1i8 + 2i8 - 3i8
-
-1u8 * 2u8 + 3u8 * 4u8 - 5u8 * 6u8
+true || (true || false) || true

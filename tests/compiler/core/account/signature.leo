@@ -1,8 +1,9 @@
 /*
 namespace: Compile
-expectation: Pass
+expectation: Fail
 */
 
+// todo: rewrite this test so it properly tests a signature.
 function main(public signature: Signature, a: bool) -> bool {
     return a;
 }
