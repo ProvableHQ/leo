@@ -16,7 +16,7 @@
 
 use std::fmt::Display;
 
-use leo_ast::{GroupValue, IntegerType, ParamMode, Type};
+use leo_ast::{GroupValue, IntegerType, ParamMode, Type, ValueExpression};
 use leo_errors::{Result, TypeCheckerError};
 use leo_span::Span;
 
@@ -116,6 +116,30 @@ impl From<&Value> for Type {
             U128(_) => Type::IntegerType(IntegerType::U128),
             Scalar(_) => Type::Scalar,
             String(_) => Type::String,
+        }
+    }
+}
+
+impl From<Value> for ValueExpression {
+    fn from(v: Value) -> Self {
+        use Value::*;
+        match v {
+            Address(v) => ValueExpression::Address(v, todo!()),
+            Boolean(v) => ValueExpression::Boolean(v, todo!()),
+            Field(v) => ValueExpression::Field(v, todo!()),
+            Group(v) => ValueExpression::Group(v),
+            I8(v) => ValueExpression::Integer(IntegerType::I8, v.to_string(), todo!()),
+            I16(v) => ValueExpression::Integer(IntegerType::I16, v.to_string(), todo!()),
+            I32(v) => ValueExpression::Integer(IntegerType::I32, v.to_string(), todo!()),
+            I64(v) => ValueExpression::Integer(IntegerType::I64, v.to_string(), todo!()),
+            I128(v) => ValueExpression::Integer(IntegerType::I128, v.to_string(), todo!()),
+            U8(v) => ValueExpression::Integer(IntegerType::U8, v.to_string(), todo!()),
+            U16(v) => ValueExpression::Integer(IntegerType::U16, v.to_string(), todo!()),
+            U32(v) => ValueExpression::Integer(IntegerType::U32, v.to_string(), todo!()),
+            U64(v) => ValueExpression::Integer(IntegerType::U64, v.to_string(), todo!()),
+            U128(v) => ValueExpression::Integer(IntegerType::U128, v.to_string(), todo!()),
+            Scalar(v) => ValueExpression::Scalar(v, todo!()),
+            String(v) => ValueExpression::String(v, todo!()),
         }
     }
 }
