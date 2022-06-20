@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,26 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![doc = include_str!("../README.md")]
+use crate::CodeGenerator;
 
-// Temporarily disable canonicalization.
-/* pub mod canonicalization;
-pub use canonicalization::*;
- */
+use leo_ast::Type;
 
-// Temporarily disable import resolution
-// until we migrate core and then import resolution.
-/* pub mod import_resolution;
-pub use import_resolution::*; */
-
-pub mod code_generation;
-pub use code_generation::*;
-
-pub mod pass;
-pub use self::pass::*;
-
-pub mod symbol_table;
-pub use symbol_table::*;
-
-pub mod type_checker;
-pub use type_checker::*;
+impl<'a> CodeGenerator<'a> {
+    pub(crate) fn visit_type(&mut self, input: &'a Type) -> String {
+        match input {
+            Type::Address
+            | Type::Boolean
+            | Type::Field
+            | Type::Group
+            | Type::Scalar
+            | Type::String
+            | Type::IntegerType(..)
+            | Type::SelfType => format!("{}", input),
+            Type::Identifier(_) => unimplemented!("Support for composite types is not yet implemented"),
+            Type::Err => unreachable!("Error types should not exist at this phase of compilation"),
+        }
+    }
+}

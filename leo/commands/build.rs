@@ -40,6 +40,12 @@ pub struct BuildOptions {
     pub enable_initial_input_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot of the initial parse.")]
     pub enable_initial_ast_snapshot: bool,
+    // Note: This is currently made optional since code generation is just a prototype.
+    #[structopt(
+        long,
+        help = "Runs the code generation stage of the compiler and prints the resulting bytecode."
+    )]
+    pub enable_code_generation: bool,
 }
 
 impl From<BuildOptions> for OutputOptions {
@@ -150,15 +156,26 @@ impl Command for Build {
             &handler,
             main_file_path,
             output_directory,
-            Some(self.compiler_options.into()),
+            Some(self.compiler_options.clone().into()),
         );
         program.parse_input(input_path.to_path_buf())?;
 
         // Compute the current program checksum
         let program_checksum = program.checksum()?;
 
-        // Compile the program
-        program.compile()?;
+        // Compile the program.
+        // TODO: Remove when code generation is ready to be integrated into the compiler.
+        match self.compiler_options.enable_code_generation {
+            false => {
+                program.compile()?;
+            }
+            true => {
+                let (_, bytecode) = program.compile_and_generate_bytecode()?;
+                // TODO: Remove when AVM output file format is stabilized.
+                tracing::info!("Printing bytecode...\n");
+                println!("{}", bytecode);
+            }
+        }
 
         // Generate the program on the constraint system and verify correctness
         {
