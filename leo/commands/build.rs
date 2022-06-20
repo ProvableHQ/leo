@@ -25,6 +25,9 @@ use leo_package::{
     source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
+use snarkvm_bytecode::{Identifier, Process, Program, Value};
+use snarkvm_circuit::prelude::*;
+
 use clap::StructOpt;
 use tracing::span::Span;
 
@@ -176,6 +179,17 @@ impl Command for Build {
         tracing::info!("Printing bytecode...\n");
         println!("{}", bytecode);
 
+        {
+            // Initialize AVM bytecode.
+            Process::from_str(&bytecode);
+
+            // Run program todo: run with real inputs.
+            // Run the `HelloWorld` program with the given inputs.
+            let first = Value::from_str("1field.public");
+            let second = Value::from_str("1field.private");
+            let output = Process::get_function(&Identifier::from_str("main")).unwrap().evaluate(&[first, second]);
+            println!("program output: {}", output.first().unwrap());
+        }
         //     }
         // }
 

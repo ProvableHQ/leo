@@ -170,7 +170,8 @@ impl<'a> Compiler<'a> {
     /// Returns a compiled Leo program and prints the resulting bytecode.
     /// TODO: Remove when code generation is ready to be integrated into the compiler.
     ///
-    pub fn compile_and_generate_bytecode(&self) -> Result<(SymbolTable<'_>, String)> {
+    pub fn compile_and_generate_bytecode(&mut self) -> Result<(SymbolTable<'_>, String)> {
+        self.parse_program()?;
         let symbol_table = self.compiler_stages()?;
 
         let bytecode = CodeGenerator::do_pass((&self.ast, &self.handler))?;
