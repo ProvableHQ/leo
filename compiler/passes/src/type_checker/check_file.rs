@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use std::cell::RefCell;
+
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
 
@@ -24,7 +26,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
             .swap(prev_st.borrow().get_fn_scope(input.name()).unwrap());
-        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.clone().into_inner()));
+        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
 
         self.has_return = false;
         self.parent = Some(input.name());
@@ -52,8 +54,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 .emit_err(TypeCheckerError::function_has_no_return(input.name(), input.span()).into());
         }
 
-        self.symbol_table
-            .swap(prev_st.borrow().get_fn_scope(input.name()).unwrap());
-        self.symbol_table = prev_st;
+        let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
+        self.symbol_table.swap(prev_st.get_fn_scope(input.name()).unwrap());
+        self.symbol_table = RefCell::new(prev_st);
     }
 }

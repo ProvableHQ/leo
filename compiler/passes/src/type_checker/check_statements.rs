@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use std::cell::RefCell;
+
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
 
@@ -125,7 +127,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
             .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
-        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.clone().into_inner()));
+        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
 
         input.statements.iter().for_each(|stmt| {
             match stmt {
@@ -139,8 +141,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             };
         });
 
-        self.symbol_table
-            .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
-        self.symbol_table = prev_st;
+        let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
+        self.symbol_table.swap(prev_st.get_block_scope(scope_index).unwrap());
+        self.symbol_table = RefCell::new(prev_st);
     }
 }

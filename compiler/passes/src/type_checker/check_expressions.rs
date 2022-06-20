@@ -403,7 +403,8 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match &*input.function {
             Expression::Identifier(ident) => {
-                if let Some(func) = self.symbol_table.clone().borrow().lookup_fn(ident.name) {
+                let f = self.symbol_table.borrow().lookup_fn(ident.name).cloned();
+                if let Some(func) = f {
                     let ret = self.assert_type(func.type_, None, expected, func.span);
 
                     if func.input.len() != input.arguments.len() {
