@@ -406,11 +406,19 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     )
                 }
                 BinaryOperation::Lt | BinaryOperation::Gt | BinaryOperation::Lte | BinaryOperation::Gte => {
-                    // Assert left and right are equal field, scalar, or integer types.
+                    // Assert left and right are equal address, field, scalar, or integer types.
                     let t1 = self.visit_expression(&input.left, &None);
                     let t2 = self.visit_expression(&input.right, &None);
 
                     match (t1, t2) {
+                        (Some(Type::Address), t2) => {
+                            // Assert rhs is address.
+                            self.visitor.assert_expected_type(&t2, Type::Address, input.left.span());
+                        }
+                        (t1, Some(Type::Address)) => {
+                            // Assert lhs is address.
+                            self.visitor.assert_expected_type(&t1, Type::Address, input.right.span());
+                        }
                         (Some(Type::Field), t2) => {
                             // Assert rhs is field.
                             self.visitor.assert_expected_type(&t2, Type::Field, input.left.span());
