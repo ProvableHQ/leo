@@ -100,7 +100,7 @@ macro_rules! symbols {
 }
 
 symbols! {
-    // unary operators index 0-7
+    // unary operators
     abs,
     abs_wrapped,
     double,
@@ -108,9 +108,9 @@ symbols! {
     neg,
     not,
     square,
-    sqrt,
+    sqrt: "square_root",
 
-    // binary operators index 8-32
+    // binary operators
     add,
     add_wrapped,
     and,
@@ -137,7 +137,7 @@ symbols! {
     sub_wrapped,
     xor,
 
-    // algorithm operator names 33-44
+    // core circuits
     bhp256: "BHP256",
     bhp512: "BHP512",
     bhp768: "BHP768",
