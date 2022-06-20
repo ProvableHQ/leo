@@ -158,26 +158,24 @@ impl<'a> Compiler<'a> {
     }
 
     ///
-    /// Returns a compiled Leo program and prints the resulting bytecode.
-    /// TODO: Remove when code generation is ready to be integrated into the compiler.
-    ///
-    pub fn compile_and_generate_bytecode(&self) -> Result<(SymbolTable<'_>, String)> {
-        let symbol_table = CreateSymbolTable::do_pass((&self.ast, self.handler))?;
-
-        TypeChecker::do_pass((&self.ast, &mut symbol_table.clone(), self.handler))?;
-
-        let bytecode = CodeGenerator::do_pass((&self.ast, &self.handler))?;
-
-        Ok((symbol_table, bytecode))
-    }
-
-    ///
     /// Runs the compiler stages.
     ///
     pub fn compiler_stages(&self) -> Result<SymbolTable<'_>> {
         let mut st = self.symbol_table_pass()?;
         self.type_checker_pass(&mut st)?;
         Ok(st)
+    }
+
+    ///
+    /// Returns a compiled Leo program and prints the resulting bytecode.
+    /// TODO: Remove when code generation is ready to be integrated into the compiler.
+    ///
+    pub fn compile_and_generate_bytecode(&self) -> Result<(SymbolTable<'_>, String)> {
+        let symbol_table = self.compiler_stages()?;
+
+        let bytecode = CodeGenerator::do_pass((&self.ast, &self.handler))?;
+
+        Ok((symbol_table, bytecode))
     }
 
     ///

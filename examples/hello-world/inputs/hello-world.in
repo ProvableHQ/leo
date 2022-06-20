@@ -1,3 +1,4 @@
 [main]
+a: u8 = 1u8;
 
 [registers]

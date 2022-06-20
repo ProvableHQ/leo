@@ -1,8 +1,3 @@
-circuit Foo {
-    x: u8,
-    y: u8,
-}
-
-function main(a: u8) -> field {
-    return BHP256::hash(a);
+function main() -> u8 {
+    return 1u8 + 1u8;
 }

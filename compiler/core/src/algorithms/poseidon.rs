@@ -58,4 +58,3 @@ impl CoreFunction for Poseidon8Hash {
         Type::Field
     }
 }
-

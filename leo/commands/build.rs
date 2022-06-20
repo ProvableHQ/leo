@@ -165,17 +165,19 @@ impl Command for Build {
 
         // Compile the program.
         // TODO: Remove when code generation is ready to be integrated into the compiler.
-        match self.compiler_options.enable_code_generation {
-            false => {
-                program.compile()?;
-            }
-            true => {
-                let (_, bytecode) = program.compile_and_generate_bytecode()?;
-                // TODO: Remove when AVM output file format is stabilized.
-                tracing::info!("Printing bytecode...\n");
-                println!("{}", bytecode);
-            }
-        }
+        // match self.compiler_options.enable_code_generation {
+        //     false => {
+        //         program.compile()?;
+        //     }
+        //     true => {
+
+        let (_, bytecode) = program.compile_and_generate_bytecode()?;
+        // TODO: Remove when AVM output file format is stabilized.
+        tracing::info!("Printing bytecode...\n");
+        println!("{}", bytecode);
+
+        //     }
+        // }
 
         // Generate the program on the constraint system and verify correctness
         {
