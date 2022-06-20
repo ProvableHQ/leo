@@ -483,12 +483,12 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
             match input.op {
                 UnaryOperation::Abs => {
                     // Assert integer type only.
-                    self.visitor.assert_int_type(destination, input.span());
+                    self.visitor.assert_singed_int_type(destination, input.span());
                     self.visit_expression(&input.receiver, destination)
                 }
                 UnaryOperation::AbsWrapped => {
                     // Assert integer type only.
-                    self.visitor.assert_int_type(destination, input.span());
+                    self.visitor.assert_singed_int_type(destination, input.span());
                     self.visit_expression(&input.receiver, destination)
                 }
                 UnaryOperation::Double => {

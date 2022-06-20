@@ -146,7 +146,6 @@ symbols! {
     hash,
     ped64: "Pedersen64",
     ped128: "Pedersen128",
-    prf,
     psd2: "Poseidon2",
     psd4: "Poseidon4",
     psd8: "Poseidon8",

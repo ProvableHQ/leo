@@ -45,6 +45,14 @@ const INT_TYPES: [Type; 10] = [
     Type::IntegerType(IntegerType::U128),
 ];
 
+const SIGNED_INT_TYPES: [Type; 5] = [
+    Type::IntegerType(IntegerType::I8),
+    Type::IntegerType(IntegerType::I16),
+    Type::IntegerType(IntegerType::I32),
+    Type::IntegerType(IntegerType::I64),
+    Type::IntegerType(IntegerType::I128),
+];
+
 const MAGNITUDE_TYPES: [Type; 3] = [
     Type::IntegerType(IntegerType::U8),
     Type::IntegerType(IntegerType::U16),
@@ -225,6 +233,11 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error to the handler if the given type is not an integer.
     pub(crate) fn assert_int_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &INT_TYPES, span)
+    }
+
+    /// Emits an error to the handler if the given type is not a signed integer.
+    pub(crate) fn assert_singed_int_type(&self, type_: &Option<Type>, span: Span) {
+        self.assert_one_of_types(type_, &SIGNED_INT_TYPES, span)
     }
 
     /// Emits an error to the handler if the given type is not a magnitude (u8, u16, u32).
