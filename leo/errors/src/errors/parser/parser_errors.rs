@@ -366,4 +366,12 @@ create_messages!(
         msg: "Expression statements are no longer supported.",
         help: None,
     }
+
+    /// Previously, arbitrary methods were allowed, but not anymore.
+    @formatted
+    expr_arbitrary_method_call {
+        args: (),
+        msg: "Arbitrary methods calls are not supported. Only special ones are.",
+        help: None,
+    }
 );

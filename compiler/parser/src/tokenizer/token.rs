@@ -38,6 +38,8 @@ pub enum Token {
     Not,
     And,
     Or,
+    BitwiseAnd,
+    BitwiseOr,
     Eq,
     NotEq,
     Lt,
@@ -63,7 +65,10 @@ pub enum Token {
     Colon,
     Question,
     Arrow,
+    Shl,
+    Shr,
     Underscore,
+    Xor,
 
     // Syntactic Grammar
     // Types
@@ -200,6 +205,8 @@ impl fmt::Display for Token {
             Not => write!(f, "!"),
             And => write!(f, "&&"),
             Or => write!(f, "||"),
+            BitwiseAnd => write!(f, "&"),
+            BitwiseOr => write!(f, "|"),
             Eq => write!(f, "=="),
             NotEq => write!(f, "!="),
             Lt => write!(f, "<"),
@@ -225,7 +232,10 @@ impl fmt::Display for Token {
             Colon => write!(f, ":"),
             Question => write!(f, "?"),
             Arrow => write!(f, "->"),
+            Shl => write!(f, "<<"),
+            Shr => write!(f, ">>"),
             Underscore => write!(f, "_"),
+            Xor => write!(f, "^"),
 
             Address => write!(f, "address"),
             Bool => write!(f, "bool"),

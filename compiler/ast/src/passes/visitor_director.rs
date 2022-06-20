@@ -72,7 +72,7 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
 
     fn visit_unary(&mut self, input: &'a UnaryExpression, additional: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_unary(input) {
-            self.visit_expression(&input.inner, additional);
+            self.visit_expression(&input.receiver, additional);
         }
         None
     }

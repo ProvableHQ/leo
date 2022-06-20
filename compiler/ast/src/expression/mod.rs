@@ -46,7 +46,7 @@ pub enum Expression {
     Unary(UnaryExpression),
     /// A ternary conditional expression `cond ? if_expr : else_expr`.
     Ternary(TernaryExpression),
-    /// A call expression like `my_fun(args)`.
+    /// A call expression, e.g., `my_fun(args)`.
     Call(CallExpression),
     /// An expression of type "error".
     /// Will result in a compile error eventually.

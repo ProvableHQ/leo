@@ -70,5 +70,5 @@ outputs:
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'if'\n    --> test:1:1\n     |\n   1 | if\n     | ^^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'in'\n    --> test:1:1\n     |\n   1 | in\n     | ^^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'let'\n    --> test:1:1\n     |\n   1 | let\n     | ^^^"
-  - "Error [EPAR0370021]: Expected more characters to lex but found none."
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got '&'\n    --> test:1:1\n     |\n   1 | &\n     | ^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'return'\n    --> test:1:1\n     |\n   1 | return\n     | ^^^^^^"

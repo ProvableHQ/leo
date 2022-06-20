@@ -192,16 +192,16 @@ impl Token {
                 (1, els)
             })
         };
-        // Consumes `on` again and produces `token` if found.
-        let twice = |input: &mut Peekable<_>, on, token| {
+        // Consumes a character followed by `on_1`, `on_2` or none. Outputs case_1, case_2, or els.
+        let three_cases = |input: &mut Peekable<_>, on_1, case_1, on_2, case_2, els| {
             input.next();
-            if input.next_if_eq(&on).is_some() {
-                Ok((2, token))
-            } else if let Some(found) = input.next() {
-                Err(ParserError::lexer_expected_but_found(found, on).into())
+            Ok(if input.next_if_eq(&on_1).is_some() {
+                (2, case_1)
+            } else if input.next_if_eq(&on_2).is_some() {
+                (2, case_2)
             } else {
-                Err(ParserError::lexer_empty_input().into())
-            }
+                (1, els)
+            })
         };
 
         match *input.peek().ok_or_else(ParserError::lexer_empty_input)? {
@@ -236,7 +236,7 @@ impl Token {
             x if x.is_ascii_digit() => return Self::eat_integer(&mut input),
             '!' => return followed_by(&mut input, '=', Token::NotEq, Token::Not),
             '?' => return single(&mut input, Token::Question),
-            '&' => return twice(&mut input, '&', Token::And),
+            '&' => return followed_by(&mut input, '&', Token::And, Token::BitwiseAnd),
             '(' => return single(&mut input, Token::LeftParen),
             ')' => return single(&mut input, Token::RightParen),
             '_' => return single(&mut input, Token::Underscore),
@@ -292,14 +292,15 @@ impl Token {
             }
             ':' => return single(&mut input, Token::Colon),
             ';' => return single(&mut input, Token::Semicolon),
-            '<' => return followed_by(&mut input, '=', Token::LtEq, Token::Lt),
-            '>' => return followed_by(&mut input, '=', Token::GtEq, Token::Gt),
+            '<' => return three_cases(&mut input, '=', Token::LtEq, '<', Token::Shl, Token::Lt),
+            '>' => return three_cases(&mut input, '=', Token::GtEq, '>', Token::Shr, Token::Gt),
             '=' => return followed_by(&mut input, '=', Token::Eq, Token::Assign),
             '[' => return single(&mut input, Token::LeftSquare),
             ']' => return single(&mut input, Token::RightSquare),
             '{' => return single(&mut input, Token::LeftCurly),
             '}' => return single(&mut input, Token::RightCurly),
-            '|' => return twice(&mut input, '|', Token::Or),
+            '|' => return followed_by(&mut input, '|', Token::Or, Token::BitwiseOr),
+            '^' => return single(&mut input, Token::Xor),
             _ => (),
         }
         if let Some(ident) = eat_identifier(&mut input) {

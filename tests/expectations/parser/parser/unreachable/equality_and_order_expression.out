@@ -47,7 +47,7 @@ outputs:
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'if'\n    --> test:1:1\n     |\n   1 | if 10 u32 {}\n     | ^^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'if'\n    --> test:1:1\n     |\n   1 | if 10 u64 {}\n     | ^^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'if'\n    --> test:1:1\n     |\n   1 | if 10 u128 {}\n     | ^^"
-  - "Error [EPAR0370037]: Found the char ` `, but expected `&`"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'if'\n    --> test:1:1\n     |\n   1 | if 10 & {}\n     | ^^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'if'\n    --> test:1:1\n     |\n   1 | if 10 return {}\n     | ^^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'if'\n    --> test:1:1\n     |\n   1 | if 10 self {}\n     | ^^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', got 'if'\n    --> test:1:1\n     |\n   1 | if 10 Self {}\n     | ^^"

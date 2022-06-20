@@ -1,0 +1,158 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Unary:
+              receiver:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+              op: SquareRoot
+              span:
+                lo: 2
+                hi: 10
+          op: Negate
+          span:
+            lo: 1
+            hi: 10
+      op: Not
+      span:
+        lo: 0
+        hi: 10
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Unary:
+              receiver:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+              op: SquareRoot
+              span:
+                lo: 0
+                hi: 8
+          op: SquareRoot
+          span:
+            lo: 0
+            hi: 15
+      op: SquareRoot
+      span:
+        lo: 0
+        hi: 22
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+          op: SquareRoot
+          span:
+            lo: 1
+            hi: 9
+      op: Negate
+      span:
+        lo: 0
+        hi: 9
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: Negate
+          span:
+            lo: 1
+            hi: 3
+      op: SquareRoot
+      span:
+        lo: 1
+        hi: 11
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: SquareRoot
+          span:
+            lo: 2
+            hi: 10
+      op: Negate
+      span:
+        lo: 0
+        hi: 10
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Unary:
+              receiver:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+              op: SquareRoot
+              span:
+                lo: 2
+                hi: 10
+          op: Negate
+          span:
+            lo: 1
+            hi: 10
+      op: SquareRoot
+      span:
+        lo: 1
+        hi: 18
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+          op: SquareRoot
+          span:
+            lo: 1
+            hi: 9
+      op: Not
+      span:
+        lo: 0
+        hi: 9
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: Not
+          span:
+            lo: 1
+            hi: 3
+      op: SquareRoot
+      span:
+        lo: 1
+        hi: 11
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: SquareRoot
+          span:
+            lo: 2
+            hi: 10
+      op: Not
+      span:
+        lo: 0
+        hi: 10
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Unary:
+              receiver:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+              op: SquareRoot
+              span:
+                lo: 2
+                hi: 10
+          op: Not
+          span:
+            lo: 1
+            hi: 10
+      op: SquareRoot
+      span:
+        lo: 1
+        hi: 18

@@ -89,7 +89,7 @@ pub trait ReconstructingReducer {
         op: UnaryOperation,
     ) -> Result<UnaryExpression> {
         Ok(UnaryExpression {
-            inner: Box::new(inner),
+            receiver: Box::new(inner),
             op,
             span: unary.span,
         })

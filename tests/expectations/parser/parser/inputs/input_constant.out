@@ -90,7 +90,7 @@ outputs:
             name: "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":217,\\\"hi\\\":218}\"}"
             value:
               Unary:
-                inner:
+                receiver:
                   Value:
                     Integer:
                       - I8
@@ -195,7 +195,7 @@ outputs:
             name: "{\"name\":\"r4\",\"span\":\"{\\\"lo\\\":406,\\\"hi\\\":408}\"}"
             value:
               Unary:
-                inner:
+                receiver:
                   Value:
                     Integer:
                       - I8
