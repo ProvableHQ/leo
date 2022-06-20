@@ -75,9 +75,9 @@ const FIELD_GROUP_SCALAR_INT_TYPES: [Type; 13] = create_type_superset(FIELD_GROU
 
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
-    pub fn new(symbol_table: RefCell<SymbolTable>, handler: &'a Handler) -> Self {
+    pub fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
         Self {
-            symbol_table,
+            symbol_table: RefCell::new(symbol_table),
             handler,
             parent: None,
             has_return: false,

@@ -14,14 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use std::cell::RefCell;
+
 use leo_errors::emitter::Handler;
 
+use crate::SymbolTable;
+
 pub struct Flattener<'a> {
+    pub(crate) symbol_table: RefCell<SymbolTable>,
     pub(crate) _handler: &'a Handler,
 }
 
 impl<'a> Flattener<'a> {
-    pub(crate) fn new(handler: &'a Handler) -> Self {
-        Self { _handler: handler }
+    pub(crate) fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
+        Self {
+            symbol_table: RefCell::new(symbol_table),
+            _handler: handler,
+        }
     }
 }

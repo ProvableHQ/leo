@@ -16,31 +16,71 @@
 
 use leo_ast::*;
 
-use crate::Flattener;
+use crate::{Declaration, Flattener, Value, VariableSymbol};
 
 impl<'a> ProgramReconstructor for Flattener<'a> {
     fn reconstruct_function(&mut self, input: Function) -> Function {
-        /* let f_inputs = if input.is_main() {
+        let f_inputs = if input.is_main() {
             let (non_consts, consts): (Vec<_>, Vec<_>) = input
                 .input
                 .iter()
+                .cloned()
                 .partition(|fi| matches!(fi, FunctionInput::Variable(v) if v.mode() != ParamMode::Const));
 
-            if let Some(main) = self.symbol_table.functions.borrow_mut().get_mut(&input.identifier.name) {
-                main.input = &non_consts;
+            let id = if let Some(main) = self.symbol_table.borrow_mut().functions.get_mut(&input.identifier.name) {
+                main.input = non_consts.clone();
+                main.id
             } else {
-                // self.handler
-                todo!();
-            }
+                todo!("no main function");
+            };
+
+            let fn_scope = &self.symbol_table.borrow().scopes[id];
+
+            fn_scope
+                .borrow_mut()
+                .variables
+                .extend(consts.into_iter().map(|c| match c {
+                    FunctionInput::Variable(var) => (
+                        var.identifier.name,
+                        VariableSymbol {
+                            type_: var.type_,
+                            span: var.span,
+                            declaration: Declaration::Const(Some(match var.type_ {
+                                Type::Address => Value::Address(Default::default()),
+                                Type::Boolean => Value::Boolean(Default::default()),
+                                Type::Field => Value::Field(Default::default()),
+                                Type::Group => {
+                                    Value::Group(Box::new(GroupValue::Single(Default::default(), Default::default())))
+                                }
+                                Type::Scalar => Value::Scalar(Default::default()),
+                                Type::String => Value::String(Default::default()),
+                                Type::IntegerType(int_type) => match int_type {
+                                    IntegerType::U8 => Value::U8(0),
+                                    IntegerType::U16 => Value::U16(0),
+                                    IntegerType::U32 => Value::U32(0),
+                                    IntegerType::U64 => Value::U64(0),
+                                    IntegerType::U128 => Value::U128(0),
+                                    IntegerType::I8 => Value::I8(0),
+                                    IntegerType::I16 => Value::I16(0),
+                                    IntegerType::I32 => Value::I32(0),
+                                    IntegerType::I64 => Value::I64(0),
+                                    IntegerType::I128 => Value::I128(0),
+                                },
+                                Type::Identifier(_) => unreachable!(),
+                                Type::Err => unreachable!(),
+                            })),
+                        },
+                    ),
+                }));
 
             non_consts
         } else {
             input.input.clone()
-        }; */
+        };
 
         Function {
             identifier: input.identifier,
-            input: input.input.clone(),
+            input: f_inputs,
             output: input.output,
             core_mapping: input.core_mapping.clone(),
             block: self.reconstruct_block(input.block),

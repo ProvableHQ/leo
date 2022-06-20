@@ -27,7 +27,6 @@ use leo_span::source_map::FileName;
 use leo_span::symbol::with_session_globals;
 
 use sha2::{Digest, Sha256};
-use std::cell::RefCell;
 use std::fs;
 use std::path::PathBuf;
 
@@ -154,15 +153,15 @@ impl<'a> Compiler<'a> {
     ///
     /// Runs the type checker pass.
     ///
-    pub fn type_checker_pass(&'a self, symbol_table: RefCell<SymbolTable>) -> Result<RefCell<SymbolTable>> {
+    pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<SymbolTable> {
         TypeChecker::do_pass((&self.ast, self.handler, symbol_table))
     }
 
     ///
     /// Runs the flattening pass.
     ///
-    pub fn flattening_pass(&mut self) -> Result<()> {
-        self.ast = Flattener::do_pass((std::mem::take(&mut self.ast), self.handler))?;
+    pub fn flattening_pass(&mut self, symbol_table: SymbolTable) -> Result<()> {
+        self.ast = Flattener::do_pass((std::mem::take(&mut self.ast), self.handler, symbol_table))?;
 
         if self.output_options.ast_initial {
             // Write the input AST snapshot post parsing.
@@ -182,9 +181,9 @@ impl<'a> Compiler<'a> {
     /// Runs the compiler stages.
     ///
     pub fn compiler_stages(&mut self) -> Result<()> {
-        let mut st = RefCell::new(self.symbol_table_pass()?);
+        let mut st = self.symbol_table_pass()?;
         st = self.type_checker_pass(st)?;
-        self.flattening_pass()
+        self.flattening_pass(st)
     }
 
     ///

@@ -29,14 +29,14 @@ pub use flatten_program::*;
 pub mod flatten_statement;
 pub use flatten_statement::*;
 
-use crate::Pass;
+use crate::{Pass, SymbolTable};
 
 impl<'a> Pass for Flattener<'a> {
-    type Input = (Ast, &'a Handler);
+    type Input = (Ast, &'a Handler, SymbolTable);
     type Output = Result<Ast>;
 
-    fn do_pass((ast, handler): Self::Input) -> Self::Output {
-        let mut reconstructor = Self::new(handler);
+    fn do_pass((ast, handler, st): Self::Input) -> Self::Output {
+        let mut reconstructor = Self::new(st, handler);
         let program = reconstructor.reconstruct_program(ast.into_repr());
         handler.last_err()?;
 

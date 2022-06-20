@@ -26,7 +26,6 @@ use leo_test_framework::get_benches;
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use std::{
-    cell::RefCell,
     path::PathBuf,
     time::{Duration, Instant},
 };
@@ -167,8 +166,7 @@ impl Sample {
                         compiler
                             .parse_program_from_string(input, name)
                             .expect("Failed to parse program");
-                        let symbol_table =
-                            RefCell::new(compiler.symbol_table_pass().expect("failed to generate symbol table"));
+                        let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
                         let start = Instant::now();
                         let out = compiler.type_checker_pass(symbol_table);
                         time += start.elapsed();
@@ -194,13 +192,12 @@ impl Sample {
                         compiler
                             .parse_program_from_string(input, name)
                             .expect("Failed to parse program");
-                        let symbol_table =
-                            RefCell::new(compiler.symbol_table_pass().expect("failed to generate symbol table"));
-                        compiler
+                        let mut symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
+                        symbol_table = compiler
                             .type_checker_pass(symbol_table)
                             .expect("failed to run type check pass");
                         let start = Instant::now();
-                        let out = compiler.flattening_pass();
+                        let out = compiler.flattening_pass(symbol_table);
                         time += start.elapsed();
                         out.expect("failed to run flattening pass")
                     });
@@ -225,12 +222,13 @@ impl Sample {
                         compiler
                             .parse_program_from_string(input, name)
                             .expect("Failed to parse program");
-                        let symbol_table =
-                            RefCell::new(compiler.symbol_table_pass().expect("failed to generate symbol table"));
-                        compiler
+                        let mut symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
+                        symbol_table = compiler
                             .type_checker_pass(symbol_table)
                             .expect("failed to run type check pass");
-                        compiler.flattening_pass().expect("failed to run flattening pass");
+                        compiler
+                            .flattening_pass(symbol_table)
+                            .expect("failed to run flattening pass");
                         time += start.elapsed();
                     });
                 }
