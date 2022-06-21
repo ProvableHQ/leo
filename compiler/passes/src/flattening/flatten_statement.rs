@@ -48,7 +48,6 @@ impl<'a> StatementReconstructor for Flattener<'a> {
     }
 
     fn reconstruct_block(&mut self, input: Block) -> Block {
-        // TODO: handle getting block scope?
         let current_block = self.block_index;
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
