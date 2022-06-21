@@ -22,10 +22,13 @@ use crate::Flattener;
 
 impl<'a> StatementReconstructor for Flattener<'a> {
     fn reconstruct_iteration(&mut self, input: IterationStatement) -> Statement {
+        let start = self.reconstruct_expression(input.start);
+        let stop = self.reconstruct_expression(input.stop);
+
         if let (
             Expression::Literal(LiteralExpression::Integer(_, start_str_content, _)),
             Expression::Literal(LiteralExpression::Integer(_, stop_str_content, _)),
-        ) = (input.start, input.stop)
+        ) = (start, stop)
         {
             let start = start_str_content.parse::<usize>().unwrap();
             let stop = stop_str_content.parse::<usize>().unwrap();

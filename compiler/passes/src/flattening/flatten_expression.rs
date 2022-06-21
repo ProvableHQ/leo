@@ -36,7 +36,7 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
             .symbol_table
             .borrow()
             .lookup_variable(input.name)
-            .unwrap_or_else(|| panic!("{input}"))
+            .unwrap()
             .declaration
         {
             Declaration::Const(Some(c)) => Expression::Literal(c.clone().into()),
