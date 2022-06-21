@@ -22,6 +22,8 @@ use crate::Flattener;
 
 impl<'a> StatementReconstructor for Flattener<'a> {
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> Statement {
+        // TODO: Naive we should ideally update scopes variable to have the correct value.
+        // So in the future for constant folding we can reference values.
         let value = self.reconstruct_expression(input.value);
         if let Expression::Literal(l) = &value {
             input.variable_names.iter().for_each(|var| {
