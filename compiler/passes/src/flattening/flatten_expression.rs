@@ -36,7 +36,7 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
             .symbol_table
             .borrow()
             .lookup_variable(input.name)
-            .unwrap()
+            .unwrap_or_else(|| panic!("{input}"))
             .declaration
         {
             Declaration::Const(Some(c)) => Expression::Value(c.clone().into()),
@@ -76,7 +76,7 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
 
     fn reconstruct_call(&mut self, input: CallExpression) -> Expression {
         Expression::Call(CallExpression {
-            function: Box::new(self.reconstruct_expression(*input.function)),
+            function: input.function,
             arguments: input
                 .arguments
                 .into_iter()
