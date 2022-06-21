@@ -19,7 +19,7 @@ use std::cell::RefCell;
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
 
-use crate::{Declaration, TypeChecker, VariableSymbol};
+use crate::{Declaration, TypeChecker, TypeOutput, VariableSymbol};
 
 impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_return(&mut self, input: &'a ReturnStatement) {
@@ -35,12 +35,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_definition(&mut self, input: &'a DefinitionStatement) {
-        let declaration = if input.declaration_type == Declare::Const {
-            Declaration::Const(None)
-        } else {
-            Declaration::Mut
-        };
-
         input.variable_names.iter().for_each(|v| {
             self.validate_ident_type(&Some(input.type_));
 
@@ -50,8 +44,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 type_: input.type_,
                 span: input.span(),
                 declaration: match output {
-                    crate::TypeOutput::Const(c) => Declaration::Const(Some(c)),
-                    _ => declaration.clone(),
+                    TypeOutput::Const(c) if input.declaration_type.is_const() => Declaration::Const(Some(c)),
+                    TypeOutput::Const(c) => Declaration::Mut(Some(c)),
+                    _ if input.declaration_type.is_const() => Declaration::Const(None),
+                    _ => Declaration::Mut(None),
                 },
             };
             if let Err(err) = self.symbol_table.borrow_mut().insert_variable(v.identifier.name, var) {

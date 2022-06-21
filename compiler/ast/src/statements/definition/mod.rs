@@ -41,6 +41,7 @@ pub struct DefinitionStatement {
     pub span: Span,
 }
 
+
 impl fmt::Display for DefinitionStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} ", self.declaration_type)?;

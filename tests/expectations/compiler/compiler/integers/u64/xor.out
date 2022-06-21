@@ -5,4 +5,3 @@ outputs:
   - output:
       - initial_input_ast: f76d83befbe9326bc314867d02931b7ad78ca30ffcb9031997dfda28bfd5133e
     initial_ast: 03accea92b036005ccc58f020ac636ad9a5a8a0c7e319288d327dfcee76a52d8
-    symbol_table: 73c4f0bf85a47b6bcef8d0c21de8614fc5099721e37af3a4b2f671b60076b9a5

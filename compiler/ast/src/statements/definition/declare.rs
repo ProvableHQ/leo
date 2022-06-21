@@ -26,6 +26,12 @@ pub enum Declare {
     Let,
 }
 
+impl Declare {
+    pub fn is_const(&self) -> bool {
+        matches!(self, Declare::Const)
+    }
+}
+
 impl fmt::Display for Declare {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {

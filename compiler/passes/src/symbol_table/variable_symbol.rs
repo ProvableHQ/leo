@@ -162,7 +162,7 @@ impl From<Value> for LiteralExpression {
 pub enum Declaration {
     Const(Option<Value>),
     Input(ParamMode),
-    Mut,
+    Mut(Option<Value>),
 }
 
 impl Declaration {

@@ -4,9 +4,4 @@ expectation: Pass
 outputs:
   - output:
       - initial_input_ast: no input
-<<<<<<< HEAD
-    initial_ast: 54a97fde15275fdea85935354a9e15444c494a894fda86a1a548d27ec4a0b6de
-=======
     initial_ast: 61f92cabf9ac9f8013a48bf87597934ffe60e67dbae0e67f6c7bde4196850d3f
-    symbol_table: 9a61702119ebc681917d7cb7e40ecafa00354849326bf1182635f27a28da35e9
->>>>>>> 5b572278fb1edc94f17807222fe3b710e3ae9962
