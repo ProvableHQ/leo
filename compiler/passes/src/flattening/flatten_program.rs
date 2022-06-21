@@ -98,6 +98,7 @@ impl<'a> ProgramReconstructor for Flattener<'a> {
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
         self.symbol_table.swap(prev_st.get_fn_scope(f_name).unwrap());
         self.symbol_table = RefCell::new(prev_st);
+        self.var_references.clear();
 
         f
     }

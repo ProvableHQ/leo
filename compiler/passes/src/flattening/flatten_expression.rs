@@ -19,59 +19,47 @@ use leo_ast::*;
 use crate::{Declaration, Flattener};
 
 impl<'a> ExpressionReconstructor for Flattener<'a> {
-    fn reconstruct_expression(&mut self, input: Expression) -> Expression {
-        match input {
-            Expression::Identifier(identifier) => self.reconstruct_identifier(identifier),
-            Expression::Literal(value) => self.reconstruct_literal(value),
-            Expression::Binary(binary) => self.reconstruct_binary(binary),
-            Expression::Unary(unary) => self.reconstruct_unary(unary),
-            Expression::Ternary(ternary) => self.reconstruct_ternary(ternary),
-            Expression::Call(call) => self.reconstruct_call(call),
-            Expression::Err(err) => self.reconstruct_err(err),
-        }
-    }
-
     fn reconstruct_identifier(&mut self, input: Identifier) -> Expression {
-        match &self
-            .symbol_table
-            .borrow()
-            .lookup_variable(input.name)
-            .unwrap()
-            .declaration
-        {
-            Declaration::Const(Some(c)) => Expression::Literal(c.clone().into()),
-            _ => Expression::Identifier(input),
+        // let x: u32 = 10u32;
+        // let y: u32 = x;
+
+        // return y == 10u32;
+
+        /*
+        function main(b: bool) {
+            let x = 0;
+            if b {
+                x = 1;
+            } else {
+                x = 2;
+            }
+            x == 1
         }
-    }
 
-    fn reconstruct_literal(&mut self, input: LiteralExpression) -> Expression {
-        Expression::Literal(input)
-    }
-
-    fn reconstruct_binary(&mut self, input: BinaryExpression) -> Expression {
-        Expression::Binary(BinaryExpression {
-            left: Box::new(self.reconstruct_expression(*input.left)),
-            right: Box::new(self.reconstruct_expression(*input.right)),
-            op: input.op,
-            span: input.span,
-        })
-    }
-
-    fn reconstruct_unary(&mut self, input: UnaryExpression) -> Expression {
-        Expression::Unary(UnaryExpression {
-            receiver: Box::new(self.reconstruct_expression(*input.receiver)),
-            op: input.op,
-            span: input.span,
-        })
-    }
-
-    fn reconstruct_ternary(&mut self, input: TernaryExpression) -> Expression {
-        Expression::Ternary(TernaryExpression {
-            condition: Box::new(self.reconstruct_expression(*input.condition)),
-            if_true: Box::new(self.reconstruct_expression(*input.if_true)),
-            if_false: Box::new(self.reconstruct_expression(*input.if_false)),
-            span: input.span,
-        })
+        function main() {
+            let x = 0;
+            if true {
+                x = 1;
+            } else {
+                x = 2;
+            }
+            x == 1
+        }
+        */
+        if let Some(var_value) = self.var_references.get(&input.name) {
+            Expression::Literal(var_value.clone())
+        } else {
+            match &self
+                .symbol_table
+                .borrow()
+                .lookup_variable(input.name)
+                .unwrap()
+                .declaration
+            {
+                Declaration::Const(Some(c)) | Declaration::Mut(Some(c)) => Expression::Literal(c.clone().into()),
+                _ => Expression::Identifier(input),
+            }
+        }
     }
 
     fn reconstruct_call(&mut self, input: CallExpression) -> Expression {
@@ -84,9 +72,5 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
                 .collect(),
             span: input.span,
         })
-    }
-
-    fn reconstruct_err(&mut self, input: ErrExpression) -> Expression {
-        Expression::Err(input)
     }
 }

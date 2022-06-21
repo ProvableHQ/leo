@@ -21,6 +21,23 @@ use leo_ast::*;
 use crate::Flattener;
 
 impl<'a> StatementReconstructor for Flattener<'a> {
+    fn reconstruct_definition(&mut self, input: DefinitionStatement) -> Statement {
+        let value = self.reconstruct_expression(input.value);
+        if let Expression::Literal(l) = &value {
+            input.variable_names.iter().for_each(|var| {
+                self.var_references.insert(var.identifier.name, l.clone());
+            });
+        }
+
+        Statement::Definition(DefinitionStatement {
+            declaration_type: input.declaration_type,
+            variable_names: input.variable_names.clone(),
+            type_: input.type_,
+            value,
+            span: input.span,
+        })
+    }
+
     fn reconstruct_iteration(&mut self, input: IterationStatement) -> Statement {
         let start = self.reconstruct_expression(input.start);
         let stop = self.reconstruct_expression(input.stop);
