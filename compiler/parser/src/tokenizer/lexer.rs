@@ -17,13 +17,11 @@
 use crate::tokenizer::Token;
 use leo_errors::{ParserError, Result};
 use leo_span::{Span, Symbol};
-use snarkvm_dpc::{prelude::*, testnet2::Testnet2};
 
 use serde::{Deserialize, Serialize};
 use std::{
     fmt,
     iter::{from_fn, Peekable},
-    str::FromStr,
 };
 
 /// Eat an identifier, that is, a string matching '[a-zA-Z][a-zA-Z\d_]*', if any.
@@ -36,6 +34,14 @@ fn eat_identifier(input: &mut Peekable<impl Iterator<Item = char>>) -> Option<St
 fn is_bidi_override(c: char) -> bool {
     let i = c as u32;
     (0x202A..=0x202E).contains(&i) || (0x2066..=0x2069).contains(&i)
+}
+
+/// Ensure that `string` contains no Unicode Bidirectional Override code points.
+fn ensure_no_bidi_override(string: &str) -> Result<()> {
+    if string.chars().any(is_bidi_override) {
+        return Err(ParserError::lexer_bidi_override().into());
+    }
+    Ok(())
 }
 
 impl Token {
@@ -176,6 +182,7 @@ impl Token {
             return Err(ParserError::lexer_empty_input().into());
         }
 
+        let input_str = input;
         let mut input = input.chars().peekable();
 
         // Consumes a single character token.
@@ -207,28 +214,15 @@ impl Token {
         match *input.peek().ok_or_else(ParserError::lexer_empty_input)? {
             x if x.is_ascii_whitespace() => return single(&mut input, Token::WhiteSpace),
             '"' => {
-                let mut string = String::new();
-                input.next();
+                // Find end string quotation mark.
+                // Instead of checking each `char` and pushing, we can avoid reallocations.
+                let rest = &input_str[1..];
+                let string = match rest.as_bytes().iter().position(|c| *c == b'"') {
+                    None => return Err(ParserError::lexer_string_not_closed(rest).into()),
+                    Some(idx) => rest[..idx].to_owned(),
+                };
 
-                let mut ended = false;
-                while let Some(c) = input.next() {
-                    // Check for illegal characters.
-                    if is_bidi_override(c) {
-                        return Err(ParserError::lexer_bidi_override().into());
-                    }
-
-                    // Check for end string quotation mark.
-                    if c == '"' {
-                        input.next();
-                        ended = true;
-                        break;
-                    }
-                    string.push(c);
-                }
-
-                if !ended {
-                    return Err(ParserError::lexer_string_not_closed(string).into());
-                }
+                ensure_no_bidi_override(&string)?;
 
                 // + 2 to account for parsing quotation marks.
                 return Ok((string.len() + 2, Token::StaticString(string)));
@@ -248,21 +242,14 @@ impl Token {
             '/' => {
                 input.next();
                 if input.next_if_eq(&'/').is_some() {
-                    let mut comment = String::from("//");
+                    // Find the end of the comment line.
+                    let comment = match input_str.as_bytes().iter().position(|c| *c == b'\n') {
+                        None => input_str,
+                        Some(idx) => &input_str[..idx + 1],
+                    };
 
-                    while let Some(c) = input.next_if(|c| c != &'\n') {
-                        if is_bidi_override(c) {
-                            return Err(ParserError::lexer_bidi_override().into());
-                        }
-                        comment.push(c);
-                    }
-
-                    if let Some(newline) = input.next_if_eq(&'\n') {
-                        comment.push(newline);
-                        return Ok((comment.len(), Token::CommentLine(comment)));
-                    }
-
-                    return Ok((comment.len(), Token::CommentLine(comment)));
+                    ensure_no_bidi_override(comment)?;
+                    return Ok((comment.len(), Token::CommentLine(comment.to_owned())));
                 } else if input.next_if_eq(&'*').is_some() {
                     let mut comment = String::from("/*");
 
@@ -272,9 +259,6 @@ impl Token {
 
                     let mut ended = false;
                     while let Some(c) = input.next() {
-                        if is_bidi_override(c) {
-                            return Err(ParserError::lexer_bidi_override().into());
-                        }
                         comment.push(c);
                         if c == '*' && input.next_if_eq(&'/').is_some() {
                             comment.push('/');
@@ -282,6 +266,8 @@ impl Token {
                             break;
                         }
                     }
+
+                    ensure_no_bidi_override(&comment)?;
 
                     if !ended {
                         return Err(ParserError::lexer_block_comment_does_not_close_before_eof(comment).into());
@@ -378,9 +364,4 @@ impl fmt::Debug for SpannedToken {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         <SpannedToken as fmt::Display>::fmt(self, f)
     }
-}
-
-/// Returns true if the given string is a valid Aleo address.
-pub(crate) fn check_address(address: &str) -> bool {
-    Address::<Testnet2>::from_str(address).is_ok()
 }

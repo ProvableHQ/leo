@@ -35,8 +35,8 @@ pub struct SymbolTable<'a> {
 }
 
 impl<'a> SymbolTable<'a> {
-    pub fn check_shadowing(&self, symbol: &Symbol, span: Span) -> Result<()> {
-        if self.functions.contains_key(symbol) {
+    pub fn check_shadowing(&self, symbol: Symbol, span: Span) -> Result<()> {
+        if self.functions.contains_key(&symbol) {
             Err(AstError::shadowed_function(symbol, span).into())
         } else {
             self.variables.check_shadowing(symbol, span)?;
@@ -49,22 +49,22 @@ impl<'a> SymbolTable<'a> {
     }
 
     pub fn insert_fn(&mut self, symbol: Symbol, insert: &'a Function) -> Result<()> {
-        self.check_shadowing(&symbol, insert.span)?;
+        self.check_shadowing(symbol, insert.span)?;
         self.functions.insert(symbol, insert);
         Ok(())
     }
 
     pub fn insert_variable(&mut self, symbol: Symbol, insert: VariableSymbol<'a>) -> Result<()> {
-        self.check_shadowing(&symbol, insert.span)?;
+        self.check_shadowing(symbol, insert.span)?;
         self.variables.variables.insert(symbol, insert);
         Ok(())
     }
 
-    pub fn lookup_fn(&self, symbol: &Symbol) -> Option<&&'a Function> {
-        self.functions.get(symbol)
+    pub fn lookup_fn(&self, symbol: Symbol) -> Option<&&'a Function> {
+        self.functions.get(&symbol)
     }
 
-    pub fn lookup_variable(&self, symbol: &Symbol) -> Option<&VariableSymbol<'a>> {
+    pub fn lookup_variable(&self, symbol: Symbol) -> Option<&VariableSymbol<'a>> {
         self.variables.lookup_variable(symbol)
     }
 

@@ -7,7 +7,7 @@ outputs:
       type_:
         IntegerType: U8
       start:
-        Value:
+        Literal:
           Integer:
             - U8
             - "0"
@@ -15,7 +15,7 @@ outputs:
                 lo: 13
                 hi: 16
       stop:
-        Value:
+        Literal:
           Integer:
             - U8
             - "7"
@@ -36,7 +36,7 @@ outputs:
       type_:
         IntegerType: I64
       start:
-        Value:
+        Literal:
           Integer:
             - I64
             - "0"
@@ -44,7 +44,7 @@ outputs:
                 lo: 14
                 hi: 18
       stop:
-        Value:
+        Literal:
           Integer:
             - I64
             - "7"
@@ -56,7 +56,7 @@ outputs:
         statements:
           - Return:
               expression:
-                Value:
+                Literal:
                   Integer:
                     - U8
                     - "1"
@@ -76,14 +76,14 @@ outputs:
       variable: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: Field
       start:
-        Value:
+        Literal:
           Field:
             - "0"
             - span:
                 lo: 16
                 hi: 22
       stop:
-        Value:
+        Literal:
           Integer:
             - U8
             - "99"
@@ -95,7 +95,7 @@ outputs:
         statements:
           - Return:
               expression:
-                Value:
+                Literal:
                   Integer:
                     - U8
                     - "1"
@@ -115,7 +115,7 @@ outputs:
       variable: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: Boolean
       start:
-        Value:
+        Literal:
           Integer:
             - U8
             - "0"
@@ -129,7 +129,7 @@ outputs:
         statements:
           - Return:
               expression:
-                Value:
+                Literal:
                   Integer:
                     - U8
                     - "1"

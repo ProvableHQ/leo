@@ -23,6 +23,14 @@ create_messages!(
     code_mask: 2000i32,
     code_prefix: "TYC",
 
+    /// For when the parser encountered an invalid assignment target.
+    @formatted
+    invalid_assignment_target {
+        args: (),
+        msg: "invalid assignment target",
+        help: None,
+    }
+
     /// For when the user tries to assign to a const input.
     @formatted
     cannont_assign_to_const_input {

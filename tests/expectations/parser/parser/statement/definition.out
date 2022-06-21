@@ -276,7 +276,7 @@ outputs:
             hi: 5
       type_: Address
       value:
-        Value:
+        Literal:
           Address:
             - aleo15u4r0gzjtqzepkgurgn7p3u5kkhs9p74rx6aun3uh2s5std6759svgmg53
             - span:

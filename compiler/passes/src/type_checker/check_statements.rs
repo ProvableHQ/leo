@@ -29,7 +29,7 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
         // statements should always have some parent block
         let parent = self.visitor.parent.unwrap();
 
-        let return_type = &self.visitor.symbol_table.lookup_fn(&parent).map(|f| f.output);
+        let return_type = &self.visitor.symbol_table.lookup_fn(parent).map(|f| f.output);
         self.visitor.validate_ident_type(return_type);
         self.visitor.has_return = true;
 
@@ -62,8 +62,17 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
     }
 
     fn visit_assign(&mut self, input: &'a AssignStatement) {
-        let var_name = &input.assignee.identifier.name;
-        let var_type = if let Some(var) = self.visitor.symbol_table.lookup_variable(var_name) {
+        let var_name = match input.place {
+            Expression::Identifier(id) => id,
+            _ => {
+                self.visitor
+                    .handler
+                    .emit_err(TypeCheckerError::invalid_assignment_target(input.place.span()).into());
+                return;
+            }
+        };
+
+        let var_type = if let Some(var) = self.visitor.symbol_table.lookup_variable(var_name.name) {
             match &var.declaration {
                 Declaration::Const => self
                     .visitor
@@ -78,9 +87,9 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
 
             Some(*var.type_)
         } else {
-            self.visitor.handler.emit_err(
-                TypeCheckerError::unknown_sym("variable", &input.assignee.identifier.name, input.assignee.span).into(),
-            );
+            self.visitor
+                .handler
+                .emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span).into());
 
             None
         };

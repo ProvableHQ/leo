@@ -20,9 +20,6 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-mod assignee;
-pub use assignee::*;
-
 /// The assignment operator.
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum AssignOperation {
@@ -87,7 +84,7 @@ pub struct AssignStatement {
     /// For plain assignment, use `AssignOperation::Assign`.
     pub operation: AssignOperation,
     /// The place to assign to.
-    pub assignee: Assignee,
+    pub place: Expression,
     /// The value to assign to the `assignee`.
     pub value: Expression,
     /// The span, excluding the semicolon.
@@ -96,7 +93,7 @@ pub struct AssignStatement {
 
 impl fmt::Display for AssignStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} {} {};", self.assignee, self.operation.as_ref(), self.value)
+        write!(f, "{} {} {};", self.place, self.operation.as_ref(), self.value)
     }
 }
 

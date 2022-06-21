@@ -17,12 +17,12 @@ outputs:
                 expression:
                   Binary:
                     left:
-                      Value:
+                      Literal:
                         Integer:
                           - U8
                           - "1"
                     right:
-                      Value:
+                      Literal:
                         Integer:
                           - U8
                           - "1"

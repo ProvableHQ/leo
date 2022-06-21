@@ -17,6 +17,7 @@
 use super::*;
 
 use leo_errors::{ParserError, Result};
+use snarkvm_dpc::{prelude::Address, testnet2::Testnet2};
 
 const INT_TYPES: &[Token] = &[
     Token::I8,
@@ -326,9 +327,9 @@ impl ParserContext<'_> {
     /// tuple initialization expression or an affine group literal.
     fn parse_tuple_expression(&mut self) -> Result<Expression> {
         if let Some(gt) = self.eat_group_partial().transpose()? {
-            return Ok(Expression::Value(ValueExpression::Group(Box::new(GroupValue::Tuple(
-                gt,
-            )))));
+            return Ok(Expression::Literal(LiteralExpression::Group(Box::new(
+                GroupLiteral::Tuple(gt),
+            ))));
         }
 
         let (mut tuple, trailing, span) = self.parse_expr_tuple()?;
@@ -426,31 +427,38 @@ impl ParserContext<'_> {
                     // Literal followed by `field`, e.g., `42field`.
                     Some(Token::Field) => {
                         assert_no_whitespace("field")?;
-                        Expression::Value(ValueExpression::Field(value, full_span))
+                        Expression::Literal(LiteralExpression::Field(value, full_span))
                     }
                     // Literal followed by `group`, e.g., `42group`.
                     Some(Token::Group) => {
                         assert_no_whitespace("group")?;
-                        Expression::Value(ValueExpression::Group(Box::new(GroupValue::Single(value, full_span))))
+                        Expression::Literal(LiteralExpression::Group(Box::new(GroupLiteral::Single(
+                            value, full_span,
+                        ))))
                     }
                     // Literal followed by `scalar` e.g., `42scalar`.
                     Some(Token::Scalar) => {
                         assert_no_whitespace("scalar")?;
-                        Expression::Value(ValueExpression::Scalar(value, full_span))
+                        Expression::Literal(LiteralExpression::Scalar(value, full_span))
                     }
                     // Literal followed by other type suffix, e.g., `42u8`.
                     Some(suffix) => {
                         assert_no_whitespace(&suffix.to_string())?;
                         let int_ty = Self::token_to_int_type(suffix).expect("unknown int type token");
-                        Expression::Value(ValueExpression::Integer(int_ty, value, full_span))
+                        Expression::Literal(LiteralExpression::Integer(int_ty, value, full_span))
                     }
                     None => return Err(ParserError::implicit_values_not_allowed(value, span).into()),
                 }
             }
-            Token::True => Expression::Value(ValueExpression::Boolean("true".into(), span)),
-            Token::False => Expression::Value(ValueExpression::Boolean("false".into(), span)),
-            Token::AddressLit(value) => Expression::Value(ValueExpression::Address(value, span)),
-            Token::StaticString(value) => Expression::Value(ValueExpression::String(value, span)),
+            Token::True => Expression::Literal(LiteralExpression::Boolean(true, span)),
+            Token::False => Expression::Literal(LiteralExpression::Boolean(false, span)),
+            Token::AddressLit(addr) => {
+                if addr.parse::<Address<Testnet2>>().is_err() {
+                    self.emit_err(ParserError::invalid_address_lit(&addr, span));
+                }
+                Expression::Literal(LiteralExpression::Address(addr, span))
+            }
+            Token::StaticString(value) => Expression::Literal(LiteralExpression::String(value, span)),
             Token::Ident(name) => {
                 let ident = Identifier { name, span };
                 Expression::Identifier(ident)

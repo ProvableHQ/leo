@@ -3,9 +3,9 @@ namespace: Compile
 expectation: Pass
 outputs:
   - output:
-      - initial_input_ast: e6457724e4c3bb27eca30df861f711f962ac47fb0e7d0b9dc959be0feaeb7763
-      - initial_input_ast: c8d27a86795a6d56815a681066b7f462f5476be6d56ec910b74d90c60d8b3cc9
-      - initial_input_ast: 4ff2fb01e2d10a59bf4fcd1ed3b510c6860167dbd3bd4d099c6b8a78d2a767af
-      - initial_input_ast: 96ddbb84cba723df65571d6537a303189e6274389593980996fd7ee50eab996e
+      - initial_input_ast: da1d028d28792f9625d528ebee6f3abd09b21a7bfa6bb3be5d8c3ad01d974558
+      - initial_input_ast: 5f19f0086b0509628dc64db0f69000d599bc761cb8e3125144de44367081126a
+      - initial_input_ast: 4c5eeffd0306b20c8deece509782b81ea8583245f650e40a4a300d517f6ed5f4
+      - initial_input_ast: a56b3f9908dec2acaed302691d4fe0c2cf046f0deb8f188f617e042e75502f71
     initial_ast: bcb28e1dc45e570d3d98a72f2fa4b08ae6b799c31dae2a8a4c0aa63d6b3bd115
     symbol_table: 99728cc6a571e63083031cb630c010cd10c32360086df0494297645d08cf82c2
