@@ -39,7 +39,7 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
             .unwrap()
             .declaration
         {
-            Declaration::Const(Some(c)) | Declaration::Mut(Some(c)) => Expression::Value(c.clone().into()),
+            Declaration::Const(Some(c)) => Expression::Value(c.clone().into()),
             _ => Expression::Identifier(input),
         }
     }

@@ -17,70 +17,84 @@
 use std::fmt::Display;
 
 use leo_ast::{GroupValue, IntegerType, ParamMode, Type, ValueExpression};
-use leo_errors::{Result, TypeCheckerError};
+use leo_errors::{LeoError, Result, TypeCheckerError};
 use leo_span::Span;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Value {
-    Address(String),
-    Boolean(bool),
-    Field(String),
+    Address(String, Span),
+    Boolean(bool, Span),
+    Field(String, Span),
     Group(Box<GroupValue>),
-    I8(i8),
-    I16(i16),
-    I32(i32),
-    I64(i64),
-    I128(i128),
-    U8(u8),
-    U16(u16),
-    U32(u32),
-    U64(u64),
-    U128(u128),
-    Scalar(String),
-    String(String),
+    I8(i8, Span),
+    I16(i16, Span),
+    I32(i32, Span),
+    I64(i64, Span),
+    I128(i128, Span),
+    U8(u8, Span),
+    U16(u16, Span),
+    U32(u32, Span),
+    U64(u64, Span),
+    U128(u128, Span),
+    Scalar(String, Span),
+    String(String, Span),
 }
 
 impl Display for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use Value::*;
         match self {
-            Address(val) => write!(f, "{val}"),
-            Boolean(val) => write!(f, "{val}"),
-            Field(val) => write!(f, "{val}"),
+            Address(val, _) => write!(f, "{val}"),
+            Boolean(val, _) => write!(f, "{val}"),
+            Field(val, _) => write!(f, "{val}"),
             Group(val) => write!(f, "{val}"),
-            I8(val) => write!(f, "{val}"),
-            I16(val) => write!(f, "{val}"),
-            I32(val) => write!(f, "{val}"),
-            I64(val) => write!(f, "{val}"),
-            I128(val) => write!(f, "{val}"),
-            U8(val) => write!(f, "{val}"),
-            U16(val) => write!(f, "{val}"),
-            U32(val) => write!(f, "{val}"),
-            U64(val) => write!(f, "{val}"),
-            U128(val) => write!(f, "{val}"),
-            Scalar(val) => write!(f, "{val}"),
-            String(val) => write!(f, "{val}"),
+            I8(val, _) => write!(f, "{val}"),
+            I16(val, _) => write!(f, "{val}"),
+            I32(val, _) => write!(f, "{val}"),
+            I64(val, _) => write!(f, "{val}"),
+            I128(val, _) => write!(f, "{val}"),
+            U8(val, _) => write!(f, "{val}"),
+            U16(val, _) => write!(f, "{val}"),
+            U32(val, _) => write!(f, "{val}"),
+            U64(val, _) => write!(f, "{val}"),
+            U128(val, _) => write!(f, "{val}"),
+            Scalar(val, _) => write!(f, "{val}"),
+            String(val, _) => write!(f, "{val}"),
         }
     }
 }
 
-impl Value {
-    pub(crate) fn get_as_usize(&self, span: Span) -> Result<usize> {
+impl TryFrom<&Value> for usize {
+    type Error = LeoError;
+
+    fn try_from(value: &Value) -> Result<Self, Self::Error> {
         use Value::*;
-        match self {
-            I8(val) => usize::try_from(*val),
-            I16(val) => usize::try_from(*val),
-            I32(val) => usize::try_from(*val),
-            I64(val) => usize::try_from(*val),
-            I128(val) => usize::try_from(*val),
-            U8(val) => Ok(*val as usize),
-            U16(val) => Ok(*val as usize),
-            U32(val) => Ok(*val as usize),
-            U64(val) => Ok(*val as usize),
-            U128(val) => Ok(*val as usize),
-            _ => return Err(TypeCheckerError::cannot_use_type_as_loop_bound(self, span).into()),
+        match value {
+            I8(val, span) => {
+                usize::try_from(*val).map_err(|_| TypeCheckerError::loop_has_neg_value(Type::from(value), *span).into())
+            }
+            I16(val, span) => {
+                usize::try_from(*val).map_err(|_| TypeCheckerError::loop_has_neg_value(Type::from(value), *span).into())
+            }
+            I32(val, span) => {
+                usize::try_from(*val).map_err(|_| TypeCheckerError::loop_has_neg_value(Type::from(value), *span).into())
+            }
+            I64(val, span) => {
+                usize::try_from(*val).map_err(|_| TypeCheckerError::loop_has_neg_value(Type::from(value), *span).into())
+            }
+            I128(val, span) => {
+                usize::try_from(*val).map_err(|_| TypeCheckerError::loop_has_neg_value(Type::from(value), *span).into())
+            }
+            U8(val, _) => Ok(*val as usize),
+            U16(val, _) => Ok(*val as usize),
+            U32(val, _) => Ok(*val as usize),
+            U64(val, _) => Ok(*val as usize),
+            U128(val, _) => Ok(*val as usize),
+            Address(_, span) | Boolean(_, span) | Field(_, span) | Scalar(_, span) | String(_, span) => {
+                Err(TypeCheckerError::cannot_use_type_as_loop_bound(value, *span).into())
+            }
+            Group(val) => return Err(TypeCheckerError::cannot_use_type_as_loop_bound(value, *val.span()).into()),
         }
-        .map_err(|_| TypeCheckerError::loop_has_neg_value(Type::from(self), span).into())
     }
 }
 
@@ -100,22 +114,22 @@ impl From<&Value> for Type {
     fn from(v: &Value) -> Self {
         use Value::*;
         match v {
-            Address(_) => Type::Address,
-            Boolean(_) => Type::Boolean,
-            Field(_) => Type::Field,
+            Address(_, _) => Type::Address,
+            Boolean(_, _) => Type::Boolean,
+            Field(_, _) => Type::Field,
             Group(_) => Type::Group,
-            I8(_) => Type::IntegerType(IntegerType::I8),
-            I16(_) => Type::IntegerType(IntegerType::I16),
-            I32(_) => Type::IntegerType(IntegerType::I32),
-            I64(_) => Type::IntegerType(IntegerType::I64),
-            I128(_) => Type::IntegerType(IntegerType::I128),
-            U8(_) => Type::IntegerType(IntegerType::U8),
-            U16(_) => Type::IntegerType(IntegerType::U16),
-            U32(_) => Type::IntegerType(IntegerType::U32),
-            U64(_) => Type::IntegerType(IntegerType::U64),
-            U128(_) => Type::IntegerType(IntegerType::U128),
-            Scalar(_) => Type::Scalar,
-            String(_) => Type::String,
+            I8(_, _) => Type::IntegerType(IntegerType::I8),
+            I16(_, _) => Type::IntegerType(IntegerType::I16),
+            I32(_, _) => Type::IntegerType(IntegerType::I32),
+            I64(_, _) => Type::IntegerType(IntegerType::I64),
+            I128(_, _) => Type::IntegerType(IntegerType::I128),
+            U8(_, _) => Type::IntegerType(IntegerType::U8),
+            U16(_, _) => Type::IntegerType(IntegerType::U16),
+            U32(_, _) => Type::IntegerType(IntegerType::U32),
+            U64(_, _) => Type::IntegerType(IntegerType::U64),
+            U128(_, _) => Type::IntegerType(IntegerType::U128),
+            Scalar(_, _) => Type::Scalar,
+            String(_, _) => Type::String,
         }
     }
 }
@@ -124,22 +138,22 @@ impl From<Value> for ValueExpression {
     fn from(v: Value) -> Self {
         use Value::*;
         match v {
-            Address(v) => ValueExpression::Address(v, todo!()),
-            Boolean(v) => ValueExpression::Boolean(v, todo!()),
-            Field(v) => ValueExpression::Field(v, todo!()),
+            Address(v, span) => ValueExpression::Address(v, span),
+            Boolean(v, span) => ValueExpression::Boolean(v, span),
+            Field(v, span) => ValueExpression::Field(v, span),
             Group(v) => ValueExpression::Group(v),
-            I8(v) => ValueExpression::Integer(IntegerType::I8, v.to_string(), todo!()),
-            I16(v) => ValueExpression::Integer(IntegerType::I16, v.to_string(), todo!()),
-            I32(v) => ValueExpression::Integer(IntegerType::I32, v.to_string(), todo!()),
-            I64(v) => ValueExpression::Integer(IntegerType::I64, v.to_string(), todo!()),
-            I128(v) => ValueExpression::Integer(IntegerType::I128, v.to_string(), todo!()),
-            U8(v) => ValueExpression::Integer(IntegerType::U8, v.to_string(), todo!()),
-            U16(v) => ValueExpression::Integer(IntegerType::U16, v.to_string(), todo!()),
-            U32(v) => ValueExpression::Integer(IntegerType::U32, v.to_string(), todo!()),
-            U64(v) => ValueExpression::Integer(IntegerType::U64, v.to_string(), todo!()),
-            U128(v) => ValueExpression::Integer(IntegerType::U128, v.to_string(), todo!()),
-            Scalar(v) => ValueExpression::Scalar(v, todo!()),
-            String(v) => ValueExpression::String(v, todo!()),
+            I8(v, span) => ValueExpression::Integer(IntegerType::I8, v.to_string(), span),
+            I16(v, span) => ValueExpression::Integer(IntegerType::I16, v.to_string(), span),
+            I32(v, span) => ValueExpression::Integer(IntegerType::I32, v.to_string(), span),
+            I64(v, span) => ValueExpression::Integer(IntegerType::I64, v.to_string(), span),
+            I128(v, span) => ValueExpression::Integer(IntegerType::I128, v.to_string(), span),
+            U8(v, span) => ValueExpression::Integer(IntegerType::U8, v.to_string(), span),
+            U16(v, span) => ValueExpression::Integer(IntegerType::U16, v.to_string(), span),
+            U32(v, span) => ValueExpression::Integer(IntegerType::U32, v.to_string(), span),
+            U64(v, span) => ValueExpression::Integer(IntegerType::U64, v.to_string(), span),
+            U128(v, span) => ValueExpression::Integer(IntegerType::U128, v.to_string(), span),
+            Scalar(v, span) => ValueExpression::Scalar(v, span),
+            String(v, span) => ValueExpression::String(v, span),
         }
     }
 }
@@ -148,15 +162,15 @@ impl From<Value> for ValueExpression {
 pub enum Declaration {
     Const(Option<Value>),
     Input(ParamMode),
-    Mut(Option<Value>),
+    Mut,
 }
 
 impl Declaration {
-    pub fn get_as_usize(&self, span: Span) -> Result<Option<usize>> {
+    pub fn get_as_usize(&self) -> Result<Option<usize>> {
         use Declaration::*;
 
         match self {
-            Const(Some(value)) | Mut(Some(value)) => Ok(Some(value.get_as_usize(span)?)),
+            Const(Some(value)) => Ok(Some(value.try_into()?)),
             Input(_) => Ok(None),
             _ => Ok(None),
         }
@@ -174,7 +188,7 @@ impl Declaration {
         use Declaration::*;
 
         match self {
-            Const(Some(value)) | Mut(Some(value)) => Some(value.into()),
+            Const(Some(value)) => Some(value.into()),
             Input(_) => None,
             _ => None,
         }

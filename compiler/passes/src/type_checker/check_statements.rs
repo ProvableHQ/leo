@@ -38,18 +38,21 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let declaration = if input.declaration_type == Declare::Const {
             Declaration::Const(None)
         } else {
-            Declaration::Mut(None)
+            Declaration::Mut
         };
 
         input.variable_names.iter().for_each(|v| {
             self.validate_ident_type(&Some(input.type_));
 
-            self.visit_expression(&input.value, &Some(input.type_));
+            let output = self.visit_expression(&input.value, &Some(input.type_));
 
             let var = VariableSymbol {
                 type_: input.type_,
                 span: input.span(),
-                declaration: declaration.clone(),
+                declaration: match output {
+                    crate::TypeOutput::Const(c) => Declaration::Const(Some(c)),
+                    _ => declaration.clone(),
+                },
             };
             if let Err(err) = self.symbol_table.borrow_mut().insert_variable(v.identifier.name, var) {
                 self.handler.emit_err(err);
