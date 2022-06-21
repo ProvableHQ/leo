@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, GroupValue, IntegerType, Node, Type, UnaryOperation, ValueExpression};
+use crate::{Expression, GroupLiteral, IntegerType, LiteralExpression, Node, Type, UnaryOperation};
 use leo_errors::{InputError, LeoError, Result};
 
 use serde::{Deserialize, Serialize};
@@ -25,7 +25,7 @@ pub enum InputValue {
     Address(String),
     Boolean(bool),
     Field(String),
-    Group(GroupValue),
+    Group(GroupLiteral),
     Integer(IntegerType, String),
 }
 
@@ -33,12 +33,12 @@ impl TryFrom<(Type, Expression)> for InputValue {
     type Error = LeoError;
     fn try_from(value: (Type, Expression)) -> Result<Self> {
         Ok(match value {
-            (type_, Expression::Value(value)) => match (type_, value) {
-                (Type::Address, ValueExpression::Address(value, _)) => Self::Address(value),
-                (Type::Boolean, ValueExpression::Boolean(value, _)) => Self::Boolean(value),
-                (Type::Field, ValueExpression::Field(value, _)) => Self::Field(value),
-                (Type::Group, ValueExpression::Group(value)) => Self::Group(*value),
-                (Type::IntegerType(expected), ValueExpression::Integer(actual, value, span)) => {
+            (type_, Expression::Literal(lit)) => match (type_, lit) {
+                (Type::Address, LiteralExpression::Address(value, _)) => Self::Address(value),
+                (Type::Boolean, LiteralExpression::Boolean(value, _)) => Self::Boolean(value),
+                (Type::Field, LiteralExpression::Field(value, _)) => Self::Field(value),
+                (Type::Group, LiteralExpression::Group(value)) => Self::Group(*value),
+                (Type::IntegerType(expected), LiteralExpression::Integer(actual, value, span)) => {
                     if expected == actual {
                         Self::Integer(expected, value)
                     } else {
@@ -50,7 +50,7 @@ impl TryFrom<(Type, Expression)> for InputValue {
                 }
             },
             (type_, Expression::Unary(unary)) if unary.op == UnaryOperation::Negate => {
-                InputValue::try_from((type_, *unary.inner))?
+                InputValue::try_from((type_, *unary.receiver))?
             }
             (_type_, expr) => return Err(InputError::illegal_expression(&expr, expr.span()).into()),
         })

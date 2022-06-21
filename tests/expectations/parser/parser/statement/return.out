@@ -10,7 +10,7 @@ outputs:
         hi: 11
   - Return:
       expression:
-        Value:
+        Literal:
           Integer:
             - U8
             - "5"

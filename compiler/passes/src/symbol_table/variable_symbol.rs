@@ -16,7 +16,7 @@
 
 use std::fmt::Display;
 
-use leo_ast::{GroupValue, IntegerType, ParamMode, Type, ValueExpression};
+use leo_ast::{GroupLiteral, IntegerType, LiteralExpression, ParamMode, Type};
 use leo_errors::{LeoError, Result, TypeCheckerError};
 use leo_span::Span;
 
@@ -25,7 +25,7 @@ pub enum Value {
     Address(String, Span),
     Boolean(bool, Span),
     Field(String, Span),
-    Group(Box<GroupValue>),
+    Group(Box<GroupLiteral>),
     I8(i8, Span),
     I16(i16, Span),
     I32(i32, Span),
@@ -134,26 +134,26 @@ impl From<&Value> for Type {
     }
 }
 
-impl From<Value> for ValueExpression {
+impl From<Value> for LiteralExpression {
     fn from(v: Value) -> Self {
         use Value::*;
         match v {
-            Address(v, span) => ValueExpression::Address(v, span),
-            Boolean(v, span) => ValueExpression::Boolean(v, span),
-            Field(v, span) => ValueExpression::Field(v, span),
-            Group(v) => ValueExpression::Group(v),
-            I8(v, span) => ValueExpression::Integer(IntegerType::I8, v.to_string(), span),
-            I16(v, span) => ValueExpression::Integer(IntegerType::I16, v.to_string(), span),
-            I32(v, span) => ValueExpression::Integer(IntegerType::I32, v.to_string(), span),
-            I64(v, span) => ValueExpression::Integer(IntegerType::I64, v.to_string(), span),
-            I128(v, span) => ValueExpression::Integer(IntegerType::I128, v.to_string(), span),
-            U8(v, span) => ValueExpression::Integer(IntegerType::U8, v.to_string(), span),
-            U16(v, span) => ValueExpression::Integer(IntegerType::U16, v.to_string(), span),
-            U32(v, span) => ValueExpression::Integer(IntegerType::U32, v.to_string(), span),
-            U64(v, span) => ValueExpression::Integer(IntegerType::U64, v.to_string(), span),
-            U128(v, span) => ValueExpression::Integer(IntegerType::U128, v.to_string(), span),
-            Scalar(v, span) => ValueExpression::Scalar(v, span),
-            String(v, span) => ValueExpression::String(v, span),
+            Address(v, span) => LiteralExpression::Address(v, span),
+            Boolean(v, span) => LiteralExpression::Boolean(v, span),
+            Field(v, span) => LiteralExpression::Field(v, span),
+            Group(v) => LiteralExpression::Group(v),
+            I8(v, span) => LiteralExpression::Integer(IntegerType::I8, v.to_string(), span),
+            I16(v, span) => LiteralExpression::Integer(IntegerType::I16, v.to_string(), span),
+            I32(v, span) => LiteralExpression::Integer(IntegerType::I32, v.to_string(), span),
+            I64(v, span) => LiteralExpression::Integer(IntegerType::I64, v.to_string(), span),
+            I128(v, span) => LiteralExpression::Integer(IntegerType::I128, v.to_string(), span),
+            U8(v, span) => LiteralExpression::Integer(IntegerType::U8, v.to_string(), span),
+            U16(v, span) => LiteralExpression::Integer(IntegerType::U16, v.to_string(), span),
+            U32(v, span) => LiteralExpression::Integer(IntegerType::U32, v.to_string(), span),
+            U64(v, span) => LiteralExpression::Integer(IntegerType::U64, v.to_string(), span),
+            U128(v, span) => LiteralExpression::Integer(IntegerType::U128, v.to_string(), span),
+            Scalar(v, span) => LiteralExpression::Scalar(v, span),
+            String(v, span) => LiteralExpression::String(v, span),
         }
     }
 }

@@ -15,7 +15,7 @@ outputs:
           statements:
             - Return:
                 expression:
-                  Value:
+                  Literal:
                     Integer:
                       - U8
                       - "0"

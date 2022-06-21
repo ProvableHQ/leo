@@ -24,7 +24,7 @@ pub trait ExpressionReconstructor {
     fn reconstruct_expression(&mut self, input: Expression) -> Expression {
         match input {
             Expression::Identifier(identifier) => self.reconstruct_identifier(identifier),
-            Expression::Value(value) => self.reconstruct_value(value),
+            Expression::Literal(value) => self.reconstruct_literal(value),
             Expression::Binary(binary) => self.reconstruct_binary(binary),
             Expression::Unary(unary) => self.reconstruct_unary(unary),
             Expression::Ternary(ternary) => self.reconstruct_ternary(ternary),
@@ -37,8 +37,8 @@ pub trait ExpressionReconstructor {
         Expression::Identifier(input)
     }
 
-    fn reconstruct_value(&mut self, input: ValueExpression) -> Expression {
-        Expression::Value(input)
+    fn reconstruct_literal(&mut self, input: LiteralExpression) -> Expression {
+        Expression::Literal(input)
     }
 
     fn reconstruct_binary(&mut self, input: BinaryExpression) -> Expression {
@@ -52,7 +52,7 @@ pub trait ExpressionReconstructor {
 
     fn reconstruct_unary(&mut self, input: UnaryExpression) -> Expression {
         Expression::Unary(UnaryExpression {
-            inner: Box::new(self.reconstruct_expression(*input.inner)),
+            receiver: Box::new(self.reconstruct_expression(*input.receiver)),
             op: input.op,
             span: input.span,
         })
@@ -117,7 +117,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
     fn reconstruct_assign(&mut self, input: AssignStatement) -> Statement {
         Statement::Assign(Box::new(AssignStatement {
             operation: input.operation,
-            assignee: input.assignee,
+            place: input.place,
             value: self.reconstruct_expression(input.value),
             span: input.span,
         }))

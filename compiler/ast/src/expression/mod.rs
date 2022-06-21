@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{GroupValue, Identifier, IntegerType, Node};
+use crate::{Identifier, IntegerType, Node};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -39,14 +39,14 @@ pub enum Expression {
     /// An identifier expression.
     Identifier(Identifier),
     /// A literal expression.
-    Value(ValueExpression),
+    Literal(LiteralExpression),
     /// A binary expression, e.g., `42 + 24`.
     Binary(BinaryExpression),
     /// An unary expression.
     Unary(UnaryExpression),
     /// A ternary conditional expression `cond ? if_expr : else_expr`.
     Ternary(TernaryExpression),
-    /// A call expression like `my_fun(args)`.
+    /// A call expression, e.g., `my_fun(args)`.
     Call(CallExpression),
     /// An expression of type "error".
     /// Will result in a compile error eventually.
@@ -58,7 +58,7 @@ impl Node for Expression {
         use Expression::*;
         match self {
             Identifier(n) => n.span(),
-            Value(n) => n.span(),
+            Literal(n) => n.span(),
             Binary(n) => n.span(),
             Unary(n) => n.span(),
             Ternary(n) => n.span(),
@@ -71,7 +71,7 @@ impl Node for Expression {
         use Expression::*;
         match self {
             Identifier(n) => n.set_span(span),
-            Value(n) => n.set_span(span),
+            Literal(n) => n.set_span(span),
             Binary(n) => n.set_span(span),
             Unary(n) => n.set_span(span),
             Ternary(n) => n.set_span(span),
@@ -86,7 +86,7 @@ impl fmt::Display for Expression {
         use Expression::*;
         match &self {
             Identifier(n) => n.fmt(f),
-            Value(n) => n.fmt(f),
+            Literal(n) => n.fmt(f),
             Binary(n) => n.fmt(f),
             Unary(n) => n.fmt(f),
             Ternary(n) => n.fmt(f),

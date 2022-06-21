@@ -2,7 +2,7 @@
 namespace: ParseExpression
 expectation: Pass
 outputs:
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x: SignHigh
@@ -10,7 +10,7 @@ outputs:
           span:
             lo: 0
             hi: 11
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x: Inferred
@@ -18,7 +18,7 @@ outputs:
           span:
             lo: 0
             hi: 11
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x: SignHigh
@@ -26,7 +26,7 @@ outputs:
           span:
             lo: 0
             hi: 11
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x: SignLow
@@ -34,7 +34,7 @@ outputs:
           span:
             lo: 0
             hi: 11
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x: SignHigh
@@ -42,7 +42,7 @@ outputs:
           span:
             lo: 0
             hi: 11
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x: SignLow
@@ -50,7 +50,7 @@ outputs:
           span:
             lo: 0
             hi: 11
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x: Inferred
@@ -58,7 +58,7 @@ outputs:
           span:
             lo: 0
             hi: 11
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x:
@@ -76,7 +76,7 @@ outputs:
           span:
             lo: 0
             hi: 15
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x:
@@ -94,7 +94,7 @@ outputs:
           span:
             lo: 0
             hi: 15
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x:
@@ -112,7 +112,7 @@ outputs:
           span:
             lo: 0
             hi: 15
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x:
@@ -125,7 +125,7 @@ outputs:
           span:
             lo: 0
             hi: 13
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x:
@@ -138,7 +138,7 @@ outputs:
           span:
             lo: 0
             hi: 13
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x:
@@ -151,7 +151,7 @@ outputs:
           span:
             lo: 0
             hi: 13
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x:
@@ -164,7 +164,7 @@ outputs:
           span:
             lo: 0
             hi: 13
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x:
@@ -177,7 +177,7 @@ outputs:
           span:
             lo: 0
             hi: 13
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x:
@@ -190,7 +190,7 @@ outputs:
           span:
             lo: 0
             hi: 13
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x:
@@ -203,7 +203,7 @@ outputs:
           span:
             lo: 0
             hi: 13
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x: SignHigh
@@ -216,7 +216,7 @@ outputs:
           span:
             lo: 0
             hi: 13
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x: Inferred
@@ -229,7 +229,7 @@ outputs:
           span:
             lo: 0
             hi: 13
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x: SignHigh
@@ -242,7 +242,7 @@ outputs:
           span:
             lo: 0
             hi: 13
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x: SignLow
@@ -255,7 +255,7 @@ outputs:
           span:
             lo: 0
             hi: 13
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x: SignHigh
@@ -268,7 +268,7 @@ outputs:
           span:
             lo: 0
             hi: 13
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x: SignLow
@@ -281,7 +281,7 @@ outputs:
           span:
             lo: 0
             hi: 13
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x: Inferred
@@ -294,7 +294,7 @@ outputs:
           span:
             lo: 0
             hi: 13
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x:
@@ -312,7 +312,7 @@ outputs:
           span:
             lo: 0
             hi: 15
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x:
@@ -330,7 +330,7 @@ outputs:
           span:
             lo: 0
             hi: 15
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x:
@@ -348,7 +348,7 @@ outputs:
           span:
             lo: 0
             hi: 15
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x:
@@ -366,7 +366,7 @@ outputs:
           span:
             lo: 0
             hi: 15
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x:
@@ -384,7 +384,7 @@ outputs:
           span:
             lo: 0
             hi: 15
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x:
@@ -402,7 +402,7 @@ outputs:
           span:
             lo: 0
             hi: 15
-  - Value:
+  - Literal:
       Group:
         Tuple:
           x:
@@ -420,7 +420,7 @@ outputs:
           span:
             lo: 0
             hi: 15
-  - Value:
+  - Literal:
       Group:
         Single:
           - "1"
@@ -428,8 +428,8 @@ outputs:
               lo: 0
               hi: 6
   - Unary:
-      inner:
-        Value:
+      receiver:
+        Literal:
           Group:
             Single:
               - "1"

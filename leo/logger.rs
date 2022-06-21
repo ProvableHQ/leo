@@ -16,9 +16,8 @@
 
 use leo_errors::Result;
 
-use std::{fmt, sync::Once};
-
 use colored::Colorize;
+use std::{fmt, sync::Once};
 use tracing::{event::Event, subscriber::Subscriber};
 use tracing_subscriber::{
     fmt::{format::*, time::*, FmtContext, FormattedFields},

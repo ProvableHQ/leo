@@ -3,14 +3,14 @@ namespace: ParseExpression
 expectation: Pass
 outputs:
   - Unary:
-      inner:
+      receiver:
         Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
       op: Not
       span:
         lo: 0
         hi: 2
   - Unary:
-      inner:
+      receiver:
         Call:
           function:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
@@ -23,9 +23,9 @@ outputs:
         lo: 0
         hi: 4
   - Unary:
-      inner:
+      receiver:
         Unary:
-          inner:
+          receiver:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           op: Not
           span:
@@ -36,9 +36,60 @@ outputs:
         lo: 0
         hi: 3
   - Unary:
-      inner:
+      receiver:
         Unary:
-          inner:
+          receiver:
+            Unary:
+              receiver:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+              op: Not
+              span:
+                lo: 2
+                hi: 9
+          op: Negate
+          span:
+            lo: 1
+            hi: 9
+      op: Not
+      span:
+        lo: 0
+        hi: 9
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Unary:
+              receiver:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+              op: Not
+              span:
+                lo: 0
+                hi: 7
+          op: Not
+          span:
+            lo: 0
+            hi: 13
+      op: Not
+      span:
+        lo: 0
+        hi: 19
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+          op: Not
+          span:
+            lo: 1
+            hi: 8
+      op: Negate
+      span:
+        lo: 0
+        hi: 8
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           op: Negate
           span:
@@ -46,5 +97,95 @@ outputs:
             hi: 3
       op: Not
       span:
+        lo: 1
+        hi: 10
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: Not
+          span:
+            lo: 2
+            hi: 9
+      op: Negate
+      span:
         lo: 0
-        hi: 3
+        hi: 9
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Unary:
+              receiver:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+              op: Not
+              span:
+                lo: 2
+                hi: 9
+          op: Negate
+          span:
+            lo: 1
+            hi: 9
+      op: Not
+      span:
+        lo: 1
+        hi: 16
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+          op: Not
+          span:
+            lo: 1
+            hi: 8
+      op: Not
+      span:
+        lo: 0
+        hi: 8
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: Not
+          span:
+            lo: 1
+            hi: 3
+      op: Not
+      span:
+        lo: 1
+        hi: 10
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: Not
+          span:
+            lo: 2
+            hi: 9
+      op: Not
+      span:
+        lo: 0
+        hi: 9
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Unary:
+              receiver:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+              op: Not
+              span:
+                lo: 2
+                hi: 9
+          op: Not
+          span:
+            lo: 1
+            hi: 9
+      op: Not
+      span:
+        lo: 1
+        hi: 16

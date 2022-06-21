@@ -120,14 +120,6 @@ create_messages!(
         help: None,
     }
 
-    /// For when the parser encountered an invalid assignment target.
-    @formatted
-    invalid_assignment_target {
-        args: (),
-        msg: "invalid assignment target",
-        help: None,
-    }
-
     /// For when the parser encountered an invalid package name.
     @formatted
     invalid_package_name {
@@ -364,6 +356,14 @@ create_messages!(
     expr_stmts_disallowed {
         args: (),
         msg: "Expression statements are no longer supported.",
+        help: None,
+    }
+
+    /// Previously, arbitrary methods were allowed, but not anymore.
+    @formatted
+    expr_arbitrary_method_call {
+        args: (),
+        msg: "Arbitrary methods calls are not supported. Only special ones are.",
         help: None,
     }
 );

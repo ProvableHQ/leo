@@ -17,6 +17,8 @@
 use crate::config::Config;
 use leo_errors::{CliError, Result};
 
+use std::fmt::Write as _;
+
 use colored::Colorize;
 use self_update::{backends::github, version::bump_is_greater, Status};
 
@@ -40,7 +42,7 @@ impl Updater {
 
         let mut output = "\nList of available versions\n".to_string();
         for release in releases {
-            output += &format!("  * {}\n", release.version);
+            let _ = writeln!(output, "  * {}", release.version);
         }
 
         // Forgo using tracing to list the available versions without a log status.

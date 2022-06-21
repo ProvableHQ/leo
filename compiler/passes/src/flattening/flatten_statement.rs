@@ -23,8 +23,8 @@ use crate::Flattener;
 impl<'a> StatementReconstructor for Flattener<'a> {
     fn reconstruct_iteration(&mut self, input: IterationStatement) -> Statement {
         if let (
-            Expression::Value(ValueExpression::Integer(_, start_str_content, _)),
-            Expression::Value(ValueExpression::Integer(_, stop_str_content, _)),
+            Expression::Literal(LiteralExpression::Integer(_, start_str_content, _)),
+            Expression::Literal(LiteralExpression::Integer(_, stop_str_content, _)),
         ) = (input.start, input.stop)
         {
             let start = start_str_content.parse::<usize>().unwrap();

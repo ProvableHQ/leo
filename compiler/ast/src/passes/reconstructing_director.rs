@@ -41,7 +41,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_expression(&mut self, expression: &Expression) -> Result<Expression> {
         let new = match expression {
             Expression::Identifier(identifier) => Expression::Identifier(self.reduce_identifier(identifier)?),
-            Expression::Value(value) => self.reduce_value(value)?,
+            Expression::Literal(lit) => self.reduce_literal(lit)?,
             Expression::Binary(binary) => Expression::Binary(self.reduce_binary(binary)?),
             Expression::Unary(unary) => Expression::Unary(self.reduce_unary(unary)?),
             Expression::Ternary(ternary) => Expression::Ternary(self.reduce_ternary(ternary)?),
@@ -60,29 +60,29 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_group_tuple(group_tuple)
     }
 
-    pub fn reduce_group_value(&mut self, group_value: &GroupValue) -> Result<GroupValue> {
-        let new = match group_value {
-            GroupValue::Tuple(group_tuple) => GroupValue::Tuple(self.reduce_group_tuple(group_tuple)?),
-            _ => group_value.clone(),
+    pub fn reduce_group_literal(&mut self, group_lit: &GroupLiteral) -> Result<GroupLiteral> {
+        let new = match group_lit {
+            GroupLiteral::Tuple(group_tuple) => GroupLiteral::Tuple(self.reduce_group_tuple(group_tuple)?),
+            _ => group_lit.clone(),
         };
 
-        self.reducer.reduce_group_value(group_value, new)
+        self.reducer.reduce_group_literal(group_lit, new)
     }
 
     pub fn reduce_string(&mut self, string: &str, span: &Span) -> Result<Expression> {
         self.reducer.reduce_string(string, span)
     }
 
-    pub fn reduce_value(&mut self, value: &ValueExpression) -> Result<Expression> {
-        let new = match value {
-            ValueExpression::Group(group_value) => {
-                Expression::Value(ValueExpression::Group(Box::new(self.reduce_group_value(group_value)?)))
-            }
-            ValueExpression::String(string, span) => self.reduce_string(string, span)?,
-            _ => Expression::Value(value.clone()),
+    pub fn reduce_literal(&mut self, lit: &LiteralExpression) -> Result<Expression> {
+        let new = match lit {
+            LiteralExpression::Group(group_value) => Expression::Literal(LiteralExpression::Group(Box::new(
+                self.reduce_group_literal(group_value)?,
+            ))),
+            LiteralExpression::String(string, span) => self.reduce_string(string, span)?,
+            _ => Expression::Literal(lit.clone()),
         };
 
-        self.reducer.reduce_value(value, new)
+        self.reducer.reduce_literal(lit, new)
     }
 
     pub fn reduce_binary(&mut self, binary: &BinaryExpression) -> Result<BinaryExpression> {
@@ -93,9 +93,9 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_unary(&mut self, unary: &UnaryExpression) -> Result<UnaryExpression> {
-        let inner = self.reduce_expression(&unary.inner)?;
+        let inner = self.reduce_expression(&unary.receiver)?;
 
-        self.reducer.reduce_unary(unary, inner, unary.op.clone())
+        self.reducer.reduce_unary(unary, inner, unary.op)
     }
 
     pub fn reduce_ternary(&mut self, ternary: &TernaryExpression) -> Result<TernaryExpression> {
@@ -157,38 +157,11 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_definition(definition, variable_names, type_, value)
     }
 
-    pub fn reduce_assignee_access(&mut self, access: &AssigneeAccess) -> Result<AssigneeAccess> {
-        let new = match access {
-            AssigneeAccess::ArrayRange(left, right) => {
-                let left = left.as_ref().map(|left| self.reduce_expression(left)).transpose()?;
-                let right = right.as_ref().map(|right| self.reduce_expression(right)).transpose()?;
-
-                AssigneeAccess::ArrayRange(left, right)
-            }
-            AssigneeAccess::ArrayIndex(index) => AssigneeAccess::ArrayIndex(self.reduce_expression(index)?),
-            AssigneeAccess::Member(identifier) => AssigneeAccess::Member(self.reduce_identifier(identifier)?),
-            _ => access.clone(),
-        };
-
-        self.reducer.reduce_assignee_access(access, new)
-    }
-
-    pub fn reduce_assignee(&mut self, assignee: &Assignee) -> Result<Assignee> {
-        let identifier = self.reduce_identifier(&assignee.identifier)?;
-
-        let mut accesses = vec![];
-        for access in assignee.accesses.iter() {
-            accesses.push(self.reduce_assignee_access(access)?);
-        }
-
-        self.reducer.reduce_assignee(assignee, identifier, accesses)
-    }
-
     pub fn reduce_assign(&mut self, assign: &AssignStatement) -> Result<AssignStatement> {
-        let assignee = self.reduce_assignee(&assign.assignee)?;
+        let place = self.reduce_expression(&assign.place)?;
         let value = self.reduce_expression(&assign.value)?;
 
-        self.reducer.reduce_assign(assign, assignee, value)
+        self.reducer.reduce_assign(assign, place, value)
     }
 
     pub fn reduce_conditional(&mut self, conditional: &ConditionalStatement) -> Result<ConditionalStatement> {

@@ -3,5 +3,11 @@ namespace: Compile
 expectation: Pass
 outputs:
   - output:
+<<<<<<< HEAD
       - initial_input_ast: 22e29b9c961c6e55678fe56363fad03adc093501e1ea2c5d389f0f68fa21ec08
     initial_ast: 6b833755871962eb67f0a281ef1edd82bf84b0c9f03154f0b7b0330c554826d4
+=======
+      - initial_input_ast: 2f21b4d5dc1058106889da0975de69c33e29bb184dace42559ad3e4da5140d21
+    initial_ast: f38cf89467f4903865fcb7ac36405fcb789b4d913e9be0fbd879d9c0477e26db
+    symbol_table: 17062ffd3a4c9628e2c6cd3af6c60b8d8117186a3f34be948bfe951ee96d702d
+>>>>>>> 5b572278fb1edc94f17807222fe3b710e3ae9962

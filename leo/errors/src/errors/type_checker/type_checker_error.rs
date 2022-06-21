@@ -23,6 +23,14 @@ create_messages!(
     code_mask: 2000i32,
     code_prefix: "TYC",
 
+    /// For when the parser encountered an invalid assignment target.
+    @formatted
+    invalid_assignment_target {
+        args: (),
+        msg: "invalid assignment target",
+        help: None,
+    }
+
     /// For when the user tries to assign to a const input.
     @formatted
     cannot_assign_to_const_input {
@@ -49,6 +57,16 @@ create_messages!(
         args: (type_: impl Display, expected: impl Display),
         msg: format!(
             "Found type `{type_}` but type `{expected}` was expected",
+        ),
+        help: None,
+    }
+
+    /// The method name is known but not supported for the given type.
+    @formatted
+    type_method_not_supported {
+        args: (type_: impl Display, method: impl Display),
+        msg: format!(
+            "Type `{type_}` does not support associated method `{method}`",
         ),
         help: None,
     }

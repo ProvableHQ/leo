@@ -22,7 +22,7 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
     fn reconstruct_expression(&mut self, input: Expression) -> Expression {
         match input {
             Expression::Identifier(identifier) => self.reconstruct_identifier(identifier),
-            Expression::Value(value) => self.reconstruct_value(value),
+            Expression::Literal(value) => self.reconstruct_literal(value),
             Expression::Binary(binary) => self.reconstruct_binary(binary),
             Expression::Unary(unary) => self.reconstruct_unary(unary),
             Expression::Ternary(ternary) => self.reconstruct_ternary(ternary),
@@ -39,13 +39,13 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
             .unwrap_or_else(|| panic!("{input}"))
             .declaration
         {
-            Declaration::Const(Some(c)) => Expression::Value(c.clone().into()),
+            Declaration::Const(Some(c)) => Expression::Literal(c.clone().into()),
             _ => Expression::Identifier(input),
         }
     }
 
-    fn reconstruct_value(&mut self, input: ValueExpression) -> Expression {
-        Expression::Value(input)
+    fn reconstruct_literal(&mut self, input: LiteralExpression) -> Expression {
+        Expression::Literal(input)
     }
 
     fn reconstruct_binary(&mut self, input: BinaryExpression) -> Expression {
@@ -59,7 +59,7 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
 
     fn reconstruct_unary(&mut self, input: UnaryExpression) -> Expression {
         Expression::Unary(UnaryExpression {
-            inner: Box::new(self.reconstruct_expression(*input.inner)),
+            receiver: Box::new(self.reconstruct_expression(*input.receiver)),
             op: input.op,
             span: input.span,
         })

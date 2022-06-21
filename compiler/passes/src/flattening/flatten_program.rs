@@ -53,7 +53,7 @@ impl<'a> ProgramReconstructor for Flattener<'a> {
                                 Type::Boolean => Value::Boolean(Default::default(), var.span()),
                                 Type::Field => Value::Field(Default::default(), var.span()),
                                 Type::Group => {
-                                    Value::Group(Box::new(GroupValue::Single(Default::default(), var.span())))
+                                    Value::Group(Box::new(GroupLiteral::Single(Default::default(), var.span())))
                                 }
                                 Type::Scalar => Value::Scalar(Default::default(), var.span()),
                                 Type::String => Value::String(Default::default(), var.span()),

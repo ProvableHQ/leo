@@ -9,7 +9,7 @@ outputs:
         statements:
           - Return:
               expression:
-                Value:
+                Literal:
                   Integer:
                     - U8
                     - "0"
@@ -33,7 +33,7 @@ outputs:
         statements:
           - Return:
               expression:
-                Value:
+                Literal:
                   Integer:
                     - U8
                     - "0"
@@ -127,7 +127,7 @@ outputs:
         statements:
           - Return:
               expression:
-                Value:
+                Literal:
                   Integer:
                     - U8
                     - "0"

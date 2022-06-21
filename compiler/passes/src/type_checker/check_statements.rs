@@ -61,8 +61,15 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_assign(&mut self, input: &'a AssignStatement) {
-        let var_name = input.assignee.identifier.name;
-        let var_type = if let Some(var) = self.symbol_table.borrow().lookup_variable(var_name) {
+        let var_name = match input.place {
+            Expression::Identifier(id) => id,
+            _ => {
+                self.handler
+                    .emit_err(TypeCheckerError::invalid_assignment_target(input.place.span()).into());
+                return;
+            }
+        };
+        let var_type = if let Some(var) = self.symbol_table.borrow().lookup_variable(var_name.name) {
             match &var.declaration {
                 Declaration::Const(_) => self
                     .handler
@@ -75,9 +82,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
             Some(var.type_)
         } else {
-            self.handler.emit_err(
-                TypeCheckerError::unknown_sym("variable", &input.assignee.identifier.name, input.assignee.span).into(),
-            );
+            self.handler
+                .emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span).into());
 
             None
         };

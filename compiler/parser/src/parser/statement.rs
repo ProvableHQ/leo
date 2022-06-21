@@ -22,25 +22,6 @@ use leo_span::sym;
 const ASSIGN_TOKENS: &[Token] = &[Token::Assign];
 
 impl ParserContext<'_> {
-    /// Returns an [`Identifier`] AST node if the given [`Expression`] AST node evaluates to an
-    /// identifier access. The access is stored in the given accesses.
-    fn construct_assignee_access(expr: Expression, _accesses: &mut [AssigneeAccess]) -> Result<Identifier> {
-        match expr {
-            Expression::Identifier(id) => Ok(id),
-            _ => Err(ParserError::invalid_assignment_target(expr.span()).into()),
-        }
-    }
-
-    /// Returns an [`Assignee`] AST node from the given [`Expression`] AST node with accesses.
-    fn construct_assignee(expr: Expression) -> Result<Assignee> {
-        let mut accesses = Vec::new();
-        Ok(Assignee {
-            span: expr.span(),
-            identifier: Self::construct_assignee_access(expr, &mut accesses)?,
-            accesses,
-        })
-    }
-
     /// Returns a [`Statement`] AST node if the next tokens represent a statement.
     pub(crate) fn parse_statement(&mut self) -> Result<Statement> {
         match &self.token.token {
@@ -56,15 +37,14 @@ impl ParserContext<'_> {
 
     /// Returns a [`Block`] AST node if the next tokens represent a assign, or expression statement.
     fn parse_assign_statement(&mut self) -> Result<Statement> {
-        let expr = self.parse_expression()?;
+        let place = self.parse_expression()?;
 
         if self.eat_any(ASSIGN_TOKENS) {
             let value = self.parse_expression()?;
-            let assignee = Self::construct_assignee(expr)?;
             self.expect(&Token::Semicolon)?;
             Ok(Statement::Assign(Box::new(AssignStatement {
-                span: assignee.span + value.span(),
-                assignee,
+                span: place.span() + value.span(),
+                place,
                 // Currently only `=` so this is alright.
                 operation: AssignOperation::Assign,
                 value,
@@ -72,7 +52,7 @@ impl ParserContext<'_> {
         } else {
             // Error on `expr;` but recover as an empty block `{}`.
             self.expect(&Token::Semicolon)?;
-            let span = expr.span() + self.prev_token.span;
+            let span = place.span() + self.prev_token.span;
             self.emit_err(ParserError::expr_stmts_disallowed(span));
             Ok(Statement::dummy(span))
         }

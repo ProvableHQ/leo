@@ -567,7 +567,7 @@ impl ReconstructingReducer for Canonicalizer {
             };
 
             elements.push(SpreadOrExpression::Expression(Expression::Value(
-                ValueExpression::Char(CharValue {
+                LiteralExpression::Char(CharValue {
                     character: character.clone(),
                     span: Span::new(
                         span.line_start,

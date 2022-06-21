@@ -27,7 +27,7 @@ pub trait ExpressionVisitor<'a> {
     fn visit_expression(&mut self, input: &'a Expression, additional: &Self::AdditionalInput) -> Self::Output {
         match input {
             Expression::Identifier(expr) => self.visit_identifier(expr, additional),
-            Expression::Value(expr) => self.visit_value(expr, additional),
+            Expression::Literal(expr) => self.visit_literal(expr, additional),
             Expression::Binary(expr) => self.visit_binary(expr, additional),
             Expression::Unary(expr) => self.visit_unary(expr, additional),
             Expression::Ternary(expr) => self.visit_ternary(expr, additional),
@@ -40,7 +40,7 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_value(&mut self, _input: &'a ValueExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_literal(&mut self, _input: &'a LiteralExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
 
@@ -51,7 +51,7 @@ pub trait ExpressionVisitor<'a> {
     }
 
     fn visit_unary(&mut self, input: &'a UnaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        self.visit_expression(&input.inner, additional);
+        self.visit_expression(&input.receiver, additional);
         Default::default()
     }
 

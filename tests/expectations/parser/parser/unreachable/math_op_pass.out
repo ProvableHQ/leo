@@ -41,7 +41,7 @@ outputs:
             Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
           right:
             Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
-          op: Ne
+          op: Neq
           span:
             lo: 12
             hi: 18
@@ -165,12 +165,8 @@ outputs:
         hi: 17
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"x_\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":2}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 2
+      place:
+        Identifier: "{\"name\":\"x_\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":2}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
       span:
@@ -178,12 +174,8 @@ outputs:
         hi: 4
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xconsole\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":8}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 8
+      place:
+        Identifier: "{\"name\":\"xconsole\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":8}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
       span:
@@ -191,12 +183,8 @@ outputs:
         hi: 10
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xconst\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":6}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 6
+      place:
+        Identifier: "{\"name\":\"xconst\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":6}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
       span:
@@ -204,12 +192,8 @@ outputs:
         hi: 8
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xlet\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 4
+      place:
+        Identifier: "{\"name\":\"xlet\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
       span:
@@ -217,12 +201,8 @@ outputs:
         hi: 6
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xfor\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 4
+      place:
+        Identifier: "{\"name\":\"xfor\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
       span:
@@ -230,12 +210,8 @@ outputs:
         hi: 6
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xif\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 3
+      place:
+        Identifier: "{\"name\":\"xif\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       span:
@@ -243,12 +219,8 @@ outputs:
         hi: 5
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xelse\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 5
+      place:
+        Identifier: "{\"name\":\"xelse\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       span:
@@ -256,12 +228,8 @@ outputs:
         hi: 7
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xi8\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 3
+      place:
+        Identifier: "{\"name\":\"xi8\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       span:
@@ -269,12 +237,8 @@ outputs:
         hi: 5
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xi16\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 4
+      place:
+        Identifier: "{\"name\":\"xi16\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
       span:
@@ -282,12 +246,8 @@ outputs:
         hi: 6
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xi32\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 4
+      place:
+        Identifier: "{\"name\":\"xi32\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
       span:
@@ -295,12 +255,8 @@ outputs:
         hi: 6
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xi64\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 4
+      place:
+        Identifier: "{\"name\":\"xi64\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
       span:
@@ -308,12 +264,8 @@ outputs:
         hi: 6
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xi128\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 5
+      place:
+        Identifier: "{\"name\":\"xi128\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       span:
@@ -321,12 +273,8 @@ outputs:
         hi: 7
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xu8\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 3
+      place:
+        Identifier: "{\"name\":\"xu8\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       span:
@@ -334,12 +282,8 @@ outputs:
         hi: 5
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xu16\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 4
+      place:
+        Identifier: "{\"name\":\"xu16\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
       span:
@@ -347,12 +291,8 @@ outputs:
         hi: 6
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xu32\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 4
+      place:
+        Identifier: "{\"name\":\"xu32\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
       span:
@@ -360,12 +300,8 @@ outputs:
         hi: 6
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xu64\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 4
+      place:
+        Identifier: "{\"name\":\"xu64\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
       span:
@@ -373,12 +309,8 @@ outputs:
         hi: 6
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xu128\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 5
+      place:
+        Identifier: "{\"name\":\"xu128\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       span:
@@ -386,12 +318,8 @@ outputs:
         hi: 7
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xreturn\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":7}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 7
+      place:
+        Identifier: "{\"name\":\"xreturn\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":7}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
       span:
@@ -399,12 +327,8 @@ outputs:
         hi: 9
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xtrue\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 5
+      place:
+        Identifier: "{\"name\":\"xtrue\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       span:
@@ -412,12 +336,8 @@ outputs:
         hi: 7
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"xfalse\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":6}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 6
+      place:
+        Identifier: "{\"name\":\"xfalse\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":6}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
       span:
@@ -425,12 +345,8 @@ outputs:
         hi: 8
   - Assign:
       operation: Assign
-      assignee:
-        identifier: "{\"name\":\"x0\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":2}\"}"
-        accesses: []
-        span:
-          lo: 0
-          hi: 2
+      place:
+        Identifier: "{\"name\":\"x0\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":2}\"}"
       value:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
       span:

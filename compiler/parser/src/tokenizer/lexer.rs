@@ -17,13 +17,11 @@
 use crate::tokenizer::Token;
 use leo_errors::{ParserError, Result};
 use leo_span::{Span, Symbol};
-use snarkvm_dpc::{prelude::*, testnet2::Testnet2};
 
 use serde::{Deserialize, Serialize};
 use std::{
     fmt,
     iter::{from_fn, Peekable},
-    str::FromStr,
 };
 
 /// Eat an identifier, that is, a string matching '[a-zA-Z][a-zA-Z\d_]*', if any.
@@ -36,6 +34,14 @@ fn eat_identifier(input: &mut Peekable<impl Iterator<Item = char>>) -> Option<St
 fn is_bidi_override(c: char) -> bool {
     let i = c as u32;
     (0x202A..=0x202E).contains(&i) || (0x2066..=0x2069).contains(&i)
+}
+
+/// Ensure that `string` contains no Unicode Bidirectional Override code points.
+fn ensure_no_bidi_override(string: &str) -> Result<()> {
+    if string.chars().any(is_bidi_override) {
+        return Err(ParserError::lexer_bidi_override().into());
+    }
+    Ok(())
 }
 
 impl Token {
@@ -176,6 +182,7 @@ impl Token {
             return Err(ParserError::lexer_empty_input().into());
         }
 
+        let input_str = input;
         let mut input = input.chars().peekable();
 
         // Consumes a single character token.
@@ -192,43 +199,30 @@ impl Token {
                 (1, els)
             })
         };
-        // Consumes `on` again and produces `token` if found.
-        let twice = |input: &mut Peekable<_>, on, token| {
+        // Consumes a character followed by `on_1`, `on_2` or none. Outputs case_1, case_2, or els.
+        let three_cases = |input: &mut Peekable<_>, on_1, case_1, on_2, case_2, els| {
             input.next();
-            if input.next_if_eq(&on).is_some() {
-                Ok((2, token))
-            } else if let Some(found) = input.next() {
-                Err(ParserError::lexer_expected_but_found(found, on).into())
+            Ok(if input.next_if_eq(&on_1).is_some() {
+                (2, case_1)
+            } else if input.next_if_eq(&on_2).is_some() {
+                (2, case_2)
             } else {
-                Err(ParserError::lexer_empty_input().into())
-            }
+                (1, els)
+            })
         };
 
         match *input.peek().ok_or_else(ParserError::lexer_empty_input)? {
             x if x.is_ascii_whitespace() => return single(&mut input, Token::WhiteSpace),
             '"' => {
-                let mut string = String::new();
-                input.next();
+                // Find end string quotation mark.
+                // Instead of checking each `char` and pushing, we can avoid reallocations.
+                let rest = &input_str[1..];
+                let string = match rest.as_bytes().iter().position(|c| *c == b'"') {
+                    None => return Err(ParserError::lexer_string_not_closed(rest).into()),
+                    Some(idx) => rest[..idx].to_owned(),
+                };
 
-                let mut ended = false;
-                while let Some(c) = input.next() {
-                    // Check for illegal characters.
-                    if is_bidi_override(c) {
-                        return Err(ParserError::lexer_bidi_override().into());
-                    }
-
-                    // Check for end string quotation mark.
-                    if c == '"' {
-                        input.next();
-                        ended = true;
-                        break;
-                    }
-                    string.push(c);
-                }
-
-                if !ended {
-                    return Err(ParserError::lexer_string_not_closed(string).into());
-                }
+                ensure_no_bidi_override(&string)?;
 
                 // + 2 to account for parsing quotation marks.
                 return Ok((string.len() + 2, Token::StaticString(string)));
@@ -236,7 +230,7 @@ impl Token {
             x if x.is_ascii_digit() => return Self::eat_integer(&mut input),
             '!' => return followed_by(&mut input, '=', Token::NotEq, Token::Not),
             '?' => return single(&mut input, Token::Question),
-            '&' => return twice(&mut input, '&', Token::And),
+            '&' => return followed_by(&mut input, '&', Token::And, Token::BitwiseAnd),
             '(' => return single(&mut input, Token::LeftParen),
             ')' => return single(&mut input, Token::RightParen),
             '_' => return single(&mut input, Token::Underscore),
@@ -248,21 +242,14 @@ impl Token {
             '/' => {
                 input.next();
                 if input.next_if_eq(&'/').is_some() {
-                    let mut comment = String::from("//");
+                    // Find the end of the comment line.
+                    let comment = match input_str.as_bytes().iter().position(|c| *c == b'\n') {
+                        None => input_str,
+                        Some(idx) => &input_str[..idx + 1],
+                    };
 
-                    while let Some(c) = input.next_if(|c| c != &'\n') {
-                        if is_bidi_override(c) {
-                            return Err(ParserError::lexer_bidi_override().into());
-                        }
-                        comment.push(c);
-                    }
-
-                    if let Some(newline) = input.next_if_eq(&'\n') {
-                        comment.push(newline);
-                        return Ok((comment.len(), Token::CommentLine(comment)));
-                    }
-
-                    return Ok((comment.len(), Token::CommentLine(comment)));
+                    ensure_no_bidi_override(comment)?;
+                    return Ok((comment.len(), Token::CommentLine(comment.to_owned())));
                 } else if input.next_if_eq(&'*').is_some() {
                     let mut comment = String::from("/*");
 
@@ -272,9 +259,6 @@ impl Token {
 
                     let mut ended = false;
                     while let Some(c) = input.next() {
-                        if is_bidi_override(c) {
-                            return Err(ParserError::lexer_bidi_override().into());
-                        }
                         comment.push(c);
                         if c == '*' && input.next_if_eq(&'/').is_some() {
                             comment.push('/');
@@ -282,6 +266,8 @@ impl Token {
                             break;
                         }
                     }
+
+                    ensure_no_bidi_override(&comment)?;
 
                     if !ended {
                         return Err(ParserError::lexer_block_comment_does_not_close_before_eof(comment).into());
@@ -292,14 +278,15 @@ impl Token {
             }
             ':' => return single(&mut input, Token::Colon),
             ';' => return single(&mut input, Token::Semicolon),
-            '<' => return followed_by(&mut input, '=', Token::LtEq, Token::Lt),
-            '>' => return followed_by(&mut input, '=', Token::GtEq, Token::Gt),
+            '<' => return three_cases(&mut input, '=', Token::LtEq, '<', Token::Shl, Token::Lt),
+            '>' => return three_cases(&mut input, '=', Token::GtEq, '>', Token::Shr, Token::Gt),
             '=' => return followed_by(&mut input, '=', Token::Eq, Token::Assign),
             '[' => return single(&mut input, Token::LeftSquare),
             ']' => return single(&mut input, Token::RightSquare),
             '{' => return single(&mut input, Token::LeftCurly),
             '}' => return single(&mut input, Token::RightCurly),
-            '|' => return twice(&mut input, '|', Token::Or),
+            '|' => return followed_by(&mut input, '|', Token::Or, Token::BitwiseOr),
+            '^' => return single(&mut input, Token::Xor),
             _ => (),
         }
         if let Some(ident) = eat_identifier(&mut input) {
@@ -377,9 +364,4 @@ impl fmt::Debug for SpannedToken {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         <SpannedToken as fmt::Display>::fmt(self, f)
     }
-}
-
-/// Returns true if the given string is a valid Aleo address.
-pub(crate) fn check_address(address: &str) -> bool {
-    Address::<Testnet2>::from_str(address).is_ok()
 }
