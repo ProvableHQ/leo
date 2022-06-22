@@ -54,23 +54,23 @@ impl CoreInstruction {
     /// Returns a `CoreInstruction` from the given circuit and method symbols.
     pub fn from_symbols(circuit: Symbol, function: Symbol) -> Option<Self> {
         Some(match (circuit, function) {
-            (sym::bhp256, sym::commit) => Self::BHP256Commit,
-            (sym::bhp256, sym::hash) => Self::BHP256Hash,
-            (sym::bhp512, sym::commit) => Self::BHP512Commit,
-            (sym::bhp512, sym::hash) => Self::BHP512Hash,
-            (sym::bhp768, sym::commit) => Self::BHP768Commit,
-            (sym::bhp768, sym::hash) => Self::BHP768Hash,
-            (sym::bhp1024, sym::commit) => Self::BHP1024Commit,
-            (sym::bhp1024, sym::hash) => Self::BHP1024Hash,
+            (sym::BHP256, sym::commit) => Self::BHP256Commit,
+            (sym::BHP256, sym::hash) => Self::BHP256Hash,
+            (sym::BHP512, sym::commit) => Self::BHP512Commit,
+            (sym::BHP512, sym::hash) => Self::BHP512Hash,
+            (sym::BHP768, sym::commit) => Self::BHP768Commit,
+            (sym::BHP768, sym::hash) => Self::BHP768Hash,
+            (sym::BHP1024, sym::commit) => Self::BHP1024Commit,
+            (sym::BHP1024, sym::hash) => Self::BHP1024Hash,
 
-            (sym::ped64, sym::commit) => Self::Pedersen64Commit,
-            (sym::ped64, sym::hash) => Self::Pedersen64Hash,
-            (sym::ped128, sym::commit) => Self::Pedersen128Commit,
-            (sym::ped128, sym::hash) => Self::Pedersen128Hash,
+            (sym::Pedersen64, sym::commit) => Self::Pedersen64Commit,
+            (sym::Pedersen64, sym::hash) => Self::Pedersen64Hash,
+            (sym::Pedersen128, sym::commit) => Self::Pedersen128Commit,
+            (sym::Pedersen128, sym::hash) => Self::Pedersen128Hash,
 
-            (sym::psd2, sym::hash) => Self::Poseidon2Hash,
-            (sym::psd4, sym::hash) => Self::Poseidon4Hash,
-            (sym::psd8, sym::hash) => Self::Poseidon8Hash,
+            (sym::Poseidon2, sym::hash) => Self::Poseidon2Hash,
+            (sym::Poseidon4, sym::hash) => Self::Poseidon4Hash,
+            (sym::Poseidon8, sym::hash) => Self::Poseidon8Hash,
             _ => return None,
         })
     }
@@ -78,92 +78,92 @@ impl CoreInstruction {
     /// Returns the number of arguments required by the instruction.
     pub fn num_args(&self) -> usize {
         match self {
-            CoreInstruction::BHP256Commit => BHP256Commit::NUM_ARGS,
-            CoreInstruction::BHP256Hash => BHP256Hash::NUM_ARGS,
-            CoreInstruction::BHP512Commit => BHP512Commit::NUM_ARGS,
-            CoreInstruction::BHP512Hash => BHP512Hash::NUM_ARGS,
-            CoreInstruction::BHP768Commit => BHP768Commit::NUM_ARGS,
-            CoreInstruction::BHP768Hash => BHP768Hash::NUM_ARGS,
-            CoreInstruction::BHP1024Commit => BHP1024Commit::NUM_ARGS,
-            CoreInstruction::BHP1024Hash => BHP1024Hash::NUM_ARGS,
+            Self::BHP256Commit => BHP256Commit::NUM_ARGS,
+            Self::BHP256Hash => BHP256Hash::NUM_ARGS,
+            Self::BHP512Commit => BHP512Commit::NUM_ARGS,
+            Self::BHP512Hash => BHP512Hash::NUM_ARGS,
+            Self::BHP768Commit => BHP768Commit::NUM_ARGS,
+            Self::BHP768Hash => BHP768Hash::NUM_ARGS,
+            Self::BHP1024Commit => BHP1024Commit::NUM_ARGS,
+            Self::BHP1024Hash => BHP1024Hash::NUM_ARGS,
 
-            CoreInstruction::Pedersen64Commit => Pedersen64Commit::NUM_ARGS,
-            CoreInstruction::Pedersen64Hash => Pedersen64Hash::NUM_ARGS,
-            CoreInstruction::Pedersen128Commit => Pedersen128Commit::NUM_ARGS,
-            CoreInstruction::Pedersen128Hash => Pedersen128Hash::NUM_ARGS,
+            Self::Pedersen64Commit => Pedersen64Commit::NUM_ARGS,
+            Self::Pedersen64Hash => Pedersen64Hash::NUM_ARGS,
+            Self::Pedersen128Commit => Pedersen128Commit::NUM_ARGS,
+            Self::Pedersen128Hash => Pedersen128Hash::NUM_ARGS,
 
-            CoreInstruction::Poseidon2Hash => Poseidon2Hash::NUM_ARGS,
-            CoreInstruction::Poseidon4Hash => Poseidon4Hash::NUM_ARGS,
-            CoreInstruction::Poseidon8Hash => Poseidon8Hash::NUM_ARGS,
+            Self::Poseidon2Hash => Poseidon2Hash::NUM_ARGS,
+            Self::Poseidon4Hash => Poseidon4Hash::NUM_ARGS,
+            Self::Poseidon8Hash => Poseidon8Hash::NUM_ARGS,
         }
     }
 
     /// The allowed types for the first argument of the instruction.
     pub fn first_arg_types(&self) -> &'static [Type] {
         match self {
-            CoreInstruction::BHP256Commit => BHP256Commit::first_arg_types(),
-            CoreInstruction::BHP256Hash => BHP256Hash::first_arg_types(),
-            CoreInstruction::BHP512Commit => BHP512Commit::first_arg_types(),
-            CoreInstruction::BHP512Hash => BHP512Hash::first_arg_types(),
-            CoreInstruction::BHP768Commit => BHP768Commit::first_arg_types(),
-            CoreInstruction::BHP768Hash => BHP768Hash::first_arg_types(),
-            CoreInstruction::BHP1024Commit => BHP1024Commit::first_arg_types(),
-            CoreInstruction::BHP1024Hash => BHP1024Hash::first_arg_types(),
+            Self::BHP256Commit => BHP256Commit::first_arg_types(),
+            Self::BHP256Hash => BHP256Hash::first_arg_types(),
+            Self::BHP512Commit => BHP512Commit::first_arg_types(),
+            Self::BHP512Hash => BHP512Hash::first_arg_types(),
+            Self::BHP768Commit => BHP768Commit::first_arg_types(),
+            Self::BHP768Hash => BHP768Hash::first_arg_types(),
+            Self::BHP1024Commit => BHP1024Commit::first_arg_types(),
+            Self::BHP1024Hash => BHP1024Hash::first_arg_types(),
 
-            CoreInstruction::Pedersen64Commit => Pedersen64Commit::first_arg_types(),
-            CoreInstruction::Pedersen64Hash => Pedersen64Hash::first_arg_types(),
-            CoreInstruction::Pedersen128Commit => Pedersen128Commit::first_arg_types(),
-            CoreInstruction::Pedersen128Hash => Pedersen128Hash::first_arg_types(),
+            Self::Pedersen64Commit => Pedersen64Commit::first_arg_types(),
+            Self::Pedersen64Hash => Pedersen64Hash::first_arg_types(),
+            Self::Pedersen128Commit => Pedersen128Commit::first_arg_types(),
+            Self::Pedersen128Hash => Pedersen128Hash::first_arg_types(),
 
-            CoreInstruction::Poseidon2Hash => Poseidon2Hash::first_arg_types(),
-            CoreInstruction::Poseidon4Hash => Poseidon4Hash::first_arg_types(),
-            CoreInstruction::Poseidon8Hash => Poseidon8Hash::first_arg_types(),
+            Self::Poseidon2Hash => Poseidon2Hash::first_arg_types(),
+            Self::Poseidon4Hash => Poseidon4Hash::first_arg_types(),
+            Self::Poseidon8Hash => Poseidon8Hash::first_arg_types(),
         }
     }
 
     /// The allowed types for the second argument of the instruction.
     pub fn second_arg_types(&self) -> &'static [Type] {
         match self {
-            CoreInstruction::BHP256Commit => BHP256Commit::second_arg_types(),
-            CoreInstruction::BHP256Hash => BHP256Hash::second_arg_types(),
-            CoreInstruction::BHP512Commit => BHP512Commit::second_arg_types(),
-            CoreInstruction::BHP512Hash => BHP512Hash::second_arg_types(),
-            CoreInstruction::BHP768Commit => BHP768Commit::second_arg_types(),
-            CoreInstruction::BHP768Hash => BHP768Hash::second_arg_types(),
-            CoreInstruction::BHP1024Commit => BHP1024Commit::second_arg_types(),
-            CoreInstruction::BHP1024Hash => BHP1024Hash::second_arg_types(),
+            Self::BHP256Commit => BHP256Commit::second_arg_types(),
+            Self::BHP256Hash => BHP256Hash::second_arg_types(),
+            Self::BHP512Commit => BHP512Commit::second_arg_types(),
+            Self::BHP512Hash => BHP512Hash::second_arg_types(),
+            Self::BHP768Commit => BHP768Commit::second_arg_types(),
+            Self::BHP768Hash => BHP768Hash::second_arg_types(),
+            Self::BHP1024Commit => BHP1024Commit::second_arg_types(),
+            Self::BHP1024Hash => BHP1024Hash::second_arg_types(),
 
-            CoreInstruction::Pedersen64Commit => Pedersen64Commit::second_arg_types(),
-            CoreInstruction::Pedersen64Hash => Pedersen64Hash::second_arg_types(),
-            CoreInstruction::Pedersen128Commit => Pedersen128Commit::second_arg_types(),
-            CoreInstruction::Pedersen128Hash => Pedersen128Hash::second_arg_types(),
+            Self::Pedersen64Commit => Pedersen64Commit::second_arg_types(),
+            Self::Pedersen64Hash => Pedersen64Hash::second_arg_types(),
+            Self::Pedersen128Commit => Pedersen128Commit::second_arg_types(),
+            Self::Pedersen128Hash => Pedersen128Hash::second_arg_types(),
 
-            CoreInstruction::Poseidon2Hash => Poseidon2Hash::second_arg_types(),
-            CoreInstruction::Poseidon4Hash => Poseidon4Hash::second_arg_types(),
-            CoreInstruction::Poseidon8Hash => Poseidon8Hash::second_arg_types(),
+            Self::Poseidon2Hash => Poseidon2Hash::second_arg_types(),
+            Self::Poseidon4Hash => Poseidon4Hash::second_arg_types(),
+            Self::Poseidon8Hash => Poseidon8Hash::second_arg_types(),
         }
     }
 
     /// The type of the instruction output.
     pub fn return_type(&self) -> Type {
         match self {
-            CoreInstruction::BHP256Commit => BHP256Commit::return_type(),
-            CoreInstruction::BHP256Hash => BHP256Hash::return_type(),
-            CoreInstruction::BHP512Commit => BHP512Commit::return_type(),
-            CoreInstruction::BHP512Hash => BHP512Hash::return_type(),
-            CoreInstruction::BHP768Commit => BHP768Commit::return_type(),
-            CoreInstruction::BHP768Hash => BHP768Hash::return_type(),
-            CoreInstruction::BHP1024Commit => BHP1024Commit::return_type(),
-            CoreInstruction::BHP1024Hash => BHP1024Hash::return_type(),
+            Self::BHP256Commit => BHP256Commit::return_type(),
+            Self::BHP256Hash => BHP256Hash::return_type(),
+            Self::BHP512Commit => BHP512Commit::return_type(),
+            Self::BHP512Hash => BHP512Hash::return_type(),
+            Self::BHP768Commit => BHP768Commit::return_type(),
+            Self::BHP768Hash => BHP768Hash::return_type(),
+            Self::BHP1024Commit => BHP1024Commit::return_type(),
+            Self::BHP1024Hash => BHP1024Hash::return_type(),
 
-            CoreInstruction::Pedersen64Commit => Pedersen64Commit::return_type(),
-            CoreInstruction::Pedersen64Hash => Pedersen64Hash::return_type(),
-            CoreInstruction::Pedersen128Commit => Pedersen128Commit::return_type(),
-            CoreInstruction::Pedersen128Hash => Pedersen128Hash::return_type(),
+            Self::Pedersen64Commit => Pedersen64Commit::return_type(),
+            Self::Pedersen64Hash => Pedersen64Hash::return_type(),
+            Self::Pedersen128Commit => Pedersen128Commit::return_type(),
+            Self::Pedersen128Hash => Pedersen128Hash::return_type(),
 
-            CoreInstruction::Poseidon2Hash => Poseidon2Hash::return_type(),
-            CoreInstruction::Poseidon4Hash => Poseidon4Hash::return_type(),
-            CoreInstruction::Poseidon8Hash => Poseidon8Hash::return_type(),
+            Self::Poseidon2Hash => Poseidon2Hash::return_type(),
+            Self::Poseidon4Hash => Poseidon4Hash::return_type(),
+            Self::Poseidon8Hash => Poseidon8Hash::return_type(),
         }
     }
 }
@@ -177,7 +177,7 @@ trait CoreFunction {
     fn first_arg_types() -> &'static [Type];
 
     /// Returns the second argument allowed types.
-    /// Implementing this method is optional since some functions may not require a second argument.
+    /// Implementing this method is optional since some functions may not allow a second argument.
     fn second_arg_types() -> &'static [Type] {
         &[]
     }

@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Identifier, Type};
+use leo_span::Symbol;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -50,6 +51,15 @@ pub enum CircuitMember {
     //     /// The function.
     //     Box<Function>,
     // ),
+}
+
+impl CircuitMember {
+    /// Returns the name of the circuit member without span.
+    pub fn name(&self) -> Symbol {
+        match self {
+            CircuitMember::CircuitVariable(ident, _type) => ident.name,
+        }
+    }
 }
 
 impl fmt::Display for CircuitMember {

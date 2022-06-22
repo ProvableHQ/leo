@@ -108,7 +108,7 @@ symbols! {
     neg,
     not,
     square,
-    sqrt: "square_root",
+    square_root,
 
     // binary operators
     add,
@@ -138,17 +138,17 @@ symbols! {
     xor,
 
     // core circuits
-    bhp256: "BHP256",
-    bhp512: "BHP512",
-    bhp768: "BHP768",
-    bhp1024: "BHP1024",
+    BHP256,
+    BHP512,
+    BHP768,
+    BHP1024,
     commit,
     hash,
-    ped64: "Pedersen64",
-    ped128: "Pedersen128",
-    psd2: "Poseidon2",
-    psd4: "Poseidon4",
-    psd8: "Poseidon8",
+    Pedersen64,
+    Pedersen128,
+    Poseidon2,
+    Poseidon4,
+    Poseidon8,
 
     // types
     address,

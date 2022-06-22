@@ -225,24 +225,25 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                             );
                         }
 
-                        // Check input argument types.
-                        access.args.iter().enumerate().for_each(|(index, input_expr)| {
-                            let input_type = self.visit_expression(input_expr, &None);
+                        // Check first argument type.
+                        if let Some(first_arg) = access.args.get(0usize) {
+                            let first_arg_type = self.visit_expression(first_arg, &None);
+                            self.visitor.assert_one_of_types(
+                                &first_arg_type,
+                                core_instruction.first_arg_types(),
+                                access.span(),
+                            );
+                        }
 
-                            match index {
-                                0 => self.visitor.assert_one_of_types(
-                                    &input_type,
-                                    core_instruction.first_arg_types(),
-                                    access.span(),
-                                ),
-                                1 => self.visitor.assert_one_of_types(
-                                    &input_type,
-                                    core_instruction.second_arg_types(),
-                                    access.span(),
-                                ),
-                                _ => unreachable!(),
-                            };
-                        });
+                        // Check second argument type.
+                        if let Some(second_arg) = access.args.get(1usize) {
+                            let second_arg_type = self.visit_expression(second_arg, &None);
+                            self.visitor.assert_one_of_types(
+                                &second_arg_type,
+                                core_instruction.second_arg_types(),
+                                access.span(),
+                            );
+                        }
 
                         // Check return type.
                         return Some(self.visitor.assert_expected_option(
@@ -250,11 +251,12 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                             expected,
                             access.span(),
                         ));
-                    } else {
-                        // todo: return Err for unknown circuit or function
                     }
                 }
-                _ => unimplemented!("only static core circuit function calls are supported"),
+                expr => self
+                    .visitor
+                    .handler
+                    .emit_err(TypeCheckerError::invalid_access_expression(expr, expr.span()).into()),
             }
         }
         None
@@ -417,7 +419,8 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                         }
                         (t1, Some(Type::Address)) => {
                             // Assert lhs is address.
-                            self.visitor.assert_expected_type(&t1, Type::Address, input.right.span());
+                            self.visitor
+                                .assert_expected_type(&t1, Type::Address, input.right.span());
                         }
                         (Some(Type::Field), t2) => {
                             // Assert rhs is field.
@@ -492,23 +495,23 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                 UnaryOperation::Abs => {
                     // Assert integer type only.
                     self.visitor.assert_signed_int_type(destination, input.span());
-                    self.visit_expression(&input.receiver, destination)
+                    return self.visit_expression(&input.receiver, destination);
                 }
                 UnaryOperation::AbsWrapped => {
                     // Assert integer type only.
                     self.visitor.assert_signed_int_type(destination, input.span());
-                    self.visit_expression(&input.receiver, destination)
+                    return self.visit_expression(&input.receiver, destination);
                 }
                 UnaryOperation::Double => {
                     // Assert field and group type only.
                     self.visitor.assert_field_group_type(destination, input.span());
-                    self.visit_expression(&input.receiver, destination)
+                    return self.visit_expression(&input.receiver, destination);
                 }
                 UnaryOperation::Inverse => {
                     // Assert field type only.
                     self.visitor
                         .assert_expected_type(destination, Type::Field, input.span());
-                    self.visit_expression(&input.receiver, destination)
+                    return self.visit_expression(&input.receiver, destination);
                 }
                 UnaryOperation::Negate => {
                     let prior_negate_state = self.visitor.negate;
@@ -534,29 +537,29 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                             .emit_err(TypeCheckerError::type_is_not_negatable(t, input.receiver.span()).into()),
                         _ => {}
                     };
-                    type_
+                    return type_;
                 }
                 UnaryOperation::Not => {
                     // Assert boolean, integer types only.
                     self.visitor.assert_bool_int_type(destination, input.span());
-                    self.visit_expression(&input.receiver, destination)
+                    return self.visit_expression(&input.receiver, destination);
                 }
                 UnaryOperation::Square => {
                     // Assert field type only.
                     self.visitor
                         .assert_expected_type(destination, Type::Field, input.span());
-                    self.visit_expression(&input.receiver, destination)
+                    return self.visit_expression(&input.receiver, destination);
                 }
                 UnaryOperation::SquareRoot => {
                     // Assert field type only.
                     self.visitor
                         .assert_expected_type(destination, Type::Field, input.span());
-                    self.visit_expression(&input.receiver, destination)
+                    return self.visit_expression(&input.receiver, destination);
                 }
             }
-        } else {
-            None
         }
+
+        None
     }
 
     fn visit_ternary(
@@ -582,6 +585,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                 if let Some(func) = self.visitor.symbol_table.clone().lookup_fn(&ident.name) {
                     let ret = self.visitor.assert_expected_option(func.output, expected, func.span());
 
+                    // Check number of function arguments.
                     if func.input.len() != input.arguments.len() {
                         self.visitor.handler.emit_err(
                             TypeCheckerError::incorrect_num_args_to_call(
@@ -593,6 +597,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                         );
                     }
 
+                    // Check function argument types.
                     func.input
                         .iter()
                         .zip(input.arguments.iter())
@@ -634,19 +639,22 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     .into(),
                 );
             }
-            // Check circuit member types
-            circ.members
-                .iter()
-                .zip(input.members.iter())
-                .for_each(|(expected, actual)| {
-                    match expected {
-                        CircuitMember::CircuitVariable(_name, type_) => {
-                            if let Some(expr) = &actual.expression {
-                                self.visit_expression(expr, &Some(*type_));
-                            }
+
+            // Check circuit member types.
+            circ.members.iter().for_each(|expected| match expected {
+                CircuitMember::CircuitVariable(name, type_) => {
+                    // Lookup circuit variable name.
+                    if let Some(actual) = input.members.iter().find(|member| &member.identifier == name) {
+                        if let Some(expr) = &actual.expression {
+                            self.visit_expression(expr, &Some(*type_));
                         }
-                    }
-                });
+                    } else {
+                        self.visitor.handler.emit_err(
+                            TypeCheckerError::unknown_sym("circuit member variable", name, name.span()).into(),
+                        );
+                    };
+                }
+            });
 
             Some(ret)
         } else {

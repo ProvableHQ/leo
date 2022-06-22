@@ -182,4 +182,24 @@ create_messages!(
         ),
         help: None,
     }
+
+    /// An invalid access call is made e.g., `bool::MAX`
+    @formatted
+    invalid_access_expression {
+        args: (expr: impl Display),
+        msg: format!(
+            "Invalid method call to {expr}."
+        ),
+        help: None,
+    }
+
+    /// Attempted to define more that one circuit member with the same name.
+    @formatted
+    duplicate_circuit_member {
+        args: (circuit: impl Display),
+        msg: format!(
+            "Circuit {circuit} defined with more than one member with the same name."
+        ),
+        help: None,
+    }
 );

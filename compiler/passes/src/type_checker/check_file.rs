@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use super::director::Director;
+use crate::{Declaration, TypeChecker, VariableSymbol};
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
 
-use crate::{Declaration, TypeChecker, VariableSymbol};
-
-use super::director::Director;
+use std::collections::HashSet;
 
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {}
 
@@ -33,6 +33,7 @@ impl<'a> ProgramVisitorDirector<'a> for Director<'a> {
                 let input_var = i.get_variable();
                 self.visitor.check_ident_type(&Some(input_var.type_));
 
+                // Check for conflicting variable names.
                 if let Err(err) = self.visitor.symbol_table.insert_variable(
                     input_var.identifier.name,
                     VariableSymbol {
@@ -50,6 +51,18 @@ impl<'a> ProgramVisitorDirector<'a> for Director<'a> {
                 self.visitor
                     .handler
                     .emit_err(TypeCheckerError::function_has_no_return(input.name(), input.span()).into());
+            }
+        }
+    }
+
+    fn visit_circuit(&mut self, input: &'a Circuit) {
+        if let VisitResult::VisitChildren = self.visitor_ref().visit_circuit(input) {
+            // Check for conflicting circuit member names.
+            let mut used = HashSet::new();
+            if !input.members.iter().all(|member| used.insert(member.name())) {
+                self.visitor
+                    .handler
+                    .emit_err(TypeCheckerError::duplicate_circuit_member(input.name(), input.span()).into());
             }
         }
     }
