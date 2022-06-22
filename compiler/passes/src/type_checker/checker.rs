@@ -104,7 +104,7 @@ impl<'a> TypeChecker<'a> {
         if let Some(Type::Identifier(ident)) = type_ {
             if !(self.account_types.contains(&ident.name) || self.algorithms_types.contains(&ident.name)) {
                 self.handler
-                    .emit_err(TypeCheckerError::invalid_built_in_type(&ident.name, ident.span()).into());
+                    .emit_err(TypeCheckerError::invalid_built_in_type(&ident.name, ident.span()));
             }
         }
     }
@@ -112,12 +112,10 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error if the two given types are not equal.
     pub(crate) fn assert_eq_types(&self, t1: Option<Type>, t2: Option<Type>, span: Span) {
         match (t1, t2) {
-            (Some(t1), Some(t2)) if t1 != t2 => self
-                .handler
-                .emit_err(TypeCheckerError::type_should_be(t1, t2, span).into()),
+            (Some(t1), Some(t2)) if t1 != t2 => self.handler.emit_err(TypeCheckerError::type_should_be(t1, t2, span)),
             (Some(type_), None) | (None, Some(type_)) => self
                 .handler
-                .emit_err(TypeCheckerError::type_should_be("no type", type_, span).into()),
+                .emit_err(TypeCheckerError::type_should_be("no type", type_, span)),
             _ => {}
         }
     }
@@ -133,7 +131,7 @@ impl<'a> TypeChecker<'a> {
         if let Some(expected) = expected {
             if &type_ != expected {
                 self.handler
-                    .emit_err(TypeCheckerError::type_should_be(type_, expected, span).into());
+                    .emit_err(TypeCheckerError::type_should_be(type_, expected, span));
             }
         }
 
@@ -156,7 +154,7 @@ impl<'a> TypeChecker<'a> {
         if let Some(type_) = type_ {
             if type_ != &expected {
                 self.handler
-                    .emit_err(TypeCheckerError::type_should_be(type_, expected, span).into());
+                    .emit_err(TypeCheckerError::type_should_be(type_, expected, span));
             }
         }
 
@@ -171,14 +169,11 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn assert_one_of_types(&self, type_: &Option<Type>, expected: &[Type], span: Span) {
         if let Some(type_) = type_ {
             if !expected.iter().any(|t: &Type| t == type_) {
-                self.handler.emit_err(
-                    TypeCheckerError::expected_one_type_of(
-                        expected.iter().map(|t| t.to_string() + ",").collect::<String>(),
-                        type_,
-                        span,
-                    )
-                    .into(),
-                );
+                self.handler.emit_err(TypeCheckerError::expected_one_type_of(
+                    expected.iter().map(|t| t.to_string() + ",").collect::<String>(),
+                    type_,
+                    span,
+                ));
             }
         }
     }

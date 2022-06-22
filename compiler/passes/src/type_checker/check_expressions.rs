@@ -99,7 +99,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             self.assert_expected_option(var.type_, var.declaration.get_const_value(), expected, var.span)
         } else {
             self.handler
-                .emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span()).into());
+                .emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span()));
             TypeOutput::None
         }
     }
@@ -138,7 +138,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             TypeOutput::Const(Value::I8(int, input.span()))
                         } else {
                             self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(int, "i8", input.span()).into());
+                                .emit_err(TypeCheckerError::invalid_int_value(int, "i8", input.span()));
                             ret_type
                         }
                     }
@@ -153,7 +153,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             TypeOutput::Const(Value::I16(int, input.span()))
                         } else {
                             self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(int, "i16", input.span()).into());
+                                .emit_err(TypeCheckerError::invalid_int_value(int, "i16", input.span()));
                             ret_type
                         }
                     }
@@ -168,7 +168,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             TypeOutput::Const(Value::I32(int, input.span()))
                         } else {
                             self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(int, "i32", input.span()).into());
+                                .emit_err(TypeCheckerError::invalid_int_value(int, "i32", input.span()));
                             ret_type
                         }
                     }
@@ -183,7 +183,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             TypeOutput::Const(Value::I64(int, input.span()))
                         } else {
                             self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(int, "i64", input.span()).into());
+                                .emit_err(TypeCheckerError::invalid_int_value(int, "i64", input.span()));
                             ret_type
                         }
                     }
@@ -198,7 +198,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             TypeOutput::Const(Value::I128(int, input.span()))
                         } else {
                             self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(int, "i128", input.span()).into());
+                                .emit_err(TypeCheckerError::invalid_int_value(int, "i128", input.span()));
                             ret_type
                         }
                     }
@@ -206,40 +206,51 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         Ok(int) => TypeOutput::Const(Value::U8(int, input.span())),
                         Err(_) => {
                             self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(str_content, "u8", input.span()).into());
+                                .emit_err(TypeCheckerError::invalid_int_value(str_content, "u8", input.span()));
                             ret_type
                         }
                     },
                     IntegerType::U16 => match str_content.parse::<u16>() {
                         Ok(int) => TypeOutput::Const(Value::U16(int, input.span())),
                         Err(_) => {
-                            self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(str_content, "u16", input.span()).into());
+                            self.handler.emit_err(TypeCheckerError::invalid_int_value(
+                                str_content,
+                                "u16",
+                                input.span(),
+                            ));
                             ret_type
                         }
                     },
                     IntegerType::U32 => match str_content.parse::<u32>() {
                         Ok(int) => TypeOutput::Const(Value::U32(int, input.span())),
                         Err(_) => {
-                            self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(str_content, "u32", input.span()).into());
+                            self.handler.emit_err(TypeCheckerError::invalid_int_value(
+                                str_content,
+                                "u32",
+                                input.span(),
+                            ));
                             ret_type
                         }
                     },
                     IntegerType::U64 => match str_content.parse::<u64>() {
                         Ok(int) => TypeOutput::Const(Value::U64(int, input.span())),
                         Err(_) => {
-                            self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(str_content, "u64", input.span()).into());
+                            self.handler.emit_err(TypeCheckerError::invalid_int_value(
+                                str_content,
+                                "u64",
+                                input.span(),
+                            ));
                             ret_type
                         }
                     },
                     IntegerType::U128 => match str_content.parse::<u128>() {
                         Ok(int) => TypeOutput::Const(Value::U128(int, input.span())),
                         Err(_) => {
-                            self.handler.emit_err(
-                                TypeCheckerError::invalid_int_value(str_content, "u128", input.span()).into(),
-                            );
+                            self.handler.emit_err(TypeCheckerError::invalid_int_value(
+                                str_content,
+                                "u128",
+                                input.span(),
+                            ));
                             ret_type
                         }
                     },
@@ -430,7 +441,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     ) => {}
                     Some(t) => self
                         .handler
-                        .emit_err(TypeCheckerError::type_is_not_negatable(t, input.receiver.span()).into()),
+                        .emit_err(TypeCheckerError::type_is_not_negatable(t, input.receiver.span())),
                     _ => {}
                 };
                 type_
@@ -472,14 +483,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     let ret = self.assert_expected_option(func.type_, None, expected, func.span);
 
                     if func.input.len() != input.arguments.len() {
-                        self.handler.emit_err(
-                            TypeCheckerError::incorrect_num_args_to_call(
-                                func.input.len(),
-                                input.arguments.len(),
-                                input.span(),
-                            )
-                            .into(),
-                        );
+                        self.handler.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                            func.input.len(),
+                            input.arguments.len(),
+                            input.span(),
+                        ));
                     }
 
                     func.input
@@ -492,7 +500,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     ret
                 } else {
                     self.handler
-                        .emit_err(TypeCheckerError::unknown_sym("function", &ident.name, ident.span()).into());
+                        .emit_err(TypeCheckerError::unknown_sym("function", &ident.name, ident.span()));
                     TypeOutput::None
                 }
             }

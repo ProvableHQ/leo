@@ -93,14 +93,14 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                         start..stop
                     } else {
                         self.handler
-                            .emit_err(FlattenError::incorrect_loop_bound("stop", "usize::MAX + 1", input.span).into());
+                            .emit_err(FlattenError::incorrect_loop_bound("stop", "usize::MAX + 1", input.span));
                         Default::default()
                     }
                 } else if let Some(start) = start.checked_sub(input.inclusive as usize) {
                     stop..(start)
                 } else {
                     self.handler
-                        .emit_err(FlattenError::incorrect_loop_bound("start", "-1", input.span).into());
+                        .emit_err(FlattenError::incorrect_loop_bound("start", "-1", input.span));
                     Default::default()
                 };
 
@@ -133,15 +133,15 @@ impl<'a> StatementReconstructor for Flattener<'a> {
             }
             (None, Some(_)) => self
                 .handler
-                .emit_err(FlattenError::non_const_loop_bounds("stop", stop_expr.span()).into()),
+                .emit_err(FlattenError::non_const_loop_bounds("stop", stop_expr.span())),
             (Some(_), None) => self
                 .handler
-                .emit_err(FlattenError::non_const_loop_bounds("start", start_expr.span()).into()),
+                .emit_err(FlattenError::non_const_loop_bounds("start", start_expr.span())),
             (None, None) => {
                 self.handler
-                    .emit_err(FlattenError::non_const_loop_bounds("start", start_expr.span()).into());
+                    .emit_err(FlattenError::non_const_loop_bounds("start", start_expr.span()));
                 self.handler
-                    .emit_err(FlattenError::non_const_loop_bounds("stop", stop_expr.span()).into());
+                    .emit_err(FlattenError::non_const_loop_bounds("stop", stop_expr.span()));
             }
         }
 
