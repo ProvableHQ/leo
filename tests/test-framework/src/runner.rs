@@ -125,6 +125,7 @@ impl TestCases {
                     self.fail_categories.push(TestFailure {
                         path: path.to_str().unwrap_or("").to_string(),
                         errors: vec![TestError::MissingTestConfig],
+                        // expectation: TestExpectationMode::IncorrectTestHeader,
                     });
                     true
                 }
@@ -275,8 +276,9 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
             pass_categories += 1;
         } else {
             cases.fail_categories.push(TestFailure {
-                path: path.to_str().unwrap().to_string(),
+                path: path.display().to_string(),
                 errors,
+                // expectation: config.expectation,
             })
         }
     });
@@ -294,8 +296,17 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
 
     if !cases.fail_categories.is_empty() {
         for (i, fail) in cases.fail_categories.iter().enumerate() {
+            let fail_message = match &fail.errors[0] {
+                TestError::Panicked { .. } => "Panicked and shouldn't have",
+                TestError::UnexpectedOutput { .. } => "Unexpected Output",
+                TestError::PassedAndShouldntHave { .. } => "Passed and shouldn't have",
+                TestError::FailedAndShouldntHave { .. } => "Failed and shouldn't have",
+                TestError::UnexpectedError { .. } => "Unexpected Error",
+                TestError::MismatchedTestExpectationLength => "Mismatching expectation length",
+                TestError::MissingTestConfig => "Missing test header configuration",
+            };
             println!(
-                "\n\n-----------------TEST #{} FAILED (and shouldn't have)----------------------",
+                "\n\n-----------------TEST #{} {fail_message}----------------------",
                 i + 1
             );
             println!("File: {}", fail.path);
