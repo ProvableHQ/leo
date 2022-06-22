@@ -23,6 +23,9 @@ pub use function_symbol::*;
 pub mod table;
 pub use table::*;
 
+pub mod value;
+pub use value::*;
+
 pub mod variable_symbol;
 pub use variable_symbol::*;
 

@@ -10,7 +10,7 @@ function main(a: bool) -> bool {
     let z: u32 = x + y;
 
     for i: u32 in 0u32..z {
-        y = y + 1u8;
+        y = y + 1u32;
     }
 
     return (y == 1u32) == a;

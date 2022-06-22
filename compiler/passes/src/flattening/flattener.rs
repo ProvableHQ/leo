@@ -16,17 +16,13 @@
 
 use std::cell::RefCell;
 
-use indexmap::IndexMap;
-use leo_ast::LiteralExpression;
 use leo_errors::emitter::Handler;
-use leo_span::Symbol;
 
 use crate::SymbolTable;
 
 pub struct Flattener<'a> {
     pub(crate) symbol_table: RefCell<SymbolTable>,
     pub(crate) block_index: usize,
-    pub(crate) var_references: IndexMap<Symbol, LiteralExpression>,
     pub(crate) _handler: &'a Handler,
 }
 
@@ -35,7 +31,6 @@ impl<'a> Flattener<'a> {
         Self {
             symbol_table: RefCell::new(symbol_table),
             block_index: 0,
-            var_references: IndexMap::new(),
             _handler: handler,
         }
     }

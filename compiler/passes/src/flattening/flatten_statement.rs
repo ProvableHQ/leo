@@ -14,20 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{cell::RefCell, iter::repeat};
+use std::cell::RefCell;
 
 use leo_ast::*;
 
-use crate::Flattener;
+use crate::{Declaration, Flattener, Value};
 
 impl<'a> StatementReconstructor for Flattener<'a> {
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> Statement {
-        // TODO: Naive we should ideally update scopes variable to have the correct value.
-        // So in the future for constant folding we can reference values.
-        let value = self.reconstruct_expression(input.value);
-        if let Expression::Literal(l) = &value {
+        let (value, const_val) = self.reconstruct_expression(input.value);
+        let mut st = self.symbol_table.borrow_mut();
+
+        if let Some(const_val) = const_val {
             input.variable_names.iter().for_each(|var| {
-                self.var_references.insert(var.identifier.name, l.clone());
+                // TODO variable could be in parent scope technically and needs to be updated appropriately.
+                // Could be fixed by making this a method that checks st, then parent then updates.
+                let mut var = st.variables.get_mut(&var.identifier.name).unwrap();
+                var.declaration = match &var.declaration {
+                    Declaration::Const(_) => Declaration::Const(Some(const_val.clone())),
+                    Declaration::Mut(_) => Declaration::Mut(Some(const_val.clone())),
+                    other => other.clone(),
+                }
             });
         }
 
@@ -41,8 +48,8 @@ impl<'a> StatementReconstructor for Flattener<'a> {
     }
 
     fn reconstruct_iteration(&mut self, input: IterationStatement) -> Statement {
-        let start = self.reconstruct_expression(input.start);
-        let stop = self.reconstruct_expression(input.stop);
+        let start = self.reconstruct_expression(input.start).0;
+        let stop = self.reconstruct_expression(input.stop).0;
 
         if let (
             Expression::Literal(LiteralExpression::Integer(_, start_str_content, _)),
@@ -51,16 +58,38 @@ impl<'a> StatementReconstructor for Flattener<'a> {
         {
             let start = start_str_content.parse::<usize>().unwrap();
             let stop = stop_str_content.parse::<usize>().unwrap();
+            let range = if start < stop {
+                start..(stop + input.inclusive as usize)
+            } else {
+                stop..(start - input.inclusive as usize)
+            };
 
             Statement::Block(Block {
                 // will panic if stop == usize::MAX
-                statements: repeat(input.block.statements.clone())
-                    .take(if start > stop {
-                        start + input.inclusive as usize - stop
-                    } else {
-                        stop + input.inclusive as usize - start
+                statements: range
+                    .into_iter()
+                    .flat_map(|iter_var| {
+                        self.symbol_table.borrow_mut().variables.insert(
+                            input.variable.name,
+                            crate::VariableSymbol {
+                                type_: input.type_,
+                                span: input.variable.span,
+                                declaration: Declaration::Const(Some(Value::from_usize(
+                                    input.type_,
+                                    iter_var,
+                                    input.variable.span,
+                                ))),
+                            },
+                        );
+
+                        input
+                            .block
+                            .statements
+                            .clone()
+                            .into_iter()
+                            .map(|s| self.reconstruct_statement(s))
+                            .collect::<Vec<Statement>>()
                     })
-                    .flatten()
                     .collect(),
                 span: input.span,
             })
@@ -90,6 +119,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
         self.symbol_table.swap(prev_st.get_block_scope(current_block).unwrap());
         self.symbol_table = RefCell::new(prev_st);
         self.block_index = current_block;
+        self.block_index += 1;
 
         b
     }

@@ -5,7 +5,7 @@ input_file: inputs/dummy.in
 */
 
 function main(b: bool) -> bool {
-    let x = 0u8;
+    let x: u8 = 0u8;
     if true {
         x = 1u8;
     } else {

@@ -21,7 +21,9 @@
 use crate::*;
 
 pub trait ExpressionReconstructor {
-    fn reconstruct_expression(&mut self, input: Expression) -> Expression {
+    type AdditionalOutput: Default;
+
+    fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
         match input {
             Expression::Identifier(identifier) => self.reconstruct_identifier(identifier),
             Expression::Literal(value) => self.reconstruct_literal(value),
@@ -33,54 +35,66 @@ pub trait ExpressionReconstructor {
         }
     }
 
-    fn reconstruct_identifier(&mut self, input: Identifier) -> Expression {
-        Expression::Identifier(input)
+    fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
+        (Expression::Identifier(input), Default::default())
     }
 
-    fn reconstruct_literal(&mut self, input: LiteralExpression) -> Expression {
-        Expression::Literal(input)
+    fn reconstruct_literal(&mut self, input: LiteralExpression) -> (Expression, Self::AdditionalOutput) {
+        (Expression::Literal(input), Default::default())
     }
 
-    fn reconstruct_binary(&mut self, input: BinaryExpression) -> Expression {
-        Expression::Binary(BinaryExpression {
-            left: Box::new(self.reconstruct_expression(*input.left)),
-            right: Box::new(self.reconstruct_expression(*input.right)),
-            op: input.op,
-            span: input.span,
-        })
+    fn reconstruct_binary(&mut self, input: BinaryExpression) -> (Expression, Self::AdditionalOutput) {
+        (
+            Expression::Binary(BinaryExpression {
+                left: Box::new(self.reconstruct_expression(*input.left).0),
+                right: Box::new(self.reconstruct_expression(*input.right).0),
+                op: input.op,
+                span: input.span,
+            }),
+            Default::default(),
+        )
     }
 
-    fn reconstruct_unary(&mut self, input: UnaryExpression) -> Expression {
-        Expression::Unary(UnaryExpression {
-            receiver: Box::new(self.reconstruct_expression(*input.receiver)),
-            op: input.op,
-            span: input.span,
-        })
+    fn reconstruct_unary(&mut self, input: UnaryExpression) -> (Expression, Self::AdditionalOutput) {
+        (
+            Expression::Unary(UnaryExpression {
+                receiver: Box::new(self.reconstruct_expression(*input.receiver).0),
+                op: input.op,
+                span: input.span,
+            }),
+            Default::default(),
+        )
     }
 
-    fn reconstruct_ternary(&mut self, input: TernaryExpression) -> Expression {
-        Expression::Ternary(TernaryExpression {
-            condition: Box::new(self.reconstruct_expression(*input.condition)),
-            if_true: Box::new(self.reconstruct_expression(*input.if_true)),
-            if_false: Box::new(self.reconstruct_expression(*input.if_false)),
-            span: input.span,
-        })
+    fn reconstruct_ternary(&mut self, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
+        (
+            Expression::Ternary(TernaryExpression {
+                condition: Box::new(self.reconstruct_expression(*input.condition).0),
+                if_true: Box::new(self.reconstruct_expression(*input.if_true).0),
+                if_false: Box::new(self.reconstruct_expression(*input.if_false).0),
+                span: input.span,
+            }),
+            Default::default(),
+        )
     }
 
-    fn reconstruct_call(&mut self, input: CallExpression) -> Expression {
-        Expression::Call(CallExpression {
-            function: Box::new(self.reconstruct_expression(*input.function)),
-            arguments: input
-                .arguments
-                .into_iter()
-                .map(|arg| self.reconstruct_expression(arg))
-                .collect(),
-            span: input.span,
-        })
+    fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
+        (
+            Expression::Call(CallExpression {
+                function: Box::new(self.reconstruct_expression(*input.function).0),
+                arguments: input
+                    .arguments
+                    .into_iter()
+                    .map(|arg| self.reconstruct_expression(arg).0)
+                    .collect(),
+                span: input.span,
+            }),
+            Default::default(),
+        )
     }
 
-    fn reconstruct_err(&mut self, input: ErrExpression) -> Expression {
-        Expression::Err(input)
+    fn reconstruct_err(&mut self, input: ErrExpression) -> (Expression, Self::AdditionalOutput) {
+        (Expression::Err(input), Default::default())
     }
 }
 
@@ -99,7 +113,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
 
     fn reconstruct_return(&mut self, input: ReturnStatement) -> Statement {
         Statement::Return(ReturnStatement {
-            expression: self.reconstruct_expression(input.expression),
+            expression: self.reconstruct_expression(input.expression).0,
             span: input.span,
         })
     }
@@ -109,7 +123,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
             declaration_type: input.declaration_type,
             variable_names: input.variable_names.clone(),
             type_: input.type_,
-            value: self.reconstruct_expression(input.value),
+            value: self.reconstruct_expression(input.value).0,
             span: input.span,
         })
     }
@@ -118,14 +132,14 @@ pub trait StatementReconstructor: ExpressionReconstructor {
         Statement::Assign(Box::new(AssignStatement {
             operation: input.operation,
             place: input.place,
-            value: self.reconstruct_expression(input.value),
+            value: self.reconstruct_expression(input.value).0,
             span: input.span,
         }))
     }
 
     fn reconstruct_conditional(&mut self, input: ConditionalStatement) -> Statement {
         Statement::Conditional(ConditionalStatement {
-            condition: self.reconstruct_expression(input.condition),
+            condition: self.reconstruct_expression(input.condition).0,
             block: self.reconstruct_block(input.block),
             next: input.next.map(|n| Box::new(self.reconstruct_statement(*n))),
             span: input.span,
@@ -136,8 +150,8 @@ pub trait StatementReconstructor: ExpressionReconstructor {
         Statement::Iteration(Box::new(IterationStatement {
             variable: input.variable,
             type_: input.type_,
-            start: self.reconstruct_expression(input.start),
-            stop: self.reconstruct_expression(input.stop),
+            start: self.reconstruct_expression(input.start).0,
+            stop: self.reconstruct_expression(input.stop).0,
             block: self.reconstruct_block(input.block),
             inclusive: input.inclusive,
             span: input.span,
@@ -147,13 +161,13 @@ pub trait StatementReconstructor: ExpressionReconstructor {
     fn reconstruct_console(&mut self, input: ConsoleStatement) -> Statement {
         Statement::Console(ConsoleStatement {
             function: match input.function {
-                ConsoleFunction::Assert(expr) => ConsoleFunction::Assert(self.reconstruct_expression(expr)),
+                ConsoleFunction::Assert(expr) => ConsoleFunction::Assert(self.reconstruct_expression(expr).0),
                 ConsoleFunction::Error(fmt) => ConsoleFunction::Error(ConsoleArgs {
                     string: fmt.string,
                     parameters: fmt
                         .parameters
                         .into_iter()
-                        .map(|p| self.reconstruct_expression(p))
+                        .map(|p| self.reconstruct_expression(p).0)
                         .collect(),
                     span: fmt.span,
                 }),
@@ -162,7 +176,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
                     parameters: fmt
                         .parameters
                         .into_iter()
-                        .map(|p| self.reconstruct_expression(p))
+                        .map(|p| self.reconstruct_expression(p).0)
                         .collect(),
                     span: fmt.span,
                 }),
