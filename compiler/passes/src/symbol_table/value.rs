@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::fmt::Display;
+use std::{
+    fmt::Display,
+    ops::{BitAnd, BitOr, BitXor, Not},
+};
 
 use leo_ast::{GroupLiteral, IntegerType, LiteralExpression, Type};
 use leo_errors::{type_name, FlattenError, LeoError, Result, TypeCheckerError};
@@ -39,8 +42,94 @@ pub enum Value {
     Scalar(String, Span),
     String(String, Span),
 }
-// (Field(types), [Field, u8](rhs), Method, StrOp, Field(output_type), (|| -> Err))
+
+impl Not for Value {
+    type Output = Self;
+
+    fn not(mut self) -> Self::Output {
+        match &mut self {
+            Value::Address(_, _) => unreachable!(),
+            Value::Boolean(v, _) => *v = !*v,
+            Value::Field(_, _) => unreachable!(),
+            Value::Group(_) => unreachable!(),
+            Value::I8(v, _) => *v = !*v,
+            Value::I16(v, _) => *v = !*v,
+            Value::I32(v, _) => *v = !*v,
+            Value::I64(v, _) => *v = !*v,
+            Value::I128(v, _) => *v = !*v,
+            Value::U8(v, _) => *v = !*v,
+            Value::U16(v, _) => *v = !*v,
+            Value::U32(v, _) => *v = !*v,
+            Value::U64(v, _) => *v = !*v,
+            Value::U128(v, _) => *v = !*v,
+            Value::Scalar(_, _) => unreachable!(),
+            Value::String(_, _) => unreachable!(),
+        };
+        self
+    }
+}
+
 macro_rules! implement_const_op {
+    // for overflowing operations that can overflow
+    (
+        @overflowing
+        name: $name:ident,
+        method: $m:ident,
+        string: $s:expr,
+        patterns: [$(
+            // lhs, rhs, out, method left, method right
+            [$l:ident, [$($r:ident),+], $out:ident, $cl:ty, $cr:ty]
+        ),+]
+    ) => {
+        implement_const_op!{
+            name: $name,
+            patterns: [$([
+                types: $l, [$($r),+], $out,
+                logic: |l: $cl, r: $cr, t, span| l.$m(r).ok_or_else(|| FlattenError::operation_overflow(l, $s, r, t, span))
+            ]),+]
+        }
+    };
+
+    // for wrapping math operations
+    (
+        @non-overflowing
+        name: $name:ident,
+        method: $m:ident,
+        string: $s:expr,
+        patterns: [$(
+            // lhs, rhs, out, method left, method right, method output
+            [$l:ident, [$($r:ident),+], $out:ident, $cl:ty, $cr:ty]
+        ),+]
+    ) => {
+        implement_const_op!{
+            name: $name,
+            patterns: [$([
+                types: $l, [$($r),+], $out,
+                logic: |l: $cl, r: $cr, _, _| -> Result<$cl> {Ok(l.$m(r))}
+            ]),+]
+        }
+    };
+
+    // for cmp operations
+    (
+        @cmp
+        name: $name:ident,
+        method: $m:ident,
+        string: $s:expr,
+        patterns: [$(
+            // lhs, rhs, out, method left, method right, method output
+            [$l:ident, [$($r:ident),+], $out:ident, $cl:ty, $cr:ty]
+        ),+]
+    ) => {
+        implement_const_op!{
+            name: $name,
+            patterns: [$([
+                types: $l, [$($r),+], $out,
+                logic: |l: $cl, r: $cr, _, _| -> Result<bool> {Ok(l.$m(&r))}
+            ]),+]
+        }
+    };
+
     (
         name: $name:ident,
         patterns: [$([
@@ -61,18 +150,19 @@ macro_rules! implement_const_op {
                         },
                     )+
                 )+
-                _ => unreachable!("")
+                (s, o) => unreachable!("Const operation not supported {}.{}({})", type_name(&s), stringify!($name), type_name(&o))
             }
         }
     };
 }
 
 impl Value {
-    pub(crate) fn is_int_type(&self) -> bool {
+    pub(crate) fn is_supported_const_fold_type(&self) -> bool {
         use Value::*;
         matches!(
             self,
-            I8(_, _)
+            Boolean(_, _)
+                | I8(_, _)
                 | I16(_, _)
                 | I32(_, _)
                 | I64(_, _)
@@ -103,143 +193,452 @@ impl Value {
         }
     }
 
-    implement_const_op! {
+    implement_const_op!(
+        @overflowing
         name: add,
+        method: checked_add,
+        string: "+",
         patterns: [
-            [
-                types: I8, [I8], I8,
-                logic: |l: i8, r: i8, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
-            ],
-            [
-                types: I16, [I16], I16,
-                logic: |l: i16, r: i16, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
-            ],
-            [
-                types: I32, [I32], I32,
-                logic: |l: i32, r: i32, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
-            ],
-            [
-                types: I64, [I64], I64,
-                logic: |l: i64, r: i64, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
-            ],
-            [
-                types: I128, [I128], I128,
-                logic: |l: i128, r: i128, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
-            ],
-            [
-                types: U8, [U8], U8,
-                logic: |l: u8, r: u8, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
-            ],
-            [
-                types: U16, [U16], U16,
-                logic: |l: u16, r: u16, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
-            ],
-            [
-                types: U32, [U32], U32,
-                logic: |l: u32, r: u32, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
-            ],
-            [
-                types: U64, [U64], U64,
-                logic: |l: u64, r: u64, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
-            ],
-            [
-                types: U128, [U128], U128,
-                logic: |l: u128, r: u128, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
-            ]
-        ]
-    }
+            // [Field, [Field], Field, _, _],
+            // [Group, [Group], Group, _, _],
+            [I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+            //[Scalar, [Scalar], Scalar, _, _],
 
-    implement_const_op! {
+        ]
+    );
+
+    implement_const_op!(
+        @non-overflowing
+        name: add_wrapped,
+        method: wrapping_add,
+        string: "add_wrapped",
+        patterns: [
+            // [Field, [Field], Field, _, _],
+            // [Group, [Group], Group, _, _],
+            [I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+            //[Scalar, [Scalar], Scalar, _, _],
+
+        ]
+    );
+
+    implement_const_op!(
+        @non-overflowing
+        name: bitand,
+        method: bitand,
+        string: "&",
+        patterns: [
+            [Boolean, [Boolean], Boolean, bool, bool],
+            [I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+        ]
+    );
+
+    implement_const_op!(
+        @overflowing
+        name: div,
+        method: checked_div,
+        string: "/",
+        patterns: [
+            // [Field, [Field], Field, _, _],
+            // [Group, [Group], Group, _, _],
+            [I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+            //[Scalar, [Scalar], Scalar, _, _],
+        ]
+    );
+
+    implement_const_op!(
+        @non-overflowing
+        name: div_wrapped,
+        method: wrapping_div,
+        string: "div_wrapped",
+        patterns: [
+            // [Field, [Field], Field, _, _],
+            // [Group, [Group], Group, _, _],
+            [I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+            //[Scalar, [Scalar], Scalar, _, _],
+        ]
+    );
+
+    implement_const_op!(
+        @cmp
         name: eq,
+        method: eq,
+        string: "==",
         patterns: [
-            [
-            types: I8, [I8], Boolean,
-            logic: |l: i8, r: i8, _, _| -> Result<bool> {Ok(l.eq(&r))}
-            ],
-            [
-                types: I16, [I16], Boolean,
-                logic: |l: i16, r: i16, _, _| -> Result<bool> {Ok(l.eq(&r))}
-            ],
-            [
-                types: I32, [I32], Boolean,
-                logic: |l: i32, r: i32, _, _| -> Result<bool> {Ok(l.eq(&r))}
-            ],
-            [
-                types: I64, [I64], Boolean,
-                logic: |l: i64, r: i64, _, _| -> Result<bool> {Ok(l.eq(&r))}
-            ],
-            [
-                types: I128, [I128], Boolean,
-                logic: |l: i128, r: i128, _, _| -> Result<bool> {Ok(l.eq(&r))}
-            ],
-            [
-                types: U8, [U8], Boolean,
-                logic: |l: u8, r: u8, _, _| -> Result<bool> {Ok(l.eq(&r))}
-            ],
-            [
-                types: U16, [U16], Boolean,
-                logic: |l: u16, r: u16, _, _| -> Result<bool> {Ok(l.eq(&r))}
-            ],
-            [
-                types: U32, [U32], Boolean,
-                logic: |l: u32, r: u32, _, _| -> Result<bool> {Ok(l.eq(&r))}
-            ],
-            [
-                types: U64, [U64], Boolean,
-                logic: |l: u64, r: u64, _, _| -> Result<bool> {Ok(l.eq(&r))}
-            ],
-            [
-                types: U128, [U128], Boolean,
-                logic: |l: u128, r: u128, _, _| -> Result<bool> {Ok(l.eq(&r))}
-            ]
+            [I8, [I8], Boolean, i8, i8],
+            [I16, [I16], Boolean, i16, i16],
+            [I32, [I32], Boolean, i32, i32],
+            [I64, [I64], Boolean, i64, i64],
+            [I128, [I128], Boolean, i128, i128],
+            [U8, [U8], Boolean, u8, u8],
+            [U16, [U16], Boolean, u16, u16],
+            [U32, [U32], Boolean, u32, u32],
+            [U64, [U64], Boolean, u64, u64],
+            [U128, [U128], Boolean, u128, u128]
         ]
-    }
+    );
 
-    implement_const_op! {
-        name: pow,
+    implement_const_op!(
+        @cmp
+        name: ge,
+        method: ge,
+        string: ">=",
         patterns: [
-            [
-                types: I8, [U8, U16, U32], I8,
-                logic: |l: i8, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
-            ],
-            [
-                types: I16, [U8, U16, U32], I16,
-                logic: |l: i16, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
-            ],
-            [
-                types: I32, [U8, U16, U32], I32,
-                logic: |l: i32, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
-            ],
-            [
-                types: I64, [U8, U16, U32], I64,
-                logic: |l: i64, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
-            ],
-            [
-                types: I128, [U8, U16, U32], I128,
-                logic: |l: i128, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
-            ],
-            [
-                types: U8, [U8, U16, U32], U8,
-                logic: |l: u8, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
-            ],
-            [
-                types: U16, [U8, U16, U32], U16,
-                logic: |l: u16, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
-            ],
-            [
-                types: U32, [U8, U16, U32], U32,
-                logic: |l: u32, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
-            ],
-            [
-                types: U64, [U8, U16, U32], U64,
-                logic: |l: u64, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
-            ],
-            [
-                types: U128, [U8, U16, U32], U128,
-                logic: |l: u128, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
-            ]
+            [I8, [I8], Boolean, i8, i8],
+            [I16, [I16], Boolean, i16, i16],
+            [I32, [I32], Boolean, i32, i32],
+            [I64, [I64], Boolean, i64, i64],
+            [I128, [I128], Boolean, i128, i128],
+            [U8, [U8], Boolean, u8, u8],
+            [U16, [U16], Boolean, u16, u16],
+            [U32, [U32], Boolean, u32, u32],
+            [U64, [U64], Boolean, u64, u64],
+            [U128, [U128], Boolean, u128, u128]
         ]
-    }
+    );
+
+    implement_const_op!(
+        @cmp
+        name: gt,
+        method: gt,
+        string: ">",
+        patterns: [
+            [I8, [I8], Boolean, i8, i8],
+            [I16, [I16], Boolean, i16, i16],
+            [I32, [I32], Boolean, i32, i32],
+            [I64, [I64], Boolean, i64, i64],
+            [I128, [I128], Boolean, i128, i128],
+            [U8, [U8], Boolean, u8, u8],
+            [U16, [U16], Boolean, u16, u16],
+            [U32, [U32], Boolean, u32, u32],
+            [U64, [U64], Boolean, u64, u64],
+            [U128, [U128], Boolean, u128, u128]
+        ]
+    );
+
+    implement_const_op!(
+        @cmp
+        name: le,
+        method: le,
+        string: "<=",
+        patterns: [
+            [I8, [I8], Boolean, i8, i8],
+            [I16, [I16], Boolean, i16, i16],
+            [I32, [I32], Boolean, i32, i32],
+            [I64, [I64], Boolean, i64, i64],
+            [I128, [I128], Boolean, i128, i128],
+            [U8, [U8], Boolean, u8, u8],
+            [U16, [U16], Boolean, u16, u16],
+            [U32, [U32], Boolean, u32, u32],
+            [U64, [U64], Boolean, u64, u64],
+            [U128, [U128], Boolean, u128, u128]
+        ]
+    );
+
+    implement_const_op!(
+        @cmp
+        name: lt,
+        method: lt,
+        string: "<",
+        patterns: [
+            [I8, [I8], Boolean, i8, i8],
+            [I16, [I16], Boolean, i16, i16],
+            [I32, [I32], Boolean, i32, i32],
+            [I64, [I64], Boolean, i64, i64],
+            [I128, [I128], Boolean, i128, i128],
+            [U8, [U8], Boolean, u8, u8],
+            [U16, [U16], Boolean, u16, u16],
+            [U32, [U32], Boolean, u32, u32],
+            [U64, [U64], Boolean, u64, u64],
+            [U128, [U128], Boolean, u128, u128]
+        ]
+    );
+
+    implement_const_op!(
+        @overflowing
+        name: mul,
+        method: checked_mul,
+        string: "*",
+        patterns: [
+            // [Field, [Field], Field, _, _],
+            // [Group, [Group], Group, _, _],
+            [I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+            //[Scalar, [Scalar], Scalar, _, _],
+        ]
+    );
+
+    implement_const_op!(
+        @non-overflowing
+        name: mul_wrapped,
+        method: wrapping_mul,
+        string: "mul_wrapped",
+        patterns: [
+            // [Field, [Field], Field, _, _],
+            // [Group, [Group], Group, _, _],
+            [I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+            //[Scalar, [Scalar], Scalar, _, _],
+        ]
+    );
+
+    implement_const_op!(
+        @non-overflowing
+        name: bitor,
+        method: bitor,
+        string: "|",
+        patterns: [
+            [Boolean, [Boolean], Boolean, bool, bool],
+            [I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+        ]
+    );
+
+    implement_const_op!(
+        @overflowing
+        name: pow,
+        method: checked_pow,
+        string: "**",
+        patterns: [
+            [I8, [U8, U16, U32], I8, i8, u32],
+            [I16, [U8, U16, U32], I16, i16, u32],
+            [I32, [U8, U16, U32], I32, i32, u32],
+            [I64, [U8, U16, U32], I64, i64, u32],
+            [I128, [U8, U16, U32], I128, i128, u32],
+            [U8, [U8, U16, U32], U8, u8, u32],
+            [U16, [U8, U16, U32], U16, u16, u32],
+            [U32, [U8, U16, U32], U32, u32, u32],
+            [U64, [U8, U16, U32], U64, u64, u32],
+            [U128, [U8, U16, U32], U128, u128, u32]
+        ]
+    );
+
+    implement_const_op!(
+        @non-overflowing
+        name: pow_wrapped,
+        method: wrapping_pow,
+        string: "pow_wrapped",
+        patterns: [
+            [I8, [U8, U16, U32], I8, i8, u32],
+            [I16, [U8, U16, U32], I16, i16, u32],
+            [I32, [U8, U16, U32], I32, i32, u32],
+            [I64, [U8, U16, U32], I64, i64, u32],
+            [I128, [U8, U16, U32], I128, i128, u32],
+            [U8, [U8, U16, U32], U8, u8, u32],
+            [U16, [U8, U16, U32], U16, u16, u32],
+            [U32, [U8, U16, U32], U32, u32, u32],
+            [U64, [U8, U16, U32], U64, u64, u32],
+            [U128, [U8, U16, U32], U128, u128, u32]
+        ]
+    );
+
+    implement_const_op!(
+        @overflowing
+        name: shl,
+        method: checked_shl,
+        string: "<<",
+        patterns: [
+            [I8, [U8, U16, U32], I8, i8, u32],
+            [I16, [U8, U16, U32], I16, i16, u32],
+            [I32, [U8, U16, U32], I32, i32, u32],
+            [I64, [U8, U16, U32], I64, i64, u32],
+            [I128, [U8, U16, U32], I128, i128, u32],
+            [U8, [U8, U16, U32], U8, u8, u32],
+            [U16, [U8, U16, U32], U16, u16, u32],
+            [U32, [U8, U16, U32], U32, u32, u32],
+            [U64, [U8, U16, U32], U64, u64, u32],
+            [U128, [U8, U16, U32], U128, u128, u32]
+        ]
+    );
+
+    implement_const_op!(
+        @non-overflowing
+        name: shl_wrapped,
+        method: wrapping_shl,
+        string: "shl_wrapped",
+        patterns: [
+            [I8, [U8, U16, U32], I8, i8, u32],
+            [I16, [U8, U16, U32], I16, i16, u32],
+            [I32, [U8, U16, U32], I32, i32, u32],
+            [I64, [U8, U16, U32], I64, i64, u32],
+            [I128, [U8, U16, U32], I128, i128, u32],
+            [U8, [U8, U16, U32], U8, u8, u32],
+            [U16, [U8, U16, U32], U16, u16, u32],
+            [U32, [U8, U16, U32], U32, u32, u32],
+            [U64, [U8, U16, U32], U64, u64, u32],
+            [U128, [U8, U16, U32], U128, u128, u32]
+        ]
+    );
+
+    implement_const_op!(
+        @overflowing
+        name: shr,
+        method: checked_shr,
+        string: ">>",
+        patterns: [
+            [I8, [U8, U16, U32], I8, i8, u32],
+            [I16, [U8, U16, U32], I16, i16, u32],
+            [I32, [U8, U16, U32], I32, i32, u32],
+            [I64, [U8, U16, U32], I64, i64, u32],
+            [I128, [U8, U16, U32], I128, i128, u32],
+            [U8, [U8, U16, U32], U8, u8, u32],
+            [U16, [U8, U16, U32], U16, u16, u32],
+            [U32, [U8, U16, U32], U32, u32, u32],
+            [U64, [U8, U16, U32], U64, u64, u32],
+            [U128, [U8, U16, U32], U128, u128, u32]
+        ]
+    );
+
+    implement_const_op!(
+        @non-overflowing
+        name: shr_wrapped,
+        method: wrapping_shr,
+        string: "shr_wrapped",
+        patterns: [
+            [I8, [U8, U16, U32], I8, i8, u32],
+            [I16, [U8, U16, U32], I16, i16, u32],
+            [I32, [U8, U16, U32], I32, i32, u32],
+            [I64, [U8, U16, U32], I64, i64, u32],
+            [I128, [U8, U16, U32], I128, i128, u32],
+            [U8, [U8, U16, U32], U8, u8, u32],
+            [U16, [U8, U16, U32], U16, u16, u32],
+            [U32, [U8, U16, U32], U32, u32, u32],
+            [U64, [U8, U16, U32], U64, u64, u32],
+            [U128, [U8, U16, U32], U128, u128, u32]
+        ]
+    );
+
+    implement_const_op!(
+        @overflowing
+        name: sub,
+        method: checked_sub,
+        string: "-",
+        patterns: [
+            // [Field, [Field], Field, _, _],
+            // [Group, [Group], Group, _, _],
+            [I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+            //[Scalar, [Scalar], Scalar, _, _],
+        ]
+    );
+
+    implement_const_op!(
+        @non-overflowing
+        name: sub_wrapped,
+        method: wrapping_sub,
+        string: "sub_wrapped",
+        patterns: [
+            // [Field, [Field], Field, _, _],
+            // [Group, [Group], Group, _, _],
+            [I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+            //[Scalar, [Scalar], Scalar, _, _],
+        ]
+    );
+
+    implement_const_op!(
+        @non-overflowing
+        name: xor,
+        method: bitxor,
+        string: "^",
+        patterns: [
+            [Boolean, [Boolean], Boolean, bool, bool],
+            [I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+        ]
+    );
 }
 
 impl Display for Value {

@@ -99,38 +99,38 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
         let (_, right_const_value) = self.reconstruct_expression(*input.right.clone());
 
         match (left_const_value, right_const_value) {
-            (Some(left_value), Some(right_value)) if !left_value.is_int_type() && !right_value.is_int_type() => {
+            (Some(left_value), Some(right_value))
+                if !left_value.is_supported_const_fold_type() && !right_value.is_supported_const_fold_type() =>
+            {
                 (Expression::Binary(input), None)
             }
             (Some(left_value), Some(right_value)) => {
                 let value = match &input.op {
                     BinaryOperation::Add => left_value.add(right_value, input.span),
-                    BinaryOperation::AddWrapped => todo!(),
-                    BinaryOperation::And => todo!(),
-                    BinaryOperation::BitwiseAnd => todo!(),
-                    BinaryOperation::Div => todo!(),
-                    BinaryOperation::DivWrapped => todo!(),
+                    BinaryOperation::AddWrapped => left_value.add_wrapped(right_value, input.span),
+                    BinaryOperation::And | BinaryOperation::BitwiseAnd => left_value.bitand(right_value, input.span),
+                    BinaryOperation::Div => left_value.div(right_value, input.span),
+                    BinaryOperation::DivWrapped => left_value.div_wrapped(right_value, input.span),
                     BinaryOperation::Eq => left_value.eq(right_value, input.span),
-                    BinaryOperation::Ge => todo!(),
-                    BinaryOperation::Gt => todo!(),
-                    BinaryOperation::Le => todo!(),
-                    BinaryOperation::Lt => todo!(),
-                    BinaryOperation::Mul => todo!(),
-                    BinaryOperation::MulWrapped => todo!(),
-                    BinaryOperation::Nand => todo!(),
-                    BinaryOperation::Neq => todo!(),
-                    BinaryOperation::Nor => todo!(),
-                    BinaryOperation::Or => todo!(),
-                    BinaryOperation::BitwiseOr => todo!(),
+                    BinaryOperation::Ge => left_value.ge(right_value, input.span),
+                    BinaryOperation::Gt => left_value.gt(right_value, input.span),
+                    BinaryOperation::Le => left_value.le(right_value, input.span),
+                    BinaryOperation::Lt => left_value.lt(right_value, input.span),
+                    BinaryOperation::Mul => left_value.mul(right_value, input.span),
+                    BinaryOperation::MulWrapped => left_value.mul_wrapped(right_value, input.span),
+                    BinaryOperation::Nand => left_value.bitand(right_value, input.span).map(|v| !v),
+                    BinaryOperation::Neq => left_value.eq(right_value, input.span).map(|v| !v),
+                    BinaryOperation::Nor => left_value.bitor(right_value, input.span).map(|v| !v),
+                    BinaryOperation::Or | BinaryOperation::BitwiseOr => left_value.bitor(right_value, input.span),
                     BinaryOperation::Pow => left_value.pow(right_value, input.span),
-                    BinaryOperation::PowWrapped => todo!(),
-                    BinaryOperation::Shl => todo!(),
-                    BinaryOperation::ShlWrapped => todo!(),
-                    BinaryOperation::Shr => todo!(),
-                    BinaryOperation::ShrWrapped => todo!(),
-                    BinaryOperation::Sub => todo!(),
-                    BinaryOperation::SubWrapped => todo!(),
-                    BinaryOperation::Xor => todo!(),
+                    BinaryOperation::PowWrapped => left_value.pow_wrapped(right_value, input.span),
+                    BinaryOperation::Shl => left_value.shl(right_value, input.span),
+                    BinaryOperation::ShlWrapped => left_value.shl_wrapped(right_value, input.span),
+                    BinaryOperation::Shr => left_value.shr(right_value, input.span),
+                    BinaryOperation::ShrWrapped => left_value.shr_wrapped(right_value, input.span),
+                    BinaryOperation::Sub => left_value.sub(right_value, input.span),
+                    BinaryOperation::SubWrapped => left_value.sub_wrapped(right_value, input.span),
+                    BinaryOperation::Xor => left_value.xor(right_value, input.span),
                 };
 
                 if let Err(err) = value {
