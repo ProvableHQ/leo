@@ -121,7 +121,17 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                                 },
                             );
 
-                            let block = Statement::Block(self.reconstruct_block(input.block.clone()));
+                            // TODO we should add new scopes for iteration.
+                            let block = Statement::Block(Block {
+                                statements: input
+                                    .block
+                                    .statements
+                                    .clone()
+                                    .into_iter()
+                                    .map(|s| self.reconstruct_statement(s))
+                                    .collect(),
+                                span: input.block.span,
+                            });
 
                             self.symbol_table.borrow_mut().variables.remove(&input.variable.name);
 

@@ -99,18 +99,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
-        let var = VariableSymbol {
-            type_: input.type_,
-            span: input.span(),
-            declaration: Declaration::Const(None),
-        };
-
-        self.assert_int_type(&Some(input.type_), input.variable.span);
-        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(input.variable.name, var) {
-            self.handler.emit_err(err);
-        }
-
         let iter_type = &Some(input.type_);
+        self.assert_int_type(iter_type, input.variable.span);
+
         self.validate_ident_type(iter_type);
         self.visit_expression(&input.start, iter_type);
         self.visit_expression(&input.stop, iter_type);
