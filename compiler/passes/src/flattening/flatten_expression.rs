@@ -95,11 +95,11 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
     }
 
     fn reconstruct_binary(&mut self, input: BinaryExpression) -> (Expression, Self::AdditionalOutput) {
-        let (left, left_const_value) = self.reconstruct_expression(*input.left);
-        let (right, right_const_value) = self.reconstruct_expression(*input.right);
+        let (_, left_const_value) = self.reconstruct_expression(*input.left.clone());
+        let (_, right_const_value) = self.reconstruct_expression(*input.right.clone());
         if let (Some(left_value), Some(right_value)) = (left_const_value, right_const_value) {
             let value = match &input.op {
-                BinaryOperation::Add => left_value + right_value,
+                BinaryOperation::Add => left_value.add(right_value, input.span),
                 BinaryOperation::AddWrapped => todo!(),
                 BinaryOperation::And => todo!(),
                 BinaryOperation::BitwiseAnd => todo!(),
@@ -128,17 +128,15 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
                 BinaryOperation::Xor => todo!(),
             };
 
-            (Expression::Literal(value.clone().into()), Some(value))
+            if let Err(err) = value {
+                self._handler.emit_err(err);
+                (Expression::Binary(input), None)
+            } else {
+                let value = value.unwrap();
+                (Expression::Literal(value.clone().into()), Some(value))
+            }
         } else {
-            (
-                Expression::Binary(BinaryExpression {
-                    left: Box::new(left),
-                    right: Box::new(right),
-                    op: input.op,
-                    span: input.span,
-                }),
-                None,
-            )
+            (Expression::Binary(input), None)
         }
     }
 }

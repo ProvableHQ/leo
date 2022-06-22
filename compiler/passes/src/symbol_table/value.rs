@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{fmt::Display, ops::Add};
+use std::fmt::Display;
 
-use leo_ast::{type_, GroupLiteral, IntegerType, LiteralExpression, Type};
-use leo_errors::{LeoError, Result, TypeCheckerError};
+use leo_ast::{GroupLiteral, IntegerType, LiteralExpression, Type};
+use leo_errors::{FlattenError, LeoError, Result, TypeCheckerError};
 use leo_span::Span;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -55,6 +55,66 @@ impl Value {
                 IntegerType::I64 => Value::I64(value as i64, span),
                 IntegerType::I128 => Value::I128(value as i128, span),
             },
+            _ => unreachable!(),
+        }
+    }
+
+    pub(crate) fn add(self, rhs: Self, span: Span) -> Result<Self> {
+        use Value::*;
+        match (self, rhs) {
+            (Field(_, _), Field(_, _)) => Ok(Field(todo!(), span)),
+            (Group(_), Group(_)) => Ok(Group(todo!())),
+            (I8(l, _), I8(r, _)) => Ok(I8(
+                l.checked_add(r)
+                    .ok_or_else(|| FlattenError::operation_overflow("i8", l, '+', r, span))?,
+                span,
+            )),
+            (I16(l, _), I16(r, _)) => Ok(I16(
+                l.checked_add(r)
+                    .ok_or_else(|| FlattenError::operation_overflow("i16", l, '+', r, span))?,
+                span,
+            )),
+            (I32(l, _), I32(r, _)) => Ok(I32(
+                l.checked_add(r)
+                    .ok_or_else(|| FlattenError::operation_overflow("i32", l, '+', r, span))?,
+                span,
+            )),
+            (I64(l, _), I64(r, _)) => Ok(I64(
+                l.checked_add(r)
+                    .ok_or_else(|| FlattenError::operation_overflow("i64", l, '+', r, span))?,
+                span,
+            )),
+            (I128(l, _), I128(r, _)) => Ok(I128(
+                l.checked_add(r)
+                    .ok_or_else(|| FlattenError::operation_overflow("i128", l, '+', r, span))?,
+                span,
+            )),
+            (U8(l, _), U8(r, _)) => Ok(U8(
+                l.checked_add(r)
+                    .ok_or_else(|| FlattenError::operation_overflow("u8", l, '+', r, span))?,
+                span,
+            )),
+            (U16(l, _), U16(r, _)) => Ok(U16(
+                l.checked_add(r)
+                    .ok_or_else(|| FlattenError::operation_overflow("u16", l, '+', r, span))?,
+                span,
+            )),
+            (U32(l, _), U32(r, _)) => Ok(U32(
+                l.checked_add(r)
+                    .ok_or_else(|| FlattenError::operation_overflow("u32", l, '+', r, span))?,
+                span,
+            )),
+            (U64(l, _), U64(r, _)) => Ok(U64(
+                l.checked_add(r)
+                    .ok_or_else(|| FlattenError::operation_overflow("u64", l, '+', r, span))?,
+                span,
+            )),
+            (U128(l, _), U128(r, _)) => Ok(U128(
+                l.checked_add(r)
+                    .ok_or_else(|| FlattenError::operation_overflow("u128", l, '+', r, span))?,
+                span,
+            )),
+            (Scalar(_, _), Scalar(_, _)) => Ok(Scalar(todo!(), span)),
             _ => unreachable!(),
         }
     }
@@ -182,30 +242,6 @@ impl From<Value> for LiteralExpression {
             U128(v, span) => LiteralExpression::Integer(IntegerType::U128, v.to_string(), span),
             Scalar(v, span) => LiteralExpression::Scalar(v, span),
             String(v, span) => LiteralExpression::String(v, span),
-        }
-    }
-}
-
-// TODO take span of binary operation.
-impl Add for Value {
-    type Output = Self;
-
-    fn add(self, rhs: Self) -> Self::Output {
-        match (self, rhs) {
-            (Value::Field(_, span), Value::Field(_, _)) => Value::Field(todo!(), span),
-            (Value::Group(_), Value::Group(_)) => Value::Group(todo!()),
-            (Value::I8(l, span), Value::I8(r, _)) => Value::I8(l + r, span),
-            (Value::I16(l, span), Value::I16(r, _)) => Value::I16(l + r, span),
-            (Value::I32(l, span), Value::I32(r, _)) => Value::I32(l + r, span),
-            (Value::I64(l, span), Value::I64(r, _)) => Value::I64(l + r, span),
-            (Value::I128(l, span), Value::I128(r, _)) => Value::I128(l + r, span),
-            (Value::U8(l, span), Value::U8(r, _)) => Value::U8(l + r, span),
-            (Value::U16(l, span), Value::U16(r, _)) => Value::U16(l + r, span),
-            (Value::U32(l, span), Value::U32(r, _)) => Value::U32(l + r, span),
-            (Value::U64(l, span), Value::U64(r, _)) => Value::U64(l + r, span),
-            (Value::U128(l, span), Value::U128(r, _)) => Value::U128(l + r, span),
-            (Value::Scalar(_, span), Value::Scalar(_, _)) => Value::Scalar(todo!(), span),
-            _ => unreachable!(),
         }
     }
 }
