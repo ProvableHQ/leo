@@ -209,16 +209,16 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
         // CAUTION: This implementation only allows access to core circuits.
         if let VisitResult::VisitChildren = self.visitor.visit_access(input) {
             match input {
-                AccessExpression::StaticFunction(access) => {
+                AccessExpression::AssociatedFunction(access) => {
                     // Visit core circuit function
                     let circuit = self.visit_expression(&access.inner, &None);
                     if let Some(core_instruction) = self.visitor.assert_core_circuit_call(&circuit, &access.name) {
                         // Check num input arguments.
-                        if core_instruction.num_args() != access.input.len() {
+                        if core_instruction.num_args() != access.args.len() {
                             self.visitor.handler.emit_err(
                                 TypeCheckerError::incorrect_num_args_to_call(
                                     core_instruction.num_args(),
-                                    access.input.len(),
+                                    access.args.len(),
                                     input.span(),
                                 )
                                 .into(),
@@ -226,7 +226,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                         }
 
                         // Check input argument types.
-                        access.input.iter().enumerate().for_each(|(index, input_expr)| {
+                        access.args.iter().enumerate().for_each(|(index, input_expr)| {
                             let input_type = self.visit_expression(input_expr, &None);
 
                             match index {
@@ -645,7 +645,6 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                                 self.visit_expression(expr, &Some(*type_));
                             }
                         }
-                        _ => { /* Circuit functions cannot be inside circuit init expressions */ }
                     }
                 });
 

@@ -102,31 +102,7 @@ impl ParserContext<'_> {
         }
         let span = self.expect(&Token::RightCurly)?;
 
-        self.ban_mixed_member_order(&members);
-
         Ok((members, span))
-    }
-
-    /// Emits errors if order isn't `consts variables functions`.
-    fn ban_mixed_member_order(&self, members: &[CircuitMember]) {
-        let mut had_var = false;
-        let mut had_fun = false;
-        for member in members {
-            match member {
-                CircuitMember::CircuitConst(id, _, e) if had_var => {
-                    self.emit_err(ParserError::member_const_after_var(id.span() + e.span()));
-                }
-                CircuitMember::CircuitConst(id, _, e) if had_fun => {
-                    self.emit_err(ParserError::member_const_after_fun(id.span() + e.span()));
-                }
-                CircuitMember::CircuitVariable(id, _) if had_fun => {
-                    self.emit_err(ParserError::member_var_after_fun(id.span()));
-                }
-                CircuitMember::CircuitConst(..) => {}
-                CircuitMember::CircuitVariable(..) => had_var = true,
-                CircuitMember::CircuitFunction(..) => had_fun = true,
-            }
-        }
     }
 
     /// Parses `IDENT: TYPE`.
@@ -144,13 +120,16 @@ impl ParserContext<'_> {
         self.expect(&Token::Const)?;
 
         // `IDENT: TYPE = EXPR`:
-        let (name, type_) = self.parse_typed_field_name()?;
+        let (_name, _type_) = self.parse_typed_field_name()?;
         self.expect(&Token::Assign)?;
         let expr = self.parse_expression()?;
 
         self.expect(&Token::Semicolon)?;
 
-        Ok(CircuitMember::CircuitConst(name, type_, expr))
+        // CAUTION: function members are unstable for testnet3.
+        Err(ParserError::circuit_constants_unstable(expr.span()).into())
+
+        // Ok(CircuitMember::CircuitConst(name, type_, expr))
     }
 
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.

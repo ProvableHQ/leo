@@ -382,4 +382,12 @@ create_messages!(
         msg: "Circuit functions are currently an unstable feature and are disabled in Leo for testnet3",
         help: None,
     }
+
+    /// Circuit constants are unstable in testnet3.
+    @formatted
+    circuit_constants_unstable {
+        args: (),
+        msg: "Circuit constants are currently an unstable feature and are disabled in Leo for testnet3",
+        help: None,
+    }
 );

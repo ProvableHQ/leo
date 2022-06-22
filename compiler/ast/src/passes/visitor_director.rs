@@ -68,9 +68,9 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_access(input) {
             match input {
                 AccessExpression::Member(member) => self.visit_expression(&member.inner, additional),
-                AccessExpression::StaticVariable(member) => self.visit_expression(&member.inner, additional),
-                AccessExpression::StaticFunction(member) => {
-                    member.input.iter().for_each(|member| {
+                AccessExpression::AssociatedVariable(member) => self.visit_expression(&member.inner, additional),
+                AccessExpression::AssociatedFunction(member) => {
+                    member.args.iter().for_each(|member| {
                         self.visit_expression(member, additional);
                     });
                     self.visit_expression(&member.inner, additional)
@@ -235,12 +235,6 @@ pub trait ProgramVisitorDirector<'a>: VisitorDirector<'a> + StatementVisitorDire
         if let VisitResult::VisitChildren = self.visitor_ref().visit_circuit(input) {
             input.members.iter().for_each(|member| {
                 match member {
-                    CircuitMember::CircuitConst(_, _, expr) => {
-                        self.visit_expression(expr, &Default::default());
-                    }
-                    CircuitMember::CircuitFunction(func) => {
-                        self.visit_function(func);
-                    }
                     CircuitMember::CircuitVariable(_, _) => {}
                 };
             })

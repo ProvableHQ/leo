@@ -31,26 +31,26 @@ pub enum AccessExpression {
     Member(MemberAccess),
     // /// Access to a tuple field using its position, e.g., `tuple.1`.
     // Tuple(TupleAccess),
-    /// Access to a static variable of a circuit.
-    StaticVariable(StaticVariableAccess),
-    /// Access to a static function of a circuit.
-    StaticFunction(StaticFunctionAccess),
+    /// Access to an associated variable of a circuit.
+    AssociatedVariable(AssociatedVariableAccess),
+    /// Access to an associated function of a circuit.
+    AssociatedFunction(AssociatedFunctionCall),
 }
 
 impl Node for AccessExpression {
     fn span(&self) -> Span {
         match self {
             AccessExpression::Member(n) => n.span(),
-            AccessExpression::StaticVariable(n) => n.span(),
-            AccessExpression::StaticFunction(n) => n.span(),
+            AccessExpression::AssociatedVariable(n) => n.span(),
+            AccessExpression::AssociatedFunction(n) => n.span(),
         }
     }
 
     fn set_span(&mut self, span: Span) {
         match self {
             AccessExpression::Member(n) => n.set_span(span),
-            AccessExpression::StaticVariable(n) => n.set_span(span),
-            AccessExpression::StaticFunction(n) => n.set_span(span),
+            AccessExpression::AssociatedVariable(n) => n.set_span(span),
+            AccessExpression::AssociatedFunction(n) => n.set_span(span),
         }
     }
 }
@@ -64,8 +64,8 @@ impl fmt::Display for AccessExpression {
             // ArrayRange(access) => access.fmt(f),
             Member(access) => access.fmt(f),
             // Tuple(access) => access.fmt(f),
-            StaticVariable(access) => access.fmt(f),
-            StaticFunction(access) => access.fmt(f),
+            AssociatedVariable(access) => access.fmt(f),
+            AssociatedFunction(access) => access.fmt(f),
         }
     }
 }

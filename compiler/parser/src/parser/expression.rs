@@ -298,18 +298,18 @@ impl ParserContext<'_> {
         // Check if there are arguments.
         Ok(Expression::Access(if self.check(&Token::LeftParen) {
             // Parse the arguments
-            let (input, _, end) = self.parse_expr_tuple()?;
+            let (args, _, end) = self.parse_expr_tuple()?;
 
             // Return the static function access expression.
-            AccessExpression::StaticFunction(StaticFunctionAccess {
+            AccessExpression::AssociatedFunction(AssociatedFunctionCall {
                 span: circuit_name.span() + end,
                 inner: Box::new(circuit_name),
                 name: member_name,
-                input,
+                args,
             })
         } else {
             // Return the static variable access expression.
-            AccessExpression::StaticVariable(StaticVariableAccess {
+            AccessExpression::AssociatedVariable(AssociatedVariableAccess {
                 span: circuit_name.span() + member_name.span(),
                 inner: Box::new(circuit_name),
                 name: member_name,

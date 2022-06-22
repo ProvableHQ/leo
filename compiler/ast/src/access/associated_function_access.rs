@@ -20,21 +20,23 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// An access expression to a static member variable, e.g. `Foo::BAR`.
+/// An access expression to an associated function in a circuit, e.g.`Pedersen64::hash()`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct StaticVariableAccess {
+pub struct AssociatedFunctionCall {
     /// The inner circuit type.
     pub inner: Box<Expression>,
-    /// The static circuit member variable that is being accessed.
+    /// The static circuit member function that is being accessed.
     pub name: Identifier,
+    /// The arguments passed to the function `name`.
+    pub args: Vec<Expression>,
     /// The span for the entire expression `Foo::bar()`.
     pub span: Span,
 }
 
-impl fmt::Display for StaticVariableAccess {
+impl fmt::Display for AssociatedFunctionCall {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}::{}", self.inner, self.name)
     }
 }
 
-crate::simple_node_impl!(StaticVariableAccess);
+crate::simple_node_impl!(AssociatedFunctionCall);
