@@ -97,46 +97,51 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
     fn reconstruct_binary(&mut self, input: BinaryExpression) -> (Expression, Self::AdditionalOutput) {
         let (_, left_const_value) = self.reconstruct_expression(*input.left.clone());
         let (_, right_const_value) = self.reconstruct_expression(*input.right.clone());
-        if let (Some(left_value), Some(right_value)) = (left_const_value, right_const_value) {
-            let value = match &input.op {
-                BinaryOperation::Add => left_value.add(right_value, input.span),
-                BinaryOperation::AddWrapped => todo!(),
-                BinaryOperation::And => todo!(),
-                BinaryOperation::BitwiseAnd => todo!(),
-                BinaryOperation::Div => todo!(),
-                BinaryOperation::DivWrapped => todo!(),
-                BinaryOperation::Eq => todo!(),
-                BinaryOperation::Ge => todo!(),
-                BinaryOperation::Gt => todo!(),
-                BinaryOperation::Le => todo!(),
-                BinaryOperation::Lt => todo!(),
-                BinaryOperation::Mul => todo!(),
-                BinaryOperation::MulWrapped => todo!(),
-                BinaryOperation::Nand => todo!(),
-                BinaryOperation::Neq => todo!(),
-                BinaryOperation::Nor => todo!(),
-                BinaryOperation::Or => todo!(),
-                BinaryOperation::BitwiseOr => todo!(),
-                BinaryOperation::Pow => todo!(),
-                BinaryOperation::PowWrapped => todo!(),
-                BinaryOperation::Shl => todo!(),
-                BinaryOperation::ShlWrapped => todo!(),
-                BinaryOperation::Shr => todo!(),
-                BinaryOperation::ShrWrapped => todo!(),
-                BinaryOperation::Sub => todo!(),
-                BinaryOperation::SubWrapped => todo!(),
-                BinaryOperation::Xor => todo!(),
-            };
 
-            if let Err(err) = value {
-                self._handler.emit_err(err);
+        match (left_const_value, right_const_value) {
+            (Some(left_value), Some(right_value)) if !left_value.is_int_type() && !right_value.is_int_type() => {
                 (Expression::Binary(input), None)
-            } else {
-                let value = value.unwrap();
-                (Expression::Literal(value.clone().into()), Some(value))
             }
-        } else {
-            (Expression::Binary(input), None)
+            (Some(left_value), Some(right_value)) => {
+                let value = match &input.op {
+                    BinaryOperation::Add => left_value.add(right_value, input.span),
+                    BinaryOperation::AddWrapped => todo!(),
+                    BinaryOperation::And => todo!(),
+                    BinaryOperation::BitwiseAnd => todo!(),
+                    BinaryOperation::Div => todo!(),
+                    BinaryOperation::DivWrapped => todo!(),
+                    BinaryOperation::Eq => todo!(),
+                    BinaryOperation::Ge => todo!(),
+                    BinaryOperation::Gt => todo!(),
+                    BinaryOperation::Le => todo!(),
+                    BinaryOperation::Lt => todo!(),
+                    BinaryOperation::Mul => todo!(),
+                    BinaryOperation::MulWrapped => todo!(),
+                    BinaryOperation::Nand => todo!(),
+                    BinaryOperation::Neq => todo!(),
+                    BinaryOperation::Nor => todo!(),
+                    BinaryOperation::Or => todo!(),
+                    BinaryOperation::BitwiseOr => todo!(),
+                    BinaryOperation::Pow => todo!(),
+                    BinaryOperation::PowWrapped => todo!(),
+                    BinaryOperation::Shl => todo!(),
+                    BinaryOperation::ShlWrapped => todo!(),
+                    BinaryOperation::Shr => todo!(),
+                    BinaryOperation::ShrWrapped => todo!(),
+                    BinaryOperation::Sub => todo!(),
+                    BinaryOperation::SubWrapped => todo!(),
+                    BinaryOperation::Xor => todo!(),
+                };
+
+                if let Err(err) = value {
+                    self._handler.emit_err(err);
+                    (Expression::Binary(input), None)
+                } else {
+                    let value = value.unwrap();
+                    (Expression::Literal(value.clone().into()), Some(value))
+                }
+            }
+            _ => (Expression::Binary(input), None),
         }
     }
 }

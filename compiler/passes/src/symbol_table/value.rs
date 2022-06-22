@@ -41,6 +41,23 @@ pub enum Value {
 }
 
 impl Value {
+    pub(crate) fn is_int_type(&self) -> bool {
+        use Value::*;
+        matches!(
+            self,
+            I8(_, _)
+                | I16(_, _)
+                | I32(_, _)
+                | I64(_, _)
+                | I128(_, _)
+                | U8(_, _)
+                | U16(_, _)
+                | U32(_, _)
+                | U64(_, _)
+                | U128(_, _)
+        )
+    }
+
     pub(crate) fn from_usize(type_: Type, value: usize, span: Span) -> Self {
         match type_ {
             Type::IntegerType(int_type) => match int_type {
@@ -62,8 +79,8 @@ impl Value {
     pub(crate) fn add(self, rhs: Self, span: Span) -> Result<Self> {
         use Value::*;
         match (self, rhs) {
-            (Field(_, _), Field(_, _)) => Ok(Field(todo!(), span)),
-            (Group(_), Group(_)) => Ok(Group(todo!())),
+            (Field(_, _), Field(_, _)) => unreachable!("Field constant folding is not yet supported"),
+            (Group(_), Group(_)) => unreachable!("Group constant folding is not yet supported"),
             (I8(l, _), I8(r, _)) => Ok(I8(
                 l.checked_add(r)
                     .ok_or_else(|| FlattenError::operation_overflow("i8", l, '+', r, span))?,
@@ -114,7 +131,7 @@ impl Value {
                     .ok_or_else(|| FlattenError::operation_overflow("u128", l, '+', r, span))?,
                 span,
             )),
-            (Scalar(_, _), Scalar(_, _)) => Ok(Scalar(todo!(), span)),
+            (Scalar(_, _), Scalar(_, _)) => unreachable!("Scalar constant folding is not yet supported"),
             _ => unreachable!(),
         }
     }

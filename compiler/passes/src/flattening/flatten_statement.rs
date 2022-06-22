@@ -29,6 +29,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
             input.variable_names.iter().for_each(|var| {
                 // TODO variable could be in parent scope technically and needs to be updated appropriately.
                 // Could be fixed by making this a method that checks st, then parent then updates.
+                // TODO remove iterator variable when done.
                 let mut var = st.variables.get_mut(&var.identifier.name).unwrap();
                 var.declaration = match &var.declaration {
                     Declaration::Const(_) => Declaration::Const(Some(const_val.clone())),
