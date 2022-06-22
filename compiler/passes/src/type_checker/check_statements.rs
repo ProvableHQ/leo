@@ -104,6 +104,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             span: input.span(),
             declaration: Declaration::Const(None),
         };
+
+        self.assert_int_type(&Some(input.type_), input.variable.span);
         if let Err(err) = self.symbol_table.borrow_mut().insert_variable(input.variable.name, var) {
             self.handler.emit_err(err);
         }

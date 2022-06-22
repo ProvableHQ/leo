@@ -22,7 +22,7 @@ use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
 
-use crate::{FunctionSymbol, VariableSymbol};
+use crate::{Declaration, FunctionSymbol, Value, VariableSymbol};
 
 #[derive(Clone, Debug, Default)]
 pub struct SymbolTable {
@@ -94,6 +94,20 @@ impl SymbolTable {
             parent.lookup_variable(symbol)
         } else {
             None
+        }
+    }
+
+    pub fn set_variable(&mut self, symbol: Symbol, value: Value) {
+        if let Some(var) = self.variables.get_mut(&symbol) {
+            var.declaration = match &var.declaration {
+                Declaration::Const(_) => Declaration::Const(Some(value)),
+                Declaration::Mut(_) => Declaration::Mut(Some(value)),
+                other => other.clone(),
+            };
+        } else if let Some(parent) = &mut self.parent {
+            parent.set_variable(symbol, value);
+        } else {
+            panic!("variable {symbol} doesn't exist")
         }
     }
 

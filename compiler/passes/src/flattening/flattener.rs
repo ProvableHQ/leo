@@ -23,7 +23,8 @@ use crate::SymbolTable;
 pub struct Flattener<'a> {
     pub(crate) symbol_table: RefCell<SymbolTable>,
     pub(crate) block_index: usize,
-    pub(crate) _handler: &'a Handler,
+    pub(crate) handler: &'a Handler,
+    pub(crate) in_assign: bool,
 }
 
 impl<'a> Flattener<'a> {
@@ -31,7 +32,8 @@ impl<'a> Flattener<'a> {
         Self {
             symbol_table: RefCell::new(symbol_table),
             block_index: 0,
-            _handler: handler,
+            handler,
+            in_assign: false,
         }
     }
 }

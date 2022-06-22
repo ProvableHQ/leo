@@ -72,11 +72,36 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
             .unwrap()
             .declaration
         {
-            Declaration::Const(Some(c)) | Declaration::Mut(Some(c)) => {
+            Declaration::Const(Some(c)) | Declaration::Mut(Some(c)) if !self.in_assign => {
                 (Expression::Literal(c.clone().into()), Some(c.clone()))
             }
             _ => (Expression::Identifier(input), None),
         }
+    }
+
+    fn reconstruct_literal(&mut self, input: LiteralExpression) -> (Expression, Self::AdditionalOutput) {
+        let value = match input.clone() {
+            LiteralExpression::Address(val, span) => Value::Address(val, span),
+            LiteralExpression::Boolean(val, span) => Value::Boolean(val, span),
+            LiteralExpression::Field(val, span) => Value::Field(val, span),
+            LiteralExpression::Group(val) => Value::Group(val),
+            LiteralExpression::Integer(itype, istr, span) => match itype {
+                IntegerType::U8 => Value::U8(istr.parse().unwrap(), span),
+                IntegerType::U16 => Value::U16(istr.parse().unwrap(), span),
+                IntegerType::U32 => Value::U32(istr.parse().unwrap(), span),
+                IntegerType::U64 => Value::U64(istr.parse().unwrap(), span),
+                IntegerType::U128 => Value::U128(istr.parse().unwrap(), span),
+                IntegerType::I8 => Value::I8(istr.parse().unwrap(), span),
+                IntegerType::I16 => Value::I16(istr.parse().unwrap(), span),
+                IntegerType::I32 => Value::I32(istr.parse().unwrap(), span),
+                IntegerType::I64 => Value::I64(istr.parse().unwrap(), span),
+                IntegerType::I128 => Value::I128(istr.parse().unwrap(), span),
+            },
+            LiteralExpression::Scalar(val, span) => Value::Scalar(val, span),
+            LiteralExpression::String(val, span) => Value::String(val, span),
+        };
+
+        (Expression::Literal(input), Some(value))
     }
 
     fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
@@ -134,7 +159,7 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
                 };
 
                 if let Err(err) = value {
-                    self._handler.emit_err(err);
+                    self.handler.emit_err(err);
                     (Expression::Binary(input), None)
                 } else {
                     let value = value.unwrap();

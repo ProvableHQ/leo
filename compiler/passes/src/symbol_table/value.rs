@@ -20,8 +20,94 @@ use std::{
 };
 
 use leo_ast::{GroupLiteral, IntegerType, LiteralExpression, Type};
-use leo_errors::{type_name, FlattenError, LeoError, Result, TypeCheckerError};
+use leo_errors::{type_name, FlattenError, LeoError, Result};
 use leo_span::Span;
+
+macro_rules! implement_const_op {
+    // for overflowing operations that can overflow
+    (
+        @overflowing
+        name: $name:ident,
+        method: $method:ident,
+        string: $str:expr,
+        patterns: [$(
+            // lhs, rhs, out, method left, method right
+            [$lhs:ident, [$($rhs:ident),+], $out:ident, $m_lhs:ty, $m_rhs:ty]
+        ),+]
+    ) => {
+        implement_const_op!{
+            name: $name,
+            patterns: [$([
+                types: $lhs, [$($rhs),+], $out,
+                logic: |l: $m_lhs, r: $m_rhs, t, span| l.$method(r).ok_or_else(|| FlattenError::operation_overflow(l, $str, r, t, span))
+            ]),+]
+        }
+    };
+
+    // for wrapping math operations
+    (
+        @non-overflowing
+        name: $name:ident,
+        method: $method:ident,
+        patterns: [$(
+            // lhs, rhs, out, method left, method right, method output
+            [$lhs:ident, [$($rhs:ident),+], $out:ident, $m_lhs:ty, $m_rhs:ty]
+        ),+]
+    ) => {
+        implement_const_op!{
+            name: $name,
+            patterns: [$([
+                types: $lhs, [$($rhs),+], $out,
+                logic: |l: $m_lhs, r: $m_rhs, _, _| -> Result<$m_lhs> {Ok(l.$method(r))}
+            ]),+]
+        }
+    };
+
+    // for cmp operations
+    (
+        @cmp
+        name: $name:ident,
+        method: $method:ident,
+        string: $str:expr,
+        patterns: [$(
+            // lhs, rhs, out, method left, method right, method output
+            [$lhs:ident, [$($rhs:ident),+], $out:ident, $m_lhs:ty, $m_rhs:ty]
+        ),+]
+    ) => {
+        implement_const_op!{
+            name: $name,
+            patterns: [$([
+                types: $lhs, [$($rhs),+], $out,
+                logic: |l: $m_lhs, r: $m_rhs, _, _| -> Result<bool> {Ok(l.$method(&r))}
+            ]),+]
+        }
+    };
+
+    (
+        name: $name:ident,
+        patterns: [$([
+            types: $lhs:ident, [$($rhs:ident),+], $out:ident,
+            logic: $logic:expr
+        ]),+]
+    ) => {
+        pub(crate) fn $name(self, other: Self, span: Span) -> Result<Self> {
+            use Value::*;
+
+            match (self, other) {
+                $(
+                    $(
+                        ($lhs(types, _), $rhs(rhs, _)) => {
+                            let rhs_type = type_name(&rhs);
+                            let out = $logic(types, rhs.into(), rhs_type, span)?;
+                            Ok($out(out, span))
+                        },
+                    )+
+                )+
+                (s, o) => unreachable!("Const operation not supported {}.{}({})", type_name(&s), stringify!($name), type_name(&o))
+            }
+        }
+    };
+}
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Value {
@@ -41,119 +127,6 @@ pub enum Value {
     U128(u128, Span),
     Scalar(String, Span),
     String(String, Span),
-}
-
-impl Not for Value {
-    type Output = Self;
-
-    fn not(mut self) -> Self::Output {
-        match &mut self {
-            Value::Address(_, _) => unreachable!(),
-            Value::Boolean(v, _) => *v = !*v,
-            Value::Field(_, _) => unreachable!(),
-            Value::Group(_) => unreachable!(),
-            Value::I8(v, _) => *v = !*v,
-            Value::I16(v, _) => *v = !*v,
-            Value::I32(v, _) => *v = !*v,
-            Value::I64(v, _) => *v = !*v,
-            Value::I128(v, _) => *v = !*v,
-            Value::U8(v, _) => *v = !*v,
-            Value::U16(v, _) => *v = !*v,
-            Value::U32(v, _) => *v = !*v,
-            Value::U64(v, _) => *v = !*v,
-            Value::U128(v, _) => *v = !*v,
-            Value::Scalar(_, _) => unreachable!(),
-            Value::String(_, _) => unreachable!(),
-        };
-        self
-    }
-}
-
-macro_rules! implement_const_op {
-    // for overflowing operations that can overflow
-    (
-        @overflowing
-        name: $name:ident,
-        method: $m:ident,
-        string: $s:expr,
-        patterns: [$(
-            // lhs, rhs, out, method left, method right
-            [$l:ident, [$($r:ident),+], $out:ident, $cl:ty, $cr:ty]
-        ),+]
-    ) => {
-        implement_const_op!{
-            name: $name,
-            patterns: [$([
-                types: $l, [$($r),+], $out,
-                logic: |l: $cl, r: $cr, t, span| l.$m(r).ok_or_else(|| FlattenError::operation_overflow(l, $s, r, t, span))
-            ]),+]
-        }
-    };
-
-    // for wrapping math operations
-    (
-        @non-overflowing
-        name: $name:ident,
-        method: $m:ident,
-        string: $s:expr,
-        patterns: [$(
-            // lhs, rhs, out, method left, method right, method output
-            [$l:ident, [$($r:ident),+], $out:ident, $cl:ty, $cr:ty]
-        ),+]
-    ) => {
-        implement_const_op!{
-            name: $name,
-            patterns: [$([
-                types: $l, [$($r),+], $out,
-                logic: |l: $cl, r: $cr, _, _| -> Result<$cl> {Ok(l.$m(r))}
-            ]),+]
-        }
-    };
-
-    // for cmp operations
-    (
-        @cmp
-        name: $name:ident,
-        method: $m:ident,
-        string: $s:expr,
-        patterns: [$(
-            // lhs, rhs, out, method left, method right, method output
-            [$l:ident, [$($r:ident),+], $out:ident, $cl:ty, $cr:ty]
-        ),+]
-    ) => {
-        implement_const_op!{
-            name: $name,
-            patterns: [$([
-                types: $l, [$($r),+], $out,
-                logic: |l: $cl, r: $cr, _, _| -> Result<bool> {Ok(l.$m(&r))}
-            ]),+]
-        }
-    };
-
-    (
-        name: $name:ident,
-        patterns: [$([
-            types: $l:ident, [$($r:ident),+], $out:ident,
-            logic: $logic:expr
-        ]),+]
-    ) => {
-        pub(crate) fn $name(self, other: Self, span: Span) -> Result<Self> {
-            use Value::*;
-
-            match (self, other) {
-                $(
-                    $(
-                        ($l(types, _), $r(rhs, _)) => {
-                            let rhs_type = type_name(&rhs);
-                            let out = $logic(types, rhs.into(), rhs_type, span)?;
-                            Ok($out(out, span))
-                        },
-                    )+
-                )+
-                (s, o) => unreachable!("Const operation not supported {}.{}({})", type_name(&s), stringify!($name), type_name(&o))
-            }
-        }
-    };
 }
 
 impl Value {
@@ -220,7 +193,6 @@ impl Value {
         @non-overflowing
         name: add_wrapped,
         method: wrapping_add,
-        string: "add_wrapped",
         patterns: [
             // [Field, [Field], Field, _, _],
             // [Group, [Group], Group, _, _],
@@ -243,7 +215,6 @@ impl Value {
         @non-overflowing
         name: bitand,
         method: bitand,
-        string: "&",
         patterns: [
             [Boolean, [Boolean], Boolean, bool, bool],
             [I8, [I8], I8, i8, i8],
@@ -285,7 +256,6 @@ impl Value {
         @non-overflowing
         name: div_wrapped,
         method: wrapping_div,
-        string: "div_wrapped",
         patterns: [
             // [Field, [Field], Field, _, _],
             // [Group, [Group], Group, _, _],
@@ -424,7 +394,6 @@ impl Value {
         @non-overflowing
         name: mul_wrapped,
         method: wrapping_mul,
-        string: "mul_wrapped",
         patterns: [
             // [Field, [Field], Field, _, _],
             // [Group, [Group], Group, _, _],
@@ -446,7 +415,6 @@ impl Value {
         @non-overflowing
         name: bitor,
         method: bitor,
-        string: "|",
         patterns: [
             [Boolean, [Boolean], Boolean, bool, bool],
             [I8, [I8], I8, i8, i8],
@@ -485,7 +453,6 @@ impl Value {
         @non-overflowing
         name: pow_wrapped,
         method: wrapping_pow,
-        string: "pow_wrapped",
         patterns: [
             [I8, [U8, U16, U32], I8, i8, u32],
             [I16, [U8, U16, U32], I16, i16, u32],
@@ -523,7 +490,6 @@ impl Value {
         @non-overflowing
         name: shl_wrapped,
         method: wrapping_shl,
-        string: "shl_wrapped",
         patterns: [
             [I8, [U8, U16, U32], I8, i8, u32],
             [I16, [U8, U16, U32], I16, i16, u32],
@@ -561,7 +527,6 @@ impl Value {
         @non-overflowing
         name: shr_wrapped,
         method: wrapping_shr,
-        string: "shr_wrapped",
         patterns: [
             [I8, [U8, U16, U32], I8, i8, u32],
             [I16, [U8, U16, U32], I16, i16, u32],
@@ -602,7 +567,6 @@ impl Value {
         @non-overflowing
         name: sub_wrapped,
         method: wrapping_sub,
-        string: "sub_wrapped",
         patterns: [
             // [Field, [Field], Field, _, _],
             // [Group, [Group], Group, _, _],
@@ -624,7 +588,6 @@ impl Value {
         @non-overflowing
         name: xor,
         method: bitxor,
-        string: "^",
         patterns: [
             [Boolean, [Boolean], Boolean, bool, bool],
             [I8, [I8], I8, i8, i8],
@@ -680,29 +643,26 @@ impl TryFrom<&Value> for usize {
         use Value::*;
         match value {
             I8(val, span) => {
-                usize::try_from(*val).map_err(|_| TypeCheckerError::loop_has_neg_value(Type::from(value), *span).into())
+                usize::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
             }
             I16(val, span) => {
-                usize::try_from(*val).map_err(|_| TypeCheckerError::loop_has_neg_value(Type::from(value), *span).into())
+                usize::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
             }
             I32(val, span) => {
-                usize::try_from(*val).map_err(|_| TypeCheckerError::loop_has_neg_value(Type::from(value), *span).into())
+                usize::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
             }
             I64(val, span) => {
-                usize::try_from(*val).map_err(|_| TypeCheckerError::loop_has_neg_value(Type::from(value), *span).into())
+                usize::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
             }
             I128(val, span) => {
-                usize::try_from(*val).map_err(|_| TypeCheckerError::loop_has_neg_value(Type::from(value), *span).into())
+                usize::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
             }
             U8(val, _) => Ok(*val as usize),
             U16(val, _) => Ok(*val as usize),
             U32(val, _) => Ok(*val as usize),
             U64(val, _) => Ok(*val as usize),
             U128(val, _) => Ok(*val as usize),
-            Address(_, span) | Boolean(_, span) | Field(_, span) | Scalar(_, span) | String(_, span) => {
-                Err(TypeCheckerError::cannot_use_type_as_loop_bound(value, *span).into())
-            }
-            Group(val) => return Err(TypeCheckerError::cannot_use_type_as_loop_bound(value, *val.span()).into()),
+            _ => unreachable!(),
         }
     }
 }
@@ -764,5 +724,31 @@ impl From<Value> for LiteralExpression {
             Scalar(v, span) => LiteralExpression::Scalar(v, span),
             String(v, span) => LiteralExpression::String(v, span),
         }
+    }
+}
+
+impl Not for Value {
+    type Output = Self;
+
+    fn not(mut self) -> Self::Output {
+        match &mut self {
+            Value::Address(_, _) => unreachable!(),
+            Value::Boolean(v, _) => *v = !*v,
+            Value::Field(_, _) => unreachable!(),
+            Value::Group(_) => unreachable!(),
+            Value::I8(v, _) => *v = !*v,
+            Value::I16(v, _) => *v = !*v,
+            Value::I32(v, _) => *v = !*v,
+            Value::I64(v, _) => *v = !*v,
+            Value::I128(v, _) => *v = !*v,
+            Value::U8(v, _) => *v = !*v,
+            Value::U16(v, _) => *v = !*v,
+            Value::U32(v, _) => *v = !*v,
+            Value::U64(v, _) => *v = !*v,
+            Value::U128(v, _) => *v = !*v,
+            Value::Scalar(_, _) => unreachable!(),
+            Value::String(_, _) => unreachable!(),
+        };
+        self
     }
 }

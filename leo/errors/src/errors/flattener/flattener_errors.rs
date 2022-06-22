@@ -35,4 +35,34 @@ create_messages!(
         msg: format!("The const operation `{left}{} {op} {right}{right_type}` causes an overflow.", type_name(&left)),
         help: None,
     }
+
+    /// For when a loop uses a negative value.
+    @formatted
+    loop_has_neg_value {
+        args: (value: impl Display),
+        msg: format!(
+            "The loop has a negative loop bound `{value}`.",
+        ),
+        help: None,
+    }
+
+    /// For when a loop bound goes negative or above usize::MAX
+    @formatted
+    incorrect_loop_bound {
+        args: (pos: impl Display, bound: impl Display),
+        msg: format!(
+            "The loop has an incorrect `{pos}` bound of `{bound}`.",
+        ),
+        help: None,
+    }
+
+    /// For when a loop bound is non const.
+    @formatted
+    non_const_loop_bounds {
+        args: (pos: impl Display),
+        msg: format!(
+            "The loop has an `{pos}` bound that is non_const.",
+        ),
+        help: None,
+    }
 );

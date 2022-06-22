@@ -170,24 +170,4 @@ create_messages!(
         ),
         help: None,
     }
-
-    /// For when a loop uses a negative value.
-    @formatted
-    loop_has_neg_value {
-        args: (value: impl Display),
-        msg: format!(
-            "The loop has a negative loop bound `{value}`",
-        ),
-        help: None,
-    }
-
-    /// For when a loop uses a non int type as a bound.
-    @formatted
-    cannot_use_type_as_loop_bound {
-        args: (type_: impl Display),
-        msg: format!(
-            "The type `{type_}` is not allowed as a loop bound.",
-        ),
-        help: None,
-    }
 );

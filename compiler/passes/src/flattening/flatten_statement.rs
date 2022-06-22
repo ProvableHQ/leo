@@ -17,25 +17,38 @@
 use std::cell::RefCell;
 
 use leo_ast::*;
+use leo_errors::FlattenError;
 
-use crate::{Declaration, Flattener, Value};
+use crate::{Declaration, Flattener, Value, VariableSymbol};
 
 impl<'a> StatementReconstructor for Flattener<'a> {
+    fn reconstruct_assign(&mut self, input: AssignStatement) -> Statement {
+        self.in_assign = true;
+        let (place, _) = self.reconstruct_expression(input.place);
+        self.in_assign = false;
+
+        let (value, const_val) = self.reconstruct_expression(input.value);
+        let mut st = self.symbol_table.borrow_mut();
+
+        if let (Expression::Identifier(var), Some(const_val)) = (&place, const_val) {
+            st.set_variable(var.name, const_val);
+        }
+
+        Statement::Assign(Box::new(AssignStatement {
+            operation: input.operation,
+            place,
+            value,
+            span: input.span,
+        }))
+    }
+
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> Statement {
         let (value, const_val) = self.reconstruct_expression(input.value);
         let mut st = self.symbol_table.borrow_mut();
 
         if let Some(const_val) = const_val {
             input.variable_names.iter().for_each(|var| {
-                // TODO variable could be in parent scope technically and needs to be updated appropriately.
-                // Could be fixed by making this a method that checks st, then parent then updates.
-                // TODO remove iterator variable when done.
-                let mut var = st.variables.get_mut(&var.identifier.name).unwrap();
-                var.declaration = match &var.declaration {
-                    Declaration::Const(_) => Declaration::Const(Some(const_val.clone())),
-                    Declaration::Mut(_) => Declaration::Mut(Some(const_val.clone())),
-                    other => other.clone(),
-                }
+                st.set_variable(var.identifier.name, const_val.clone());
             });
         }
 
@@ -49,54 +62,93 @@ impl<'a> StatementReconstructor for Flattener<'a> {
     }
 
     fn reconstruct_iteration(&mut self, input: IterationStatement) -> Statement {
-        let start = self.reconstruct_expression(input.start).0;
-        let stop = self.reconstruct_expression(input.stop).0;
+        let (start_expr, start) = self.reconstruct_expression(input.start);
+        let (stop_expr, stop) = self.reconstruct_expression(input.stop);
 
-        if let (
-            Expression::Literal(LiteralExpression::Integer(_, start_str_content, _)),
-            Expression::Literal(LiteralExpression::Integer(_, stop_str_content, _)),
-        ) = (start, stop)
-        {
-            let start = start_str_content.parse::<usize>().unwrap();
-            let stop = stop_str_content.parse::<usize>().unwrap();
-            let range = if start < stop {
-                start..(stop + input.inclusive as usize)
-            } else {
-                stop..(start - input.inclusive as usize)
-            };
+        match (start, stop) {
+            (Some(start), Some(stop)) => {
+                let cast_to_usize = |v: Value| -> Result<usize, Statement> {
+                    match v.try_into() {
+                        Ok(val_as_usize) => Ok(val_as_usize),
+                        Err(err) => {
+                            self.handler.emit_err(err);
+                            Err(Statement::Block(Block {
+                                statements: Vec::new(),
+                                span: input.span,
+                            }))
+                        }
+                    }
+                };
+                let start = match cast_to_usize(start) {
+                    Ok(v) => v,
+                    Err(s) => return s,
+                };
+                let stop = match cast_to_usize(stop) {
+                    Ok(v) => v,
+                    Err(s) => return s,
+                };
 
-            Statement::Block(Block {
-                // will panic if stop == usize::MAX
-                statements: range
-                    .into_iter()
-                    .flat_map(|iter_var| {
-                        self.symbol_table.borrow_mut().variables.insert(
-                            input.variable.name,
-                            crate::VariableSymbol {
-                                type_: input.type_,
-                                span: input.variable.span,
-                                declaration: Declaration::Const(Some(Value::from_usize(
-                                    input.type_,
-                                    iter_var,
-                                    input.variable.span,
-                                ))),
-                            },
-                        );
+                let range = if start < stop {
+                    if let Some(stop) = stop.checked_add(input.inclusive as usize) {
+                        start..stop
+                    } else {
+                        self.handler
+                            .emit_err(FlattenError::incorrect_loop_bound("stop", "usize::MAX + 1", input.span).into());
+                        Default::default()
+                    }
+                } else if let Some(start) = start.checked_sub(input.inclusive as usize) {
+                    stop..(start)
+                } else {
+                    self.handler
+                        .emit_err(FlattenError::incorrect_loop_bound("start", "-1", input.span).into());
+                    Default::default()
+                };
 
-                        input
-                            .block
-                            .statements
-                            .clone()
-                            .into_iter()
-                            .map(|s| self.reconstruct_statement(s))
-                            .collect::<Vec<Statement>>()
-                    })
-                    .collect(),
-                span: input.span,
-            })
-        } else {
-            todo!("This operation is not yet supported.")
+                return Statement::Block(Block {
+                    statements: range
+                        .into_iter()
+                        .map(|iter_var| {
+                            self.symbol_table.borrow_mut().variables.insert(
+                                input.variable.name,
+                                VariableSymbol {
+                                    type_: input.type_,
+                                    span: input.variable.span,
+                                    declaration: Declaration::Const(Some(Value::from_usize(
+                                        input.type_,
+                                        iter_var,
+                                        input.variable.span,
+                                    ))),
+                                },
+                            );
+
+                            let block = Statement::Block(self.reconstruct_block(input.block.clone()));
+
+                            self.symbol_table.borrow_mut().variables.remove(&input.variable.name);
+
+                            block
+                        })
+                        .collect(),
+                    span: input.span,
+                });
+            }
+            (None, Some(_)) => self
+                .handler
+                .emit_err(FlattenError::non_const_loop_bounds("stop", stop_expr.span()).into()),
+            (Some(_), None) => self
+                .handler
+                .emit_err(FlattenError::non_const_loop_bounds("start", start_expr.span()).into()),
+            (None, None) => {
+                self.handler
+                    .emit_err(FlattenError::non_const_loop_bounds("start", start_expr.span()).into());
+                self.handler
+                    .emit_err(FlattenError::non_const_loop_bounds("stop", stop_expr.span()).into());
+            }
         }
+
+        Statement::Block(Block {
+            statements: Vec::new(),
+            span: input.span,
+        })
     }
 
     fn reconstruct_block(&mut self, input: Block) -> Block {
