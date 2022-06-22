@@ -17,7 +17,7 @@
 use std::fmt::Display;
 
 use leo_ast::{GroupLiteral, IntegerType, LiteralExpression, Type};
-use leo_errors::{FlattenError, LeoError, Result, TypeCheckerError};
+use leo_errors::{type_name, FlattenError, LeoError, Result, TypeCheckerError};
 use leo_span::Span;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -38,6 +38,33 @@ pub enum Value {
     U128(u128, Span),
     Scalar(String, Span),
     String(String, Span),
+}
+// (Field(types), [Field, u8](rhs), Method, StrOp, Field(output_type), (|| -> Err))
+macro_rules! implement_const_op {
+    (
+        name: $name:ident,
+        patterns: [$([
+            types: $l:ident, [$($r:ident),+], $out:ident,
+            logic: $logic:expr
+        ]),+]
+    ) => {
+        pub(crate) fn $name(self, other: Self, span: Span) -> Result<Self> {
+            use Value::*;
+
+            match (self, other) {
+                $(
+                    $(
+                        ($l(types, _), $r(rhs, _)) => {
+                            let rhs_type = type_name(&rhs);
+                            let out = $logic(types, rhs.into(), rhs_type, span)?;
+                            Ok($out(out, span))
+                        },
+                    )+
+                )+
+                _ => unreachable!("")
+            }
+        }
+    };
 }
 
 impl Value {
@@ -76,64 +103,142 @@ impl Value {
         }
     }
 
-    pub(crate) fn add(self, rhs: Self, span: Span) -> Result<Self> {
-        use Value::*;
-        match (self, rhs) {
-            (Field(_, _), Field(_, _)) => unreachable!("Field constant folding is not yet supported"),
-            (Group(_), Group(_)) => unreachable!("Group constant folding is not yet supported"),
-            (I8(l, _), I8(r, _)) => Ok(I8(
-                l.checked_add(r)
-                    .ok_or_else(|| FlattenError::operation_overflow("i8", l, '+', r, span))?,
-                span,
-            )),
-            (I16(l, _), I16(r, _)) => Ok(I16(
-                l.checked_add(r)
-                    .ok_or_else(|| FlattenError::operation_overflow("i16", l, '+', r, span))?,
-                span,
-            )),
-            (I32(l, _), I32(r, _)) => Ok(I32(
-                l.checked_add(r)
-                    .ok_or_else(|| FlattenError::operation_overflow("i32", l, '+', r, span))?,
-                span,
-            )),
-            (I64(l, _), I64(r, _)) => Ok(I64(
-                l.checked_add(r)
-                    .ok_or_else(|| FlattenError::operation_overflow("i64", l, '+', r, span))?,
-                span,
-            )),
-            (I128(l, _), I128(r, _)) => Ok(I128(
-                l.checked_add(r)
-                    .ok_or_else(|| FlattenError::operation_overflow("i128", l, '+', r, span))?,
-                span,
-            )),
-            (U8(l, _), U8(r, _)) => Ok(U8(
-                l.checked_add(r)
-                    .ok_or_else(|| FlattenError::operation_overflow("u8", l, '+', r, span))?,
-                span,
-            )),
-            (U16(l, _), U16(r, _)) => Ok(U16(
-                l.checked_add(r)
-                    .ok_or_else(|| FlattenError::operation_overflow("u16", l, '+', r, span))?,
-                span,
-            )),
-            (U32(l, _), U32(r, _)) => Ok(U32(
-                l.checked_add(r)
-                    .ok_or_else(|| FlattenError::operation_overflow("u32", l, '+', r, span))?,
-                span,
-            )),
-            (U64(l, _), U64(r, _)) => Ok(U64(
-                l.checked_add(r)
-                    .ok_or_else(|| FlattenError::operation_overflow("u64", l, '+', r, span))?,
-                span,
-            )),
-            (U128(l, _), U128(r, _)) => Ok(U128(
-                l.checked_add(r)
-                    .ok_or_else(|| FlattenError::operation_overflow("u128", l, '+', r, span))?,
-                span,
-            )),
-            (Scalar(_, _), Scalar(_, _)) => unreachable!("Scalar constant folding is not yet supported"),
-            _ => unreachable!(),
-        }
+    implement_const_op! {
+        name: add,
+        patterns: [
+            [
+                types: I8, [I8], I8,
+                logic: |l: i8, r: i8, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
+            ],
+            [
+                types: I16, [I16], I16,
+                logic: |l: i16, r: i16, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
+            ],
+            [
+                types: I32, [I32], I32,
+                logic: |l: i32, r: i32, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
+            ],
+            [
+                types: I64, [I64], I64,
+                logic: |l: i64, r: i64, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
+            ],
+            [
+                types: I128, [I128], I128,
+                logic: |l: i128, r: i128, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
+            ],
+            [
+                types: U8, [U8], U8,
+                logic: |l: u8, r: u8, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
+            ],
+            [
+                types: U16, [U16], U16,
+                logic: |l: u16, r: u16, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
+            ],
+            [
+                types: U32, [U32], U32,
+                logic: |l: u32, r: u32, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
+            ],
+            [
+                types: U64, [U64], U64,
+                logic: |l: u64, r: u64, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
+            ],
+            [
+                types: U128, [U128], U128,
+                logic: |l: u128, r: u128, t, span| l.checked_add(r).ok_or_else(|| FlattenError::operation_overflow(l, '+', r, t, span))
+            ]
+        ]
+    }
+
+    implement_const_op! {
+        name: eq,
+        patterns: [
+            [
+            types: I8, [I8], Boolean,
+            logic: |l: i8, r: i8, _, _| -> Result<bool> {Ok(l.eq(&r))}
+            ],
+            [
+                types: I16, [I16], Boolean,
+                logic: |l: i16, r: i16, _, _| -> Result<bool> {Ok(l.eq(&r))}
+            ],
+            [
+                types: I32, [I32], Boolean,
+                logic: |l: i32, r: i32, _, _| -> Result<bool> {Ok(l.eq(&r))}
+            ],
+            [
+                types: I64, [I64], Boolean,
+                logic: |l: i64, r: i64, _, _| -> Result<bool> {Ok(l.eq(&r))}
+            ],
+            [
+                types: I128, [I128], Boolean,
+                logic: |l: i128, r: i128, _, _| -> Result<bool> {Ok(l.eq(&r))}
+            ],
+            [
+                types: U8, [U8], Boolean,
+                logic: |l: u8, r: u8, _, _| -> Result<bool> {Ok(l.eq(&r))}
+            ],
+            [
+                types: U16, [U16], Boolean,
+                logic: |l: u16, r: u16, _, _| -> Result<bool> {Ok(l.eq(&r))}
+            ],
+            [
+                types: U32, [U32], Boolean,
+                logic: |l: u32, r: u32, _, _| -> Result<bool> {Ok(l.eq(&r))}
+            ],
+            [
+                types: U64, [U64], Boolean,
+                logic: |l: u64, r: u64, _, _| -> Result<bool> {Ok(l.eq(&r))}
+            ],
+            [
+                types: U128, [U128], Boolean,
+                logic: |l: u128, r: u128, _, _| -> Result<bool> {Ok(l.eq(&r))}
+            ]
+        ]
+    }
+
+    implement_const_op! {
+        name: pow,
+        patterns: [
+            [
+                types: I8, [U8, U16, U32], I8,
+                logic: |l: i8, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
+            ],
+            [
+                types: I16, [U8, U16, U32], I16,
+                logic: |l: i16, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
+            ],
+            [
+                types: I32, [U8, U16, U32], I32,
+                logic: |l: i32, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
+            ],
+            [
+                types: I64, [U8, U16, U32], I64,
+                logic: |l: i64, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
+            ],
+            [
+                types: I128, [U8, U16, U32], I128,
+                logic: |l: i128, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
+            ],
+            [
+                types: U8, [U8, U16, U32], U8,
+                logic: |l: u8, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
+            ],
+            [
+                types: U16, [U8, U16, U32], U16,
+                logic: |l: u16, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
+            ],
+            [
+                types: U32, [U8, U16, U32], U32,
+                logic: |l: u32, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
+            ],
+            [
+                types: U64, [U8, U16, U32], U64,
+                logic: |l: u64, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
+            ],
+            [
+                types: U128, [U8, U16, U32], U128,
+                logic: |l: u128, r: u32, t, span| l.checked_pow(r).ok_or_else(|| FlattenError::operation_overflow(l, "**", r, t, span))
+            ]
+        ]
     }
 }
 

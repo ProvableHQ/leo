@@ -17,17 +17,22 @@
 use crate::create_messages;
 use std::fmt::{Debug, Display};
 
+/// Generates the type name of a value.
+pub fn type_name<T>(_: &T) -> &'static str {
+    std::any::type_name::<T>()
+}
+
 create_messages!(
     /// CliError enum that represents all the errors for the `leo-lang` crate.
     FlattenError,
     code_mask: 3000i32,
     code_prefix: "FLA",
 
-    /// asdf
+    /// For when a constant operation would cause an overflow.
     @formatted
     operation_overflow {
-        args: (type_: impl Display, left: impl Display, op: impl Display, right: impl Display),
-        msg: format!("The const operation `{left}{type_} {op} {right}{type_}` causes an overflow."),
+        args: (left: impl Display, op: impl Display, right: impl Display, right_type: impl Display),
+        msg: format!("The const operation `{left}{} {op} {right}{right_type}` causes an overflow.", type_name(&left)),
         help: None,
     }
 );
