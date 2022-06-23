@@ -19,7 +19,7 @@ use std::{
     ops::{BitAnd, BitOr, BitXor},
 };
 
-use leo_ast::{GroupLiteral, IntegerType, LiteralExpression, Type};
+use leo_ast::{GroupLiteral, Identifier, IntegerType, LiteralExpression, Type};
 use leo_errors::{type_name, FlattenError, LeoError, Result};
 use leo_span::Span;
 
@@ -111,6 +111,7 @@ macro_rules! implement_const_op {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Value {
+    Input(Type, Identifier),
     Address(String, Span),
     Boolean(bool, Span),
     Field(String, Span),
@@ -609,6 +610,7 @@ impl Display for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use Value::*;
         match self {
+            Input(type_, ident) => write!(f, "input var {}: {type_}", ident.name),
             Address(val, _) => write!(f, "{val}"),
             Boolean(val, _) => write!(f, "{val}"),
             Field(val, _) => write!(f, "{val}"),
@@ -684,6 +686,7 @@ impl From<&Value> for Type {
     fn from(v: &Value) -> Self {
         use Value::*;
         match v {
+            Input(type_, _) => *type_,
             Address(_, _) => Type::Address,
             Boolean(_, _) => Type::Boolean,
             Field(_, _) => Type::Field,
@@ -708,6 +711,7 @@ impl From<Value> for LiteralExpression {
     fn from(v: Value) -> Self {
         use Value::*;
         match v {
+            Input(_, _) => panic!("We need to test if this is hittable"),
             Address(v, span) => LiteralExpression::Address(v, span),
             Boolean(v, span) => LiteralExpression::Boolean(v, span),
             Field(v, span) => LiteralExpression::Field(v, span),
@@ -730,23 +734,25 @@ impl From<Value> for LiteralExpression {
 
 impl Value {
     pub fn not(mut self, span: Span) -> Result<Self> {
+        use Value::*;
         match &mut self {
-            Value::Address(_, _) => unreachable!(),
-            Value::Boolean(v, _) => *v = !*v,
-            Value::Field(_, _) => unreachable!(),
-            Value::Group(_) => unreachable!(),
-            Value::I8(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
-            Value::I16(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
-            Value::I32(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
-            Value::I64(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
-            Value::I128(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
-            Value::U8(v, _) => *v = !*v,
-            Value::U16(v, _) => *v = !*v,
-            Value::U32(v, _) => *v = !*v,
-            Value::U64(v, _) => *v = !*v,
-            Value::U128(v, _) => *v = !*v,
-            Value::Scalar(_, _) => unreachable!(),
-            Value::String(_, _) => unreachable!(),
+            Input(_, _) => unreachable!(),
+            Address(_, _) => unreachable!(),
+            Boolean(v, _) => *v = !*v,
+            Field(_, _) => unreachable!(),
+            Group(_) => unreachable!(),
+            I8(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
+            I16(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
+            I32(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
+            I64(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
+            I128(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
+            U8(v, _) => *v = !*v,
+            U16(v, _) => *v = !*v,
+            U32(v, _) => *v = !*v,
+            U64(v, _) => *v = !*v,
+            U128(v, _) => *v = !*v,
+            Scalar(_, _) => unreachable!(),
+            String(_, _) => unreachable!(),
         };
         Ok(self)
     }

@@ -163,7 +163,7 @@ impl<'a> Compiler<'a> {
     pub fn flattening_pass(&mut self, symbol_table: SymbolTable) -> Result<()> {
         self.ast = Flattener::do_pass((std::mem::take(&mut self.ast), self.handler, symbol_table))?;
 
-        if self.output_options.ast_initial {
+        if self.output_options.flattened_ast {
             // Write the input AST snapshot post parsing.
             if self.output_options.spans_enabled {
                 self.ast

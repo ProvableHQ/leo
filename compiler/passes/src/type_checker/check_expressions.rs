@@ -96,7 +96,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
     fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
         if let Some(var) = self.symbol_table.borrow().lookup_variable(input.name).cloned() {
-            self.assert_expected_option(var.type_, var.declaration.get_const_value(), expected, var.span)
+            self.assert_expected_option(var.type_, var.get_const_value(*input), expected, var.span)
         } else {
             self.handler
                 .emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span()));

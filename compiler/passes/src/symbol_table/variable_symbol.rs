@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{ParamMode, Type};
+use leo_ast::{Identifier, ParamMode, Type};
 use leo_errors::Result;
 use leo_span::Span;
 
@@ -38,14 +38,6 @@ impl Declaration {
         }
     }
 
-    pub fn get_const_value(&self) -> Option<Value> {
-        use Declaration::*;
-        match self {
-            Const(Some(v)) | Mut(Some(v)) => Some(v.clone()),
-            _ => None,
-        }
-    }
-
     pub fn get_type(&self) -> Option<Type> {
         use Declaration::*;
 
@@ -62,4 +54,15 @@ pub struct VariableSymbol {
     pub type_: Type,
     pub span: Span,
     pub declaration: Declaration,
+}
+
+impl VariableSymbol {
+    pub fn get_const_value(&self, ident: Identifier) -> Option<Value> {
+        use Declaration::*;
+        match &self.declaration {
+            Const(Some(v)) | Mut(Some(v)) => Some(v.clone()),
+            Input(ParamMode::Const) => Some(Value::Input(self.type_, ident)),
+            _ => None,
+        }
+    }
 }

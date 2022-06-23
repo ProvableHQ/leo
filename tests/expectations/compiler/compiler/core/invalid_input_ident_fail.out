@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372013]: The type DNE is not a valid built in type.\n    --> compiler-test:4:27\n     |\n   4 | function main(public dne: DNE, a: bool) -> bool {\n     |                           ^^^\n"
+  - "Error [ETYC0372014]: The type DNE is not a valid built in type.\n    --> compiler-test:4:27\n     |\n   4 | function main(public dne: DNE, a: bool) -> bool {\n     |                           ^^^\n"

@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372010]: Expected one type from `i8,i16,i32,i64,i128,u8,u16,u32,u64,u128,`, but got `bool`\n    --> compiler-test:4:9\n     |\n   4 |     for i: bool in true..false {\n     |         ^\n"

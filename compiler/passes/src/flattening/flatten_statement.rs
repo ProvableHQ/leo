@@ -24,14 +24,23 @@ use crate::{Declaration, Flattener, Value, VariableSymbol};
 impl<'a> StatementReconstructor for Flattener<'a> {
     fn reconstruct_assign(&mut self, input: AssignStatement) -> Statement {
         self.in_assign = true;
-        let (place, _) = self.reconstruct_expression(input.place);
+        let (place, place_value) = self.reconstruct_expression(input.place);
+        let var_name = match place {
+            Expression::Identifier(var) => var.name,
+            _ => unreachable!(),
+        };
         self.in_assign = false;
 
         let (value, const_val) = self.reconstruct_expression(input.value);
         let mut st = self.symbol_table.borrow_mut();
+        let var_in_parent = st.variable_in_parent_scope(var_name);
 
-        if let (Expression::Identifier(var), Some(const_val)) = (&place, const_val) {
-            st.set_variable(var.name, const_val);
+        if place_value.is_some() && self.non_const_block && var_in_parent {
+            if let Some(const_val) = const_val {
+                st.set_variable(var_name, const_val);
+            }
+        } else if const_val.is_some() && !(self.non_const_block && var_in_parent) {
+            st.set_variable(var_name, const_val.unwrap());
         }
 
         Statement::Assign(Box::new(AssignStatement {

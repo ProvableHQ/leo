@@ -100,7 +100,11 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         if var_type.is_some() {
             self.validate_ident_type(&var_type);
-            self.visit_expression(&input.value, &var_type);
+            if let TypeOutput::Const(const_val) = self.visit_expression(&input.value, &var_type) {
+                if self.non_const_block && var_in_parent {
+                    self.symbol_table.borrow_mut().set_variable(var_name.name, const_val);
+                }
+            }
         }
     }
 
