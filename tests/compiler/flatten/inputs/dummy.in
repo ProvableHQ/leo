@@ -1,3 +1,6 @@
+[constants]
+a: u8 = 1u8;
+
 [main]
 y: bool = true;
 n: bool = false;

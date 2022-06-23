@@ -1,13 +1,16 @@
 /*
 namespace: Compile
-expectation: Fail
-input_file: inputs/int.in
+expectation: Pass
+input_file: inputs/dummy.in
 */
 
-function main(x: u8) -> bool {
-    const a: u8 = x;
-    const b: u8 = a;
-    let c: u8 = x;
-    const d: u8 = c;
+function main(constant a: u8) -> bool {
+    const b: u8 = 1u8;
+    const c: u8 = a;
+    const d: u8 = 1u8 + 1u8;
+    const h: u8 = d + d + a;
+    let e: u8 = b + 1u8;
+    let f: u8 = d;
+    let g: u8 = 1u8 + f + f + e + a;
     return d == c;
 }
