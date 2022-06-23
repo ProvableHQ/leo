@@ -68,7 +68,7 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_access(input) {
             match input {
                 AccessExpression::Member(member) => return self.visit_expression(&member.inner, additional),
-                AccessExpression::AssociatedConstant(_member) => {},
+                AccessExpression::AssociatedConstant(_member) => {}
                 AccessExpression::AssociatedFunction(member) => {
                     member.args.iter().for_each(|expr| {
                         self.visit_expression(expr, additional);

@@ -220,6 +220,19 @@ const BOOL_INT_STRING_TYPES: [Type; 12] = [
     Type::String,
 ];
 
+const BOOL_INT64_STRING_TYPES: [Type; 10] = [
+    Type::Boolean,
+    Type::IntegerType(IntegerType::I8),
+    Type::IntegerType(IntegerType::I16),
+    Type::IntegerType(IntegerType::I32),
+    Type::IntegerType(IntegerType::I64),
+    Type::IntegerType(IntegerType::U8),
+    Type::IntegerType(IntegerType::U16),
+    Type::IntegerType(IntegerType::U32),
+    Type::IntegerType(IntegerType::U64),
+    Type::String,
+];
+
 // todo (collin): deprecate this code
 pub struct Algorithms;
 

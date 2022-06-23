@@ -215,7 +215,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                         // Lookup circuit variable.
                         if let Some(member) = circuit.members.iter().find(|member| member.name() == access.name.name) {
                             match member {
-                                CircuitMember::CircuitVariable(_ident, type_) => { return Some(type_.clone()) }
+                                CircuitMember::CircuitVariable(_ident, type_) => return Some(type_.clone()),
                             }
                         } else {
                             self.visitor.handler.emit_err(
@@ -576,8 +576,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                 }
                 UnaryOperation::SquareRoot => {
                     // Assert field or scalar type.
-                    self.visitor
-                        .assert_field_scalar_type(destination, input.span());
+                    self.visitor.assert_field_scalar_type(destination, input.span());
                     return self.visit_expression(&input.receiver, destination);
                 }
             }
