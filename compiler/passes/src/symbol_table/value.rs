@@ -16,7 +16,7 @@
 
 use std::{
     fmt::Display,
-    ops::{BitAnd, BitOr, BitXor, Not},
+    ops::{BitAnd, BitOr, BitXor},
 };
 
 use leo_ast::{GroupLiteral, IntegerType, LiteralExpression, Type};
@@ -279,6 +279,7 @@ impl Value {
         method: eq,
         string: "==",
         patterns: [
+            [Boolean, [Boolean], Boolean, bool, bool],
             [I8, [I8], Boolean, i8, i8],
             [I16, [I16], Boolean, i16, i16],
             [I32, [I32], Boolean, i32, i32],
@@ -727,20 +728,18 @@ impl From<Value> for LiteralExpression {
     }
 }
 
-impl Not for Value {
-    type Output = Self;
-
-    fn not(mut self) -> Self::Output {
+impl Value {
+    pub fn not(mut self, span: Span) -> Result<Self> {
         match &mut self {
             Value::Address(_, _) => unreachable!(),
             Value::Boolean(v, _) => *v = !*v,
             Value::Field(_, _) => unreachable!(),
             Value::Group(_) => unreachable!(),
-            Value::I8(v, _) => *v = !*v,
-            Value::I16(v, _) => *v = !*v,
-            Value::I32(v, _) => *v = !*v,
-            Value::I64(v, _) => *v = !*v,
-            Value::I128(v, _) => *v = !*v,
+            Value::I8(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
+            Value::I16(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
+            Value::I32(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
+            Value::I64(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
+            Value::I128(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
             Value::U8(v, _) => *v = !*v,
             Value::U16(v, _) => *v = !*v,
             Value::U32(v, _) => *v = !*v,
@@ -749,6 +748,6 @@ impl Not for Value {
             Value::Scalar(_, _) => unreachable!(),
             Value::String(_, _) => unreachable!(),
         };
-        self
+        Ok(self)
     }
 }

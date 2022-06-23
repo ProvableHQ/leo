@@ -18,65 +18,47 @@ use leo_ast::*;
 
 use crate::{Declaration, Flattener};
 
-// Copyright (C) 2019-2022 Aleo Systems Inc.
-// This file is part of the Leo library.
-
-// The Leo library is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-
-// The Leo library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-
-// You should have received a copy of the GNU General Public License
-// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-
 use crate::Value;
 
 impl<'a> ExpressionReconstructor for Flattener<'a> {
     type AdditionalOutput = Option<Value>;
     fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
-        // let x: u32 = 10u32;
-        // let y: u32 = x;
+        let var_in_parent = self.symbol_table.borrow().variable_in_parent_scope(input.name);
+        let mut st = self.symbol_table.borrow_mut();
+        let mut var = st.lookup_variable_mut(input.name).unwrap();
 
-        // return y == 10u32;
-
-        /*
-        function main(b: bool) {
-            let x = 0;
-            if b {
-                x = 1;
-            } else {
-                x = 2;
+        match &var.declaration {
+            Declaration::Mut(Some(_)) if self.non_const_block && var_in_parent => {
+                var.declaration = Declaration::Mut(None);
+                (Expression::Identifier(input), None)
             }
-            x == 1
-        }
-
-        function main() {
-            let x = 0;
-            if true {
-                x = 1;
-            } else {
-                x = 2;
-            }
-            x == 1
-        }
-        */
-        match &self
-            .symbol_table
-            .borrow()
-            .lookup_variable(input.name)
-            .unwrap()
-            .declaration
-        {
             Declaration::Const(Some(c)) | Declaration::Mut(Some(c)) if !self.in_assign => {
                 (Expression::Literal(c.clone().into()), Some(c.clone()))
             }
             _ => (Expression::Identifier(input), None),
         }
+    }
+
+    fn reconstruct_unary(&mut self, input: UnaryExpression) -> (Expression, Self::AdditionalOutput) {
+        let (receiver, v) = if matches!(&input.op, &UnaryOperation::Negate) {
+            let prior_negate_state = self.negate;
+            self.negate = true;
+            let (receiver, v) = self.reconstruct_expression(*input.receiver);
+            self.negate = prior_negate_state;
+
+            (receiver, v)
+        } else {
+            self.reconstruct_expression(*input.receiver)
+        };
+
+        (
+            Expression::Unary(UnaryExpression {
+                receiver: Box::new(receiver),
+                op: input.op,
+                span: input.span,
+            }),
+            v,
+        )
     }
 
     fn reconstruct_literal(&mut self, input: LiteralExpression) -> (Expression, Self::AdditionalOutput) {
@@ -85,18 +67,21 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
             LiteralExpression::Boolean(val, span) => Value::Boolean(val, span),
             LiteralExpression::Field(val, span) => Value::Field(val, span),
             LiteralExpression::Group(val) => Value::Group(val),
-            LiteralExpression::Integer(itype, istr, span) => match itype {
-                IntegerType::U8 => Value::U8(istr.parse().unwrap(), span),
-                IntegerType::U16 => Value::U16(istr.parse().unwrap(), span),
-                IntegerType::U32 => Value::U32(istr.parse().unwrap(), span),
-                IntegerType::U64 => Value::U64(istr.parse().unwrap(), span),
-                IntegerType::U128 => Value::U128(istr.parse().unwrap(), span),
-                IntegerType::I8 => Value::I8(istr.parse().unwrap(), span),
-                IntegerType::I16 => Value::I16(istr.parse().unwrap(), span),
-                IntegerType::I32 => Value::I32(istr.parse().unwrap(), span),
-                IntegerType::I64 => Value::I64(istr.parse().unwrap(), span),
-                IntegerType::I128 => Value::I128(istr.parse().unwrap(), span),
-            },
+            LiteralExpression::Integer(itype, istr, span) => {
+                let istr = if self.negate { format!("-{istr}") } else { istr };
+                match itype {
+                    IntegerType::U8 => Value::U8(istr.parse().unwrap(), span),
+                    IntegerType::U16 => Value::U16(istr.parse().unwrap(), span),
+                    IntegerType::U32 => Value::U32(istr.parse().unwrap(), span),
+                    IntegerType::U64 => Value::U64(istr.parse().unwrap(), span),
+                    IntegerType::U128 => Value::U128(istr.parse().unwrap(), span),
+                    IntegerType::I8 => Value::I8(istr.parse().unwrap(), span),
+                    IntegerType::I16 => Value::I16(istr.parse().unwrap(), span),
+                    IntegerType::I32 => Value::I32(istr.parse().unwrap(), span),
+                    IntegerType::I64 => Value::I64(istr.parse().unwrap(), span),
+                    IntegerType::I128 => Value::I128(istr.parse().unwrap(), span),
+                }
+            }
             LiteralExpression::Scalar(val, span) => Value::Scalar(val, span),
             LiteralExpression::String(val, span) => Value::String(val, span),
         };
@@ -143,9 +128,30 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
                     BinaryOperation::Lt => left_value.lt(right_value, input.span),
                     BinaryOperation::Mul => left_value.mul(right_value, input.span),
                     BinaryOperation::MulWrapped => left_value.mul_wrapped(right_value, input.span),
-                    BinaryOperation::Nand => left_value.bitand(right_value, input.span).map(|v| !v),
-                    BinaryOperation::Neq => left_value.eq(right_value, input.span).map(|v| !v),
-                    BinaryOperation::Nor => left_value.bitor(right_value, input.span).map(|v| !v),
+                    BinaryOperation::Nand => {
+                        let bitand = left_value.bitand(right_value, input.span);
+                        if let Err(err) = bitand {
+                            self.handler.emit_err(err);
+                            return (Expression::Binary(input), None);
+                        }
+                        bitand.unwrap().not(input.span)
+                    }
+                    BinaryOperation::Neq => {
+                        let eq = left_value.eq(right_value, input.span);
+                        if let Err(err) = eq {
+                            self.handler.emit_err(err);
+                            return (Expression::Binary(input), None);
+                        }
+                        eq.unwrap().not(input.span)
+                    }
+                    BinaryOperation::Nor => {
+                        let nor = left_value.bitand(right_value, input.span);
+                        if let Err(err) = nor {
+                            self.handler.emit_err(err);
+                            return (Expression::Binary(input), None);
+                        }
+                        nor.unwrap().not(input.span)
+                    }
                     BinaryOperation::Or | BinaryOperation::BitwiseOr => left_value.bitor(right_value, input.span),
                     BinaryOperation::Pow => left_value.pow(right_value, input.span),
                     BinaryOperation::PowWrapped => left_value.pow_wrapped(right_value, input.span),

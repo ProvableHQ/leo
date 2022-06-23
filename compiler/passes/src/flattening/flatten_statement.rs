@@ -48,7 +48,21 @@ impl<'a> StatementReconstructor for Flattener<'a> {
 
         if let Some(const_val) = const_val {
             input.variable_names.iter().for_each(|var| {
-                st.set_variable(var.identifier.name, const_val.clone());
+                if !st.set_variable(var.identifier.name, const_val.clone()) {
+                    if let Err(err) = st.insert_variable(
+                        var.identifier.name,
+                        VariableSymbol {
+                            type_: (&const_val).into(),
+                            span: var.identifier.span,
+                            declaration: match &input.declaration_type {
+                                Declare::Const => Declaration::Const(Some(const_val.clone())),
+                                Declare::Let => Declaration::Mut(Some(const_val.clone())),
+                            },
+                        },
+                    ) {
+                        self.handler.emit_err(err);
+                    }
+                }
             });
         }
 
@@ -57,6 +71,23 @@ impl<'a> StatementReconstructor for Flattener<'a> {
             variable_names: input.variable_names.clone(),
             type_: input.type_,
             value,
+            span: input.span,
+        })
+    }
+
+    fn reconstruct_conditional(&mut self, input: ConditionalStatement) -> Statement {
+        let (condition, const_value) = self.reconstruct_expression(input.condition);
+
+        let prev_non_const_block = self.non_const_block;
+        self.non_const_block = const_value.is_none() || prev_non_const_block;
+        let block = self.reconstruct_block(input.block);
+        let next = input.next.map(|n| Box::new(self.reconstruct_statement(*n)));
+        self.non_const_block = prev_non_const_block;
+
+        Statement::Conditional(ConditionalStatement {
+            condition,
+            block,
+            next,
             span: input.span,
         })
     }
@@ -108,6 +139,12 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                     statements: range
                         .into_iter()
                         .map(|iter_var| {
+                            let scope_index = self.symbol_table.borrow_mut().insert_block();
+                            let prev_st = std::mem::take(&mut self.symbol_table);
+                            self.symbol_table
+                                .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
+                            self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
+
                             self.symbol_table.borrow_mut().variables.insert(
                                 input.variable.name,
                                 VariableSymbol {
@@ -121,7 +158,6 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                                 },
                             );
 
-                            // TODO we should add new scopes for iteration.
                             let block = Statement::Block(Block {
                                 statements: input
                                     .block
@@ -135,6 +171,10 @@ impl<'a> StatementReconstructor for Flattener<'a> {
 
                             self.symbol_table.borrow_mut().variables.remove(&input.variable.name);
 
+                            let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
+                            self.symbol_table.swap(prev_st.get_block_scope(scope_index).unwrap());
+                            self.symbol_table = RefCell::new(prev_st);
+
                             block
                         })
                         .collect(),
@@ -143,10 +183,10 @@ impl<'a> StatementReconstructor for Flattener<'a> {
             }
             (None, Some(_)) => self
                 .handler
-                .emit_err(FlattenError::non_const_loop_bounds("stop", stop_expr.span())),
+                .emit_err(FlattenError::non_const_loop_bounds("start", start_expr.span())),
             (Some(_), None) => self
                 .handler
-                .emit_err(FlattenError::non_const_loop_bounds("start", start_expr.span())),
+                .emit_err(FlattenError::non_const_loop_bounds("stop", stop_expr.span())),
             (None, None) => {
                 self.handler
                     .emit_err(FlattenError::non_const_loop_bounds("start", start_expr.span()));

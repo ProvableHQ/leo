@@ -25,6 +25,8 @@ pub struct Flattener<'a> {
     pub(crate) block_index: usize,
     pub(crate) handler: &'a Handler,
     pub(crate) in_assign: bool,
+    pub(crate) negate: bool,
+    pub(crate) non_const_block: bool,
 }
 
 impl<'a> Flattener<'a> {
@@ -34,6 +36,8 @@ impl<'a> Flattener<'a> {
             block_index: 0,
             handler,
             in_assign: false,
+            negate: false,
+            non_const_block: false,
         }
     }
 }

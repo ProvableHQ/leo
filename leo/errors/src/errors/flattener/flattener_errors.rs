@@ -36,6 +36,14 @@ create_messages!(
         help: None,
     }
 
+    /// For when a constant operation would cause an overflow.
+    @formatted
+    negate_overflow {
+        args: (negated: impl Display),
+        msg: format!("The const negate operation `-{negated}` causes an overflow."),
+        help: None,
+    }
+
     /// For when a loop uses a negative value.
     @formatted
     loop_has_neg_value {

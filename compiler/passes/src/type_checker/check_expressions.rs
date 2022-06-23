@@ -106,21 +106,21 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
     fn visit_literal(&mut self, input: &'a LiteralExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match input {
-            LiteralExpression::Address(value, _) => self.assert_expected_option(
+            LiteralExpression::Address(value, span) => self.assert_expected_option(
                 Type::Address,
-                Some(Value::Address(value.clone(), input.span())),
+                Some(Value::Address(value.clone(), *span)),
                 expected,
                 input.span(),
             ),
-            LiteralExpression::Boolean(value, _) => self.assert_expected_option(
+            LiteralExpression::Boolean(value, span) => self.assert_expected_option(
                 Type::Boolean,
-                Some(Value::Boolean(*value, input.span())),
+                Some(Value::Boolean(*value, *span)),
                 expected,
                 input.span(),
             ),
-            LiteralExpression::Field(value, _) => self.assert_expected_option(
+            LiteralExpression::Field(value, span) => self.assert_expected_option(
                 Type::Field,
-                Some(Value::Field(value.clone(), input.span())),
+                Some(Value::Field(value.clone(), *span)),
                 expected,
                 input.span(),
             ),
@@ -256,9 +256,21 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     },
                 }
             }
-            LiteralExpression::Group(_) => self.assert_expected_option(Type::Group, None, expected, input.span()),
-            LiteralExpression::Scalar(_, _) => self.assert_expected_option(Type::Scalar, None, expected, input.span()),
-            LiteralExpression::String(_, _) => self.assert_expected_option(Type::String, None, expected, input.span()),
+            LiteralExpression::Group(value) => {
+                self.assert_expected_option(Type::Group, Some(Value::Group(value.clone())), expected, input.span())
+            }
+            LiteralExpression::Scalar(value, span) => self.assert_expected_option(
+                Type::Scalar,
+                Some(Value::Scalar(value.clone(), *span)),
+                expected,
+                input.span(),
+            ),
+            LiteralExpression::String(value, span) => self.assert_expected_option(
+                Type::String,
+                Some(Value::String(value.clone(), *span)),
+                expected,
+                input.span(),
+            ),
         }
     }
 

@@ -51,6 +51,16 @@ create_messages!(
         help: None,
     }
 
+    /// For when the user tries define a const value using a non const value.
+    @formatted
+    cannot_define_const_with_non_const {
+        args: (var: impl Display),
+        msg: format!(
+            "Cannot define constant var `{var}` with non-const value.",
+        ),
+        help: None,
+    }
+
     /// For when the user tries to assign to a const input.
     @formatted
     type_should_be {

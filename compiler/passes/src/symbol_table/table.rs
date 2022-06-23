@@ -35,7 +35,7 @@ pub struct SymbolTable {
     /// The variables defined in a scope.
     /// This field is populated as necessary.
     pub(crate) variables: IndexMap<Symbol, VariableSymbol>,
-    scope_index: usize,
+    pub(crate) scope_index: usize,
     pub(crate) scopes: Vec<RefCell<SymbolTable>>,
 }
 
@@ -87,6 +87,18 @@ impl SymbolTable {
         }
     }
 
+    pub fn variable_in_parent_scope(&self, symbol: Symbol) -> bool {
+        if let Some(parent) = self.parent.as_ref() {
+            if parent.variables.contains_key(&symbol) {
+                true
+            } else {
+                parent.variable_in_parent_scope(symbol)
+            }
+        } else {
+            false
+        }
+    }
+
     pub fn lookup_variable(&self, symbol: Symbol) -> Option<&VariableSymbol> {
         if let Some(var) = self.variables.get(&symbol) {
             Some(var)
@@ -97,17 +109,29 @@ impl SymbolTable {
         }
     }
 
-    pub fn set_variable(&mut self, symbol: Symbol, value: Value) {
+    pub fn lookup_variable_mut(&mut self, symbol: Symbol) -> Option<&mut VariableSymbol> {
+        if let Some(var) = self.variables.get_mut(&symbol) {
+            Some(var)
+        } else if let Some(parent) = self.parent.as_mut() {
+            parent.lookup_variable_mut(symbol)
+        } else {
+            None
+        }
+    }
+
+    pub fn set_variable(&mut self, symbol: Symbol, value: Value) -> bool {
         if let Some(var) = self.variables.get_mut(&symbol) {
             var.declaration = match &var.declaration {
                 Declaration::Const(_) => Declaration::Const(Some(value)),
                 Declaration::Mut(_) => Declaration::Mut(Some(value)),
                 other => other.clone(),
             };
+            true
         } else if let Some(parent) = &mut self.parent {
             parent.set_variable(symbol, value);
+            true
         } else {
-            panic!("variable {symbol} doesn't exist")
+            false
         }
     }
 

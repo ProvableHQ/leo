@@ -39,10 +39,10 @@ impl Declaration {
     }
 
     pub fn get_const_value(&self) -> Option<Value> {
-        if let Self::Const(Some(v)) = self {
-            Some(v.clone())
-        } else {
-            None
+        use Declaration::*;
+        match self {
+            Const(Some(v)) | Mut(Some(v)) => Some(v.clone()),
+            _ => None,
         }
     }
 
