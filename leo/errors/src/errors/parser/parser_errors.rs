@@ -379,7 +379,7 @@ create_messages!(
     @formatted
     circuit_functions_unstable {
         args: (),
-        msg: "Circuit functions are currently an unstable feature and are disabled in Leo for testnet3",
+        msg: "Circuit functions are currently an unstable feature and are disabled in Leo for testnet3.",
         help: None,
     }
 
@@ -387,7 +387,14 @@ create_messages!(
     @formatted
     circuit_constants_unstable {
         args: (),
-        msg: "Circuit constants are currently an unstable feature and are disabled in Leo for testnet3",
+        msg: "Circuit constants are currently an unstable feature and are disabled in Leo for testnet3.",
         help: None,
+    }
+
+    @formatted
+    invalid_associated_access {
+        args: (name: impl Display),
+        msg: format!("Invalid associated access call to circuit {name}."),
+        help: Some("Double colon `::` syntax is only supported for core circuits in Leo for testnet3.".to_string()),
     }
 );

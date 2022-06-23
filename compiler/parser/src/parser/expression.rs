@@ -258,10 +258,7 @@ impl ParserContext<'_> {
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// method call expression.
-    fn parse_method_call_expression(&mut self, receiver: Expression) -> Result<Expression> {
-        // Parse the method name.
-        let method = self.expect_ident()?;
-
+    fn parse_method_call_expression(&mut self, receiver: Expression, method: Identifier) -> Result<Expression> {
         // Parse the argument list.
         let (mut args, _, span) = self.parse_expr_tuple()?;
         let span = receiver.span() + span;
@@ -283,7 +280,6 @@ impl ParserContext<'_> {
             }))
         } else {
             // Either an invalid unary/binary operator, or more arguments given.
-            // todo: add circuit member access
             self.emit_err(ParserError::expr_arbitrary_method_call(span));
             Ok(Expression::Err(ErrExpression { span }))
         }
@@ -291,7 +287,14 @@ impl ParserContext<'_> {
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// static access expression.
-    fn parse_static_access_expression(&mut self, circuit_name: Expression) -> Result<Expression> {
+    fn parse_associated_access_expression(&mut self, circuit_name: Expression) -> Result<Expression> {
+        // Parse circuit name expression into circuit type.
+        let circuit_type = if let Expression::Identifier(ident) = circuit_name {
+            Type::Identifier(ident)
+        } else {
+            return Err(ParserError::invalid_associated_access(&circuit_name, circuit_name.span()).into());
+        };
+
         // Parse the circuit member name (can be variable or function name).
         let member_name = self.expect_ident()?;
 
@@ -300,18 +303,18 @@ impl ParserContext<'_> {
             // Parse the arguments
             let (args, _, end) = self.parse_expr_tuple()?;
 
-            // Return the static function access expression.
-            AccessExpression::AssociatedFunction(AssociatedFunctionCall {
+            // Return the circuit function.
+            AccessExpression::AssociatedFunction(AssociatedFunction {
                 span: circuit_name.span() + end,
-                inner: Box::new(circuit_name),
+                ty: circuit_type,
                 name: member_name,
                 args,
             })
         } else {
-            // Return the static variable access expression.
-            AccessExpression::AssociatedVariable(AssociatedVariableAccess {
+            // Return the circuit constant.
+            AccessExpression::AssociatedConstant(AssociatedConstant {
                 span: circuit_name.span() + member_name.span(),
-                inner: Box::new(circuit_name),
+                ty: circuit_type,
                 name: member_name,
             })
         }))
@@ -333,10 +336,23 @@ impl ParserContext<'_> {
         let mut expr = self.parse_primary_expression()?;
         loop {
             if self.eat(&Token::Dot) {
-                // Eat a method call on a type
-                expr = self.parse_method_call_expression(expr)?
+                // Parse the method name.
+                let name = self.expect_ident()?;
+
+                if self.check(&Token::LeftParen) {
+                    // Eat a method call on a type
+                    expr = self.parse_method_call_expression(expr, name)?
+                } else {
+                    // Eat a circuit member access.
+                    expr = Expression::Access(AccessExpression::Member(MemberAccess {
+                        span: expr.span(),
+                        inner: Box::new(expr),
+                        name,
+                    }))
+                }
             } else if self.eat(&Token::DoubleColon) {
-                expr = self.parse_static_access_expression(expr)?;
+                // Eat a core circuit constant or core circuit function call.
+                expr = self.parse_associated_access_expression(expr)?;
             } else if self.check(&Token::LeftParen) {
                 // Parse a function call that's by itself.
                 let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;

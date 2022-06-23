@@ -20,5 +20,5 @@ pub use member_access::*;
 mod associated_function_access;
 pub use associated_function_access::*;
 
-mod associated_variable_access;
-pub use associated_variable_access::*;
+mod associated_constant_access;
+pub use associated_constant_access::*;

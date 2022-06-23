@@ -113,12 +113,8 @@ impl<'a> TypeChecker<'a> {
 
     /// Emits an error if the `circuit` is not a core library circuit.
     /// Emits an error if the `function` is not supported by the circuit.
-    pub(crate) fn assert_core_circuit_call(
-        &self,
-        circuit: &Option<Type>,
-        function: &Identifier,
-    ) -> Option<CoreInstruction> {
-        if let Some(Type::Identifier(ident)) = circuit {
+    pub(crate) fn assert_core_circuit_call(&self, circuit: &Type, function: &Identifier) -> Option<CoreInstruction> {
+        if let Type::Identifier(ident) = circuit {
             // Lookup core circuit
             match CoreInstruction::from_symbols(ident.name, function.name) {
                 None => {

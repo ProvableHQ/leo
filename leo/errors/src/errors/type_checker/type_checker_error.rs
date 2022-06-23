@@ -202,4 +202,24 @@ create_messages!(
         ),
         help: None,
     }
+
+    /// Attempted to access an invalid circuit.
+    @formatted
+    invalid_circuit {
+        args: (circuit: impl Display),
+        msg: format!(
+            "Circuit {circuit} is not found in the current scope."
+        ),
+        help: None,
+    }
+
+    /// Attempted to access an invalid circuit variable.
+    @formatted
+    invalid_circuit_variable {
+        args: (variable: impl Display, circuit: impl Display),
+        msg: format!(
+            "Circuit variable {variable} is not a member of circuit {circuit}."
+        ),
+        help: None,
+    }
 );

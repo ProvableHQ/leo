@@ -67,13 +67,12 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
     ) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_access(input) {
             match input {
-                AccessExpression::Member(member) => self.visit_expression(&member.inner, additional),
-                AccessExpression::AssociatedVariable(member) => self.visit_expression(&member.inner, additional),
+                AccessExpression::Member(member) => return self.visit_expression(&member.inner, additional),
+                AccessExpression::AssociatedConstant(_member) => {},
                 AccessExpression::AssociatedFunction(member) => {
-                    member.args.iter().for_each(|member| {
-                        self.visit_expression(member, additional);
+                    member.args.iter().for_each(|expr| {
+                        self.visit_expression(expr, additional);
                     });
-                    self.visit_expression(&member.inner, additional)
                 }
             };
         }

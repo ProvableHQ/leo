@@ -24,7 +24,7 @@ use std::fmt;
 /// A member of a circuit definition.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CircuitMember {
-    // CAUTION: circuit functions are unstable for Leo testnet3.
+    // CAUTION: circuit constants are unstable for Leo testnet3.
     // /// A static constant in a circuit.
     // /// For example: `const foobar: u8 = 42;`.
     // CircuitConst(

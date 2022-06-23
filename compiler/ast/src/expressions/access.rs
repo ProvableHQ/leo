@@ -31,17 +31,17 @@ pub enum AccessExpression {
     Member(MemberAccess),
     // /// Access to a tuple field using its position, e.g., `tuple.1`.
     // Tuple(TupleAccess),
-    /// Access to an associated variable of a circuit.
-    AssociatedVariable(AssociatedVariableAccess),
-    /// Access to an associated function of a circuit.
-    AssociatedFunction(AssociatedFunctionCall),
+    /// Access to an associated variable of a circuit e.g `u8::MAX`.
+    AssociatedConstant(AssociatedConstant),
+    /// Access to an associated function of a circuit e.g `Pedersen64::hash()`.
+    AssociatedFunction(AssociatedFunction),
 }
 
 impl Node for AccessExpression {
     fn span(&self) -> Span {
         match self {
             AccessExpression::Member(n) => n.span(),
-            AccessExpression::AssociatedVariable(n) => n.span(),
+            AccessExpression::AssociatedConstant(n) => n.span(),
             AccessExpression::AssociatedFunction(n) => n.span(),
         }
     }
@@ -49,7 +49,7 @@ impl Node for AccessExpression {
     fn set_span(&mut self, span: Span) {
         match self {
             AccessExpression::Member(n) => n.set_span(span),
-            AccessExpression::AssociatedVariable(n) => n.set_span(span),
+            AccessExpression::AssociatedConstant(n) => n.set_span(span),
             AccessExpression::AssociatedFunction(n) => n.set_span(span),
         }
     }
@@ -64,7 +64,7 @@ impl fmt::Display for AccessExpression {
             // ArrayRange(access) => access.fmt(f),
             Member(access) => access.fmt(f),
             // Tuple(access) => access.fmt(f),
-            AssociatedVariable(access) => access.fmt(f),
+            AssociatedConstant(access) => access.fmt(f),
             AssociatedFunction(access) => access.fmt(f),
         }
     }

@@ -14,27 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier, Node};
+use crate::{Identifier, Node, Type};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// An access expression to an associated member variable., e.g. `u8::MAX`.
+/// An access expression to an circuit constant., e.g. `u8::MAX`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct AssociatedVariableAccess {
+pub struct AssociatedConstant {
     /// The inner circuit type.
-    pub inner: Box<Expression>,
-    /// The static circuit member variable that is being accessed.
+    pub ty: Type,
+    /// The circuit constant that is being accessed.
     pub name: Identifier,
     /// The span for the entire expression `Foo::bar()`.
     pub span: Span,
 }
 
-impl fmt::Display for AssociatedVariableAccess {
+impl fmt::Display for AssociatedConstant {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}::{}", self.inner, self.name)
+        write!(f, "{}::{}", self.ty, self.name)
     }
 }
 
-crate::simple_node_impl!(AssociatedVariableAccess);
+crate::simple_node_impl!(AssociatedConstant);
