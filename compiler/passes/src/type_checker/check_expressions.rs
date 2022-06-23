@@ -212,26 +212,6 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
         // CAUTION: This implementation only allows access to core circuits.
         if let VisitResult::VisitChildren = self.visitor.visit_access(input) {
             match input {
-                AccessExpression::Member(access) => {
-                    // Lookup circuit type.
-                    if let Some(circuit) = self.visitor.symbol_table.lookup_circuit(&access.name.name) {
-                        // Lookup circuit variable.
-                        if let Some(member) = circuit.members.iter().find(|member| member.name() == access.name.name) {
-                            match member {
-                                CircuitMember::CircuitVariable(_ident, type_) => return Some(type_.clone()),
-                            }
-                        } else {
-                            self.visitor.handler.emit_err(
-                                TypeCheckerError::invalid_circuit_variable(&access.name, &access.inner, access.span())
-                                    .into(),
-                            );
-                        }
-                    } else {
-                        self.visitor
-                            .handler
-                            .emit_err(TypeCheckerError::invalid_circuit(&access.inner, access.span()).into());
-                    }
-                }
                 AccessExpression::AssociatedFunction(access) => {
                     // Check core circuit name and function.
                     if let Some(core_instruction) = self.visitor.assert_core_circuit_call(&access.ty, &access.name) {
@@ -279,11 +259,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                             .emit_err(TypeCheckerError::invalid_access_expression(access, access.span()).into());
                     }
                 }
-                expr => self
-                    .visitor
-                    .handler
-                    .emit_err(TypeCheckerError::invalid_access_expression(expr, expr.span()).into()),
-                // todo: Add support for associated constants (u8::MAX).
+                _expr => {} // todo: Add support for associated constants (u8::MAX).
             }
         }
         None
@@ -670,7 +646,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
             circ.members.iter().for_each(|expected| match expected {
                 CircuitMember::CircuitVariable(name, type_) => {
                     // Lookup circuit variable name.
-                    if let Some(actual) = input.members.iter().find(|member| &member.identifier == name) {
+                    if let Some(actual) = input.members.iter().find(|member| member.identifier.name == name.name) {
                         if let Some(expr) = &actual.expression {
                             self.visit_expression(expr, &Some(*type_));
                         }
