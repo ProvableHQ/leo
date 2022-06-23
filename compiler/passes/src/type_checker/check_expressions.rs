@@ -26,6 +26,8 @@ fn return_incorrect_type(
     expected: &Option<Type>,
 ) -> TypeOutput {
     match (t1, t2) {
+        (Some(_), None) | (None, Some(_)) | (None, None) => TypeOutput::None,
+        _ if value.is_some() => TypeOutput::Const(value.unwrap()),
         (Some(t1), Some(t2)) if t1 == t2 => TypeOutput::Type(t1),
         (Some(t1), Some(t2)) => {
             if let Some(expected) = expected {
@@ -38,8 +40,6 @@ fn return_incorrect_type(
                 TypeOutput::Type(t1)
             }
         }
-        _ if value.is_some() => TypeOutput::Const(value.unwrap()),
-        _ => TypeOutput::None,
     }
 }
 
@@ -48,6 +48,16 @@ pub enum TypeOutput {
     Type(Type),
     Const(Value),
     None,
+}
+
+impl TypeOutput {
+    fn get_value(&self) -> Option<Value> {
+        if let Self::Const(v) = self {
+            Some(v.clone())
+        } else {
+            None
+        }
+    }
 }
 
 impl From<TypeOutput> for Option<Type> {
@@ -477,12 +487,18 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_ternary(&mut self, input: &'a TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        self.visit_expression(&input.condition, &Some(Type::Boolean));
+        let cond = self.visit_expression(&input.condition, &Some(Type::Boolean));
 
-        let t1 = self.visit_expression(&input.if_true, expected).into();
-        let t2 = self.visit_expression(&input.if_false, expected).into();
+        let t1 = self.visit_expression(&input.if_true, expected);
+        let t2 = self.visit_expression(&input.if_false, expected);
 
-        return_incorrect_type(t1, t2, None, expected)
+        let out = match cond {
+            TypeOutput::Const(Value::Boolean(true, ..)) => t1.get_value(),
+            TypeOutput::Const(Value::Boolean(false, ..)) => t2.get_value(),
+            _ => None,
+        };
+
+        return_incorrect_type(t1.into(), t2.into(), out, expected)
     }
 
     fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
