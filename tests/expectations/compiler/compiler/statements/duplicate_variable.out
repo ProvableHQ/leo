@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EAST0372016]: variable `x` shadowed by\n    --> compiler-test:5:4\n     |\n   5 |   \tlet x: bool = true;\n     |    ^^^^^^^^^^^^^^^^^^\n"
