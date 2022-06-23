@@ -23,24 +23,27 @@ use crate::{Declaration, Flattener, Value, VariableSymbol};
 
 impl<'a> StatementReconstructor for Flattener<'a> {
     fn reconstruct_assign(&mut self, input: AssignStatement) -> Statement {
-        self.in_assign = true;
-        let (place, place_value) = self.reconstruct_expression(input.place);
-        let var_name = match place {
-            Expression::Identifier(var) => var.name,
-            _ => unreachable!(),
+        let place = self.reconstruct_expression(input.place).0;
+        let var_name = if let Expression::Identifier(var) = place {
+            var.name
+        } else {
+            unreachable!()
         };
-        self.in_assign = false;
 
         let (value, const_val) = self.reconstruct_expression(input.value);
-        let mut st = self.symbol_table.borrow_mut();
-        let var_in_parent = st.variable_in_parent_scope(var_name);
 
-        if place_value.is_some() && self.non_const_block && var_in_parent {
-            if let Some(const_val) = const_val {
-                st.set_variable(var_name, const_val);
+        let mut st = self.symbol_table.borrow_mut();
+        let var_in_local = st.variable_in_local_scope(&var_name);
+
+        if let Some(c) = const_val {
+            if !self.non_const_block || var_in_local {
+                st.set_variable(&var_name, c);
+            } else {
+                st.deconstify_variable(&var_name);
+                st.locally_constify_variable(var_name, c);
             }
-        } else if const_val.is_some() && !(self.non_const_block && var_in_parent) {
-            st.set_variable(var_name, const_val.unwrap());
+        } else if !var_in_local {
+            st.deconstify_variable(&var_name);
         }
 
         Statement::Assign(Box::new(AssignStatement {
@@ -57,7 +60,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
 
         if let Some(const_val) = const_val {
             input.variable_names.iter().for_each(|var| {
-                if !st.set_variable(var.identifier.name, const_val.clone()) {
+                if !st.set_variable(&var.identifier.name, const_val.clone()) {
                     if let Err(err) = st.insert_variable(
                         var.identifier.name,
                         VariableSymbol {

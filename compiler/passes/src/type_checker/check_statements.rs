@@ -27,7 +27,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // statements should always have some parent block
         let parent = self.parent.unwrap();
 
-        let return_type = &self.symbol_table.borrow().lookup_fn(parent).map(|f| f.type_);
+        let return_type = &self.symbol_table.borrow().lookup_fn(&parent).map(|f| f.type_);
         self.validate_ident_type(return_type);
         self.has_return = true;
 
@@ -74,8 +74,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
         };
 
-        let var_in_parent = self.symbol_table.borrow().variable_in_parent_scope(var_name.name);
-        let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable_mut(var_name.name) {
+        let var_in_parent = self.symbol_table.borrow().variable_in_parent_scope(&var_name.name);
+        let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable_mut(&var_name.name) {
             match &var.declaration {
                 Declaration::Const(_) => self.handler.emit_err(TypeCheckerError::cannot_assign_to_const_var(
                     var_name,
@@ -102,7 +102,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             self.validate_ident_type(&var_type);
             if let TypeOutput::Const(const_val) = self.visit_expression(&input.value, &var_type) {
                 if self.non_const_block && var_in_parent {
-                    self.symbol_table.borrow_mut().set_variable(var_name.name, const_val);
+                    self.symbol_table.borrow_mut().set_variable(&var_name.name, const_val);
                 }
             }
         }

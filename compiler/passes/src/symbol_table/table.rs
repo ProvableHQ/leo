@@ -77,8 +77,8 @@ impl SymbolTable {
         self.scope_index()
     }
 
-    pub fn lookup_fn(&self, symbol: Symbol) -> Option<&FunctionSymbol> {
-        if let Some(func) = self.functions.get(&symbol) {
+    pub fn lookup_fn(&self, symbol: &Symbol) -> Option<&FunctionSymbol> {
+        if let Some(func) = self.functions.get(symbol) {
             Some(func)
         } else if let Some(parent) = self.parent.as_ref() {
             parent.lookup_fn(symbol)
@@ -87,9 +87,13 @@ impl SymbolTable {
         }
     }
 
-    pub fn variable_in_parent_scope(&self, symbol: Symbol) -> bool {
+    pub fn variable_in_local_scope(&self, symbol: &Symbol) -> bool {
+        self.variables.contains_key(symbol)
+    }
+
+    pub fn variable_in_parent_scope(&self, symbol: &Symbol) -> bool {
         if let Some(parent) = self.parent.as_ref() {
-            if parent.variables.contains_key(&symbol) {
+            if parent.variables.contains_key(symbol) {
                 true
             } else {
                 parent.variable_in_parent_scope(symbol)
@@ -99,8 +103,8 @@ impl SymbolTable {
         }
     }
 
-    pub fn lookup_variable(&self, symbol: Symbol) -> Option<&VariableSymbol> {
-        if let Some(var) = self.variables.get(&symbol) {
+    pub fn lookup_variable(&self, symbol: &Symbol) -> Option<&VariableSymbol> {
+        if let Some(var) = self.variables.get(symbol) {
             Some(var)
         } else if let Some(parent) = self.parent.as_ref() {
             parent.lookup_variable(symbol)
@@ -109,8 +113,8 @@ impl SymbolTable {
         }
     }
 
-    pub fn lookup_variable_mut(&mut self, symbol: Symbol) -> Option<&mut VariableSymbol> {
-        if let Some(var) = self.variables.get_mut(&symbol) {
+    pub fn lookup_variable_mut(&mut self, symbol: &Symbol) -> Option<&mut VariableSymbol> {
+        if let Some(var) = self.variables.get_mut(symbol) {
             Some(var)
         } else if let Some(parent) = self.parent.as_mut() {
             parent.lookup_variable_mut(symbol)
@@ -119,8 +123,18 @@ impl SymbolTable {
         }
     }
 
-    pub fn set_variable(&mut self, symbol: Symbol, value: Value) -> bool {
-        if let Some(var) = self.variables.get_mut(&symbol) {
+    /// finds the variable in the parent scope, then SHADOWS it in the local scope with a mut const value
+    pub fn locally_constify_variable(&mut self, symbol: Symbol, value: Value) {
+        let mut var = self
+            .lookup_variable(&symbol)
+            .expect("attempting to constify non-existent variable")
+            .clone();
+        var.declaration = Declaration::Mut(Some(value));
+        self.variables.insert(symbol, var);
+    }
+
+    pub fn set_variable(&mut self, symbol: &Symbol, value: Value) -> bool {
+        if let Some(var) = self.variables.get_mut(symbol) {
             var.declaration = match &var.declaration {
                 Declaration::Const(_) => Declaration::Const(Some(value)),
                 Declaration::Mut(_) => Declaration::Mut(Some(value)),
@@ -135,8 +149,14 @@ impl SymbolTable {
         }
     }
 
-    pub fn get_fn_scope(&self, symbol: Symbol) -> Option<&RefCell<Self>> {
-        if let Some(func) = self.functions.get(&symbol) {
+    /// finds the variable and replaces it with a non-const mutable value
+    pub fn deconstify_variable(&mut self, symbol: &Symbol) {
+        let mut var = self.lookup_variable_mut(symbol).unwrap();
+        var.declaration = Declaration::Mut(None);
+    }
+
+    pub fn get_fn_scope(&self, symbol: &Symbol) -> Option<&RefCell<Self>> {
+        if let Some(func) = self.functions.get(symbol) {
             self.scopes.get(func.id)
         } else if let Some(parent) = self.parent.as_ref() {
             parent.get_fn_scope(symbol)

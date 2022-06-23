@@ -105,7 +105,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
-        if let Some(var) = self.symbol_table.borrow().lookup_variable(input.name).cloned() {
+        if let Some(var) = self.symbol_table.borrow().lookup_variable(&input.name).cloned() {
             self.assert_expected_option(var.type_, var.get_const_value(*input), expected, var.span)
         } else {
             self.handler
@@ -506,7 +506,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             Expression::Identifier(ident) => {
                 // the function symbol lookup is purposely done outside of the `if let` to avoid a RefCell lifetime bug in rust.
                 // dont move it into the `if let` or it will keep the `symbol_table` alive for the entire block and will be very memory inefficient!
-                let f = self.symbol_table.borrow().lookup_fn(ident.name).cloned();
+                let f = self.symbol_table.borrow().lookup_fn(&ident.name).cloned();
                 if let Some(func) = f {
                     let ret = self.assert_expected_option(func.type_, None, expected, func.span);
 

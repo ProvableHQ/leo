@@ -23,20 +23,16 @@ use crate::Value;
 impl<'a> ExpressionReconstructor for Flattener<'a> {
     type AdditionalOutput = Option<Value>;
     fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
-        let var_in_parent = self.symbol_table.borrow().variable_in_parent_scope(input.name);
-        let mut st = self.symbol_table.borrow_mut();
-        let mut var = st.lookup_variable_mut(input.name).unwrap();
+        let st = self.symbol_table.borrow();
+        let var = st.lookup_variable(&input.name).unwrap();
 
-        match &var.declaration {
-            Declaration::Mut(Some(_)) if self.non_const_block && var_in_parent => {
-                var.declaration = Declaration::Mut(None);
-                (Expression::Identifier(input), None)
-            }
-            Declaration::Const(Some(c)) | Declaration::Mut(Some(c)) if !self.in_assign => {
-                (Expression::Literal(c.clone().into()), Some(c.clone()))
-            }
-            _ => (Expression::Identifier(input), None),
-        }
+        let val = if let Declaration::Const(Some(c)) | Declaration::Mut(Some(c)) = &var.declaration {
+            Some(c.clone())
+        } else {
+            None
+        };
+
+        (Expression::Identifier(input), val)
     }
 
     fn reconstruct_unary(&mut self, input: UnaryExpression) -> (Expression, Self::AdditionalOutput) {
