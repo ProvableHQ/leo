@@ -49,56 +49,59 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
         if let VisitResult::VisitChildren = self.visitor.visit_expression(input) {
             return match input {
                 Expression::Access(expr) => self.visit_access(expr, expected),
+                Expression::Identifier(expr) => self.visit_identifier(expr, expected),
+                Expression::Literal(expr) => self.visit_literal(expr, expected),
                 Expression::Binary(expr) => self.visit_binary(expr, expected),
                 Expression::Call(expr) => self.visit_call(expr, expected),
                 Expression::CircuitInit(expr) => self.visit_circuit_init(expr, expected),
                 Expression::Err(expr) => self.visit_err(expr, expected),
-                Expression::Identifier(expr) => self.visit_identifier(expr, expected),
                 Expression::Ternary(expr) => self.visit_ternary(expr, expected),
                 Expression::Unary(expr) => self.visit_unary(expr, expected),
-                Expression::Value(expr) => self.visit_value(expr, expected),
             };
         }
 
         None
     }
 
-    fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Option<Self::Output> {
-        if let VisitResult::VisitChildren = self.visitor.visit_identifier(input) {
-            return if let Some(circuit) = self.visitor.symbol_table.clone().lookup_circuit(&input.name) {
-                Some(self.visitor.assert_expected_option(
-                    Type::Identifier(circuit.identifier.clone()),
-                    expected,
-                    circuit.span(),
-                ))
-            } else if let Some(var) = self.visitor.symbol_table.clone().lookup_variable(&input.name) {
-                Some(self.visitor.assert_expected_option(*var.type_, expected, var.span))
+    fn visit_identifier(&mut self, var: &'a Identifier, expected: &Self::AdditionalInput) -> Option<Self::Output> {
+        if let Some(circuit) = self.visitor.symbol_table.clone().lookup_circuit(&var.name) {
+            return Some(self.visitor.assert_expected_option(
+                Type::Identifier(circuit.identifier.clone()),
+                expected,
+                circuit.span(),
+            ));
+        } else if let VisitResult::VisitChildren = self.visitor.visit_identifier(var) {
+            if let Some(var) = self.visitor.symbol_table.clone().lookup_variable(&var.name) {
+                return Some(self.visitor.assert_expected_option(*var.type_, expected, var.span));
             } else {
                 self.visitor
                     .handler
-                    .emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span()).into());
-                None
+                    .emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()).into());
             };
         }
 
         None
     }
 
-    fn visit_value(&mut self, input: &'a ValueExpression, expected: &Self::AdditionalInput) -> Option<Self::Output> {
-        if let VisitResult::VisitChildren = self.visitor.visit_value(input) {
+    fn visit_literal(
+        &mut self,
+        input: &'a LiteralExpression,
+        expected: &Self::AdditionalInput,
+    ) -> Option<Self::Output> {
+        if let VisitResult::VisitChildren = self.visitor.visit_literal(input) {
             return Some(match input {
-                ValueExpression::Address(_, _) => {
+                LiteralExpression::Address(_, _) => {
                     self.visitor
                         .assert_expected_option(Type::Address, expected, input.span())
                 }
-                ValueExpression::Boolean(_, _) => {
+                LiteralExpression::Boolean(_, _) => {
                     self.visitor
                         .assert_expected_option(Type::Boolean, expected, input.span())
                 }
-                ValueExpression::Field(_, _) => {
+                LiteralExpression::Field(_, _) => {
                     self.visitor.assert_expected_option(Type::Field, expected, input.span())
                 }
-                ValueExpression::Integer(type_, str_content, _) => {
+                LiteralExpression::Integer(type_, str_content, _) => {
                     match type_ {
                         IntegerType::I8 => {
                             let int = if self.visitor.negate {
@@ -190,12 +193,12 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     self.visitor
                         .assert_expected_option(Type::IntegerType(*type_), expected, input.span())
                 }
-                ValueExpression::Group(_) => self.visitor.assert_expected_option(Type::Group, expected, input.span()),
-                ValueExpression::Scalar(_, _) => {
+                LiteralExpression::Group(_) => self.visitor.assert_expected_option(Type::Group, expected, input.span()),
+                LiteralExpression::Scalar(_, _) => {
                     self.visitor
                         .assert_expected_option(Type::Scalar, expected, input.span())
                 }
-                ValueExpression::String(_, _) => {
+                LiteralExpression::String(_, _) => {
                     self.visitor
                         .assert_expected_option(Type::String, expected, input.span())
                 }
@@ -605,7 +608,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
     fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Option<Self::Output> {
         match &*input.function {
             Expression::Identifier(ident) => {
-                if let Some(func) = self.visitor.symbol_table.clone().lookup_fn(&ident.name) {
+                if let Some(func) = self.visitor.symbol_table.clone().lookup_fn(ident.name) {
                     let ret = self.visitor.assert_expected_option(func.output, expected, func.span());
 
                     // Check number of function arguments.

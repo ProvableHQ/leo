@@ -1,5 +1,5 @@
 /*
-namespace: ParseStatement
+namespace: Compile
 expectation: Fail
 */
 
@@ -26,5 +26,7 @@ x as u32 = y;
 x {x: y, y: z} = y;
 
 x() = y;
+
+x.y() = y;
 
 🦀 = y;

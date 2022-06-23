@@ -35,8 +35,8 @@ pub struct VariableScope<'a> {
 }
 
 impl<'a> VariableScope<'a> {
-    pub fn check_shadowing(&self, symbol: &Symbol, span: Span) -> Result<()> {
-        if self.variables.contains_key(symbol) {
+    pub fn check_shadowing(&self, symbol: Symbol, span: Span) -> Result<()> {
+        if self.variables.contains_key(&symbol) {
             Err(AstError::shadowed_variable(symbol, span).into())
         } else if let Some(parent) = &self.parent {
             parent.check_shadowing(symbol, span)

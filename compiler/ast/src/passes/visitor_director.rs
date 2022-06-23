@@ -36,14 +36,14 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_expression(input) {
             match input {
                 Expression::Access(expr) => self.visit_access(expr, additional),
+                Expression::Identifier(expr) => self.visit_identifier(expr, additional),
+                Expression::Literal(expr) => self.visit_literal(expr, additional),
                 Expression::Binary(expr) => self.visit_binary(expr, additional),
                 Expression::Call(expr) => self.visit_call(expr, additional),
                 Expression::CircuitInit(expr) => self.visit_circuit_init(expr, additional),
                 Expression::Err(expr) => self.visit_err(expr, additional),
-                Expression::Identifier(expr) => self.visit_identifier(expr, additional),
                 Expression::Ternary(expr) => self.visit_ternary(expr, additional),
                 Expression::Unary(expr) => self.visit_unary(expr, additional),
-                Expression::Value(expr) => self.visit_value(expr, additional),
             };
         }
 
@@ -55,8 +55,12 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
         None
     }
 
-    fn visit_value(&mut self, input: &'a ValueExpression, _additional: &Self::AdditionalInput) -> Option<Self::Output> {
-        self.visitor_ref().visit_value(input);
+    fn visit_literal(
+        &mut self,
+        input: &'a LiteralExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> Option<Self::Output> {
+        self.visitor_ref().visit_literal(input);
         None
     }
 

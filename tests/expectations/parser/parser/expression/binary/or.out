@@ -4,16 +4,16 @@ expectation: Pass
 outputs:
   - Binary:
       left:
-        Value:
+        Literal:
           Boolean:
-            - "true"
+            - true
             - span:
                 lo: 0
                 hi: 4
       right:
-        Value:
+        Literal:
           Boolean:
-            - "true"
+            - true
             - span:
                 lo: 8
                 hi: 12
@@ -23,16 +23,16 @@ outputs:
         hi: 12
   - Binary:
       left:
-        Value:
+        Literal:
           Boolean:
-            - "false"
+            - false
             - span:
                 lo: 0
                 hi: 5
       right:
-        Value:
+        Literal:
           Boolean:
-            - "true"
+            - true
             - span:
                 lo: 7
                 hi: 11
@@ -44,16 +44,16 @@ outputs:
       left:
         Binary:
           left:
-            Value:
+            Literal:
               Boolean:
-                - "true"
+                - true
                 - span:
                     lo: 0
                     hi: 4
           right:
-            Value:
+            Literal:
               Boolean:
-                - "false"
+                - false
                 - span:
                     lo: 6
                     hi: 11
@@ -62,9 +62,9 @@ outputs:
             lo: 0
             hi: 11
       right:
-        Value:
+        Literal:
           Boolean:
-            - "false"
+            - false
             - span:
                 lo: 15
                 hi: 20
@@ -78,16 +78,16 @@ outputs:
           left:
             Binary:
               left:
-                Value:
+                Literal:
                   Boolean:
-                    - "true"
+                    - true
                     - span:
                         lo: 0
                         hi: 4
               right:
-                Value:
+                Literal:
                   Boolean:
-                    - "false"
+                    - false
                     - span:
                         lo: 8
                         hi: 13
@@ -96,9 +96,9 @@ outputs:
                 lo: 0
                 hi: 13
           right:
-            Value:
+            Literal:
               Boolean:
-                - "true"
+                - true
                 - span:
                     lo: 17
                     hi: 21
@@ -107,9 +107,9 @@ outputs:
             lo: 0
             hi: 21
       right:
-        Value:
+        Literal:
           Boolean:
-            - "false"
+            - false
             - span:
                 lo: 25
                 hi: 30
@@ -121,25 +121,25 @@ outputs:
       left:
         Binary:
           left:
-            Value:
+            Literal:
               Boolean:
-                - "true"
+                - true
                 - span:
                     lo: 0
                     hi: 4
           right:
             Binary:
               left:
-                Value:
+                Literal:
                   Boolean:
-                    - "true"
+                    - true
                     - span:
                         lo: 9
                         hi: 13
               right:
-                Value:
+                Literal:
                   Boolean:
-                    - "false"
+                    - false
                     - span:
                         lo: 17
                         hi: 22
@@ -152,9 +152,9 @@ outputs:
             lo: 0
             hi: 22
       right:
-        Value:
+        Literal:
           Boolean:
-            - "true"
+            - true
             - span:
                 lo: 27
                 hi: 31
