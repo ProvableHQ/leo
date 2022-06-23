@@ -575,9 +575,9 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     return self.visit_expression(&input.receiver, destination);
                 }
                 UnaryOperation::SquareRoot => {
-                    // Assert field type only.
+                    // Assert field or scalar type.
                     self.visitor
-                        .assert_expected_type(destination, Type::Field, input.span());
+                        .assert_field_scalar_type(destination, input.span());
                     return self.visit_expression(&input.receiver, destination);
                 }
             }

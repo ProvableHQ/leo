@@ -359,19 +359,19 @@ create_messages!(
         help: None,
     }
 
-    /// Previously, expression statements were allowed, but not anymore.
+    /// Parsed an expression statement.
     @formatted
     expr_stmts_disallowed {
         args: (),
-        msg: "Expression statements are no longer supported.",
+        msg: "Expression statements are not supported.",
         help: None,
     }
 
-    /// Previously, arbitrary methods were allowed, but not anymore.
+    /// Parsed an unknown method call on the type of an expression.
     @formatted
-    expr_arbitrary_method_call {
-        args: (),
-        msg: "Arbitrary methods calls are not supported. Only special ones are.",
+    invalid_method_call {
+        args: (expr: impl Display, func: impl Display),
+        msg: format!("The type of `{expr}` has no associated function `{func}`"),
         help: None,
     }
 

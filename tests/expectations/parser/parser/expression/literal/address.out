@@ -1,0 +1,10 @@
+---
+namespace: Token
+expectation: Pass
+outputs:
+  - "'aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9' @ 1:1-64"
+  - "'ALEO1' @ 1:1-6"
+  - "'Aleo1' @ 1:1-6"
+  - "'aleO1' @ 1:1-6"
+  - "'aleo2qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57d9' @ 1:1-64"
+  - "'bleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57d9' @ 1:1-64"

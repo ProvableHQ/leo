@@ -18,9 +18,9 @@ function main(a: i32, b: i32) -> bool {
     let m: i32 = a.div(b);
     let n: i32 = a.div_wrapped(b);
     let o: bool = a.eq(b);
-    let p: bool = a.ge(b);
+    let p: bool = a.gte(b);
     let q: bool = a.gt(b);
-    let r: bool = a.le(b);
+    let r: bool = a.lte(b);
     let s: bool = a.lt(b);
     let t: i32 = a.mul(b);
     let u: i32 = a.mul_wrapped(b);

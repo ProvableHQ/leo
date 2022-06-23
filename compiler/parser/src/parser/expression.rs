@@ -280,7 +280,7 @@ impl ParserContext<'_> {
             }))
         } else {
             // Either an invalid unary/binary operator, or more arguments given.
-            self.emit_err(ParserError::expr_arbitrary_method_call(span));
+            self.emit_err(ParserError::invalid_method_call(receiver, method, span));
             Ok(Expression::Err(ErrExpression { span }))
         }
     }

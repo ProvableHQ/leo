@@ -1,0 +1,7 @@
+---
+namespace: ParseExpression
+expectation: Fail
+outputs:
+  - "did not consume all input: '<' @ 1:11-12\n'3' @ 1:13-14\n'u8' @ 1:14-16\n"
+  - "did not consume all input: '<' @ 1:11-12\n'3' @ 1:13-14\n'u8' @ 1:14-16\n"
+  - "did not consume all input: '<' @ 1:23-24\n'5' @ 1:25-26\n'u8' @ 1:26-28\n'+' @ 1:29-30\n'6' @ 1:31-32\n'u8' @ 1:32-34\n"

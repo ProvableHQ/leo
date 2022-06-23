@@ -87,6 +87,8 @@ const FIELD_GROUP_SCALAR_INT_TYPES: [Type; 13] = create_type_superset(FIELD_GROU
 
 const FIELD_GROUP_TYPES: [Type; 2] = [Type::Field, Type::Group];
 
+const FIELD_SCALAR_TYPES: [Type; 2] = [Type::Field, Type::Scalar];
+
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
     pub fn new(symbol_table: &'a mut SymbolTable<'a>, handler: &'a Handler) -> Self {
@@ -208,6 +210,11 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error to the handler if the given type is not a field or group.
     pub(crate) fn assert_field_group_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &FIELD_GROUP_TYPES, span)
+    }
+
+    /// Emits an error to the handler if the given type is not a field or scalar.
+    pub(crate) fn assert_field_scalar_type(&self, type_: &Option<Type>, span: Span) {
+        self.assert_one_of_types(type_, &FIELD_SCALAR_TYPES, span)
     }
 
     /// Emits an error to the handler if the given type is not a field, group, or integer.
