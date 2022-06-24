@@ -96,6 +96,7 @@ impl Namespace for CompileNamespace {
 #[derive(Deserialize, PartialEq, Serialize)]
 struct OutputItem {
     pub initial_input_ast: String,
+    pub flattened_ast: String,
 }
 
 #[derive(Deserialize, PartialEq, Serialize)]
@@ -187,7 +188,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         cwd.join(&val.as_str().unwrap())
     });
 
-    let mut parsed = handler.extend_if_error(parse_program(handler, &test.content, cwd))?;
+    let parsed = handler.extend_if_error(parse_program(handler, &test.content, cwd))?;
 
     // (name, content)
     let inputs = buffer_if_err(err_buf, collect_all_inputs(&test))?;
@@ -197,18 +198,22 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     if inputs.is_empty() {
         output_items.push(OutputItem {
             initial_input_ast: "no input".to_string(),
+            flattened_ast: "no input".to_string(),
         });
     } else {
         for input in inputs {
             let mut parsed = parsed.clone();
             handler.extend_if_error(parsed.parse_input(input))?;
+            handler.extend_if_error(compile_and_process(&mut parsed))?;
             let initial_input_ast = hash_file("/tmp/output/initial_input_ast.json");
+            let flattened_ast = hash_file("/tmp/output/flattened_ast.json");
 
-            output_items.push(OutputItem { initial_input_ast });
+            output_items.push(OutputItem {
+                initial_input_ast,
+                flattened_ast,
+            });
         }
     }
-
-    handler.extend_if_error(compile_and_process(&mut parsed))?;
 
     let initial_ast = hash_file("/tmp/output/initial_ast.json");
 
