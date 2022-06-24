@@ -17,13 +17,14 @@
 use super::*;
 
 use leo_errors::{ParserError, ParserWarning, Result};
-use leo_span::sym;
+use leo_span::{sym, Symbol};
 
 impl ParserContext<'_> {
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     pub fn parse_program(&mut self) -> Result<Program> {
         let mut functions = IndexMap::new();
         let mut circuits = IndexMap::new();
+        let mut records = IndexMap::new();
 
         while self.has_next() {
             match &self.token.token {
@@ -36,10 +37,13 @@ impl ParserContext<'_> {
                     functions.insert(id, function);
                 }
                 Token::Ident(sym::test) => return Err(ParserError::test_function(self.token.span).into()),
-                // Const functions share the first token with the global Const.
                 Token::Function => {
                     let (id, function) = self.parse_function()?;
                     functions.insert(id, function);
+                }
+                Token::Record => {
+                    let (id, record) = self.parse_record()?;
+                    records.insert(id, record);
                 }
 
                 _ => return Err(Self::unexpected_item(&self.token).into()),
@@ -50,6 +54,7 @@ impl ParserContext<'_> {
             expected_input: Vec::new(),
             functions,
             circuits,
+            records,
         })
     }
 
@@ -65,9 +70,9 @@ impl ParserContext<'_> {
         )
     }
 
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
+    /// Returns a [`Vec<CircuitMember>`] AST node if the next tokens represent a circuit member variable
     /// or circuit member function or circuit member constant.
-    pub fn parse_circuit_declaration(&mut self) -> Result<(Vec<CircuitMember>, Span)> {
+    pub fn parse_circuit_members(&mut self) -> Result<(Vec<CircuitMember>, Span)> {
         let mut members = Vec::new();
 
         let (mut semi_colons, mut commas) = (false, false);
@@ -106,7 +111,7 @@ impl ParserContext<'_> {
     }
 
     /// Parses `IDENT: TYPE`.
-    fn parse_typed_field_name(&mut self) -> Result<(Identifier, Type)> {
+    fn parse_member(&mut self) -> Result<(Identifier, Type)> {
         let name = self.expect_ident()?;
         self.expect(&Token::Colon)?;
         let type_ = self.parse_all_types()?.0;
@@ -120,7 +125,7 @@ impl ParserContext<'_> {
         self.expect(&Token::Const)?;
 
         // `IDENT: TYPE = EXPR`:
-        let (_name, _type_) = self.parse_typed_field_name()?;
+        let (_name, _type_) = self.parse_member()?;
         self.expect(&Token::Assign)?;
         let expr = self.parse_expression()?;
 
@@ -134,7 +139,7 @@ impl ParserContext<'_> {
 
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.
     pub fn parse_member_variable_declaration(&mut self) -> Result<CircuitMember> {
-        let (name, type_) = self.parse_typed_field_name()?;
+        let (name, type_) = self.parse_member()?;
 
         Ok(CircuitMember::CircuitVariable(name, type_))
     }
@@ -152,19 +157,97 @@ impl ParserContext<'_> {
         }
     }
 
-    /// Returns an [`(Identifier, Function)`] ast node if the next tokens represent a circuit declaration.
+    /// Returns an [`(Identifier, Circuit)`] ast node if the next tokens represent a circuit declaration.
     pub(super) fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
         let start = self.expect(&Token::Circuit)?;
         let circuit_name = self.expect_ident()?;
 
         self.expect(&Token::LeftCurly)?;
-        let (members, end) = self.parse_circuit_declaration()?;
+        let (members, end) = self.parse_circuit_members()?;
 
         Ok((
             circuit_name.clone(),
             Circuit {
                 identifier: circuit_name,
                 members,
+                span: start + end,
+            },
+        ))
+    }
+
+    /// Parse the member name and type or emit an error.
+    /// Only used for `record` type.
+    /// We complete this check at parse time rather than during type checking to enforce
+    /// ordering, naming, and type as early as possible for program records.
+    fn parse_record_variable_exact(&mut self, expected_name: Symbol, expected_type: Type) -> Result<RecordVariable> {
+        let actual_name = self.expect_ident()?;
+        self.expect(&Token::Colon)?;
+        let actual_type = self.parse_all_types()?.0;
+
+        if expected_name != actual_name.name || expected_type != actual_type {
+            return Err(ParserError::required_record_variable(expected_name, expected_type, actual_name.span()).into());
+        }
+
+        Ok(RecordVariable::new(actual_name, actual_type))
+    }
+
+    /// Returns a [`RecordVariable`] AST node if the next tokens represent a record variable.
+    pub fn parse_record_variable(&mut self) -> Result<RecordVariable> {
+        let (ident, type_) = self.parse_member()?;
+
+        Ok(RecordVariable::new(ident, type_))
+    }
+
+    /// Returns a [`Vec<RecordVariable>`] AST node if the next tokens represent one or more
+    /// user defined record variables.
+    pub fn parse_record_data(&mut self) -> Result<(Vec<RecordVariable>, Span)> {
+        let mut data = Vec::new();
+
+        let (mut semi_colons, mut commas) = (false, false);
+        while !self.check(&Token::RightCurly) {
+            data.push({
+                let variable = self.parse_record_variable()?;
+
+                if self.eat(&Token::Semicolon) {
+                    if commas {
+                        self.emit_err(ParserError::mixed_commas_and_semicolons(self.token.span));
+                    }
+                    semi_colons = true;
+                }
+
+                if self.eat(&Token::Comma) {
+                    if semi_colons {
+                        self.emit_err(ParserError::mixed_commas_and_semicolons(self.token.span));
+                    }
+                    commas = true;
+                }
+
+                variable
+            });
+        }
+
+        let span = self.expect(&Token::RightCurly)?;
+
+        Ok((data, span))
+    }
+
+    /// Returns an [`(Identifier, Circuit)`] ast node if the next tokens represent a record declaration.
+    pub(super) fn parse_record(&mut self) -> Result<(Identifier, Record)> {
+        let start = self.expect(&Token::Record)?;
+        let record_name = self.expect_ident()?;
+
+        self.expect(&Token::LeftCurly)?;
+        let owner = self.parse_record_variable_exact(sym::owner, Type::Address)?;
+        let balance = self.parse_record_variable_exact(sym::balance, Type::IntegerType(IntegerType::U64))?;
+        let (data, end) = self.parse_record_data()?;
+
+        Ok((
+            record_name.clone(),
+            Record {
+                identifier: record_name,
+                owner,
+                balance,
+                data,
                 span: start + end,
             },
         ))

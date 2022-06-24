@@ -19,15 +19,20 @@ use crate::{Identifier, Type};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[allow(clippy::large_enum_variant)]
 /// A variable definition in a record;
-/// For example: `foobar: u8;`.
+/// For example: `owner: address;`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RecordVariable {
     /// The identifier of the constant.
     ident: Identifier,
     /// The type the constant has.
-    type_: Type
+    type_: Type,
+}
+
+impl RecordVariable {
+    pub fn new(ident: Identifier, type_: Type) -> Self {
+        Self { ident, type_ }
+    }
 }
 
 impl fmt::Display for RecordVariable {

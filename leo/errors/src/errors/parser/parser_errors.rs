@@ -389,4 +389,11 @@ create_messages!(
         msg: format!("Invalid associated access call to circuit {name}."),
         help: Some("Double colon `::` syntax is only supported for core circuits in Leo for testnet3.".to_string()),
     }
+
+    @formatted
+    required_record_variable {
+        args: (name: impl Display, type_: impl Display),
+        msg: format!("The `record` type requires the variable `{name}: {type_}` and enforces ordering."),
+        help: None,
+    }
 );

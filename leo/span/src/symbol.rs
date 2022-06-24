@@ -210,6 +210,8 @@ symbols! {
 
     public,
     private,
+    owner,
+    balance,
 
     // todo: remove these.
     CONTAINER_PSEUDO_CIRCUIT: "$InputContainer",

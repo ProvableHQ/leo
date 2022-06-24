@@ -17,7 +17,7 @@
 //! A Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of ast statements and expressions.
 
-use crate::{Circuit, Function, FunctionInput, Identifier};
+use crate::{Circuit, Function, FunctionInput, Identifier, Record};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -36,6 +36,8 @@ pub struct Program {
     pub functions: IndexMap<Identifier, Function>,
     /// A map from circuit names to circuit definitions.
     pub circuits: IndexMap<Identifier, Circuit>,
+    /// A map from record names to record definitions.
+    pub records: IndexMap<Identifier, Record>,
 }
 
 impl AsRef<Program> for Program {
@@ -50,6 +52,14 @@ impl fmt::Display for Program {
             function.fmt(f)?;
             writeln!(f,)?;
         }
+        for (_, circuit) in self.circuits.iter() {
+            circuit.fmt(f)?;
+            writeln!(f,)?;
+        }
+        for (_, record) in self.records.iter() {
+            record.fmt(f)?;
+            writeln!(f,)?;
+        }
         write!(f, "")
     }
 }
@@ -62,6 +72,7 @@ impl Program {
             expected_input: vec![],
             functions: IndexMap::new(),
             circuits: IndexMap::new(),
+            records: IndexMap::new(),
         }
     }
 
