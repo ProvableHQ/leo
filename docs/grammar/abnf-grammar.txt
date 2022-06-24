@@ -260,9 +260,9 @@ static-function-call = named-type "::" identifier function-arguments
 
 function-arguments = "(" [ expression *( "," expression ) [ "," ] ] ")"
 
-circuit-expression = identifier "{" [ circuit-component-initializer
-                                      *( "," circuit-component-initializer )
-                                      [ "," ] ] "}"
+circuit-expression = identifier "{" circuit-component-initializer
+                                    *( "," circuit-component-initializer )
+                                    [ "," ] "}"
 
 circuit-component-initializer = identifier
                               / identifier ":" expression
@@ -387,9 +387,9 @@ function-parameters = function-parameter *( "," function-parameter ) [ "," ]
 function-parameter = [ %s"public" / %s"constant" / %s"const" ]
                      identifier ":" type
 
-circuit-declaration = %s"circuit" "{" [ circuit-component-declaration
-                                        *( "," circuit-component-declaration )
-                                        [ "," ] ] "}"
+circuit-declaration = %s"circuit" "{" circuit-component-declaration
+                                      *( "," circuit-component-declaration )
+                                      [ "," ] "}"
 
 circuit-component-declaration = identifier ":" type
 
