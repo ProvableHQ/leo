@@ -66,4 +66,18 @@ impl<'a> ProgramVisitorDirector<'a> for Director<'a> {
             }
         }
     }
+
+    fn visit_record(&mut self, input: &'a Record) {
+        if let VisitResult::VisitChildren = self.visitor_ref().visit_record(input) {
+            // Check for conflicting record member names.
+            let mut used = HashSet::new();
+            used.insert(input.owner.ident.name);
+            used.insert(input.balance.ident.name);
+            if !input.data.iter().all(|member| used.insert(member.name())) {
+                self.visitor
+                    .handler
+                    .emit_err(TypeCheckerError::duplicate_record_variable(input.name(), input.span()).into());
+            }
+        }
+    }
 }

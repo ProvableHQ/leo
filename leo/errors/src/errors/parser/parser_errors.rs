@@ -396,4 +396,11 @@ create_messages!(
         msg: format!("The `record` type requires the variable `{name}: {type_}` and enforces ordering."),
         help: None,
     }
+
+    @formatted
+    expected_ending_comma_or_semicolon {
+        args: (),
+        msg: format!("Expected an ending comma or semicolon for the record variable"),
+        help: None,
+    }
 );

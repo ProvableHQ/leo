@@ -238,8 +238,16 @@ pub trait ProgramVisitorDirector<'a>: VisitorDirector<'a> + StatementVisitorDire
         if let VisitResult::VisitChildren = self.visitor_ref().visit_circuit(input) {
             input.members.iter().for_each(|member| {
                 match member {
-                    CircuitMember::CircuitVariable(_, _) => {}
+                    CircuitMember::CircuitVariable(ident, _) => self.visit_identifier(ident, &Default::default()),
                 };
+            })
+        }
+    }
+
+    fn visit_record(&mut self, input: &'a Record) {
+        if let VisitResult::VisitChildren = self.visitor_ref().visit_record(input) {
+            input.data.iter().for_each(|variable| {
+                self.visit_identifier(&variable.ident, &Default::default());
             })
         }
     }

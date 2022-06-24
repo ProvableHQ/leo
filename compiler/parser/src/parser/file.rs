@@ -185,7 +185,12 @@ impl ParserContext<'_> {
         let actual_type = self.parse_all_types()?.0;
 
         if expected_name != actual_name.name || expected_type != actual_type {
-            return Err(ParserError::required_record_variable(expected_name, expected_type, actual_name.span()).into());
+            self.emit_err(ParserError::required_record_variable(expected_name, expected_type, actual_name.span()).into());
+        }
+
+        // Emit an error for a record variable without an ending comma or semicolon.
+        if !(self.eat(&Token::Comma) || self.eat(&Token::Semicolon)) {
+            self.emit_err(ParserError::expected_ending_comma_or_semicolon(actual_name.span()).into());
         }
 
         Ok(RecordVariable::new(actual_name, actual_type))
@@ -231,7 +236,7 @@ impl ParserContext<'_> {
         Ok((data, span))
     }
 
-    /// Returns an [`(Identifier, Circuit)`] ast node if the next tokens represent a record declaration.
+    /// Returns an [`(Identifier, Record)`] ast node if the next tokens represent a record declaration.
     pub(super) fn parse_record(&mut self) -> Result<(Identifier, Record)> {
         let start = self.expect(&Token::Record)?;
         let record_name = self.expect_ident()?;

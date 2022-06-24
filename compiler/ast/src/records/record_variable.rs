@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Identifier, Type};
+use leo_span::Symbol;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -24,14 +25,18 @@ use std::fmt;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RecordVariable {
     /// The identifier of the constant.
-    ident: Identifier,
+    pub ident: Identifier,
     /// The type the constant has.
-    type_: Type,
+    pub type_: Type,
 }
 
 impl RecordVariable {
     pub fn new(ident: Identifier, type_: Type) -> Self {
         Self { ident, type_ }
+    }
+
+    pub fn name(&self) -> Symbol {
+        return self.ident.name
     }
 }
 

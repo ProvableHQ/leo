@@ -211,6 +211,16 @@ create_messages!(
         help: None,
     }
 
+    /// Attempted to define more that one record variable with the same name.
+    @formatted
+    duplicate_record_variable {
+        args: (record: impl Display),
+        msg: format!(
+            "Record {record} defined with more than one variable with the same name."
+        ),
+        help: None,
+    }
+
     /// Attempted to access an invalid circuit.
     @formatted
     invalid_circuit {
