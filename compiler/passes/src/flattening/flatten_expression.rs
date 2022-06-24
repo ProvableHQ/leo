@@ -32,11 +32,16 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
             None
         };
 
-        (Expression::Identifier(input), val)
+        (
+            val.as_ref()
+                .map(|v| Expression::Literal(v.clone().into()))
+                .unwrap_or(Expression::Identifier(input)),
+            val,
+        )
     }
 
     fn reconstruct_unary(&mut self, input: UnaryExpression) -> (Expression, Self::AdditionalOutput) {
-        let (receiver, v) = if matches!(&input.op, &UnaryOperation::Negate) {
+        let (receiver, val) = if matches!(&input.op, &UnaryOperation::Negate) {
             let prior_negate_state = self.negate;
             self.negate = true;
             let (receiver, v) = self.reconstruct_expression(*input.receiver);
@@ -48,12 +53,16 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
         };
 
         (
-            Expression::Unary(UnaryExpression {
-                receiver: Box::new(receiver),
-                op: input.op,
-                span: input.span,
-            }),
-            v,
+            val.as_ref()
+                .map(|v| Expression::Literal(v.clone().into()))
+                .unwrap_or_else(|| {
+                    Expression::Unary(UnaryExpression {
+                        receiver: Box::new(receiver),
+                        op: input.op,
+                        span: input.span,
+                    })
+                }),
+            val,
         )
     }
 
