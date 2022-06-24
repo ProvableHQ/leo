@@ -37,15 +37,12 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
 
     fn reconstruct_unary(&mut self, input: UnaryExpression) -> (Expression, Self::AdditionalOutput) {
         let (receiver, val) = self.reconstruct_expression(*input.receiver.clone());
-        let out = if matches!(&val, Some(v) if v.is_supported_const_fold_type()) {
-            let val = val.unwrap();
-            match input.op {
-                UnaryOperation::Negate => Some(val.neg(input.span)).transpose(),
-                UnaryOperation::Not => Some(val.not(input.span)).transpose(),
-                _ => Ok(None),
+        let out = match (val, input.op) {
+            (Some(v), UnaryOperation::Negate) if v.is_supported_const_fold_type() => {
+                Some(v.neg(input.span)).transpose()
             }
-        } else {
-            Ok(None)
+            (Some(v), UnaryOperation::Not) if v.is_supported_const_fold_type() => Some(v.not(input.span)).transpose(),
+            _ => Ok(None),
         };
 
         match out {
