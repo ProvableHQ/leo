@@ -1,4 +1,4 @@
-// Copyrig&ht (C) 2019-20&22 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -42,6 +42,7 @@ fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, value: TypeOutput, 
 pub enum TypeOutput {
     Type(Type),
     Const(Value),
+    // TODO: this is not a solution to the whole const binary flattening issue
     ConstExpr(Type),
     None,
 }
