@@ -164,6 +164,7 @@ symbols! {
     i32,
     i64,
     i128,
+    record,
     scalar,
     string,
     u8,
@@ -207,6 +208,10 @@ symbols! {
     test,
     Type: "type",
 
+    public,
+    private,
+
+    // todo: remove these.
     CONTAINER_PSEUDO_CIRCUIT: "$InputContainer",
     REGISTERS_PSEUDO_CIRCUIT: "$InputRegister",
     RECORD_PSEUDO_CIRCUIT: "$InputRecord",
@@ -215,11 +220,8 @@ symbols! {
 
     // input file
     registers,
-    record,
     state,
     state_leaf,
-    public,
-    private,
 }
 
 /// An interned string.

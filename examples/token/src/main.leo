@@ -1,6 +1,6 @@
 // CAUTION: Work in progress
 
-circuit Token {
+record Token {
     // The token owner.
     owner: address,
     // The Aleo balance (in gates).

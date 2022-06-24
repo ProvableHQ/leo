@@ -42,6 +42,9 @@ pub use self::groups::*;
 pub mod input;
 pub use self::input::*;
 
+pub mod records;
+pub use self::records::*;
+
 pub mod passes;
 pub use self::passes::*;
 
