@@ -102,8 +102,8 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
     }
 
     fn reconstruct_binary(&mut self, input: BinaryExpression) -> (Expression, Self::AdditionalOutput) {
-        let (_, left_const_value) = self.reconstruct_expression(*input.left.clone());
-        let (_, right_const_value) = self.reconstruct_expression(*input.right.clone());
+        let (left_expr, left_const_value) = self.reconstruct_expression(*input.left.clone());
+        let (right_expr, right_const_value) = self.reconstruct_expression(*input.right.clone());
 
         match (left_const_value, right_const_value) {
             (Some(left_value), Some(right_value))
@@ -111,6 +111,24 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
             {
                 (Expression::Binary(input), None)
             }
+            (Some(const_value), None) => (
+                Expression::Binary(BinaryExpression {
+                    left: Box::new(Expression::Literal(const_value.into())),
+                    right: Box::new(right_expr),
+                    op: input.op,
+                    span: input.span,
+                }),
+                None,
+            ),
+            (None, Some(const_value)) => (
+                Expression::Binary(BinaryExpression {
+                    left: Box::new(left_expr),
+                    right: Box::new(Expression::Literal(const_value.into())),
+                    op: input.op,
+                    span: input.span,
+                }),
+                None,
+            ),
             (Some(left_value), Some(right_value)) => {
                 let value = match &input.op {
                     BinaryOperation::Add => left_value.add(right_value, input.span),
@@ -163,13 +181,29 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
 
                 if let Err(err) = value {
                     self.handler.emit_err(err);
-                    (Expression::Binary(input), None)
+                    (
+                        Expression::Binary(BinaryExpression {
+                            left: Box::new(left_expr),
+                            right: Box::new(right_expr),
+                            op: input.op,
+                            span: input.span,
+                        }),
+                        None,
+                    )
                 } else {
                     let value = value.unwrap();
                     (Expression::Literal(value.clone().into()), Some(value))
                 }
             }
-            _ => (Expression::Binary(input), None),
+            _ => (
+                Expression::Binary(BinaryExpression {
+                    left: Box::new(left_expr),
+                    right: Box::new(right_expr),
+                    op: input.op,
+                    span: input.span,
+                }),
+                None,
+            ),
         }
     }
 }
