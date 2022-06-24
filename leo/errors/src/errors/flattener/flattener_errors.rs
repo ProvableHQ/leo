@@ -30,7 +30,7 @@ create_messages!(
 
     /// For when a constant operation would cause an overflow.
     @formatted
-    operation_overflow {
+    binary_overflow {
         args: (left: impl Display, op: impl Display, right: impl Display, right_type: impl Display),
         msg: format!("The const operation `{left}{} {op} {right}{right_type}` causes an overflow.", type_name(&left)),
         help: None,
@@ -38,9 +38,9 @@ create_messages!(
 
     /// For when a constant operation would cause an overflow.
     @formatted
-    negate_overflow {
-        args: (negated: impl Display),
-        msg: format!("The const negate operation `-{negated}` causes an overflow."),
+    unary_overflow {
+        args: (left: impl Display, op: impl Display),
+        msg: format!("The const operation `{left}{} {op}` causes an overflow.", type_name(&left)),
         help: None,
     }
 

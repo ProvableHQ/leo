@@ -16,14 +16,68 @@
 
 use std::{
     fmt::Display,
-    ops::{BitAnd, BitOr, BitXor},
+    ops::{BitAnd, BitOr, BitXor, Not},
 };
 
 use leo_ast::{GroupLiteral, Identifier, IntegerType, LiteralExpression, Type};
 use leo_errors::{type_name, FlattenError, LeoError, Result};
 use leo_span::Span;
 
-macro_rules! implement_const_op {
+macro_rules! implement_const_unary {
+    (
+        @overflowing
+        name: $name:ident,
+        method: $method:ident,
+        string: $str:expr,
+        patterns: [$([$type:ident, $m_type:ty]),+]
+    ) => {
+        implement_const_unary!{
+            name: $name,
+            patterns: [$([
+                t: $type,
+                l: |l: $m_type, span| l.$method().ok_or_else(|| FlattenError::unary_overflow(l, $str, span))
+            ]),+]
+        }
+    };
+
+    (
+        @non-overflowing
+        name: $name:ident,
+        method: $method:ident,
+        patterns: [$([$type:ident, $m_type:ty]),+]
+    ) => {
+        implement_const_unary!{
+            name: $name,
+            patterns: [$([
+                t: $type,
+                l: |l: $m_type, _| -> Result<$m_type> { Ok(l.$method()) }
+            ]),+]
+        }
+    };
+
+    (
+        name: $name:ident,
+        patterns: [$([
+            t: $type:ident,
+            l: $logic:expr
+        ]),+]
+    ) => {
+        pub(crate) fn $name(self, span: Span) -> Result<Self> {
+            use Value::*;
+
+            match self {
+                $(
+                    $type(v, _) => {
+                        Ok($type($logic(v.into(), span)?, span))
+                    },
+                )+
+                s => unreachable!("Const operation not supported {}.{}()", type_name(&s), stringify!($name))
+            }
+        }
+    };
+}
+
+macro_rules! implement_const_binary {
     // for overflowing operations that can overflow
     (
         @overflowing
@@ -35,11 +89,11 @@ macro_rules! implement_const_op {
             [$lhs:ident, [$($rhs:ident),+], $out:ident, $m_lhs:ty, $m_rhs:ty]
         ),+]
     ) => {
-        implement_const_op!{
+        implement_const_binary!{
             name: $name,
             patterns: [$([
                 types: $lhs, [$($rhs),+], $out,
-                logic: |l: $m_lhs, r: $m_rhs, t, span| l.$method(r).ok_or_else(|| FlattenError::operation_overflow(l, $str, r, t, span))
+                logic: |l: $m_lhs, r: $m_rhs, t, span| l.$method(r).ok_or_else(|| FlattenError::binary_overflow(l, $str, r, t, span))
             ]),+]
         }
     };
@@ -54,7 +108,7 @@ macro_rules! implement_const_op {
             [$lhs:ident, [$($rhs:ident),+], $out:ident, $m_lhs:ty, $m_rhs:ty]
         ),+]
     ) => {
-        implement_const_op!{
+        implement_const_binary!{
             name: $name,
             patterns: [$([
                 types: $lhs, [$($rhs),+], $out,
@@ -74,7 +128,7 @@ macro_rules! implement_const_op {
             [$lhs:ident, [$($rhs:ident),+], $out:ident, $m_lhs:ty, $m_rhs:ty]
         ),+]
     ) => {
-        implement_const_op!{
+        implement_const_binary!{
             name: $name,
             patterns: [$([
                 types: $lhs, [$($rhs),+], $out,
@@ -167,7 +221,125 @@ impl Value {
         }
     }
 
-    implement_const_op!(
+    implement_const_unary!(
+        @overflowing
+        name: abs,
+        method: checked_abs,
+        string: "abs",
+        patterns: [
+            [I8, i8],
+            [I16, i16],
+            [I32, i32],
+            [I64, i64],
+            [I128, i128]
+        ]
+    );
+
+    implement_const_unary!(
+        @non-overflowing
+        name: abs_wrapped,
+        method: wrapping_abs,
+        patterns: [
+            [I8, i8],
+            [I16, i16],
+            [I32, i32],
+            [I64, i64],
+            [I128, i128]
+        ]
+    );
+
+    // implement_const_unary!(
+    //     @overflowing
+    //     name: double,
+    //     method: double,
+    //     string: "double",
+    //     patterns: [
+    //         [Field, Field],
+    //         [Group, Group],
+    //     ]
+    // );
+
+    pub(crate) fn double(&self, _span: Span) -> Result<Self> {
+        todo!("double not implemented yet");
+    }
+
+    // implement_const_unary!(
+    //     @overflowing
+    //     name: inv,
+    //     method: inv,
+    //     string: "inv",
+    //     patterns: [
+    //         [Field, Field],
+    //     ]
+    // );
+
+    pub(crate) fn inv(&self, _span: Span) -> Result<Self> {
+        todo!("inv not implemented yet");
+    }
+
+    implement_const_unary!(
+        @overflowing
+        name: neg,
+        method: checked_neg,
+        string: "neg",
+        patterns: [
+            // [Field, Field],
+            // [Group, Group],
+            [I8, i8],
+            [I16, i16],
+            [I32, i32],
+            [I64, i64],
+            [I128, i128]
+        ]
+    );
+
+    implement_const_unary!(
+        @non-overflowing
+        name: not,
+        method: not,
+        patterns: [
+            [Boolean, bool],
+            [I8, i8],
+            [I16, i16],
+            [I32, i32],
+            [I64, i64],
+            [I128, i128],
+            [U8, u8],
+            [U16, u16],
+            [U32, u32],
+            [U64, u64],
+            [U128, u128]
+        ]
+    );
+
+    // implement_const_unary!(
+    //     @overflowing
+    //     name: square,
+    //     method: square,
+    //     string: "square",
+    //     patterns: [
+    //         [Field, Field]
+    //     ]
+    // );
+
+    pub(crate) fn square(&self, _span: Span) -> Result<Self> {
+        todo!("square not implemented yet");
+    }
+
+    // implement_const_unary!(
+    //     @non-overflowing
+    //     name: sqrt,
+    //     method: sqrt,
+    //     patterns: [
+    //         [Field, Field]
+    //     ]
+    // );
+
+    pub(crate) fn sqrt(&self, _span: Span) -> Result<Self> {
+        todo!("sqrt not implemented yet");
+    }
+
+    implement_const_binary!(
         @overflowing
         name: add,
         method: checked_add,
@@ -190,7 +362,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @non-overflowing
         name: add_wrapped,
         method: wrapping_add,
@@ -212,7 +384,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @non-overflowing
         name: bitand,
         method: bitand,
@@ -231,7 +403,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @overflowing
         name: div,
         method: checked_div,
@@ -253,7 +425,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @non-overflowing
         name: div_wrapped,
         method: wrapping_div,
@@ -274,7 +446,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @cmp
         name: eq,
         method: eq,
@@ -294,7 +466,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @cmp
         name: ge,
         method: ge,
@@ -313,7 +485,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @cmp
         name: gt,
         method: gt,
@@ -332,7 +504,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @cmp
         name: le,
         method: le,
@@ -351,7 +523,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @cmp
         name: lt,
         method: lt,
@@ -370,7 +542,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @overflowing
         name: mul,
         method: checked_mul,
@@ -392,7 +564,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @non-overflowing
         name: mul_wrapped,
         method: wrapping_mul,
@@ -413,7 +585,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @non-overflowing
         name: bitor,
         method: bitor,
@@ -432,7 +604,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @overflowing
         name: pow,
         method: checked_pow,
@@ -451,7 +623,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @non-overflowing
         name: pow_wrapped,
         method: wrapping_pow,
@@ -469,7 +641,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @overflowing
         name: shl,
         method: checked_shl,
@@ -488,7 +660,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @non-overflowing
         name: shl_wrapped,
         method: wrapping_shl,
@@ -506,7 +678,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @overflowing
         name: shr,
         method: checked_shr,
@@ -525,7 +697,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @non-overflowing
         name: shr_wrapped,
         method: wrapping_shr,
@@ -543,7 +715,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @overflowing
         name: sub,
         method: checked_sub,
@@ -565,7 +737,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @non-overflowing
         name: sub_wrapped,
         method: wrapping_sub,
@@ -586,7 +758,7 @@ impl Value {
         ]
     );
 
-    implement_const_op!(
+    implement_const_binary!(
         @non-overflowing
         name: xor,
         method: bitxor,
@@ -729,31 +901,5 @@ impl From<Value> for LiteralExpression {
             Scalar(v, span) => LiteralExpression::Scalar(v, span),
             String(v, span) => LiteralExpression::String(v, span),
         }
-    }
-}
-
-impl Value {
-    pub fn not(mut self, span: Span) -> Result<Self> {
-        use Value::*;
-        match &mut self {
-            Input(_, _) => unreachable!(),
-            Address(_, _) => unreachable!(),
-            Boolean(v, _) => *v = !*v,
-            Field(_, _) => unreachable!(),
-            Group(_) => unreachable!(),
-            I8(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
-            I16(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
-            I32(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
-            I64(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
-            I128(v, _) => *v = v.checked_neg().ok_or_else(|| FlattenError::negate_overflow(&v, span))?,
-            U8(v, _) => *v = !*v,
-            U16(v, _) => *v = !*v,
-            U32(v, _) => *v = !*v,
-            U64(v, _) => *v = !*v,
-            U128(v, _) => *v = !*v,
-            Scalar(_, _) => unreachable!(),
-            String(_, _) => unreachable!(),
-        };
-        Ok(self)
     }
 }
