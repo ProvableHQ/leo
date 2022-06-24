@@ -42,34 +42,31 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
 
     fn reconstruct_unary(&mut self, input: UnaryExpression) -> (Expression, Self::AdditionalOutput) {
         let (receiver, val) = self.reconstruct_expression(*input.receiver.clone());
-        if matches!(&val, Some(v) if v.is_supported_const_fold_type()) {
+        let out = if matches!(&val, Some(v) if v.is_supported_const_fold_type()) {
             let val = val.unwrap();
-            let out = match input.op {
-                UnaryOperation::Abs => val.abs(input.span),
-                UnaryOperation::AbsWrapped => val.abs_wrapped(input.span),
-                UnaryOperation::Double => val.double(input.span),
-                UnaryOperation::Inverse => val.inv(input.span),
-                UnaryOperation::Negate => val.neg(input.span),
-                UnaryOperation::Not => val.not(input.span),
-                UnaryOperation::Square => val.square(input.span),
-                UnaryOperation::SquareRoot => val.sqrt(input.span),
-            };
-            match out {
-                Ok(val) => (Expression::Literal(val.clone().into()), Some(val)),
-                Err(e) => {
-                    self.handler.emit_err(e);
-                    (Expression::Unary(input), None)
-                }
+            match input.op {
+                UnaryOperation::Negate => Some(val.neg(input.span)),
+                UnaryOperation::Not => Some(val.not(input.span)),
+                _ => None,
             }
         } else {
-            (
+            None
+        };
+        
+        match out {
+            Some(Ok(val)) => (Expression::Literal(val.clone().into()), Some(val)),
+            Some(Err(e)) => {
+                self.handler.emit_err(e);
+                (Expression::Unary(input), None)
+            }
+            None => (
                 Expression::Unary(UnaryExpression {
                     receiver: Box::new(receiver),
                     op: input.op,
                     span: input.span,
                 }),
                 None,
-            )
+            ),
         }
     }
 

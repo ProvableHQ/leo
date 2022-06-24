@@ -223,62 +223,6 @@ impl Value {
 
     implement_const_unary!(
         @overflowing
-        name: abs,
-        method: checked_abs,
-        string: "abs",
-        patterns: [
-            [I8, i8],
-            [I16, i16],
-            [I32, i32],
-            [I64, i64],
-            [I128, i128]
-        ]
-    );
-
-    implement_const_unary!(
-        @non-overflowing
-        name: abs_wrapped,
-        method: wrapping_abs,
-        patterns: [
-            [I8, i8],
-            [I16, i16],
-            [I32, i32],
-            [I64, i64],
-            [I128, i128]
-        ]
-    );
-
-    // implement_const_unary!(
-    //     @overflowing
-    //     name: double,
-    //     method: double,
-    //     string: "double",
-    //     patterns: [
-    //         [Field, Field],
-    //         [Group, Group],
-    //     ]
-    // );
-
-    pub(crate) fn double(&self, _span: Span) -> Result<Self> {
-        todo!("double not implemented yet");
-    }
-
-    // implement_const_unary!(
-    //     @overflowing
-    //     name: inv,
-    //     method: inv,
-    //     string: "inv",
-    //     patterns: [
-    //         [Field, Field],
-    //     ]
-    // );
-
-    pub(crate) fn inv(&self, _span: Span) -> Result<Self> {
-        todo!("inv not implemented yet");
-    }
-
-    implement_const_unary!(
-        @overflowing
         name: neg,
         method: checked_neg,
         string: "neg",
@@ -311,33 +255,6 @@ impl Value {
             [U128, u128]
         ]
     );
-
-    // implement_const_unary!(
-    //     @overflowing
-    //     name: square,
-    //     method: square,
-    //     string: "square",
-    //     patterns: [
-    //         [Field, Field]
-    //     ]
-    // );
-
-    pub(crate) fn square(&self, _span: Span) -> Result<Self> {
-        todo!("square not implemented yet");
-    }
-
-    // implement_const_unary!(
-    //     @non-overflowing
-    //     name: sqrt,
-    //     method: sqrt,
-    //     patterns: [
-    //         [Field, Field]
-    //     ]
-    // );
-
-    pub(crate) fn sqrt(&self, _span: Span) -> Result<Self> {
-        todo!("sqrt not implemented yet");
-    }
 
     implement_const_binary!(
         @overflowing
