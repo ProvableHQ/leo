@@ -107,7 +107,9 @@ impl<'a> StatementReconstructor for Flattener<'a> {
         let out = match const_value {
             Some(Value::Boolean(true, _)) => {
                 let block = Statement::Block(self.reconstruct_block(input.block));
-                self.block_index += 1;
+                if input.next.is_some() {
+                    self.block_index += 1;
+                }
                 let mut next = input.next;
                 while let Some(Statement::Conditional(c)) = next.as_deref() {
                     self.block_index += 1;
