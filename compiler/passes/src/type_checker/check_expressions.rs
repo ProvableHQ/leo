@@ -422,25 +422,12 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_ternary(&mut self, input: &'a TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        let cond = self.visit_expression(&input.condition, &Some(Type::Boolean));
+        self.visit_expression(&input.condition, &Some(Type::Boolean));
 
         let t1 = self.visit_expression(&input.if_true, expected);
         let t2 = self.visit_expression(&input.if_false, expected);
 
-        // TODO this prob broke
-        let out = match cond {
-            TypeOutput::Const(Value::Boolean(true, ..)) => t1,
-            TypeOutput::Lit(Value::Boolean(true, ..)) => t1,
-            TypeOutput::Const(Value::Boolean(false, ..)) => t2,
-            TypeOutput::Lit(Value::Boolean(false, ..)) => t2,
-            _ => TypeOutput::None,
-        };
-
-        if let Some(expected) = expected {
-            out.replace_if_not_equal(*expected)
-        } else {
-            TypeOutput::None
-        }
+        t1.return_incorrect_type(&t2, &None)
     }
 
     fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {

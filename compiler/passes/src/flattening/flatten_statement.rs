@@ -105,7 +105,17 @@ impl<'a> StatementReconstructor for Flattener<'a> {
         self.non_const_block = const_value.is_none() || prev_non_const_block;
 
         let out = match const_value {
-            Some(Value::Boolean(true, _)) => Statement::Block(self.reconstruct_block(input.block)),
+            Some(Value::Boolean(true, _)) => {
+                let block = Statement::Block(self.reconstruct_block(input.block));
+                self.block_index += 1;
+                let mut next = input.next;
+                while let Some(Statement::Conditional(c)) = next.as_deref() {
+                    self.block_index += 1;
+                    next = c.next.clone();
+                }
+
+                block
+            }
             Some(Value::Boolean(false, _)) if input.next.is_some() => {
                 self.block_index += 1;
                 self.reconstruct_statement(*input.next.unwrap())

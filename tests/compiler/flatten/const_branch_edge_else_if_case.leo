@@ -7,13 +7,15 @@ input_file: inputs/dummy.in
 function main () -> bool {
     if 1u8 < 2u8 {
         let a: u8 = 1u8;
-    } else  {
+    } else if true {
         let b: u8 = 1u8;
+    } else {
+        let c: u8 = 1u8;
     }
-    let c: u8 = 1u8;
+    let d: u8 = 1u8;
     {
-        let d: u8 = c;
-        d = c;
+        let e: u8 = d;
+        e = d;
     }
     return true;
 }
