@@ -1,6 +1,6 @@
 /*
 namespace: Compile
-expectation: Skip
+expectation: Pass
 input_file: inputs/dummy.in
 */
 

@@ -27,7 +27,17 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
         let var = st.lookup_variable(&input.name).unwrap();
 
         let val = if let Declaration::Const(Some(c)) | Declaration::Mut(Some(c)) = &var.declaration {
-            Some(c.clone())
+            if self.negate {
+                match c.clone().neg(input.span) {
+                    Ok(c) => Some(c),
+                    Err(err) => {
+                        self.handler.emit_err(err);
+                        Some(c.clone())
+                    }
+                }
+            } else {
+                Some(c.clone())
+            }
         } else {
             None
         };
@@ -36,11 +46,18 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
     }
 
     fn reconstruct_unary(&mut self, input: UnaryExpression) -> (Expression, Self::AdditionalOutput) {
-        let (receiver, val) = self.reconstruct_expression(*input.receiver.clone());
+        let (receiver, val) = if matches!(input.op, UnaryOperation::Negate) {
+            let prior_negate_state = self.negate;
+            self.negate = !self.negate;
+            let ret = self.reconstruct_expression(*input.receiver.clone());
+            self.negate = prior_negate_state;
+            ret
+        } else {
+            self.reconstruct_expression(*input.receiver.clone())
+        };
+
         let out = match (val, input.op) {
-            (Some(v), UnaryOperation::Negate) if v.is_supported_const_fold_type() => {
-                Some(v.neg(input.span)).transpose()
-            }
+            (Some(v), UnaryOperation::Negate) if v.is_supported_const_fold_type() => Ok(Some(v)),
             (Some(v), UnaryOperation::Not) if v.is_supported_const_fold_type() => Some(v.not(input.span)).transpose(),
             _ => Ok(None),
         };
@@ -67,18 +84,21 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
             LiteralExpression::Boolean(val, span) => Value::Boolean(val, span),
             LiteralExpression::Field(val, span) => Value::Field(val, span),
             LiteralExpression::Group(val) => Value::Group(val),
-            LiteralExpression::Integer(itype, istr, span) => match itype {
-                IntegerType::U8 => Value::U8(istr.parse().unwrap(), span),
-                IntegerType::U16 => Value::U16(istr.parse().unwrap(), span),
-                IntegerType::U32 => Value::U32(istr.parse().unwrap(), span),
-                IntegerType::U64 => Value::U64(istr.parse().unwrap(), span),
-                IntegerType::U128 => Value::U128(istr.parse().unwrap(), span),
-                IntegerType::I8 => Value::I8(istr.parse().unwrap(), span),
-                IntegerType::I16 => Value::I16(istr.parse().unwrap(), span),
-                IntegerType::I32 => Value::I32(istr.parse().unwrap(), span),
-                IntegerType::I64 => Value::I64(istr.parse().unwrap(), span),
-                IntegerType::I128 => Value::I128(istr.parse().unwrap(), span),
-            },
+            LiteralExpression::Integer(itype, istr, span) => {
+                let istr = if self.negate { format!("-{istr}") } else { istr };
+                match itype {
+                    IntegerType::U8 => Value::U8(istr.parse().unwrap(), span),
+                    IntegerType::U16 => Value::U16(istr.parse().unwrap(), span),
+                    IntegerType::U32 => Value::U32(istr.parse().unwrap(), span),
+                    IntegerType::U64 => Value::U64(istr.parse().unwrap(), span),
+                    IntegerType::U128 => Value::U128(istr.parse().unwrap(), span),
+                    IntegerType::I8 => Value::I8(istr.parse().unwrap(), span),
+                    IntegerType::I16 => Value::I16(istr.parse().unwrap(), span),
+                    IntegerType::I32 => Value::I32(istr.parse().unwrap(), span),
+                    IntegerType::I64 => Value::I64(istr.parse().unwrap(), span),
+                    IntegerType::I128 => Value::I128(istr.parse().unwrap(), span),
+                }
+            }
             LiteralExpression::Scalar(val, span) => Value::Scalar(val, span),
             LiteralExpression::String(val, span) => Value::String(val, span),
         };

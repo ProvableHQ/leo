@@ -1,4 +1,5 @@
 ---
 namespace: Compile
-expectation: Skip
-outputs: []
+expectation: Fail
+outputs:
+  - "Error [EFLA0373001]: The const operation `-128i8 neg` causes an overflow.\n    --> compiler-test:5:20\n     |\n   5 |     const b: i8 = -a;\n     |                    ^\nError [EFLA0373001]: The const operation `-128i8 neg` causes an overflow.\n    --> compiler-test:7:19\n     |\n   7 |     return (b == -a) == y;\n     |                   ^\n"

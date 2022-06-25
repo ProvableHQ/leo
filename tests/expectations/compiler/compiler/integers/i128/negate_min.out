@@ -1,4 +1,5 @@
 ---
 namespace: Compile
-expectation: Skip
-outputs: []
+expectation: Fail
+outputs:
+  - "Error [EFLA0373001]: The const operation `-170141183460469231731687303715884105728i128 neg` causes an overflow.\n    --> compiler-test:5:22\n     |\n   5 |     const b: i128 = -a;\n     |                      ^\nError [EFLA0373001]: The const operation `-170141183460469231731687303715884105728i128 neg` causes an overflow.\n    --> compiler-test:6:19\n     |\n   6 |     return (b == -a) == y;\n     |                   ^\n"

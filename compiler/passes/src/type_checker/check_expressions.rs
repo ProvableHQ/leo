@@ -380,7 +380,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
             UnaryOperation::Negate => {
                 let prior_negate_state = self.negate;
-                self.negate = true;
+                self.negate = !self.negate;
 
                 let type_ = self.visit_expression(&input.receiver, expected);
                 self.negate = prior_negate_state;
