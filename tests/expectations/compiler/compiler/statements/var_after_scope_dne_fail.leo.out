@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372003]: Unknown variable `x`\n    --> compiler-test:7:14\n     |\n   7 | \treturn k && x;\n     |              ^\n"

@@ -1,5 +1,4 @@
 ---
 namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372003]: Cannot define constant var `h` with non-const value.\n    --> compiler-test:7:5\n     |\n   7 |     const h: u8 = d + d + a;\n     |     ^^^^^^^^^^^^^^^^^^^^^^^\n"
+expectation: Skip
+outputs: []

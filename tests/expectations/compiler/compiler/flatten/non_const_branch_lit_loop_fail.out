@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EFLA0373004]: The loop has an `stop` bound that is non_const.\n    --> compiler-test:11:23\n     |\n  11 |     for i: u8 in 0u8..x {\n     |                       ^\n"
