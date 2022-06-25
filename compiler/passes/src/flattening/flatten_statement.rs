@@ -112,7 +112,9 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                 }
                 let mut next = input.next;
                 while let Some(Statement::Conditional(c)) = next.as_deref() {
-                    self.block_index += 1;
+                    if c.next.is_some() {
+                        self.block_index += 1;
+                    }
                     next = c.next.clone();
                 }
 
