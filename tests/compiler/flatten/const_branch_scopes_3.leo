@@ -5,9 +5,7 @@ input_file: inputs/dummy.in
 */
 
 function main () -> bool {
-    if true {
-        let x: u8 = 1u8;
-    }
+    if true {}
     {
         let y: u8 = 1u8;
         y = y;
