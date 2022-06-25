@@ -103,8 +103,21 @@ impl<'a> StatementReconstructor for Flattener<'a> {
 
         let prev_non_const_block = self.non_const_block;
         self.non_const_block = const_value.is_none() || prev_non_const_block;
-        let block = self.reconstruct_block(input.block);
-        let next = input.next.map(|n| Box::new(self.reconstruct_statement(*n)));
+        // TODO: this is technically dead code elimination. but afaik its going to be required here later anyways, and it fixes bugs now
+        let block = if !matches!(const_value, Some(Value::Boolean(false, _))) {
+            self.reconstruct_block(input.block)
+        } else {
+            self.block_index += 1;
+            Block {
+                statements: Vec::new(),
+                span: input.block.span,
+            }
+        };
+        let next = if !matches!(const_value, Some(Value::Boolean(true, _))) {
+            input.next.map(|n| Box::new(self.reconstruct_statement(*n)))
+        } else {
+            None
+        };
         self.non_const_block = prev_non_const_block;
 
         Statement::Conditional(ConditionalStatement {
