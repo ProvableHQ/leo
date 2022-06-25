@@ -103,29 +103,35 @@ impl<'a> StatementReconstructor for Flattener<'a> {
 
         let prev_non_const_block = self.non_const_block;
         self.non_const_block = const_value.is_none() || prev_non_const_block;
-        // TODO: this is technically dead code elimination. but afaik its going to be required here later anyways, and it fixes bugs now
-        let block = if !matches!(const_value, Some(Value::Boolean(false, _))) {
-            self.reconstruct_block(input.block)
-        } else {
-            self.block_index += 1;
-            Block {
-                statements: Vec::new(),
-                span: input.block.span,
+
+        let out = match const_value {
+            Some(Value::Boolean(true, _)) => Statement::Block(self.reconstruct_block(input.block)),
+            Some(Value::Boolean(false, _)) if input.next.is_some() => {
+                self.block_index += 1;
+                self.reconstruct_statement(*input.next.unwrap())
+            }
+            Some(Value::Boolean(false, _)) => {
+                self.block_index += 1;
+                // TODO: creates empty block, should instead figure out how to return none here.
+                Statement::Block(Block {
+                    statements: Vec::new(),
+                    span: input.span,
+                })
+            }
+            _ => {
+                let block = self.reconstruct_block(input.block);
+                let next = input.next.map(|n| Box::new(self.reconstruct_statement(*n)));
+                Statement::Conditional(ConditionalStatement {
+                    condition,
+                    block,
+                    next,
+                    span: input.span,
+                })
             }
         };
-        let next = if !matches!(const_value, Some(Value::Boolean(true, _))) {
-            input.next.map(|n| Box::new(self.reconstruct_statement(*n)))
-        } else {
-            None
-        };
-        self.non_const_block = prev_non_const_block;
 
-        Statement::Conditional(ConditionalStatement {
-            condition: map_const((condition, const_value)),
-            block,
-            next,
-            span: input.span,
-        })
+        self.non_const_block = prev_non_const_block;
+        out
     }
 
     fn reconstruct_iteration(&mut self, input: IterationStatement) -> Statement {
