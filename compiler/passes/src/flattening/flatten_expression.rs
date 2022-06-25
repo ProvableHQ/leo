@@ -57,6 +57,10 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
         };
 
         let out = match (val, input.op) {
+            (Some(v), UnaryOperation::Abs) if v.is_supported_const_fold_type() => Some(v.abs(input.span)).transpose(),
+            (Some(v), UnaryOperation::AbsWrapped) if v.is_supported_const_fold_type() => {
+                Some(v.abs_wrapped(input.span)).transpose()
+            }
             (Some(v), UnaryOperation::Negate) if v.is_supported_const_fold_type() => Ok(Some(v)),
             (Some(v), UnaryOperation::Not) if v.is_supported_const_fold_type() => Some(v.not(input.span)).transpose(),
             _ => Ok(None),

@@ -223,6 +223,33 @@ impl Value {
 
     implement_const_unary!(
         @overflowing
+        name: abs,
+        method: checked_abs,
+        string: "abs",
+        patterns: [
+            [I8, i8],
+            [I16, i16],
+            [I32, i32],
+            [I64, i64],
+            [I128, i128]
+        ]
+    );
+
+    implement_const_unary!(
+        @non-overflowing
+        name: abs_wrapped,
+        method: wrapping_abs,
+        patterns: [
+            [I8, i8],
+            [I16, i16],
+            [I32, i32],
+            [I64, i64],
+            [I128, i128]
+        ]
+    );
+
+    implement_const_unary!(
+        @overflowing
         name: neg,
         method: checked_neg,
         string: "neg",
