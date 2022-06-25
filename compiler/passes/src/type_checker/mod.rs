@@ -27,6 +27,8 @@ pub use check_statements::*;
 pub mod checker;
 pub use checker::*;
 
+mod type_output;
+
 use crate::{Pass, SymbolTable};
 
 use leo_ast::{Ast, ProgramVisitor};

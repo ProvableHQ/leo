@@ -23,7 +23,7 @@ use crate::Value;
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Declaration {
     Const(Option<Value>),
-    Input(ParamMode),
+    Input(Type, ParamMode),
     Mut(Option<Value>),
 }
 
@@ -33,7 +33,7 @@ impl Declaration {
 
         match self {
             Const(Some(value)) => Ok(Some(value.try_into()?)),
-            Input(_) => Ok(None),
+            Input(_, _) => Ok(None),
             _ => Ok(None),
         }
     }
@@ -43,9 +43,15 @@ impl Declaration {
 
         match self {
             Const(Some(value)) => Some(value.into()),
-            Input(_) => None,
+            Input(type_, _) => Some(*type_),
             _ => None,
         }
+    }
+}
+
+impl AsRef<Self> for Declaration {
+    fn as_ref(&self) -> &Self {
+        self
     }
 }
 
@@ -61,7 +67,7 @@ impl VariableSymbol {
         use Declaration::*;
         match &self.declaration {
             Const(Some(v)) | Mut(Some(v)) => Some(v.clone()),
-            Input(ParamMode::Const) => Some(Value::Input(self.type_, ident)),
+            Input(type_, ParamMode::Const) => Some(Value::Input(*type_, ident)),
             _ => None,
         }
     }

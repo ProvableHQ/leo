@@ -19,7 +19,9 @@ use std::cell::RefCell;
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
 
-use crate::{Declaration, TypeChecker, TypeOutput, VariableSymbol};
+use crate::{Declaration, TypeChecker, VariableSymbol};
+
+use super::type_output::TypeOutput;
 
 impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_return(&mut self, input: &'a ReturnStatement) {
@@ -44,9 +46,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 type_: input.type_,
                 span: input.span(),
                 declaration: match output {
-                    TypeOutput::Const(c) if input.declaration_type.is_const() => Declaration::Const(Some(c)),
-                    TypeOutput::Const(c) => Declaration::Mut(Some(c)),
-                    TypeOutput::Type(_) if input.declaration_type.is_const() => {
+                    TypeOutput::Const(c) | TypeOutput::Lit(c) if input.declaration_type.is_const() => {
+                        Declaration::Const(Some(c))
+                    }
+                    TypeOutput::MutType(_) if input.declaration_type.is_const() => {
                         self.handler
                             .emit_err(TypeCheckerError::cannot_define_const_with_non_const(
                                 v.identifier.name,
@@ -54,10 +57,16 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                             ));
                         Declaration::Const(None)
                     }
-                    _ if input.declaration_type.is_const() => Declaration::Const(None),
+                    TypeOutput::Const(c) | TypeOutput::Lit(c) | TypeOutput::Mut(c) => Declaration::Mut(Some(c)),
+                    TypeOutput::ConstType(_) | TypeOutput::LitType(_) | TypeOutput::MutType(_)
+                        if input.declaration_type.is_const() =>
+                    {
+                        Declaration::Const(None)
+                    }
                     _ => Declaration::Mut(None),
                 },
             };
+
             if let Err(err) = self.symbol_table.borrow_mut().insert_variable(v.identifier.name, var) {
                 self.handler.emit_err(err);
             }
@@ -81,7 +90,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                     var_name,
                     input.place.span(),
                 )),
-                Declaration::Input(ParamMode::Const) => self.handler.emit_err(
+                Declaration::Input(_, ParamMode::Const) => self.handler.emit_err(
                     TypeCheckerError::cannot_assign_to_const_input(var_name, input.place.span()),
                 ),
                 Declaration::Mut(_) if self.non_const_block && var_in_parent => {

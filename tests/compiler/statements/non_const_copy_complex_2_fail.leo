@@ -6,7 +6,7 @@ input_file: inputs/dummy.in
 
 function main(k: bool) -> bool {
     let x: u8 = 2u8;
-    if b {
+    if k {
         const y: u8 = x;
         let b: u8 = 1u8;
         x = 5u8;

@@ -36,8 +36,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
             let var = VariableSymbol {
                 type_: input_var.type_,
-                span: input_var.identifier.span(),
-                declaration: Declaration::Input(input_var.mode()),
+                span: input_var.span,
+                declaration: Declaration::Input(input_var.type_, input_var.mode()),
             };
             if let Err(err) = self
                 .symbol_table
