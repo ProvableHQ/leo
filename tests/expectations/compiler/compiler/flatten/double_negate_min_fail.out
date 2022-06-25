@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372013]: The value 128 is not a valid `i8`\n    --> compiler-test:4:19\n     |\n   4 |     let x: i8 = --128i8;\n     |                   ^^^^^\n"
