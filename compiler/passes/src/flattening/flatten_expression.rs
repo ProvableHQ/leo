@@ -230,4 +230,23 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
             ),
         }
     }
+
+    fn reconstruct_ternary(&mut self, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
+        let (condition, const_cond) = self.reconstruct_expression(*input.condition);
+        let (if_true, const_if_true) = self.reconstruct_expression(*input.if_true);
+        let (if_false, const_if_false) = self.reconstruct_expression(*input.if_false);
+        match const_cond {
+            Some(Value::Boolean(true, _)) => (if_true, const_if_true),
+            Some(Value::Boolean(false, _)) => (if_false, const_if_false),
+            _ => (
+                Expression::Ternary(TernaryExpression {
+                    condition: Box::new(condition),
+                    if_true: Box::new(if_true),
+                    if_false: Box::new(if_false),
+                    span: input.span,
+                }),
+                None,
+            ),
+        }
+    }
 }

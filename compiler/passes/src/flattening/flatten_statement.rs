@@ -104,6 +104,8 @@ impl<'a> StatementReconstructor for Flattener<'a> {
         let prev_non_const_block = self.non_const_block;
         self.non_const_block = const_value.is_none() || prev_non_const_block;
 
+        // TODO: in future if symbol table is used for other passes.
+        // We will have to remove these scopes instead of skipping over them.
         let out = match const_value {
             Some(Value::Boolean(true, _)) => {
                 let block = Statement::Block(self.reconstruct_block(input.block));
@@ -214,6 +216,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                                 },
                             );
 
+                            self.create_iter_scopes = true;
                             let block = Statement::Block(Block {
                                 statements: input
                                     .block
@@ -224,6 +227,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                                     .collect(),
                                 span: input.block.span,
                             });
+                            self.create_iter_scopes = false;
 
                             self.symbol_table.borrow_mut().variables.remove(&input.variable.name);
 
@@ -285,7 +289,11 @@ impl<'a> StatementReconstructor for Flattener<'a> {
     }
 
     fn reconstruct_block(&mut self, input: Block) -> Block {
-        let current_block = self.block_index;
+        let current_block = if self.create_iter_scopes {
+            self.symbol_table.borrow_mut().insert_block()
+        } else {
+            self.block_index
+        };
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
             .swap(prev_st.borrow().get_block_scope(current_block).unwrap());

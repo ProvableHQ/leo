@@ -142,8 +142,7 @@ impl SymbolTable {
             };
             true
         } else if let Some(parent) = &mut self.parent {
-            parent.set_variable(symbol, value);
-            true
+            parent.set_variable(symbol, value)
         } else {
             false
         }

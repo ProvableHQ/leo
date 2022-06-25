@@ -143,7 +143,23 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             },
         );
 
-        self.visit_block(&input.block);
+        let scope_index = self.symbol_table.borrow_mut().insert_block();
+        let prev_st = std::mem::take(&mut self.symbol_table);
+        self.symbol_table
+            .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
+        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
+
+        input.block.statements.iter().for_each(|s| self.visit_statement(s));
+        // Keep the iteration scope but empty it .
+        // As it will just become a block of block scopes later one.
+        // Makes it easier to avoid conflicts.
+        self.symbol_table.borrow_mut().variables.clear();
+        self.symbol_table.borrow_mut().scopes.clear();
+        self.symbol_table.borrow_mut().scope_index = 0;
+
+        let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
+        self.symbol_table.swap(prev_st.get_block_scope(scope_index).unwrap());
+        self.symbol_table = RefCell::new(prev_st);
 
         if let Err(err) = inserted {
             self.handler.emit_err(err);
