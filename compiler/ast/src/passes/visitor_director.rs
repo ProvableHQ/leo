@@ -225,6 +225,7 @@ pub trait ProgramVisitorDirector<'a>: VisitorDirector<'a> + StatementVisitorDire
                 .values()
                 .for_each(|function| self.visit_function(function));
             input.circuits.values().for_each(|circuit| self.visit_circuit(circuit));
+            input.records.values().for_each(|record| self.visit_record(record));
         }
     }
 

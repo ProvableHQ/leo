@@ -70,6 +70,12 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                 expected,
                 circuit.span(),
             ));
+        } else if let Some(record) = self.visitor.symbol_table.clone().lookup_record(&var.name) {
+            return Some(self.visitor.assert_expected_option(
+                Type::Identifier(record.identifier.clone()),
+                expected,
+                record.span(),
+            ));
         } else if let VisitResult::VisitChildren = self.visitor.visit_identifier(var) {
             if let Some(var) = self.visitor.symbol_table.clone().lookup_variable(&var.name) {
                 return Some(self.visitor.assert_expected_option(*var.type_, expected, var.span));
@@ -624,7 +630,62 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
         input: &'a CircuitInitExpression,
         additional: &Self::AdditionalInput,
     ) -> Option<Self::Output> {
-        if let Some(circ) = self.visitor.symbol_table.clone().lookup_circuit(&input.name.name) {
+        // Type check record init expression.
+        if let Some(expected) = self.visitor.symbol_table.clone().lookup_record(&input.name.name) {
+            // Check record type name.
+            let ret = self
+                .visitor
+                .assert_expected_circuit(expected.identifier, additional, input.name.span());
+
+            // Check number of record data variables.
+            if expected.data.len() != input.members.len() - 2 {
+                self.visitor.handler.emit_err(
+                    TypeCheckerError::incorrect_num_record_variables(
+                        expected.data.len(),
+                        input.members.len(),
+                        input.span(),
+                    )
+                    .into(),
+                );
+            }
+
+            // Check record variable types.
+            input.members.iter().for_each(|actual| {
+                // Check record owner.
+                if actual.identifier.matches(&expected.owner.ident) {
+                    if let Some(owner_expr) = &actual.expression {
+                        self.visit_expression(owner_expr, &Some(Type::Address));
+                    }
+                }
+
+                // Check record balance.
+                if actual.identifier.matches(&expected.balance.ident) {
+                    if let Some(balance_expr) = &actual.expression {
+                        self.visit_expression(balance_expr, &Some(Type::IntegerType(IntegerType::U64)));
+                    }
+                }
+
+                // Check record data variable.
+                if let Some(expected_var) = expected
+                    .data
+                    .iter()
+                    .find(|member| member.ident.matches(&actual.identifier))
+                {
+                    if let Some(var_expr) = &actual.expression {
+                        self.visit_expression(var_expr, &Some(expected_var.type_));
+                    }
+                } else {
+                    self.visitor.handler.emit_err(
+                        TypeCheckerError::unknown_sym("record variable", actual.identifier, actual.identifier.span())
+                            .into(),
+                    );
+                }
+            });
+
+            Some(ret)
+        } else if let Some(circ) = self.visitor.symbol_table.clone().lookup_circuit(&input.name.name) {
+            // Type check circuit init expression.
+
             // Check circuit type name.
             let ret = self
                 .visitor

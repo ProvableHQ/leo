@@ -185,7 +185,9 @@ impl ParserContext<'_> {
         let actual_type = self.parse_all_types()?.0;
 
         if expected_name != actual_name.name || expected_type != actual_type {
-            self.emit_err(ParserError::required_record_variable(expected_name, expected_type, actual_name.span()).into());
+            self.emit_err(
+                ParserError::required_record_variable(expected_name, expected_type, actual_name.span()).into(),
+            );
         }
 
         // Emit an error for a record variable without an ending comma or semicolon.

@@ -36,7 +36,7 @@ impl RecordVariable {
     }
 
     pub fn name(&self) -> Symbol {
-        return self.ident.name
+        return self.ident.name;
     }
 }
 

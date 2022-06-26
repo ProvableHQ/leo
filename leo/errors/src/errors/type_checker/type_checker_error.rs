@@ -191,6 +191,16 @@ create_messages!(
         help: None,
     }
 
+    /// For when the user tries initialize a circuit with the incorrect number of args.
+    @formatted
+    incorrect_num_record_variables {
+        args: (expected: impl Display, received: impl Display),
+        msg: format!(
+            "Record expected `{expected}` variables, but got `{received}`",
+        ),
+        help: None,
+    }
+
     /// An invalid access call is made e.g., `bool::MAX`
     @formatted
     invalid_access_expression {

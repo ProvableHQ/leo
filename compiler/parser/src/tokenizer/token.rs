@@ -89,7 +89,6 @@ pub enum Token {
     U32,
     U64,
     U128,
-    SelfUpper,
     Record,
 
     // Regular Keywords
@@ -144,7 +143,6 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Record,
     Token::Return,
     Token::SelfLower,
-    Token::SelfUpper,
     Token::Scalar,
     Token::Static,
     Token::String,
@@ -190,7 +188,6 @@ impl Token {
             Token::Return => sym::Return,
             Token::Scalar => sym::scalar,
             Token::SelfLower => sym::SelfLower,
-            Token::SelfUpper => sym::SelfUpper,
             Token::Static => sym::Static,
             Token::String => sym::string,
             Token::True => sym::True,
@@ -270,7 +267,6 @@ impl fmt::Display for Token {
             U32 => write!(f, "u32"),
             U64 => write!(f, "u64"),
             U128 => write!(f, "u128"),
-            SelfUpper => write!(f, "Self"),
             Record => write!(f, "record"),
 
             Circuit => write!(f, "circuit"),

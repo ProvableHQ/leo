@@ -147,7 +147,7 @@ impl<'a> TypeChecker<'a> {
     /// Returns the `circuit` type and emits an error if the `expected` type does not match.
     pub(crate) fn assert_expected_circuit(&mut self, circuit: Identifier, expected: &Option<Type>, span: Span) -> Type {
         if let Some(Type::Identifier(expected)) = expected {
-            if expected.name != circuit.name {
+            if !circuit.matches(expected) {
                 self.handler
                     .emit_err(TypeCheckerError::type_should_be(circuit.name, expected.name, span).into());
             }
