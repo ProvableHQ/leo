@@ -86,7 +86,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                 st.deconstify_variable(&var_name);
                 st.locally_constify_variable(var_name, c);
             }
-        } else if !var_in_local {
+        } else if !var_in_local || const_val.is_none() {
             st.deconstify_variable(&var_name);
         }
 
