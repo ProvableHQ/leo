@@ -67,13 +67,13 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
         if let VisitResult::VisitChildren = self.visitor.visit_identifier(var) {
             if let Some(circuit) = self.visitor.symbol_table.clone().lookup_circuit(&var.name) {
                 return Some(self.visitor.assert_expected_option(
-                    Type::Identifier(circuit.identifier.clone()),
+                    Type::Identifier(circuit.identifier),
                     expected,
                     circuit.span(),
                 ));
             } else if let Some(record) = self.visitor.symbol_table.clone().lookup_record(&var.name) {
                 return Some(self.visitor.assert_expected_option(
-                    Type::Identifier(record.identifier.clone()),
+                    Type::Identifier(record.identifier),
                     expected,
                     record.span(),
                 ));

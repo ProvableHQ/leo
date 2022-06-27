@@ -150,10 +150,10 @@ impl ParserContext<'_> {
             // CAUTION: function members are unstable for testnet3.
             let function = self.parse_function()?;
 
-            return Err(ParserError::circuit_functions_unstable(function.1.span()).into());
+            Err(ParserError::circuit_functions_unstable(function.1.span()).into())
             // Ok(CircuitMember::CircuitFunction(Box::new(function.1)))
         } else {
-            return Err(Self::unexpected_item(&self.token).into());
+            Err(Self::unexpected_item(&self.token).into())
         }
     }
 
@@ -166,7 +166,7 @@ impl ParserContext<'_> {
         let (members, end) = self.parse_circuit_members()?;
 
         Ok((
-            circuit_name.clone(),
+            circuit_name,
             Circuit {
                 identifier: circuit_name,
                 members,
@@ -186,13 +186,13 @@ impl ParserContext<'_> {
 
         if expected_name != actual_name.name || expected_type != actual_type {
             self.emit_err(
-                ParserError::required_record_variable(expected_name, expected_type, actual_name.span()).into(),
+                ParserError::required_record_variable(expected_name, expected_type, actual_name.span()),
             );
         }
 
         // Emit an error for a record variable without an ending comma or semicolon.
         if !(self.eat(&Token::Comma) || self.eat(&Token::Semicolon)) {
-            self.emit_err(ParserError::expected_ending_comma_or_semicolon(actual_name.span()).into());
+            self.emit_err(ParserError::expected_ending_comma_or_semicolon(actual_name.span()));
         }
 
         Ok(RecordVariable::new(actual_name, actual_type))
@@ -249,7 +249,7 @@ impl ParserContext<'_> {
         let (data, end) = self.parse_record_data()?;
 
         Ok((
-            record_name.clone(),
+            record_name,
             Record {
                 identifier: record_name,
                 owner,
