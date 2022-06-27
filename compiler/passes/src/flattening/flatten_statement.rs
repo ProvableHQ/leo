@@ -159,7 +159,6 @@ impl<'a> StatementReconstructor for Flattener<'a> {
             }
             Some(Value::Boolean(false, _)) => {
                 self.block_index += 1;
-                // TODO: creates empty block, should instead figure out how to return none here.
                 Statement::Block(Block {
                     statements: Vec::new(),
                     span: input.span,
