@@ -21,12 +21,17 @@
 //! of the Leo compiler. The Leo compiler can generate a set of R1CS constraints from any [`Ast`].
 
 #![doc = include_str!("../README.md")]
+pub mod access;
+pub use self::access::*;
+
+pub mod circuits;
+pub use self::circuits::*;
 
 pub mod common;
 pub use self::common::*;
 
-pub mod expression;
-pub use self::expression::*;
+pub mod expressions;
+pub use self::expressions::*;
 
 pub mod functions;
 pub use self::functions::*;

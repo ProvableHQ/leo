@@ -35,13 +35,15 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
     fn visit_expression(&mut self, input: &'a Expression, additional: &Self::AdditionalInput) -> Option<Self::Output> {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_expression(input) {
             match input {
+                Expression::Access(expr) => self.visit_access(expr, additional),
                 Expression::Identifier(expr) => self.visit_identifier(expr, additional),
                 Expression::Literal(expr) => self.visit_literal(expr, additional),
                 Expression::Binary(expr) => self.visit_binary(expr, additional),
-                Expression::Unary(expr) => self.visit_unary(expr, additional),
-                Expression::Ternary(expr) => self.visit_ternary(expr, additional),
                 Expression::Call(expr) => self.visit_call(expr, additional),
+                Expression::CircuitInit(expr) => self.visit_circuit_init(expr, additional),
                 Expression::Err(expr) => self.visit_err(expr, additional),
+                Expression::Ternary(expr) => self.visit_ternary(expr, additional),
+                Expression::Unary(expr) => self.visit_unary(expr, additional),
             };
         }
 
@@ -59,6 +61,25 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
         _additional: &Self::AdditionalInput,
     ) -> Option<Self::Output> {
         self.visitor_ref().visit_literal(input);
+        None
+    }
+
+    fn visit_access(
+        &mut self,
+        input: &'a AccessExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Option<Self::Output> {
+        if let VisitResult::VisitChildren = self.visitor_ref().visit_access(input) {
+            match input {
+                AccessExpression::Member(member) => return self.visit_expression(&member.inner, additional),
+                AccessExpression::AssociatedConstant(_member) => {}
+                AccessExpression::AssociatedFunction(member) => {
+                    member.args.iter().for_each(|expr| {
+                        self.visit_expression(expr, additional);
+                    });
+                }
+            };
+        }
         None
     }
 
@@ -98,6 +119,21 @@ pub trait ExpressionVisitorDirector<'a>: VisitorDirector<'a> {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_call(input) {
             input.arguments.iter().for_each(|expr| {
                 self.visit_expression(expr, additional);
+            });
+        }
+        None
+    }
+
+    fn visit_circuit_init(
+        &mut self,
+        input: &'a CircuitInitExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Option<Self::Output> {
+        if let VisitResult::VisitChildren = self.visitor_ref().visit_circuit_init(input) {
+            input.members.iter().for_each(|member| {
+                if let Some(expr) = &member.expression {
+                    self.visit_expression(expr, additional);
+                }
             });
         }
         None
@@ -188,12 +224,23 @@ pub trait ProgramVisitorDirector<'a>: VisitorDirector<'a> + StatementVisitorDire
                 .functions
                 .values()
                 .for_each(|function| self.visit_function(function));
+            input.circuits.values().for_each(|circuit| self.visit_circuit(circuit));
         }
     }
 
     fn visit_function(&mut self, input: &'a Function) {
         if let VisitResult::VisitChildren = self.visitor_ref().visit_function(input) {
             self.visit_block(&input.block);
+        }
+    }
+
+    fn visit_circuit(&mut self, input: &'a Circuit) {
+        if let VisitResult::VisitChildren = self.visitor_ref().visit_circuit(input) {
+            input.members.iter().for_each(|member| {
+                match member {
+                    CircuitMember::CircuitVariable(_, _) => {}
+                };
+            })
         }
     }
 }

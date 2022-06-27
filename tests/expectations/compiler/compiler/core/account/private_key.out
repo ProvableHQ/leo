@@ -1,8 +1,5 @@
 ---
 namespace: Compile
-expectation: Pass
+expectation: Fail
 outputs:
-  - output:
-      - initial_input_ast: no input
-    initial_ast: 4eb0f4ca9ddb850b440f78e2bcb0b46ab5e412dcdf2d479c10c83074f4fc10cf
-    symbol_table: d2e68d11f0c2bacb8e8dc3e2131c8ce8ed3246b2f2798d24666080ae1c8de2bb
+  - "Error [ETYC0372014]: The type PrivateKey is a reserved core type name.\n    --> compiler-test:4:35\n     |\n   4 | function main(public private_key: PrivateKey, a: bool) -> bool {\n     |                                   ^^^^^^^^^^\n"

@@ -16,7 +16,7 @@
 
 use std::fmt::Display;
 
-use leo_ast::Function;
+use leo_ast::{Circuit, Function};
 use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
@@ -26,9 +26,12 @@ use crate::{VariableScope, VariableSymbol};
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct SymbolTable<'a> {
-    /// Functions represents the name of each function mapped to the Ast's function definition.
+    /// Maps function names to function definitions.
     /// This field is populated at a first pass.
     functions: IndexMap<Symbol, &'a Function>,
+    /// Maps circuit names to circuit definitions.
+    /// This field is populated at a first pass.
+    circuits: IndexMap<Symbol, &'a Circuit>,
     /// Variables represents functions variable definitions and input variables.
     /// This field is not populated till necessary.
     pub(crate) variables: VariableScope<'a>,
@@ -54,6 +57,15 @@ impl<'a> SymbolTable<'a> {
         Ok(())
     }
 
+    pub fn insert_circuit(&mut self, symbol: Symbol, insert: &'a Circuit) -> Result<()> {
+        if self.circuits.contains_key(&symbol) {
+            // Return an error if the circuit name has already been inserted.
+            return Err(AstError::shadowed_circuit(symbol, insert.span).into());
+        }
+        self.circuits.insert(symbol, insert);
+        Ok(())
+    }
+
     pub fn insert_variable(&mut self, symbol: Symbol, insert: VariableSymbol<'a>) -> Result<()> {
         self.check_shadowing(symbol, insert.span)?;
         self.variables.variables.insert(symbol, insert);
@@ -64,7 +76,11 @@ impl<'a> SymbolTable<'a> {
         self.functions.get(&symbol)
     }
 
-    pub fn lookup_variable(&self, symbol: Symbol) -> Option<&VariableSymbol<'a>> {
+    pub fn lookup_circuit(&self, symbol: &Symbol) -> Option<&&'a Circuit> {
+        self.circuits.get(symbol)
+    }
+
+    pub fn lookup_variable(&self, symbol: &Symbol) -> Option<&VariableSymbol<'a>> {
         self.variables.lookup_variable(symbol)
     }
 
@@ -89,6 +105,10 @@ impl<'a> Display for SymbolTable<'a> {
 
         for func in self.functions.values() {
             write!(f, "{func}")?;
+        }
+
+        for circ in self.circuits.values() {
+            write!(f, "{circ}")?;
         }
 
         write!(f, "{}", self.variables)

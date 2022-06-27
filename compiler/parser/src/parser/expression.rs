@@ -15,8 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-
 use leo_errors::{ParserError, Result};
+use leo_span::sym;
+
 use snarkvm_dpc::{prelude::Address, testnet2::Testnet2};
 
 const INT_TYPES: &[Token] = &[
@@ -123,9 +124,9 @@ impl ParserContext<'_> {
             Token::Eq => BinaryOperation::Eq,
             Token::NotEq => BinaryOperation::Neq,
             Token::Lt => BinaryOperation::Lt,
-            Token::LtEq => BinaryOperation::Le,
+            Token::LtEq => BinaryOperation::Lte,
             Token::Gt => BinaryOperation::Gt,
-            Token::GtEq => BinaryOperation::Ge,
+            Token::GtEq => BinaryOperation::Gte,
             Token::Add => BinaryOperation::Add,
             Token::Minus => BinaryOperation::Sub,
             Token::Mul => BinaryOperation::Mul,
@@ -258,10 +259,7 @@ impl ParserContext<'_> {
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// method call expression.
-    fn parse_method_call_expression(&mut self, receiver: Expression) -> Result<Expression> {
-        // Parse the method name.
-        let method = self.expect_ident()?;
-
+    fn parse_method_call_expression(&mut self, receiver: Expression, method: Identifier) -> Result<Expression> {
         // Parse the argument list.
         let (mut args, _, span) = self.parse_expr_tuple()?;
         let span = receiver.span() + span;
@@ -283,9 +281,44 @@ impl ParserContext<'_> {
             }))
         } else {
             // Either an invalid unary/binary operator, or more arguments given.
-            self.emit_err(ParserError::expr_arbitrary_method_call(span));
+            self.emit_err(ParserError::invalid_method_call(receiver, method, span));
             Ok(Expression::Err(ErrExpression { span }))
         }
+    }
+
+    /// Returns an [`Expression`] AST node if the next tokens represent a
+    /// static access expression.
+    fn parse_associated_access_expression(&mut self, circuit_name: Expression) -> Result<Expression> {
+        // Parse circuit name expression into circuit type.
+        let circuit_type = if let Expression::Identifier(ident) = circuit_name {
+            Type::Identifier(ident)
+        } else {
+            return Err(ParserError::invalid_associated_access(&circuit_name, circuit_name.span()).into());
+        };
+
+        // Parse the circuit member name (can be variable or function name).
+        let member_name = self.expect_ident()?;
+
+        // Check if there are arguments.
+        Ok(Expression::Access(if self.check(&Token::LeftParen) {
+            // Parse the arguments
+            let (args, _, end) = self.parse_expr_tuple()?;
+
+            // Return the circuit function.
+            AccessExpression::AssociatedFunction(AssociatedFunction {
+                span: circuit_name.span() + end,
+                ty: circuit_type,
+                name: member_name,
+                args,
+            })
+        } else {
+            // Return the circuit constant.
+            AccessExpression::AssociatedConstant(AssociatedConstant {
+                span: circuit_name.span() + member_name.span(),
+                ty: circuit_type,
+                name: member_name,
+            })
+        }))
     }
 
     /// Parses a tuple of expressions.
@@ -304,8 +337,23 @@ impl ParserContext<'_> {
         let mut expr = self.parse_primary_expression()?;
         loop {
             if self.eat(&Token::Dot) {
-                // Eat a method call on a type
-                expr = self.parse_method_call_expression(expr)?
+                // Parse the method name.
+                let name = self.expect_ident()?;
+
+                if self.check(&Token::LeftParen) {
+                    // Eat a method call on a type
+                    expr = self.parse_method_call_expression(expr, name)?
+                } else {
+                    // Eat a circuit member access.
+                    expr = Expression::Access(AccessExpression::Member(MemberAccess {
+                        span: expr.span(),
+                        inner: Box::new(expr),
+                        name,
+                    }))
+                }
+            } else if self.eat(&Token::DoubleColon) {
+                // Eat a core circuit constant or core circuit function call.
+                expr = self.parse_associated_access_expression(expr)?;
             } else if self.check(&Token::LeftParen) {
                 // Parse a function call that's by itself.
                 let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
@@ -403,6 +451,33 @@ impl ParserContext<'_> {
         Some(Ok(gt))
     }
 
+    fn parse_circuit_member(&mut self) -> Result<CircuitVariableInitializer> {
+        let identifier = self.expect_ident()?;
+        let expression = if self.eat(&Token::Colon) {
+            // Parse individual circuit variable declarations.
+            Some(self.parse_expression()?)
+        } else {
+            None
+        };
+
+        Ok(CircuitVariableInitializer { identifier, expression })
+    }
+
+    /// Returns an [`Expression`] AST node if the next tokens represent a
+    /// circuit initialization expression.
+    /// let foo = Foo { x: 1u8 };
+    pub fn parse_circuit_expression(&mut self, identifier: Identifier) -> Result<Expression> {
+        let (members, _, end) = self.parse_list(Delimiter::Brace, Some(Token::Comma), |p| {
+            p.parse_circuit_member().map(Some)
+        })?;
+
+        Ok(Expression::CircuitInit(CircuitInitExpression {
+            span: identifier.span + end,
+            name: identifier,
+            members,
+        }))
+    }
+
     /// Returns an [`Expression`] AST node if the next token is a primary expression:
     /// - Literals: field, group, unsigned integer, signed integer, boolean, address
     /// - Aggregate types: array, tuple
@@ -461,7 +536,22 @@ impl ParserContext<'_> {
             Token::StaticString(value) => Expression::Literal(LiteralExpression::String(value, span)),
             Token::Ident(name) => {
                 let ident = Identifier { name, span };
-                Expression::Identifier(ident)
+                if !self.disallow_circuit_construction && self.check(&Token::LeftCurly) {
+                    self.parse_circuit_expression(ident)?
+                } else {
+                    Expression::Identifier(ident)
+                }
+            }
+            Token::SelfUpper => {
+                let ident = Identifier {
+                    name: sym::SelfUpper,
+                    span,
+                };
+                if !self.disallow_circuit_construction && self.check(&Token::LeftCurly) {
+                    self.parse_circuit_expression(ident)?
+                } else {
+                    Expression::Identifier(ident)
+                }
             }
             t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
                 name: t.keyword_to_symbol().unwrap(),

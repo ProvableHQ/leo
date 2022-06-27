@@ -100,7 +100,7 @@ macro_rules! symbols {
 }
 
 symbols! {
-    // unary operators index 0-7
+    // unary operators
     abs,
     abs_wrapped,
     double,
@@ -108,18 +108,18 @@ symbols! {
     neg,
     not,
     square,
-    sqrt,
+    square_root,
 
-    // binary operators index 8-32
+    // binary operators
     add,
     add_wrapped,
     and,
     div,
     div_wrapped,
     eq,
-    ge,
+    gte,
     gt,
-    le,
+    lte,
     lt,
     mul,
     mul_wrapped,
@@ -137,19 +137,18 @@ symbols! {
     sub_wrapped,
     xor,
 
-    // algorithm operator names 33-44
-    bhp256,
-    bhp512,
-    bhp768,
-    bhp1024,
+    // core circuits
+    BHP256,
+    BHP512,
+    BHP768,
+    BHP1024,
     commit,
     hash,
-    ped64,
-    ped128,
-    prf,
-    psd2,
-    psd4,
-    psd8,
+    Pedersen64,
+    Pedersen128,
+    Poseidon2,
+    Poseidon4,
+    Poseidon8,
 
     // types
     address,
@@ -180,6 +179,7 @@ symbols! {
     // general keywords
     AlwaysConst,
     assert,
+    circuit,
     Class: "class",
     context,
     CoreFunction,
@@ -198,6 +198,9 @@ symbols! {
     prelude,
     Public,
     Return: "return",
+    SelfLower: "self",
+    SelfUpper: "Self",
+    Static: "static",
     Star: "*",
     std,
     Struct: "struct",

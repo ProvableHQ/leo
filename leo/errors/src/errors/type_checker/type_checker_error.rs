@@ -151,12 +151,22 @@ create_messages!(
         help: None,
     }
 
-    /// For when an invalid built in type is used.
+    /// For when an invalid core instruction is used.
     @formatted
-    invalid_built_in_type {
+    invalid_core_instruction {
+        args: (circuit: impl Display, function: impl Display),
+        msg: format!(
+            "The instruction {circuit}::{function} is not a valid core instruction.",
+        ),
+        help: None,
+    }
+
+    /// For when a circuit is created with the same name as a core type.
+    @formatted
+    core_type_name_conflict {
         args: (type_: impl Display),
         msg: format!(
-            "The type {type_} is not a valid built in type.",
+            "The type {type_} is a reserved core type name.",
         ),
         help: None,
     }
@@ -167,6 +177,56 @@ create_messages!(
         args: (func: impl Display),
         msg: format!(
             "The function {func} has no return statement.",
+        ),
+        help: None,
+    }
+
+    /// For when the user tries initialize a circuit with the incorrect number of args.
+    @formatted
+    incorrect_num_circuit_members {
+        args: (expected: impl Display, received: impl Display),
+        msg: format!(
+            "Circuit expected `{expected}` members, but got `{received}`",
+        ),
+        help: None,
+    }
+
+    /// An invalid access call is made e.g., `bool::MAX`
+    @formatted
+    invalid_access_expression {
+        args: (expr: impl Display),
+        msg: format!(
+            "Invalid method call to {expr}."
+        ),
+        help: None,
+    }
+
+    /// Attempted to define more that one circuit member with the same name.
+    @formatted
+    duplicate_circuit_member {
+        args: (circuit: impl Display),
+        msg: format!(
+            "Circuit {circuit} defined with more than one member with the same name."
+        ),
+        help: None,
+    }
+
+    /// Attempted to access an invalid circuit.
+    @formatted
+    invalid_circuit {
+        args: (circuit: impl Display),
+        msg: format!(
+            "Circuit {circuit} is not found in the current scope."
+        ),
+        help: None,
+    }
+
+    /// Attempted to access an invalid circuit variable.
+    @formatted
+    invalid_circuit_variable {
+        args: (variable: impl Display, circuit: impl Display),
+        msg: format!(
+            "Circuit variable {variable} is not a member of circuit {circuit}."
         ),
         help: None,
     }

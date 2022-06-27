@@ -30,7 +30,7 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
         let parent = self.visitor.parent.unwrap();
 
         let return_type = &self.visitor.symbol_table.lookup_fn(parent).map(|f| f.output);
-        self.visitor.validate_ident_type(return_type);
+        self.visitor.check_ident_type(return_type);
         self.visitor.has_return = true;
 
         self.visit_expression(&input.expression, return_type);
@@ -44,7 +44,7 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
         };
 
         input.variable_names.iter().for_each(|v| {
-            self.visitor.validate_ident_type(&Some(input.type_));
+            self.visitor.check_ident_type(&Some(input.type_));
 
             self.visit_expression(&input.value, &Some(input.type_));
 
@@ -72,7 +72,7 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
             }
         };
 
-        let var_type = if let Some(var) = self.visitor.symbol_table.lookup_variable(var_name.name) {
+        let var_type = if let Some(var) = self.visitor.symbol_table.lookup_variable(&var_name.name) {
             match &var.declaration {
                 Declaration::Const => self
                     .visitor
@@ -95,7 +95,7 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
         };
 
         if var_type.is_some() {
-            self.visitor.validate_ident_type(&var_type);
+            self.visitor.check_ident_type(&var_type);
             self.visit_expression(&input.value, &var_type);
         }
     }
@@ -121,7 +121,7 @@ impl<'a> StatementVisitorDirector<'a> for Director<'a> {
         }
 
         let iter_type = &Some(input.type_);
-        self.visitor.validate_ident_type(iter_type);
+        self.visitor.check_ident_type(iter_type);
         self.visit_expression(&input.start, iter_type);
         self.visit_expression(&input.stop, iter_type);
     }

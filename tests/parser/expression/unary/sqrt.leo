@@ -3,13 +3,13 @@ namespace: ParseExpression
 expectation: Pass
 */
 
-!-x.sqrt()
-x.sqrt().sqrt().sqrt()
--x.sqrt()
-(-x).sqrt()
--(x.sqrt())
-(-x.sqrt()).sqrt()
-!x.sqrt()
-(!x).sqrt()
-!(x.sqrt())
-(!x.sqrt()).sqrt()
+!-x.square_root()
+x.square_root().square_root().square_root()
+-x.square_root()
+(-x).square_root()
+-(x.square_root())
+(-x.square_root()).square_root()
+!x.square_root()
+(!x).square_root()
+!(x.square_root())
+(!x.square_root()).square_root()

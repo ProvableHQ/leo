@@ -70,13 +70,13 @@ impl Function {
     }
 }
 
-impl fmt::Display for Function {
+impl fmt::Debug for Function {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
 }
 
-impl fmt::Debug for Function {
+impl fmt::Display for Function {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }

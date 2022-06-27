@@ -87,7 +87,7 @@ outputs:
             Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
           right:
             Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
-          op: Ge
+          op: Gte
           span:
             lo: 12
             hi: 18
@@ -133,7 +133,7 @@ outputs:
             Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
           right:
             Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
-          op: Le
+          op: Lte
           span:
             lo: 12
             hi: 18

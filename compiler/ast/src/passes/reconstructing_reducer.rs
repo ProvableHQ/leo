@@ -232,11 +232,13 @@ pub trait ReconstructingReducer {
         program: &Program,
         expected_input: Vec<FunctionInput>,
         functions: IndexMap<Identifier, Function>,
+        circuits: IndexMap<Identifier, Circuit>,
     ) -> Result<Program> {
         Ok(Program {
             name: program.name.clone(),
             expected_input,
             functions,
+            circuits,
         })
     }
 
@@ -279,5 +281,40 @@ pub trait ReconstructingReducer {
             core_mapping: function.core_mapping.clone(),
             span: function.span,
         })
+    }
+
+    fn reduce_circuit_variable_initializer(
+        &mut self,
+        _variable: &CircuitVariableInitializer,
+        identifier: Identifier,
+        expression: Option<Expression>,
+    ) -> Result<CircuitVariableInitializer> {
+        Ok(CircuitVariableInitializer { identifier, expression })
+    }
+
+    fn reduce_circuit_init(
+        &mut self,
+        circuit_init: &CircuitInitExpression,
+        name: Identifier,
+        members: Vec<CircuitVariableInitializer>,
+    ) -> Result<CircuitInitExpression> {
+        Ok(CircuitInitExpression {
+            name,
+            members,
+            span: circuit_init.span.clone(),
+        })
+    }
+
+    fn reduce_circuit_member(&mut self, _circuit_member: &CircuitMember, new: CircuitMember) -> Result<CircuitMember> {
+        Ok(new)
+    }
+
+    fn reduce_circuit(
+        &mut self,
+        circuit: &Circuit,
+        circuit_name: Identifier,
+        members: Vec<CircuitMember>,
+    ) -> Result<Circuit> {
+        Ok(Circuit { identifier: circuit_name, members, span: circuit.span.clone() })
     }
 }

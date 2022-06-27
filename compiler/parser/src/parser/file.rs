@@ -23,19 +23,25 @@ impl ParserContext<'_> {
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     pub fn parse_program(&mut self) -> Result<Program> {
         let mut functions = IndexMap::new();
+        let mut circuits = IndexMap::new();
 
         while self.has_next() {
             match &self.token.token {
+                Token::Circuit => {
+                    let (id, circuit) = self.parse_circuit()?;
+                    circuits.insert(id, circuit);
+                }
+                Token::Const if self.peek_is_function() => {
+                    let (id, function) = self.parse_function()?;
+                    functions.insert(id, function);
+                }
                 Token::Ident(sym::test) => return Err(ParserError::test_function(self.token.span).into()),
                 // Const functions share the first token with the global Const.
-                Token::Const if self.peek_is_function() => {
-                    let (id, function) = self.parse_function_declaration()?;
-                    functions.insert(id, function);
-                }
                 Token::Function => {
-                    let (id, function) = self.parse_function_declaration()?;
+                    let (id, function) = self.parse_function()?;
                     functions.insert(id, function);
                 }
+
                 _ => return Err(Self::unexpected_item(&self.token).into()),
             }
         }
@@ -43,19 +49,125 @@ impl ParserContext<'_> {
             name: String::new(),
             expected_input: Vec::new(),
             functions,
+            circuits,
         })
     }
 
     fn unexpected_item(token: &SpannedToken) -> ParserError {
         ParserError::unexpected(
             &token.token,
-            [Token::Function, Token::Ident(sym::test)]
+            [Token::Function, Token::Circuit, Token::Ident(sym::test)]
                 .iter()
                 .map(|x| format!("'{}'", x))
                 .collect::<Vec<_>>()
                 .join(", "),
             token.span,
         )
+    }
+
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
+    /// or circuit member function or circuit member constant.
+    pub fn parse_circuit_declaration(&mut self) -> Result<(Vec<CircuitMember>, Span)> {
+        let mut members = Vec::new();
+
+        let (mut semi_colons, mut commas) = (false, false);
+
+        while !self.check(&Token::RightCurly) {
+            members.push(if self.peek_is_function() {
+                // function
+                self.parse_member_function_declaration()?
+            } else if self.eat(&Token::Static) {
+                // static const
+                self.parse_const_member_variable_declaration()?
+            } else {
+                // variable
+                let variable = self.parse_member_variable_declaration()?;
+
+                if self.eat(&Token::Semicolon) {
+                    if commas {
+                        self.emit_err(ParserError::mixed_commas_and_semicolons(self.token.span));
+                    }
+                    semi_colons = true;
+                }
+
+                if self.eat(&Token::Comma) {
+                    if semi_colons {
+                        self.emit_err(ParserError::mixed_commas_and_semicolons(self.token.span));
+                    }
+                    commas = true;
+                }
+
+                variable
+            });
+        }
+        let span = self.expect(&Token::RightCurly)?;
+
+        Ok((members, span))
+    }
+
+    /// Parses `IDENT: TYPE`.
+    fn parse_typed_field_name(&mut self) -> Result<(Identifier, Type)> {
+        let name = self.expect_ident()?;
+        self.expect(&Token::Colon)?;
+        let type_ = self.parse_all_types()?.0;
+
+        Ok((name, type_))
+    }
+
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member static constant.
+    pub fn parse_const_member_variable_declaration(&mut self) -> Result<CircuitMember> {
+        self.expect(&Token::Static)?;
+        self.expect(&Token::Const)?;
+
+        // `IDENT: TYPE = EXPR`:
+        let (_name, _type_) = self.parse_typed_field_name()?;
+        self.expect(&Token::Assign)?;
+        let expr = self.parse_expression()?;
+
+        self.expect(&Token::Semicolon)?;
+
+        // CAUTION: function members are unstable for testnet3.
+        Err(ParserError::circuit_constants_unstable(expr.span()).into())
+
+        // Ok(CircuitMember::CircuitConst(name, type_, expr))
+    }
+
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.
+    pub fn parse_member_variable_declaration(&mut self) -> Result<CircuitMember> {
+        let (name, type_) = self.parse_typed_field_name()?;
+
+        Ok(CircuitMember::CircuitVariable(name, type_))
+    }
+
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member function.
+    pub fn parse_member_function_declaration(&mut self) -> Result<CircuitMember> {
+        if self.peek_is_function() {
+            // CAUTION: function members are unstable for testnet3.
+            let function = self.parse_function()?;
+
+            return Err(ParserError::circuit_functions_unstable(function.1.span()).into());
+            // Ok(CircuitMember::CircuitFunction(Box::new(function.1)))
+        } else {
+            return Err(Self::unexpected_item(&self.token).into());
+        }
+    }
+
+    /// Returns an [`(Identifier, Function)`] ast node if the next tokens represent a circuit declaration.
+    pub(super) fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
+        let start = self.expect(&Token::Circuit)?;
+        let circuit_name = self.expect_ident()?;
+
+        self.expect(&Token::LeftCurly)?;
+        let (members, end) = self.parse_circuit_declaration()?;
+
+        Ok((
+            circuit_name.clone(),
+            Circuit {
+                identifier: circuit_name,
+                members,
+                span: start + end,
+            },
+        ))
     }
 
     /// Returns a [`ParamMode`] AST node if the next tokens represent a function parameter mode.
@@ -106,7 +218,7 @@ impl ParserContext<'_> {
 
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
-    fn parse_function_declaration(&mut self) -> Result<(Identifier, Function)> {
+    fn parse_function(&mut self) -> Result<(Identifier, Function)> {
         // Parse `function IDENT`.
         let start = self.expect(&Token::Function)?;
         let name = self.expect_ident()?;
@@ -116,7 +228,9 @@ impl ParserContext<'_> {
 
         // Parse return type.
         self.expect(&Token::Arrow)?;
+        self.disallow_circuit_construction = true;
         let output = self.parse_all_types()?.0;
+        self.disallow_circuit_construction = false;
 
         // Parse the function body.
         let block = self.parse_block()?;
