@@ -68,7 +68,6 @@ impl<'a> ProgramVisitorDirector<'a> for Director<'a> {
     }
 
     fn visit_record(&mut self, input: &'a Record) {
-        println!("visit record");
         if let VisitResult::VisitChildren = self.visitor_ref().visit_record(input) {
             // Check for conflicting record member names.
             let mut used = HashSet::new();

@@ -159,7 +159,7 @@ impl<'a> TypeChecker<'a> {
     /// Returns the given `actual` type and emits an error if the `expected` type does not match.
     pub(crate) fn assert_expected_option(&mut self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
         if let Some(expected) = expected {
-            if &actual != expected {
+            if !actual.eq_flat(expected) {
                 self.handler
                     .emit_err(TypeCheckerError::type_should_be(actual, expected, span).into());
             }
@@ -172,7 +172,7 @@ impl<'a> TypeChecker<'a> {
     /// `span` should be the location of the expected type.
     pub(crate) fn assert_expected_type(&mut self, actual: &Option<Type>, expected: Type, span: Span) -> Type {
         if let Some(actual) = actual {
-            if actual != &expected {
+            if !actual.eq_flat(&expected) {
                 self.handler
                     .emit_err(TypeCheckerError::type_should_be(actual, expected, span).into());
             }

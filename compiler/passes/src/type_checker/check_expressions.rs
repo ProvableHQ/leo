@@ -64,20 +64,20 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
     }
 
     fn visit_identifier(&mut self, var: &'a Identifier, expected: &Self::AdditionalInput) -> Option<Self::Output> {
-        if let Some(circuit) = self.visitor.symbol_table.clone().lookup_circuit(&var.name) {
-            return Some(self.visitor.assert_expected_option(
-                Type::Identifier(circuit.identifier.clone()),
-                expected,
-                circuit.span(),
-            ));
-        } else if let Some(record) = self.visitor.symbol_table.clone().lookup_record(&var.name) {
-            return Some(self.visitor.assert_expected_option(
-                Type::Identifier(record.identifier.clone()),
-                expected,
-                record.span(),
-            ));
-        } else if let VisitResult::VisitChildren = self.visitor.visit_identifier(var) {
-            if let Some(var) = self.visitor.symbol_table.clone().lookup_variable(&var.name) {
+        if let VisitResult::VisitChildren = self.visitor.visit_identifier(var) {
+            if let Some(circuit) = self.visitor.symbol_table.clone().lookup_circuit(&var.name) {
+                return Some(self.visitor.assert_expected_option(
+                    Type::Identifier(circuit.identifier.clone()),
+                    expected,
+                    circuit.span(),
+                ));
+            } else if let Some(record) = self.visitor.symbol_table.clone().lookup_record(&var.name) {
+                return Some(self.visitor.assert_expected_option(
+                    Type::Identifier(record.identifier.clone()),
+                    expected,
+                    record.span(),
+                ));
+            } else if let Some(var) = self.visitor.symbol_table.clone().lookup_variable(&var.name) {
                 return Some(self.visitor.assert_expected_option(*var.type_, expected, var.span));
             } else {
                 self.visitor
@@ -651,26 +651,22 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
 
             // Check record variable types.
             input.members.iter().for_each(|actual| {
-                // Check record owner.
                 if actual.identifier.matches(&expected.owner.ident) {
+                    // Check record owner.
                     if let Some(owner_expr) = &actual.expression {
                         self.visit_expression(owner_expr, &Some(Type::Address));
                     }
-                }
-
-                // Check record balance.
-                if actual.identifier.matches(&expected.balance.ident) {
+                } else if actual.identifier.matches(&expected.balance.ident) {
+                    // Check record balance.
                     if let Some(balance_expr) = &actual.expression {
                         self.visit_expression(balance_expr, &Some(Type::IntegerType(IntegerType::U64)));
                     }
-                }
-
-                // Check record data variable.
-                if let Some(expected_var) = expected
+                } else if let Some(expected_var) = expected
                     .data
                     .iter()
                     .find(|member| member.ident.matches(&actual.identifier))
                 {
+                    // Check record data variable.
                     if let Some(var_expr) = &actual.expression {
                         self.visit_expression(var_expr, &Some(expected_var.type_));
                     }
