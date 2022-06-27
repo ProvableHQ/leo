@@ -36,6 +36,7 @@ pub struct SymbolTable {
     /// This field is populated as necessary.
     pub(crate) variables: IndexMap<Symbol, VariableSymbol>,
     pub(crate) scope_index: usize,
+    pub(crate) is_locally_non_const: bool,
     pub(crate) scopes: Vec<RefCell<SymbolTable>>,
 }
 
@@ -123,14 +124,19 @@ impl SymbolTable {
         }
     }
 
-    /// finds the variable in the parent scope, then SHADOWS it in the local scope with a mut const value
+    /// finds the variable in the parent scope, then SHADOWS it in most recent non-const scope with a mut const value
     pub fn locally_constify_variable(&mut self, symbol: Symbol, value: Value) {
         let mut var = self
             .lookup_variable(&symbol)
-            .expect("attempting to constify non-existent variable")
+            .unwrap_or_else(|| panic!("attempting to constify non-existent variable `{symbol}`"))
             .clone();
         var.declaration = Declaration::Mut(Some(value));
-        self.variables.insert(symbol, var);
+
+        let mut st = self;
+        while !st.is_locally_non_const && st.parent.is_some() {
+            st = st.parent.as_mut().unwrap();
+        }
+        st.variables.insert(symbol, var);
     }
 
     pub fn set_variable(&mut self, symbol: &Symbol, value: Value) -> bool {
@@ -148,10 +154,14 @@ impl SymbolTable {
         }
     }
 
-    /// finds the variable and replaces it with a non-const mutable value
+    /// finds all previous occurrences of the variable and replaces it with a non-const mutable value
     pub fn deconstify_variable(&mut self, symbol: &Symbol) {
-        let mut var = self.lookup_variable_mut(symbol).unwrap();
-        var.declaration = Declaration::Mut(None);
+        if let Some(var) = self.variables.get_mut(symbol) {
+            var.declaration = Declaration::Mut(None);
+        }
+        if let Some(parent) = &mut self.parent {
+            parent.deconstify_variable(symbol)
+        }
     }
 
     pub fn get_fn_scope(&self, symbol: &Symbol) -> Option<&RefCell<Self>> {

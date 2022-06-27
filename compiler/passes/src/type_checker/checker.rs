@@ -32,6 +32,7 @@ pub struct TypeChecker<'a> {
     pub(crate) parent: Option<Symbol>,
     pub(crate) has_return: bool,
     pub(crate) negate: bool,
+    pub(crate) next_block_non_const: bool,
     pub(crate) account_types: IndexSet<Symbol>,
     pub(crate) algorithms_types: IndexSet<Symbol>,
 }
@@ -96,6 +97,7 @@ impl<'a> TypeChecker<'a> {
             parent: None,
             has_return: false,
             negate: false,
+            next_block_non_const: false,
             account_types: Account::types(),
             algorithms_types: Algorithms::types(),
         }

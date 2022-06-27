@@ -98,12 +98,15 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
-        self.visit_expression(&input.condition, &Some(Type::Boolean));
+        let output = self.visit_expression(&input.condition, &Some(Type::Boolean));
+        let prev_block_non_const_flag = self.next_block_non_const;
+        self.next_block_non_const = !output.is_const();
 
         self.visit_block(&input.block);
         if let Some(s) = input.next.as_ref() {
             self.visit_statement(s)
         }
+        self.next_block_non_const = prev_block_non_const_flag;
     }
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
@@ -125,6 +128,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.symbol_table
             .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
+        let prev_block_non_const_flag = self.next_block_non_const;
+        self.next_block_non_const = false;
 
         input.block.statements.iter().for_each(|s| self.visit_statement(s));
         // Keep the iteration scope but empty it .
@@ -133,6 +138,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.symbol_table.borrow_mut().variables.clear();
         self.symbol_table.borrow_mut().scopes.clear();
         self.symbol_table.borrow_mut().scope_index = 0;
+        self.next_block_non_const = prev_block_non_const_flag;
 
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
         self.symbol_table.swap(prev_st.get_block_scope(scope_index).unwrap());
@@ -165,6 +171,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.symbol_table
             .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
+        // sets the local const status of the current block based on the flag passed from the above block
+        let prev_block_const_flag = self.next_block_non_const;
+        self.symbol_table.borrow_mut().is_locally_non_const = prev_block_const_flag;
+        self.next_block_non_const = false;
 
         input.statements.iter().for_each(|stmt| {
             match stmt {
@@ -181,5 +191,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
         self.symbol_table.swap(prev_st.get_block_scope(scope_index).unwrap());
         self.symbol_table = RefCell::new(prev_st);
+        self.next_block_non_const = prev_block_const_flag;
     }
 }
