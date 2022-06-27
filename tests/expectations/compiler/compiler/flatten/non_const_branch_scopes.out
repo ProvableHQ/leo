@@ -1,0 +1,8 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - output:
+      - initial_input_ast: 2dc4f910f9a181110bf68a057d34cb5ec6cd761d6de10075052fef42e85d7eb5
+        flattened_ast: f39551e0e6dd05d632b5a2317888245f330ada27e7fdecdc9d3b65d80345293b
+    initial_ast: 6114a05a74d41a12de546a06b696ed9b8aa9678a19e694fedd470b6dd1984e10
