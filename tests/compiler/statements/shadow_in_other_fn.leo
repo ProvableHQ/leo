@@ -12,5 +12,5 @@ function foo() -> bool {
 function main(k: bool) -> bool {
 	let b: u8 = 11u8;
 
-    return k && foo();
+    return k;
 }

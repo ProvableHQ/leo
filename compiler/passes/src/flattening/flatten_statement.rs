@@ -258,6 +258,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                                 },
                             );
 
+                            let prev_create_iter_scopes = self.create_iter_scopes;
                             self.create_iter_scopes = true;
                             let block = Statement::Block(Block {
                                 statements: input
@@ -269,7 +270,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                                     .collect(),
                                 span: input.block.span,
                             });
-                            self.create_iter_scopes = false;
+                            self.create_iter_scopes = prev_create_iter_scopes;
 
                             self.symbol_table.borrow_mut().variables.remove(&input.variable.name);
 

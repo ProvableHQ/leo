@@ -110,19 +110,8 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
         (Expression::Literal(input), Some(value))
     }
 
-    fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
-        (
-            Expression::Call(CallExpression {
-                function: input.function,
-                arguments: input
-                    .arguments
-                    .into_iter()
-                    .map(|arg| self.reconstruct_expression(arg).0)
-                    .collect(),
-                span: input.span,
-            }),
-            None,
-        )
+    fn reconstruct_call(&mut self, _: CallExpression) -> (Expression, Self::AdditionalOutput) {
+        unimplemented!("Flattening functions not yet implemented")
     }
 
     fn reconstruct_binary(&mut self, input: BinaryExpression) -> (Expression, Self::AdditionalOutput) {
