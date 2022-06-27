@@ -400,7 +400,7 @@ create_messages!(
     @formatted
     expected_ending_comma_or_semicolon {
         args: (),
-        msg: format!("Expected an ending comma or semicolon for the record variable"),
+        msg: "Expected an ending comma or semicolon for the record variable.",
         help: None,
     }
 );
