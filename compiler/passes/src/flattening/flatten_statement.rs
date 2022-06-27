@@ -39,7 +39,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
 
         if let Some(const_val) = const_val.clone() {
             input.variable_names.iter().for_each(|var| {
-                if dbg!(!st.set_variable(&var.identifier.name, const_val.clone())) {
+                if !st.set_variable(&var.identifier.name, const_val.clone()) {
                     if let Err(err) = st.insert_variable(
                         var.identifier.name,
                         VariableSymbol {
