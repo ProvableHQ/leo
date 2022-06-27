@@ -83,22 +83,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
         };
 
-        let var_in_parent = self.symbol_table.borrow().variable_in_parent_scope(&var_name.name);
         let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable_mut(&var_name.name) {
-            match &var.declaration {
-                Declaration::Const(_) => self.handler.emit_err(TypeCheckerError::cannot_assign_to_const_var(
-                    var_name,
-                    input.place.span(),
-                )),
-                Declaration::Input(_, ParamMode::Const) => self.handler.emit_err(
-                    TypeCheckerError::cannot_assign_to_const_input(var_name, input.place.span()),
-                ),
-                Declaration::Mut(_) if self.non_const_block && var_in_parent => {
-                    var.declaration = Declaration::Mut(None);
-                }
-                _ => {}
-            }
-
             Some(var.type_)
         } else {
             self.handler
@@ -109,24 +94,16 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         if var_type.is_some() {
             self.validate_ident_type(&var_type);
-            if let TypeOutput::Const(const_val) = self.visit_expression(&input.value, &var_type) {
-                if self.non_const_block && var_in_parent {
-                    self.symbol_table.borrow_mut().set_variable(&var_name.name, const_val);
-                }
-            }
         }
     }
 
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
-        let output = self.visit_expression(&input.condition, &Some(Type::Boolean));
+        self.visit_expression(&input.condition, &Some(Type::Boolean));
 
-        let prev_non_const_block = self.non_const_block;
-        self.non_const_block = !matches!(output, TypeOutput::Const(_)) || prev_non_const_block;
         self.visit_block(&input.block);
         if let Some(s) = input.next.as_ref() {
             self.visit_statement(s)
         }
-        self.non_const_block = prev_non_const_block;
     }
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
@@ -151,7 +128,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         input.block.statements.iter().for_each(|s| self.visit_statement(s));
         // Keep the iteration scope but empty it .
-        // As it will just become a block of block scopes later one.
+        // As it will just become a block of block scopes later on.
         // Makes it easier to avoid conflicts.
         self.symbol_table.borrow_mut().variables.clear();
         self.symbol_table.borrow_mut().scopes.clear();

@@ -1,12 +1,12 @@
 /*
 namespace: Compile
-expectation: Fail
+expectation: Pass
 input_file: inputs/dummy.in
 */
 
 function main(k: bool) -> bool {
     let x: u8 = 2u8;
-    if b {
+    if k {
         const a: u8 = x;
         for i: u8 in 0u8..a {
             x = x + i;

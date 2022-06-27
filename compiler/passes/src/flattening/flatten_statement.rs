@@ -17,7 +17,7 @@
 use std::cell::RefCell;
 
 use leo_ast::*;
-use leo_errors::FlattenError;
+use leo_errors::{FlattenError, TypeCheckerError};
 
 use crate::{Declaration, Flattener, Value, VariableSymbol};
 
@@ -67,12 +67,27 @@ impl<'a> StatementReconstructor for Flattener<'a> {
     }
 
     fn reconstruct_assign(&mut self, input: AssignStatement) -> Statement {
-        let place = self.reconstruct_expression(input.place).0;
-        let var_name = if let Expression::Identifier(var) = place {
+        let (place_expr, place_const) = self.reconstruct_expression(input.place);
+        let var_name = if let Expression::Identifier(var) = place_expr {
             var.name
         } else {
             unreachable!()
         };
+
+        if place_const.is_some() {
+            if let Some(var) = self.symbol_table.borrow().lookup_variable(&var_name) {
+                match &var.declaration {
+                    Declaration::Const(_) => self.handler.emit_err(TypeCheckerError::cannot_assign_to_const_var(
+                        var_name,
+                        place_expr.span(),
+                    )),
+                    Declaration::Input(_, ParamMode::Const) => self.handler.emit_err(
+                        TypeCheckerError::cannot_assign_to_const_input(var_name, place_expr.span()),
+                    ),
+                    _ => {}
+                }
+            }
+        }
 
         let (value, const_val) = self.reconstruct_expression(input.value);
 
@@ -86,13 +101,13 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                 st.deconstify_variable(&var_name);
                 st.locally_constify_variable(var_name, c);
             }
-        } else if !var_in_local || const_val.is_none() {
+        } else if const_val.is_none() {
             st.deconstify_variable(&var_name);
         }
 
         Statement::Assign(Box::new(AssignStatement {
             operation: input.operation,
-            place,
+            place: place_expr,
             value: map_const((value, const_val)),
             span: input.span,
         }))
