@@ -32,3 +32,4 @@ outputs:
           lo: 2
           hi: 41
     circuits: {}
+    records: {}

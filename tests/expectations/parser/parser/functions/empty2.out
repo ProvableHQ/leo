@@ -20,3 +20,4 @@ outputs:
           lo: 2
           hi: 23
     circuits: {}
+    records: {}
