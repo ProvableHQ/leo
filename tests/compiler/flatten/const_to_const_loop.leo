@@ -14,5 +14,5 @@ function main(constant b: bool) -> bool {
     for i: u8 in 0u8..x {
         let a: bool = false;
     }
-    return x == 1u8 && b;
+    return x == 6u8 && !b;
 }

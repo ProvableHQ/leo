@@ -10,5 +10,5 @@ function main(b: u8) -> bool {
     for i: u8 in 0u8..x {
         let a: bool = false;
     }
-    return x == 1u8 && b;
+    return x == 1u8 && b == 0u8;
 }

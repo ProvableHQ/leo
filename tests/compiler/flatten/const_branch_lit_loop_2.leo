@@ -18,5 +18,5 @@ function main(constant b: bool) -> bool {
             let a: bool = false;
         }
     }
-    return b;
+    return !b;
 }

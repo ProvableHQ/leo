@@ -5,7 +5,7 @@ input_file: inputs/dummy.in
 */
 
 function main () -> bool {
-    return bool;
+    return false;
 }
 
 function Fkuty (constant x: bool) -> u8 {

@@ -20,5 +20,5 @@ function main () -> bool {
     const i: u8 = 1u8 ** (true? 1u8 : 2u8);
     const j: u8 = i;
 
-    return a + b + c + d + e + f + g + h + i + j == 20u8;
+    return a + b + c + d + e + f + g + h + i + j == 10u8;
 }

@@ -18,5 +18,5 @@ function main(constant b: bool) -> bool {
         }
     }
 
-    return x == 1u8;
+    return x == 6u8;
 }

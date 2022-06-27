@@ -13,5 +13,5 @@ function main(a: bool) -> bool {
         y = y + 1u32;
     }
 
-    return (y == 1u32) == a;
+    return (y == 3u32) == a;
 }

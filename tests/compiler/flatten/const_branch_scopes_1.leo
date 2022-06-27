@@ -11,5 +11,5 @@ function main () -> bool {
         let d: u8 = c;
         d = c;
     }
-    return true;
+    return c == 1u8;
 }

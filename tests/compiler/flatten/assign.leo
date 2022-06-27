@@ -12,5 +12,5 @@ function main(constant a: u8) -> bool {
     let e: u8 = b + 1u8;
     let f: u8 = d;
     let g: u8 = 1u8 + f + f + e + a;
-    return d == c;
+    return a + b + c + d + h + e + f + g == 18u8;
 }

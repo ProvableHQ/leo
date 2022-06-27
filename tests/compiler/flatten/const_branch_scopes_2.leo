@@ -12,5 +12,5 @@ function main () -> bool {
             c = c;
         }
     }
-    return true;
+    return c == 1u8;
 }

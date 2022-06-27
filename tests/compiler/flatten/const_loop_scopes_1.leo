@@ -4,10 +4,10 @@ expectation: Pass
 input_file: inputs/dummy.in
 */
 
-function main () -> u8 {
+function main () -> bool {
     for a: u8 in 0u8..2u8 {
         let b: u8 = 1u8;
         let c: u8 = b;
     }
-    return 1u8;
+    return true;
 }

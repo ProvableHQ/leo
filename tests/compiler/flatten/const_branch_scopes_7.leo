@@ -9,5 +9,5 @@ function main () -> bool {
     if true {
         if true {}
     }
-    return false;
+    return true;
 }

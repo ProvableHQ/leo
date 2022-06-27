@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372004]: Found type `u8` but type `bool` was expected\n    --> compiler-test:3:15\n     |\n   3 | function main(b: u8) -> bool {\n     |               ^\n"
+  - "Error [EFLA0373004]: The loop has an `stop` bound that is non_const.\n    --> compiler-test:6:23\n     |\n   6 |     for i: u8 in 0u8..x {\n     |                       ^\n"
