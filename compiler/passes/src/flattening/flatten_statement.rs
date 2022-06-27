@@ -224,7 +224,11 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                     Default::default()
                 };
 
-                let scope_index = self.block_index;
+                let scope_index = if self.create_iter_scopes {
+                    self.symbol_table.borrow_mut().insert_block()
+                } else {
+                    self.block_index
+                };
                 let prev_st = std::mem::take(&mut self.symbol_table);
                 self.symbol_table
                     .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
