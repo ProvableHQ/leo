@@ -39,7 +39,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
 
         if let Some(const_val) = const_val.clone() {
             input.variable_names.iter().for_each(|var| {
-                if !st.set_variable(&var.identifier.name, const_val.clone()) {
+                if dbg!(!st.set_variable(&var.identifier.name, const_val.clone())) {
                     if let Err(err) = st.insert_variable(
                         var.identifier.name,
                         VariableSymbol {
@@ -53,6 +53,22 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                     ) {
                         self.handler.emit_err(err);
                     }
+                }
+            });
+        } else if const_val.is_none() && self.create_iter_scopes {
+            input.variable_names.iter().for_each(|var| {
+                if let Err(err) = st.insert_variable(
+                    var.identifier.name,
+                    VariableSymbol {
+                        type_: input.type_,
+                        span: var.identifier.span,
+                        declaration: match &input.declaration_type {
+                            Declare::Const => Declaration::Const(None),
+                            Declare::Let => Declaration::Mut(None),
+                        },
+                    },
+                ) {
+                    self.handler.emit_err(err);
                 }
             });
         }
@@ -208,7 +224,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                     Default::default()
                 };
 
-                return Statement::Block(Block {
+                let iter_blocks = Statement::Block(Block {
                     statements: range
                         .into_iter()
                         .map(|iter_var| {
@@ -255,6 +271,8 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                         .collect(),
                     span: input.span,
                 });
+                self.block_index += 1;
+                return iter_blocks;
             }
             (None, Some(_)) => self
                 .handler
@@ -309,6 +327,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
         } else {
             self.block_index
         };
+
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
             .swap(prev_st.borrow().get_block_scope(current_block).unwrap());
@@ -327,8 +346,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
         self.symbol_table.swap(prev_st.get_block_scope(current_block).unwrap());
         self.symbol_table = RefCell::new(prev_st);
-        self.block_index = current_block;
-        self.block_index += 1;
+        self.block_index = current_block + 1;
 
         b
     }

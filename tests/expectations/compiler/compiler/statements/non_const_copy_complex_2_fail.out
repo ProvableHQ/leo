@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372003]: Cannot define constant var `z` with non-const value.\n    --> compiler-test:9:9\n     |\n   9 |         const z: u8 = x;\n     |         ^^^^^^^^^^^^^^^\n"

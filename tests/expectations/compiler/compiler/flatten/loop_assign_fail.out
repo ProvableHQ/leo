@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected ; -- got 'a'\n    --> compiler-test:4:11\n     |\n   4 |     cosnt a: bool = true;\n     |           ^"

@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372006]: Unknown variable `b`\n    --> compiler-test:5:8\n     |\n   5 |     if b {\n     |        ^\nError [ETYC0372003]: Cannot define constant var `c` with non-const value.\n    --> compiler-test:10:9\n     |\n  10 |         const c: u8 = x;\n     |         ^^^^^^^^^^^^^^^\n"

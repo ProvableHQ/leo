@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372002]: Cannot assign to const variable `i`\n    --> compiler-test:5:13\n     |\n   5 |             i = 1u32;\n     |             ^\n"
