@@ -154,19 +154,19 @@ impl<'a> Compiler<'a> {
     /// Runs the type checker pass.
     ///
     pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<SymbolTable> {
-        TypeChecker::do_pass((
-            &self.ast,
-            self.handler,
-            symbol_table,
-            self.input_ast.as_ref().map(|i| &i.constants),
-        ))
+        TypeChecker::do_pass((&self.ast, self.handler, symbol_table))
     }
 
     ///
     /// Runs the flattening pass.
     ///
     pub fn flattening_pass(&mut self, symbol_table: SymbolTable) -> Result<()> {
-        self.ast = Flattener::do_pass((std::mem::take(&mut self.ast), self.handler, symbol_table))?;
+        self.ast = Flattener::do_pass((
+            std::mem::take(&mut self.ast),
+            self.handler,
+            symbol_table,
+            self.input_ast.as_ref().map(|i| &i.constants),
+        ))?;
 
         if self.output_options.flattened_ast {
             // Write the input AST snapshot post parsing.

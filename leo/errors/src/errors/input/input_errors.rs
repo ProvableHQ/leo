@@ -70,6 +70,14 @@ create_messages!(
         help: None,
     }
 
+    /// For when an integer expression fails to parse.
+    @formatted
+    illegal_integer_value {
+        args: (value: impl Display, type_: impl Display),
+        msg: format!("the integer value `{value}{type_}` is not legal"),
+        help: None,
+    }
+
     /// For when section name is not an allowed one.
     @formatted
     unexpected_section {

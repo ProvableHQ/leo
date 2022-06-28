@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Ast, ProgramReconstructor};
+use leo_ast::{Ast, Definitions, ProgramReconstructor};
 use leo_errors::{emitter::Handler, Result};
 
 pub mod flattener;
@@ -32,11 +32,11 @@ pub use flatten_statement::*;
 use crate::{Pass, SymbolTable};
 
 impl<'a> Pass for Flattener<'a> {
-    type Input = (Ast, &'a Handler, SymbolTable);
+    type Input = (Ast, &'a Handler, SymbolTable, Option<&'a Definitions>);
     type Output = Result<Ast>;
 
-    fn do_pass((ast, handler, st): Self::Input) -> Self::Output {
-        let mut reconstructor = Self::new(st, handler);
+    fn do_pass((ast, handler, st, input_consts): Self::Input) -> Self::Output {
+        let mut reconstructor = Self::new(st, handler, input_consts);
         let program = reconstructor.reconstruct_program(ast.into_repr());
         handler.last_err()?;
 

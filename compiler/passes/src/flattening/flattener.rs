@@ -16,6 +16,7 @@
 
 use std::cell::RefCell;
 
+use leo_ast::Definitions;
 use leo_errors::emitter::Handler;
 use leo_span::Symbol;
 
@@ -23,6 +24,7 @@ use crate::SymbolTable;
 
 pub struct Flattener<'a> {
     pub(crate) symbol_table: RefCell<SymbolTable>,
+    pub(crate) constant_inputs: Option<&'a Definitions>,
     pub(crate) block_index: usize,
     pub(crate) handler: &'a Handler,
     pub(crate) non_const_block: bool,
@@ -44,9 +46,14 @@ impl<'a> Flattener<'a> {
 }
 
 impl<'a> Flattener<'a> {
-    pub(crate) fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
+    pub(crate) fn new(
+        symbol_table: SymbolTable,
+        handler: &'a Handler,
+        constant_inputs: Option<&'a Definitions>,
+    ) -> Self {
         Self {
             symbol_table: RefCell::new(symbol_table),
+            constant_inputs,
             block_index: 0,
             handler,
             non_const_block: false,
