@@ -15,11 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 pub mod check_expressions;
-
 pub use check_expressions::*;
 
 pub mod check_file;
 pub use check_file::*;
+
+pub mod check_instructions;
+pub use check_instructions::*;
 
 pub mod check_statements;
 pub use check_statements::*;

@@ -23,6 +23,9 @@ pub use flattener::*;
 pub mod flatten_expression;
 pub use flatten_expression::*;
 
+pub mod flatten_instructions;
+pub use flatten_instructions::*;
+
 pub mod flatten_program;
 pub use flatten_program::*;
 

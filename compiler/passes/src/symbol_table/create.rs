@@ -33,6 +33,11 @@ impl<'a> CreateSymbolTable<'a> {
     }
 }
 
+impl<'a> InstructionVisitor<'a> for CreateSymbolTable<'a> {
+    type AdditionalInput = ();
+    type Output = ();
+}
+
 impl<'a> ExpressionVisitor<'a> for CreateSymbolTable<'a> {
     type AdditionalInput = ();
     type Output = ();

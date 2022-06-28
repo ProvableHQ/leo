@@ -20,6 +20,17 @@
 
 use crate::*;
 
+// TODO: Consider a more robust vistor that can be specialized for each opcode.
+pub trait InstructionVisitor<'a> {
+    // TODO: Remove associated types if not necessary.
+    type AdditionalInput: Default;
+    type Output: Default;
+
+    fn visit_instruction(&mut self, _input: &'a Instruction, _additional: &Self::AdditionalInput) -> Self::Output {
+        Default::default()
+    }
+}
+
 pub trait ExpressionVisitor<'a> {
     type AdditionalInput: Default;
     type Output: Default;
@@ -88,17 +99,24 @@ pub trait ExpressionVisitor<'a> {
     }
 }
 
-pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
+pub trait StatementVisitor<'a>: ExpressionVisitor<'a> + InstructionVisitor<'a> {
     fn visit_statement(&mut self, input: &'a Statement) {
         match input {
-            Statement::Return(stmt) => self.visit_return(stmt),
-            Statement::Definition(stmt) => self.visit_definition(stmt),
+            Statement::AssemblyBlock(stmt) => self.visit_assembly_block(stmt),
             Statement::Assign(stmt) => self.visit_assign(stmt),
-            Statement::Conditional(stmt) => self.visit_conditional(stmt),
-            Statement::Iteration(stmt) => self.visit_iteration(stmt),
-            Statement::Console(stmt) => self.visit_console(stmt),
             Statement::Block(stmt) => self.visit_block(stmt),
+            Statement::Conditional(stmt) => self.visit_conditional(stmt),
+            Statement::Console(stmt) => self.visit_console(stmt),
+            Statement::Definition(stmt) => self.visit_definition(stmt),
+            Statement::Iteration(stmt) => self.visit_iteration(stmt),
+            Statement::Return(stmt) => self.visit_return(stmt),
         }
+    }
+
+    fn visit_assembly_block(&mut self, input: &'a AssemblyBlock) {
+        input.instructions.iter().for_each(|inst| {
+            self.visit_instruction(inst, &Default::default());
+        });
     }
 
     fn visit_return(&mut self, input: &'a ReturnStatement) {

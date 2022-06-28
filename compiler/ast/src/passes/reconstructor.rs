@@ -20,6 +20,24 @@
 
 use crate::*;
 
+// TODO: Consider a more robust reconstructor design as needed.
+pub trait InstructionReconstructor {
+    // TODO: Remove the associated type if it is not needed.
+    type AdditionalOutput: Default;
+
+    fn reconstruct_instruction(&mut self, input: Instruction) -> (Instruction, Self::AdditionalOutput) {
+        (
+            Instruction {
+                opcode: input.opcode,
+                operands: input.operands,
+                destinations: input.destinations,
+                span: Default::default(),
+            },
+            Default::default(),
+        )
+    }
+}
+
 pub trait ExpressionReconstructor {
     type AdditionalOutput: Default;
 
@@ -108,17 +126,29 @@ pub trait ExpressionReconstructor {
     }
 }
 
-pub trait StatementReconstructor: ExpressionReconstructor {
+pub trait StatementReconstructor: ExpressionReconstructor + InstructionReconstructor {
     fn reconstruct_statement(&mut self, input: Statement) -> Statement {
         match input {
-            Statement::Return(stmt) => self.reconstruct_return(stmt),
-            Statement::Definition(stmt) => self.reconstruct_definition(stmt),
+            Statement::AssemblyBlock(stmt) => self.reconstruct_assembly_block(stmt),
             Statement::Assign(stmt) => self.reconstruct_assign(*stmt),
-            Statement::Conditional(stmt) => self.reconstruct_conditional(stmt),
-            Statement::Iteration(stmt) => self.reconstruct_iteration(*stmt),
-            Statement::Console(stmt) => self.reconstruct_console(stmt),
             Statement::Block(stmt) => Statement::Block(self.reconstruct_block(stmt)),
+            Statement::Conditional(stmt) => self.reconstruct_conditional(stmt),
+            Statement::Console(stmt) => self.reconstruct_console(stmt),
+            Statement::Definition(stmt) => self.reconstruct_definition(stmt),
+            Statement::Iteration(stmt) => self.reconstruct_iteration(*stmt),
+            Statement::Return(stmt) => self.reconstruct_return(stmt),
         }
+    }
+
+    fn reconstruct_assembly_block(&mut self, input: AssemblyBlock) -> Statement {
+        Statement::AssemblyBlock(AssemblyBlock {
+            instructions: input
+                .instructions
+                .into_iter()
+                .map(|inst| self.reconstruct_instruction(inst).0)
+                .collect(),
+            span: input.span,
+        })
     }
 
     fn reconstruct_return(&mut self, input: ReturnStatement) -> Statement {

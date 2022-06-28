@@ -177,16 +177,15 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
 
-        input.statements.iter().for_each(|stmt| {
-            match stmt {
-                Statement::Return(stmt) => self.visit_return(stmt),
-                Statement::Definition(stmt) => self.visit_definition(stmt),
-                Statement::Assign(stmt) => self.visit_assign(stmt),
-                Statement::Conditional(stmt) => self.visit_conditional(stmt),
-                Statement::Iteration(stmt) => self.visit_iteration(stmt),
-                Statement::Console(stmt) => self.visit_console(stmt),
-                Statement::Block(stmt) => self.visit_block(stmt),
-            };
+        input.statements.iter().for_each(|stmt| match stmt {
+            Statement::AssemblyBlock(stmt) => self.visit_assembly_block(stmt),
+            Statement::Assign(stmt) => self.visit_assign(stmt),
+            Statement::Block(stmt) => self.visit_block(stmt),
+            Statement::Conditional(stmt) => self.visit_conditional(stmt),
+            Statement::Console(stmt) => self.visit_console(stmt),
+            Statement::Definition(stmt) => self.visit_definition(stmt),
+            Statement::Iteration(stmt) => self.visit_iteration(stmt),
+            Statement::Return(stmt) => self.visit_return(stmt),
         });
 
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
