@@ -14,26 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod statement;
-pub use statement::*;
+pub mod assembly_block;
+pub use assembly_block::*;
 
-pub mod conditional;
-pub use conditional::*;
+pub mod assign;
+pub use assign::*;
 
 pub mod block;
 pub use block::*;
 
-pub mod return_statement;
-pub use return_statement::*;
-
-pub mod iteration;
-pub use iteration::*;
-
-pub mod definition;
-pub use definition::*;
+pub mod conditional;
+pub use conditional::*;
 
 pub mod console;
 pub use console::*;
 
-pub mod assign;
-pub use assign::*;
+pub mod definition;
+pub use definition::*;
+
+pub mod iteration;
+pub use iteration::*;
+
+pub mod return_statement;
+pub use return_statement::*;
+
+pub mod statement;
+pub use statement::*;
