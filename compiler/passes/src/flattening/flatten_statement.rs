@@ -142,6 +142,8 @@ impl<'a> StatementReconstructor for Flattener<'a> {
         let prev_buffered = self.deconstify_buffer.replace(Vec::new());
         let prev_non_const_block = self.non_const_block;
         self.non_const_block = const_value.is_none() || prev_non_const_block;
+        let pre_non_const_flag = self.next_block_non_const;
+        self.next_block_non_const = const_value.is_none();
 
         // TODO: in future if symbol table is used for other passes.
         // We will have to remove these scopes instead of skipping over them.
@@ -187,6 +189,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
         self.deconstify_buffered();
         self.deconstify_buffer = prev_buffered;
         self.non_const_block = prev_non_const_block;
+        self.next_block_non_const = pre_non_const_flag;
         out
     }
 
@@ -233,8 +236,10 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                     Default::default()
                 };
 
+                let pre_non_const_flag = self.next_block_non_const;
+                self.next_block_non_const = false;
                 let scope_index = if self.create_iter_scopes {
-                    self.symbol_table.borrow_mut().insert_block(false)
+                    self.symbol_table.borrow_mut().insert_block(self.next_block_non_const)
                 } else {
                     self.block_index
                 };
@@ -248,7 +253,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                     statements: range
                         .into_iter()
                         .map(|iter_var| {
-                            let scope_index = self.symbol_table.borrow_mut().insert_block(false);
+                            let scope_index = self.symbol_table.borrow_mut().insert_block(self.next_block_non_const);
                             let prev_st = std::mem::take(&mut self.symbol_table);
                             self.symbol_table
                                 .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
@@ -296,6 +301,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                 self.symbol_table.swap(prev_st.get_block_scope(scope_index).unwrap());
                 self.symbol_table = RefCell::new(prev_st);
                 self.block_index = scope_index + 1;
+                self.next_block_non_const = pre_non_const_flag;
 
                 return iter_blocks;
             }
@@ -348,10 +354,13 @@ impl<'a> StatementReconstructor for Flattener<'a> {
 
     fn reconstruct_block(&mut self, input: Block) -> Block {
         let current_block = if self.create_iter_scopes {
-            self.symbol_table.borrow_mut().insert_block(true)
+            self.symbol_table.borrow_mut().insert_block(self.next_block_non_const)
         } else {
             self.block_index
         };
+
+        let pre_non_const_flag = self.next_block_non_const;
+        self.next_block_non_const = false;
 
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
@@ -372,6 +381,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
         self.symbol_table.swap(prev_st.get_block_scope(current_block).unwrap());
         self.symbol_table = RefCell::new(prev_st);
         self.block_index = current_block + 1;
+        self.next_block_non_const = pre_non_const_flag;
 
         b
     }
