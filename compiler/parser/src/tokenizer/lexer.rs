@@ -296,6 +296,7 @@ impl Token {
                 match &*ident {
                     x if x.starts_with("aleo1") => Token::AddressLit(ident),
                     "address" => Token::Address,
+                    "assembly" => Token::Assembly,
                     "bool" => Token::Bool,
                     "circuit" => Token::Circuit,
                     "console" => Token::Console,

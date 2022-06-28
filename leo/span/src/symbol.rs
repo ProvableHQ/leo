@@ -178,6 +178,7 @@ symbols! {
 
     // general keywords
     AlwaysConst,
+    assembly,
     assert,
     circuit,
     Class: "class",

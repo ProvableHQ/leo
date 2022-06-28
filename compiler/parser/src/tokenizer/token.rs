@@ -92,6 +92,7 @@ pub enum Token {
     SelfUpper,
 
     // Regular Keywords
+    Assembly,
     Circuit,
     Console,
     /// Const variable and a const function.
@@ -115,11 +116,12 @@ pub enum Token {
 }
 
 /// Represents all valid Leo keyword tokens.
-/// This defers from the ABNF for the following reasons:
+/// This differs from the ABNF for the following reasons:
 /// Adding true and false to the keywords of the ABNF grammar makes the lexical grammar ambiguous,
 /// because true and false are also boolean literals, which are different tokens from keywords
 pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Address,
+    Token::Assembly,
     Token::Bool,
     Token::Circuit,
     Token::Console,
@@ -164,6 +166,7 @@ impl Token {
     pub fn keyword_to_symbol(&self) -> Option<Symbol> {
         Some(match self {
             Token::Address => sym::address,
+            Token::Assembly => sym::assembly,
             Token::Bool => sym::bool,
             Token::Circuit => sym::circuit,
             Token::Console => sym::console,
@@ -269,6 +272,7 @@ impl fmt::Display for Token {
             U128 => write!(f, "u128"),
             SelfUpper => write!(f, "Self"),
 
+            Assembly => write!(f, "assembly"),
             Circuit => write!(f, "circuit"),
             Console => write!(f, "console"),
             Const => write!(f, "const"),
