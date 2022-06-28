@@ -124,13 +124,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             },
         );
 
-        let scope_index = self.symbol_table.borrow_mut().insert_block();
+        let prev_block_non_const_flag = self.next_block_non_const;
+        self.next_block_non_const = false;
+        let scope_index = self.symbol_table.borrow_mut().insert_block(self.next_block_non_const);
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
             .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
-        let prev_block_non_const_flag = self.next_block_non_const;
-        self.next_block_non_const = false;
 
         input.block.statements.iter().for_each(|s| self.visit_statement(s));
         // Keep the iteration scope but empty it .
@@ -167,15 +167,11 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
     fn visit_block(&mut self, input: &'a Block) {
         // creates a new sub-scope since we are in a block.
-        let scope_index = self.symbol_table.borrow_mut().insert_block();
+        let scope_index = self.symbol_table.borrow_mut().insert_block(self.next_block_non_const);
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
             .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
-        // sets the local const status of the current block based on the flag passed from the above block
-        let prev_block_const_flag = self.next_block_non_const;
-        self.symbol_table.borrow_mut().is_locally_non_const = prev_block_const_flag;
-        self.next_block_non_const = false;
 
         input.statements.iter().for_each(|stmt| {
             match stmt {
@@ -192,6 +188,5 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
         self.symbol_table.swap(prev_st.get_block_scope(scope_index).unwrap());
         self.symbol_table = RefCell::new(prev_st);
-        self.next_block_non_const = prev_block_const_flag;
     }
 }

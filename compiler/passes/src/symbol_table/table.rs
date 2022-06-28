@@ -55,7 +55,7 @@ impl SymbolTable {
 
     pub fn scope_index(&mut self) -> usize {
         let index = self.scope_index;
-        self.scope_index = self.scope_index.saturating_add(1);
+        self.scope_index += 1;
         index
     }
 
@@ -73,8 +73,11 @@ impl SymbolTable {
         Ok(())
     }
 
-    pub fn insert_block(&mut self) -> usize {
-        self.scopes.push(Default::default());
+    pub fn insert_block(&mut self, is_locally_non_const: bool) -> usize {
+        self.scopes.push(RefCell::new(SymbolTable {
+            is_locally_non_const,
+            ..Default::default()
+        }));
         self.scope_index()
     }
 
@@ -126,17 +129,26 @@ impl SymbolTable {
 
     /// finds the variable in the parent scope, then SHADOWS it in most recent non-const scope with a mut const value
     pub fn locally_constify_variable(&mut self, symbol: Symbol, value: Value) {
+        dbg!(symbol);
+        dbg!(&value);
         let mut var = self
             .lookup_variable(&symbol)
             .unwrap_or_else(|| panic!("attempting to constify non-existent variable `{symbol}`"))
             .clone();
+        dbg!(&var);
         var.declaration = Declaration::Mut(Some(value));
 
         let mut st = self;
+        dbg!(&st.is_locally_non_const); // why is self not locally non-const??
+        dbg!(&st.variables);
         while !st.is_locally_non_const && st.parent.is_some() {
             st = st.parent.as_mut().unwrap();
+            dbg!(st.is_locally_non_const);
+            dbg!(&st.variables);
         }
+        dbg!(&st.variables);
         st.variables.insert(symbol, var);
+        dbg!(&st.variables);
     }
 
     pub fn set_variable(&mut self, symbol: &Symbol, value: Value) -> bool {

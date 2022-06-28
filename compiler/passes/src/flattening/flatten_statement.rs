@@ -119,15 +119,13 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                 true
             }
         } else {
-            const_val.is_none()
+            true
         };
 
-        if deconstify {
-            if let Some(buf) = &mut self.deconstify_buffer {
-                buf.push(var_name)
-            } else {
-                st.deconstify_variable(&var_name)
-            }
+        match &mut self.deconstify_buffer {
+            Some(buf) if deconstify && !var_in_local => buf.push(var_name),
+            _ if deconstify => st.deconstify_variable(&var_name),
+            _ => {}
         }
 
         Statement::Assign(Box::new(AssignStatement {
@@ -236,7 +234,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                 };
 
                 let scope_index = if self.create_iter_scopes {
-                    self.symbol_table.borrow_mut().insert_block()
+                    self.symbol_table.borrow_mut().insert_block(false)
                 } else {
                     self.block_index
                 };
@@ -250,7 +248,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                     statements: range
                         .into_iter()
                         .map(|iter_var| {
-                            let scope_index = self.symbol_table.borrow_mut().insert_block();
+                            let scope_index = self.symbol_table.borrow_mut().insert_block(false);
                             let prev_st = std::mem::take(&mut self.symbol_table);
                             self.symbol_table
                                 .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
@@ -350,7 +348,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
 
     fn reconstruct_block(&mut self, input: Block) -> Block {
         let current_block = if self.create_iter_scopes {
-            self.symbol_table.borrow_mut().insert_block()
+            self.symbol_table.borrow_mut().insert_block(true)
         } else {
             self.block_index
         };

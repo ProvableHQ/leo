@@ -34,7 +34,10 @@ pub struct Flattener<'a> {
 impl<'a> Flattener<'a> {
     pub(crate) fn deconstify_buffered(&mut self) {
         let mut st = self.symbol_table.borrow_mut();
-        for name in self.deconstify_buffer.take().unwrap_or_default() {
+        let mut names = self.deconstify_buffer.take().unwrap_or_default();
+        names.sort();
+        names.dedup();
+        for name in names {
             st.deconstify_variable(&name);
         }
     }
