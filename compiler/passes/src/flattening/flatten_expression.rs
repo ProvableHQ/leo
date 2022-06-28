@@ -21,12 +21,15 @@ use crate::{Declaration, Flattener};
 use crate::Value;
 
 impl<'a> ExpressionReconstructor for Flattener<'a> {
+    // This is the possible constant value of an expression.
     type AdditionalOutput = Option<Value>;
     fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
         let st = self.symbol_table.borrow();
         let var = st.lookup_variable(&input.name).unwrap();
 
+        // We grab the constant value of a variable if it exists.
         let val = if let Declaration::Const(Some(c)) | Declaration::Mut(Some(c)) = &var.declaration {
+            // If we are negating the value we do so.
             if self.negate {
                 match c.clone().neg(input.span) {
                     Ok(c) => Some(c),
@@ -46,6 +49,7 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
     }
 
     fn reconstruct_unary(&mut self, input: UnaryExpression) -> (Expression, Self::AdditionalOutput) {
+        // If we are doing a negation operation we set appropriate flags.
         let (receiver, val) = if matches!(input.op, UnaryOperation::Negate) {
             let prior_negate_state = self.negate;
             self.negate = !self.negate;
@@ -56,6 +60,9 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
             self.reconstruct_expression(*input.receiver.clone())
         };
 
+        // We handle the following constant folding operations.
+        // The rest don't support non int/bool types.
+        // The only types we constant fold are int and bool types.
         let out = match (val, input.op) {
             (Some(v), UnaryOperation::Abs) if v.is_supported_const_fold_type() => Some(v.abs(input.span)).transpose(),
             (Some(v), UnaryOperation::AbsWrapped) if v.is_supported_const_fold_type() => {
@@ -83,6 +90,8 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
     }
 
     fn reconstruct_literal(&mut self, input: LiteralExpression) -> (Expression, Self::AdditionalOutput) {
+        // We parse the literal value as a constant.
+        // TODO: we should have these parsed at parsing time.
         let value = match input.clone() {
             LiteralExpression::Address(val, span) => Value::Address(val, span),
             LiteralExpression::Boolean(val, span) => Value::Boolean(val, span),
@@ -111,6 +120,7 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
     }
 
     fn reconstruct_call(&mut self, _: CallExpression) -> (Expression, Self::AdditionalOutput) {
+        // We only support the main function for now in flattening.
         unimplemented!("Flattening functions not yet implemented")
     }
 
@@ -118,12 +128,19 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
         let (left_expr, left_const_value) = self.reconstruct_expression(*input.left.clone());
         let (right_expr, right_const_value) = self.reconstruct_expression(*input.right.clone());
 
+        // We check if both sides are constant values
+        // That are a currently supported type for constant folding
+        // Which are bools and ints.
         match (left_const_value, right_const_value) {
             (Some(left_value), Some(right_value))
+                // if its an unsupported type we just return
+                // saying it has no constant value.
                 if !left_value.is_supported_const_fold_type() && !right_value.is_supported_const_fold_type() =>
             {
                 (Expression::Binary(input), None)
             }
+            // The following cases are if only one side is constant.
+            // That does not fold and does not return a constant value.
             (Some(const_value), None) => (
                 Expression::Binary(BinaryExpression {
                     left: Box::new(Expression::Literal(const_value.into())),
@@ -142,6 +159,7 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
                 }),
                 None,
             ),
+            // If both sides are constant we call the appropriate operations and fold into a literal.
             (Some(left_value), Some(right_value)) => {
                 let value = match &input.op {
                     BinaryOperation::Add => left_value.add(right_value, input.span),
@@ -224,6 +242,7 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
         let (condition, const_cond) = self.reconstruct_expression(*input.condition);
         let (if_true, const_if_true) = self.reconstruct_expression(*input.if_true);
         let (if_false, const_if_false) = self.reconstruct_expression(*input.if_false);
+        // If the ternary condition is constant, we just return the appropriate ternary branch.
         match const_cond {
             Some(Value::Boolean(true, _)) => (if_true, const_if_true),
             Some(Value::Boolean(false, _)) => (if_false, const_if_false),

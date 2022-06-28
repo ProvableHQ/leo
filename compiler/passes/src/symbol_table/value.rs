@@ -23,6 +23,7 @@ use leo_ast::{GroupLiteral, Identifier, IntegerType, LiteralExpression, Type};
 use leo_errors::{type_name, FlattenError, LeoError, Result};
 use leo_span::Span;
 
+// Macro for making implementing unary operations over appropriate types easier.
 macro_rules! implement_const_unary {
     (
         @overflowing
@@ -71,12 +72,14 @@ macro_rules! implement_const_unary {
                         Ok($type($logic(v.into(), span)?, span))
                     },
                 )+
+                // Unreachable because type checking should have already caught this and errored out.
                 s => unreachable!("Const operation not supported {}.{}()", type_name(&s), stringify!($name))
             }
         }
     };
 }
 
+// Macro for making implementing binary operations over appropriate types easier.
 macro_rules! implement_const_binary {
     // for overflowing operations that can overflow
     (
@@ -157,6 +160,7 @@ macro_rules! implement_const_binary {
                         },
                     )+
                 )+
+                // Unreachable because type checking should have already caught this and errored out.
                 (s, o) => unreachable!("Const operation not supported {}.{}({})", type_name(&s), stringify!($name), type_name(&o))
             }
         }

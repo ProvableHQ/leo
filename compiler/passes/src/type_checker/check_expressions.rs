@@ -433,8 +433,8 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match &*input.function {
             Expression::Identifier(ident) => {
-                // the function symbol lookup is purposely done outside of the `if let` to avoid a RefCell lifetime bug in rust.
-                // dont move it into the `if let` or it will keep the `symbol_table` alive for the entire block and will be very memory inefficient!
+                // The function symbol lookup is purposely done outside of the `if let` to avoid a RefCell lifetime bug in rust.
+                // Don't move it into the `if let` or it will keep the `symbol_table` alive for the entire block and will be very memory inefficient!
                 let f = self.symbol_table.borrow().lookup_fn(&ident.name).cloned();
                 if let Some(func) = f {
                     let ret = if expected.is_some() {

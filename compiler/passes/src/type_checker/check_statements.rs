@@ -25,8 +25,8 @@ use super::type_output::TypeOutput;
 
 impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_return(&mut self, input: &'a ReturnStatement) {
-        // we can safely unwrap all self.parent instances because
-        // statements should always have some parent block
+        // We can safely unwrap all self.parent instances because
+        // Statements should always have some parent block
         let parent = self.parent.unwrap();
 
         let return_type = &self.symbol_table.borrow().lookup_fn(&parent).map(|f| f.type_);
@@ -124,7 +124,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             },
         );
 
+        // Stores the local const status of the current block
         let prev_block_non_const_flag = self.next_block_non_const;
+        // Iterator blocks are always locally constant
         self.next_block_non_const = false;
         let scope_index = self.symbol_table.borrow_mut().insert_block(self.next_block_non_const);
         let prev_st = std::mem::take(&mut self.symbol_table);
@@ -166,7 +168,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_block(&mut self, input: &'a Block) {
-        // creates a new sub-scope since we are in a block.
+        // Creates a new sub-scope since we are in a block.
         let scope_index = self.symbol_table.borrow_mut().insert_block(self.next_block_non_const);
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table

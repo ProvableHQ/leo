@@ -91,7 +91,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
     }
 
     fn reconstruct_assign(&mut self, input: AssignStatement) -> Statement {
-        // gets the target and its const value
+        // Gets the target and its const value
         let (place_expr, place_const) = self.reconstruct_expression(input.place);
         let var_name = if let Expression::Identifier(var) = place_expr {
             var.name
@@ -99,7 +99,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
             unreachable!()
         };
 
-        // if the target has a constant value, asserts that the target wasn't declared as constant 
+        // If the target has a constant value, asserts that the target wasn't declared as constant 
         if place_const.is_some() {
             if let Some(var) = self.symbol_table.borrow().lookup_variable(&var_name) {
                 match &var.declaration {
@@ -115,19 +115,20 @@ impl<'a> StatementReconstructor for Flattener<'a> {
             }
         }
 
-        // gets the rhs value and its possible const value
+        // Gets the rhs value and its possible const value
         let (value, const_val) = self.reconstruct_expression(input.value);
 
         let mut st = self.symbol_table.borrow_mut();
         let var_in_local = st.variable_in_local_scope(&var_name);
 
-        // sets the variable in scope as needed and returns if the value should be deconstified or not
+        // Sets the variable in scope as needed and returns if the value should be deconstified or not
         let deconstify = if let Some(c) = const_val.clone() {
             if !self.non_const_block || var_in_local {
-                // sets the variable in the current scope
+                // Find the value in a parent scope and updates it
                 st.set_variable(&var_name, c);
                 false
             } else {
+                // SHADOWS the variable with a constant in the local scope
                 st.locally_constify_variable(var_name, c);
                 true
             }
@@ -136,7 +137,10 @@ impl<'a> StatementReconstructor for Flattener<'a> {
         };
 
         match &mut self.deconstify_buffer {
+            // If deconstify buffer exists, value is set to deconstify, 
+            // And the value is not locally declared then slates the value for deconstification at the end of scope
             Some(buf) if deconstify && !var_in_local => buf.push(var_name),
+            // immediately deconstifies value in all parent scopes
             _ if deconstify => st.deconstify_variable(&var_name),
             _ => {}
         }
@@ -150,17 +154,22 @@ impl<'a> StatementReconstructor for Flattener<'a> {
     }
 
     fn reconstruct_conditional(&mut self, input: ConditionalStatement) -> Statement {
+        // Flattens the condition and gets its expression and possible const value
         let (condition, const_value) = self.reconstruct_expression(input.condition);
 
+        // Stores any current const buffer so it doesn't get cleared during a child scope
         let prev_buffered = self.deconstify_buffer.replace(Vec::new());
+        // Stores the flag for the blocks global constyness and updates the flag with the current blocks const-ness
         let prev_non_const_block = self.non_const_block;
         self.non_const_block = const_value.is_none() || prev_non_const_block;
-        let pre_non_const_flag = self.next_block_non_const;
-        self.next_block_non_const = const_value.is_none();
+        // Stores the flag for the blocks local constyness, and updates the flag with the current blocks const-ness
+        let prev_non_const_flag = self.next_block_non_const;
+        self.next_block_non_const = const_value.is_none() || prev_non_const_flag;
 
         // TODO: in future if symbol table is used for other passes.
         // We will have to remove these scopes instead of skipping over them.
         let out = match const_value {
+            // If branch const true
             Some(Value::Boolean(true, _)) => {
                 let block = Statement::Block(self.reconstruct_block(input.block));
                 if input.next.is_some() {
@@ -176,10 +185,12 @@ impl<'a> StatementReconstructor for Flattener<'a> {
 
                 block
             }
+            // If branch const false and another branch follows this one
             Some(Value::Boolean(false, _)) if input.next.is_some() => {
                 self.block_index += 1;
                 self.reconstruct_statement(*input.next.unwrap())
             }
+            // If branch const false and no branch follows it
             Some(Value::Boolean(false, _)) => {
                 self.block_index += 1;
                 Statement::Block(Block {
@@ -187,6 +198,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                     span: input.span,
                 })
             }
+            // If conditional is non-const
             _ => {
                 let block = self.reconstruct_block(input.block);
                 let next = input.next.map(|n| Box::new(self.reconstruct_statement(*n)));
@@ -199,10 +211,12 @@ impl<'a> StatementReconstructor for Flattener<'a> {
             }
         };
 
+        // Clears out any values that were slated for deconstification at end of conditional
         self.deconstify_buffered();
+        // Restores previous buffers/flags
         self.deconstify_buffer = prev_buffered;
         self.non_const_block = prev_non_const_block;
-        self.next_block_non_const = pre_non_const_flag;
+        self.next_block_non_const = prev_non_const_flag;
         out
     }
 
@@ -254,22 +268,25 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                     Default::default()
                 };
 
-                // Checking if we are in a non const block and storing it.
-                let pre_non_const_flag = self.next_block_non_const;
-                // Setting iteration to a const block.
-                self.next_block_non_const = false;
-                // We create the iter scope if it does not exist otherwise we grab its id.
+                // Create the iteration scope if it does not exist.
+                // Otherwise grab the existing one.
                 let scope_index = if self.create_iter_scopes {
                     self.symbol_table.borrow_mut().insert_block(self.next_block_non_const)
                 } else {
                     self.block_index
                 };
+                // Stores local const flag
+                let prev_non_const_flag = self.next_block_non_const;
+                // Iterations are always locally constant inside.
+                self.next_block_non_const = false;
                 let prev_st = std::mem::take(&mut self.symbol_table);
                 self.symbol_table
                     .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
                 self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
                 self.block_index = 0;
 
+                // Create a block statement to replace the iteration statement.
+                // Creates a new block per iteration inside the outer block statement.
                 let iter_blocks = Statement::Block(Block {
                     statements: range
                         .into_iter()
@@ -280,6 +297,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                                 .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
                             self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
 
+                            // Insert the loop variable as a constant variable in the scope as its current value.
                             self.symbol_table.borrow_mut().variables.insert(
                                 input.variable.name,
                                 VariableSymbol {
@@ -322,7 +340,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                 self.symbol_table.swap(prev_st.get_block_scope(scope_index).unwrap());
                 self.symbol_table = RefCell::new(prev_st);
                 self.block_index = scope_index + 1;
-                self.next_block_non_const = pre_non_const_flag;
+                self.next_block_non_const = prev_non_const_flag;
 
                 return iter_blocks;
             }
@@ -374,15 +392,20 @@ impl<'a> StatementReconstructor for Flattener<'a> {
     }
 
     fn reconstruct_block(&mut self, input: Block) -> Block {
+        // If we are in an iteration scope we create any sub scopes for it.
+        // This is because in TYC we remove all its sub scopes to avoid clashing variables
+        // during flattening.
         let current_block = if self.create_iter_scopes {
             self.symbol_table.borrow_mut().insert_block(self.next_block_non_const)
         } else {
             self.block_index
         };
 
-        let pre_non_const_flag = self.next_block_non_const;
+        // Store previous block's local constyness.
+        let prev_non_const_flag = self.next_block_non_const;
         self.next_block_non_const = false;
 
+        // Enter block scope.
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
             .swap(prev_st.borrow().get_block_scope(current_block).unwrap());
@@ -402,7 +425,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
         self.symbol_table.swap(prev_st.get_block_scope(current_block).unwrap());
         self.symbol_table = RefCell::new(prev_st);
         self.block_index = current_block + 1;
-        self.next_block_non_const = pre_non_const_flag;
+        self.next_block_non_const = prev_non_const_flag;
 
         b
     }

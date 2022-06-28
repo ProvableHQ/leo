@@ -35,11 +35,11 @@ pub struct SymbolTable {
     /// The variables defined in a scope.
     /// This field is populated as necessary.
     pub(crate) variables: IndexMap<Symbol, VariableSymbol>,
-    /// the index of the current scope
+    /// The index of the current scope
     pub(crate) scope_index: usize,
-    /// if the block will always be executed when the parent block is executed
+    /// If the block will always be executed when the parent block is executed
     pub(crate) is_locally_non_const: bool,
-    /// the subscopes of this scope
+    /// The subscopes of this scope
     pub(crate) scopes: Vec<RefCell<SymbolTable>>,
 }
 
@@ -94,10 +94,12 @@ impl SymbolTable {
         }
     }
 
+    /// Returns true if the variable exists in the local scope
     pub fn variable_in_local_scope(&self, symbol: &Symbol) -> bool {
         self.variables.contains_key(symbol)
     }
-
+    
+    /// Returns true if the variable exists in any parent scope
     pub fn variable_in_parent_scope(&self, symbol: &Symbol) -> bool {
         if let Some(parent) = self.parent.as_ref() {
             if parent.variables.contains_key(symbol) {
@@ -130,7 +132,7 @@ impl SymbolTable {
         }
     }
 
-    /// finds the variable in the parent scope, then SHADOWS it in most recent non-const scope with a mut const value
+    /// Finds the variable in the parent scope, then SHADOWS it in most recent non-const scope with a mut const value
     pub fn locally_constify_variable(&mut self, symbol: Symbol, value: Value) {
         let mut var = self
             .lookup_variable(&symbol)
@@ -160,7 +162,7 @@ impl SymbolTable {
         }
     }
 
-    /// finds all previous occurrences of the variable and replaces it with a non-const mutable value
+    /// Finds all previous occurrences of the variable and replaces it with a non-const mutable value
     pub fn deconstify_variable(&mut self, symbol: &Symbol) {
         if let Some(var) = self.variables.get_mut(symbol) {
             var.declaration = Declaration::Mut(None);
