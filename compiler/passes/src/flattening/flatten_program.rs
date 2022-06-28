@@ -16,7 +16,9 @@
 
 use std::cell::RefCell;
 
+use indexmap::IndexMap;
 use leo_ast::*;
+use leo_errors::FlattenError;
 
 use crate::{Declaration, Flattener, Value, VariableSymbol};
 
@@ -35,18 +37,18 @@ impl<'a> ProgramReconstructor for Flattener<'a> {
                     main.input = non_consts.clone();
                     main.id
                 } else {
-                    todo!("no main function");
+                    self.handler.emit_err(FlattenError::no_main_function());
+                    return input;
                 };
 
                 let fn_scope = &self.symbol_table.borrow().scopes[id];
 
-                fn_scope
-                    .borrow_mut()
-                    .variables
-                    .extend(consts.into_iter().map(|c| match c {
+                let mut const_input_values = IndexMap::new();
+                for c in consts.into_iter() {
+                    match c {
                         FunctionInput::Variable(var) => {
                             if let Some(const_value) = const_inputs.get(&var.identifier.name) {
-                                (
+                                const_input_values.insert(
                                     var.identifier.name,
                                     VariableSymbol {
                                         type_: var.type_,
@@ -64,7 +66,7 @@ impl<'a> ProgramReconstructor for Flattener<'a> {
                                             InputValue::Group(value) if matches!(var.type_, Type::Group) => {
                                                 Value::Group(Box::new(value.clone()))
                                             }
-                                            InputValue::Integer(_, value) => match value {
+                                            InputValue::Integer(int_type, value) => match value {
                                                 IntegerValue::I8(value)
                                                     if matches!(var.type_, Type::IntegerType(IntegerType::I8)) =>
                                                 {
@@ -115,7 +117,16 @@ impl<'a> ProgramReconstructor for Flattener<'a> {
                                                 {
                                                     Value::U128(*value, var.span())
                                                 }
-                                                _ => todo!("incorrect type"),
+                                                _ => {
+                                                    self.handler.emit_err(
+                                                        FlattenError::main_function_mismatching_const_input_type(
+                                                            var.type_,
+                                                            int_type,
+                                                            var.span(),
+                                                        ),
+                                                    );
+                                                    return input;
+                                                }
                                             },
                                             InputValue::Scalar(value) if matches!(var.type_, Type::Scalar) => {
                                                 Value::Scalar(value.clone(), var.span())
@@ -123,17 +134,35 @@ impl<'a> ProgramReconstructor for Flattener<'a> {
                                             InputValue::String(value) if matches!(var.type_, Type::String) => {
                                                 Value::String(value.clone(), var.span())
                                             }
-                                            _ => todo!("incorrect type"),
+                                            t => {
+                                                self.handler.emit_err(
+                                                    FlattenError::main_function_mismatching_const_input_type(
+                                                        var.type_,
+                                                        Type::from(t),
+                                                        var.span(),
+                                                    ),
+                                                );
+                                                return input;
+                                            }
                                         })),
                                     },
-                                )
+                                );
                             } else {
-                                todo!("var not found in constats")
+                                self.handler.emit_err(FlattenError::input_file_does_not_have_constant(
+                                    &var.identifier.name,
+                                    var.span(),
+                                ));
+                                return input;
                             }
                         }
-                    }));
+                    }
+                }
+
+                fn_scope.borrow_mut().variables.extend(const_input_values);
             } else if !consts.is_empty() && self.constant_inputs.is_none() {
-                todo!("emit error")
+                self.handler
+                    .emit_err(FlattenError::input_file_has_no_constants(input.span()));
+                return input;
             }
 
             non_consts

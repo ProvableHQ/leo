@@ -31,6 +31,21 @@ pub enum InputValue {
     String(String),
 }
 
+impl From<&InputValue> for Type {
+    fn from(v: &InputValue) -> Self {
+        use InputValue::*;
+        match v {
+            Address(_) => Type::Address,
+            Boolean(_) => Type::Boolean,
+            Field(_) => Type::Field,
+            Group(_) => Type::Group,
+            Integer(itype, _) => Type::IntegerType(*itype),
+            Scalar(_) => Type::Scalar,
+            String(_) => Type::String,
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum IntegerValue {
     I8(i8),
