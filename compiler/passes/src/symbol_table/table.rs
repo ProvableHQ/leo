@@ -129,26 +129,17 @@ impl SymbolTable {
 
     /// finds the variable in the parent scope, then SHADOWS it in most recent non-const scope with a mut const value
     pub fn locally_constify_variable(&mut self, symbol: Symbol, value: Value) {
-        dbg!(symbol);
-        dbg!(&value);
         let mut var = self
             .lookup_variable(&symbol)
             .unwrap_or_else(|| panic!("attempting to constify non-existent variable `{symbol}`"))
             .clone();
-        dbg!(&var);
         var.declaration = Declaration::Mut(Some(value));
 
         let mut st = self;
-        dbg!(&st.is_locally_non_const); // why is self not locally non-const??
-        dbg!(&st.variables);
         while !st.is_locally_non_const && st.parent.is_some() {
             st = st.parent.as_mut().unwrap();
-            dbg!(st.is_locally_non_const);
-            dbg!(&st.variables);
         }
-        dbg!(&st.variables);
         st.variables.insert(symbol, var);
-        dbg!(&st.variables);
     }
 
     pub fn set_variable(&mut self, symbol: &Symbol, value: Value) -> bool {
