@@ -16,6 +16,7 @@
 
 use std::cell::RefCell;
 
+use indexmap::IndexSet;
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
 
@@ -32,7 +33,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.parent = Some(input.name());
         input.input.iter().for_each(|i| {
             let input_var = i.get_variable();
-            self.validate_ident_type(&Some(input_var.type_));
+            self.check_ident_type(&Some(input_var.type_));
 
             let var = VariableSymbol {
                 type_: input_var.type_,
@@ -57,5 +58,14 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
         self.symbol_table.swap(prev_st.get_fn_scope(&input.name()).unwrap());
         self.symbol_table = RefCell::new(prev_st);
+    }
+
+    fn visit_circuit(&mut self, input: &'a Circuit) {
+        // Check for conflicting circuit member names.
+        let mut used = IndexSet::new();
+        if !input.members.iter().all(|member| used.insert(member.name())) {
+            self.handler
+                .emit_err(TypeCheckerError::duplicate_circuit_member(input.name(), input.span()));
+        }
     }
 }

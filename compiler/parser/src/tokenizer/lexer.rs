@@ -276,7 +276,7 @@ impl Token {
                 }
                 return Ok((1, Token::Div));
             }
-            ':' => return single(&mut input, Token::Colon),
+            ':' => return followed_by(&mut input, ':', Token::DoubleColon, Token::Colon),
             ';' => return single(&mut input, Token::Semicolon),
             '<' => return three_cases(&mut input, '=', Token::LtEq, '<', Token::Shl, Token::Lt),
             '>' => return three_cases(&mut input, '=', Token::GtEq, '>', Token::Shr, Token::Gt),
@@ -292,10 +292,12 @@ impl Token {
         if let Some(ident) = eat_identifier(&mut input) {
             return Ok((
                 ident.len(),
+                // todo: match on symbols instead of hard-coded &str's
                 match &*ident {
                     x if x.starts_with("aleo1") => Token::AddressLit(ident),
                     "address" => Token::Address,
                     "bool" => Token::Bool,
+                    "circuit" => Token::Circuit,
                     "console" => Token::Console,
                     "const" => Token::Const,
                     "constant" => Token::Constant,

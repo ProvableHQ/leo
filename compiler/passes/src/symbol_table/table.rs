@@ -16,7 +16,7 @@
 
 use std::cell::RefCell;
 
-use leo_ast::Function;
+use leo_ast::{Circuit, Function};
 use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
@@ -32,6 +32,9 @@ pub struct SymbolTable {
     /// Functions represents the name of each function mapped to the Ast's function definition.
     /// This field is populated at a first pass.
     pub functions: IndexMap<Symbol, FunctionSymbol>,
+    /// Maps circuit names to circuit definitions.
+    /// This field is populated at a first pass.
+    pub circuits: IndexMap<Symbol, Circuit>,
     /// The variables defined in a scope.
     /// This field is populated as necessary.
     pub(crate) variables: IndexMap<Symbol, VariableSymbol>,
@@ -49,6 +52,8 @@ impl SymbolTable {
             Err(AstError::shadowed_variable(symbol, span).into())
         } else if self.functions.contains_key(&symbol) {
             Err(AstError::shadowed_function(symbol, span).into())
+        } else if self.circuits.contains_key(&symbol) {
+            Err(AstError::shadowed_circuit(symbol, span).into())
         } else if let Some(parent) = self.parent.as_ref() {
             parent.check_shadowing(symbol, span)
         } else {
@@ -67,6 +72,12 @@ impl SymbolTable {
         let id = self.scope_index();
         self.functions.insert(symbol, Self::new_function_symbol(id, insert));
         self.scopes.push(Default::default());
+        Ok(())
+    }
+
+    pub fn insert_circuit(&mut self, symbol: Symbol, insert: &Circuit) -> Result<()> {
+        self.check_shadowing(symbol, insert.span)?;
+        self.circuits.insert(symbol, insert.clone());
         Ok(())
     }
 
@@ -94,21 +105,13 @@ impl SymbolTable {
         }
     }
 
-    /// Returns true if the variable exists in the local scope
-    pub fn variable_in_local_scope(&self, symbol: &Symbol) -> bool {
-        self.variables.contains_key(symbol)
-    }
-    
-    /// Returns true if the variable exists in any parent scope
-    pub fn variable_in_parent_scope(&self, symbol: &Symbol) -> bool {
-        if let Some(parent) = self.parent.as_ref() {
-            if parent.variables.contains_key(symbol) {
-                true
-            } else {
-                parent.variable_in_parent_scope(symbol)
-            }
+    pub fn lookup_circuit(&self, symbol: &Symbol) -> Option<&Circuit> {
+        if let Some(circ) = self.circuits.get(symbol) {
+            Some(circ)
+        } else if let Some(parent) = self.parent.as_ref() {
+            parent.lookup_circuit(symbol)
         } else {
-            false
+            None
         }
     }
 
@@ -119,6 +122,24 @@ impl SymbolTable {
             parent.lookup_variable(symbol)
         } else {
             None
+        }
+    }
+
+    /// Returns true if the variable exists in the local scope
+    pub fn variable_in_local_scope(&self, symbol: &Symbol) -> bool {
+        self.variables.contains_key(symbol)
+    }
+
+    /// Returns true if the variable exists in any parent scope
+    pub fn variable_in_parent_scope(&self, symbol: &Symbol) -> bool {
+        if let Some(parent) = self.parent.as_ref() {
+            if parent.variables.contains_key(symbol) {
+                true
+            } else {
+                parent.variable_in_parent_scope(symbol)
+            }
+        } else {
+            false
         }
     }
 

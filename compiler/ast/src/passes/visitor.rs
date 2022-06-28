@@ -26,6 +26,8 @@ pub trait ExpressionVisitor<'a> {
 
     fn visit_expression(&mut self, input: &'a Expression, additional: &Self::AdditionalInput) -> Self::Output {
         match input {
+            Expression::Access(expr) => self.visit_access(expr, additional),
+            Expression::CircuitInit(expr) => self.visit_circuit_init(expr, additional),
             Expression::Identifier(expr) => self.visit_identifier(expr, additional),
             Expression::Literal(expr) => self.visit_literal(expr, additional),
             Expression::Binary(expr) => self.visit_binary(expr, additional),
@@ -34,6 +36,18 @@ pub trait ExpressionVisitor<'a> {
             Expression::Call(expr) => self.visit_call(expr, additional),
             Expression::Err(expr) => self.visit_err(expr, additional),
         }
+    }
+
+    fn visit_access(&mut self, _input: &'a AccessExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        Default::default()
+    }
+
+    fn visit_circuit_init(
+        &mut self,
+        _input: &'a CircuitInitExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        Default::default()
     }
 
     fn visit_identifier(&mut self, _input: &'a Identifier, _additional: &Self::AdditionalInput) -> Self::Output {

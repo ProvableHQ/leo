@@ -147,6 +147,14 @@ create_messages!(
         help: None,
     }
 
+    /// For when a user shadows a circuit.
+    @formatted
+    shadowed_circuit {
+        args: (circ: impl Display),
+        msg: format!("circuit `{circ}` shadowed by"),
+        help: None,
+    }
+
     /// For when a user shadows a variable.
     @formatted
     shadowed_variable {

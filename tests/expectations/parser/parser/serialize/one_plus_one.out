@@ -27,3 +27,4 @@ outputs:
                           - U8
                           - "1"
                     op: Add
+    circuits: {}

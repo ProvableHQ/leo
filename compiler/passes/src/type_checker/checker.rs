@@ -17,7 +17,7 @@
 use std::cell::RefCell;
 
 use indexmap::IndexSet;
-use leo_ast::{IntegerType, Node, Type};
+use leo_ast::{Identifier, IntegerType, Node, Type};
 use leo_core::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
@@ -48,6 +48,14 @@ const INT_TYPES: [Type; 10] = [
     Type::IntegerType(IntegerType::U32),
     Type::IntegerType(IntegerType::U64),
     Type::IntegerType(IntegerType::U128),
+];
+
+const SIGNED_INT_TYPES: [Type; 5] = [
+    Type::IntegerType(IntegerType::I8),
+    Type::IntegerType(IntegerType::I16),
+    Type::IntegerType(IntegerType::I32),
+    Type::IntegerType(IntegerType::I64),
+    Type::IntegerType(IntegerType::I128),
 ];
 
 const MAGNITUDE_TYPES: [Type; 3] = [
@@ -103,14 +111,34 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
-    /// Validates that an ident type is a valid one.
-    pub(crate) fn validate_ident_type(&self, type_: &Option<Type>) {
+    /// Emits an error if the given type conflicts with a core library type.
+    pub(crate) fn check_ident_type(&self, type_: &Option<Type>) {
         if let Some(Type::Identifier(ident)) = type_ {
-            if !(self.account_types.contains(&ident.name) || self.algorithms_types.contains(&ident.name)) {
+            if self.account_types.contains(&ident.name) || self.algorithms_types.contains(&ident.name) {
                 self.handler
-                    .emit_err(TypeCheckerError::invalid_built_in_type(&ident.name, ident.span()));
+                    .emit_err(TypeCheckerError::core_type_name_conflict(&ident.name, ident.span()));
             }
         }
+    }
+
+    /// Emits an error if the `circuit` is not a core library circuit.
+    /// Emits an error if the `function` is not supported by the circuit.
+    pub(crate) fn assert_core_circuit_call(&self, circuit: &Type, function: &Identifier) -> Option<CoreInstruction> {
+        if let Type::Identifier(ident) = circuit {
+            // Lookup core circuit
+            match CoreInstruction::from_symbols(ident.name, function.name) {
+                None => {
+                    // Not a core library circuit.
+                    self.handler.emit_err(TypeCheckerError::invalid_core_instruction(
+                        &ident.name,
+                        function.name,
+                        ident.span(),
+                    ));
+                }
+                Some(core_circuit) => return Some(core_circuit),
+            }
+        }
+        None
     }
 
     /// Emits an error if the two given types are not equal.
@@ -122,6 +150,18 @@ impl<'a> TypeChecker<'a> {
                 .emit_err(TypeCheckerError::type_should_be("no type", type_, span)),
             _ => {}
         }
+    }
+
+    /// Returns the `circuit` type and emits an error if the `expected` type does not match.
+    pub(crate) fn assert_expected_circuit(&mut self, circuit: Identifier, expected: &Option<Type>, span: Span) -> Type {
+        if let Some(Type::Identifier(expected)) = expected {
+            if expected.name != circuit.name {
+                self.handler
+                    .emit_err(TypeCheckerError::type_should_be(circuit.name, expected.name, span));
+            }
+        }
+
+        Type::Identifier(circuit)
     }
 
     /// Returns the given type if it equals the expected type or the expected type is none.
@@ -199,6 +239,11 @@ impl<'a> TypeChecker<'a> {
         self.assert_one_of_types(type_, &FIELD_GROUP_TYPES, span)
     }
 
+    /// Emits an error to the handler if the given type is not a field or scalar.
+    pub(crate) fn assert_field_scalar_type(&self, type_: &Option<Type>, span: Span) {
+        self.assert_one_of_types(type_, &FIELD_SCALAR_TYPES, span)
+    }
+
     /// Emits an error to the handler if the given type is not a field, group, or integer.
     pub(crate) fn assert_field_group_int_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &FIELD_GROUP_INT_TYPES, span)
@@ -213,14 +258,15 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn assert_field_group_scalar_int_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &FIELD_GROUP_SCALAR_INT_TYPES, span)
     }
-    /// Emits an error to the handler if the given type is not a field or scalar.
-    pub(crate) fn assert_field_scalar_type(&self, type_: &Option<Type>, span: Span) {
-        self.assert_one_of_types(type_, &FIELD_SCALAR_TYPES, span)
-    }
 
     /// Emits an error to the handler if the given type is not an integer.
     pub(crate) fn assert_int_type(&self, type_: &Option<Type>, span: Span) {
         self.assert_one_of_types(type_, &INT_TYPES, span)
+    }
+
+    /// Emits an error to the handler if the given type is not a signed integer.
+    pub(crate) fn assert_signed_int_type(&self, type_: &Option<Type>, span: Span) {
+        self.assert_one_of_types(type_, &SIGNED_INT_TYPES, span)
     }
 
     /// Emits an error to the handler if the given type is not a magnitude (u8, u16, u32).

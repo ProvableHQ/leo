@@ -1,8 +1,12 @@
 ---
 namespace: Compile
-expectation: Pass
+expectation: Fail
 outputs:
+<<<<<<< HEAD
   - output:
       - initial_input_ast: no input
         flattened_ast: 2060348fd127dc303d3ca366a2d5cb7a6f28ec2f6046cc119524dff182b318eb
     initial_ast: 2060348fd127dc303d3ca366a2d5cb7a6f28ec2f6046cc119524dff182b318eb
+=======
+  - "Error [ETYC0372014]: The type Signature is a reserved core type name.\n    --> compiler-test:4:33\n     |\n   4 | function main(public signature: Signature, a: bool) -> bool {\n     |                                 ^^^^^^^^^\n"
+>>>>>>> 9e2641b321e6a793a09825bd982623c7453c9395

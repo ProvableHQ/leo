@@ -25,12 +25,14 @@ pub trait ExpressionReconstructor {
 
     fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
         match input {
+            Expression::Access(access) => self.reconstruct_access(access),
             Expression::Identifier(identifier) => self.reconstruct_identifier(identifier),
             Expression::Literal(value) => self.reconstruct_literal(value),
             Expression::Binary(binary) => self.reconstruct_binary(binary),
+            Expression::Call(call) => self.reconstruct_call(call),
+            Expression::CircuitInit(circuit) => self.reconstruct_circuit_init(circuit),
             Expression::Unary(unary) => self.reconstruct_unary(unary),
             Expression::Ternary(ternary) => self.reconstruct_ternary(ternary),
-            Expression::Call(call) => self.reconstruct_call(call),
             Expression::Err(err) => self.reconstruct_err(err),
         }
     }
@@ -41,6 +43,14 @@ pub trait ExpressionReconstructor {
 
     fn reconstruct_literal(&mut self, input: LiteralExpression) -> (Expression, Self::AdditionalOutput) {
         (Expression::Literal(input), Default::default())
+    }
+
+    fn reconstruct_access(&mut self, input: AccessExpression) -> (Expression, Self::AdditionalOutput) {
+        (Expression::Access(input), Default::default())
+    }
+
+    fn reconstruct_circuit_init(&mut self, input: CircuitInitExpression) -> (Expression, Self::AdditionalOutput) {
+        (Expression::CircuitInit(input), Default::default())
     }
 
     fn reconstruct_binary(&mut self, input: BinaryExpression) -> (Expression, Self::AdditionalOutput) {
@@ -207,6 +217,11 @@ pub trait ProgramReconstructor: StatementReconstructor {
                 .into_iter()
                 .map(|(i, f)| (i, self.reconstruct_function(f)))
                 .collect(),
+            circuits: input
+                .circuits
+                .into_iter()
+                .map(|(i, c)| (i, self.reconstruct_circuit(c)))
+                .collect(),
         }
     }
 
@@ -219,5 +234,9 @@ pub trait ProgramReconstructor: StatementReconstructor {
             block: self.reconstruct_block(input.block),
             span: input.span,
         }
+    }
+
+    fn reconstruct_circuit(&mut self, input: Circuit) -> Circuit {
+        input
     }
 }

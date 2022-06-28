@@ -47,3 +47,4 @@ outputs:
         span:
           lo: 2
           hi: 54
+    circuits: {}

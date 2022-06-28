@@ -6,5 +6,10 @@ outputs:
       - initial_input_ast: 39fc24fd87f4bf15d0567508034c57f4de17a407812a715e62dc635b9b91dd8e
         flattened_ast: 9efa69e20f3acb9f724eb4cff8bb6a93ba35e983f2608e67a24de703ab39df99
       - initial_input_ast: c5ffa1915a34f65b23e03c634e1941e89527338cd149ee5e4b9d0b4c0f36ba68
+<<<<<<< HEAD
         flattened_ast: 9efa69e20f3acb9f724eb4cff8bb6a93ba35e983f2608e67a24de703ab39df99
     initial_ast: 9efa69e20f3acb9f724eb4cff8bb6a93ba35e983f2608e67a24de703ab39df99
+=======
+    initial_ast: e050abc2d6e8a404b96d2abea06aab386991334de50f563f48e14ca24f163000
+    symbol_table: 317fbb7bd126c05485ea4fa9ae0d3ab0712cc7a4a932a3ec373c71b53c2eb1c6
+>>>>>>> 9e2641b321e6a793a09825bd982623c7453c9395

@@ -19,3 +19,4 @@ outputs:
         span:
           lo: 2
           hi: 23
+    circuits: {}

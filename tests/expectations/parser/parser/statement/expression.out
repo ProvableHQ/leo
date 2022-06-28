@@ -1,0 +1,7 @@
+---
+namespace: ParseStatement
+expectation: Fail
+outputs:
+  - "Error [EPAR0370040]: Expression statements are not supported.\n    --> test:1:1\n     |\n   1 | expr;\n     | ^^^^^"
+  - "Error [EPAR0370040]: Expression statements are not supported.\n    --> test:1:1\n     |\n   1 | x+y;\n     | ^^^^"
+  - "Error [EPAR0370040]: Expression statements are not supported.\n    --> test:1:1\n     |\n   1 | x();\n     | ^^^^"

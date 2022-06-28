@@ -30,7 +30,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let parent = self.parent.unwrap();
 
         let return_type = &self.symbol_table.borrow().lookup_fn(&parent).map(|f| f.type_);
-        self.validate_ident_type(return_type);
+        self.check_ident_type(return_type);
         self.has_return = true;
 
         self.visit_expression(&input.expression, return_type);
@@ -38,7 +38,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
     fn visit_definition(&mut self, input: &'a DefinitionStatement) {
         input.variable_names.iter().for_each(|v| {
-            self.validate_ident_type(&Some(input.type_));
+            self.check_ident_type(&Some(input.type_));
 
             let output = self.visit_expression(&input.value, &Some(input.type_));
 
@@ -94,7 +94,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         };
 
         if var_type.is_some() {
-            self.validate_ident_type(&var_type);
+            self.check_ident_type(&var_type);
+            self.visit_expression(&input.value, &var_type);
         }
     }
 
@@ -114,7 +115,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let iter_type = &Some(input.type_);
         self.assert_int_type(iter_type, input.variable.span);
 
-        self.validate_ident_type(iter_type);
+        self.check_ident_type(iter_type);
         let inserted = self.symbol_table.borrow_mut().insert_variable(
             input.variable.name,
             VariableSymbol {

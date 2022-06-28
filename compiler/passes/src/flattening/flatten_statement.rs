@@ -99,7 +99,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
             unreachable!()
         };
 
-        // If the target has a constant value, asserts that the target wasn't declared as constant 
+        // If the target has a constant value, asserts that the target wasn't declared as constant
         if place_const.is_some() {
             if let Some(var) = self.symbol_table.borrow().lookup_variable(&var_name) {
                 match &var.declaration {
@@ -137,7 +137,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
         };
 
         match &mut self.deconstify_buffer {
-            // If deconstify buffer exists, value is set to deconstify, 
+            // If deconstify buffer exists, value is set to deconstify,
             // And the value is not locally declared then slates the value for deconstification at the end of scope
             Some(buf) if deconstify && !var_in_local => buf.push(var_name),
             // immediately deconstifies value in all parent scopes

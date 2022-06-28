@@ -12,8 +12,6 @@ input_file: inputs/add.in
 
 function main(a: u32, b: u32) -> bool {
     // unary
-    let c: u32 = a.abs();
-    let d: u32 = a.abs_wrapped();
     let h: u32 = a.not();
 
     // binary
@@ -23,9 +21,9 @@ function main(a: u32, b: u32) -> bool {
     let m: u32 = a.div(b);
     let n: u32 = a.div_wrapped(b);
     let o: bool = a.eq(b);
-    let p: bool = a.ge(b);
+    let p: bool = a.gte(b);
     let q: bool = a.gt(b);
-    let r: bool = a.le(b);
+    let r: bool = a.lte(b);
     let s: bool = a.lt(b);
     let t: u32 = a.mul(b);
     let u: u32 = a.mul_wrapped(b);

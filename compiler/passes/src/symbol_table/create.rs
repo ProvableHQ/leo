@@ -46,4 +46,10 @@ impl<'a> ProgramVisitor<'a> for CreateSymbolTable<'a> {
             self.handler.emit_err(err);
         }
     }
+
+    fn visit_circuit(&mut self, input: &'a Circuit) {
+        if let Err(err) = self.symbol_table.insert_circuit(input.name(), input) {
+            self.handler.emit_err(err);
+        }
+    }
 }

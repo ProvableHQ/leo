@@ -1,4 +1,13 @@
 ---
 namespace: Compile
+<<<<<<< HEAD
 expectation: Skip
 outputs: []
+=======
+expectation: Pass
+outputs:
+  - output:
+      - initial_input_ast: 6b8596d250b3c42a0ff9856eb4a94d28c72b2953313d594f13a5d3f1de6f072f
+    initial_ast: a21fe86230689152fbfcf3529c818c0ef25fe9f3117de260f85ae84cc535c503
+    symbol_table: 6b9e0d6f8517252051117e01937bb64597c6ee78726e8e03579161084f37303f
+>>>>>>> 9e2641b321e6a793a09825bd982623c7453c9395

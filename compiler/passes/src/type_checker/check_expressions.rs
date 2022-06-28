@@ -27,6 +27,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
     fn visit_expression(&mut self, input: &'a Expression, expected: &Self::AdditionalInput) -> Self::Output {
         match input {
+            Expression::Access(expr) => self.visit_access(expr, expected),
             Expression::Identifier(expr) => self.visit_identifier(expr, expected),
             Expression::Literal(expr) => self.visit_literal(expr, expected),
             Expression::Binary(expr) => self.visit_binary(expr, expected),
@@ -34,11 +35,19 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             Expression::Ternary(expr) => self.visit_ternary(expr, expected),
             Expression::Call(expr) => self.visit_call(expr, expected),
             Expression::Err(expr) => self.visit_err(expr, expected),
+            Expression::CircuitInit(expr) => self.visit_identifier(&expr.name, expected),
         }
     }
 
     fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
-        if let Some(var) = self.symbol_table.borrow().lookup_variable(&input.name) {
+        if let Some(circuit) = self.symbol_table.borrow().lookup_circuit(&input.name) {
+            self.assert_expected_option(
+                Type::Identifier(circuit.identifier),
+                TypeOutput::MutType(Type::Identifier(circuit.identifier)),
+                expected,
+                circuit.span(),
+            )
+        } else if let Some(var) = self.symbol_table.borrow().lookup_variable(&input.name) {
             self.assert_expected_option(var.type_, var, expected, var.span)
         } else {
             self.handler
@@ -212,6 +221,58 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
+    fn visit_access(&mut self, input: &'a AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
+        // CAUTION: This implementation only allows access to core circuits.
+        match input {
+            AccessExpression::AssociatedFunction(access) => {
+                // Check core circuit name and function.
+                if let Some(core_instruction) = self.assert_core_circuit_call(&access.ty, &access.name) {
+                    // Check num input arguments.
+                    if core_instruction.num_args() != access.args.len() {
+                        self.handler.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                            core_instruction.num_args(),
+                            access.args.len(),
+                            input.span(),
+                        ));
+                    }
+
+                    // Check first argument type.
+                    if let Some(first_arg) = access.args.get(0usize) {
+                        let first_arg_type = self.visit_expression(first_arg, &None);
+                        self.assert_one_of_types(
+                            &first_arg_type.into(),
+                            core_instruction.first_arg_types(),
+                            access.span(),
+                        );
+                    }
+
+                    // Check second argument type.
+                    if let Some(second_arg) = access.args.get(1usize) {
+                        let second_arg_type = self.visit_expression(second_arg, &None);
+                        self.assert_one_of_types(
+                            &second_arg_type.into(),
+                            core_instruction.second_arg_types(),
+                            access.span(),
+                        );
+                    }
+
+                    // Check return type.
+                    self.assert_expected_option(
+                        core_instruction.return_type(),
+                        TypeOutput::MutType(core_instruction.return_type()),
+                        expected,
+                        access.span(),
+                    )
+                } else {
+                    self.handler
+                        .emit_err(TypeCheckerError::invalid_access_expression(access, access.span()));
+                    TypeOutput::None
+                }
+            }
+            _expr => TypeOutput::None, // todo: Add support for associated constants (u8::MAX).
+        }
+    }
+
     fn visit_binary(&mut self, input: &'a BinaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match input.op {
             BinaryOperation::And | BinaryOperation::Or | BinaryOperation::Nand | BinaryOperation::Nor => {
@@ -311,7 +372,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 // Forces this to return a Boolean as the correct type output variation.
                 t1.return_incorrect_type(&t2, &None).replace(Type::Boolean)
             }
-            BinaryOperation::Lt | BinaryOperation::Gt | BinaryOperation::Le | BinaryOperation::Ge => {
+            BinaryOperation::Lt | BinaryOperation::Gt | BinaryOperation::Lte | BinaryOperation::Gte => {
                 // address, fields, int, scalar
                 let t1 = self.visit_expression(&input.left, &None);
                 let t1_type = t1.as_ref().into();
@@ -360,12 +421,12 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         match input.op {
             UnaryOperation::Abs => {
                 // Assert integer type only.
-                self.assert_int_type(expected, input.span());
+                self.assert_signed_int_type(expected, input.span());
                 self.visit_expression(&input.receiver, expected)
             }
             UnaryOperation::AbsWrapped => {
                 // Assert integer type only.
-                self.assert_int_type(expected, input.span());
+                self.assert_signed_int_type(expected, input.span());
                 self.visit_expression(&input.receiver, expected)
             }
             UnaryOperation::Double => {
@@ -445,6 +506,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         TypeOutput::MutType(func.type_)
                     };
 
+                    // Check number of function arguments.
                     if func.input.len() != input.arguments.len() {
                         self.handler.emit_err(TypeCheckerError::incorrect_num_args_to_call(
                             func.input.len(),
@@ -453,6 +515,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         ));
                     }
 
+                    // Check function argument types.
                     func.input
                         .iter()
                         .zip(input.arguments.iter())
@@ -468,6 +531,54 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 }
             }
             expr => self.visit_expression(expr, expected),
+        }
+    }
+
+    fn visit_circuit_init(
+        &mut self,
+        input: &'a CircuitInitExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        let circ = self.symbol_table.borrow().lookup_circuit(&input.name.name).cloned();
+        if let Some(circ) = circ {
+            // Check circuit type name.
+            self.assert_expected_circuit(circ.identifier, additional, input.name.span());
+
+            // Check number of circuit members.
+            if circ.members.len() != input.members.len() {
+                self.handler.emit_err(TypeCheckerError::incorrect_num_circuit_members(
+                    circ.members.len(),
+                    input.members.len(),
+                    input.span(),
+                ));
+            }
+
+            // Check circuit member types.
+            circ.members.iter().for_each(|expected| match expected {
+                CircuitMember::CircuitVariable(name, type_) => {
+                    // Lookup circuit variable name.
+                    if let Some(actual) = input.members.iter().find(|member| member.identifier.name == name.name) {
+                        if let Some(expr) = &actual.expression {
+                            self.visit_expression(expr, &Some(*type_));
+                        }
+                    } else {
+                        self.handler.emit_err(TypeCheckerError::unknown_sym(
+                            "circuit member variable",
+                            name,
+                            name.span(),
+                        ));
+                    };
+                }
+            });
+
+            TypeOutput::None
+        } else {
+            self.handler.emit_err(TypeCheckerError::unknown_sym(
+                "circuit",
+                &input.name.name,
+                input.name.span(),
+            ));
+            TypeOutput::None
         }
     }
 }

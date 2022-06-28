@@ -12,15 +12,15 @@ outputs:
               op: SquareRoot
               span:
                 lo: 2
-                hi: 10
+                hi: 17
           op: Negate
           span:
             lo: 1
-            hi: 10
+            hi: 17
       op: Not
       span:
         lo: 0
-        hi: 10
+        hi: 17
   - Unary:
       receiver:
         Unary:
@@ -31,15 +31,15 @@ outputs:
               op: SquareRoot
               span:
                 lo: 0
-                hi: 8
+                hi: 15
           op: SquareRoot
           span:
             lo: 0
-            hi: 15
+            hi: 29
       op: SquareRoot
       span:
         lo: 0
-        hi: 22
+        hi: 43
   - Unary:
       receiver:
         Unary:
@@ -48,11 +48,11 @@ outputs:
           op: SquareRoot
           span:
             lo: 1
-            hi: 9
+            hi: 16
       op: Negate
       span:
         lo: 0
-        hi: 9
+        hi: 16
   - Unary:
       receiver:
         Unary:
@@ -65,7 +65,7 @@ outputs:
       op: SquareRoot
       span:
         lo: 1
-        hi: 11
+        hi: 18
   - Unary:
       receiver:
         Unary:
@@ -74,11 +74,11 @@ outputs:
           op: SquareRoot
           span:
             lo: 2
-            hi: 10
+            hi: 17
       op: Negate
       span:
         lo: 0
-        hi: 10
+        hi: 17
   - Unary:
       receiver:
         Unary:
@@ -89,15 +89,15 @@ outputs:
               op: SquareRoot
               span:
                 lo: 2
-                hi: 10
+                hi: 17
           op: Negate
           span:
             lo: 1
-            hi: 10
+            hi: 17
       op: SquareRoot
       span:
         lo: 1
-        hi: 18
+        hi: 32
   - Unary:
       receiver:
         Unary:
@@ -106,11 +106,11 @@ outputs:
           op: SquareRoot
           span:
             lo: 1
-            hi: 9
+            hi: 16
       op: Not
       span:
         lo: 0
-        hi: 9
+        hi: 16
   - Unary:
       receiver:
         Unary:
@@ -123,7 +123,7 @@ outputs:
       op: SquareRoot
       span:
         lo: 1
-        hi: 11
+        hi: 18
   - Unary:
       receiver:
         Unary:
@@ -132,11 +132,11 @@ outputs:
           op: SquareRoot
           span:
             lo: 2
-            hi: 10
+            hi: 17
       op: Not
       span:
         lo: 0
-        hi: 10
+        hi: 17
   - Unary:
       receiver:
         Unary:
@@ -147,12 +147,12 @@ outputs:
               op: SquareRoot
               span:
                 lo: 2
-                hi: 10
+                hi: 17
           op: Not
           span:
             lo: 1
-            hi: 10
+            hi: 17
       op: SquareRoot
       span:
         lo: 1
-        hi: 18
+        hi: 32

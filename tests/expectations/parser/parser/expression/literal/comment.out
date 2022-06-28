@@ -5,3 +5,4 @@ outputs:
   - name: ""
     expected_input: []
     functions: {}
+    circuits: {}

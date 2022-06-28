@@ -19,7 +19,7 @@ outputs:
             - span:
                 lo: 7
                 hi: 10
-      op: Le
+      op: Lte
       span:
         lo: 0
         hi: 10
@@ -40,7 +40,7 @@ outputs:
             - span:
                 lo: 7
                 hi: 10
-      op: Le
+      op: Lte
       span:
         lo: 0
         hi: 10
@@ -89,7 +89,7 @@ outputs:
           span:
             lo: 13
             hi: 22
-      op: Le
+      op: Lte
       span:
         lo: 0
         hi: 22
@@ -101,19 +101,19 @@ outputs:
               left:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-              op: Le
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+              op: Lte
               span:
                 lo: 2
-                hi: 9
+                hi: 10
           op: Negate
           span:
             lo: 1
-            hi: 9
+            hi: 10
       op: Not
       span:
         lo: 0
-        hi: 9
+        hi: 10
   - Binary:
       left:
         Binary:
@@ -122,38 +122,38 @@ outputs:
               left:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
-              op: Le
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+              op: Lte
               span:
                 lo: 0
-                hi: 7
+                hi: 8
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
-          op: Le
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
+          op: Lte
           span:
             lo: 0
-            hi: 13
+            hi: 15
       right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
-      op: Le
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
+      op: Lte
       span:
         lo: 0
-        hi: 19
+        hi: 22
   - Unary:
       receiver:
         Binary:
           left:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
-          op: Le
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+          op: Lte
           span:
             lo: 1
-            hi: 8
+            hi: 9
       op: Negate
       span:
         lo: 0
-        hi: 8
+        hi: 9
   - Binary:
       left:
         Unary:
@@ -164,26 +164,26 @@ outputs:
             lo: 1
             hi: 3
       right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-      op: Le
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
+      op: Lte
       span:
         lo: 1
-        hi: 10
+        hi: 11
   - Unary:
       receiver:
         Binary:
           left:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-          op: Le
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+          op: Lte
           span:
             lo: 2
-            hi: 9
+            hi: 10
       op: Negate
       span:
         lo: 0
-        hi: 9
+        hi: 10
   - Binary:
       left:
         Unary:
@@ -192,36 +192,36 @@ outputs:
               left:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-              op: Le
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+              op: Lte
               span:
                 lo: 2
-                hi: 9
+                hi: 10
           op: Negate
           span:
             lo: 1
-            hi: 9
+            hi: 10
       right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
-      op: Le
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+      op: Lte
       span:
         lo: 1
-        hi: 16
+        hi: 18
   - Unary:
       receiver:
         Binary:
           left:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
-          op: Le
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+          op: Lte
           span:
             lo: 1
-            hi: 8
+            hi: 9
       op: Not
       span:
         lo: 0
-        hi: 8
+        hi: 9
   - Binary:
       left:
         Unary:
@@ -232,26 +232,26 @@ outputs:
             lo: 1
             hi: 3
       right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-      op: Le
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
+      op: Lte
       span:
         lo: 1
-        hi: 10
+        hi: 11
   - Unary:
       receiver:
         Binary:
           left:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-          op: Le
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+          op: Lte
           span:
             lo: 2
-            hi: 9
+            hi: 10
       op: Not
       span:
         lo: 0
-        hi: 9
+        hi: 10
   - Binary:
       left:
         Unary:
@@ -260,21 +260,21 @@ outputs:
               left:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-              op: Le
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+              op: Lte
               span:
                 lo: 2
-                hi: 9
+                hi: 10
           op: Not
           span:
             lo: 1
-            hi: 9
+            hi: 10
       right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
-      op: Le
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+      op: Lte
       span:
         lo: 1
-        hi: 16
+        hi: 18
   - Binary:
       left:
         Binary:
@@ -283,52 +283,52 @@ outputs:
               left:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
-              op: Le
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+              op: Lte
               span:
                 lo: 1
-                hi: 8
+                hi: 9
           right:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
-              op: Le
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":19,\\\"hi\\\":20}\"}"
+              op: Lte
               span:
-                lo: 12
-                hi: 19
-          op: Le
+                lo: 13
+                hi: 21
+          op: Lte
           span:
             lo: 1
-            hi: 19
+            hi: 21
       right:
         Binary:
           left:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":24,\\\"hi\\\":25}\"}"
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":27,\\\"hi\\\":28}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":29,\\\"hi\\\":30}\"}"
-              op: Le
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":33,\\\"hi\\\":34}\"}"
+              op: Lte
               span:
-                lo: 24
-                hi: 31
+                lo: 27
+                hi: 35
           right:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":35,\\\"hi\\\":36}\"}"
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":40,\\\"hi\\\":41}\"}"
-              op: Le
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":45,\\\"hi\\\":46}\"}"
+              op: Lte
               span:
-                lo: 35
-                hi: 42
-          op: Le
+                lo: 39
+                hi: 47
+          op: Lte
           span:
-            lo: 24
-            hi: 42
-      op: Le
+            lo: 27
+            hi: 47
+      op: Lte
       span:
         lo: 1
-        hi: 43
+        hi: 48

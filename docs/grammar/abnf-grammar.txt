@@ -78,6 +78,7 @@ end-of-line-comment = "//" *not-line-feed-or-carriage-return
 
 keyword = %s"address"
         / %s"bool"
+        / %s"circuit"
         / %s"console"
         / %s"const"
         / %s"constant"
@@ -185,12 +186,14 @@ atomic-literal = numeric-literal
 symbol = "!" / "&&" / "||"
        / "==" / "!="
        / "<" / "<=" / ">" / ">="
+       / "&" / "|" / "^"
+       / "<<" / ">>"
        / "+" / "-" / "*" / "/" / "**"
        / "="
        / "(" / ")"
        / "[" / "]"
        / "{" / "}"
-       / "," / "." / ".." / ";" / ":" / "?"
+       / "," / "." / ".." / ";" / ":" / "::" / "?"
        / "->" / "_"
        / %s")group"
 
@@ -229,7 +232,9 @@ string-type = %s"string"
 
 primitive-type =  boolean-type / arithmetic-type / address-type / string-type
 
-type = primitive-type / identifier
+named-type = primitive-type / identifier
+
+type = named-type
 
 group-coordinate = ( [ "-" ] numeral ) / "+" / "-" / "_"
 
@@ -239,17 +244,36 @@ literal = atomic-literal / affine-group-literal
 
 group-literal = product-group-literal / affine-group-literal
 
-primary-expression = identifier
-                   / literal
+primary-expression = literal
+                   / variable-or-free-constant
+                   / associated-constant
                    / "(" expression ")"
-                   / function-call
+                   / free-function-call
+                   / static-function-call
+                   / circuit-expression
 
-function-call = identifier function-arguments
+variable-or-free-constant = identifier
+
+associated-constant = named-type "::" identifier
+
+free-function-call = identifier function-arguments
+
+static-function-call = named-type "::" identifier function-arguments
 
 function-arguments = "(" [ expression *( "," expression ) [ "," ] ] ")"
 
+circuit-expression = identifier "{" circuit-component-initializer
+                                    *( "," circuit-component-initializer )
+                                    [ "," ] "}"
+
+circuit-component-initializer = identifier
+                              / identifier ":" expression
+
 postfix-expression = primary-expression
+                   / circuit-component-expression
                    / operator-call
+
+circuit-component-expression = postfix-expression "." identifier
 
 operator-call = unary-operator-call / binary-operator-call
 
@@ -365,7 +389,14 @@ function-parameters = function-parameter *( "," function-parameter ) [ "," ]
 function-parameter = [ %s"public" / %s"constant" / %s"const" ]
                      identifier ":" type
 
+circuit-declaration = %s"circuit" "{" circuit-component-declaration
+                                      *( "," circuit-component-declaration )
+                                      [ "," ] "}"
+
+circuit-component-declaration = identifier ":" type
+
 declaration = function-declaration
+            / circuit-declaration
 
 file = *declaration
 
