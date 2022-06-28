@@ -31,15 +31,15 @@ mod type_output;
 
 use crate::{Pass, SymbolTable};
 
-use leo_ast::{Ast, ProgramVisitor};
+use leo_ast::{Ast, ProgramVisitor, Definitions};
 use leo_errors::{emitter::Handler, Result};
 
 impl<'a> Pass for TypeChecker<'a> {
-    type Input = (&'a Ast, &'a Handler, SymbolTable);
+    type Input = (&'a Ast, &'a Handler, SymbolTable, Option<&'a Definitions>);
     type Output = Result<SymbolTable>;
 
-    fn do_pass((ast, handler, st): Self::Input) -> Self::Output {
-        let mut visitor = TypeChecker::new(st, handler);
+    fn do_pass((ast, handler, st, input_consts): Self::Input) -> Self::Output {
+        let mut visitor = TypeChecker::new(st, handler, input_consts);
         visitor.visit_program(ast.as_repr());
         handler.last_err()?;
 

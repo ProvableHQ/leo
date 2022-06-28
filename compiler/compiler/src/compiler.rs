@@ -17,8 +17,8 @@
 //! The compiler for Leo programs.
 //!
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
-use leo_ast::Program;
 pub use leo_ast::{Ast, InputAst};
+use leo_ast::{Program, ProgramInput};
 use leo_errors::emitter::Handler;
 use leo_errors::{CompilerError, Result};
 pub use leo_passes::SymbolTable;
@@ -44,7 +44,7 @@ pub struct Compiler<'a> {
     /// The AST for the program.
     pub ast: Ast,
     /// The input ast for the program if it exists.
-    pub input_ast: Option<InputAst>,
+    pub input_ast: Option<ProgramInput>,
     /// Compiler options on some optional output files.
     output_options: OutputOptions,
 }
@@ -138,7 +138,7 @@ impl<'a> Compiler<'a> {
                 }
             }
 
-            self.input_ast = Some(input_ast);
+            self.input_ast = Some(input_ast.try_into()?);
         }
         Ok(())
     }
@@ -154,7 +154,12 @@ impl<'a> Compiler<'a> {
     /// Runs the type checker pass.
     ///
     pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<SymbolTable> {
-        TypeChecker::do_pass((&self.ast, self.handler, symbol_table))
+        TypeChecker::do_pass((
+            &self.ast,
+            self.handler,
+            symbol_table,
+            self.input_ast.as_ref().map(|i| &i.constants),
+        ))
     }
 
     ///

@@ -14,40 +14,74 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::ParamMode;
+
 use super::*;
 
 /// Processed Program input.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ProgramInput {
-    pub main: Definitions,
+    pub constants: Definitions,
+    pub private: Definitions,
+    pub public: Definitions,
     pub registers: Definitions,
 }
 
 impl TryFrom<InputAst> for ProgramInput {
     type Error = LeoError;
     fn try_from(input: InputAst) -> Result<Self> {
-        let mut main = IndexMap::new();
+        let mut constants = IndexMap::new();
+        let mut private = IndexMap::new();
+        let mut public = IndexMap::new();
         let mut registers = IndexMap::new();
 
         for section in input.sections {
-            let target = match section.name {
-                sym::main => &mut main,
-                sym::registers => &mut registers,
+            match section.name {
+                sym::main => {
+                    for definition in section.definitions.into_iter() {
+                        match definition.mode {
+                            ParamMode::Const => {
+                                constants.insert(
+                                    definition.name.name,
+                                    InputValue::try_from((definition.type_, definition.value))?,
+                                );
+                            }
+                            ParamMode::Private => {
+                                private.insert(
+                                    definition.name.name,
+                                    InputValue::try_from((definition.type_, definition.value))?,
+                                );
+                            }
+                            ParamMode::Public => {
+                                public.insert(
+                                    definition.name.name,
+                                    InputValue::try_from((definition.type_, definition.value))?,
+                                );
+                            }
+                        }
+                    }
+                }
+                sym::registers => {
+                    for definition in section.definitions.into_iter() {
+                        registers.insert(
+                            definition.name.name,
+                            InputValue::try_from((definition.type_, definition.value))?,
+                        );
+                    }
+                }
                 _ => {
                     return Err(
                         InputError::unexpected_section(&["main", "registers"], section.name, section.span).into(),
                     )
                 }
-            };
-
-            for definition in section.definitions {
-                target.insert(
-                    definition.name.name,
-                    InputValue::try_from((definition.type_, definition.value))?,
-                );
             }
         }
 
-        Ok(ProgramInput { main, registers })
+        Ok(ProgramInput {
+            constants,
+            private,
+            public,
+            registers,
+        })
     }
 }

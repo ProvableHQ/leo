@@ -17,7 +17,7 @@
 use std::cell::RefCell;
 
 use indexmap::IndexSet;
-use leo_ast::{IntegerType, Node, Type};
+use leo_ast::{Definitions, IntegerType, Node, Type};
 use leo_core::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
@@ -33,6 +33,7 @@ pub struct TypeChecker<'a> {
     pub(crate) has_return: bool,
     pub(crate) negate: bool,
     pub(crate) next_block_non_const: bool,
+    pub(crate) constant_inputs: Option<&'a Definitions>,
     pub(crate) account_types: IndexSet<Symbol>,
     pub(crate) algorithms_types: IndexSet<Symbol>,
 }
@@ -90,10 +91,11 @@ const FIELD_SCALAR_TYPES: [Type; 2] = [Type::Field, Type::Scalar];
 
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
-    pub fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
+    pub fn new(symbol_table: SymbolTable, handler: &'a Handler, constant_inputs: Option<&'a Definitions>) -> Self {
         Self {
             symbol_table: RefCell::new(symbol_table),
             handler,
+            constant_inputs,
             parent: None,
             has_return: false,
             negate: false,
