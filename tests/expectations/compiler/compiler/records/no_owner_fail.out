@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370045]: The `record` type requires the variable `owner: address` and enforces ordering.\n    --> compiler-test:6:5\n     |\n   6 |     balance: u64,\n     |     ^^^^^^^\nError [EPAR0370045]: The `record` type requires the variable `balance: u64` and enforces ordering.\n    --> compiler-test:8:5\n     |\n   8 |     amount: u64,\n     |     ^^^^^^"

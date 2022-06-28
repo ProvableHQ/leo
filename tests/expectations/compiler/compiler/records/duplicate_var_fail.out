@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370045]: The `record` type requires the variable `balance: u64` and enforces ordering.\n    --> compiler-test:7:5\n     |\n   7 |     owner: address, // Cannot define two record variables with the same name.\n     |     ^^^^^"

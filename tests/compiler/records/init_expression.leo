@@ -1,3 +1,8 @@
+/*
+namespace: Compile
+expectation: Pass
+*/
+
 record Token {
     // The token owner.
     owner: address,
@@ -7,11 +12,11 @@ record Token {
     amount: u64,
 }
 
-function mint(owner: address, amount: u64) -> Token {
+function mint(r0: address, r1: u64) -> Token {
     return Token {
-        owner,
+        owner: r0,
         balance: 0u64,
-        amount,
+        amount: r1,
     };
 }
 
