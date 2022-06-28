@@ -1,7 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
-input_file: inputs/dummy.in
+input_file: inputs/constant.in
 */
 
 function main(constant b: bool) -> bool {

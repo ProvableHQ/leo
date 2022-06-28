@@ -138,7 +138,7 @@ impl TryFrom<(Type, Expression)> for InputValue {
                     return Err(InputError::unexpected_type(x, &y, y.span()).into());
                 }
             },
-            (Type::IntegerType(expected), Expression::Unary(unary)) if unary.op == UnaryOperation::Negate => {
+            (expected, Expression::Unary(unary)) if unary.op == UnaryOperation::Negate => {
                 let mut negate = true;
                 let mut unary = unary;
                 while let Expression::Unary(receiver) = *unary.receiver {
@@ -151,21 +151,23 @@ impl TryFrom<(Type, Expression)> for InputValue {
                         );
                     }
                 }
-                if let Expression::Literal(LiteralExpression::Integer(actual, value, span)) = *unary.receiver {
-                    if expected == actual
-                        && matches!(
+                match *unary.receiver {
+                    Expression::Literal(LiteralExpression::Integer(actual, value, span))
+                        if matches!(
                             expected,
-                            IntegerType::I8
-                                | IntegerType::I16
-                                | IntegerType::I32
-                                | IntegerType::I64
-                                | IntegerType::I128
-                        )
+                            Type::IntegerType(
+                                IntegerType::I8
+                                    | IntegerType::I16
+                                    | IntegerType::I32
+                                    | IntegerType::I64
+                                    | IntegerType::I128
+                            )
+                        ) =>
                     {
                         let value_str = if negate { format!("-{}", value) } else { value };
 
                         Self::Integer(
-                            expected,
+                            actual,
                             match actual {
                                 IntegerType::I8 => IntegerValue::I8(
                                     value_str
@@ -195,18 +197,25 @@ impl TryFrom<(Type, Expression)> for InputValue {
                                 _ => unreachable!(),
                             },
                         )
-                    } else {
-                        return Err(InputError::unexpected_type(expected.to_string(), actual, span).into());
                     }
-                } else {
-                    return Err(InputError::illegal_expression(Expression::Unary(unary.clone()), unary.span).into());
+                    Expression::Literal(LiteralExpression::Field(value, _)) if matches!(expected, Type::Field) => {
+                        let value_str = if negate { format!("-{}", value) } else { value };
+                        Self::Field(value_str)
+                    }
+                    Expression::Literal(LiteralExpression::Group(lit)) if matches!(expected, Type::Group) => {
+                        Self::Group(*lit)
+                    }
+                    _ => {
+                        return Err(
+                            InputError::illegal_expression(Expression::Unary(unary.clone()), unary.span).into(),
+                        );
+                    }
                 }
             }
             (_type_, expr) => return Err(InputError::illegal_expression(&expr, expr.span()).into()),
         })
     }
 }
-
 impl fmt::Display for InputValue {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {

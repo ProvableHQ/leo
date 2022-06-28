@@ -1,9 +1,7 @@
 [main]
 y: bool = true;
-
-[constants]
-a: bool = true;
-b: bool = false;
+constant a: bool = true;
+constant b: bool = false;
 
 [registers]
 r0: bool = true;

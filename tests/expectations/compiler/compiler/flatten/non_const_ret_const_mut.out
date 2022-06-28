@@ -1,4 +1,8 @@
 ---
 namespace: Compile
-expectation: Skip
-outputs: []
+expectation: Pass
+outputs:
+  - output:
+      - initial_input_ast: 7cb25b7b98c490fceace1745941690f3a9cc387e8b537001d2f43ac1413a82fd
+        flattened_ast: 49e55b0c857c705d00b94132e887cbd65a58fd8417843434c905653ef1fcbf87
+    initial_ast: 63b069fecc0c8a4c9d176a73881f77b887763f978689e85cd81b248d95ae0c0e

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{commands::Command, context::Context};
-use leo_compiler::{Ast, Compiler, InputAst, OutputOptions};
+use leo_compiler::{Ast, Compiler, OutputOptions};
 use leo_errors::{CliError, Result};
 use leo_package::{
     inputs::InputFile,
@@ -71,7 +71,7 @@ pub struct Build {
 
 impl Command for Build {
     type Input = ();
-    type Output = (Option<InputAst>, Ast, bool);
+    type Output = (Ast, bool);
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Build")
@@ -216,6 +216,6 @@ impl Command for Build {
 
         tracing::info!("Complete");
 
-        Ok((program.input_ast, program.ast, checksum_differs))
+        Ok((program.ast, checksum_differs))
     }
 }

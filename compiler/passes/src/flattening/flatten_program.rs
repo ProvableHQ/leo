@@ -30,51 +30,111 @@ impl<'a> ProgramReconstructor for Flattener<'a> {
                 .cloned()
                 .partition(|fi| matches!(fi, FunctionInput::Variable(v) if v.mode() != ParamMode::Const));
 
-            let id = if let Some(main) = self.symbol_table.borrow_mut().functions.get_mut(&f_name) {
-                main.input = non_consts.clone();
-                main.id
-            } else {
-                todo!("no main function");
-            };
+            if let Some(const_inputs) = self.constant_inputs {
+                let id = if let Some(main) = self.symbol_table.borrow_mut().functions.get_mut(&f_name) {
+                    main.input = non_consts.clone();
+                    main.id
+                } else {
+                    todo!("no main function");
+                };
 
-            let fn_scope = &self.symbol_table.borrow().scopes[id];
+                let fn_scope = &self.symbol_table.borrow().scopes[id];
 
-            fn_scope
-                .borrow_mut()
-                .variables
-                .extend(consts.into_iter().map(|c| match c {
-                    FunctionInput::Variable(var) => (
-                        var.identifier.name,
-                        VariableSymbol {
-                            type_: var.type_,
-                            span: var.span(),
-                            declaration: Declaration::Const(Some(match var.type_ {
-                                Type::Address => Value::Address(Default::default(), var.span()),
-                                Type::Boolean => Value::Boolean(Default::default(), var.span()),
-                                Type::Field => Value::Field(Default::default(), var.span()),
-                                Type::Group => {
-                                    Value::Group(Box::new(GroupLiteral::Single(Default::default(), var.span())))
-                                }
-                                Type::Scalar => Value::Scalar(Default::default(), var.span()),
-                                Type::String => Value::String(Default::default(), var.span()),
-                                Type::IntegerType(int_type) => match int_type {
-                                    IntegerType::U8 => Value::U8(0, var.span()),
-                                    IntegerType::U16 => Value::U16(0, var.span()),
-                                    IntegerType::U32 => Value::U32(0, var.span()),
-                                    IntegerType::U64 => Value::U64(0, var.span()),
-                                    IntegerType::U128 => Value::U128(0, var.span()),
-                                    IntegerType::I8 => Value::I8(0, var.span()),
-                                    IntegerType::I16 => Value::I16(0, var.span()),
-                                    IntegerType::I32 => Value::I32(0, var.span()),
-                                    IntegerType::I64 => Value::I64(0, var.span()),
-                                    IntegerType::I128 => Value::I128(0, var.span()),
-                                },
-                                Type::Identifier(_) => unreachable!(),
-                                Type::Err => unreachable!(),
-                            })),
-                        },
-                    ),
-                }));
+                fn_scope
+                    .borrow_mut()
+                    .variables
+                    .extend(consts.into_iter().map(|c| match c {
+                        FunctionInput::Variable(var) => {
+                            if let Some(const_value) = const_inputs.get(&var.identifier.name) {
+                                (
+                                    var.identifier.name,
+                                    VariableSymbol {
+                                        type_: var.type_,
+                                        span: var.span(),
+                                        declaration: Declaration::Const(Some(match const_value {
+                                            InputValue::Address(value) if matches!(var.type_, Type::Address) => {
+                                                Value::Address(value.clone(), var.span())
+                                            }
+                                            InputValue::Boolean(value) if matches!(var.type_, Type::Boolean) => {
+                                                Value::Boolean(*value, var.span())
+                                            }
+                                            InputValue::Field(value) if matches!(var.type_, Type::Field) => {
+                                                Value::Field(value.clone(), var.span())
+                                            }
+                                            InputValue::Group(value) if matches!(var.type_, Type::Group) => {
+                                                Value::Group(Box::new(value.clone()))
+                                            }
+                                            InputValue::Integer(_, value) => match value {
+                                                IntegerValue::I8(value)
+                                                    if matches!(var.type_, Type::IntegerType(IntegerType::I8)) =>
+                                                {
+                                                    Value::I8(*value, var.span())
+                                                }
+                                                IntegerValue::I16(value)
+                                                    if matches!(var.type_, Type::IntegerType(IntegerType::I16)) =>
+                                                {
+                                                    Value::I16(*value, var.span())
+                                                }
+                                                IntegerValue::I32(value)
+                                                    if matches!(var.type_, Type::IntegerType(IntegerType::I32)) =>
+                                                {
+                                                    Value::I32(*value, var.span())
+                                                }
+                                                IntegerValue::I64(value)
+                                                    if matches!(var.type_, Type::IntegerType(IntegerType::I64)) =>
+                                                {
+                                                    Value::I64(*value, var.span())
+                                                }
+                                                IntegerValue::I128(value)
+                                                    if matches!(var.type_, Type::IntegerType(IntegerType::I128)) =>
+                                                {
+                                                    Value::I128(*value, var.span())
+                                                }
+                                                IntegerValue::U8(value)
+                                                    if matches!(var.type_, Type::IntegerType(IntegerType::U8)) =>
+                                                {
+                                                    Value::U8(*value, var.span())
+                                                }
+                                                IntegerValue::U16(value)
+                                                    if matches!(var.type_, Type::IntegerType(IntegerType::U16)) =>
+                                                {
+                                                    Value::U16(*value, var.span())
+                                                }
+                                                IntegerValue::U32(value)
+                                                    if matches!(var.type_, Type::IntegerType(IntegerType::U32)) =>
+                                                {
+                                                    Value::U32(*value, var.span())
+                                                }
+                                                IntegerValue::U64(value)
+                                                    if matches!(var.type_, Type::IntegerType(IntegerType::U64)) =>
+                                                {
+                                                    Value::U64(*value, var.span())
+                                                }
+                                                IntegerValue::U128(value)
+                                                    if matches!(var.type_, Type::IntegerType(IntegerType::U128)) =>
+                                                {
+                                                    Value::U128(*value, var.span())
+                                                }
+                                                _ => todo!("incorrect type"),
+                                            },
+                                            InputValue::Scalar(value) if matches!(var.type_, Type::Scalar) => {
+                                                Value::Scalar(value.clone(), var.span())
+                                            }
+                                            InputValue::String(value) if matches!(var.type_, Type::String) => {
+                                                Value::String(value.clone(), var.span())
+                                            }
+                                            _ => todo!("incorrect type"),
+                                        })),
+                                    },
+                                )
+                            } else {
+                                todo!("var not found in constats")
+                            }
+                        }
+                    }));
+            } else if !consts.is_empty() && self.constant_inputs.is_none() {
+                todo!("emit error")
+            }
 
             non_consts
         } else {
