@@ -23,18 +23,28 @@ use leo_span::Symbol;
 use crate::SymbolTable;
 
 pub struct Flattener<'a> {
+    /// the symbol table for the function
     pub(crate) symbol_table: RefCell<SymbolTable>,
+    /// constant inputs for the function
     pub(crate) constant_inputs: Option<&'a Definitions>,
+    /// the current block scope index
     pub(crate) block_index: usize,
+    /// error handler
     pub(crate) handler: &'a Handler,
+    /// a flag that shows if the next block will always be executed from the current block
     pub(crate) next_block_non_const: bool,
+    /// a flag that tells us if the current block will always be executed by the function or not
     pub(crate) non_const_block: bool,
+    /// a flag to tell value parsing that were in a negate expr
     pub(crate) negate: bool,
+    /// a flag to tell the flattener that were in an iterator and should create new scopes
     pub(crate) create_iter_scopes: bool,
+    /// a buffer of variables slated to be deconstified
     pub(crate) deconstify_buffer: Option<Vec<Symbol>>,
 }
 
 impl<'a> Flattener<'a> {
+    /// drains the buffer of variables slated for deconstification and deconstifies every instance of them in all parent scopes
     pub(crate) fn deconstify_buffered(&mut self) {
         let mut st = self.symbol_table.borrow_mut();
         let mut names = self.deconstify_buffer.take().unwrap_or_default();

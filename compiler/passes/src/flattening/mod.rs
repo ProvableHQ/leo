@@ -36,6 +36,7 @@ impl<'a> Pass for Flattener<'a> {
     type Output = Result<Ast>;
 
     fn do_pass((ast, handler, st, input_consts): Self::Input) -> Self::Output {
+        // Reconstructs the AST based off any flattening work that is done.
         let mut reconstructor = Self::new(st, handler, input_consts);
         let program = reconstructor.reconstruct_program(ast.into_repr());
         handler.last_err()?;

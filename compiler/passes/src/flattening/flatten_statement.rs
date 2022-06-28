@@ -21,6 +21,8 @@ use leo_errors::{FlattenError, TypeCheckerError};
 
 use crate::{Declaration, Flattener, Value, VariableSymbol};
 
+/// Returns the literal value if the value is const.
+/// Otherwise returns the const.
 fn map_const((expr, val): (Expression, Option<Value>)) -> Expression {
     val.map(|v| Expression::Literal(v.into())).unwrap_or(expr)
 }
@@ -34,12 +36,16 @@ impl<'a> StatementReconstructor for Flattener<'a> {
     }
 
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> Statement {
+        // We grab the place and its possible const value.
         let (value, const_val) = self.reconstruct_expression(input.value);
         let mut st = self.symbol_table.borrow_mut();
 
+        // If it has a const value, we can assign constantly to it.
         if let Some(const_val) = const_val.clone() {
             input.variable_names.iter().for_each(|var| {
+                // This sets the variable to the new constant value if it exists.
                 if !st.set_variable(&var.identifier.name, const_val.clone()) {
+                    // Otherwise we insert it.
                     if let Err(err) = st.insert_variable(
                         var.identifier.name,
                         VariableSymbol {
@@ -56,6 +62,8 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                 }
             });
         } else if const_val.is_none() && self.create_iter_scopes {
+            // Otherwise if const_value is none or we are in a iteration scope.
+            // We always insert the variable but do not try to update it.
             input.variable_names.iter().for_each(|var| {
                 if let Err(err) = st.insert_variable(
                     var.identifier.name,
@@ -83,6 +91,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
     }
 
     fn reconstruct_assign(&mut self, input: AssignStatement) -> Statement {
+        // gets the target and its const value
         let (place_expr, place_const) = self.reconstruct_expression(input.place);
         let var_name = if let Expression::Identifier(var) = place_expr {
             var.name
@@ -90,6 +99,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
             unreachable!()
         };
 
+        // if the target has a constant value, asserts that the target wasn't declared as constant 
         if place_const.is_some() {
             if let Some(var) = self.symbol_table.borrow().lookup_variable(&var_name) {
                 match &var.declaration {
@@ -105,13 +115,16 @@ impl<'a> StatementReconstructor for Flattener<'a> {
             }
         }
 
+        // gets the rhs value and its possible const value
         let (value, const_val) = self.reconstruct_expression(input.value);
 
         let mut st = self.symbol_table.borrow_mut();
         let var_in_local = st.variable_in_local_scope(&var_name);
 
+        // sets the variable in scope as needed and returns if the value should be deconstified or not
         let deconstify = if let Some(c) = const_val.clone() {
             if !self.non_const_block || var_in_local {
+                // sets the variable in the current scope
                 st.set_variable(&var_name, c);
                 false
             } else {
@@ -197,8 +210,12 @@ impl<'a> StatementReconstructor for Flattener<'a> {
         let (start_expr, start) = self.reconstruct_expression(input.start);
         let (stop_expr, stop) = self.reconstruct_expression(input.stop);
 
+        // We match on start and stop cause loops require
+        // bounds to be constants.
         match (start, stop) {
             (Some(start), Some(stop)) => {
+                // Closure to check constant value is valid usize.
+                // We already know these are integers because of tyc pass happened.
                 let cast_to_usize = |v: Value| -> Result<usize, Statement> {
                     match v.try_into() {
                         Ok(val_as_usize) => Ok(val_as_usize),
@@ -220,6 +237,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                     Err(s) => return s,
                 };
 
+                // Create iteration range accounting for inclusive bounds.
                 let range = if start < stop {
                     if let Some(stop) = stop.checked_add(input.inclusive as usize) {
                         start..stop
@@ -236,8 +254,11 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                     Default::default()
                 };
 
+                // Checking if we are in a non const block and storing it.
                 let pre_non_const_flag = self.next_block_non_const;
+                // Setting iteration to a const block.
                 self.next_block_non_const = false;
+                // We create the iter scope if it does not exist otherwise we grab its id.
                 let scope_index = if self.create_iter_scopes {
                     self.symbol_table.borrow_mut().insert_block(self.next_block_non_const)
                 } else {

@@ -35,8 +35,11 @@ pub struct SymbolTable {
     /// The variables defined in a scope.
     /// This field is populated as necessary.
     pub(crate) variables: IndexMap<Symbol, VariableSymbol>,
+    /// the index of the current scope
     pub(crate) scope_index: usize,
+    /// if the block will always be executed when the parent block is executed
     pub(crate) is_locally_non_const: bool,
+    /// the subscopes of this scope
     pub(crate) scopes: Vec<RefCell<SymbolTable>>,
 }
 
