@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use indexmap::IndexMap;
+use leo_span::Symbol;
+
 use crate::GroupLiteral;
 
 use super::*;
@@ -26,6 +29,8 @@ pub enum LiteralExpression {
     Address(String, #[serde(with = "leo_span::span_json")] Span),
     /// A boolean literal, either `true` or `false`.
     Boolean(bool, #[serde(with = "leo_span::span_json")] Span),
+    /// A constant circuit value,
+    Circuit(Identifier, IndexMap<Symbol, LiteralExpression>),
     /// A field literal, e.g., `42field`.
     /// A signed number followed by the keyword `field`.
     Field(String, #[serde(with = "leo_span::span_json")] Span),
@@ -46,6 +51,15 @@ impl fmt::Display for LiteralExpression {
         match &self {
             Self::Address(address, _) => write!(f, "{}", address),
             Self::Boolean(boolean, _) => write!(f, "{}", boolean),
+            Self::Circuit(ident, members) => {
+                write!(f, "{} {{", ident.name)?;
+
+                for (name, value) in members {
+                    write!(f, "  {name}: {value}")?;
+                }
+
+                write!(f, "}}")
+            }
             Self::Field(field, _) => write!(f, "{}", field),
             Self::Group(group) => write!(f, "{}", group),
             Self::Integer(type_, value, _) => write!(f, "{}{}", value, type_),
@@ -64,6 +78,7 @@ impl Node for LiteralExpression {
             | Self::Integer(_, _, span)
             | Self::Scalar(_, span)
             | Self::String(_, span) => *span,
+            Self::Circuit(ident, _) => ident.span(),
             Self::Group(group) => match &**group {
                 GroupLiteral::Single(_, span) => *span,
                 GroupLiteral::Tuple(tuple) => tuple.span,
@@ -79,6 +94,7 @@ impl Node for LiteralExpression {
             | Self::Integer(_, _, span)
             | Self::Scalar(_, span)
             | Self::String(_, span) => *span = new_span,
+            Self::Circuit(ident, _) => ident.set_span(new_span),
             Self::Group(group) => match &mut **group {
                 GroupLiteral::Single(_, span) => *span = new_span,
                 GroupLiteral::Tuple(tuple) => tuple.span = new_span,

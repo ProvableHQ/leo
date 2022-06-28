@@ -1,13 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - inline.in: |
-    [main]
-    x: u32 = 100;
-
-    [registers]
-    r0: u32 = 0;
+input_file: inputs/inline.in
 */
 
 circuit Foo {
@@ -15,6 +9,6 @@ circuit Foo {
 }
 
 function main(x: u32) -> u32 {
-    let a: Foo = Foo { x: x };
+    let a: Foo = Foo { x };
     return a.x;
 }

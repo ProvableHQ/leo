@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{CircuitMember, Identifier, Node};
+use indexmap::IndexMap;
 use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
@@ -31,7 +32,7 @@ pub struct Circuit {
     /// The name of the type in the type system in this module.
     pub identifier: Identifier,
     /// The fields, constant variables, and functions of this structure.
-    pub members: Vec<CircuitMember>,
+    pub members: IndexMap<Symbol, CircuitMember>,
     /// The entire span of the circuit definition.
     pub span: Span,
 }
@@ -52,7 +53,7 @@ impl Circuit {
 
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "circuit {} {{ ", self.identifier)?;
-        for field in self.members.iter() {
+        for (_, field) in self.members.iter() {
             writeln!(f, "    {}", field)?;
         }
         write!(f, "}}")

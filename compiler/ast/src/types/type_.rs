@@ -17,10 +17,10 @@
 use crate::{Identifier, IntegerType};
 
 use serde::{Deserialize, Serialize};
-use std::fmt;
+use std::{fmt, hash::Hash};
 
 /// Explicit type used for defining a variable or expression type
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, Serialize, Deserialize)]
 pub enum Type {
     // Data types
     /// The `address` type.
@@ -79,5 +79,21 @@ impl fmt::Display for Type {
             Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
             Type::Err => write!(f, "error"),
         }
+    }
+}
+
+impl PartialEq for Type {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::IntegerType(lhs), Self::IntegerType(rhs)) => lhs == rhs,
+            (Self::Identifier(lhs), Self::Identifier(rhs)) => lhs.name == rhs.name,
+            _ => core::mem::discriminant(self) == core::mem::discriminant(other),
+        }
+    }
+}
+
+impl Hash for Type {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        core::mem::discriminant(self).hash(state);
     }
 }

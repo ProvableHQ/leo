@@ -11,6 +11,9 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
+use indexmap::IndexMap;
+use leo_span::Symbol;
+
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use super::*;
@@ -45,7 +48,7 @@ pub struct CircuitInitExpression {
     ///
     /// N.B. Any functions or member constants in the circuit definition
     /// are excluded from this list.
-    pub members: Vec<CircuitVariableInitializer>,
+    pub members: IndexMap<Symbol, CircuitVariableInitializer>,
     /// A span from `name` to `}`.
     pub span: Span,
 }
@@ -53,7 +56,7 @@ pub struct CircuitInitExpression {
 impl fmt::Display for CircuitInitExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} {{ ", self.name)?;
-        for member in self.members.iter() {
+        for (_, member) in self.members.iter() {
             write!(f, "{}", member)?;
             write!(f, ", ")?;
         }

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, path::PathBuf};
 
 #[derive(serde::Serialize, serde::Deserialize, PartialEq, Eq, Debug, Clone)]
 pub enum TestExpectationMode {
@@ -31,9 +31,11 @@ pub struct TestConfig {
     pub extra: BTreeMap<String, serde_yaml::Value>,
 }
 
-pub fn extract_test_config(source: &str) -> Option<TestConfig> {
+pub fn extract_test_config(path: &PathBuf, source: &str) -> Option<TestConfig> {
     let first_comment_start = source.find("/*")?;
     let end_first_comment = source[first_comment_start + 2..].find("*/")?;
     let comment_inner = &source[first_comment_start + 2..first_comment_start + 2 + end_first_comment];
-    Some(serde_yaml::from_str(comment_inner).expect("invalid test configuration"))
+    Some(
+        serde_yaml::from_str(comment_inner).unwrap_or_else(|_| panic!("invalid test configuration path: `{:?}`", path)),
+    )
 }

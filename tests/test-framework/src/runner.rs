@@ -120,7 +120,7 @@ impl TestCases {
         let mut configs = Vec::new();
 
         self.tests = find_tests(&self.path_prefix.clone())
-            .filter(|(path, content)| match extract_test_config(content) {
+            .filter(|(path, content)| match extract_test_config(path, content) {
                 None => {
                     self.fail_categories.push(TestFailure {
                         path: path.to_str().unwrap_or("").to_string(),

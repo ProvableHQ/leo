@@ -151,9 +151,16 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
             .functions
             .values()
             .for_each(|function| self.visit_function(function));
+
+        input
+            .circuits
+            .values()
+            .for_each(|function| self.visit_circuit(function));
     }
 
     fn visit_function(&mut self, input: &'a Function) {
         self.visit_block(&input.block);
     }
+
+    fn visit_circuit(&mut self, _input: &'a Circuit) {}
 }

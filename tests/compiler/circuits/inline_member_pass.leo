@@ -1,16 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - inline.in: |
-    [main]
-    y: bool = true;
-
-    [constants]
-    x: u8 = 10;
-
-    [registers]
-    r0: bool = false;  
+input_file: inputs/const_inline.in
 */
 
 circuit Foo {
@@ -20,5 +11,5 @@ circuit Foo {
 function main(const x: u8, y: bool) -> bool {
     const a: Foo = Foo { x };
 
-    return (b.x == a.x) == y;
+    return (a.x == a.x) == y;
 }

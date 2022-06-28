@@ -16,7 +16,6 @@
 
 use std::cell::RefCell;
 
-use indexmap::IndexSet;
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
 
@@ -60,12 +59,12 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.symbol_table = RefCell::new(prev_st);
     }
 
-    fn visit_circuit(&mut self, input: &'a Circuit) {
+    fn visit_circuit(&mut self, _input: &'a Circuit) {
         // Check for conflicting circuit member names.
-        let mut used = IndexSet::new();
-        if !input.members.iter().all(|member| used.insert(member.name())) {
-            self.handler
-                .emit_err(TypeCheckerError::duplicate_circuit_member(input.name(), input.span()));
-        }
+        // let mut used = IndexSet::new();
+        // if !input.members.iter().all(|(member)| used.insert(member.name())) {
+        //     self.handler
+        //         .emit_err(TypeCheckerError::duplicate_circuit_member(input.name(), input.span()));
+        // }
     }
 }

@@ -41,6 +41,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             self.check_ident_type(&Some(input.type_));
 
             let output = self.visit_expression(&input.value, &Some(input.type_));
+            self.assert_expected_type(&output.as_ref().into(), output.clone(), input.type_, v.span());
 
             let var = VariableSymbol {
                 type_: input.type_,

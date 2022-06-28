@@ -17,7 +17,7 @@
 use super::*;
 
 use leo_errors::{ParserError, ParserWarning, Result};
-use leo_span::sym;
+use leo_span::{sym, Symbol};
 
 impl ParserContext<'_> {
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
@@ -67,13 +67,13 @@ impl ParserContext<'_> {
 
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
     /// or circuit member function or circuit member constant.
-    pub fn parse_circuit_declaration(&mut self) -> Result<(Vec<CircuitMember>, Span)> {
-        let mut members = Vec::new();
+    pub fn parse_circuit_declaration(&mut self) -> Result<(IndexMap<Symbol, CircuitMember>, Span)> {
+        let mut members = IndexMap::new();
 
         let (mut semi_colons, mut commas) = (false, false);
 
         while !self.check(&Token::RightCurly) {
-            members.push(if self.peek_is_function() {
+            let member = if self.peek_is_function() {
                 // function
                 self.parse_member_function_declaration()?
             } else if self.eat(&Token::Static) {
@@ -98,7 +98,11 @@ impl ParserContext<'_> {
                 }
 
                 variable
-            });
+            };
+            if members.contains_key(&member.name()) {
+                todo!("error here");
+            }
+            members.insert(member.name(), member);
         }
         let span = self.expect(&Token::RightCurly)?;
 
@@ -145,10 +149,10 @@ impl ParserContext<'_> {
             // CAUTION: function members are unstable for testnet3.
             let function = self.parse_function()?;
 
-            return Err(ParserError::circuit_functions_unstable(function.1.span()).into());
+            Err(ParserError::circuit_functions_unstable(function.1.span()).into())
             // Ok(CircuitMember::CircuitFunction(Box::new(function.1)))
         } else {
-            return Err(Self::unexpected_item(&self.token).into());
+            Err(Self::unexpected_item(&self.token).into())
         }
     }
 
@@ -161,7 +165,7 @@ impl ParserContext<'_> {
         let (members, end) = self.parse_circuit_declaration()?;
 
         Ok((
-            circuit_name.clone(),
+            circuit_name,
             Circuit {
                 identifier: circuit_name,
                 members,

@@ -471,10 +471,11 @@ impl ParserContext<'_> {
             p.parse_circuit_member().map(Some)
         })?;
 
+        // TODO: have to handle duplicates here.
         Ok(Expression::CircuitInit(CircuitInitExpression {
             span: identifier.span + end,
             name: identifier,
-            members,
+            members: members.into_iter().map(|m| (m.identifier.name, m)).collect(),
         }))
     }
 

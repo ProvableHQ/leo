@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use indexmap::IndexMap;
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
 
@@ -35,7 +36,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             Expression::Ternary(expr) => self.visit_ternary(expr, expected),
             Expression::Call(expr) => self.visit_call(expr, expected),
             Expression::Err(expr) => self.visit_err(expr, expected),
-            Expression::CircuitInit(expr) => self.visit_identifier(&expr.name, expected),
+            Expression::CircuitInit(expr) => self.visit_circuit_init(expr, expected),
         }
     }
 
@@ -45,10 +46,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 Type::Identifier(circuit.identifier),
                 TypeOutput::MutType(Type::Identifier(circuit.identifier)),
                 expected,
-                circuit.span(),
+                input.span(),
             )
         } else if let Some(var) = self.symbol_table.borrow().lookup_variable(&input.name) {
-            self.assert_expected_option(var.type_, var, expected, var.span)
+            self.assert_expected_option(var.type_, var, expected, input.span)
         } else {
             self.handler
                 .emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span()));
@@ -67,6 +68,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             LiteralExpression::Boolean(value, span) => {
                 self.assert_expected_option(Type::Boolean, Value::Boolean(*value, *span), expected, input.span())
             }
+            LiteralExpression::Circuit(_, _) => unreachable!("Circuits instantiations are not parsed as literals"),
             LiteralExpression::Field(value, span) => {
                 self.assert_expected_option(Type::Field, Value::Field(value.clone(), *span), expected, input.span())
             }
@@ -269,6 +271,40 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     TypeOutput::None
                 }
             }
+            AccessExpression::Member(access) => {
+                let const_circuit = self.visit_expression(&access.inner, &None);
+                let const_circuit_type = const_circuit.as_ref().into();
+                let const_circuit_value: Option<Value> = const_circuit.as_ref().into();
+                if let Some(Value::Circuit(_, const_members)) = const_circuit_value {
+                    if let Some(const_member) = const_members.get(&access.name.name) {
+                        const_circuit.replace_value(const_member.clone())
+                    } else {
+                        todo!("throw an error for member not existing");
+                        TypeOutput::None
+                    }
+                } else if let Some(type_) = const_circuit_type {
+                    if let Type::Identifier(ident) = type_ {
+                        if let Some(circuit) = self.symbol_table.borrow().lookup_circuit(&ident.name) {
+                            match circuit.members.get(&access.name.name) {
+                                Some(CircuitMember::CircuitVariable(_, type_)) => const_circuit.replace(*type_),
+                                None => {
+                                    todo!("throw an error for member not existing");
+                                    TypeOutput::None
+                                }
+                            }
+                        } else {
+                            todo!("circuit type does not exist");
+                            TypeOutput::None
+                        }
+                    } else {
+                        todo!("throw error non circuit type");
+                        TypeOutput::None
+                    }
+                } else {
+                    todo!("throw error here trying to access on a non circuit type");
+                    TypeOutput::None
+                }
+            }
             _expr => TypeOutput::None, // todo: Add support for associated constants (u8::MAX).
         }
     }
@@ -412,7 +448,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 let t2_ty = t2.as_ref().into();
                 self.assert_magnitude_type(&t2_ty, input.right.span());
 
-                t1.return_incorrect_type(&t2, expected)
+                t1
             }
         }
     }
@@ -553,25 +589,45 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 ));
             }
 
+            // Set a dummy type for now.
+            let mut output = TypeOutput::LitType(Type::Identifier(circ.identifier));
+            let mut members = IndexMap::new();
             // Check circuit member types.
-            circ.members.iter().for_each(|expected| match expected {
-                CircuitMember::CircuitVariable(name, type_) => {
-                    // Lookup circuit variable name.
-                    if let Some(actual) = input.members.iter().find(|member| member.identifier.name == name.name) {
-                        if let Some(expr) = &actual.expression {
-                            self.visit_expression(expr, &Some(*type_));
-                        }
-                    } else {
-                        self.handler.emit_err(TypeCheckerError::unknown_sym(
-                            "circuit member variable",
-                            name,
-                            name.span(),
-                        ));
-                    };
-                }
-            });
+            for (name, expected) in circ.members.iter() {
+                match expected {
+                    CircuitMember::CircuitVariable(ident, type_) => {
+                        // Lookup circuit variable name.
+                        if let Some(actual) = input.members.get(name) {
+                            let member_output = if let Some(expr) = &actual.expression {
+                                self.visit_expression(expr, &Some(*type_))
+                            } else if let Some(var) = self.symbol_table.borrow().lookup_variable(name) {
+                                self.assert_expected_option(var.type_, var, &Some(*type_), input.span)
+                            } else {
+                                self.handler.emit_err(TypeCheckerError::unknown_sym(
+                                    "variable",
+                                    input.name,
+                                    input.span(),
+                                ));
+                                return TypeOutput::None;
+                            };
 
-            TypeOutput::None
+                            output = member_output.clone();
+                            let member_value: Option<Value> = member_output.as_ref().into();
+                            if let Some(member_value) = member_value {
+                                members.insert(*name, member_value);
+                            }
+                        } else {
+                            self.handler.emit_err(TypeCheckerError::unknown_sym(
+                                "circuit member variable",
+                                name,
+                                ident.span(),
+                            ));
+                        };
+                    }
+                }
+            }
+
+            output.replace_value(Value::Circuit(circ.identifier, members))
         } else {
             self.handler.emit_err(TypeCheckerError::unknown_sym(
                 "circuit",

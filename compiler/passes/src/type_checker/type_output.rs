@@ -105,6 +105,20 @@ impl TypeOutput {
         }
     }
 
+    pub fn replace_value(&self, value: Value) -> Self {
+        use TypeOutput::*;
+
+        match self {
+            Const(_) => Const(value),
+            ConstType(_) => ConstType(value.into()),
+            Lit(_) => Lit(value),
+            LitType(_) => LitType(value.into()),
+            Mut(_) => Mut(value),
+            MutType(_) => MutType(value.into()),
+            None => None,
+        }
+    }
+
     pub fn replace_if_not_equal(&self, type_: Type) -> Self {
         use TypeOutput::*;
 
@@ -156,10 +170,9 @@ impl From<TypeOutput> for Option<Value> {
 
 impl From<&TypeOutput> for Option<Value> {
     fn from(t: &TypeOutput) -> Self {
-        if let TypeOutput::Const(v) = t {
-            Some(v.clone())
-        } else {
-            None
+        match t {
+            TypeOutput::Const(v) | TypeOutput::Lit(v) | TypeOutput::Mut(v) => Some(v.clone()),
+            _ => None,
         }
     }
 }

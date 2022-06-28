@@ -19,9 +19,10 @@ use std::{
     ops::{BitAnd, BitOr, BitXor, Not},
 };
 
+use indexmap::IndexMap;
 use leo_ast::{GroupLiteral, Identifier, IntegerType, LiteralExpression, Type};
 use leo_errors::{type_name, FlattenError, LeoError, Result};
-use leo_span::Span;
+use leo_span::{Span, Symbol};
 
 // Macro for making implementing unary operations over appropriate types easier.
 macro_rules! implement_const_unary {
@@ -172,6 +173,7 @@ pub enum Value {
     Input(Type, Identifier),
     Address(String, Span),
     Boolean(bool, Span),
+    Circuit(Identifier, IndexMap<Symbol, Value>),
     Field(String, Span),
     Group(Box<GroupLiteral>),
     I8(i8, Span),
@@ -732,6 +734,7 @@ impl Display for Value {
         match self {
             Input(type_, ident) => write!(f, "input var {}: {type_}", ident.name),
             Address(val, _) => write!(f, "{val}"),
+            Circuit(val, _) => write!(f, "{}", val.name),
             Boolean(val, _) => write!(f, "{val}"),
             Field(val, _) => write!(f, "{val}"),
             Group(val) => write!(f, "{val}"),
@@ -809,6 +812,7 @@ impl From<&Value> for Type {
             Input(type_, _) => *type_,
             Address(_, _) => Type::Address,
             Boolean(_, _) => Type::Boolean,
+            Circuit(ident, _) => Type::Identifier(*ident),
             Field(_, _) => Type::Field,
             Group(_) => Type::Group,
             I8(_, _) => Type::IntegerType(IntegerType::I8),
@@ -834,6 +838,9 @@ impl From<Value> for LiteralExpression {
             Input(_, _) => panic!("We need to test if this is hittable"),
             Address(v, span) => LiteralExpression::Address(v, span),
             Boolean(v, span) => LiteralExpression::Boolean(v, span),
+            Circuit(ident, values) => {
+                LiteralExpression::Circuit(ident, values.into_iter().map(|(n, v)| (n, v.into())).collect())
+            }
             Field(v, span) => LiteralExpression::Field(v, span),
             Group(v) => LiteralExpression::Group(v),
             I8(v, span) => LiteralExpression::Integer(IntegerType::I8, v.to_string(), span),

@@ -95,6 +95,7 @@ impl<'a> ExpressionReconstructor for Flattener<'a> {
         let value = match input.clone() {
             LiteralExpression::Address(val, span) => Value::Address(val, span),
             LiteralExpression::Boolean(val, span) => Value::Boolean(val, span),
+            LiteralExpression::Circuit(_, _) => unreachable!("Circuits instantiations are not parsed as literals"),
             LiteralExpression::Field(val, span) => Value::Field(val, span),
             LiteralExpression::Group(val) => Value::Group(val),
             LiteralExpression::Integer(itype, istr, span) => {
