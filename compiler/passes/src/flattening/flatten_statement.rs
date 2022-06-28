@@ -110,15 +110,24 @@ impl<'a> StatementReconstructor for Flattener<'a> {
         let mut st = self.symbol_table.borrow_mut();
         let var_in_local = st.variable_in_local_scope(&var_name);
 
-        if let Some(c) = const_val.clone() {
+        let deconstify = if let Some(c) = const_val.clone() {
             if !self.non_const_block || var_in_local {
                 st.set_variable(&var_name, c);
+                false
             } else {
-                st.deconstify_variable(&var_name);
                 st.locally_constify_variable(var_name, c);
+                true
             }
-        } else if const_val.is_none() {
-            st.deconstify_variable(&var_name);
+        } else {
+            const_val.is_none()
+        };
+
+        if deconstify {
+            if let Some(buf) = &mut self.deconstify_buffer {
+                buf.push(var_name)
+            } else {
+                st.deconstify_variable(&var_name)
+            }
         }
 
         Statement::Assign(Box::new(AssignStatement {
@@ -132,6 +141,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
     fn reconstruct_conditional(&mut self, input: ConditionalStatement) -> Statement {
         let (condition, const_value) = self.reconstruct_expression(input.condition);
 
+        let prev_buffered = self.deconstify_buffer.replace(Vec::new());
         let prev_non_const_block = self.non_const_block;
         self.non_const_block = const_value.is_none() || prev_non_const_block;
 
@@ -176,6 +186,8 @@ impl<'a> StatementReconstructor for Flattener<'a> {
             }
         };
 
+        self.deconstify_buffered();
+        self.deconstify_buffer = prev_buffered;
         self.non_const_block = prev_non_const_block;
         out
     }

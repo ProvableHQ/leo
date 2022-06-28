@@ -17,6 +17,7 @@
 use std::cell::RefCell;
 
 use leo_errors::emitter::Handler;
+use leo_span::Symbol;
 
 use crate::SymbolTable;
 
@@ -27,6 +28,16 @@ pub struct Flattener<'a> {
     pub(crate) non_const_block: bool,
     pub(crate) negate: bool,
     pub(crate) create_iter_scopes: bool,
+    pub(crate) deconstify_buffer: Option<Vec<Symbol>>,
+}
+
+impl<'a> Flattener<'a> {
+    pub(crate) fn deconstify_buffered(&mut self) {
+        let mut st = self.symbol_table.borrow_mut();
+        for name in self.deconstify_buffer.take().unwrap_or_default() {
+            st.deconstify_variable(&name);
+        }
+    }
 }
 
 impl<'a> Flattener<'a> {
@@ -38,6 +49,7 @@ impl<'a> Flattener<'a> {
             non_const_block: false,
             negate: false,
             create_iter_scopes: false,
+            deconstify_buffer: None,
         }
     }
 }

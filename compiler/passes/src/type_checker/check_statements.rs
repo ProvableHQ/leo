@@ -84,6 +84,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         };
 
         let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable_mut(&var_name.name) {
+            // TODO: would be good to update variable value here. that way were not left with out-of-date variable info used in expressions during tyc
             Some(var.type_)
         } else {
             self.handler
