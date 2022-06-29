@@ -296,6 +296,9 @@ impl Token {
                 match &*ident {
                     x if x.starts_with("aleo1") => Token::AddressLit(ident),
                     "address" => Token::Address,
+                    // TODO: The current design uses the Leo tokenizer to process the body of an assembly block.
+                    //  While this approach works, we should consider a separate tokenizer for modularity. The
+                    //  tradeoff would the overhead of writing a completely new tokenizer.
                     "assembly" => Token::Assembly,
                     "bool" => Token::Bool,
                     "circuit" => Token::Circuit,

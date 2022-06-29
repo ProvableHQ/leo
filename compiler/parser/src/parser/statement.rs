@@ -16,6 +16,7 @@
 
 use super::*;
 
+use leo_ast::AssemblyBlock;
 use leo_errors::{ParserError, Result};
 use leo_span::sym;
 
@@ -25,6 +26,7 @@ impl ParserContext<'_> {
     /// Returns a [`Statement`] AST node if the next tokens represent a statement.
     pub(crate) fn parse_statement(&mut self) -> Result<Statement> {
         match &self.token.token {
+            Token::Assembly => Ok(Statement::AssemblyBlock(self.parse_assembly_block()?)),
             Token::Return => Ok(Statement::Return(self.parse_return_statement()?)),
             Token::If => Ok(Statement::Conditional(self.parse_conditional_statement()?)),
             Token::For => Ok(Statement::Iteration(Box::new(self.parse_loop_statement()?))),
@@ -35,7 +37,17 @@ impl ParserContext<'_> {
         }
     }
 
-    /// Returns a [`Block`] AST node if the next tokens represent a assign, or expression statement.
+    /// Returns a [`AssemblyBlock`] AST node if the next tokens represent an assembly block.
+    fn parse_assembly_block(&mut self) -> Result<AssemblyBlock> {
+        let start_span = self.expect(&Token::Assembly)?;
+        self.parse_list(Delimiter::Brace, None, |p| p.parse_instruction().map(Some))
+            .map(|(instructions, _, statement_span)| AssemblyBlock {
+                instructions,
+                span: start_span + statement_span,
+            })
+    }
+
+    /// Returns a [`AssignStatement`] AST node if the next tokens represent a assign, or expression statement.
     fn parse_assign_statement(&mut self) -> Result<Statement> {
         let place = self.parse_expression()?;
 
