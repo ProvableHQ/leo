@@ -20,6 +20,9 @@ use std::fmt;
 /// An operation executed by an instruction.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum Opcode {
+    // TODO: Resolve invalid opcodes. Current design requires AST traversals of `Opcode`s to handle the spurious `Invalid` variant.
+    /// A dummy opcode for invalid opcodes found by the parser.
+    Invalid,
     /// Adds `first` with `second`, storing the outcome in `destination`.
     Add,
     /// Performs a bitwise `and` operation on `first` and `second`, storing the outcome in `destination`.
@@ -53,6 +56,7 @@ pub enum Opcode {
 impl fmt::Display for Opcode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Opcode::Invalid => write!(f, "invalid"),
             Opcode::Add => write!(f, "add"),
             Opcode::And => write!(f, "and"),
             Opcode::Div => write!(f, "div"),

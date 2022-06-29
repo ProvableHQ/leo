@@ -410,4 +410,20 @@ create_messages!(
         ),
         help: None,
     }
+
+    /// Attempted to invoke an Aleo instruction with an invalid opcode.
+    @formatted
+    invalid_opcode_in_assembly_instruction {
+        args: (),
+        msg: format!("Invalid opcode in assembly block."),
+        help: None,
+    }
+
+    /// Attempted to invoke an Aleo instruction with an invalid operand.
+    @formatted
+    invalid_operand_in_assembly_instruction {
+        args: (),
+        msg: format!("Invalid operand in assembly block. Operands must be `Identifier`s or `LiteralExpressions`."),
+        help: None,
+    }
 );

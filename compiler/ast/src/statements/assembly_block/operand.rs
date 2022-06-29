@@ -24,6 +24,9 @@ use std::fmt;
 /// An argument to an instruction.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum Operand {
+    // TODO: Resolve invalid operands. Current design requires AST traversals of `Operand`s to handle the spurious `Invalid` variant.
+    /// A dummy operand for invalid operands found by the parser.
+    Invalid,
     Identifier(Identifier),
     Literal(LiteralExpression),
 }
@@ -31,6 +34,7 @@ pub enum Operand {
 impl fmt::Display for Operand {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            Operand::Invalid => write!(f, "invalid"),
             Operand::Identifier(identifier) => write!(f, "{}", identifier),
             Operand::Literal(literal) => write!(f, "{}", literal),
         }
@@ -40,6 +44,7 @@ impl fmt::Display for Operand {
 impl Node for Operand {
     fn span(&self) -> Span {
         match self {
+            Operand::Invalid => unreachable!("Invalid operands should not exist in the AST"),
             Operand::Identifier(identifier) => identifier.span(),
             Operand::Literal(literal) => literal.span(),
         }
@@ -47,6 +52,7 @@ impl Node for Operand {
 
     fn set_span(&mut self, span: Span) {
         match self {
+            Operand::Invalid => unreachable!("Invalid operands should not exist in the AST"),
             Operand::Identifier(identifier) => identifier.set_span(span),
             Operand::Literal(literal) => literal.set_span(span),
         }

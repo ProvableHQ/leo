@@ -26,3 +26,69 @@ outputs:
       span:
         lo: 0
         hi: 31
+  - AssemblyBlock:
+      instructions:
+        - opcode: Add
+          operands:
+            - Identifier: "{\"name\":\"r1\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":17}\"}"
+            - Identifier: "{\"name\":\"r2\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":20}\"}"
+            - Identifier: "{\"name\":\"thisistreatedasanidentifier\",\"span\":\"{\\\"lo\\\":21,\\\"hi\\\":48}\"}"
+            - Identifier: "{\"name\":\"r3\",\"span\":\"{\\\"lo\\\":49,\\\"hi\\\":51}\"}"
+          destinations: []
+          span:
+            lo: 11
+            hi: 52
+      span:
+        lo: 0
+        hi: 54
+  - AssemblyBlock:
+      instructions:
+        - opcode: Add
+          operands:
+            - Identifier: "{\"name\":\"r1\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":17}\"}"
+            - Identifier: "{\"name\":\"r2\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":20}\"}"
+          destinations:
+            - "{\"name\":\"r3\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":28}\"}"
+          span:
+            lo: 11
+            hi: 29
+        - opcode: IsEqual
+          operands:
+            - Identifier: "{\"name\":\"r3\",\"span\":\"{\\\"lo\\\":33,\\\"hi\\\":35}\"}"
+            - Literal:
+                Integer:
+                  - U8
+                  - "0"
+                  - span:
+                      lo: 36
+                      hi: 39
+          destinations:
+            - "{\"name\":\"r4\",\"span\":\"{\\\"lo\\\":45,\\\"hi\\\":47}\"}"
+          span:
+            lo: 30
+            hi: 48
+        - opcode: Ternary
+          operands:
+            - Identifier: "{\"name\":\"r4\",\"span\":\"{\\\"lo\\\":53,\\\"hi\\\":55}\"}"
+            - Literal:
+                Integer:
+                  - U8
+                  - "1"
+                  - span:
+                      lo: 56
+                      hi: 59
+            - Literal:
+                Integer:
+                  - U8
+                  - "2"
+                  - span:
+                      lo: 60
+                      hi: 63
+          destinations:
+            - "{\"name\":\"r5\",\"span\":\"{\\\"lo\\\":69,\\\"hi\\\":71}\"}"
+          span:
+            lo: 49
+            hi: 72
+      span:
+        lo: 0
+        hi: 74

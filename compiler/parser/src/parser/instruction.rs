@@ -21,8 +21,8 @@
 use crate::{ParserContext, Token};
 use std::process::id;
 
-use leo_ast::{Expression, Instruction, Opcode, Operand};
-use leo_errors::Result;
+use leo_ast::{Expression, Instruction, Node, Opcode, Operand};
+use leo_errors::{ParserError, Result};
 use leo_span::Symbol;
 
 // TODO: Note that this design is a prototype.
@@ -45,13 +45,19 @@ impl ParserContext<'_> {
             "or" => Opcode::Or,
             "sub" => Opcode::Sub,
             "ter" => Opcode::Ternary,
-            _ => todo!("Error: invalid opcode. Need to implement an official parser error."),
+            _ => {
+                self.emit_err(ParserError::invalid_opcode_in_assembly_instruction(
+                    opcode_identifer.span,
+                ));
+                Opcode::Invalid
+            }
         };
 
         // Parse arguments.
         let mut operands = Vec::new();
         while !self.check(&Token::Semicolon) {
-            match self.parse_expression()? {
+            let expression = self.parse_expression()?;
+            match expression {
                 Expression::Identifier(identifier) => match &*identifier.name.as_str() {
                     "into" => break,
                     _ => operands.push(Operand::Identifier(identifier)),
@@ -63,7 +69,9 @@ impl ParserContext<'_> {
                 | Expression::CircuitInit(..)
                 | Expression::Err(..)
                 | Expression::Ternary(..)
-                | Expression::Unary(..) => todo!("Error: invalid operand. Need to implement an official parser error."),
+                | Expression::Unary(..) => {
+                    self.emit_err(ParserError::invalid_operand_in_assembly_instruction(expression.span()));
+                }
             };
         }
 
