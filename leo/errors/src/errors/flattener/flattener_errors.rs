@@ -106,9 +106,7 @@ create_messages!(
     @formatted
     input_file_has_no_constants {
         args: (),
-        msg: format!(
-            "The main function expected constant inputs but the input file does not have any."
-        ),
+        msg: "The main function expected constant inputs but the input file does not have any.",
         help: None,
     }
 );
