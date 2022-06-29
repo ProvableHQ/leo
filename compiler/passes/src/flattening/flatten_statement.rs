@@ -79,6 +79,21 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                     self.handler.emit_err(err);
                 }
             });
+        } else if const_val.is_none() {
+            input.variable_names.iter().for_each(|var| {
+                // Overwrite the TYC value with NONE.
+                st.variables.insert(
+                    var.identifier.name,
+                    VariableSymbol {
+                        type_: input.type_,
+                        span: var.identifier.span,
+                        declaration: match &input.declaration_type {
+                            Declare::Const => Declaration::Const(None),
+                            Declare::Let => Declaration::Mut(None),
+                        },
+                    },
+                );
+            });
         }
 
         Statement::Definition(DefinitionStatement {
