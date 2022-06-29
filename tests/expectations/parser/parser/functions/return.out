@@ -1,0 +1,34 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - name: ""
+    expected_input: []
+    functions:
+      "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
+        input: []
+        output:
+          IntegerType: U32
+        core_mapping: ~
+        block:
+          statements:
+            - Return:
+                expression:
+                  Literal:
+                    Integer:
+                      - U8
+                      - "0"
+                      - span:
+                          lo: 35
+                          hi: 38
+                span:
+                  lo: 28
+                  hi: 38
+          span:
+            lo: 22
+            hi: 41
+        span:
+          lo: 2
+          hi: 41
+    circuits: {}
