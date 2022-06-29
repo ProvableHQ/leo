@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372003]: Cannot define constant var `a` with non-const value.\n    --> compiler-test:9:5\n     |\n   9 |     const a: Foo = Foo { x, y: 0u8 };\n     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"

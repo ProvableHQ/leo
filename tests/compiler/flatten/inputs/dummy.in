@@ -1,5 +1,5 @@
 [main]
-constant a: u8 = 1u8;
+constant a: u8 = 0u8;
 y: bool = true;
 n: bool = false;
 

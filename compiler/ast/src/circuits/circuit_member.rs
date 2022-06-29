@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Identifier, Type};
-use leo_span::Symbol;
+use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -58,6 +58,13 @@ impl CircuitMember {
     pub fn name(&self) -> Symbol {
         match self {
             CircuitMember::CircuitVariable(ident, _type) => ident.name,
+        }
+    }
+
+    /// Return the span of the circuit member.
+    pub fn span(&self) -> Span {
+        match self {
+            CircuitMember::CircuitVariable(ident, _type) => ident.span,
         }
     }
 }

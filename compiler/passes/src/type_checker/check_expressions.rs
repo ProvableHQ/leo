@@ -275,11 +275,15 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 let const_circuit = self.visit_expression(&access.inner, &None);
                 let const_circuit_type = const_circuit.as_ref().into();
                 let const_circuit_value: Option<Value> = const_circuit.as_ref().into();
-                if let Some(Value::Circuit(_, const_members)) = const_circuit_value {
+                if let Some(Value::Circuit(ident, const_members)) = const_circuit_value {
                     if let Some(const_member) = const_members.get(&access.name.name) {
                         const_circuit.replace_value(const_member.clone())
                     } else {
-                        todo!("throw an error for member not existing");
+                        self.handler.emit_err(TypeCheckerError::invalid_circuit_variable(
+                            &access.name.name,
+                            ident.name,
+                            access.name.span(),
+                        ));
                         TypeOutput::None
                     }
                 } else if let Some(type_) = const_circuit_type {
@@ -288,20 +292,31 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             match circuit.members.get(&access.name.name) {
                                 Some(CircuitMember::CircuitVariable(_, type_)) => const_circuit.replace(*type_),
                                 None => {
-                                    todo!("throw an error for member not existing");
+                                    self.handler.emit_err(TypeCheckerError::invalid_circuit_variable(
+                                        &access.name.name,
+                                        ident.name,
+                                        access.name.span(),
+                                    ));
                                     TypeOutput::None
                                 }
                             }
                         } else {
-                            todo!("circuit type does not exist");
+                            self.handler
+                                .emit_err(TypeCheckerError::invalid_circuit(&access.name.name, access.name.span()));
                             TypeOutput::None
                         }
                     } else {
-                        todo!("throw error non circuit type");
+                        self.handler
+                            .emit_err(TypeCheckerError::invalid_access_on_type(type_, access.name.span()));
                         TypeOutput::None
                     }
                 } else {
-                    todo!("throw error here trying to access on a non circuit type");
+                    self.handler.emit_err(TypeCheckerError::invalid_access_on_type(
+                        const_circuit_type
+                            .map(|t| t.to_string())
+                            .unwrap_or_else(|| "no-type".to_string()),
+                        access.name.span(),
+                    ));
                     TypeOutput::None
                 }
             }
@@ -611,14 +626,14 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                 return TypeOutput::None;
                             };
 
-                            output = member_output.clone();
+                            output = member_output.return_incorrect_type(&output, &None);
                             let member_value: Option<Value> = member_output.as_ref().into();
                             if let Some(member_value) = member_value {
                                 members.insert(*name, member_value);
                             }
                         } else {
-                            self.handler.emit_err(TypeCheckerError::unknown_sym(
-                                "circuit member variable",
+                            self.handler.emit_err(TypeCheckerError::missing_circuit_member(
+                                circ.name(),
                                 name,
                                 ident.span(),
                             ));

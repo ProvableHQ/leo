@@ -67,11 +67,12 @@ impl ParserContext<'_> {
 
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
     /// or circuit member function or circuit member constant.
-    pub fn parse_circuit_declaration(&mut self) -> Result<(IndexMap<Symbol, CircuitMember>, Span)> {
+    pub fn parse_circuit_declaration(&mut self, circ_name: Symbol) -> Result<(IndexMap<Symbol, CircuitMember>, Span)> {
         let mut members = IndexMap::new();
 
         let (mut semi_colons, mut commas) = (false, false);
 
+        let mut span: Span = self.expect(&Token::LeftCurly)?;
         while !self.check(&Token::RightCurly) {
             let member = if self.peek_is_function() {
                 // function
@@ -99,12 +100,17 @@ impl ParserContext<'_> {
 
                 variable
             };
+            span = span + member.span();
             if members.contains_key(&member.name()) {
-                todo!("error here");
+                self.emit_err(ParserError::duplicate_circuit_member(
+                    circ_name,
+                    member.name(),
+                    member.span(),
+                ));
             }
             members.insert(member.name(), member);
         }
-        let span = self.expect(&Token::RightCurly)?;
+        span = span + self.expect(&Token::RightCurly)?;
 
         Ok((members, span))
     }
@@ -161,8 +167,7 @@ impl ParserContext<'_> {
         let start = self.expect(&Token::Circuit)?;
         let circuit_name = self.expect_ident()?;
 
-        self.expect(&Token::LeftCurly)?;
-        let (members, end) = self.parse_circuit_declaration()?;
+        let (members, end) = self.parse_circuit_declaration(circuit_name.name)?;
 
         Ok((
             circuit_name,

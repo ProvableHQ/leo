@@ -21,16 +21,16 @@ impl TypeOutput {
         match (self, other) {
             (TypeOutput::None, _) | (_, TypeOutput::None) => TypeOutput::None,
             (ConstType(t1), ConstType(t2)) if t1 == t2 => ConstType(*t1),
-            (LitType(t1), LitType(t2))
-            | (ConstType(t1), LitType(t2))
-            | (MutType(t1), LitType(t2))
-            | (LitType(t1), ConstType(t2))
-            | (LitType(t1), MutType(t2))
-                if t1 == t2 =>
-            {
+            (LitType(t1), LitType(t2)) | (ConstType(t1), LitType(t2)) | (LitType(t1), ConstType(t2)) if t1 == t2 => {
                 LitType(*t1)
             }
-            (MutType(t1), MutType(t2)) | (ConstType(t1), MutType(t2)) | (MutType(t1), ConstType(t2)) if t1 == t2 => {
+            (MutType(t1), MutType(t2))
+            | (ConstType(t1), MutType(t2))
+            | (LitType(t1), MutType(t2))
+            | (MutType(t1), ConstType(t2))
+            | (MutType(t1), LitType(t2))
+                if t1 == t2 =>
+            {
                 MutType(*t1)
             }
             (Const(t1), Const(t2)) if Type::from(t1) == Type::from(t2) => ConstType(t1.into()),
@@ -53,12 +53,8 @@ impl TypeOutput {
             | (ConstType(t), Lit(v))
             | (Lit(v), ConstType(t))
             | (Lit(v), LitType(t))
-            | (Lit(v), MutType(t))
             | (LitType(t), Lit(v))
             | (LitType(t), Const(v))
-            | (LitType(t), Mut(v))
-            | (Mut(v), LitType(t))
-            | (MutType(t), Lit(v))
                 if t == &Type::from(v) =>
             {
                 LitType(*t)
@@ -70,6 +66,10 @@ impl TypeOutput {
             | (Mut(v), MutType(t))
             | (MutType(t), Const(v))
             | (MutType(t), Mut(v))
+            | (Lit(v), MutType(t))
+            | (LitType(t), Mut(v))
+            | (Mut(v), LitType(t))
+            | (MutType(t), Lit(v))
                 if t == &Type::from(v) =>
             {
                 MutType(*t)

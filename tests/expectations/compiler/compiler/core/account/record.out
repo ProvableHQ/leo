@@ -2,11 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-<<<<<<< HEAD
-  - output:
-      - initial_input_ast: no input
-        flattened_ast: c34356319cc57b33eb3775bb406a6efa52807bb5022a4983baf5938341c24cd7
-    initial_ast: c34356319cc57b33eb3775bb406a6efa52807bb5022a4983baf5938341c24cd7
-=======
-  - "Error [ETYC0372014]: The type Record is a reserved core type name.\n    --> compiler-test:4:30\n     |\n   4 | function main(public record: Record, a: bool) -> bool {\n     |                              ^^^^^^\n"
->>>>>>> 9e2641b321e6a793a09825bd982623c7453c9395
+  - "Error [ETYC0372015]: The type Record is a reserved core type name.\n    --> compiler-test:4:30\n     |\n   4 | function main(public record: Record, a: bool) -> bool {\n     |                              ^^^^^^\n"

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected -> -- got '{'\n    --> compiler-test:7:17\n     |\n   7 | function main() {\n     |                 ^"
+  - "Error [ETYC0372018]: Circuit `Foo` missing member `x`.\n    --> compiler-test:4:5\n     |\n   4 |     x: u32;\n     |     ^\n"

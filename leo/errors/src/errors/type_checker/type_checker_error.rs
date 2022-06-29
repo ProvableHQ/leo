@@ -196,7 +196,17 @@ create_messages!(
     incorrect_num_circuit_members {
         args: (expected: impl Display, received: impl Display),
         msg: format!(
-            "Circuit expected `{expected}` members, but got `{received}`",
+            "Circuit expected `{expected}` members, but got `{received}`.",
+        ),
+        help: None,
+    }
+
+    /// For when the user is missing a circuit member in initialization.
+    @formatted
+    missing_circuit_member {
+        args: (circuit: impl Display, member: impl Display),
+        msg: format!(
+            "Circuit `{circuit}` missing member `{member}`.",
         ),
         help: None,
     }
@@ -211,22 +221,12 @@ create_messages!(
         help: None,
     }
 
-    /// Attempted to define more that one circuit member with the same name.
-    @formatted
-    duplicate_circuit_member {
-        args: (circuit: impl Display),
-        msg: format!(
-            "Circuit {circuit} defined with more than one member with the same name."
-        ),
-        help: None,
-    }
-
     /// Attempted to access an invalid circuit.
     @formatted
     invalid_circuit {
         args: (circuit: impl Display),
         msg: format!(
-            "Circuit {circuit} is not found in the current scope."
+            "Circuit `{circuit}` is not found in the current scope."
         ),
         help: None,
     }
@@ -236,7 +236,17 @@ create_messages!(
     invalid_circuit_variable {
         args: (variable: impl Display, circuit: impl Display),
         msg: format!(
-            "Circuit variable {variable} is not a member of circuit {circuit}."
+            "Circuit variable {variable} is not a member of circuit `{circuit}`."
+        ),
+        help: None,
+    }
+
+    /// Attempted to access an on a non-circuit type.
+    @formatted
+    invalid_access_on_type {
+        args: (type_: impl Display),
+        msg: format!(
+            "Tried to access on a non-circle type `{type_}`."
         ),
         help: None,
     }

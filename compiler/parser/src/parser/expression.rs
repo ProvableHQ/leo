@@ -466,16 +466,28 @@ impl ParserContext<'_> {
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// circuit initialization expression.
     /// let foo = Foo { x: 1u8 };
-    pub fn parse_circuit_expression(&mut self, identifier: Identifier) -> Result<Expression> {
+    pub fn parse_circuit_init_expression(&mut self, identifier: Identifier) -> Result<Expression> {
         let (members, _, end) = self.parse_list(Delimiter::Brace, Some(Token::Comma), |p| {
             p.parse_circuit_member().map(Some)
         })?;
+
+        let mut members_map = IndexMap::new();
+        for member in members.into_iter() {
+            if members_map.contains_key(&member.identifier.name) {
+                self.emit_err(ParserError::duplicate_member_in_circuit_init(
+                    identifier.name,
+                    member.identifier.name,
+                    end,
+                ))
+            }
+            members_map.insert(member.identifier.name, member);
+        }
 
         // TODO: have to handle duplicates here.
         Ok(Expression::CircuitInit(CircuitInitExpression {
             span: identifier.span + end,
             name: identifier,
-            members: members.into_iter().map(|m| (m.identifier.name, m)).collect(),
+            members: members_map,
         }))
     }
 
@@ -538,7 +550,7 @@ impl ParserContext<'_> {
             Token::Ident(name) => {
                 let ident = Identifier { name, span };
                 if !self.disallow_circuit_construction && self.check(&Token::LeftCurly) {
-                    self.parse_circuit_expression(ident)?
+                    self.parse_circuit_init_expression(ident)?
                 } else {
                     Expression::Identifier(ident)
                 }
@@ -549,7 +561,7 @@ impl ParserContext<'_> {
                     span,
                 };
                 if !self.disallow_circuit_construction && self.check(&Token::LeftCurly) {
-                    self.parse_circuit_expression(ident)?
+                    self.parse_circuit_init_expression(ident)?
                 } else {
                     Expression::Identifier(ident)
                 }

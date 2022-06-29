@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370046]: Circuit `Foo` initialized with duplicate value for `x`.\n    --> compiler-test:8:24\n     |\n   8 |     const a: Foo = Foo { x, x };\n     |                        ^^^^^^^^"

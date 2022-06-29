@@ -383,10 +383,31 @@ create_messages!(
         help: None,
     }
 
+    /// Syntax not yet supported.
     @formatted
     invalid_associated_access {
         args: (name: impl Display),
-        msg: format!("Invalid associated access call to circuit {name}."),
+        msg: format!("Invalid associated access call to circuit `{name}`."),
         help: Some("Double colon `::` syntax is only supported for core circuits in Leo for testnet3.".to_string()),
+    }
+
+    /// Attempted to define more that one circuit member with the same name.
+    @formatted
+    duplicate_circuit_member {
+        args: (circuit: impl Display, name: impl Display),
+        msg: format!(
+            "Circuit `{circuit}` defined with more than one member with the same name `{name}`."
+        ),
+        help: None,
+    }
+
+    /// Attempted to initialize circuit member more than once.
+    @formatted
+    duplicate_member_in_circuit_init {
+        args: (circuit: impl Display, member: impl Display),
+        msg: format!(
+            "Circuit `{circuit}` initialized with duplicate value for `{member}`."
+        ),
+        help: None,
     }
 );
