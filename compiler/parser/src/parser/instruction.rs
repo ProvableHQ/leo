@@ -19,6 +19,7 @@
 // TODO: If snarkVM instructions are used directly, then we should directly use the associated instruction parsers.
 
 use crate::{ParserContext, Token};
+use std::process::id;
 
 use leo_ast::{Expression, Instruction, Opcode, Operand};
 use leo_errors::Result;
@@ -47,14 +48,15 @@ impl ParserContext<'_> {
             _ => todo!("Error: invalid opcode. Need to implement an official parser error."),
         };
 
-        let into_token = Token::Ident(Symbol::intern("into"));
-
         // Parse arguments.
         let mut operands = Vec::new();
-        while !self.check(&into_token) || !self.check(&Token::Semicolon) {
-            let operand = match self.parse_expression()? {
-                Expression::Identifier(identifier) => Operand::Identifier(identifier),
-                Expression::Literal(literal) => Operand::Literal(literal),
+        while !self.check(&Token::Semicolon) {
+            match self.parse_expression()? {
+                Expression::Identifier(identifier) => match &*identifier.name.as_str() {
+                    "into" => break,
+                    _ => operands.push(Operand::Identifier(identifier)),
+                },
+                Expression::Literal(literal) => operands.push(Operand::Literal(literal)),
                 Expression::Access(..)
                 | Expression::Binary(..)
                 | Expression::Call(..)
@@ -63,15 +65,12 @@ impl ParserContext<'_> {
                 | Expression::Ternary(..)
                 | Expression::Unary(..) => todo!("Error: invalid operand. Need to implement an official parser error."),
             };
-            operands.push(operand);
         }
 
         // If the next token is the `into` keyword, then we need to parse destinations.
         let mut destinations = Vec::new();
-        if self.check(&into_token) {
-            while !self.check(&Token::Semicolon) {
-                destinations.push(self.expect_ident()?)
-            }
+        while !self.check(&Token::Semicolon) {
+            destinations.push(self.expect_ident()?)
         }
 
         let end_span = self.expect(&Token::Semicolon)?;

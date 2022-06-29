@@ -1,0 +1,28 @@
+---
+namespace: ParseStatement
+expectation: Pass
+outputs:
+  - AssemblyBlock:
+      instructions: []
+      span:
+        lo: 0
+        hi: 10
+  - AssemblyBlock:
+      instructions: []
+      span:
+        lo: 0
+        hi: 11
+  - AssemblyBlock:
+      instructions:
+        - opcode: Add
+          operands:
+            - Identifier: "{\"name\":\"r1\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":17}\"}"
+            - Identifier: "{\"name\":\"r2\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":20}\"}"
+          destinations:
+            - "{\"name\":\"r3\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":28}\"}"
+          span:
+            lo: 11
+            hi: 29
+      span:
+        lo: 0
+        hi: 31
