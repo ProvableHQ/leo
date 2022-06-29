@@ -175,7 +175,7 @@ impl SymbolTable {
                 st.variables.insert(symbol, var);
                 break true;
             }
-            
+
             if !st.is_locally_non_const && st.parent.is_some() && is_in_parent {
                 st = st.parent.as_mut().unwrap()
             } else {
