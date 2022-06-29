@@ -244,7 +244,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
             (Some(start), Some(stop)) => {
                 // Closure to check constant value is valid usize.
                 // We already know these are integers because of tyc pass happened.
-                let cast_to_usize = |v: Value| -> Result<usize, Statement> {
+                let cast_to_usize = |v: Value| -> Result<u128, Statement> {
                     match v.try_into() {
                         Ok(val_as_usize) => Ok(val_as_usize),
                         Err(err) => {
@@ -267,14 +267,14 @@ impl<'a> StatementReconstructor for Flattener<'a> {
 
                 // Create iteration range accounting for inclusive bounds.
                 let range = if start < stop {
-                    if let Some(stop) = stop.checked_add(input.inclusive as usize) {
+                    if let Some(stop) = stop.checked_add(input.inclusive as u128) {
                         start..stop
                     } else {
                         self.handler
                             .emit_err(FlattenError::incorrect_loop_bound("stop", "usize::MAX + 1", input.span));
                         Default::default()
                     }
-                } else if let Some(start) = start.checked_sub(input.inclusive as usize) {
+                } else if let Some(start) = start.checked_sub(input.inclusive as u128) {
                     stop..(start)
                 } else {
                     self.handler
@@ -317,7 +317,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                                 VariableSymbol {
                                     type_: input.type_,
                                     span: input.variable.span,
-                                    declaration: Declaration::Const(Some(Value::from_usize(
+                                    declaration: Declaration::Const(Some(Value::from_u128(
                                         input.type_,
                                         iter_var,
                                         input.variable.span,

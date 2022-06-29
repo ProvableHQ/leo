@@ -28,7 +28,7 @@ pub enum Declaration {
 }
 
 impl Declaration {
-    pub fn get_as_usize(&self) -> Result<Option<usize>> {
+    pub fn get_as_u128(&self) -> Result<Option<u128>> {
         use Declaration::*;
 
         match self {

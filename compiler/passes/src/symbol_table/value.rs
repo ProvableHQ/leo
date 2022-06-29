@@ -209,19 +209,20 @@ impl Value {
         )
     }
 
-    pub(crate) fn from_usize(type_: Type, value: usize, span: Span) -> Self {
+    pub(crate) fn from_u128(type_: Type, value: u128, span: Span) -> Self {
+        // Should never error since we converted from a start..stop and then back.
         match type_ {
             Type::IntegerType(int_type) => match int_type {
-                IntegerType::U8 => Value::U8(value as u8, span),
-                IntegerType::U16 => Value::U16(value as u16, span),
-                IntegerType::U32 => Value::U32(value as u32, span),
-                IntegerType::U64 => Value::U64(value as u64, span),
-                IntegerType::U128 => Value::U128(value as u128, span),
-                IntegerType::I8 => Value::I8(value as i8, span),
-                IntegerType::I16 => Value::I16(value as i16, span),
-                IntegerType::I32 => Value::I32(value as i32, span),
-                IntegerType::I64 => Value::I64(value as i64, span),
-                IntegerType::I128 => Value::I128(value as i128, span),
+                IntegerType::U8 => Value::U8(value.try_into().unwrap(), span),
+                IntegerType::U16 => Value::U16(value.try_into().unwrap(), span),
+                IntegerType::U32 => Value::U32(value.try_into().unwrap(), span),
+                IntegerType::U64 => Value::U64(value.try_into().unwrap(), span),
+                IntegerType::U128 => Value::U128(value, span),
+                IntegerType::I8 => Value::I8(value.try_into().unwrap(), span),
+                IntegerType::I16 => Value::I16(value.try_into().unwrap(), span),
+                IntegerType::I32 => Value::I32(value.try_into().unwrap(), span),
+                IntegerType::I64 => Value::I64(value.try_into().unwrap(), span),
+                IntegerType::I128 => Value::I128(value.try_into().unwrap(), span),
             },
             _ => unreachable!(),
         }
@@ -754,7 +755,7 @@ impl Display for Value {
     }
 }
 
-impl TryFrom<Value> for usize {
+impl TryFrom<Value> for u128 {
     type Error = LeoError;
 
     fn try_from(value: Value) -> Result<Self, Self::Error> {
@@ -762,32 +763,32 @@ impl TryFrom<Value> for usize {
     }
 }
 
-impl TryFrom<&Value> for usize {
+impl TryFrom<&Value> for u128 {
     type Error = LeoError;
 
     fn try_from(value: &Value) -> Result<Self, Self::Error> {
         use Value::*;
         match value {
             I8(val, span) => {
-                usize::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
+                u128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
             }
             I16(val, span) => {
-                usize::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
+                u128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
             }
             I32(val, span) => {
-                usize::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
+                u128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
             }
             I64(val, span) => {
-                usize::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
+                u128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
             }
             I128(val, span) => {
-                usize::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
+                u128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
             }
-            U8(val, _) => Ok(*val as usize),
-            U16(val, _) => Ok(*val as usize),
-            U32(val, _) => Ok(*val as usize),
-            U64(val, _) => Ok(*val as usize),
-            U128(val, _) => Ok(*val as usize),
+            U8(val, _) => Ok(*val as u128),
+            U16(val, _) => Ok(*val as u128),
+            U32(val, _) => Ok(*val as u128),
+            U64(val, _) => Ok(*val as u128),
+            U128(val, _) => Ok(*val),
             _ => unreachable!(),
         }
     }
