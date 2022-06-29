@@ -129,8 +129,7 @@ impl<'a> StatementReconstructor for Flattener<'a> {
                 false
             } else {
                 // SHADOWS the variable with a constant in the local scope
-                st.locally_constify_variable(var_name, c);
-                true
+                st.locally_constify_variable(var_name, c)
             }
         } else {
             true

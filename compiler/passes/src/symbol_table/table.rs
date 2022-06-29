@@ -153,8 +153,9 @@ impl SymbolTable {
         }
     }
 
-    /// Finds the variable in the parent scope, then SHADOWS it in most recent non-const scope with a mut const value
-    pub fn locally_constify_variable(&mut self, symbol: Symbol, value: Value) {
+    /// Finds the variable in the parent scope, then SHADOWS it in most recent non-const scope with a mut const value.
+    /// returns a boolean for if the variable should be slated for deconstification
+    pub fn locally_constify_variable(&mut self, symbol: Symbol, value: Value) -> bool {
         let mut var = self
             .lookup_variable(&symbol)
             .unwrap_or_else(|| panic!("attempting to constify non-existent variable `{symbol}`"))
@@ -162,10 +163,25 @@ impl SymbolTable {
         var.declaration = Declaration::Mut(Some(value));
 
         let mut st = self;
-        while !st.is_locally_non_const && st.parent.is_some() {
-            st = st.parent.as_mut().unwrap();
+        loop {
+            let is_in_parent = st.variable_in_parent_scope(&symbol);
+            let is_in_local = st.variable_in_local_scope(&symbol);
+            if is_in_local && is_in_parent {
+                st.variables.insert(symbol, var.clone());
+            } else if st.is_locally_non_const && !is_in_parent {
+                st.variables.insert(symbol, var);
+                break false;
+            } else if st.is_locally_non_const && is_in_parent {
+                st.variables.insert(symbol, var);
+                break true;
+            }
+            
+            if !st.is_locally_non_const && st.parent.is_some() && is_in_parent {
+                st = st.parent.as_mut().unwrap()
+            } else {
+                break true;
+            }
         }
-        st.variables.insert(symbol, var);
     }
 
     pub fn set_variable(&mut self, symbol: &Symbol, value: Value) -> bool {
