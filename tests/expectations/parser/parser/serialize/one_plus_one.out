@@ -28,4 +28,3 @@ outputs:
                           - "1"
                     op: Add
     circuits: {}
-    records: {}

@@ -32,6 +32,9 @@ pub struct Circuit {
     pub identifier: Identifier,
     /// The fields, constant variables, and functions of this structure.
     pub members: Vec<CircuitMember>,
+    /// Was this a `record Foo { ... }`?
+    /// If so, it wasn't a circuit.
+    pub is_record: bool,
     /// The entire span of the circuit definition.
     pub span: Span,
 }
@@ -49,25 +52,22 @@ impl Circuit {
     pub fn name(&self) -> Symbol {
         self.identifier.name
     }
-
-    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "circuit {} {{ ", self.identifier)?;
-        for field in self.members.iter() {
-            writeln!(f, "    {}", field)?;
-        }
-        write!(f, "}}")
-    }
 }
 
 impl fmt::Debug for Circuit {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.format(f)
+        <Self as fmt::Display>::fmt(self, f)
     }
 }
 
 impl fmt::Display for Circuit {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.format(f)
+        f.write_str(if self.is_record { "record" } else { "circuit" })?;
+        writeln!(f, " {} {{ ", self.identifier)?;
+        for field in self.members.iter() {
+            writeln!(f, "    {}", field)?;
+        }
+        write!(f, "}}")
     }
 }
 

@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372024]: The field `balance` in a `record` must have type `u64`.\n    --> compiler-test:5:5\n     |\n   5 |     balance: address,\n     |     ^^^^^^^\n"

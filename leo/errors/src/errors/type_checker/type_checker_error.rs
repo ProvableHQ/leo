@@ -250,4 +250,18 @@ create_messages!(
         ),
         help: None,
     }
+
+    @formatted
+    required_record_variable {
+        args: (name: impl Display, type_: impl Display),
+        msg: format!("The `record` type requires the variable `{name}: {type_}`."),
+        help: None,
+    }
+
+    @formatted
+    record_var_wrong_type {
+        args: (name: impl Display, type_: impl Display),
+        msg: format!("The field `{name}` in a `record` must have type `{type_}`."),
+        help: None,
+    }
 );

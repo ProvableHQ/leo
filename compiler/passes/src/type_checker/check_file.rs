@@ -18,6 +18,7 @@ use super::director::Director;
 use crate::{Declaration, TypeChecker, VariableSymbol};
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
+use leo_span::sym;
 
 use std::collections::HashSet;
 
@@ -60,23 +61,35 @@ impl<'a> ProgramVisitorDirector<'a> for Director<'a> {
             // Check for conflicting circuit member names.
             let mut used = HashSet::new();
             if !input.members.iter().all(|member| used.insert(member.name())) {
-                self.visitor
-                    .handler
-                    .emit_err(TypeCheckerError::duplicate_circuit_member(input.name(), input.span()).into());
+                self.visitor.emit_err(if input.is_record {
+                    TypeCheckerError::duplicate_record_variable(input.name(), input.span())
+                } else {
+                    TypeCheckerError::duplicate_circuit_member(input.name(), input.span())
+                });
             }
-        }
-    }
 
-    fn visit_record(&mut self, input: &'a Record) {
-        if let VisitResult::VisitChildren = self.visitor_ref().visit_record(input) {
-            // Check for conflicting record member names.
-            let mut used = HashSet::new();
-            used.insert(input.owner.ident.name);
-            used.insert(input.balance.ident.name);
-            if !input.data.iter().all(|member| used.insert(member.name())) {
-                self.visitor
-                    .handler
-                    .emit_err(TypeCheckerError::duplicate_record_variable(input.name(), input.span()).into());
+            // For records, enforce presence of `owner: Address` and `balance: u64` fields.
+            if input.is_record {
+                let check_has_field = |need, expected_ty: Type| match input
+                    .members
+                    .iter()
+                    .find_map(|CircuitMember::CircuitVariable(v, t)| (v.name == need).then(|| (v, t)))
+                {
+                    Some((_, actual_ty)) if expected_ty.eq_flat(actual_ty) => {} // All good, found + right type!
+                    Some((field, _)) => {
+                        self.visitor
+                            .emit_err(TypeCheckerError::record_var_wrong_type(field, expected_ty, field.span))
+                    }
+                    None => {
+                        self.visitor.emit_err(TypeCheckerError::required_record_variable(
+                            need,
+                            expected_ty,
+                            input.span(),
+                        ));
+                    }
+                };
+                check_has_field(sym::owner, Type::Address);
+                check_has_field(sym::balance, Type::IntegerType(IntegerType::U64));
             }
         }
     }

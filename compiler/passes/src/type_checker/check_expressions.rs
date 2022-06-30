@@ -71,18 +71,11 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     expected,
                     circuit.span(),
                 ));
-            } else if let Some(record) = self.visitor.symbol_table.clone().lookup_record(&var.name) {
-                return Some(self.visitor.assert_expected_option(
-                    Type::Identifier(record.identifier),
-                    expected,
-                    record.span(),
-                ));
             } else if let Some(var) = self.visitor.symbol_table.clone().lookup_variable(&var.name) {
                 return Some(self.visitor.assert_expected_option(*var.type_, expected, var.span));
             } else {
                 self.visitor
-                    .handler
-                    .emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()).into());
+                    .emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()));
             };
         }
 
@@ -108,58 +101,35 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     self.visitor.assert_expected_option(Type::Field, expected, input.span())
                 }
                 LiteralExpression::Integer(type_, str_content, _) => {
+                    let check_int_parsed = |ok, int, ty| {
+                        if ok {
+                            self.visitor
+                                .emit_err(TypeCheckerError::invalid_int_value(int, ty, input.span()))
+                        }
+                    };
+                    let maybe_negate = || {
+                        if self.visitor.negate {
+                            format!("-{str_content}")
+                        } else {
+                            str_content.clone()
+                        }
+                    };
                     match type_ {
                         IntegerType::I8 => {
-                            let int = if self.visitor.negate {
-                                format!("-{str_content}")
-                            } else {
-                                str_content.clone()
-                            };
-
-                            if int.parse::<i8>().is_err() {
-                                self.visitor
-                                    .handler
-                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i8", input.span()).into());
-                            }
+                            let int = maybe_negate();
+                            check_int_parsed(int.parse::<i8>().is_err(), &int, "i8");
                         }
                         IntegerType::I16 => {
-                            let int = if self.visitor.negate {
-                                format!("-{str_content}")
-                            } else {
-                                str_content.clone()
-                            };
-
-                            if int.parse::<i16>().is_err() {
-                                self.visitor
-                                    .handler
-                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i16", input.span()).into());
-                            }
+                            let int = maybe_negate();
+                            check_int_parsed(int.parse::<i16>().is_err(), &int, "i16");
                         }
                         IntegerType::I32 => {
-                            let int = if self.visitor.negate {
-                                format!("-{str_content}")
-                            } else {
-                                str_content.clone()
-                            };
-
-                            if int.parse::<i32>().is_err() {
-                                self.visitor
-                                    .handler
-                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i32", input.span()).into());
-                            }
+                            let int = maybe_negate();
+                            check_int_parsed(int.parse::<i32>().is_err(), &int, "i32");
                         }
                         IntegerType::I64 => {
-                            let int = if self.visitor.negate {
-                                format!("-{str_content}")
-                            } else {
-                                str_content.clone()
-                            };
-
-                            if int.parse::<i64>().is_err() {
-                                self.visitor
-                                    .handler
-                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i64", input.span()).into());
-                            }
+                            let int = maybe_negate();
+                            check_int_parsed(int.parse::<i64>().is_err(), &int, "i64");
                         }
                         IntegerType::I128 => {
                             let int = if self.visitor.negate {
@@ -168,33 +138,15 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                                 str_content.clone()
                             };
 
-                            if int.parse::<i128>().is_err() {
-                                self.visitor
-                                    .handler
-                                    .emit_err(TypeCheckerError::invalid_int_value(int, "i128", input.span()).into());
-                            }
+                            check_int_parsed(int.parse::<i128>().is_err(), &int, "i128");
                         }
-                        IntegerType::U8 if str_content.parse::<u8>().is_err() => self
-                            .visitor
-                            .handler
-                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u8", input.span()).into()),
-                        IntegerType::U16 if str_content.parse::<u16>().is_err() => self
-                            .visitor
-                            .handler
-                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u16", input.span()).into()),
-                        IntegerType::U32 if str_content.parse::<u32>().is_err() => self
-                            .visitor
-                            .handler
-                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u32", input.span()).into()),
-                        IntegerType::U64 if str_content.parse::<u64>().is_err() => self
-                            .visitor
-                            .handler
-                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u64", input.span()).into()),
-                        IntegerType::U128 if str_content.parse::<u128>().is_err() => self
-                            .visitor
-                            .handler
-                            .emit_err(TypeCheckerError::invalid_int_value(str_content, "u128", input.span()).into()),
-                        _ => {}
+                        IntegerType::U8 => check_int_parsed(str_content.parse::<u8>().is_err(), &str_content, "u8"),
+                        IntegerType::U16 => check_int_parsed(str_content.parse::<u16>().is_err(), &str_content, "u16"),
+                        IntegerType::U32 => check_int_parsed(str_content.parse::<u32>().is_err(), &str_content, "u32"),
+                        IntegerType::U64 => check_int_parsed(str_content.parse::<u64>().is_err(), &str_content, "u64"),
+                        IntegerType::U128 => {
+                            check_int_parsed(str_content.parse::<u128>().is_err(), &str_content, "u128")
+                        }
                     }
                     self.visitor
                         .assert_expected_option(Type::IntegerType(*type_), expected, input.span())
@@ -223,14 +175,11 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     if let Some(core_instruction) = self.visitor.assert_core_circuit_call(&access.ty, &access.name) {
                         // Check num input arguments.
                         if core_instruction.num_args() != access.args.len() {
-                            self.visitor.handler.emit_err(
-                                TypeCheckerError::incorrect_num_args_to_call(
-                                    core_instruction.num_args(),
-                                    access.args.len(),
-                                    input.span(),
-                                )
-                                .into(),
-                            );
+                            self.visitor.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                                core_instruction.num_args(),
+                                access.args.len(),
+                                input.span(),
+                            ));
                         }
 
                         // Check first argument type.
@@ -261,8 +210,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                         ));
                     } else {
                         self.visitor
-                            .handler
-                            .emit_err(TypeCheckerError::invalid_access_expression(access, access.span()).into());
+                            .emit_err(TypeCheckerError::invalid_access_expression(access, access.span()));
                     }
                 }
                 _expr => {} // todo: Add support for associated constants (u8::MAX).
@@ -542,8 +490,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                         ) => {}
                         Some(t) => self
                             .visitor
-                            .handler
-                            .emit_err(TypeCheckerError::type_is_not_negatable(t, input.receiver.span()).into()),
+                            .emit_err(TypeCheckerError::type_is_not_negatable(t, input.receiver.span())),
                         _ => {}
                     };
                     return type_;
@@ -595,14 +542,11 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
 
                     // Check number of function arguments.
                     if func.input.len() != input.arguments.len() {
-                        self.visitor.handler.emit_err(
-                            TypeCheckerError::incorrect_num_args_to_call(
-                                func.input.len(),
-                                input.arguments.len(),
-                                input.span(),
-                            )
-                            .into(),
-                        );
+                        self.visitor.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                            func.input.len(),
+                            input.arguments.len(),
+                            input.span(),
+                        ));
                     }
 
                     // Check function argument types.
@@ -616,8 +560,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
                     Some(ret)
                 } else {
                     self.visitor
-                        .handler
-                        .emit_err(TypeCheckerError::unknown_sym("function", &ident.name, ident.span()).into());
+                        .emit_err(TypeCheckerError::unknown_sym("function", &ident.name, ident.span()));
                     None
                 }
             }
@@ -631,57 +574,7 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
         additional: &Self::AdditionalInput,
     ) -> Option<Self::Output> {
         // Type check record init expression.
-        if let Some(expected) = self.visitor.symbol_table.clone().lookup_record(&input.name.name) {
-            // Check record type name.
-            let ret = self
-                .visitor
-                .assert_expected_circuit(expected.identifier, additional, input.name.span());
-
-            // Check number of record data variables.
-            if expected.data.len() != input.members.len() - 2 {
-                self.visitor.handler.emit_err(
-                    TypeCheckerError::incorrect_num_record_variables(
-                        expected.data.len(),
-                        input.members.len(),
-                        input.span(),
-                    )
-                    .into(),
-                );
-            }
-
-            // Check record variable types.
-            input.members.iter().for_each(|actual| {
-                if actual.identifier.matches(&expected.owner.ident) {
-                    // Check record owner.
-                    if let Some(owner_expr) = &actual.expression {
-                        self.visit_expression(owner_expr, &Some(Type::Address));
-                    }
-                } else if actual.identifier.matches(&expected.balance.ident) {
-                    // Check record balance.
-                    if let Some(balance_expr) = &actual.expression {
-                        self.visit_expression(balance_expr, &Some(Type::IntegerType(IntegerType::U64)));
-                    }
-                } else if let Some(expected_var) = expected
-                    .data
-                    .iter()
-                    .find(|member| member.ident.matches(&actual.identifier))
-                {
-                    // Check record data variable.
-                    if let Some(var_expr) = &actual.expression {
-                        self.visit_expression(var_expr, &Some(expected_var.type_));
-                    }
-                } else {
-                    self.visitor.handler.emit_err(
-                        TypeCheckerError::unknown_sym("record variable", actual.identifier, actual.identifier.span())
-                            .into(),
-                    );
-                }
-            });
-
-            Some(ret)
-        } else if let Some(circ) = self.visitor.symbol_table.clone().lookup_circuit(&input.name.name) {
-            // Type check circuit init expression.
-
+        if let Some(circ) = self.visitor.symbol_table.clone().lookup_circuit(&input.name.name) {
             // Check circuit type name.
             let ret = self
                 .visitor
@@ -700,26 +593,28 @@ impl<'a> ExpressionVisitorDirector<'a> for Director<'a> {
             }
 
             // Check circuit member types.
-            circ.members.iter().for_each(|expected| match expected {
-                CircuitMember::CircuitVariable(name, type_) => {
+            circ.members
+                .iter()
+                .for_each(|CircuitMember::CircuitVariable(name, ty)| {
                     // Lookup circuit variable name.
                     if let Some(actual) = input.members.iter().find(|member| member.identifier.name == name.name) {
                         if let Some(expr) = &actual.expression {
-                            self.visit_expression(expr, &Some(*type_));
+                            self.visit_expression(expr, &Some(*ty));
                         }
                     } else {
                         self.visitor.handler.emit_err(
                             TypeCheckerError::unknown_sym("circuit member variable", name, name.span()).into(),
                         );
                     };
-                }
-            });
+                });
 
             Some(ret)
         } else {
-            self.visitor
-                .handler
-                .emit_err(TypeCheckerError::unknown_sym("circuit", &input.name.name, input.name.span()).into());
+            self.visitor.emit_err(TypeCheckerError::unknown_sym(
+                "circuit or record",
+                &input.name.name,
+                input.name.span(),
+            ));
             None
         }
     }

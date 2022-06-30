@@ -225,7 +225,6 @@ pub trait ProgramVisitorDirector<'a>: VisitorDirector<'a> + StatementVisitorDire
                 .values()
                 .for_each(|function| self.visit_function(function));
             input.circuits.values().for_each(|circuit| self.visit_circuit(circuit));
-            input.records.values().for_each(|record| self.visit_record(record));
         }
     }
 
@@ -241,14 +240,6 @@ pub trait ProgramVisitorDirector<'a>: VisitorDirector<'a> + StatementVisitorDire
                 match member {
                     CircuitMember::CircuitVariable(ident, _) => self.visit_identifier(ident, &Default::default()),
                 };
-            })
-        }
-    }
-
-    fn visit_record(&mut self, input: &'a Record) {
-        if let VisitResult::VisitChildren = self.visitor_ref().visit_record(input) {
-            input.data.iter().for_each(|variable| {
-                self.visit_identifier(&variable.ident, &Default::default());
             })
         }
     }

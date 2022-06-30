@@ -7,5 +7,5 @@ outputs:
       - initial_input_ast: 5f19f0086b0509628dc64db0f69000d599bc761cb8e3125144de44367081126a
       - initial_input_ast: 4c5eeffd0306b20c8deece509782b81ea8583245f650e40a4a300d517f6ed5f4
       - initial_input_ast: a56b3f9908dec2acaed302691d4fe0c2cf046f0deb8f188f617e042e75502f71
-    initial_ast: 00b2f1400c68849a8ed3dcc7f3012ed02b2607ba2b257524bea40adb7476e593
+    initial_ast: 8e4ab3450ec4ffbdba78fc0e1450c319bf538fd716af967419c8ce116ccd3d0e
     symbol_table: 85ba598c10628c776b426b4ff60a5c7ea7d1d58211763c0b088f87965529c12f

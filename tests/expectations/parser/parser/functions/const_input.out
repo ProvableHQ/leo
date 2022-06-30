@@ -50,4 +50,3 @@ outputs:
           lo: 36
           hi: 72
     circuits: {}
-    records: {}

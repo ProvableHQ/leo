@@ -4,5 +4,5 @@ expectation: Pass
 outputs:
   - output:
       - initial_input_ast: f1af7e79dff9ede0d2a1c88d5d22801cb3dfe3a9fb34e93bca646e29a61e9f65
-    initial_ast: 69b68def6433c2514553d08e4b297f8da2ba952d2dea679c6d7082ba959e2ee9
+    initial_ast: 80124fe1a7297907bc27330cfe87117bee204a9f2b8acce053b0778568415a31
     symbol_table: 4a29c4b5af2ad1879798454b95b7dd04ae7ecd48289c5f3e7a1e19eaf3921c3b

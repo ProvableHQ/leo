@@ -117,8 +117,4 @@ pub trait ProgramVisitor<'a> {
     fn visit_circuit(&mut self, _input: &'a Circuit) -> VisitResult {
         Default::default()
     }
-
-    fn visit_record(&mut self, _input: &'a Record) -> VisitResult {
-        Default::default()
-    }
 }

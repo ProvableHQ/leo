@@ -103,12 +103,16 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
+    /// Emits a type checker error.
+    pub(crate) fn emit_err(&self, err: TypeCheckerError) {
+        self.handler.emit_err(err.into());
+    }
+
     /// Emits an error if the given type conflicts with a core library type.
     pub(crate) fn check_ident_type(&self, type_: &Option<Type>) {
         if let Some(Type::Identifier(ident)) = type_ {
             if self.account_types.contains(&ident.name) || self.algorithms_types.contains(&ident.name) {
-                self.handler
-                    .emit_err(TypeCheckerError::core_type_name_conflict(&ident.name, ident.span()).into());
+                self.emit_err(TypeCheckerError::core_type_name_conflict(&ident.name, ident.span()));
             }
         }
     }
@@ -121,9 +125,11 @@ impl<'a> TypeChecker<'a> {
             match CoreInstruction::from_symbols(ident.name, function.name) {
                 None => {
                     // Not a core library circuit.
-                    self.handler.emit_err(
-                        TypeCheckerError::invalid_core_instruction(&ident.name, function.name, ident.span()).into(),
-                    );
+                    self.emit_err(TypeCheckerError::invalid_core_instruction(
+                        &ident.name,
+                        function.name,
+                        ident.span(),
+                    ));
                 }
                 Some(core_circuit) => return Some(core_circuit),
             }
@@ -134,12 +140,10 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error if the two given types are not equal.
     pub(crate) fn assert_eq_types(&self, t1: Option<Type>, t2: Option<Type>, span: Span) {
         match (t1, t2) {
-            (Some(t1), Some(t2)) if t1 != t2 => self
-                .handler
-                .emit_err(TypeCheckerError::type_should_be(t1, t2, span).into()),
-            (Some(type_), None) | (None, Some(type_)) => self
-                .handler
-                .emit_err(TypeCheckerError::type_should_be("no type", type_, span).into()),
+            (Some(t1), Some(t2)) if t1 != t2 => self.emit_err(TypeCheckerError::type_should_be(t1, t2, span)),
+            (Some(type_), None) | (None, Some(type_)) => {
+                self.emit_err(TypeCheckerError::type_should_be("no type", type_, span))
+            }
             _ => {}
         }
     }
@@ -148,8 +152,7 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn assert_expected_circuit(&mut self, circuit: Identifier, expected: &Option<Type>, span: Span) -> Type {
         if let Some(Type::Identifier(expected)) = expected {
             if !circuit.matches(expected) {
-                self.handler
-                    .emit_err(TypeCheckerError::type_should_be(circuit.name, expected.name, span).into());
+                self.emit_err(TypeCheckerError::type_should_be(circuit.name, expected.name, span));
             }
         }
 
@@ -160,8 +163,7 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn assert_expected_option(&mut self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
         if let Some(expected) = expected {
             if !actual.eq_flat(expected) {
-                self.handler
-                    .emit_err(TypeCheckerError::type_should_be(actual, expected, span).into());
+                self.emit_err(TypeCheckerError::type_should_be(actual, expected, span));
             }
         }
 
@@ -173,8 +175,7 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn assert_expected_type(&mut self, actual: &Option<Type>, expected: Type, span: Span) -> Type {
         if let Some(actual) = actual {
             if !actual.eq_flat(&expected) {
-                self.handler
-                    .emit_err(TypeCheckerError::type_should_be(actual, expected, span).into());
+                self.emit_err(TypeCheckerError::type_should_be(actual, expected, span));
             }
         }
 
@@ -185,14 +186,11 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn assert_one_of_types(&self, type_: &Option<Type>, expected: &[Type], span: Span) {
         if let Some(type_) = type_ {
             if !expected.iter().any(|t: &Type| t == type_) {
-                self.handler.emit_err(
-                    TypeCheckerError::expected_one_type_of(
-                        expected.iter().map(|t| t.to_string() + ",").collect::<String>(),
-                        type_,
-                        span,
-                    )
-                    .into(),
-                );
+                self.emit_err(TypeCheckerError::expected_one_type_of(
+                    expected.iter().map(|t| t.to_string() + ",").collect::<String>(),
+                    type_,
+                    span,
+                ));
             }
         }
     }

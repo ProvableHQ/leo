@@ -54,11 +54,4 @@ impl<'a> ProgramVisitor<'a> for CreateSymbolTable<'a> {
         }
         VisitResult::SkipChildren
     }
-
-    fn visit_record(&mut self, input: &'a Record) -> VisitResult {
-        if let Err(err) = self.symbol_table.insert_record(input.name(), input) {
-            self.handler.emit_err(err);
-        }
-        VisitResult::SkipChildren
-    }
 }
