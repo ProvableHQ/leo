@@ -14,11 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod instruction;
-pub use instruction::*;
-
-mod opcode;
-pub use opcode::*;
+mod instructions;
+pub use instructions::*;
 
 mod operand;
 pub use operand::*;
