@@ -25,7 +25,7 @@ pub trait InstructionVisitor<'a> {
     type AdditionalInput: Default;
     type Output: Default;
 
-    fn visit_literal(
+    fn visit_instruction_literal(
         &mut self,
         _input: &'a LiteralExpression,
         _additional_input: &Self::AdditionalInput,
@@ -33,7 +33,11 @@ pub trait InstructionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_identifier(&mut self, _input: &'a Identifier, _additional_input: &Self::AdditionalInput) -> Self::Output {
+    fn visit_instruction_identifier(
+        &mut self,
+        _input: &'a Identifier,
+        _additional_input: &Self::AdditionalInput,
+    ) -> Self::Output {
         Default::default()
     }
 
@@ -44,8 +48,8 @@ pub trait InstructionVisitor<'a> {
     fn visit_operand(&mut self, input: &'a Operand, additional: &Self::AdditionalInput) -> Self::Output {
         match input {
             Operand::Invalid => self.visit_invalid_operand(additional),
-            Operand::Identifier(operand) => self.visit_identifier(operand, additional),
-            Operand::Literal(operand) => self.visit_literal(operand, additional),
+            Operand::Identifier(operand) => self.visit_instruction_identifier(operand, additional),
+            Operand::Literal(operand) => self.visit_instruction_literal(operand, additional),
         }
     }
 
@@ -72,21 +76,21 @@ pub trait InstructionVisitor<'a> {
     fn visit_add_instruction(&mut self, input: &'a Add, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_operand(&input.first, additional);
         self.visit_operand(&input.second, additional);
-        self.visit_identifier(&input.destination, additional);
+        self.visit_instruction_identifier(&input.destination, additional);
         Default::default()
     }
 
     fn visit_and_instruction(&mut self, input: &'a And, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_operand(&input.first, additional);
         self.visit_operand(&input.second, additional);
-        self.visit_identifier(&input.destination, additional);
+        self.visit_instruction_identifier(&input.destination, additional);
         Default::default()
     }
 
     fn visit_div_instruction(&mut self, input: &'a Div, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_operand(&input.first, additional);
         self.visit_operand(&input.second, additional);
-        self.visit_identifier(&input.destination, additional);
+        self.visit_instruction_identifier(&input.destination, additional);
         Default::default()
     }
 
@@ -97,7 +101,7 @@ pub trait InstructionVisitor<'a> {
     ) -> Self::Output {
         self.visit_operand(&input.first, additional);
         self.visit_operand(&input.second, additional);
-        self.visit_identifier(&input.destination, additional);
+        self.visit_instruction_identifier(&input.destination, additional);
         Default::default()
     }
 
@@ -108,14 +112,14 @@ pub trait InstructionVisitor<'a> {
     ) -> Self::Output {
         self.visit_operand(&input.first, additional);
         self.visit_operand(&input.second, additional);
-        self.visit_identifier(&input.destination, additional);
+        self.visit_instruction_identifier(&input.destination, additional);
         Default::default()
     }
 
     fn visit_is_equal_instruction(&mut self, input: &'a IsEqual, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_operand(&input.first, additional);
         self.visit_operand(&input.second, additional);
-        self.visit_identifier(&input.destination, additional);
+        self.visit_instruction_identifier(&input.destination, additional);
         Default::default()
     }
 
@@ -126,14 +130,14 @@ pub trait InstructionVisitor<'a> {
     ) -> Self::Output {
         self.visit_operand(&input.first, additional);
         self.visit_operand(&input.second, additional);
-        self.visit_identifier(&input.destination, additional);
+        self.visit_instruction_identifier(&input.destination, additional);
         Default::default()
     }
 
     fn visit_less_than_instruction(&mut self, input: &'a LessThan, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_operand(&input.first, additional);
         self.visit_operand(&input.second, additional);
-        self.visit_identifier(&input.destination, additional);
+        self.visit_instruction_identifier(&input.destination, additional);
         Default::default()
     }
 
@@ -144,14 +148,14 @@ pub trait InstructionVisitor<'a> {
     ) -> Self::Output {
         self.visit_operand(&input.first, additional);
         self.visit_operand(&input.second, additional);
-        self.visit_identifier(&input.destination, additional);
+        self.visit_instruction_identifier(&input.destination, additional);
         Default::default()
     }
 
     fn visit_mul_instruction(&mut self, input: &'a Mul, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_operand(&input.first, additional);
         self.visit_operand(&input.second, additional);
-        self.visit_identifier(&input.destination, additional);
+        self.visit_instruction_identifier(&input.destination, additional);
         Default::default()
     }
 
@@ -161,21 +165,21 @@ pub trait InstructionVisitor<'a> {
 
     fn visit_not_instruction(&mut self, input: &'a Not, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_operand(&input.operand, additional);
-        self.visit_identifier(&input.destination, additional);
+        self.visit_instruction_identifier(&input.destination, additional);
         Default::default()
     }
 
     fn visit_or_instruction(&mut self, input: &'a Or, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_operand(&input.first, additional);
         self.visit_operand(&input.second, additional);
-        self.visit_identifier(&input.destination, additional);
+        self.visit_instruction_identifier(&input.destination, additional);
         Default::default()
     }
 
     fn visit_sub_instruction(&mut self, input: &'a Sub, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_operand(&input.first, additional);
         self.visit_operand(&input.second, additional);
-        self.visit_identifier(&input.destination, additional);
+        self.visit_instruction_identifier(&input.destination, additional);
         Default::default()
     }
 
@@ -183,7 +187,7 @@ pub trait InstructionVisitor<'a> {
         self.visit_operand(&input.first, additional);
         self.visit_operand(&input.second, additional);
         self.visit_operand(&input.third, additional);
-        self.visit_identifier(&input.destination, additional);
+        self.visit_instruction_identifier(&input.destination, additional);
         Default::default()
     }
 }

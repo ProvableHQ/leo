@@ -24,11 +24,14 @@ pub trait InstructionReconstructor {
     // TODO: Remove the associated type if it is not needed.
     type AdditionalOutput: Default;
 
-    fn reconstruct_literal(&mut self, input: LiteralExpression) -> (LiteralExpression, Self::AdditionalOutput) {
+    fn reconstruct_instruction_literal(
+        &mut self,
+        input: LiteralExpression,
+    ) -> (LiteralExpression, Self::AdditionalOutput) {
         (input, Default::default())
     }
 
-    fn reconstruct_identifier(&mut self, input: Identifier) -> (Identifier, Self::AdditionalOutput) {
+    fn reconstruct_instruction_identifier(&mut self, input: Identifier) -> (Identifier, Self::AdditionalOutput) {
         (input, Default::default())
     }
 
@@ -36,11 +39,11 @@ pub trait InstructionReconstructor {
         match input {
             Operand::Invalid => (Operand::Invalid, Default::default()),
             Operand::Identifier(operand) => (
-                Operand::Identifier(self.reconstruct_identifier(operand).0),
+                Operand::Identifier(self.reconstruct_instruction_identifier(operand).0),
                 Default::default(),
             ),
             Operand::Literal(operand) => (
-                Operand::Literal(self.reconstruct_literal(operand).0),
+                Operand::Literal(self.reconstruct_instruction_literal(operand).0),
                 Default::default(),
             ),
         }
@@ -71,7 +74,7 @@ pub trait InstructionReconstructor {
             Instruction::Add(Add {
                 first: self.reconstruct_operand(input.first).0,
                 second: self.reconstruct_operand(input.second).0,
-                destination: self.reconstruct_identifier(input.destination).0,
+                destination: self.reconstruct_instruction_identifier(input.destination).0,
                 span: input.span,
             }),
             Default::default(),
@@ -83,7 +86,7 @@ pub trait InstructionReconstructor {
             Instruction::And(And {
                 first: self.reconstruct_operand(input.first).0,
                 second: self.reconstruct_operand(input.second).0,
-                destination: self.reconstruct_identifier(input.destination).0,
+                destination: self.reconstruct_instruction_identifier(input.destination).0,
                 span: input.span,
             }),
             Default::default(),
@@ -95,7 +98,7 @@ pub trait InstructionReconstructor {
             Instruction::Div(Div {
                 first: self.reconstruct_operand(input.first).0,
                 second: self.reconstruct_operand(input.second).0,
-                destination: self.reconstruct_identifier(input.destination).0,
+                destination: self.reconstruct_instruction_identifier(input.destination).0,
                 span: input.span,
             }),
             Default::default(),
@@ -107,7 +110,7 @@ pub trait InstructionReconstructor {
             Instruction::GreaterThan(GreaterThan {
                 first: self.reconstruct_operand(input.first).0,
                 second: self.reconstruct_operand(input.second).0,
-                destination: self.reconstruct_identifier(input.destination).0,
+                destination: self.reconstruct_instruction_identifier(input.destination).0,
                 span: input.span,
             }),
             Default::default(),
@@ -122,7 +125,7 @@ pub trait InstructionReconstructor {
             Instruction::GreaterThanOrEqual(GreaterThanOrEqual {
                 first: self.reconstruct_operand(input.first).0,
                 second: self.reconstruct_operand(input.second).0,
-                destination: self.reconstruct_identifier(input.destination).0,
+                destination: self.reconstruct_instruction_identifier(input.destination).0,
                 span: input.span,
             }),
             Default::default(),
@@ -134,7 +137,7 @@ pub trait InstructionReconstructor {
             Instruction::IsEqual(IsEqual {
                 first: self.reconstruct_operand(input.first).0,
                 second: self.reconstruct_operand(input.second).0,
-                destination: self.reconstruct_identifier(input.destination).0,
+                destination: self.reconstruct_instruction_identifier(input.destination).0,
                 span: input.span,
             }),
             Default::default(),
@@ -146,7 +149,7 @@ pub trait InstructionReconstructor {
             Instruction::IsNotEqual(IsNotEqual {
                 first: self.reconstruct_operand(input.first).0,
                 second: self.reconstruct_operand(input.second).0,
-                destination: self.reconstruct_identifier(input.destination).0,
+                destination: self.reconstruct_instruction_identifier(input.destination).0,
                 span: input.span,
             }),
             Default::default(),
@@ -158,7 +161,7 @@ pub trait InstructionReconstructor {
             Instruction::LessThan(LessThan {
                 first: self.reconstruct_operand(input.first).0,
                 second: self.reconstruct_operand(input.second).0,
-                destination: self.reconstruct_identifier(input.destination).0,
+                destination: self.reconstruct_instruction_identifier(input.destination).0,
                 span: input.span,
             }),
             Default::default(),
@@ -173,7 +176,7 @@ pub trait InstructionReconstructor {
             Instruction::LessThanOrEqual(LessThanOrEqual {
                 first: self.reconstruct_operand(input.first).0,
                 second: self.reconstruct_operand(input.second).0,
-                destination: self.reconstruct_identifier(input.destination).0,
+                destination: self.reconstruct_instruction_identifier(input.destination).0,
                 span: input.span,
             }),
             Default::default(),
@@ -185,7 +188,7 @@ pub trait InstructionReconstructor {
             Instruction::Mul(Mul {
                 first: self.reconstruct_operand(input.first).0,
                 second: self.reconstruct_operand(input.second).0,
-                destination: self.reconstruct_identifier(input.destination).0,
+                destination: self.reconstruct_instruction_identifier(input.destination).0,
                 span: input.span,
             }),
             Default::default(),
@@ -200,7 +203,7 @@ pub trait InstructionReconstructor {
         (
             Instruction::Not(Not {
                 operand: self.reconstruct_operand(input.operand).0,
-                destination: self.reconstruct_identifier(input.destination).0,
+                destination: self.reconstruct_instruction_identifier(input.destination).0,
                 span: input.span,
             }),
             Default::default(),
@@ -212,7 +215,7 @@ pub trait InstructionReconstructor {
             Instruction::Or(Or {
                 first: self.reconstruct_operand(input.first).0,
                 second: self.reconstruct_operand(input.second).0,
-                destination: self.reconstruct_identifier(input.destination).0,
+                destination: self.reconstruct_instruction_identifier(input.destination).0,
                 span: input.span,
             }),
             Default::default(),
@@ -224,7 +227,7 @@ pub trait InstructionReconstructor {
             Instruction::Sub(Sub {
                 first: self.reconstruct_operand(input.first).0,
                 second: self.reconstruct_operand(input.second).0,
-                destination: self.reconstruct_identifier(input.destination).0,
+                destination: self.reconstruct_instruction_identifier(input.destination).0,
                 span: input.span,
             }),
             Default::default(),
@@ -237,7 +240,7 @@ pub trait InstructionReconstructor {
                 first: self.reconstruct_operand(input.first).0,
                 second: self.reconstruct_operand(input.second).0,
                 third: self.reconstruct_operand(input.third).0,
-                destination: self.reconstruct_identifier(input.destination).0,
+                destination: self.reconstruct_instruction_identifier(input.destination).0,
                 span: input.span,
             }),
             Default::default(),
