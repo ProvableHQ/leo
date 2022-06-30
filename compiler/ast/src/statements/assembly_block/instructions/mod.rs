@@ -16,13 +16,13 @@
 
 // TODO: See if we can use snarkVM instructions directly, once they are stabilized.
 
-pub mod helpers;
-pub use helpers::*;
+pub mod macros;
+pub use macros::*;
 
 pub mod nop;
 pub use nop::*;
 
-use crate::{impl_binary_instruction, impl_ternary_instruction, impl_unary_instruction, Node};
+use crate::{impl_binary_instruction, impl_ternary_instruction, impl_unary_instruction, Identifier, Node, Operand};
 
 use leo_span::Span;
 

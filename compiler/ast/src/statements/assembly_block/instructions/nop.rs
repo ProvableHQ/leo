@@ -25,7 +25,7 @@ use std::fmt;
 /// A no-op instruction.
 pub struct Nop {
     /// The span excluding the `;` at the end of the instruction.
-    span: Span,
+    pub span: Span,
 }
 
 impl fmt::Display for Nop {

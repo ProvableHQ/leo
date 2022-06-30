@@ -20,19 +20,226 @@
 
 use crate::*;
 
-// TODO: Consider a more robust reconstructor design as needed.
 pub trait InstructionReconstructor {
     // TODO: Remove the associated type if it is not needed.
     type AdditionalOutput: Default;
 
+    fn reconstruct_literal(&mut self, input: LiteralExpression) -> (LiteralExpression, Self::AdditionalOutput) {
+        (input, Default::default())
+    }
+
+    fn reconstruct_identifier(&mut self, input: Identifier) -> (Identifier, Self::AdditionalOutput) {
+        (input, Default::default())
+    }
+
+    fn reconstruct_operand(&mut self, input: Operand) -> (Operand, Self::AdditionalOutput) {
+        match input {
+            Operand::Invalid => (Operand::Invalid, Default::default()),
+            Operand::Identifier(operand) => (
+                Operand::Identifier(self.reconstruct_identifier(operand).0),
+                Default::default(),
+            ),
+            Operand::Literal(operand) => (
+                Operand::Literal(self.reconstruct_literal(operand).0),
+                Default::default(),
+            ),
+        }
+    }
+
     fn reconstruct_instruction(&mut self, input: Instruction) -> (Instruction, Self::AdditionalOutput) {
+        match input {
+            Instruction::Add(inst) => self.reconstruct_add_instruction(inst),
+            Instruction::And(inst) => self.reconstruct_and_instruction(inst),
+            Instruction::Div(inst) => self.reconstruct_div_instruction(inst),
+            Instruction::GreaterThan(inst) => self.reconstruct_greater_than_instruction(inst),
+            Instruction::GreaterThanOrEqual(inst) => self.reconstruct_greater_than_or_equal_instruction(inst),
+            Instruction::IsEqual(inst) => self.reconstruct_is_equal_instruction(inst),
+            Instruction::IsNotEqual(inst) => self.reconstruct_is_not_equal_instruction(inst),
+            Instruction::LessThan(inst) => self.reconstruct_less_than_instruction(inst),
+            Instruction::LessThanOrEqual(inst) => self.reconstruct_less_than_or_equal_instruction(inst),
+            Instruction::Mul(inst) => self.reconstruct_mul_instruction(inst),
+            Instruction::Nop(inst) => self.reconstruct_nop_instruction(inst),
+            Instruction::Not(inst) => self.reconstruct_not_instruction(inst),
+            Instruction::Or(inst) => self.reconstruct_or_instruction(inst),
+            Instruction::Sub(inst) => self.reconstruct_sub_instruction(inst),
+            Instruction::Ternary(inst) => self.reconstruct_ternary_instruction(inst),
+        }
+    }
+
+    fn reconstruct_add_instruction(&mut self, input: Add) -> (Instruction, Self::AdditionalOutput) {
         (
-            Instruction {
-                opcode: input.opcode,
-                operands: input.operands,
-                destinations: input.destinations,
-                span: Default::default(),
-            },
+            Instruction::Add(Add {
+                first: self.reconstruct_operand(input.first).0,
+                second: self.reconstruct_operand(input.second).0,
+                destination: self.reconstruct_identifier(input.destination).0,
+                span: input.span,
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_and_instruction(&mut self, input: And) -> (Instruction, Self::AdditionalOutput) {
+        (
+            Instruction::And(And {
+                first: self.reconstruct_operand(input.first).0,
+                second: self.reconstruct_operand(input.second).0,
+                destination: self.reconstruct_identifier(input.destination).0,
+                span: input.span,
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_div_instruction(&mut self, input: Div) -> (Instruction, Self::AdditionalOutput) {
+        (
+            Instruction::Div(Div {
+                first: self.reconstruct_operand(input.first).0,
+                second: self.reconstruct_operand(input.second).0,
+                destination: self.reconstruct_identifier(input.destination).0,
+                span: input.span,
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_greater_than_instruction(&mut self, input: GreaterThan) -> (Instruction, Self::AdditionalOutput) {
+        (
+            Instruction::GreaterThan(GreaterThan {
+                first: self.reconstruct_operand(input.first).0,
+                second: self.reconstruct_operand(input.second).0,
+                destination: self.reconstruct_identifier(input.destination).0,
+                span: input.span,
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_greater_than_or_equal_instruction(
+        &mut self,
+        input: GreaterThanOrEqual,
+    ) -> (Instruction, Self::AdditionalOutput) {
+        (
+            Instruction::GreaterThanOrEqual(GreaterThanOrEqual {
+                first: self.reconstruct_operand(input.first).0,
+                second: self.reconstruct_operand(input.second).0,
+                destination: self.reconstruct_identifier(input.destination).0,
+                span: input.span,
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_is_equal_instruction(&mut self, input: IsEqual) -> (Instruction, Self::AdditionalOutput) {
+        (
+            Instruction::IsEqual(IsEqual {
+                first: self.reconstruct_operand(input.first).0,
+                second: self.reconstruct_operand(input.second).0,
+                destination: self.reconstruct_identifier(input.destination).0,
+                span: input.span,
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_is_not_equal_instruction(&mut self, input: IsNotEqual) -> (Instruction, Self::AdditionalOutput) {
+        (
+            Instruction::IsNotEqual(IsNotEqual {
+                first: self.reconstruct_operand(input.first).0,
+                second: self.reconstruct_operand(input.second).0,
+                destination: self.reconstruct_identifier(input.destination).0,
+                span: input.span,
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_less_than_instruction(&mut self, input: LessThan) -> (Instruction, Self::AdditionalOutput) {
+        (
+            Instruction::LessThan(LessThan {
+                first: self.reconstruct_operand(input.first).0,
+                second: self.reconstruct_operand(input.second).0,
+                destination: self.reconstruct_identifier(input.destination).0,
+                span: input.span,
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_less_than_or_equal_instruction(
+        &mut self,
+        input: LessThanOrEqual,
+    ) -> (Instruction, Self::AdditionalOutput) {
+        (
+            Instruction::LessThanOrEqual(LessThanOrEqual {
+                first: self.reconstruct_operand(input.first).0,
+                second: self.reconstruct_operand(input.second).0,
+                destination: self.reconstruct_identifier(input.destination).0,
+                span: input.span,
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_mul_instruction(&mut self, input: Mul) -> (Instruction, Self::AdditionalOutput) {
+        (
+            Instruction::Mul(Mul {
+                first: self.reconstruct_operand(input.first).0,
+                second: self.reconstruct_operand(input.second).0,
+                destination: self.reconstruct_identifier(input.destination).0,
+                span: input.span,
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_nop_instruction(&mut self, input: Nop) -> (Instruction, Self::AdditionalOutput) {
+        (Instruction::Nop(Nop { span: input.span }), Default::default())
+    }
+
+    fn reconstruct_not_instruction(&mut self, input: Not) -> (Instruction, Self::AdditionalOutput) {
+        (
+            Instruction::Not(Not {
+                operand: self.reconstruct_operand(input.operand).0,
+                destination: self.reconstruct_identifier(input.destination).0,
+                span: input.span,
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_or_instruction(&mut self, input: Or) -> (Instruction, Self::AdditionalOutput) {
+        (
+            Instruction::Or(Or {
+                first: self.reconstruct_operand(input.first).0,
+                second: self.reconstruct_operand(input.second).0,
+                destination: self.reconstruct_identifier(input.destination).0,
+                span: input.span,
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_sub_instruction(&mut self, input: Sub) -> (Instruction, Self::AdditionalOutput) {
+        (
+            Instruction::Sub(Sub {
+                first: self.reconstruct_operand(input.first).0,
+                second: self.reconstruct_operand(input.second).0,
+                destination: self.reconstruct_identifier(input.destination).0,
+                span: input.span,
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_ternary_instruction(&mut self, input: Ternary) -> (Instruction, Self::AdditionalOutput) {
+        (
+            Instruction::Ternary(Ternary {
+                first: self.reconstruct_operand(input.first).0,
+                second: self.reconstruct_operand(input.second).0,
+                third: self.reconstruct_operand(input.third).0,
+                destination: self.reconstruct_identifier(input.destination).0,
+                span: input.span,
+            }),
             Default::default(),
         )
     }

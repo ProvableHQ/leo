@@ -20,13 +20,170 @@
 
 use crate::*;
 
-// TODO: Consider a more robust vistor that can be specialized for each opcode.
 pub trait InstructionVisitor<'a> {
     // TODO: Remove associated types if not necessary.
     type AdditionalInput: Default;
     type Output: Default;
 
-    fn visit_instruction(&mut self, _input: &'a Instruction, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_literal(
+        &mut self,
+        _input: &'a LiteralExpression,
+        _additional_input: &Self::AdditionalInput,
+    ) -> Self::Output {
+        Default::default()
+    }
+
+    fn visit_identifier(&mut self, _input: &'a Identifier, _additional_input: &Self::AdditionalInput) -> Self::Output {
+        Default::default()
+    }
+
+    fn visit_invalid_operand(&mut self, _additional_input: &Self::AdditionalInput) -> Self::Output {
+        Default::default()
+    }
+
+    fn visit_operand(&mut self, input: &'a Operand, additional: &Self::AdditionalInput) -> Self::Output {
+        match input {
+            Operand::Invalid => self.visit_invalid_operand(additional),
+            Operand::Identifier(operand) => self.visit_identifier(operand, additional),
+            Operand::Literal(operand) => self.visit_literal(operand, additional),
+        }
+    }
+
+    fn visit_instruction(&mut self, input: &'a Instruction, additional: &Self::AdditionalInput) -> Self::Output {
+        match input {
+            Instruction::Add(inst) => self.visit_add_instruction(inst, additional),
+            Instruction::And(inst) => self.visit_and_instruction(inst, additional),
+            Instruction::Div(inst) => self.visit_div_instruction(inst, additional),
+            Instruction::GreaterThan(inst) => self.visit_greater_than_instruction(inst, additional),
+            Instruction::GreaterThanOrEqual(inst) => self.visit_greater_than_or_equal_instruction(inst, additional),
+            Instruction::IsEqual(inst) => self.visit_is_equal_instruction(inst, additional),
+            Instruction::IsNotEqual(inst) => self.visit_is_not_equal_instruction(inst, additional),
+            Instruction::LessThan(inst) => self.visit_less_than_instruction(inst, additional),
+            Instruction::LessThanOrEqual(inst) => self.visit_less_than_or_equal_instruction(inst, additional),
+            Instruction::Mul(inst) => self.visit_mul_instruction(inst, additional),
+            Instruction::Nop(inst) => self.visit_nop_instruction(inst, additional),
+            Instruction::Not(inst) => self.visit_not_instruction(inst, additional),
+            Instruction::Or(inst) => self.visit_or_instruction(inst, additional),
+            Instruction::Sub(inst) => self.visit_sub_instruction(inst, additional),
+            Instruction::Ternary(inst) => self.visit_ternary_instruction(inst, additional),
+        }
+    }
+
+    fn visit_add_instruction(&mut self, input: &'a Add, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_operand(&input.first, additional);
+        self.visit_operand(&input.second, additional);
+        self.visit_identifier(&input.destination, additional);
+        Default::default()
+    }
+
+    fn visit_and_instruction(&mut self, input: &'a And, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_operand(&input.first, additional);
+        self.visit_operand(&input.second, additional);
+        self.visit_identifier(&input.destination, additional);
+        Default::default()
+    }
+
+    fn visit_div_instruction(&mut self, input: &'a Div, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_operand(&input.first, additional);
+        self.visit_operand(&input.second, additional);
+        self.visit_identifier(&input.destination, additional);
+        Default::default()
+    }
+
+    fn visit_greater_than_instruction(
+        &mut self,
+        input: &'a GreaterThan,
+        additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        self.visit_operand(&input.first, additional);
+        self.visit_operand(&input.second, additional);
+        self.visit_identifier(&input.destination, additional);
+        Default::default()
+    }
+
+    fn visit_greater_than_or_equal_instruction(
+        &mut self,
+        input: &'a GreaterThanOrEqual,
+        additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        self.visit_operand(&input.first, additional);
+        self.visit_operand(&input.second, additional);
+        self.visit_identifier(&input.destination, additional);
+        Default::default()
+    }
+
+    fn visit_is_equal_instruction(&mut self, input: &'a IsEqual, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_operand(&input.first, additional);
+        self.visit_operand(&input.second, additional);
+        self.visit_identifier(&input.destination, additional);
+        Default::default()
+    }
+
+    fn visit_is_not_equal_instruction(
+        &mut self,
+        input: &'a IsNotEqual,
+        additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        self.visit_operand(&input.first, additional);
+        self.visit_operand(&input.second, additional);
+        self.visit_identifier(&input.destination, additional);
+        Default::default()
+    }
+
+    fn visit_less_than_instruction(&mut self, input: &'a LessThan, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_operand(&input.first, additional);
+        self.visit_operand(&input.second, additional);
+        self.visit_identifier(&input.destination, additional);
+        Default::default()
+    }
+
+    fn visit_less_than_or_equal_instruction(
+        &mut self,
+        input: &'a LessThanOrEqual,
+        additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        self.visit_operand(&input.first, additional);
+        self.visit_operand(&input.second, additional);
+        self.visit_identifier(&input.destination, additional);
+        Default::default()
+    }
+
+    fn visit_mul_instruction(&mut self, input: &'a Mul, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_operand(&input.first, additional);
+        self.visit_operand(&input.second, additional);
+        self.visit_identifier(&input.destination, additional);
+        Default::default()
+    }
+
+    fn visit_nop_instruction(&mut self, _input: &'a Nop, _additional: &Self::AdditionalInput) -> Self::Output {
+        Default::default()
+    }
+
+    fn visit_not_instruction(&mut self, input: &'a Not, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_operand(&input.operand, additional);
+        self.visit_identifier(&input.destination, additional);
+        Default::default()
+    }
+
+    fn visit_or_instruction(&mut self, input: &'a Or, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_operand(&input.first, additional);
+        self.visit_operand(&input.second, additional);
+        self.visit_identifier(&input.destination, additional);
+        Default::default()
+    }
+
+    fn visit_sub_instruction(&mut self, input: &'a Sub, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_operand(&input.first, additional);
+        self.visit_operand(&input.second, additional);
+        self.visit_identifier(&input.destination, additional);
+        Default::default()
+    }
+
+    fn visit_ternary_instruction(&mut self, input: &'a Ternary, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_operand(&input.first, additional);
+        self.visit_operand(&input.second, additional);
+        self.visit_operand(&input.third, additional);
+        self.visit_identifier(&input.destination, additional);
         Default::default()
     }
 }
