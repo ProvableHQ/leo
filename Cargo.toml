@@ -180,6 +180,9 @@ version = "2.0.2"
 [dev-dependencies.test_dir]
 version = "0.1.0"
 
+[build-dependencies.walkdir]
+version = "2"
+
 [features]
 default = [ ]
 ci_skip = [ "leo-compiler/ci_skip" ]
