@@ -14,40 +14,61 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::fmt::Display;
-
-use leo_ast::{ParamMode, Type};
+use leo_ast::{Identifier, ParamMode, Type};
+use leo_errors::Result;
 use leo_span::Span;
+
+use crate::Value;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Declaration {
-    Const,
-    Input(ParamMode),
-    Mut,
+    Const(Option<Value>),
+    Input(Type, ParamMode),
+    Mut(Option<Value>),
 }
 
-impl Display for Declaration {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Declaration {
+    pub fn get_as_u128(&self) -> Result<Option<u128>> {
         use Declaration::*;
 
         match self {
-            Const => write!(f, "const var"),
-            Input(m) => write!(f, "{m} input"),
-            Mut => write!(f, "mut var"),
+            Const(Some(value)) => Ok(Some(value.try_into()?)),
+            Input(_, _) => Ok(None),
+            _ => Ok(None),
+        }
+    }
+
+    pub fn get_type(&self) -> Option<Type> {
+        use Declaration::*;
+
+        match self {
+            Const(Some(value)) => Some(value.into()),
+            Input(type_, _) => Some(*type_),
+            _ => None,
         }
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct VariableSymbol<'a> {
-    pub type_: &'a Type,
+impl AsRef<Self> for Declaration {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct VariableSymbol {
+    pub type_: Type,
     pub span: Span,
     pub declaration: Declaration,
 }
 
-impl<'a> Display for VariableSymbol<'a> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}: {}", self.declaration, self.type_)?;
-        Ok(())
+impl VariableSymbol {
+    pub fn get_const_value(&self, ident: Identifier) -> Option<Value> {
+        use Declaration::*;
+        match &self.declaration {
+            Const(Some(v)) | Mut(Some(v)) => Some(v.clone()),
+            Input(type_, ParamMode::Const) => Some(Value::Input(*type_, ident)),
+            _ => None,
+        }
     }
 }

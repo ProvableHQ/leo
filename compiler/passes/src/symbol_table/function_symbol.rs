@@ -14,32 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod create;
-pub use create::*;
+use leo_ast::{Function, FunctionInput, Type};
+use leo_span::Span;
 
-pub mod function_symbol;
-pub use function_symbol::*;
+use crate::SymbolTable;
 
-pub mod table;
-pub use table::*;
+#[derive(Clone, Debug)]
+pub struct FunctionSymbol {
+    pub(crate) id: usize,
+    pub(crate) type_: Type,
+    pub(crate) span: Span,
+    pub(crate) input: Vec<FunctionInput>,
+}
 
-pub mod variable_symbol;
-pub use variable_symbol::*;
-
-use crate::Pass;
-
-use leo_ast::{Ast, ProgramVisitor};
-use leo_errors::{emitter::Handler, Result};
-
-impl<'a> Pass for CreateSymbolTable<'a> {
-    type Input = (&'a Ast, &'a Handler);
-    type Output = Result<SymbolTable>;
-
-    fn do_pass((ast, handler): Self::Input) -> Self::Output {
-        let mut visitor = CreateSymbolTable::new(handler);
-        visitor.visit_program(ast.as_repr());
-        handler.last_err()?;
-
-        Ok(visitor.symbol_table)
+impl SymbolTable {
+    pub(crate) fn new_function_symbol(id: usize, func: &Function) -> FunctionSymbol {
+        FunctionSymbol {
+            id,
+            type_: func.output,
+            span: func.span,
+            input: func.input.clone(),
+        }
     }
 }

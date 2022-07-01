@@ -20,19 +20,16 @@ use leo_errors::emitter::Handler;
 use crate::SymbolTable;
 
 pub struct CreateSymbolTable<'a> {
-    symbol_table: SymbolTable<'a>,
+    pub(crate) symbol_table: SymbolTable,
     handler: &'a Handler,
 }
 
 impl<'a> CreateSymbolTable<'a> {
     pub fn new(handler: &'a Handler) -> Self {
         Self {
-            symbol_table: SymbolTable::default(),
+            symbol_table: Default::default(),
             handler,
         }
-    }
-    pub fn symbol_table(self) -> SymbolTable<'a> {
-        self.symbol_table
     }
 }
 
