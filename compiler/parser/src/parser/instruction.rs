@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-// TODO: Consider designing a separate Parser for instructions. This would improve modularity at the
-//   cost of building/managing the new parser.
+// TODO: We currently rely on the Leo tokenizer and parser to parse the assembly block.
+//   Consider designing a separate Parser for instructions.
+//   This would improve modularity, reduce the likelihood of errors, improve error handling, at the cost of building, linking, and managing the new parser.
 // TODO: If snarkVM instructions are used directly, then we should directly use the associated instruction parsers.
 
 use crate::{ParserContext, Token};
@@ -25,31 +26,40 @@ use leo_ast::{
     LessThanOrEqual, Mul, Node, Nop, Not, Operand, Or, Sub, Ternary,
 };
 use leo_errors::{ParserError, Result};
-use leo_span::Span;
+use leo_span::{sym, Span};
 
-// TODO: Note that this design is a prototype.
 impl ParserContext<'_> {
     pub fn parse_instruction(&mut self) -> Result<Instruction> {
         // Parse the opcode. Since we are using the Leo tokenizer, the opcode will be tokenized as an identifier.
         let identifier = self.expect_ident()?;
-        match &*identifier.name.as_str() {
-            "add" => self.parse_add_instruction(identifier.span),
-            "and" => self.parse_and_instruction(identifier.span),
-            "div" => self.parse_div_instruction(identifier.span),
-            "gt" => self.parse_greater_than_instruction(identifier.span),
-            "gte" => self.parse_greater_than_or_equal_instruction(identifier.span),
-            "eq" => self.parse_equal_instruction(identifier.span),
-            "neq" => self.parse_not_equal_instruction(identifier.span),
-            "lt" => self.parse_less_than_instruction(identifier.span),
-            "lte" => self.parse_less_than_or_equal_instruction(identifier.span),
-            "mul" => self.parse_mul_instruction(identifier.span),
-            "not" => self.parse_not_instruction(identifier.span),
-            "or" => self.parse_or_instruction(identifier.span),
-            "sub" => self.parse_sub_instruction(identifier.span),
-            "ter" => self.parse_ternary_instruction(identifier.span),
+        match identifier.name {
+            sym::add => self.parse_add_instruction(identifier.span),
+            sym::and => self.parse_and_instruction(identifier.span),
+            sym::div => self.parse_div_instruction(identifier.span),
+            sym::gt => self.parse_greater_than_instruction(identifier.span),
+            sym::gte => self.parse_greater_than_or_equal_instruction(identifier.span),
+            sym::eq => self.parse_equal_instruction(identifier.span),
+            sym::neq => self.parse_not_equal_instruction(identifier.span),
+            sym::lt => self.parse_less_than_instruction(identifier.span),
+            sym::lte => self.parse_less_than_or_equal_instruction(identifier.span),
+            sym::mul => self.parse_mul_instruction(identifier.span),
+            sym::not => self.parse_not_instruction(identifier.span),
+            sym::or => self.parse_or_instruction(identifier.span),
+            sym::sub => self.parse_sub_instruction(identifier.span),
+            sym::ter => self.parse_ternary_instruction(identifier.span),
             _ => {
                 self.emit_err(ParserError::invalid_opcode_in_assembly_instruction(identifier.span));
-                // TODO: Do we need to eat tokens here?
+                // Attempt to recover the parser by eating tokens until we find a semi-colon or closing bracket.
+                while !(self.check(&Token::Eof) || self.check(&Token::RightCurly) || self.check(&Token::Semicolon)) {
+                    self.bump();
+                }
+                if let Ok(span) = self.expect(&Token::Eof) {
+                    self.emit_err(ParserError::unexpected_eof(span));
+                } else if let Ok(span) = self.expect(&Token::RightCurly) {
+                    self.emit_err(ParserError::unexpected_end_of_assembly_block(span));
+                } else {
+                    self.expect(&Token::Semicolon)?;
+                }
                 Ok(Instruction::Nop(Nop { span: identifier.span }))
             }
         }
@@ -253,18 +263,16 @@ impl ParserContext<'_> {
         }))
     }
 
-    // TODO: Better error handling.
-    //   Separate tokens and symbols for assembly block.
     pub fn expect_into(&mut self) -> Result<()> {
         let identifier = self.expect_ident()?;
-        match &*identifier.name.as_str() {
-            "into" => Ok(()),
-            string => Err(ParserError::unexpected(string, "into", identifier.span).into()),
+        match identifier.name {
+            sym::into => Ok(()),
+            symbol => Err(ParserError::unexpected(symbol.as_str(), "`into`", identifier.span).into()),
         }
     }
 
     pub fn parse_operand(&mut self) -> Result<Operand> {
-        let expression = self.parse_expression()?;
+        let expression = self.parse_primary_expression()?;
         match expression {
             Expression::Identifier(identifier) => Ok(Operand::Identifier(identifier)),
             Expression::Literal(literal) => Ok(Operand::Literal(literal)),

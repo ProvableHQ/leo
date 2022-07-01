@@ -20,6 +20,10 @@ assembly {
 }
 
 assembly {
+    add r1 r2 thishouldbeinto r3;
+}
+
+assembly {
     add r1 (1u8 + 2u8) into r3;
 }
 

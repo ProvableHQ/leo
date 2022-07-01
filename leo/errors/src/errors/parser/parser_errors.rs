@@ -426,4 +426,12 @@ create_messages!(
         msg: format!("Invalid operand in assembly block. Operands must be `Identifier`s or `LiteralExpressions`."),
         help: None,
     }
+
+     /// For when the parser encountered an unexpected end of assembly block.
+    @formatted
+    unexpected_end_of_assembly_block {
+        args: (),
+        msg: "Unexpected end of assembly block.",
+        help: None,
+    }
 );

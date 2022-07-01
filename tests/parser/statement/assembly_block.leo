@@ -11,9 +11,6 @@ assembly {
     add r1 r2 into r3;
 }
 
-assembly {
-    add r1 r2 thisistreatedasanidentifier r3;
-}
 
 assembly {
     add r1 r2 into r3;

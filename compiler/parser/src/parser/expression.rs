@@ -498,7 +498,7 @@ impl ParserContext<'_> {
     /// - self
     ///
     /// Returns an expression error if the token cannot be matched.
-    fn parse_primary_expression(&mut self) -> Result<Expression> {
+    pub fn parse_primary_expression(&mut self) -> Result<Expression> {
         if let Token::LeftParen = self.token.token {
             return self.parse_tuple_expression();
         }

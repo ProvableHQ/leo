@@ -137,6 +137,9 @@ symbols! {
     sub_wrapped,
     xor,
 
+    // ternary operators
+    ter,
+
     // core circuits
     BHP256,
     BHP512,
@@ -221,6 +224,9 @@ symbols! {
     state_leaf,
     public,
     private,
+
+    // Assembly specific symbols
+    into,
 }
 
 /// An interned string.
