@@ -20,6 +20,7 @@
 
 use crate::*;
 
+/// A Visitor trait for expressions in the AST.
 pub trait ExpressionVisitor<'a> {
     type AdditionalInput: Default;
     type Output: Default;
@@ -88,6 +89,7 @@ pub trait ExpressionVisitor<'a> {
     }
 }
 
+/// A Visitor trait for statements in the AST.
 pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
     fn visit_statement(&mut self, input: &'a Statement) {
         match input {
@@ -145,6 +147,7 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
     }
 }
 
+/// A Visitor trait for the program represented by the AST.
 pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
     fn visit_program(&mut self, input: &'a Program) {
         input

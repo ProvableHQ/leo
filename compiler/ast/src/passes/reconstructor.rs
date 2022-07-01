@@ -14,12 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! This module contains a reconstructor Trait for the AST.
+//! This module contains a Reconstructor trait for the AST.
 //! It implements default methods for each node to be made
 //! given the information of the old node.
 
 use crate::*;
 
+/// A Reconstructor trait for expressions in the AST.
 pub trait ExpressionReconstructor {
     type AdditionalOutput: Default;
 
@@ -108,6 +109,7 @@ pub trait ExpressionReconstructor {
     }
 }
 
+/// A Reconstructor trait for statements in the AST.
 pub trait StatementReconstructor: ExpressionReconstructor {
     fn reconstruct_statement(&mut self, input: Statement) -> Statement {
         match input {
@@ -207,6 +209,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
     }
 }
 
+/// A Reconstructor trait for the program represented by the AST.
 pub trait ProgramReconstructor: StatementReconstructor {
     fn reconstruct_program(&mut self, input: Program) -> Program {
         Program {
