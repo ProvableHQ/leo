@@ -40,6 +40,6 @@ impl<'a> Pass for CreateSymbolTable<'a> {
         visitor.visit_program(ast.as_repr());
         handler.last_err()?;
 
-        Ok(visitor.visitor().symbol_table())
+        Ok(visitor.symbol_table())
     }
 }

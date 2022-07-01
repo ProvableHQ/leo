@@ -17,8 +17,8 @@
 pub mod check_expressions;
 pub use check_expressions::*;
 
-pub mod check_file;
-pub use check_file::*;
+pub mod check_program;
+pub use check_program::*;
 
 pub mod check_statements;
 pub use check_statements::*;
@@ -26,12 +26,9 @@ pub use check_statements::*;
 pub mod checker;
 pub use checker::*;
 
-pub mod director;
-use director::*;
-
 use crate::{Pass, SymbolTable};
 
-use leo_ast::{Ast, ProgramVisitorDirector};
+use leo_ast::{Ast, ProgramVisitor};
 use leo_errors::{emitter::Handler, Result};
 
 impl<'a> Pass for TypeChecker<'a> {
@@ -39,7 +36,7 @@ impl<'a> Pass for TypeChecker<'a> {
     type Output = Result<()>;
 
     fn do_pass((ast, symbol_table, handler): Self::Input) -> Self::Output {
-        let mut visitor = Director::new(symbol_table, handler);
+        let mut visitor = TypeChecker::new(symbol_table, handler);
         visitor.visit_program(ast.as_repr());
         handler.last_err()?;
 
