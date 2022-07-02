@@ -56,10 +56,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_identifier(&mut self, var: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
-        if let Some(circuit) = self.symbol_table.clone().lookup_circuit(&var.name) {
-            Some(self.assert_expected_option(Type::Identifier(circuit.identifier), expected, circuit.span()))
-        } else if let Some(var) = self.symbol_table.clone().lookup_variable(&var.name) {
-            Some(self.assert_expected_option(*var.type_, expected, var.span))
+        if let Some(circuit) = self.symbol_table.borrow().lookup_circuit(&var.name) {
+            Some(self.assert_expected_option(Type::Identifier(circuit.identifier), expected, var.span))
+        } else if let Some(var) = self.symbol_table.borrow().lookup_variable(&var.name) {
+            Some(self.assert_expected_option(var.type_, expected, var.span))
         } else {
             self.handler
                 .emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()).into());
@@ -469,8 +469,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match &*input.function {
             Expression::Identifier(ident) => {
-                if let Some(func) = self.symbol_table.clone().lookup_fn(ident.name) {
-                    let ret = self.assert_expected_option(func.output, expected, func.span());
+                let func = self.symbol_table.borrow().lookup_fn(&ident.name).cloned();
+                if let Some(func) = func {
+                    let ret = self.assert_expected_option(func.output, expected, func.span);
 
                     // Check number of function arguments.
                     if func.input.len() != input.arguments.len() {
@@ -508,7 +509,8 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         input: &'a CircuitInitExpression,
         additional: &Self::AdditionalInput,
     ) -> Self::Output {
-        if let Some(circ) = self.symbol_table.clone().lookup_circuit(&input.name.name) {
+        let circ = self.symbol_table.borrow().lookup_circuit(&input.name.name).cloned();
+        if let Some(circ) = circ {
             // Check circuit type name.
             let ret = self.assert_expected_circuit(circ.identifier, additional, input.name.span());
 

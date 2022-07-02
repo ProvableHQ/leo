@@ -14,16 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use indexmap::IndexSet;
+use crate::SymbolTable;
+
 use leo_ast::{Identifier, IntegerType, Node, Type};
 use leo_core::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
 
-use crate::SymbolTable;
+use indexmap::IndexSet;
+use std::cell::RefCell;
 
 pub struct TypeChecker<'a> {
-    pub(crate) symbol_table: &'a mut SymbolTable<'a>,
+    pub(crate) symbol_table: RefCell<SymbolTable>,
     pub(crate) handler: &'a Handler,
     pub(crate) parent: Option<Symbol>,
     pub(crate) has_return: bool,
@@ -91,9 +93,9 @@ const FIELD_SCALAR_TYPES: [Type; 2] = [Type::Field, Type::Scalar];
 
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
-    pub fn new(symbol_table: &'a mut SymbolTable<'a>, handler: &'a Handler) -> Self {
+    pub fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
         Self {
-            symbol_table,
+            symbol_table: RefCell::new(symbol_table),
             handler,
             parent: None,
             has_return: false,
@@ -160,7 +162,7 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Returns the given `actual` type and emits an error if the `expected` type does not match.
-    pub(crate) fn assert_expected_option(&mut self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
+    pub(crate) fn assert_expected_option(&self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
         if let Some(expected) = expected {
             if !actual.eq_flat(expected) {
                 self.emit_err(TypeCheckerError::type_should_be(actual, expected, span));
