@@ -19,14 +19,8 @@
 
 // todo @gluax: Move the files in this module into `leo-passes` in a future PR.
 
-// pub mod reconstructing_reducer;
-// pub use reconstructing_reducer::*;
-//
-// pub mod reconstructing_director;
-// pub use reconstructing_director::*;
+pub mod reconstructor;
+pub use reconstructor::*;
 
 pub mod visitor;
 pub use visitor::*;
-
-pub mod visitor_director;
-pub use visitor_director::*;
