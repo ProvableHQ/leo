@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@ use walkdir::WalkDir;
 const EXPECTED_LICENSE_TEXT: &[u8] = include_bytes!(".resources/license_header");
 
 // The following directories will be excluded from the license scan.
-const DIRS_TO_SKIP: [&str; 8] = [
+const DIRS_TO_SKIP: [&str; 9] = [
     ".cargo",
     ".circleci",
     ".git",
@@ -31,6 +31,7 @@ const DIRS_TO_SKIP: [&str; 8] = [
     "docs",
     "examples",
     "target",
+    "tests",
 ];
 
 fn check_file_licenses<P: AsRef<Path>>(path: P) {

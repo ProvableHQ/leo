@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+
 //! Defines the `Span` type used to track where code comes from.
 
 use core::ops::{Add, Sub};
