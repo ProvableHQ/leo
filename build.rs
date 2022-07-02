@@ -57,7 +57,12 @@ fn check_file_licenses<P: AsRef<Path>>(path: P) {
                 .read_to_end(&mut contents)
                 .unwrap();
 
-            assert_eq!(contents, EXPECTED_LICENSE_TEXT, "The license in \"{}\" is either missing or it doesn't match the expected string!", entry.path().display());
+            assert_eq!(
+                contents,
+                EXPECTED_LICENSE_TEXT,
+                "The license in \"{}\" is either missing or it doesn't match the expected string!",
+                entry.path().display()
+            );
         }
     }
 
