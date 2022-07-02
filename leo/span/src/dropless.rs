@@ -16,7 +16,6 @@
 
 // Copyright Rust project developers under MIT or APACHE-2.0.
 
-
 use core::alloc::Layout;
 use core::cell::{Cell, RefCell};
 use core::mem::{self, MaybeUninit};

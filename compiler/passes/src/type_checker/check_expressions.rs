@@ -395,7 +395,6 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-
     fn visit_unary(&mut self, input: &'a UnaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
         match input.op {
             UnaryOperation::Abs => {

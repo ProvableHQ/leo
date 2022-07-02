@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-
 use crate::dropless::DroplessArena;
 use crate::source_map::SourceMap;
 
