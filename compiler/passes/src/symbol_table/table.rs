@@ -22,7 +22,7 @@ use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
 
-use crate::{Declaration, FunctionSymbol, Value, VariableSymbol};
+use crate::{FunctionSymbol, VariableSymbol};
 
 #[derive(Clone, Debug, Default)]
 pub struct SymbolTable {
@@ -40,8 +40,6 @@ pub struct SymbolTable {
     pub(crate) variables: IndexMap<Symbol, VariableSymbol>,
     /// The index of the current scope
     pub(crate) scope_index: usize,
-    /// If the block will always be executed when the parent block is executed
-    pub(crate) is_locally_non_const: bool,
     /// The subscopes of this scope
     pub(crate) scopes: Vec<RefCell<SymbolTable>>,
 }
@@ -90,11 +88,8 @@ impl SymbolTable {
         Ok(())
     }
 
-    pub fn insert_block(&mut self, is_locally_non_const: bool) -> usize {
-        self.scopes.push(RefCell::new(SymbolTable {
-            is_locally_non_const,
-            ..Default::default()
-        }));
+    pub fn insert_block(&mut self) -> usize {
+        self.scopes.push(RefCell::new(Default::default()));
         self.scope_index()
     }
 
@@ -153,62 +148,6 @@ impl SymbolTable {
             parent.lookup_variable_mut(symbol)
         } else {
             None
-        }
-    }
-
-    /// Finds the variable in the parent scope, then SHADOWS it in most recent non-const scope with a mut const value.
-    /// returns a boolean for if the variable should be slated for deconstification
-    pub fn locally_constify_variable(&mut self, symbol: Symbol, value: Value) -> bool {
-        let mut var = self
-            .lookup_variable(&symbol)
-            .unwrap_or_else(|| panic!("attempting to constify non-existent variable `{symbol}`"))
-            .clone();
-        var.declaration = Declaration::Mut(Some(value));
-
-        let mut st = self;
-        loop {
-            let is_in_parent = st.variable_in_parent_scope(&symbol);
-            let is_in_local = st.variable_in_local_scope(&symbol);
-            if is_in_local && is_in_parent {
-                st.variables.insert(symbol, var.clone());
-            } else if st.is_locally_non_const && !is_in_parent {
-                st.variables.insert(symbol, var);
-                break false;
-            } else if st.is_locally_non_const && is_in_parent {
-                st.variables.insert(symbol, var);
-                break true;
-            }
-
-            if !st.is_locally_non_const && st.parent.is_some() && is_in_parent {
-                st = st.parent.as_mut().unwrap()
-            } else {
-                break true;
-            }
-        }
-    }
-
-    pub fn set_variable(&mut self, symbol: &Symbol, value: Value) -> bool {
-        if let Some(var) = self.variables.get_mut(symbol) {
-            var.declaration = match &var.declaration {
-                Declaration::Const(_) => Declaration::Const(Some(value)),
-                Declaration::Mut(_) => Declaration::Mut(Some(value)),
-                other => other.clone(),
-            };
-            true
-        } else if let Some(parent) = &mut self.parent {
-            parent.set_variable(symbol, value)
-        } else {
-            false
-        }
-    }
-
-    /// Finds all previous occurrences of the variable and replaces it with a non-const mutable value
-    pub fn deconstify_variable(&mut self, symbol: &Symbol) {
-        if let Some(var) = self.variables.get_mut(symbol) {
-            var.declaration = Declaration::Mut(None);
-        }
-        if let Some(parent) = &mut self.parent {
-            parent.deconstify_variable(symbol)
         }
     }
 

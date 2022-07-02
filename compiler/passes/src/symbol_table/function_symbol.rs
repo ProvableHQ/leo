@@ -22,7 +22,7 @@ use crate::SymbolTable;
 #[derive(Clone, Debug)]
 pub struct FunctionSymbol {
     pub(crate) id: usize,
-    pub(crate) type_: Type,
+    pub(crate) output: Type,
     pub(crate) span: Span,
     pub(crate) input: Vec<FunctionInput>,
 }
@@ -31,7 +31,7 @@ impl SymbolTable {
     pub(crate) fn new_function_symbol(id: usize, func: &Function) -> FunctionSymbol {
         FunctionSymbol {
             id,
-            type_: func.output,
+            output: func.output,
             span: func.span,
             input: func.input.clone(),
         }
