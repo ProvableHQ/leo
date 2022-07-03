@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-
 use crate::dropless::DroplessArena;
 use crate::source_map::SourceMap;
 
@@ -165,6 +164,7 @@ symbols! {
     i32,
     i64,
     i128,
+    record,
     scalar,
     string,
     u8,
@@ -208,6 +208,12 @@ symbols! {
     test,
     Type: "type",
 
+    public,
+    private,
+    owner,
+    balance,
+
+    // todo: remove these.
     CONTAINER_PSEUDO_CIRCUIT: "$InputContainer",
     REGISTERS_PSEUDO_CIRCUIT: "$InputRegister",
     RECORD_PSEUDO_CIRCUIT: "$InputRecord",
@@ -216,11 +222,8 @@ symbols! {
 
     // input file
     registers,
-    record,
     state,
     state_leaf,
-    public,
-    private,
 }
 
 /// An interned string.

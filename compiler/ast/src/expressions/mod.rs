@@ -57,7 +57,7 @@ pub enum Expression {
     Binary(BinaryExpression),
     /// A call expression, e.g., `my_fun(args)`.
     Call(CallExpression),
-    /// An expression constructing a structure like `Foo { bar: 42, baz }`.
+    /// An expression constructing a circuit like `Foo { bar: 42, baz }`.
     CircuitInit(CircuitInitExpression),
     /// An expression of type "error".
     /// Will result in a compile error eventually.

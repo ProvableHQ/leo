@@ -16,7 +16,6 @@
 
 use super::*;
 use leo_errors::{ParserError, Result};
-use leo_span::sym;
 
 use snarkvm_dpc::{prelude::Address, testnet2::Testnet2};
 
@@ -537,17 +536,8 @@ impl ParserContext<'_> {
             Token::Ident(name) => {
                 let ident = Identifier { name, span };
                 if !self.disallow_circuit_construction && self.check(&Token::LeftCurly) {
-                    self.parse_circuit_expression(ident)?
-                } else {
-                    Expression::Identifier(ident)
-                }
-            }
-            Token::SelfUpper => {
-                let ident = Identifier {
-                    name: sym::SelfUpper,
-                    span,
-                };
-                if !self.disallow_circuit_construction && self.check(&Token::LeftCurly) {
+                    // Parse circuit and records inits as circuit expressions.
+                    // Enforce circuit or record type later at type checking.
                     self.parse_circuit_expression(ident)?
                 } else {
                     Expression::Identifier(ident)

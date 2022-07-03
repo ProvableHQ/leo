@@ -1,6 +1,6 @@
 // CAUTION: Work in progress
 
-circuit Token {
+record Token {
     // The token owner.
     owner: address,
     // The Aleo balance (in gates).
@@ -42,7 +42,7 @@ function transfer(r0: Token, r1: Receiver) -> Token {
     let r4: Token = mint(r0.owner, r0.amount);
 
     // return (r3, r4);
-    return r3
+    return r3;
 }
 
 function main() -> u8 {

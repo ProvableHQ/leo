@@ -60,7 +60,7 @@ impl Type {
             | (Type::Scalar, Type::Scalar)
             | (Type::String, Type::String) => true,
             (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(right),
-            (Type::Identifier(left), Type::Identifier(right)) => left.eq(right),
+            (Type::Identifier(left), Type::Identifier(right)) => left.matches(right),
             _ => false,
         }
     }

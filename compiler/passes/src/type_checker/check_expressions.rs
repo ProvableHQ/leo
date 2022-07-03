@@ -528,20 +528,20 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
 
             // Check circuit member types.
-            circ.members.iter().for_each(|expected| match expected {
-                CircuitMember::CircuitVariable(name, type_) => {
+            circ.members
+                .iter()
+                .for_each(|CircuitMember::CircuitVariable(name, ty)| {
                     // Lookup circuit variable name.
                     if let Some(actual) = input.members.iter().find(|member| member.identifier.name == name.name) {
                         if let Some(expr) = &actual.expression {
-                            self.visit_expression(expr, &Some(*type_));
+                            self.visit_expression(expr, &Some(*ty));
                         }
                     } else {
                         self.handler.emit_err(
                             TypeCheckerError::unknown_sym("circuit member variable", name, name.span()).into(),
                         );
                     };
-                }
-            });
+                });
 
             Some(ret)
         } else {

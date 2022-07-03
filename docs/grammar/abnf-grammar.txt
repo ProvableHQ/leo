@@ -96,6 +96,7 @@ keyword = %s"address"
         / %s"in"
         / %s"let"
         / %s"public"
+        / %s"record"
         / %s"return"
         / %s"scalar"
         / %s"string"
@@ -395,8 +396,13 @@ circuit-declaration = %s"circuit" "{" circuit-component-declaration
 
 circuit-component-declaration = identifier ":" type
 
+record-declaration = %s"record" "{" circuit-component-declaration
+                                    *( "," circuit-component-declaration )
+                                    [ "," ] "}"
+
 declaration = function-declaration
             / circuit-declaration
+            / record-declaration
 
 file = *declaration
 

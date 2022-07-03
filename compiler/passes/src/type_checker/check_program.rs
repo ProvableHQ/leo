@@ -18,6 +18,7 @@ use crate::{Declaration, TypeChecker, VariableSymbol};
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
 
+use leo_span::sym;
 use std::collections::HashSet;
 
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
@@ -53,8 +54,32 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Check for conflicting circuit member names.
         let mut used = HashSet::new();
         if !input.members.iter().all(|member| used.insert(member.name())) {
-            self.handler
-                .emit_err(TypeCheckerError::duplicate_circuit_member(input.name(), input.span()).into());
+            self.handler.emit_err(if input.is_record {
+                TypeCheckerError::duplicate_record_variable(input.name(), input.span()).into()
+            } else {
+                TypeCheckerError::duplicate_circuit_member(input.name(), input.span()).into()
+            });
+        }
+
+        // For records, enforce presence of `owner: Address` and `balance: u64` members.
+        if input.is_record {
+            let check_has_field = |need, expected_ty: Type| match input
+                .members
+                .iter()
+                .find_map(|CircuitMember::CircuitVariable(v, t)| (v.name == need).then(|| (v, t)))
+            {
+                Some((_, actual_ty)) if expected_ty.eq_flat(actual_ty) => {} // All good, found + right type!
+                Some((field, _)) => {
+                    self.handler
+                        .emit_err(TypeCheckerError::record_var_wrong_type(field, expected_ty, input.span()).into());
+                }
+                None => {
+                    self.handler
+                        .emit_err(TypeCheckerError::required_record_variable(need, expected_ty, input.span()).into());
+                }
+            };
+            check_has_field(sym::owner, Type::Address);
+            check_has_field(sym::balance, Type::IntegerType(IntegerType::U64));
         }
     }
 }

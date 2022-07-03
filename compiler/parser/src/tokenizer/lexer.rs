@@ -316,6 +316,7 @@ impl Token {
                     "in" => Token::In,
                     "let" => Token::Let,
                     "public" => Token::Public,
+                    "record" => Token::Record,
                     "return" => Token::Return,
                     "scalar" => Token::Scalar,
                     "string" => Token::String,

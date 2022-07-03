@@ -57,8 +57,9 @@ fn check_file_licenses<P: AsRef<Path>>(path: P) {
                 .read_to_end(&mut contents)
                 .unwrap();
 
-            assert!(
-                contents == EXPECTED_LICENSE_TEXT,
+            assert_eq!(
+                contents,
+                EXPECTED_LICENSE_TEXT,
                 "The license in \"{}\" is either missing or it doesn't match the expected string!",
                 entry.path().display()
             );
@@ -72,5 +73,8 @@ fn check_file_licenses<P: AsRef<Path>>(path: P) {
 // The build script; it currently only checks the licenses.
 fn main() {
     // Check licenses in the current folder.
-    check_file_licenses(".");
+    if !cfg!(target_os = "windows") {
+        // disable license check for windows for now.
+        check_file_licenses(".");
+    }
 }

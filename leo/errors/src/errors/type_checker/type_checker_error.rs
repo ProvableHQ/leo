@@ -191,6 +191,16 @@ create_messages!(
         help: None,
     }
 
+    /// For when the user tries initialize a circuit with the incorrect number of args.
+    @formatted
+    incorrect_num_record_variables {
+        args: (expected: impl Display, received: impl Display),
+        msg: format!(
+            "Record expected `{expected}` variables, but got `{received}`",
+        ),
+        help: None,
+    }
+
     /// An invalid access call is made e.g., `bool::MAX`
     @formatted
     invalid_access_expression {
@@ -207,6 +217,16 @@ create_messages!(
         args: (circuit: impl Display),
         msg: format!(
             "Circuit {circuit} defined with more than one member with the same name."
+        ),
+        help: None,
+    }
+
+    /// Attempted to define more that one record variable with the same name.
+    @formatted
+    duplicate_record_variable {
+        args: (record: impl Display),
+        msg: format!(
+            "Record {record} defined with more than one variable with the same name."
         ),
         help: None,
     }
@@ -228,6 +248,20 @@ create_messages!(
         msg: format!(
             "Circuit variable {variable} is not a member of circuit {circuit}."
         ),
+        help: None,
+    }
+
+    @formatted
+    required_record_variable {
+        args: (name: impl Display, type_: impl Display),
+        msg: format!("The `record` type requires the variable `{name}: {type_}`."),
+        help: None,
+    }
+
+    @formatted
+    record_var_wrong_type {
+        args: (name: impl Display, type_: impl Display),
+        msg: format!("The field `{name}` in a `record` must have type `{type_}`."),
         help: None,
     }
 );

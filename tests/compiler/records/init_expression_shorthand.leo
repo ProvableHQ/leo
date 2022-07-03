@@ -1,3 +1,8 @@
+/*
+namespace: Compile
+expectation: Pass
+*/
+
 record Token {
     // The token owner.
     owner: address,

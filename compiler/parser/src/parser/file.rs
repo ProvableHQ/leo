@@ -27,7 +27,7 @@ impl ParserContext<'_> {
 
         while self.has_next() {
             match &self.token.token {
-                Token::Circuit => {
+                Token::Circuit | Token::Record => {
                     let (id, circuit) = self.parse_circuit()?;
                     circuits.insert(id, circuit);
                 }
@@ -36,12 +36,10 @@ impl ParserContext<'_> {
                     functions.insert(id, function);
                 }
                 Token::Ident(sym::test) => return Err(ParserError::test_function(self.token.span).into()),
-                // Const functions share the first token with the global Const.
                 Token::Function => {
                     let (id, function) = self.parse_function()?;
                     functions.insert(id, function);
                 }
-
                 _ => return Err(Self::unexpected_item(&self.token).into()),
             }
         }
@@ -65,9 +63,9 @@ impl ParserContext<'_> {
         )
     }
 
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
+    /// Returns a [`Vec<CircuitMember>`] AST node if the next tokens represent a circuit member variable
     /// or circuit member function or circuit member constant.
-    pub fn parse_circuit_declaration(&mut self) -> Result<(Vec<CircuitMember>, Span)> {
+    pub fn parse_circuit_members(&mut self) -> Result<(Vec<CircuitMember>, Span)> {
         let mut members = Vec::new();
 
         let (mut semi_colons, mut commas) = (false, false);
@@ -106,7 +104,7 @@ impl ParserContext<'_> {
     }
 
     /// Parses `IDENT: TYPE`.
-    fn parse_typed_field_name(&mut self) -> Result<(Identifier, Type)> {
+    fn parse_member(&mut self) -> Result<(Identifier, Type)> {
         let name = self.expect_ident()?;
         self.expect(&Token::Colon)?;
         let type_ = self.parse_all_types()?.0;
@@ -120,7 +118,7 @@ impl ParserContext<'_> {
         self.expect(&Token::Const)?;
 
         // `IDENT: TYPE = EXPR`:
-        let (_name, _type_) = self.parse_typed_field_name()?;
+        let (_name, _type_) = self.parse_member()?;
         self.expect(&Token::Assign)?;
         let expr = self.parse_expression()?;
 
@@ -134,7 +132,7 @@ impl ParserContext<'_> {
 
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.
     pub fn parse_member_variable_declaration(&mut self) -> Result<CircuitMember> {
-        let (name, type_) = self.parse_typed_field_name()?;
+        let (name, type_) = self.parse_member()?;
 
         Ok(CircuitMember::CircuitVariable(name, type_))
     }
@@ -145,26 +143,28 @@ impl ParserContext<'_> {
             // CAUTION: function members are unstable for testnet3.
             let function = self.parse_function()?;
 
-            return Err(ParserError::circuit_functions_unstable(function.1.span()).into());
+            Err(ParserError::circuit_functions_unstable(function.1.span()).into())
             // Ok(CircuitMember::CircuitFunction(Box::new(function.1)))
         } else {
-            return Err(Self::unexpected_item(&self.token).into());
+            Err(Self::unexpected_item(&self.token).into())
         }
     }
 
-    /// Returns an [`(Identifier, Function)`] ast node if the next tokens represent a circuit declaration.
+    /// Parses a circuit or record definition, e.g., `circit Foo { ... }` or `record Foo { ... }`.
     pub(super) fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
-        let start = self.expect(&Token::Circuit)?;
+        let is_record = matches!(&self.token.token, Token::Record);
+        let start = self.expect_any(&[Token::Circuit, Token::Record])?;
         let circuit_name = self.expect_ident()?;
 
         self.expect(&Token::LeftCurly)?;
-        let (members, end) = self.parse_circuit_declaration()?;
+        let (members, end) = self.parse_circuit_members()?;
 
         Ok((
-            circuit_name.clone(),
+            circuit_name,
             Circuit {
                 identifier: circuit_name,
                 members,
+                is_record,
                 span: start + end,
             },
         ))
