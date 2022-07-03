@@ -326,13 +326,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 let t2 = self.visit_expression(&input.right, &None);
 
                 match (t1, t2) {
-                    (Some(Type::Address), t2) => {
-                        // Assert rhs is address.
-                        self.assert_expected_type(&t2, Type::Address, input.left.span());
-                    }
-                    (t1, Some(Type::Address)) => {
-                        // Assert lhs is address.
-                        self.assert_expected_type(&t1, Type::Address, input.right.span());
+                    (Some(Type::Address), _) | (_, Some(Type::Address)) => {
+                        // Emit an error for address comparison.
+                        self.handler.emit_err(TypeCheckerError::compare_address(input.span()).into());
                     }
                     (Some(Type::Field), t2) => {
                         // Assert rhs is field.

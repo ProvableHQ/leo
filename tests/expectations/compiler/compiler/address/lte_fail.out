@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372025]: Comparison `<, <=, >, >=` is not supported for the address type.\n    --> compiler-test:6:12\n     |\n   6 |     return x <= sender;\n     |            ^^^^^^^^^^^\n"
