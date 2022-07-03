@@ -64,11 +64,11 @@ pub enum BinaryOperation {
     PowWrapped,
     /// Shift left operation, i.e. `<<`, `.shl()`.
     Shl,
-    /// Wrapping shift left operation, i.e. `<<`, `.shl_wrapped()`.
+    /// Wrapping shift left operation, i.e. `.shl_wrapped()`.
     ShlWrapped,
     /// Shift right operation, i.e. >>, `.shr()`.
     Shr,
-    /// Wrapping shift right operation, i.e. >>, `.shr_wrapped()`.
+    /// Wrapping shift right operation, i.e. `.shr_wrapped()`.
     ShrWrapped,
     /// Subtraction, i.e. `-`, `.sub()`.
     Sub,
