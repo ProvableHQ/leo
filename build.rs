@@ -14,12 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{fs::File, io::Read, path::Path};
+use std::{
+    fs::File,
+    io::{BufRead, BufReader},
+    path::Path,
+};
 
 use walkdir::WalkDir;
 
 // The following license text that should be present at the beginning of every source file.
-const EXPECTED_LICENSE_TEXT: &[u8] = include_bytes!(".resources/license_header");
+const EXPECTED_LICENSE_TEXT: &str = include_str!(".resources/license_header");
 
 // The following directories will be excluded from the license scan.
 const DIRS_TO_SKIP: [&str; 9] = [
@@ -34,8 +38,28 @@ const DIRS_TO_SKIP: [&str; 9] = [
     "tests",
 ];
 
+fn compare_license_text(path: &Path, expected_lines: &[&str]) {
+    let file = File::open(path).unwrap();
+    let reader = BufReader::new(file);
+
+    for (i, (file_line, expected_line)) in reader.lines().zip(expected_lines).enumerate() {
+        let file_line = file_line.expect(&format!("Can't read line {} in file \"{}\"!", i + 1, path.display()));
+
+        assert!(
+            &file_line == expected_line,
+            "Line {} in file \"{}\" was expected to contain the license text \"{}\", but contains \"{}\" instead! \
+            Consult the expected license text in \".resources/license_header\"",
+            i + 1,
+            path.display(),
+            expected_line,
+            file_line,
+        );
+    }
+}
+
 fn check_file_licenses<P: AsRef<Path>>(path: P) {
     let path = path.as_ref();
+    let license_lines: Vec<_> = EXPECTED_LICENSE_TEXT.lines().collect();
 
     let mut iter = WalkDir::new(path).into_iter();
     while let Some(entry) = iter.next() {
@@ -51,18 +75,7 @@ fn check_file_licenses<P: AsRef<Path>>(path: P) {
 
         // Check all files with the ".rs" extension.
         if entry_type.is_file() && entry.file_name().to_str().unwrap_or("").ends_with(".rs") {
-            let file = File::open(entry.path()).unwrap();
-            let mut contents = Vec::with_capacity(EXPECTED_LICENSE_TEXT.len());
-            file.take(EXPECTED_LICENSE_TEXT.len() as u64)
-                .read_to_end(&mut contents)
-                .unwrap();
-
-            assert_eq!(
-                contents,
-                EXPECTED_LICENSE_TEXT,
-                "The license in \"{}\" is either missing or it doesn't match the expected string!",
-                entry.path().display()
-            );
+            compare_license_text(&entry.path(), &license_lines);
         }
     }
 
@@ -73,8 +86,5 @@ fn check_file_licenses<P: AsRef<Path>>(path: P) {
 // The build script; it currently only checks the licenses.
 fn main() {
     // Check licenses in the current folder.
-    if !cfg!(target_os = "windows") {
-        // disable license check for windows for now.
-        check_file_licenses(".");
-    }
+    check_file_licenses(".");
 }
