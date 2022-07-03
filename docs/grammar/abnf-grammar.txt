@@ -48,15 +48,15 @@ not-line-feed-or-carriage-return =
     ; anything but <LF> or <CR>
 
 not-star-or-line-feed-or-carriage-return =
-    %x0-9/ %xB-C / %xD-29 / %x2B-7F / safe-nonascii
+    %x0-9 / %xB-C / %xE-29 / %x2B-7F / safe-nonascii
     ; anything but * or <LF> or <CR>
 
 not-star-or-slash-or-line-feed-or-carriage-return =
-    %x0-9 / %xB-C / %xD-29 / %x2B-2E / %x30-7F / safe-nonascii
+    %x0-9 / %xB-C / %xE-29 / %x2B-2E / %x30-7F / safe-nonascii
     ; anything but * or / or <LF> or <CR>
 
 not-double-quote-or-backslash-or-line-feed-or-carriage-return =
-    %x0-9 / %xB-C / %xD-21 / %x23-5B / %x5D-7F / safe-nonascii
+    %x0-9 / %xB-C / %xE-21 / %x23-5B / %x5D-7F / safe-nonascii
     ; anything but " or \ or <LF> or <CR>
 
 comment = block-comment / end-of-line-comment
