@@ -328,7 +328,8 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 match (t1, t2) {
                     (Some(Type::Address), _) | (_, Some(Type::Address)) => {
                         // Emit an error for address comparison.
-                        self.handler.emit_err(TypeCheckerError::compare_address(input.span()).into());
+                        self.handler
+                            .emit_err(TypeCheckerError::compare_address(input.span()).into());
                     }
                     (Some(Type::Field), t2) => {
                         // Assert rhs is field.
