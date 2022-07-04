@@ -302,41 +302,40 @@ shift-expression = additive-expression
                  / shift-expression "<<" additive-expression
                  / shift-expression ">>" additive-expression
 
-conjunctive-expression = shift-expression
-                       / conjunctive-expression "&" shift-expression
+bitwise-and-expression = shift-expression
+                       / bitwise-and-expression "&" shift-expression
 
-disjunctive-expression = conjunctive-expression
-                       / disjunctive-expression "|" conjunctive-expression
+bitwise-inclusive-or-expression =
+      bitwise-and-expression
+    / bitwise-inclusive-or-expression "|" bitwise-and-expression
 
-exclusive-disjunctive-expression =
-      disjunctive-expression
-    / exclusive-disjunctive-expression "^" disjunctive-expression
+bitwise-exclusive-or-expression =
+      bitwise-inclusive-or-expression
+    / bitwise-exclusive-or-expression "^" bitwise-inclusive-or-expression
 
 ordering-expression =
-      exclusive-disjunctive-expression
-    / exclusive-disjunctive-expression "<" exclusive-disjunctive-expression
-    / exclusive-disjunctive-expression ">" exclusive-disjunctive-expression
-    / exclusive-disjunctive-expression "<=" exclusive-disjunctive-expression
-    / exclusive-disjunctive-expression ">=" exclusive-disjunctive-expression
+      bitwise-exclusive-or-expression
+    / bitwise-exclusive-or-expression "<" bitwise-exclusive-or-expression
+    / bitwise-exclusive-or-expression ">" bitwise-exclusive-or-expression
+    / bitwise-exclusive-or-expression "<=" bitwise-exclusive-or-expression
+    / bitwise-exclusive-or-expression ">=" bitwise-exclusive-or-expression
 
 equality-expression = ordering-expression
                     / ordering-expression "==" ordering-expression
                     / ordering-expression "!=" ordering-expression
 
-conditional-conjunctive-expression =
-      equality-expression
-    / conditional-conjunctive-expression "&&" equality-expression
+boolean-and-expression = equality-expression
+                       / boolean-and-expression "&&" equality-expression
 
-conditional-disjunctive-expression =
-      conditional-conjunctive-expression
-    / conditional-disjunctive-expression "||" conditional-conjunctive-expression
+boolean-or-expression = boolean-and-expression
+                      / boolean-or-expression "||" boolean-and-expression
 
-binary-expression = conditional-disjunctive-expression
+binary-expression = boolean-or-expression
 
-conditional-ternary-expression = binary-expression
-                               / binary-expression "?" expression ":" expression
+conditional-expression = binary-expression
+                       / binary-expression "?" expression ":" expression
 
-expression = conditional-ternary-expression
+expression = conditional-expression
 
 statement = return-statement
           / variable-declaration
