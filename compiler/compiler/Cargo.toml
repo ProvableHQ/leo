@@ -46,7 +46,7 @@ path = "../../tests/test-framework"
 version = "1.4.0"
 
 [dev-dependencies.serde]
-version = "1.0.137"
+version = "1.0.138"
 features = ["derive"]
 
 [dev-dependencies.serde_yaml]
