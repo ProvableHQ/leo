@@ -267,8 +267,8 @@ create_messages!(
 
     @formatted
     compare_address {
-        args: (),
-        msg: "Comparison `<, <=, >, >=` is not supported for the address type.",
+        args: (operator: impl Display),
+        msg: format!("Comparison `{operator}` is not supported for the address type."),
         help: None,
     }
 );

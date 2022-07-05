@@ -78,6 +78,44 @@ pub enum BinaryOperation {
     Xor,
 }
 
+impl fmt::Display for BinaryOperation {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Add => "+",
+                Self::AddWrapped => "add_wrapped",
+                Self::And => "&&",
+                Self::BitwiseAnd => "&",
+                Self::Div => "/",
+                Self::DivWrapped => "div_wrapped",
+                Self::Eq => "==",
+                Self::Gte => ">=",
+                Self::Gt => ">",
+                Self::Lte => "<=",
+                Self::Lt => "<",
+                Self::Mul => "*",
+                Self::MulWrapped => "mul_wrapped",
+                Self::Nand => "NAND",
+                Self::Neq => "!=",
+                Self::Nor => "NOR",
+                Self::Or => "||",
+                Self::BitwiseOr => "|",
+                Self::Pow => "**",
+                Self::PowWrapped => "pow_wrapped",
+                Self::Shl => "<<",
+                Self::ShlWrapped => "shl_wrapped",
+                Self::Shr => ">>",
+                Self::ShrWrapped => "shr_wrapped",
+                Self::Sub => "-",
+                Self::SubWrapped => "sub_wrapped",
+                Self::Xor => "^",
+            }
+        )
+    }
+}
+
 impl BinaryOperation {
     /// Returns a `BinaryOperation` from the given `Symbol`.
     pub fn from_symbol(symbol: Symbol) -> Option<Self> {
@@ -110,39 +148,6 @@ impl BinaryOperation {
             _ => return None,
         })
     }
-
-    /// Represents the operator as a string.
-    fn as_str(self) -> &'static str {
-        match self {
-            Self::Add => "add",
-            Self::AddWrapped => "add_wrapped",
-            Self::And => "&&",
-            Self::BitwiseAnd => "and",
-            Self::Div => "div",
-            Self::DivWrapped => "div_wrapped",
-            Self::Eq => "eq",
-            Self::Gte => "gte",
-            Self::Gt => "gt",
-            Self::Lte => "lte",
-            Self::Lt => "lt",
-            Self::Mul => "mul",
-            Self::MulWrapped => "mul_wrapped",
-            Self::Nand => "nand",
-            Self::Neq => "neq",
-            Self::Nor => "nor",
-            Self::Or => "||",
-            Self::BitwiseOr => "or",
-            Self::Pow => "pow",
-            Self::PowWrapped => "pow_wrapped",
-            Self::Shl => "shl",
-            Self::ShlWrapped => "shl_wrapped",
-            Self::Shr => "shr",
-            Self::ShrWrapped => "shr_wrapped",
-            Self::Sub => "sub",
-            Self::SubWrapped => "sub_wrapped",
-            Self::Xor => "xor",
-        }
-    }
 }
 
 /// A binary expression `left op right` of two operands separated by some operator.
@@ -161,7 +166,7 @@ pub struct BinaryExpression {
 
 impl fmt::Display for BinaryExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}({})", self.left, self.op.as_str(), self.right)
+        write!(f, "{} {} {}", self.left, self.op, self.right)
     }
 }
 
