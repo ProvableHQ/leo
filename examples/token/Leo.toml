@@ -6,6 +6,3 @@ license = "LICENSE-MIT"
 
 [remote]
 author = "aleo"
-
-[target]
-proving_system = "marlin"

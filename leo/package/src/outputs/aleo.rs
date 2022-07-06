@@ -63,7 +63,7 @@ impl AleoFile {
         let mut file = File::create(&path).map_err(PackageError::io_error_aleo_file)?;
 
         // Write program id to file.
-        let mut aleo_file = format!("program {};\n\n", self.package_name);
+        let mut aleo_file = format!("program {}.aleo;\n\n", self.package_name);
         aleo_file.push_str(&aleo);
 
         file.write_all(aleo_file.as_bytes())
