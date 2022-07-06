@@ -53,7 +53,7 @@ impl SymbolTable {
         } else if let Some(existing) = self.circuits.get(&symbol) {
             match existing.is_record {
                 true => Err(AstError::shadowed_record(symbol, span).into()),
-                false => Err(AstError::shadowed_circuit(symbol, span).into())
+                false => Err(AstError::shadowed_circuit(symbol, span).into()),
             }
         } else if let Some(parent) = self.parent.as_ref() {
             parent.check_shadowing(symbol, span)
