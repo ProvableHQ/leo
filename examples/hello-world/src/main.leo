@@ -1,6 +1,9 @@
-function main(
-    public r0: field,
-    r1: field
-) -> field {
-    return r0 + r1;
+record Token {
+	owner: address,
+	balance: u64,
+	token_amount: u64,
+}
+
+function main(r0: Token) -> u64 {
+	return r0.token_amount + r0.token_amount;
 }

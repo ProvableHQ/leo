@@ -13,6 +13,8 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+pub mod aleo;
+pub use self::aleo::*;
 
 pub mod ast_snapshot;
 pub use self::ast_snapshot::*;

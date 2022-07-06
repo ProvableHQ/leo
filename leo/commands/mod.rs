@@ -23,9 +23,9 @@ use tracing::span::Span;
 // local program commands
 pub mod build;
 pub use build::Build;
-//
-// pub mod clean;
-// pub use clean::Clean;
+
+pub mod clean;
+pub use clean::Clean;
 //
 // pub mod deploy;
 // pub use deploy::Deploy;

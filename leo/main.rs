@@ -24,7 +24,7 @@ pub mod updater;
 use commands::{
     // package::{Clone, Fetch, Login, Logout, Publish},
     Build,
-    // Clean,
+    Clean,
     Command,
     // Deploy, Init, Lint, New, Prove, Run, Setup, Test, Update, Watch,
 };
@@ -79,6 +79,12 @@ enum CommandOpts {
         #[structopt(flatten)]
         command: Build,
     },
+    #[structopt(about = "Clean the output directory")]
+    Clean {
+        #[structopt(flatten)]
+        command: Clean,
+    },
+
     //
     // #[structopt(about = "Run a program setup")]
     // Setup {
@@ -96,12 +102,6 @@ enum CommandOpts {
     // Run {
     //     #[structopt(flatten)]
     //     command: Run,
-    // },
-    //
-    // #[structopt(about = "Clean the output directory")]
-    // Clean {
-    //     #[structopt(flatten)]
-    //     command: Clean,
     // },
     //
     // #[structopt(about = "Watch for changes of Leo source files")]
@@ -233,11 +233,11 @@ fn run_with_args(opt: Opt) -> Result<()> {
         // CommandOpts::Init { command } => command.try_execute(context),
         // CommandOpts::New { command } => command.try_execute(context),
         CommandOpts::Build { command } => command.try_execute(context),
+        CommandOpts::Clean { command } => command.try_execute(context),
         // CommandOpts::Setup { command } => command.try_execute(context),
         // CommandOpts::Prove { command } => command.try_execute(context),
         // CommandOpts::Test { command } => command.try_execute(context),
         // CommandOpts::Run { command } => command.try_execute(context),
-        // CommandOpts::Clean { command } => command.try_execute(context),
         // CommandOpts::Watch { command } => command.try_execute(context),
         // CommandOpts::Update { command } => command.try_execute(context),
         //

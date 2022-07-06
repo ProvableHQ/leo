@@ -21,7 +21,7 @@ use leo_package::{
     inputs::InputFile,
     // inputs::*,
     // outputs::CircuitFile
-    outputs::{ChecksumFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
+    outputs::{AleoFile, ChecksumFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
@@ -167,31 +167,22 @@ impl Command for Build {
         let program_checksum = program.checksum()?;
 
         // Compile the program.
-        // TODO: Remove when code generation is ready to be integrated into the compiler.
-        // match self.compiler_options.enable_code_generation {
-        //     false => {
-        //         program.compile()?;
-        //     }
-        //     true => {
+        {
+            let (_, bytecode) = program.compile_and_generate_bytecode()?;
+            // // Initialize AVM bytecode.
+            // Process::from_str(&bytecode);
+            //
+            // // Run program todo: run with real inputs.
+            // // Run the `HelloWorld` program with the given inputs.
+            // let first = Value::from_str("1field.public");
+            // let second = Value::from_str("1field.private");
+            // let output = Process::get_function(&Identifier::from_str("main")).unwrap().evaluate(&[first, second]);
+            // println!("program output: {}\n", output.first().unwrap());
 
-        let (_, bytecode) = program.compile_and_generate_bytecode()?;
-        // TODO: Remove when AVM output file format is stabilized.
-        tracing::info!("Printing bytecode...\n");
-        println!("{}", bytecode);
-
-        // {
-        //     // Initialize AVM bytecode.
-        //     Process::from_str(&bytecode);
-        //
-        //     // Run program todo: run with real inputs.
-        //     // Run the `HelloWorld` program with the given inputs.
-        //     let first = Value::from_str("1field.public");
-        //     let second = Value::from_str("1field.private");
-        //     let output = Process::get_function(&Identifier::from_str("main")).unwrap().evaluate(&[first, second]);
-        //     println!("program output: {}\n", output.first().unwrap());
-        // }
-        //     }
-        // }
+            // Write the Aleo file to the output directory.
+            let aleo_file = AleoFile::new(&package_name);
+            aleo_file.write_to(&path, bytecode)?;
+        }
 
         // Generate the program on the constraint system and verify correctness
         {

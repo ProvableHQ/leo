@@ -21,8 +21,6 @@ use std::{
     fmt::{Debug, Display},
 };
 
-// todo (collin): redo these after Mazdak finishes error indexing.
-
 create_messages!(
     /// PackageError enum that represents all the errors for the `leo-package` crate.
     PackageError,
@@ -131,6 +129,14 @@ create_messages!(
     failed_to_read_snapshot_file {
         args: (path: impl Debug),
         msg: format!("Cannot read snapshot file from the provided file path - {:?}", path),
+        help: None,
+    }
+
+    /// For when reading the aleo file failed.
+    @backtraced
+    failed_to_read_aleo_file {
+        args: (path: impl Debug),
+        msg: format!("Cannot read aleo file from the provided file path - {:?}", path),
         help: None,
     }
 
@@ -300,6 +306,22 @@ create_messages!(
     io_error_main_file {
         args: (error: impl ErrorArg),
         msg: format!("IO error main file from the provided file path - {}", error),
+        help: None,
+    }
+
+    /// For when the aleo file has an IO error.
+    @backtraced
+    io_error_aleo_file {
+        args: (error: impl ErrorArg),
+        msg: format!("IO error aleo file from the provided file path - {}", error),
+        help: None,
+    }
+
+    /// For when removing the circuit file failed.
+    @backtraced
+    failed_to_remove_aleo_file {
+        args: (path: impl Debug),
+        msg: format!("failed removing aleo file from the provided file path - {:?}", path),
         help: None,
     }
 
