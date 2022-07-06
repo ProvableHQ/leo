@@ -39,7 +39,6 @@ impl<'a> CodeGenerator<'a> {
         }
     }
 
-
     pub(crate) fn visit_type_with_visibility(&mut self, input: &'a Type, visibility: Option<ParamMode>) -> String {
         let mut return_type = self.visit_type(input);
 

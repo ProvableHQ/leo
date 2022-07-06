@@ -26,20 +26,24 @@ impl<'a> CodeGenerator<'a> {
         let mut program_string = String::new();
 
         // Visit each `Circuit` or `Record` in the Leo AST and produce a bytecode circuit.
-        program_string.push_str(&input
-            .circuits
-            .values()
-            .map(|circuit| self.visit_circuit_or_record(circuit))
-            .join("\n"));
+        program_string.push_str(
+            &input
+                .circuits
+                .values()
+                .map(|circuit| self.visit_circuit_or_record(circuit))
+                .join("\n"),
+        );
 
         program_string.push_str("\n");
 
         // Visit each `Function` in the Leo AST and produce a bytecode function.
-        program_string.push_str(&input
-            .functions
-            .values()
-            .map(|function| self.visit_function(function))
-            .join("\n"));
+        program_string.push_str(
+            &input
+                .functions
+                .values()
+                .map(|function| self.visit_function(function))
+                .join("\n"),
+        );
 
         program_string
     }
@@ -54,24 +58,19 @@ impl<'a> CodeGenerator<'a> {
 
     fn visit_circuit(&mut self, circuit: &'a Circuit) -> String {
         // Add private symbol to composite types.
-        self.composite_mapping.insert(&circuit.identifier.name, String::from("private")); // todo: private by default here.
+        self.composite_mapping
+            .insert(&circuit.identifier.name, String::from("private")); // todo: private by default here.
 
-        let mut output_string =
-            format!("interface {}:\n", circuit.identifier.to_string().to_lowercase()); // todo: check if this is safe from name conflicts.
+        let mut output_string = format!("interface {}:\n", circuit.identifier.to_string().to_lowercase()); // todo: check if this is safe from name conflicts.
 
         // Construct and append the record variables.
         for var in circuit.members.iter() {
             let (name, type_) = match var {
-                CircuitMember::CircuitVariable(name, type_) => (name, type_)
+                CircuitMember::CircuitVariable(name, type_) => (name, type_),
             };
 
-            output_string.push_str(&format!(
-                "    {} as {};\n",
-                name,
-                type_,
-            ))
+            output_string.push_str(&format!("    {} as {};\n", name, type_,))
         }
-
 
         output_string
     }
@@ -79,19 +78,19 @@ impl<'a> CodeGenerator<'a> {
     fn visit_record(&mut self, record: &'a Circuit) -> String {
         // Add record symbol to composite types.
         let mut output_string = String::from("record");
-        self.composite_mapping.insert(&record.identifier.name, output_string.clone());
-        output_string.push_str( &format!(" {}:\n", record.identifier.to_string().to_lowercase())); // todo: check if this is safe from name conflicts.
+        self.composite_mapping
+            .insert(&record.identifier.name, output_string.clone());
+        output_string.push_str(&format!(" {}:\n", record.identifier.to_string().to_lowercase())); // todo: check if this is safe from name conflicts.
 
         // Construct and append the record variables.
         for var in record.members.iter() {
             let (name, type_) = match var {
-                CircuitMember::CircuitVariable(name, type_) => (name, type_)
+                CircuitMember::CircuitVariable(name, type_) => (name, type_),
             };
 
             output_string.push_str(&format!(
                 "    {} as {}.private;\n", // todo: CAUTION private record variables only.
-                name,
-                type_,
+                name, type_,
             ))
         }
 
@@ -115,12 +114,9 @@ impl<'a> CodeGenerator<'a> {
             self.variable_mapping
                 .insert(&input.get_variable().identifier.name, register_string.clone());
 
-            let type_string = self.visit_type_with_visibility(&input.get_variable().type_, Some(input.get_variable().mode()));
-            function_string.push_str(&format!(
-                "    input {} as {};\n",
-                register_string,
-                type_string,
-            ))
+            let type_string =
+                self.visit_type_with_visibility(&input.get_variable().type_, Some(input.get_variable().mode()));
+            function_string.push_str(&format!("    input {} as {};\n", register_string, type_string,))
         }
 
         //  Construct and append the function body.

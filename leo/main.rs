@@ -84,7 +84,6 @@ enum CommandOpts {
         #[structopt(flatten)]
         command: Clean,
     },
-
     //
     // #[structopt(about = "Run a program setup")]
     // Setup {

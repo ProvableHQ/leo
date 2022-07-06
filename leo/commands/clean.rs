@@ -16,7 +16,9 @@
 
 use crate::{commands::Command, context::Context};
 use leo_errors::Result;
-use leo_package::outputs::{AleoFile, ChecksumFile, CircuitFile, ProofFile, ProvingKeyFile, Snapshot, SnapshotFile, VerificationKeyFile};
+use leo_package::outputs::{
+    AleoFile, ChecksumFile, CircuitFile, ProofFile, ProvingKeyFile, Snapshot, SnapshotFile, VerificationKeyFile,
+};
 
 use clap::StructOpt;
 use tracing::span::Span;

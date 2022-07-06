@@ -16,7 +16,10 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{BinaryExpression, BinaryOperation, CallExpression, ErrExpression, Expression, Identifier, TernaryExpression, UnaryExpression, UnaryOperation, LiteralExpression, CircuitInitExpression, AccessExpression, MemberAccess};
+use leo_ast::{
+    AccessExpression, BinaryExpression, BinaryOperation, CallExpression, CircuitInitExpression, ErrExpression,
+    Expression, Identifier, LiteralExpression, MemberAccess, TernaryExpression, UnaryExpression, UnaryOperation,
+};
 
 /// Implement the necessary methods to visit nodes in the AST.
 // Note: We opt for this option instead of using `Visitor` and `Director` because this pass requires
@@ -184,11 +187,7 @@ impl<'a> CodeGenerator<'a> {
 
     fn visit_member_access(&mut self, input: &'a MemberAccess) -> (String, String) {
         let (inner_circuit, _inner_instructions) = self.visit_expression(&input.inner);
-        let member_access_instruction = format!(
-            "{}.{}",
-            inner_circuit,
-            input.name
-        );
+        let member_access_instruction = format!("{}.{}", inner_circuit, input.name);
 
         (member_access_instruction, String::new())
     }
@@ -197,7 +196,7 @@ impl<'a> CodeGenerator<'a> {
         match input {
             AccessExpression::Member(access) => self.visit_member_access(access),
             AccessExpression::AssociatedConstant(_) => todo!(),
-            AccessExpression::AssociatedFunction(_) => todo!()
+            AccessExpression::AssociatedFunction(_) => todo!(),
         }
     }
 

@@ -48,7 +48,7 @@ impl AleoFile {
         path.exists()
     }
 
-    /// Reads the aleo from the given file path if it exists.
+    /// Reads the aleo file from the given file path if it exists.
     pub fn read_from(&self, path: &Path) -> Result<String> {
         let path = self.setup_file_path(path);
 
@@ -57,7 +57,7 @@ impl AleoFile {
         Ok(string)
     }
 
-    /// Writes the given aleo to a file.
+    /// Writes the given aleo string to a file.
     pub fn write_to(&self, path: &Path, aleo: String) -> Result<()> {
         let path = self.setup_file_path(path);
         let mut file = File::create(&path).map_err(PackageError::io_error_aleo_file)?;
