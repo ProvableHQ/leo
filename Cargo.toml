@@ -50,19 +50,19 @@ version = "1.5.3"
 path = "./leo/span"
 version = "1.5.3"
 
-[dependencies.snarkvm-bytecode]
+[dependencies.snarkvm]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "327dd86"
+rev = "18ee4e5"
 
 [dependencies.snarkvm-circuit]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "327dd86"
+rev = "18ee4e5"
 
 [dependencies.backtrace]
 version = "0.3.65"
 
 [dependencies.clap]
-version = "3.2.8"
+version = "3.1"
 features = ["derive", "env"]
 
 [dependencies.color-backtrace]

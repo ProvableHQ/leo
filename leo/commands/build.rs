@@ -25,7 +25,7 @@ use leo_package::{
     source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
-use snarkvm_bytecode::{Identifier, Process, Program, Value};
+use snarkvm::prelude::*;
 use snarkvm_circuit::prelude::*;
 
 use clap::StructOpt;
