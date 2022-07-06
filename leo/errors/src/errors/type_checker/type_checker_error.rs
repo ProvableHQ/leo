@@ -264,4 +264,11 @@ create_messages!(
         msg: format!("The field `{name}` in a `record` must have type `{type_}`."),
         help: None,
     }
+
+    @formatted
+    compare_address {
+        args: (operator: impl Display),
+        msg: format!("Comparison `{operator}` is not supported for the address type."),
+        help: None,
+    }
 );
