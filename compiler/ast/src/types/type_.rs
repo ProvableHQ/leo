@@ -39,8 +39,6 @@ pub enum Type {
     IntegerType(IntegerType),
     /// A reference to a built in type.
     Identifier(Identifier),
-    /// The `Self` type, allowed within `circuit` definitions.
-    SelfType,
 
     /// Placeholder for a type that could not be resolved or was not well-formed.
     /// Will eventually lead to a compile error.
@@ -48,20 +46,6 @@ pub enum Type {
 }
 
 impl Type {
-    ///
-    /// Returns `true` if the self `Type` is the `SelfType`.
-    ///
-    pub fn is_self(&self) -> bool {
-        matches!(self, Type::SelfType)
-    }
-
-    ///
-    /// Returns `true` if the self `Type` is a `Circuit`.
-    ///
-    pub fn is_circuit(&self) -> bool {
-        matches!(self, Type::Identifier(_))
-    }
-
     ///
     /// Returns `true` if the self `Type` is equal to the other `Type`.
     ///
@@ -74,10 +58,9 @@ impl Type {
             | (Type::Field, Type::Field)
             | (Type::Group, Type::Group)
             | (Type::Scalar, Type::Scalar)
-            | (Type::String, Type::String)
-            | (Type::SelfType, Type::SelfType) => true,
+            | (Type::String, Type::String) => true,
             (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(right),
-            (Type::Identifier(left), Type::Identifier(right)) => left.eq(right),
+            (Type::Identifier(left), Type::Identifier(right)) => left.matches(right),
             _ => false,
         }
     }
@@ -92,7 +75,6 @@ impl fmt::Display for Type {
             Type::Group => write!(f, "group"),
             Type::Scalar => write!(f, "scalar"),
             Type::String => write!(f, "string"),
-            Type::SelfType => write!(f, "SelfType"),
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
             Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
             Type::Err => write!(f, "error"),

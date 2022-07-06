@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{GroupValue, Identifier, IntegerType, Node};
+use crate::{Identifier, IntegerType, Node};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -49,23 +49,23 @@ pub use value::*;
 pub enum Expression {
     /// A circuit access expression, e.g., `Foo.bar`.
     Access(AccessExpression),
+    /// An identifier expression.
+    Identifier(Identifier),
+    /// A literal expression.
+    Literal(LiteralExpression),
     /// A binary expression, e.g., `42 + 24`.
     Binary(BinaryExpression),
     /// A call expression, e.g., `my_fun(args)`.
     Call(CallExpression),
-    /// An expression constructing a structure like `Foo { bar: 42, baz }`.
+    /// An expression constructing a circuit like `Foo { bar: 42, baz }`.
     CircuitInit(CircuitInitExpression),
     /// An expression of type "error".
     /// Will result in a compile error eventually.
     Err(ErrExpression),
-    /// An identifier expression.
-    Identifier(Identifier),
     /// A ternary conditional expression `cond ? if_expr : else_expr`.
     Ternary(TernaryExpression),
     /// An unary expression.
     Unary(UnaryExpression),
-    /// A literal expression.
-    Value(ValueExpression),
 }
 
 impl Node for Expression {
@@ -73,14 +73,14 @@ impl Node for Expression {
         use Expression::*;
         match self {
             Access(n) => n.span(),
+            Identifier(n) => n.span(),
+            Literal(n) => n.span(),
             Binary(n) => n.span(),
             Call(n) => n.span(),
             CircuitInit(n) => n.span(),
             Err(n) => n.span(),
-            Identifier(n) => n.span(),
             Ternary(n) => n.span(),
             Unary(n) => n.span(),
-            Value(n) => n.span(),
         }
     }
 
@@ -88,14 +88,14 @@ impl Node for Expression {
         use Expression::*;
         match self {
             Access(n) => n.set_span(span),
+            Identifier(n) => n.set_span(span),
+            Literal(n) => n.set_span(span),
             Binary(n) => n.set_span(span),
             Call(n) => n.set_span(span),
             CircuitInit(n) => n.set_span(span),
             Err(n) => n.set_span(span),
-            Identifier(n) => n.set_span(span),
             Ternary(n) => n.set_span(span),
             Unary(n) => n.set_span(span),
-            Value(n) => n.set_span(span),
         }
     }
 }
@@ -105,14 +105,14 @@ impl fmt::Display for Expression {
         use Expression::*;
         match &self {
             Access(n) => n.fmt(f),
+            Identifier(n) => n.fmt(f),
+            Literal(n) => n.fmt(f),
             Binary(n) => n.fmt(f),
             Call(n) => n.fmt(f),
             CircuitInit(n) => n.fmt(f),
             Err(n) => n.fmt(f),
-            Identifier(n) => n.fmt(f),
             Ternary(n) => n.fmt(f),
             Unary(n) => n.fmt(f),
-            Value(n) => n.fmt(f),
         }
     }
 }

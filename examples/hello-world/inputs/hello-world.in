@@ -1,4 +1,3 @@
 [main]
-a: u8 = 1u8;
-
-[registers]
+r0: field = 1field;
+r1: field = 1field;

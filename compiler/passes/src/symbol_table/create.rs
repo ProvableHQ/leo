@@ -36,22 +36,23 @@ impl<'a> CreateSymbolTable<'a> {
     }
 }
 
-impl<'a> ExpressionVisitor<'a> for CreateSymbolTable<'a> {}
+impl<'a> ExpressionVisitor<'a> for CreateSymbolTable<'a> {
+    type AdditionalInput = ();
+    type Output = ();
+}
 
 impl<'a> StatementVisitor<'a> for CreateSymbolTable<'a> {}
 
 impl<'a> ProgramVisitor<'a> for CreateSymbolTable<'a> {
-    fn visit_function(&mut self, input: &'a Function) -> VisitResult {
+    fn visit_function(&mut self, input: &'a Function) {
         if let Err(err) = self.symbol_table.insert_fn(input.name(), input) {
             self.handler.emit_err(err);
         }
-        VisitResult::SkipChildren
     }
 
-    fn visit_circuit(&mut self, input: &'a Circuit) -> VisitResult {
+    fn visit_circuit(&mut self, input: &'a Circuit) {
         if let Err(err) = self.symbol_table.insert_circuit(input.name(), input) {
             self.handler.emit_err(err);
         }
-        VisitResult::SkipChildren
     }
 }

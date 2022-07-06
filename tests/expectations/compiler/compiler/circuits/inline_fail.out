@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected -> -- got '{'\n    --> compiler-test:7:17\n     |\n   7 | function main() {\n     |                 ^"

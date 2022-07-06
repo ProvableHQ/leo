@@ -16,10 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{
-    BinaryExpression, BinaryOperation, CallExpression, ErrExpression, Expression, Identifier, TernaryExpression,
-    UnaryExpression, UnaryOperation, ValueExpression,
-};
+use leo_ast::{BinaryExpression, BinaryOperation, CallExpression, ErrExpression, Expression, Identifier, TernaryExpression, UnaryExpression, UnaryOperation, LiteralExpression, CircuitInitExpression, AccessExpression, MemberAccess};
 
 /// Implement the necessary methods to visit nodes in the AST.
 // Note: We opt for this option instead of using `Visitor` and `Director` because this pass requires
@@ -28,15 +25,15 @@ use leo_ast::{
 impl<'a> CodeGenerator<'a> {
     pub(crate) fn visit_expression(&mut self, input: &'a Expression) -> (String, String) {
         match input {
-            Expression::Access(_expr) => todo!(),
+            Expression::Access(expr) => self.visit_access(expr),
             Expression::Binary(expr) => self.visit_binary(expr),
             Expression::Call(expr) => self.visit_call(expr),
-            Expression::CircuitInit(_expr) => todo!(),
+            Expression::CircuitInit(expr) => self.visit_circuit_init(expr),
             Expression::Err(expr) => self.visit_err(expr),
             Expression::Identifier(expr) => self.visit_identifier(expr),
             Expression::Ternary(expr) => self.visit_ternary(expr),
             Expression::Unary(expr) => self.visit_unary(expr),
-            Expression::Value(expr) => self.visit_value(expr),
+            Expression::Literal(expr) => self.visit_value(expr),
         }
     }
 
@@ -44,7 +41,7 @@ impl<'a> CodeGenerator<'a> {
         (self.variable_mapping.get(&input.name).unwrap().clone(), String::new())
     }
 
-    fn visit_value(&mut self, input: &'a ValueExpression) -> (String, String) {
+    fn visit_value(&mut self, input: &'a LiteralExpression) -> (String, String) {
         (format!("{}", input), String::new())
     }
 
@@ -133,7 +130,7 @@ impl<'a> CodeGenerator<'a> {
 
         let destination_register = format!("r{}", self.next_register);
         let ternary_instruction = format!(
-            "    ternary {} {} {} into r{};\n",
+            "    ternary {} {} {} into {};\n",
             condition_operand, if_true_operand, if_false_operand, destination_register
         );
 
@@ -149,8 +146,80 @@ impl<'a> CodeGenerator<'a> {
         (destination_register, instructions)
     }
 
-    fn visit_call(&mut self, _input: &'a CallExpression) -> (String, String) {
-        unreachable!("`CallExpression`s should not be in the AST at this phase of compilation.")
+    fn visit_circuit_init(&mut self, input: &'a CircuitInitExpression) -> (String, String) {
+        // Initialize instruction builder strings.
+        let mut instructions = String::new();
+        let mut circuit_init_instruction = format!("    {} ", input.name.to_string().to_lowercase());
+
+        // Visit each circuit member and accumulate instructions from expressions.
+        for member in input.members.iter() {
+            let operand = if let Some(expr) = member.expression.as_ref() {
+                // Visit variable expression.
+                let (variable_operand, variable_instructions) = self.visit_expression(expr);
+                instructions.push_str(&variable_instructions);
+
+                variable_operand
+            } else {
+                // Push operand identifier.
+                let (ident_operand, ident_instructions) = self.visit_identifier(&member.identifier);
+                instructions.push_str(&ident_instructions);
+
+                ident_operand
+            };
+
+            // Push operand name to circuit init instruction.
+            circuit_init_instruction.push_str(&format!("{} ", operand))
+        }
+
+        // Push destination register to circuit init instruction.
+        let destination_register = format!("r{}", self.next_register);
+        circuit_init_instruction.push_str(&format!("into {};\n", destination_register));
+        instructions.push_str(&circuit_init_instruction);
+
+        // Increment the register counter.
+        self.next_register += 1;
+
+        (destination_register, instructions)
+    }
+
+    fn visit_member_access(&mut self, input: &'a MemberAccess) -> (String, String) {
+        let (inner_circuit, _inner_instructions) = self.visit_expression(&input.inner);
+        let member_access_instruction = format!(
+            "{}.{}",
+            inner_circuit,
+            input.name
+        );
+
+        (member_access_instruction, String::new())
+    }
+
+    fn visit_access(&mut self, input: &'a AccessExpression) -> (String, String) {
+        match input {
+            AccessExpression::Member(access) => self.visit_member_access(access),
+            AccessExpression::AssociatedConstant(_) => todo!(),
+            AccessExpression::AssociatedFunction(_) => todo!()
+        }
+    }
+
+    fn visit_call(&mut self, input: &'a CallExpression) -> (String, String) {
+        let mut call_instruction = format!("    {} ", input.function);
+        let mut instructions = String::new();
+
+        for argument in input.arguments.iter() {
+            let (argument, argument_instructions) = self.visit_expression(&argument);
+            call_instruction.push_str(&format!("{} ", argument));
+            instructions.push_str(&argument_instructions);
+        }
+
+        // Push destination register to call instruction.
+        let destination_register = format!("r{}", self.next_register);
+        call_instruction.push_str(&format!("into {};\n", destination_register));
+        instructions.push_str(&call_instruction);
+
+        // Increment the register counter.
+        self.next_register += 1;
+
+        (destination_register, instructions)
     }
 
     fn visit_err(&mut self, _input: &'a ErrExpression) -> (String, String) {

@@ -38,16 +38,14 @@ pub struct Program {
     pub circuits: IndexMap<Identifier, Circuit>,
 }
 
-impl AsRef<Program> for Program {
-    fn as_ref(&self) -> &Program {
-        self
-    }
-}
-
 impl fmt::Display for Program {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (_, function) in self.functions.iter() {
             function.fmt(f)?;
+            writeln!(f,)?;
+        }
+        for (_, circuit) in self.circuits.iter() {
+            circuit.fmt(f)?;
             writeln!(f,)?;
         }
         write!(f, "")
@@ -66,12 +64,12 @@ impl Program {
     }
 
     /// Extract the name of the program.
-    pub fn get_name(&self) -> String {
-        self.name.to_string()
+    pub fn name(&self) -> &str {
+        &self.name
     }
 
     /// Sets the name of the program.
-    pub fn name(mut self, name: String) -> Self {
+    pub fn set_name(mut self, name: String) -> Self {
         self.name = name;
         self
     }

@@ -14,31 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::*;
-use leo_errors::emitter::Handler;
+use crate::{Identifier, Node, Type};
+use leo_span::Span;
 
-use crate::{SymbolTable, TypeChecker};
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-pub(crate) struct Director<'a> {
-    pub(crate) visitor: TypeChecker<'a>,
+/// An access expression to an circuit constant., e.g. `u8::MAX`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AssociatedConstant {
+    /// The inner circuit type.
+    pub ty: Type,
+    /// The circuit constant that is being accessed.
+    pub name: Identifier,
+    /// The span for the entire expression `Foo::bar()`.
+    pub span: Span,
 }
 
-impl<'a> Director<'a> {
-    pub(crate) fn new(symbol_table: &'a mut SymbolTable<'a>, handler: &'a Handler) -> Self {
-        Self {
-            visitor: TypeChecker::new(symbol_table, handler),
-        }
+impl fmt::Display for AssociatedConstant {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}::{}", self.ty, self.name)
     }
 }
 
-impl<'a> VisitorDirector<'a> for Director<'a> {
-    type Visitor = TypeChecker<'a>;
-
-    fn visitor(self) -> Self::Visitor {
-        self.visitor
-    }
-
-    fn visitor_ref(&mut self) -> &mut Self::Visitor {
-        &mut self.visitor
-    }
-}
+crate::simple_node_impl!(AssociatedConstant);

@@ -38,8 +38,8 @@ pub struct SymbolTable<'a> {
 }
 
 impl<'a> SymbolTable<'a> {
-    pub fn check_shadowing(&self, symbol: &Symbol, span: Span) -> Result<()> {
-        if self.functions.contains_key(symbol) {
+    pub fn check_shadowing(&self, symbol: Symbol, span: Span) -> Result<()> {
+        if self.functions.contains_key(&symbol) {
             Err(AstError::shadowed_function(symbol, span).into())
         } else {
             self.variables.check_shadowing(symbol, span)?;
@@ -52,28 +52,33 @@ impl<'a> SymbolTable<'a> {
     }
 
     pub fn insert_fn(&mut self, symbol: Symbol, insert: &'a Function) -> Result<()> {
-        self.check_shadowing(&symbol, insert.span)?;
+        self.check_shadowing(symbol, insert.span)?;
         self.functions.insert(symbol, insert);
         Ok(())
     }
 
     pub fn insert_circuit(&mut self, symbol: Symbol, insert: &'a Circuit) -> Result<()> {
-        if self.circuits.contains_key(&symbol) {
-            // Return an error if the circuit name has already been inserted.
-            return Err(AstError::shadowed_circuit(symbol, insert.span).into());
+        if let Some(existing) = self.circuits.get(&symbol) {
+            // Error if the circuit or record already exists.
+            let err = if existing.is_record {
+                AstError::shadowed_record(symbol, insert.span).into()
+            } else {
+                AstError::shadowed_circuit(symbol, insert.span).into()
+            };
+            return Err(err);
         }
         self.circuits.insert(symbol, insert);
         Ok(())
     }
 
     pub fn insert_variable(&mut self, symbol: Symbol, insert: VariableSymbol<'a>) -> Result<()> {
-        self.check_shadowing(&symbol, insert.span)?;
+        self.check_shadowing(symbol, insert.span)?;
         self.variables.variables.insert(symbol, insert);
         Ok(())
     }
 
-    pub fn lookup_fn(&self, symbol: &Symbol) -> Option<&&'a Function> {
-        self.functions.get(symbol)
+    pub fn lookup_fn(&self, symbol: Symbol) -> Option<&&'a Function> {
+        self.functions.get(&symbol)
     }
 
     pub fn lookup_circuit(&self, symbol: &Symbol) -> Option<&&'a Circuit> {
@@ -99,7 +104,7 @@ impl<'a> SymbolTable<'a> {
     }
 }
 
-impl<'a> Display for SymbolTable<'a> {
+impl Display for SymbolTable<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "SymbolTable")?;
 

@@ -62,7 +62,7 @@ rev = "327dd86"
 version = "0.3.65"
 
 [dependencies.clap]
-version = "3.2.1"
+version = "3.2.8"
 features = ["derive", "env"]
 
 [dependencies.color-backtrace]
@@ -115,7 +115,7 @@ version = "0.5"
 version = "0.1"
 
 [dependencies.tracing-subscriber]
-version = "0.3.11"
+version = "0.3.14"
 features = [ "fmt" ]
 
 [dependencies.zip]
@@ -132,6 +132,9 @@ version = "0.11.2"
 
 [dev-dependencies.test_dir]
 version = "0.2.0"
+
+[build-dependencies.walkdir]
+version = "2"
 
 [features]
 default = [ ]

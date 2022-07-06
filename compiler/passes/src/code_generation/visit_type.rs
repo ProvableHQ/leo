@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::Type;
+use leo_ast::{ParamMode, Type};
 
 impl<'a> CodeGenerator<'a> {
     pub(crate) fn visit_type(&mut self, input: &'a Type) -> String {
@@ -27,10 +27,30 @@ impl<'a> CodeGenerator<'a> {
             | Type::Group
             | Type::Scalar
             | Type::String
-            | Type::IntegerType(..)
-            | Type::SelfType => format!("{}", input),
-            Type::Identifier(_) => unimplemented!("Support for composite types is not yet implemented"),
+            | Type::IntegerType(..) => format!("{}", input),
+            Type::Identifier(ident) => {
+                if let Some(type_) = self.composite_mapping.get(&ident.name) {
+                    format!("{}.{}", ident.to_string().to_lowercase(), type_)
+                } else {
+                    unreachable!("All composite types should be known at this phase of compilation")
+                }
+            }
             Type::Err => unreachable!("Error types should not exist at this phase of compilation"),
         }
+    }
+
+
+    pub(crate) fn visit_type_with_visibility(&mut self, input: &'a Type, visibility: Option<ParamMode>) -> String {
+        let mut return_type = self.visit_type(input);
+
+        if let Type::Identifier(_) = input {
+            // Do not append anything for record and circuit types.
+        } else {
+            // Append `.private` to return type.
+            // todo: CAUTION private by default.
+            return_type.push_str(&format!(".{}", visibility.unwrap_or(ParamMode::Private).to_string()));
+        }
+
+        return_type
     }
 }

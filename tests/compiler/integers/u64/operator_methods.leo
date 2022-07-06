@@ -6,8 +6,6 @@ input_file: inputs/add.in
 
 function main(a: u64, b: u64) -> bool {
     // unary
-    let c: u64 = a.abs();
-    let d: u64 = a.abs_wrapped();
     let h: u64 = a.not();
 
     // binary
@@ -17,9 +15,9 @@ function main(a: u64, b: u64) -> bool {
     let m: u64 = a.div(b);
     let n: u64 = a.div_wrapped(b);
     let o: bool = a.eq(b);
-    let p: bool = a.ge(b);
+    let p: bool = a.gte(b);
     let q: bool = a.gt(b);
-    let r: bool = a.le(b);
+    let r: bool = a.lte(b);
     let s: bool = a.lt(b);
     let t: u64 = a.mul(b);
     let u: u64 = a.mul_wrapped(b);

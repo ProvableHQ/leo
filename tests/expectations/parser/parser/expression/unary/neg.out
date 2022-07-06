@@ -50,7 +50,7 @@ outputs:
         hi: 3
   - Unary:
       receiver:
-        Value:
+        Literal:
           Integer:
             - I8
             - "5"

@@ -48,15 +48,15 @@ not-line-feed-or-carriage-return =
     ; anything but <LF> or <CR>
 
 not-star-or-line-feed-or-carriage-return =
-    %x0-9/ %xB-C / %xD-29 / %x2B-7F / safe-nonascii
+    %x0-9 / %xB-C / %xE-29 / %x2B-7F / safe-nonascii
     ; anything but * or <LF> or <CR>
 
 not-star-or-slash-or-line-feed-or-carriage-return =
-    %x0-9 / %xB-C / %xD-29 / %x2B-2E / %x30-7F / safe-nonascii
+    %x0-9 / %xB-C / %xE-29 / %x2B-2E / %x30-7F / safe-nonascii
     ; anything but * or / or <LF> or <CR>
 
 not-double-quote-or-backslash-or-line-feed-or-carriage-return =
-    %x0-9 / %xB-C / %xD-21 / %x23-5B / %x5D-7F / safe-nonascii
+    %x0-9 / %xB-C / %xE-21 / %x23-5B / %x5D-7F / safe-nonascii
     ; anything but " or \ or <LF> or <CR>
 
 comment = block-comment / end-of-line-comment
@@ -78,6 +78,7 @@ end-of-line-comment = "//" *not-line-feed-or-carriage-return
 
 keyword = %s"address"
         / %s"bool"
+        / %s"circuit"
         / %s"console"
         / %s"const"
         / %s"constant"
@@ -95,6 +96,7 @@ keyword = %s"address"
         / %s"in"
         / %s"let"
         / %s"public"
+        / %s"record"
         / %s"return"
         / %s"scalar"
         / %s"string"
@@ -185,12 +187,14 @@ atomic-literal = numeric-literal
 symbol = "!" / "&&" / "||"
        / "==" / "!="
        / "<" / "<=" / ">" / ">="
+       / "&" / "|" / "^"
+       / "<<" / ">>"
        / "+" / "-" / "*" / "/" / "**"
        / "="
        / "(" / ")"
        / "[" / "]"
        / "{" / "}"
-       / "," / "." / ".." / ";" / ":" / "?"
+       / "," / "." / ".." / ";" / ":" / "::" / "?"
        / "->" / "_"
        / %s")group"
 
@@ -229,7 +233,9 @@ string-type = %s"string"
 
 primitive-type =  boolean-type / arithmetic-type / address-type / string-type
 
-type = primitive-type / identifier
+named-type = primitive-type / identifier
+
+type = named-type
 
 group-coordinate = ( [ "-" ] numeral ) / "+" / "-" / "_"
 
@@ -239,17 +245,36 @@ literal = atomic-literal / affine-group-literal
 
 group-literal = product-group-literal / affine-group-literal
 
-primary-expression = identifier
-                   / literal
+primary-expression = literal
+                   / variable-or-free-constant
+                   / associated-constant
                    / "(" expression ")"
-                   / function-call
+                   / free-function-call
+                   / static-function-call
+                   / circuit-expression
 
-function-call = identifier function-arguments
+variable-or-free-constant = identifier
+
+associated-constant = named-type "::" identifier
+
+free-function-call = identifier function-arguments
+
+static-function-call = named-type "::" identifier function-arguments
 
 function-arguments = "(" [ expression *( "," expression ) [ "," ] ] ")"
 
+circuit-expression = identifier "{" circuit-component-initializer
+                                    *( "," circuit-component-initializer )
+                                    [ "," ] "}"
+
+circuit-component-initializer = identifier
+                              / identifier ":" expression
+
 postfix-expression = primary-expression
+                   / circuit-component-expression
                    / operator-call
+
+circuit-component-expression = postfix-expression "." identifier
 
 operator-call = unary-operator-call / binary-operator-call
 
@@ -277,40 +302,41 @@ shift-expression = additive-expression
                  / shift-expression "<<" additive-expression
                  / shift-expression ">>" additive-expression
 
-bitwise-and-expression = shift-expression
-                       / bitwise-and-expression "&" shift-expression
+conjunctive-expression = shift-expression
+                       / conjunctive-expression "&" shift-expression
 
-bitwise-inclusive-or-expression =
-      bitwise-and-expression
-    / bitwise-inclusive-or-expression "|" bitwise-and-expression
+disjunctive-expression = conjunctive-expression
+                       / disjunctive-expression "|" conjunctive-expression
 
-bitwise-exclusive-or-expression =
-      bitwise-inclusive-or-expression
-    / bitwise-exclusive-or-expression "^" bitwise-inclusive-or-expression
+exclusive-disjunctive-expression =
+      disjunctive-expression
+    / exclusive-disjunctive-expression "^" disjunctive-expression
 
 ordering-expression =
-      bitwise-exclusive-or-expression
-    / bitwise-exclusive-or-expression "<" bitwise-exclusive-or-expression
-    / bitwise-exclusive-or-expression ">" bitwise-exclusive-or-expression
-    / bitwise-exclusive-or-expression "<=" bitwise-exclusive-or-expression
-    / bitwise-exclusive-or-expression ">=" bitwise-exclusive-or-expression
+      exclusive-disjunctive-expression
+    / exclusive-disjunctive-expression "<" exclusive-disjunctive-expression
+    / exclusive-disjunctive-expression ">" exclusive-disjunctive-expression
+    / exclusive-disjunctive-expression "<=" exclusive-disjunctive-expression
+    / exclusive-disjunctive-expression ">=" exclusive-disjunctive-expression
 
 equality-expression = ordering-expression
                     / ordering-expression "==" ordering-expression
                     / ordering-expression "!=" ordering-expression
 
-boolean-and-expression = equality-expression
-                       / boolean-and-expression "&&" equality-expression
+conditional-conjunctive-expression =
+      equality-expression
+    / conditional-conjunctive-expression "&&" equality-expression
 
-boolean-or-expression = boolean-and-expression
-                      / boolean-or-expression "||" boolean-and-expression
+conditional-disjunctive-expression =
+      conditional-conjunctive-expression
+    / conditional-disjunctive-expression "||" conditional-conjunctive-expression
 
-binary-expression = boolean-or-expression
+binary-expression = conditional-disjunctive-expression
 
-conditional-expression = binary-expression
-                       / binary-expression "?" expression ":" expression
+conditional-ternary-expression = binary-expression
+                               / binary-expression "?" expression ":" expression
 
-expression = conditional-expression
+expression = conditional-ternary-expression
 
 statement = return-statement
           / variable-declaration
@@ -365,7 +391,19 @@ function-parameters = function-parameter *( "," function-parameter ) [ "," ]
 function-parameter = [ %s"public" / %s"constant" / %s"const" ]
                      identifier ":" type
 
+circuit-declaration = %s"circuit" "{" circuit-component-declaration
+                                      *( "," circuit-component-declaration )
+                                      [ "," ] "}"
+
+circuit-component-declaration = identifier ":" type
+
+record-declaration = %s"record" "{" circuit-component-declaration
+                                    *( "," circuit-component-declaration )
+                                    [ "," ] "}"
+
 declaration = function-declaration
+            / circuit-declaration
+            / record-declaration
 
 file = *declaration
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -179,17 +179,17 @@ impl Command for Build {
         tracing::info!("Printing bytecode...\n");
         println!("{}", bytecode);
 
-        {
-            // Initialize AVM bytecode.
-            Process::from_str(&bytecode);
-
-            // Run program todo: run with real inputs.
-            // Run the `HelloWorld` program with the given inputs.
-            let first = Value::from_str("1field.public");
-            let second = Value::from_str("1field.private");
-            let output = Process::get_function(&Identifier::from_str("main")).unwrap().evaluate(&[first, second]);
-            println!("program output: {}", output.first().unwrap());
-        }
+        // {
+        //     // Initialize AVM bytecode.
+        //     Process::from_str(&bytecode);
+        //
+        //     // Run program todo: run with real inputs.
+        //     // Run the `HelloWorld` program with the given inputs.
+        //     let first = Value::from_str("1field.public");
+        //     let second = Value::from_str("1field.private");
+        //     let output = Process::get_function(&Identifier::from_str("main")).unwrap().evaluate(&[first, second]);
+        //     println!("program output: {}\n", output.first().unwrap());
+        // }
         //     }
         // }
 

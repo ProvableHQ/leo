@@ -4,7 +4,7 @@ expectation: Pass
 outputs:
   - Binary:
       left:
-        Value:
+        Literal:
           Integer:
             - U8
             - "1"
@@ -12,7 +12,7 @@ outputs:
                 lo: 0
                 hi: 3
       right:
-        Value:
+        Literal:
           Integer:
             - U8
             - "1"
@@ -25,7 +25,7 @@ outputs:
         hi: 9
   - Binary:
       left:
-        Value:
+        Literal:
           Integer:
             - U16
             - "2"
@@ -33,7 +33,7 @@ outputs:
                 lo: 0
                 hi: 4
       right:
-        Value:
+        Literal:
           Integer:
             - U64
             - "3"
@@ -48,7 +48,7 @@ outputs:
       left:
         Binary:
           left:
-            Value:
+            Literal:
               Integer:
                 - U32
                 - "1"
@@ -56,7 +56,7 @@ outputs:
                     lo: 0
                     hi: 4
           right:
-            Value:
+            Literal:
               Integer:
                 - U32
                 - "2"
@@ -68,7 +68,7 @@ outputs:
             lo: 0
             hi: 11
       right:
-        Value:
+        Literal:
           Integer:
             - U32
             - "3"
@@ -83,7 +83,7 @@ outputs:
       left:
         Binary:
           left:
-            Value:
+            Literal:
               Integer:
                 - U8
                 - "1"
@@ -91,7 +91,7 @@ outputs:
                     lo: 0
                     hi: 3
           right:
-            Value:
+            Literal:
               Integer:
                 - U16
                 - "2"
@@ -105,7 +105,7 @@ outputs:
       right:
         Binary:
           left:
-            Value:
+            Literal:
               Integer:
                 - U32
                 - "3"
@@ -113,7 +113,7 @@ outputs:
                     lo: 13
                     hi: 17
           right:
-            Value:
+            Literal:
               Integer:
                 - I64
                 - "4"

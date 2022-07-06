@@ -28,6 +28,8 @@ pub struct CodeGenerator<'a> {
     pub(crate) current_function: Option<&'a Function>,
     /// Mapping of variables to registers.
     pub(crate) variable_mapping: HashMap<&'a Symbol, String>,
+    /// Mapping of composite names to type (`circuit` or `register`).
+    pub(crate) composite_mapping: HashMap<&'a Symbol, String>,
 }
 
 impl<'a> CodeGenerator<'a> {
@@ -38,6 +40,7 @@ impl<'a> CodeGenerator<'a> {
             next_register: 0,
             current_function: None,
             variable_mapping: HashMap::new(),
+            composite_mapping: HashMap::new(),
         }
     }
 }

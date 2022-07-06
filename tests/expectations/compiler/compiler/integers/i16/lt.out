@@ -3,7 +3,7 @@ namespace: Compile
 expectation: Pass
 outputs:
   - output:
-      - initial_input_ast: 384dd543940ee38ba7cb7a6eedbb9e0366070c8909f3e858f628da4a8e7f4795
-      - initial_input_ast: 6681e8c849aebf1cc4ba413fed280d197acea129dbb1df8a9768925546fedf70
+      - initial_input_ast: c1eedaa7c6583b87a4e6bfd9d3698ce378f3fbbed0a87419549f5e4124ce9d40
+      - initial_input_ast: 7b40e77aec02ca9b383339c98fb220828a90859f46c18b24a32ad22fc2884d35
     initial_ast: e6a44b63da2e6d70110b81ffad2b2ee38814f9baae5a19893bbd2bd12a0107c6
-    symbol_table: 1665ab35fbce1d5c3d83bafe311bd810bc5ac8aae9ea78b7a25ff5618d7f3342
+    symbol_table: 7b9a0a38448dc4a3bc8670c59d350d3ef11176a8965827ff5e7cac73afe4b7ad

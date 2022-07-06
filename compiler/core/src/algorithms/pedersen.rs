@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::algorithms::{CoreFunction, BOOL_INT_STRING_TYPES};
+use crate::algorithms::{CoreFunction, BOOL_INT64_STRING_TYPES, BOOL_INT_STRING_TYPES};
 use leo_ast::Type;
 
 pub struct Pedersen64Hash;
@@ -23,7 +23,7 @@ impl CoreFunction for Pedersen64Hash {
     const NUM_ARGS: usize = 1;
 
     fn first_arg_types() -> &'static [Type] {
-        &BOOL_INT_STRING_TYPES
+        &BOOL_INT64_STRING_TYPES
     }
 
     fn return_type() -> Type {
@@ -37,7 +37,7 @@ impl CoreFunction for Pedersen64Commit {
     const NUM_ARGS: usize = 2;
 
     fn first_arg_types() -> &'static [Type] {
-        &BOOL_INT_STRING_TYPES
+        &BOOL_INT64_STRING_TYPES
     }
 
     fn second_arg_types() -> &'static [Type] {

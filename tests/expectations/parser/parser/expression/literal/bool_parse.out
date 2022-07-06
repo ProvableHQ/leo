@@ -2,15 +2,15 @@
 namespace: ParseExpression
 expectation: Pass
 outputs:
-  - Value:
+  - Literal:
       Boolean:
-        - "true"
+        - true
         - span:
             lo: 0
             hi: 4
-  - Value:
+  - Literal:
       Boolean:
-        - "false"
+        - false
         - span:
             lo: 0
             hi: 5

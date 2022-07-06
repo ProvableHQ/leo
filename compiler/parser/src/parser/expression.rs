@@ -15,9 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-
 use leo_errors::{ParserError, Result};
-use leo_span::sym;
+
+use snarkvm_dpc::{prelude::Address, testnet2::Testnet2};
 
 const INT_TYPES: &[Token] = &[
     Token::I8,
@@ -258,10 +258,7 @@ impl ParserContext<'_> {
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// method call expression.
-    fn parse_method_call_expression(&mut self, receiver: Expression) -> Result<Expression> {
-        // Parse the method name.
-        let method = self.expect_ident()?;
-
+    fn parse_method_call_expression(&mut self, receiver: Expression, method: Identifier) -> Result<Expression> {
         // Parse the argument list.
         let (mut args, _, span) = self.parse_expr_tuple()?;
         let span = receiver.span() + span;
@@ -283,35 +280,41 @@ impl ParserContext<'_> {
             }))
         } else {
             // Either an invalid unary/binary operator, or more arguments given.
-            // todo: add circuit member access
-            self.emit_err(ParserError::expr_arbitrary_method_call(span));
+            self.emit_err(ParserError::invalid_method_call(receiver, method, span));
             Ok(Expression::Err(ErrExpression { span }))
         }
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// static access expression.
-    fn parse_static_access_expression(&mut self, circuit_name: Expression) -> Result<Expression> {
+    fn parse_associated_access_expression(&mut self, circuit_name: Expression) -> Result<Expression> {
+        // Parse circuit name expression into circuit type.
+        let circuit_type = if let Expression::Identifier(ident) = circuit_name {
+            Type::Identifier(ident)
+        } else {
+            return Err(ParserError::invalid_associated_access(&circuit_name, circuit_name.span()).into());
+        };
+
         // Parse the circuit member name (can be variable or function name).
         let member_name = self.expect_ident()?;
 
         // Check if there are arguments.
         Ok(Expression::Access(if self.check(&Token::LeftParen) {
             // Parse the arguments
-            let (input, _, end) = self.parse_expr_tuple()?;
+            let (args, _, end) = self.parse_expr_tuple()?;
 
-            // Return the static function access expression.
-            AccessExpression::StaticFunction(StaticFunctionAccess {
+            // Return the circuit function.
+            AccessExpression::AssociatedFunction(AssociatedFunction {
                 span: circuit_name.span() + end,
-                inner: Box::new(circuit_name),
+                ty: circuit_type,
                 name: member_name,
-                input,
+                args,
             })
         } else {
-            // Return the static variable access expression.
-            AccessExpression::StaticVariable(StaticVariableAccess {
+            // Return the circuit constant.
+            AccessExpression::AssociatedConstant(AssociatedConstant {
                 span: circuit_name.span() + member_name.span(),
-                inner: Box::new(circuit_name),
+                ty: circuit_type,
                 name: member_name,
             })
         }))
@@ -333,10 +336,23 @@ impl ParserContext<'_> {
         let mut expr = self.parse_primary_expression()?;
         loop {
             if self.eat(&Token::Dot) {
-                // Eat a method call on a type
-                expr = self.parse_method_call_expression(expr)?
+                // Parse the method name.
+                let name = self.expect_ident()?;
+
+                if self.check(&Token::LeftParen) {
+                    // Eat a method call on a type
+                    expr = self.parse_method_call_expression(expr, name)?
+                } else {
+                    // Eat a circuit member access.
+                    expr = Expression::Access(AccessExpression::Member(MemberAccess {
+                        span: expr.span(),
+                        inner: Box::new(expr),
+                        name,
+                    }))
+                }
             } else if self.eat(&Token::DoubleColon) {
-                expr = self.parse_static_access_expression(expr)?;
+                // Eat a core circuit constant or core circuit function call.
+                expr = self.parse_associated_access_expression(expr)?;
             } else if self.check(&Token::LeftParen) {
                 // Parse a function call that's by itself.
                 let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
@@ -358,9 +374,9 @@ impl ParserContext<'_> {
     /// tuple initialization expression or an affine group literal.
     fn parse_tuple_expression(&mut self) -> Result<Expression> {
         if let Some(gt) = self.eat_group_partial().transpose()? {
-            return Ok(Expression::Value(ValueExpression::Group(Box::new(GroupValue::Tuple(
-                gt,
-            )))));
+            return Ok(Expression::Literal(LiteralExpression::Group(Box::new(
+                GroupLiteral::Tuple(gt),
+            ))));
         }
 
         let (mut tuple, trailing, span) = self.parse_expr_tuple()?;
@@ -485,45 +501,43 @@ impl ParserContext<'_> {
                     // Literal followed by `field`, e.g., `42field`.
                     Some(Token::Field) => {
                         assert_no_whitespace("field")?;
-                        Expression::Value(ValueExpression::Field(value, full_span))
+                        Expression::Literal(LiteralExpression::Field(value, full_span))
                     }
                     // Literal followed by `group`, e.g., `42group`.
                     Some(Token::Group) => {
                         assert_no_whitespace("group")?;
-                        Expression::Value(ValueExpression::Group(Box::new(GroupValue::Single(value, full_span))))
+                        Expression::Literal(LiteralExpression::Group(Box::new(GroupLiteral::Single(
+                            value, full_span,
+                        ))))
                     }
                     // Literal followed by `scalar` e.g., `42scalar`.
                     Some(Token::Scalar) => {
                         assert_no_whitespace("scalar")?;
-                        Expression::Value(ValueExpression::Scalar(value, full_span))
+                        Expression::Literal(LiteralExpression::Scalar(value, full_span))
                     }
                     // Literal followed by other type suffix, e.g., `42u8`.
                     Some(suffix) => {
                         assert_no_whitespace(&suffix.to_string())?;
                         let int_ty = Self::token_to_int_type(suffix).expect("unknown int type token");
-                        Expression::Value(ValueExpression::Integer(int_ty, value, full_span))
+                        Expression::Literal(LiteralExpression::Integer(int_ty, value, full_span))
                     }
                     None => return Err(ParserError::implicit_values_not_allowed(value, span).into()),
                 }
             }
-            Token::True => Expression::Value(ValueExpression::Boolean("true".into(), span)),
-            Token::False => Expression::Value(ValueExpression::Boolean("false".into(), span)),
-            Token::AddressLit(value) => Expression::Value(ValueExpression::Address(value, span)),
-            Token::StaticString(value) => Expression::Value(ValueExpression::String(value, span)),
+            Token::True => Expression::Literal(LiteralExpression::Boolean(true, span)),
+            Token::False => Expression::Literal(LiteralExpression::Boolean(false, span)),
+            Token::AddressLit(addr) => {
+                if addr.parse::<Address<Testnet2>>().is_err() {
+                    self.emit_err(ParserError::invalid_address_lit(&addr, span));
+                }
+                Expression::Literal(LiteralExpression::Address(addr, span))
+            }
+            Token::StaticString(value) => Expression::Literal(LiteralExpression::String(value, span)),
             Token::Ident(name) => {
                 let ident = Identifier { name, span };
                 if !self.disallow_circuit_construction && self.check(&Token::LeftCurly) {
-                    self.parse_circuit_expression(ident)?
-                } else {
-                    Expression::Identifier(ident)
-                }
-            }
-            Token::SelfUpper => {
-                let ident = Identifier {
-                    name: sym::SelfUpper,
-                    span,
-                };
-                if !self.disallow_circuit_construction && self.check(&Token::LeftCurly) {
+                    // Parse circuit and records inits as circuit expressions.
+                    // Enforce circuit or record type later at type checking.
                     self.parse_circuit_expression(ident)?
                 } else {
                     Expression::Identifier(ident)

@@ -49,7 +49,7 @@ impl UnaryOperation {
             sym::neg => Self::Negate,
             sym::not => Self::Not,
             sym::square => Self::Square,
-            sym::sqrt => Self::SquareRoot,
+            sym::square_root => Self::SquareRoot,
             _ => return None,
         })
     }

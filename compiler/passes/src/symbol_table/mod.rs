@@ -17,9 +17,6 @@
 pub mod create;
 pub use create::*;
 
-pub mod director;
-use director::*;
-
 pub mod table;
 pub use table::*;
 
@@ -31,7 +28,7 @@ pub use variable_symbol::*;
 
 use crate::Pass;
 
-use leo_ast::{Ast, ProgramVisitorDirector, VisitorDirector};
+use leo_ast::{Ast, ProgramVisitor};
 use leo_errors::{emitter::Handler, Result};
 
 impl<'a> Pass for CreateSymbolTable<'a> {
@@ -39,10 +36,10 @@ impl<'a> Pass for CreateSymbolTable<'a> {
     type Output = Result<SymbolTable<'a>>;
 
     fn do_pass((ast, handler): Self::Input) -> Self::Output {
-        let mut visitor = Director::new(handler);
+        let mut visitor = CreateSymbolTable::new(handler);
         visitor.visit_program(ast.as_repr());
         handler.last_err()?;
 
-        Ok(visitor.visitor().symbol_table())
+        Ok(visitor.symbol_table())
     }
 }

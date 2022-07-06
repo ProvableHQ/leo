@@ -155,6 +155,14 @@ create_messages!(
         help: None,
     }
 
+    /// For when a user shadows a record.
+    @formatted
+    shadowed_record {
+        args: (record: impl Display),
+        msg: format!("record `{record}` shadowed by"),
+        help: None,
+    }
+
     /// For when a user shadows a variable.
     @formatted
     shadowed_variable {

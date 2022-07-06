@@ -1,6 +1,6 @@
 // CAUTION: Work in progress
 
-circuit Token {
+record Token {
     // The token owner.
     owner: address,
     // The Aleo balance (in gates).
@@ -11,17 +11,18 @@ circuit Token {
 
 circuit Receiver {
     // The token owner.
-    owner: Address,
+    owner: address,
     // The token amount.
     amount: u64,
 }
 
 function mint(r0: address, r1: u64) -> Token {
-    return Token {
+    let t: Token = Token {
         owner: r0,
         balance: 0u64,
         amount: r1,
     };
+    return t;
 }
 
 // The `transfer` function sends the specified number of tokens
@@ -42,7 +43,7 @@ function transfer(r0: Token, r1: Receiver) -> Token {
     let r4: Token = mint(r0.owner, r0.amount);
 
     // return (r3, r4);
-    return r3
+    return r3;
 }
 
 function main() -> u8 {

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Aleo Systems Inc.
+// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -108,7 +108,7 @@ symbols! {
     neg,
     not,
     square,
-    sqrt: "square_root",
+    square_root,
 
     // binary operators
     add,
@@ -138,17 +138,17 @@ symbols! {
     xor,
 
     // core circuits
-    bhp256: "BHP256",
-    bhp512: "BHP512",
-    bhp768: "BHP768",
-    bhp1024: "BHP1024",
+    BHP256,
+    BHP512,
+    BHP768,
+    BHP1024,
     commit,
     hash,
-    ped64: "Pedersen64",
-    ped128: "Pedersen128",
-    psd2: "Poseidon2",
-    psd4: "Poseidon4",
-    psd8: "Poseidon8",
+    Pedersen64,
+    Pedersen128,
+    Poseidon2,
+    Poseidon4,
+    Poseidon8,
 
     // types
     address,
@@ -164,6 +164,7 @@ symbols! {
     i32,
     i64,
     i128,
+    record,
     scalar,
     string,
     u8,
@@ -207,6 +208,12 @@ symbols! {
     test,
     Type: "type",
 
+    public,
+    private,
+    owner,
+    balance,
+
+    // todo: remove these.
     CONTAINER_PSEUDO_CIRCUIT: "$InputContainer",
     REGISTERS_PSEUDO_CIRCUIT: "$InputRegister",
     RECORD_PSEUDO_CIRCUIT: "$InputRecord",
@@ -215,11 +222,8 @@ symbols! {
 
     // input file
     registers,
-    record,
     state,
     state_leaf,
-    public,
-    private,
 }
 
 /// An interned string.

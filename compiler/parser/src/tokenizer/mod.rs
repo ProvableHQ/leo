@@ -28,11 +28,8 @@ pub(crate) use self::token::*;
 pub(crate) mod lexer;
 pub(crate) use self::lexer::*;
 
-use leo_errors::{ParserError, Result};
-use leo_span::{
-    span::{BytePos, Pos},
-    Span,
-};
+use leo_errors::Result;
+use leo_span::span::{BytePos, Pos, Span};
 
 /// Creates a new vector of spanned tokens from a given file path and source code text.
 pub(crate) fn tokenize(input: &str, start_pos: BytePos) -> Result<Vec<SpannedToken>> {
@@ -42,24 +39,20 @@ pub(crate) fn tokenize(input: &str, start_pos: BytePos) -> Result<Vec<SpannedTok
 /// Yields spanned tokens from the given source code text.
 ///
 /// The `lo` byte position determines where spans will start.
-pub(crate) fn tokenize_iter(input: &str, mut lo: BytePos) -> impl '_ + Iterator<Item = Result<SpannedToken>> {
-    let mut index = 0usize;
+pub(crate) fn tokenize_iter(mut input: &str, mut lo: BytePos) -> impl '_ + Iterator<Item = Result<SpannedToken>> {
     iter::from_fn(move || {
-        while input.len() > index {
-            let (token_len, token) = match Token::eat(&input[index..]) {
+        while !input.is_empty() {
+            let (token_len, token) = match Token::eat(input) {
                 Err(e) => return Some(Err(e)),
                 Ok(t) => t,
             };
-            index += token_len;
+            input = &input[token_len..];
 
             let span = Span::new(lo, lo + BytePos::from_usize(token_len));
             lo = span.hi;
 
             match token {
                 Token::WhiteSpace => continue,
-                Token::AddressLit(address) if !check_address(&address) => {
-                    return Some(Err(ParserError::invalid_address_lit(address, span).into()));
-                }
                 _ => return Some(Ok(SpannedToken { token, span })),
             }
         }

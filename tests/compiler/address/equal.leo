@@ -3,7 +3,6 @@ namespace: Compile
 expectation: Pass
 input_file:
  - inputs/address1.in
- - inputs/address2.in
 */
 
 function main(x: address) -> bool {
