@@ -174,7 +174,7 @@ impl<'a> Compiler<'a> {
         self.parse_program()?;
         let symbol_table = self.compiler_stages()?;
 
-        let bytecode = CodeGenerator::do_pass((&self.ast, &self.handler))?;
+        let bytecode = CodeGenerator::do_pass((&self.ast, self.handler))?;
 
         Ok((symbol_table, bytecode))
     }

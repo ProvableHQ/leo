@@ -17,6 +17,7 @@
 use crate::CodeGenerator;
 
 use leo_ast::{ParamMode, Type};
+use std::fmt::Write as _;
 
 impl<'a> CodeGenerator<'a> {
     pub(crate) fn visit_type(&mut self, input: &'a Type) -> String {
@@ -47,7 +48,7 @@ impl<'a> CodeGenerator<'a> {
         } else {
             // Append `.private` to return type.
             // todo: CAUTION private by default.
-            return_type.push_str(&format!(".{}", visibility.unwrap_or(ParamMode::Private).to_string()));
+            write!(return_type, ".{}", visibility.unwrap_or(ParamMode::Private)).expect("failed to write to string");
         }
 
         return_type

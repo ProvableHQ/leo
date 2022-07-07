@@ -86,10 +86,6 @@ impl Api {
         }
     }
 
-    pub fn host(&self) -> &str {
-        &*self.host
-    }
-
     /// Returns the token for bearer auth, otherwise None.
     /// The [`auth_token`] should be passed into the Api through Context.
     pub fn auth_token(&self) -> Option<String> {

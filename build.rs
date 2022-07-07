@@ -43,7 +43,8 @@ fn compare_license_text(path: &Path, expected_lines: &[&str]) {
     let reader = BufReader::new(file);
 
     for (i, (file_line, expected_line)) in reader.lines().zip(expected_lines).enumerate() {
-        let file_line = file_line.expect(&format!("Can't read line {} in file \"{}\"!", i + 1, path.display()));
+        let file_line =
+            file_line.unwrap_or_else(|_| panic!("Can't read line {} in file \"{}\"!", i + 1, path.display()));
 
         assert!(
             &file_line == expected_line,
@@ -75,7 +76,7 @@ fn check_file_licenses<P: AsRef<Path>>(path: P) {
 
         // Check all files with the ".rs" extension.
         if entry_type.is_file() && entry.file_name().to_str().unwrap_or("").ends_with(".rs") {
-            compare_license_text(&entry.path(), &license_lines);
+            compare_license_text(entry.path(), &license_lines);
         }
     }
 

@@ -25,7 +25,6 @@ use leo_package::{
     source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
-use snarkvm::prelude::*;
 use snarkvm_circuit::prelude::*;
 
 use clap::StructOpt;
@@ -159,7 +158,7 @@ impl Command for Build {
             &handler,
             main_file_path,
             output_directory,
-            Some(self.compiler_options.clone().into()),
+            Some(self.compiler_options.into()),
         );
         program.parse_input(input_path.to_path_buf())?;
 

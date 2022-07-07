@@ -55,7 +55,7 @@ impl<'a> CodeGenerator<'a> {
             true => {
                 let (operand, expression_instructions) = self.visit_expression(&input.value);
                 self.variable_mapping
-                    .insert(&input.variable_names[0].identifier.name, operand.clone());
+                    .insert(&input.variable_names[0].identifier.name, operand);
                 expression_instructions
             }
         }

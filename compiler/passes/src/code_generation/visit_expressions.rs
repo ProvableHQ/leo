@@ -15,11 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::CodeGenerator;
-
 use leo_ast::{
     AccessExpression, BinaryExpression, BinaryOperation, CallExpression, CircuitInitExpression, ErrExpression,
     Expression, Identifier, LiteralExpression, MemberAccess, TernaryExpression, UnaryExpression, UnaryOperation,
 };
+
+use std::fmt::Write as _;
 
 /// Implement the necessary methods to visit nodes in the AST.
 // Note: We opt for this option instead of using `Visitor` and `Director` because this pass requires
@@ -171,12 +172,12 @@ impl<'a> CodeGenerator<'a> {
             };
 
             // Push operand name to circuit init instruction.
-            circuit_init_instruction.push_str(&format!("{} ", operand))
+            write!(circuit_init_instruction, "{} ", operand).expect("failed to write to string");
         }
 
         // Push destination register to circuit init instruction.
         let destination_register = format!("r{}", self.next_register);
-        circuit_init_instruction.push_str(&format!("into {};\n", destination_register));
+        writeln!(circuit_init_instruction, "into {};", destination_register).expect("failed to write to string");
         instructions.push_str(&circuit_init_instruction);
 
         // Increment the register counter.
@@ -205,14 +206,14 @@ impl<'a> CodeGenerator<'a> {
         let mut instructions = String::new();
 
         for argument in input.arguments.iter() {
-            let (argument, argument_instructions) = self.visit_expression(&argument);
-            call_instruction.push_str(&format!("{} ", argument));
+            let (argument, argument_instructions) = self.visit_expression(argument);
+            write!(call_instruction, "{} ", argument).expect("failed to write to string");
             instructions.push_str(&argument_instructions);
         }
 
         // Push destination register to call instruction.
         let destination_register = format!("r{}", self.next_register);
-        call_instruction.push_str(&format!("into {};\n", destination_register));
+        writeln!(call_instruction, "into {};", destination_register).expect("failed to write to string");
         instructions.push_str(&call_instruction);
 
         // Increment the register counter.

@@ -19,7 +19,7 @@ use crate::CodeGenerator;
 use leo_ast::{Circuit, CircuitMember, Function, Program};
 
 use itertools::Itertools;
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Write as _};
 
 impl<'a> CodeGenerator<'a> {
     pub(crate) fn visit_program(&mut self, input: &'a Program) -> String {
@@ -34,7 +34,7 @@ impl<'a> CodeGenerator<'a> {
                 .join("\n"),
         );
 
-        program_string.push_str("\n");
+        program_string.push('\n');
 
         // Visit each `Function` in the Leo AST and produce a bytecode function.
         program_string.push_str(
@@ -69,7 +69,7 @@ impl<'a> CodeGenerator<'a> {
                 CircuitMember::CircuitVariable(name, type_) => (name, type_),
             };
 
-            output_string.push_str(&format!("    {} as {};\n", name, type_,))
+            writeln!(output_string, "    {} as {};", name, type_,).expect("failed to write to string");
         }
 
         output_string
@@ -80,7 +80,8 @@ impl<'a> CodeGenerator<'a> {
         let mut output_string = String::from("record");
         self.composite_mapping
             .insert(&record.identifier.name, output_string.clone());
-        output_string.push_str(&format!(" {}:\n", record.identifier.to_string().to_lowercase())); // todo: check if this is safe from name conflicts.
+        writeln!(output_string, " {}:", record.identifier.to_string().to_lowercase())
+            .expect("failed to write to string"); // todo: check if this is safe from name conflicts.
 
         // Construct and append the record variables.
         for var in record.members.iter() {
@@ -88,10 +89,12 @@ impl<'a> CodeGenerator<'a> {
                 CircuitMember::CircuitVariable(name, type_) => (name, type_),
             };
 
-            output_string.push_str(&format!(
-                "    {} as {}.private;\n", // todo: CAUTION private record variables only.
+            writeln!(
+                output_string,
+                "    {} as {}.private;", // todo: CAUTION private record variables only.
                 name, type_,
-            ))
+            )
+            .expect("failed to write to string");
         }
 
         output_string
@@ -116,7 +119,8 @@ impl<'a> CodeGenerator<'a> {
 
             let type_string =
                 self.visit_type_with_visibility(&input.get_variable().type_, Some(input.get_variable().mode()));
-            function_string.push_str(&format!("    input {} as {};\n", register_string, type_string,))
+            writeln!(function_string, "    input {} as {};", register_string, type_string,)
+                .expect("failed to write to string");
         }
 
         //  Construct and append the function body.

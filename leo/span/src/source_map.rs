@@ -429,7 +429,7 @@ fn analyze_source_file(src: &str, source_file_start_pos: BytePos) -> (Vec<BytePo
             // The slow path:
             // This is either ASCII control character "DEL" or the beginning of
             // a multibyte char. Just decode to `char`.
-            let c = (&src[i..]).chars().next().unwrap();
+            let c = (src[i..]).chars().next().unwrap();
             char_len = c.len_utf8();
 
             if char_len > 1 {
