@@ -33,8 +33,6 @@ pub struct TypeChecker<'a> {
     pub(crate) algorithms_types: IndexSet<Symbol>,
 }
 
-const ADDRESS_TYPE: Type = Type::Address;
-
 const BOOLEAN_TYPE: Type = Type::Boolean;
 
 const FIELD_TYPE: Type = Type::Field;
@@ -42,8 +40,6 @@ const FIELD_TYPE: Type = Type::Field;
 const GROUP_TYPE: Type = Type::Group;
 
 const SCALAR_TYPE: Type = Type::Scalar;
-
-const STRING_TYPE: Type = Type::String;
 
 const INT_TYPES: [Type; 10] = [
     Type::IntegerType(IntegerType::I8),
@@ -102,22 +98,9 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
-    /// Emits an error to the handler if the `expected` type is not equal to the `actual` type.
-    /// Use this method when you know the expected type.
-    /// `span` should be the location of the expected type.
-    pub(crate) fn check_expected_type(&mut self, actual: &Option<Type>, expected: Type, span: Span) -> Type {
-        if let Some(actual) = actual {
-            if !actual.eq_flat(&expected) {
-                self.emit_err(TypeCheckerError::type_should_be(actual, expected, span));
-            }
-        }
-
-        expected
-    }
-
-    /// Emits an error to the handler if the `expected` type is not equal to the `actual` type.
     /// Use this method when you know the actual type.
-    pub(crate) fn check_expected_option(&mut self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
+    /// Emits an error to the handler if the `actual` type is not equal to the `expected` type.
+    pub(crate) fn assert_and_return_type(&mut self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
         if let Some(expected) = expected {
             if !actual.eq_flat(expected) {
                 self.emit_err(TypeCheckerError::type_should_be(actual, expected, span));
@@ -147,14 +130,63 @@ impl<'a> TypeChecker<'a> {
             }
         }
     }
-
-    /// Emits an error to the error handler if the given type is not equal to any of the expected types.
-    pub(crate) fn assert_one_of_types(&self, type_: &Option<Type>, expected: &[Type], span: Span) {
+    /// Emits an error to the error handler if the `actual` type is not equal to the `expected` type.
+    pub(crate) fn assert_type(&self, actual: &Option<Type>, expected: &Type, span: Span) {
         self.check_type(
-            | type_: &Type | expected.iter().any(|t: &Type| t == type_),
+            | actual: &Type | actual.eq_flat(expected),
+            expected.to_string(),
+            actual,
+            span,
+        )
+    }
+
+    /// Emits an error to the error handler if the actual type is not equal to any of the expected types.
+    pub(crate) fn assert_one_of_types(&self, actual: &Option<Type>, expected: &[Type], span: Span) {
+        self.check_type(
+            | actual: &Type | expected.iter().any(|t: &Type| t == actual),
             types_string(expected),
-            type_,
+            actual,
             span
+        )
+    }
+
+    /// Emits an error to the handler if the given type is not a boolean.
+    pub(crate) fn assert_bool_type(&self, type_: &Option<Type>, span: Span) {
+        self.check_type(
+            | type_: &Type | BOOLEAN_TYPE.eq(type_),
+            BOOLEAN_TYPE.to_string(),
+            type_,
+            span,
+        )
+    }
+
+    /// Emits an error to the handler if the given type is not a field.
+    pub(crate) fn assert_field_type(&self, type_: &Option<Type>, span: Span) {
+        self.check_type(
+            | type_: &Type | FIELD_TYPE.eq(type_),
+            FIELD_TYPE.to_string(),
+            type_,
+            span,
+        )
+    }
+
+    /// Emits an error to the handler if the given type is not a group.
+    pub(crate) fn assert_group_type(&self, type_: &Option<Type>, span: Span) {
+        self.check_type(
+            | type_: &Type | GROUP_TYPE.eq(type_),
+            GROUP_TYPE.to_string(),
+            type_,
+            span,
+        )
+    }
+
+    /// Emits an error to the handler if the given type is not a scalar.
+    pub(crate) fn assert_scalar_type(&self, type_: &Option<Type>, span: Span) {
+        self.check_type(
+            | type_: &Type | SCALAR_TYPE.eq(type_),
+            SCALAR_TYPE.to_string(),
+            type_,
+            span,
         )
     }
 
@@ -241,6 +273,24 @@ impl<'a> TypeChecker<'a> {
                 FIELD_TYPE,
                 GROUP_TYPE,
                 types_string(&INT_TYPES),
+            ),
+            type_,
+            span,
+        )
+    }
+
+    /// Emits an error to the handler if the given type is not a field, group, or signed integer.
+    pub(crate) fn assert_field_group_signed_int_type(&self, type_: &Option<Type>, span: Span) {
+        self.check_type(
+            | type_: &Type |
+                FIELD_TYPE.eq(type_)
+                    | GROUP_TYPE.eq(type_)
+                    | SIGNED_INT_TYPES.contains(type_),
+            format!(
+                "{}, {}, {}",
+                FIELD_TYPE,
+                GROUP_TYPE,
+                types_string(&SIGNED_INT_TYPES),
             ),
             type_,
             span,
