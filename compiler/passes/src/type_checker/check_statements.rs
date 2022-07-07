@@ -64,7 +64,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             Expression::Identifier(id) => id,
             _ => {
                 self.handler
-                    .emit_err(TypeCheckerError::invalid_assignment_target(input.place.span()).into());
+                    .emit_err(TypeCheckerError::invalid_assignment_target(input.place.span()));
                 return;
             }
         };
@@ -74,17 +74,17 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             match &var.declaration {
                 Declaration::Const => self
                     .handler
-                    .emit_err(TypeCheckerError::cannont_assign_to_const_var(var_name, var.span).into()),
+                    .emit_err(TypeCheckerError::cannont_assign_to_const_var(var_name, var.span)),
                 Declaration::Input(ParamMode::Const) => self
                     .handler
-                    .emit_err(TypeCheckerError::cannont_assign_to_const_input(var_name, var.span).into()),
+                    .emit_err(TypeCheckerError::cannont_assign_to_const_input(var_name, var.span)),
                 _ => {}
             }
 
             Some(var.type_)
         } else {
             self.handler
-                .emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span).into());
+                .emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span));
 
             None
         };

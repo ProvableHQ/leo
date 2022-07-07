@@ -26,10 +26,11 @@ use std::collections::HashSet;
 
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_function(&mut self, input: &'a Function) {
-        let prev_st = std::mem::take(&mut self.symbol_table);
+        // Retrieve the scope associated with the function and set it as the current scope.
+        let previous_symbol_table = std::mem::take(&mut self.symbol_table);
         self.symbol_table
-            .swap(prev_st.borrow().get_fn_scope(&input.name()).unwrap());
-        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
+            .swap(previous_symbol_table.borrow().get_fn_scope(&input.name()).unwrap());
+        self.symbol_table.borrow_mut().parent = Some(Box::new(previous_symbol_table.into_inner()));
 
         self.has_return = false;
         self.parent = Some(input.name());
@@ -37,7 +38,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             let input_var = i.get_variable();
             self.check_ident_type(&Some(input_var.type_));
 
-            // Check for conflicting variable names.
+            // Insert each input variable into the symbol table while checking for conflicting variable names.
             if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
                 input_var.identifier.name,
                 VariableSymbol {
@@ -53,22 +54,24 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         if !self.has_return {
             self.handler
-                .emit_err(TypeCheckerError::function_has_no_return(input.name(), input.span()).into());
+                .emit_err(TypeCheckerError::function_has_no_return(input.name(), input.span()));
         }
 
-        let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        self.symbol_table.swap(prev_st.get_fn_scope(&input.name()).unwrap());
-        self.symbol_table = RefCell::new(prev_st);
+        // Restore the previous scope.
+        let previous_symbol_table = *self.symbol_table.borrow_mut().parent.take().unwrap();
+        // TODO: Is this swap necessary?
+        self.symbol_table
+            .swap(previous_symbol_table.get_fn_scope(&input.name()).unwrap());
+        self.symbol_table = RefCell::new(previous_symbol_table);
     }
 
     fn visit_circuit(&mut self, input: &'a Circuit) {
         // Check for conflicting circuit/record member names.
         let mut used = HashSet::new();
         if !input.members.iter().all(|member| used.insert(member.name())) {
-            self.handler.emit_err(if input.is_record {
-                TypeCheckerError::duplicate_record_variable(input.name(), input.span()).into()
-            } else {
-                TypeCheckerError::duplicate_circuit_member(input.name(), input.span()).into()
+            self.handler.emit_err(match input.is_record {
+                true => TypeCheckerError::duplicate_record_variable(input.name(), input.span()),
+                false => TypeCheckerError::duplicate_circuit_member(input.name(), input.span()),
             });
         }
 
@@ -81,12 +84,18 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             {
                 Some((_, actual_ty)) if expected_ty.eq_flat(actual_ty) => {} // All good, found + right type!
                 Some((field, _)) => {
-                    self.handler
-                        .emit_err(TypeCheckerError::record_var_wrong_type(field, expected_ty, input.span()).into());
+                    self.handler.emit_err(TypeCheckerError::record_var_wrong_type(
+                        field,
+                        expected_ty,
+                        input.span(),
+                    ));
                 }
                 None => {
-                    self.handler
-                        .emit_err(TypeCheckerError::required_record_variable(need, expected_ty, input.span()).into());
+                    self.handler.emit_err(TypeCheckerError::required_record_variable(
+                        need,
+                        expected_ty,
+                        input.span(),
+                    ));
                 }
             };
             check_has_field(sym::owner, Type::Address);

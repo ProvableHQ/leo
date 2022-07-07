@@ -36,8 +36,8 @@ impl<'a> Pass for TypeChecker<'a> {
     type Input = (&'a Ast, &'a Handler, SymbolTable);
     type Output = Result<SymbolTable>;
 
-    fn do_pass((ast, handler, st): Self::Input) -> Self::Output {
-        let mut visitor = TypeChecker::new(st, handler);
+    fn do_pass((ast, handler, symbol_table): Self::Input) -> Self::Output {
+        let mut visitor = TypeChecker::new(symbol_table, handler);
         visitor.visit_program(ast.as_repr());
         handler.last_err()?;
 

@@ -107,7 +107,7 @@ impl<'a> TypeChecker<'a> {
 
     /// Emits a type checker error.
     pub(crate) fn emit_err(&self, err: TypeCheckerError) {
-        self.handler.emit_err(err.into());
+        self.handler.emit_err(err);
     }
 
     /// Emits an error if the given type conflicts with a core library type.
