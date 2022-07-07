@@ -62,8 +62,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_circuit(&mut self, input: &'a Circuit) {
-        // Check for conflicting circuit member names.
-        // TODO: Do we need this check if this is done in shadowing?
+        // Check for conflicting circuit/record member names.
         let mut used = HashSet::new();
         if !input.members.iter().all(|member| used.insert(member.name())) {
             self.handler.emit_err(if input.is_record {
