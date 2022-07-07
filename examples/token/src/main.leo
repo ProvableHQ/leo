@@ -4,7 +4,7 @@ record Token {
     // The token owner.
     owner: address,
     // The Aleo balance (in gates).
-    balance: u64,
+    gates: u64,
     // The token amount.
     amount: u64,
 }
@@ -19,7 +19,7 @@ circuit Receiver {
 function mint(r0: address, r1: u64) -> Token {
     return Token {
         owner: r0,
-        balance: 0u64,
+        gates: 0u64,
         amount: r1,
     };
 }
