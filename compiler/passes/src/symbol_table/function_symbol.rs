@@ -19,11 +19,16 @@ use leo_span::Span;
 
 use crate::SymbolTable;
 
+/// An entry for a function in the symbol table.
 #[derive(Clone, Debug)]
 pub struct FunctionSymbol {
+    /// The index associated with the scope in the parent symbol table.
     pub(crate) id: usize,
+    /// The output type of the function.
     pub(crate) output: Type,
+    /// The `Span` associated with the function.
     pub(crate) span: Span,
+    /// The inputs to the function.
     pub(crate) input: Vec<FunctionInput>,
 }
 

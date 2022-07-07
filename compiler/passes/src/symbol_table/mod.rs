@@ -35,6 +35,7 @@ impl<'a> Pass for CreateSymbolTable<'a> {
     type Input = (&'a Ast, &'a Handler);
     type Output = Result<SymbolTable>;
 
+    /// Runs the compiler pass.
     fn do_pass((ast, handler): Self::Input) -> Self::Output {
         let mut visitor = CreateSymbolTable::new(handler);
         visitor.visit_program(ast.as_repr());

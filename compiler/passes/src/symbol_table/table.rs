@@ -29,7 +29,7 @@ pub struct SymbolTable {
     /// The parent scope if it exists.
     /// For example if we are in a if block inside a function.
     pub(crate) parent: Option<Box<SymbolTable>>,
-    /// Functions represents the name of each function mapped to the Ast's function definition.
+    /// Functions represents the name of each function mapped to the AST's function definition.
     /// This field is populated at a first pass.
     pub functions: IndexMap<Symbol, FunctionSymbol>,
     /// Maps circuit names to circuit definitions.
@@ -38,13 +38,15 @@ pub struct SymbolTable {
     /// The variables defined in a scope.
     /// This field is populated as necessary.
     pub(crate) variables: IndexMap<Symbol, VariableSymbol>,
-    /// The index of the current scope
+    /// The index of the current scope.
     pub(crate) scope_index: usize,
-    /// The subscopes of this scope
+    /// The sub-scopes of this scope.
     pub(crate) scopes: Vec<RefCell<SymbolTable>>,
 }
 
 impl SymbolTable {
+    /// Recursively checks if the symbol table contains an entry for the given symbol.
+    /// Leo does not allow any variable shadowing or overlap between different symbols.
     pub fn check_shadowing(&self, symbol: Symbol, span: Span) -> Result<()> {
         if self.variables.contains_key(&symbol) {
             Err(AstError::shadowed_variable(symbol, span).into())
@@ -62,12 +64,15 @@ impl SymbolTable {
         }
     }
 
+    /// Returns the current scope index.
+    /// Increments the scope index.
     pub fn scope_index(&mut self) -> usize {
         let index = self.scope_index;
         self.scope_index += 1;
         index
     }
 
+    /// Inserts a function into the symbol table.
     pub fn insert_fn(&mut self, symbol: Symbol, insert: &Function) -> Result<()> {
         self.check_shadowing(symbol, insert.span)?;
         let id = self.scope_index();
@@ -76,23 +81,27 @@ impl SymbolTable {
         Ok(())
     }
 
+    /// Inserts a circuit into the symbol table.
     pub fn insert_circuit(&mut self, symbol: Symbol, insert: &Circuit) -> Result<()> {
         self.check_shadowing(symbol, insert.span)?;
         self.circuits.insert(symbol, insert.clone());
         Ok(())
     }
 
+    /// Inserts a variable into the symbol table.
     pub fn insert_variable(&mut self, symbol: Symbol, insert: VariableSymbol) -> Result<()> {
         self.check_shadowing(symbol, insert.span)?;
         self.variables.insert(symbol, insert);
         Ok(())
     }
 
+    /// Creates a new scope for the block and stores it in the symbol table.
     pub fn insert_block(&mut self) -> usize {
         self.scopes.push(RefCell::new(Default::default()));
         self.scope_index()
     }
 
+    /// Attempts to lookup a function in the symbol table.
     pub fn lookup_fn(&self, symbol: &Symbol) -> Option<&FunctionSymbol> {
         if let Some(func) = self.functions.get(symbol) {
             Some(func)
@@ -103,6 +112,7 @@ impl SymbolTable {
         }
     }
 
+    /// Attempts to lookup a circuit in the symbol table.
     pub fn lookup_circuit(&self, symbol: &Symbol) -> Option<&Circuit> {
         if let Some(circ) = self.circuits.get(symbol) {
             Some(circ)
@@ -113,6 +123,7 @@ impl SymbolTable {
         }
     }
 
+    /// Attempts to lookup a variable in the symbol table.
     pub fn lookup_variable(&self, symbol: &Symbol) -> Option<&VariableSymbol> {
         if let Some(var) = self.variables.get(symbol) {
             Some(var)
@@ -141,6 +152,7 @@ impl SymbolTable {
         }
     }
 
+    /// Returns a mutable reference to the `VariableSymbol` if it exists in the symbol table.
     pub fn lookup_variable_mut(&mut self, symbol: &Symbol) -> Option<&mut VariableSymbol> {
         if let Some(var) = self.variables.get_mut(symbol) {
             Some(var)
@@ -151,6 +163,7 @@ impl SymbolTable {
         }
     }
 
+    /// Returns the scope associated with the function symbol, if it exists in the symbol table.
     pub fn get_fn_scope(&self, symbol: &Symbol) -> Option<&RefCell<Self>> {
         if let Some(func) = self.functions.get(symbol) {
             self.scopes.get(func.id)
@@ -161,6 +174,7 @@ impl SymbolTable {
         }
     }
 
+    /// Returns the scope associated with `index`, if it exists in the symbol table.
     pub fn get_block_scope(&self, index: usize) -> Option<&RefCell<Self>> {
         self.scopes.get(index)
     }

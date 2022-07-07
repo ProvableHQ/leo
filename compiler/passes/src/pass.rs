@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-/// A pass consuming a `Program` and possibly returning an `Ast`.
+/// A compiler pass consuming `Self::Input` and returning `Self::Output`.
 pub trait Pass {
     type Input;
     type Output;
 
+    /// Runs the compiler pass.
     fn do_pass(input: Self::Input) -> Self::Output;
 }
