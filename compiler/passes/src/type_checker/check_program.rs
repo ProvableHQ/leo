@@ -36,7 +36,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.parent = Some(input.name());
         input.input.iter().for_each(|i| {
             let input_var = i.get_variable();
-            self.check_ident_type(&Some(input_var.type_));
+            self.check_core_type_conflict(&Some(input_var.type_));
 
             // Insert each input variable into the symbol table while checking for conflicting variable names.
             if let Err(err) = self.symbol_table.borrow_mut().insert_variable(

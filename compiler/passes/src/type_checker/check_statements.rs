@@ -23,26 +23,25 @@ use std::cell::RefCell;
 
 impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_return(&mut self, input: &'a ReturnStatement) {
-        // we can safely unwrap all self.parent instances because
-        // statements should always have some parent block
+        // We can safely unwrap all self.parent instances because
+        // `ReturnStatement`s should always have some parent block.
         let parent = self.parent.unwrap();
 
         let return_type = &self.symbol_table.borrow().lookup_fn(&parent).map(|f| f.output);
-        self.check_ident_type(return_type);
+        self.check_core_type_conflict(return_type);
         self.has_return = true;
 
         self.visit_expression(&input.expression, return_type);
     }
 
     fn visit_definition(&mut self, input: &'a DefinitionStatement) {
-        let declaration = if input.declaration_type == Declare::Const {
-            Declaration::Const
-        } else {
-            Declaration::Mut
+        let declaration = match input.declaration_type {
+            Declare::Const => Declaration::Const,
+            _ => Declaration::Mut,
         };
 
         input.variable_names.iter().for_each(|v| {
-            self.check_ident_type(&Some(input.type_));
+            self.check_core_type_conflict(&Some(input.type_));
 
             self.visit_expression(&input.value, &Some(input.type_));
 
@@ -90,7 +89,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         };
 
         if var_type.is_some() {
-            self.check_ident_type(&var_type);
+            self.check_core_type_conflict(&var_type);
             self.visit_expression(&input.value, &var_type);
         }
     }
@@ -105,7 +104,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
         let iter_type = &Some(input.type_);
-        self.check_ident_type(iter_type);
+        self.check_core_type_conflict(iter_type);
 
         if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
             input.variable.name,

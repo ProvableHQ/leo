@@ -55,6 +55,93 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
+    fn visit_access(&mut self, input: &'a AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
+        // CAUTION: This implementation only allows access to core circuits.
+        match input {
+            AccessExpression::AssociatedFunction(access) => {
+                // Check core circuit name and function.
+                if let Some(core_instruction) = self.assert_core_circuit_call(&access.ty, &access.name) {
+                    // Check num input arguments.
+                    if core_instruction.num_args() != access.args.len() {
+                        self.handler.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                            core_instruction.num_args(),
+                            access.args.len(),
+                            input.span(),
+                        ));
+                    }
+
+                    // Check first argument type.
+                    if let Some(first_arg) = access.args.get(0usize) {
+                        let first_arg_type = self.visit_expression(first_arg, &None);
+                        self.assert_one_of_types(&first_arg_type, core_instruction.first_arg_types(), access.span());
+                    }
+
+                    // Check second argument type.
+                    if let Some(second_arg) = access.args.get(1usize) {
+                        let second_arg_type = self.visit_expression(second_arg, &None);
+                        self.assert_one_of_types(&second_arg_type, core_instruction.second_arg_types(), access.span());
+                    }
+
+                    // Check return type.
+                    Some(self.assert_expected_option(core_instruction.return_type(), expected, access.span()))
+                } else {
+                    self.handler
+                        .emit_err(TypeCheckerError::invalid_access_expression(access, access.span()));
+                    None
+                }
+            }
+            _expr => None, // todo: Add support for associated constants (u8::MAX).
+        }
+    }
+
+    fn visit_circuit_init(
+        &mut self,
+        input: &'a CircuitInitExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        let circ = self.symbol_table.borrow().lookup_circuit(&input.name.name).cloned();
+        if let Some(circ) = circ {
+            // Check circuit type name.
+            let ret = self.assert_expected_circuit(circ.identifier, additional, input.name.span());
+
+            // Check number of circuit members.
+            if circ.members.len() != input.members.len() {
+                self.handler.emit_err(TypeCheckerError::incorrect_num_circuit_members(
+                    circ.members.len(),
+                    input.members.len(),
+                    input.span(),
+                ));
+            }
+
+            // Check circuit member types.
+            circ.members
+                .iter()
+                .for_each(|CircuitMember::CircuitVariable(name, ty)| {
+                    // Lookup circuit variable name.
+                    if let Some(actual) = input.members.iter().find(|member| member.identifier.name == name.name) {
+                        if let Some(expr) = &actual.expression {
+                            self.visit_expression(expr, &Some(*ty));
+                        }
+                    } else {
+                        self.handler.emit_err(TypeCheckerError::unknown_sym(
+                            "circuit member variable",
+                            name,
+                            name.span(),
+                        ));
+                    };
+                });
+
+            Some(ret)
+        } else {
+            self.handler.emit_err(TypeCheckerError::unknown_sym(
+                "circuit",
+                &input.name.name,
+                input.name.span(),
+            ));
+            None
+        }
+    }
+
     fn visit_identifier(&mut self, var: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
         if let Some(circuit) = self.symbol_table.borrow().lookup_circuit(&var.name) {
             Some(self.assert_expected_option(Type::Identifier(circuit.identifier), expected, var.span))
@@ -157,45 +244,6 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             LiteralExpression::Scalar(_, _) => self.assert_expected_option(Type::Scalar, expected, input.span()),
             LiteralExpression::String(_, _) => self.assert_expected_option(Type::String, expected, input.span()),
         })
-    }
-
-    fn visit_access(&mut self, input: &'a AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        // CAUTION: This implementation only allows access to core circuits.
-        match input {
-            AccessExpression::AssociatedFunction(access) => {
-                // Check core circuit name and function.
-                if let Some(core_instruction) = self.assert_core_circuit_call(&access.ty, &access.name) {
-                    // Check num input arguments.
-                    if core_instruction.num_args() != access.args.len() {
-                        self.handler.emit_err(TypeCheckerError::incorrect_num_args_to_call(
-                            core_instruction.num_args(),
-                            access.args.len(),
-                            input.span(),
-                        ));
-                    }
-
-                    // Check first argument type.
-                    if let Some(first_arg) = access.args.get(0usize) {
-                        let first_arg_type = self.visit_expression(first_arg, &None);
-                        self.assert_one_of_types(&first_arg_type, core_instruction.first_arg_types(), access.span());
-                    }
-
-                    // Check second argument type.
-                    if let Some(second_arg) = access.args.get(1usize) {
-                        let second_arg_type = self.visit_expression(second_arg, &None);
-                        self.assert_one_of_types(&second_arg_type, core_instruction.second_arg_types(), access.span());
-                    }
-
-                    // Check return type.
-                    Some(self.assert_expected_option(core_instruction.return_type(), expected, access.span()))
-                } else {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_access_expression(access, access.span()));
-                    None
-                }
-            }
-            _expr => None, // todo: Add support for associated constants (u8::MAX).
-        }
     }
 
     fn visit_binary(&mut self, input: &'a BinaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
@@ -495,54 +543,6 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 }
             }
             expr => self.visit_expression(expr, expected),
-        }
-    }
-
-    fn visit_circuit_init(
-        &mut self,
-        input: &'a CircuitInitExpression,
-        additional: &Self::AdditionalInput,
-    ) -> Self::Output {
-        let circ = self.symbol_table.borrow().lookup_circuit(&input.name.name).cloned();
-        if let Some(circ) = circ {
-            // Check circuit type name.
-            let ret = self.assert_expected_circuit(circ.identifier, additional, input.name.span());
-
-            // Check number of circuit members.
-            if circ.members.len() != input.members.len() {
-                self.handler.emit_err(TypeCheckerError::incorrect_num_circuit_members(
-                    circ.members.len(),
-                    input.members.len(),
-                    input.span(),
-                ));
-            }
-
-            // Check circuit member types.
-            circ.members
-                .iter()
-                .for_each(|CircuitMember::CircuitVariable(name, ty)| {
-                    // Lookup circuit variable name.
-                    if let Some(actual) = input.members.iter().find(|member| member.identifier.name == name.name) {
-                        if let Some(expr) = &actual.expression {
-                            self.visit_expression(expr, &Some(*ty));
-                        }
-                    } else {
-                        self.handler.emit_err(TypeCheckerError::unknown_sym(
-                            "circuit member variable",
-                            name,
-                            name.span(),
-                        ));
-                    };
-                });
-
-            Some(ret)
-        } else {
-            self.handler.emit_err(TypeCheckerError::unknown_sym(
-                "circuit",
-                &input.name.name,
-                input.name.span(),
-            ));
-            None
         }
     }
 }
