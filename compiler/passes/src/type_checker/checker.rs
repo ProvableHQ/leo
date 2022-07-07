@@ -111,29 +111,17 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Emits an error to the handler if the given type is invalid.
-    fn check_type(
-        &self,
-        is_valid: impl Fn(&Type) -> bool,
-        error_string: String,
-        type_: &Option<Type>,
-        span: Span,
-    ) {
+    fn check_type(&self, is_valid: impl Fn(&Type) -> bool, error_string: String, type_: &Option<Type>, span: Span) {
         if let Some(type_) = type_ {
             if !is_valid(type_) {
-                self.emit_err(
-                    TypeCheckerError::expected_one_type_of(
-                        error_string,
-                        type_,
-                        span
-                    )
-                );
+                self.emit_err(TypeCheckerError::expected_one_type_of(error_string, type_, span));
             }
         }
     }
     /// Emits an error to the error handler if the `actual` type is not equal to the `expected` type.
     pub(crate) fn assert_type(&self, actual: &Option<Type>, expected: &Type, span: Span) {
         self.check_type(
-            | actual: &Type | actual.eq_flat(expected),
+            |actual: &Type| actual.eq_flat(expected),
             expected.to_string(),
             actual,
             span,
@@ -143,17 +131,17 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error to the error handler if the actual type is not equal to any of the expected types.
     pub(crate) fn assert_one_of_types(&self, actual: &Option<Type>, expected: &[Type], span: Span) {
         self.check_type(
-            | actual: &Type | expected.iter().any(|t: &Type| t == actual),
-            types_string(expected),
+            |actual: &Type| expected.iter().any(|t: &Type| t == actual),
+            types_to_string(expected),
             actual,
-            span
+            span,
         )
     }
 
     /// Emits an error to the handler if the given type is not a boolean.
     pub(crate) fn assert_bool_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
-            | type_: &Type | BOOLEAN_TYPE.eq(type_),
+            |type_: &Type| BOOLEAN_TYPE.eq(type_),
             BOOLEAN_TYPE.to_string(),
             type_,
             span,
@@ -162,28 +150,18 @@ impl<'a> TypeChecker<'a> {
 
     /// Emits an error to the handler if the given type is not a field.
     pub(crate) fn assert_field_type(&self, type_: &Option<Type>, span: Span) {
-        self.check_type(
-            | type_: &Type | FIELD_TYPE.eq(type_),
-            FIELD_TYPE.to_string(),
-            type_,
-            span,
-        )
+        self.check_type(|type_: &Type| FIELD_TYPE.eq(type_), FIELD_TYPE.to_string(), type_, span)
     }
 
     /// Emits an error to the handler if the given type is not a group.
     pub(crate) fn assert_group_type(&self, type_: &Option<Type>, span: Span) {
-        self.check_type(
-            | type_: &Type | GROUP_TYPE.eq(type_),
-            GROUP_TYPE.to_string(),
-            type_,
-            span,
-        )
+        self.check_type(|type_: &Type| GROUP_TYPE.eq(type_), GROUP_TYPE.to_string(), type_, span)
     }
 
     /// Emits an error to the handler if the given type is not a scalar.
     pub(crate) fn assert_scalar_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
-            | type_: &Type | SCALAR_TYPE.eq(type_),
+            |type_: &Type| SCALAR_TYPE.eq(type_),
             SCALAR_TYPE.to_string(),
             type_,
             span,
@@ -193,8 +171,8 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error to the handler if the given type is not an integer.
     pub(crate) fn assert_int_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
-            | type_: &Type | INT_TYPES.contains(type_),
-            types_string(&INT_TYPES),
+            |type_: &Type| INT_TYPES.contains(type_),
+            types_to_string(&INT_TYPES),
             type_,
             span,
         )
@@ -203,8 +181,8 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error to the handler if the given type is not a signed integer.
     pub(crate) fn assert_signed_int_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
-            | type_: &Type | SIGNED_INT_TYPES.contains(type_),
-            types_string(&SIGNED_INT_TYPES),
+            |type_: &Type| SIGNED_INT_TYPES.contains(type_),
+            types_to_string(&SIGNED_INT_TYPES),
             type_,
             span,
         )
@@ -213,8 +191,8 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error to the handler if the given type is not a magnitude (u8, u16, u32).
     pub(crate) fn assert_magnitude_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
-            | type_: &Type | MAGNITUDE_TYPES.contains(type_),
-            types_string(&MAGNITUDE_TYPES),
+            |type_: &Type| MAGNITUDE_TYPES.contains(type_),
+            types_to_string(&MAGNITUDE_TYPES),
             type_,
             span,
         )
@@ -223,19 +201,18 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error to the handler if the given type is not a boolean or an integer.
     pub(crate) fn assert_bool_int_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
-            | type_: &Type | BOOLEAN_TYPE.eq(type_) | INT_TYPES.contains(type_),
-            format!("{}, {}", BOOLEAN_TYPE, types_string(&INT_TYPES)),
+            |type_: &Type| BOOLEAN_TYPE.eq(type_) | INT_TYPES.contains(type_),
+            format!("{}, {}", BOOLEAN_TYPE, types_to_string(&INT_TYPES)),
             type_,
             span,
         )
     }
 
-
     /// Emits an error to the handler if the given type is not a field or integer.
     pub(crate) fn assert_field_int_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
-            | type_: &Type | FIELD_TYPE.eq(type_) | INT_TYPES.contains(type_),
-            format!("{}, {}", FIELD_TYPE, types_string(&INT_TYPES)),
+            |type_: &Type| FIELD_TYPE.eq(type_) | INT_TYPES.contains(type_),
+            format!("{}, {}", FIELD_TYPE, types_to_string(&INT_TYPES)),
             type_,
             span,
         )
@@ -244,7 +221,7 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error to the handler if the given type is not a field or group.
     pub(crate) fn assert_field_group_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
-            | type_: &Type | FIELD_TYPE.eq(type_) | GROUP_TYPE.eq(type_),
+            |type_: &Type| FIELD_TYPE.eq(type_) | GROUP_TYPE.eq(type_),
             format!("{}, {}", FIELD_TYPE, GROUP_TYPE),
             type_,
             span,
@@ -254,7 +231,7 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error to the handler if the given type is not a field or scalar.
     pub(crate) fn assert_field_scalar_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
-            | type_: &Type | FIELD_TYPE.eq(type_) | SCALAR_TYPE.eq(type_),
+            |type_: &Type| FIELD_TYPE.eq(type_) | SCALAR_TYPE.eq(type_),
             format!("{}, {}", FIELD_TYPE, SCALAR_TYPE),
             type_,
             span,
@@ -264,16 +241,8 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error to the handler if the given type is not a field, group, or integer.
     pub(crate) fn assert_field_group_int_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
-            | type_: &Type |
-                FIELD_TYPE.eq(type_)
-                    | GROUP_TYPE.eq(type_)
-                    | INT_TYPES.contains(type_),
-            format!(
-                "{}, {}, {}",
-                FIELD_TYPE,
-                GROUP_TYPE,
-                types_string(&INT_TYPES),
-            ),
+            |type_: &Type| FIELD_TYPE.eq(type_) | GROUP_TYPE.eq(type_) | INT_TYPES.contains(type_),
+            format!("{}, {}, {}", FIELD_TYPE, GROUP_TYPE, types_to_string(&INT_TYPES),),
             type_,
             span,
         )
@@ -282,16 +251,8 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error to the handler if the given type is not a field, group, or signed integer.
     pub(crate) fn assert_field_group_signed_int_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
-            | type_: &Type |
-                FIELD_TYPE.eq(type_)
-                    | GROUP_TYPE.eq(type_)
-                    | SIGNED_INT_TYPES.contains(type_),
-            format!(
-                "{}, {}, {}",
-                FIELD_TYPE,
-                GROUP_TYPE,
-                types_string(&SIGNED_INT_TYPES),
-            ),
+            |type_: &Type| FIELD_TYPE.eq(type_) | GROUP_TYPE.eq(type_) | SIGNED_INT_TYPES.contains(type_),
+            format!("{}, {}, {}", FIELD_TYPE, GROUP_TYPE, types_to_string(&SIGNED_INT_TYPES),),
             type_,
             span,
         )
@@ -300,17 +261,15 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error to the handler if the given type is not a field, group, scalar or integer.
     pub(crate) fn assert_field_group_scalar_int_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
-            | type_: &Type |
-                FIELD_TYPE.eq(type_)
-                    | GROUP_TYPE.eq(type_)
-                    | SCALAR_TYPE.eq(type_)
-                    | INT_TYPES.contains(type_),
+            |type_: &Type| {
+                FIELD_TYPE.eq(type_) | GROUP_TYPE.eq(type_) | SCALAR_TYPE.eq(type_) | INT_TYPES.contains(type_)
+            },
             format!(
                 "{}, {}, {}, {}",
                 FIELD_TYPE,
                 GROUP_TYPE,
                 SCALAR_TYPE,
-                types_string(&INT_TYPES),
+                types_to_string(&INT_TYPES),
             ),
             type_,
             span,
@@ -349,7 +308,8 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Emits an error if the given type conflicts with a core library type.
-    pub(crate) fn check_ident_type(&self, type_: &Option<Type>) { // todo: deprecate this method.
+    pub(crate) fn check_ident_type(&self, type_: &Option<Type>) {
+        // todo: deprecate this method.
         if let Some(Type::Identifier(ident)) = type_ {
             if self.account_types.contains(&ident.name) || self.algorithms_types.contains(&ident.name) {
                 self.emit_err(TypeCheckerError::core_type_name_conflict(&ident.name, ident.span()));
@@ -358,6 +318,6 @@ impl<'a> TypeChecker<'a> {
     }
 }
 
-fn types_string(types: &[Type]) -> String {
+fn types_to_string(types: &[Type]) -> String {
     types.iter().map(|type_| type_.to_string()).join(", ")
 }
