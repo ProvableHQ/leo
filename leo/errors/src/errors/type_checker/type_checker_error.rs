@@ -33,7 +33,7 @@ create_messages!(
 
     /// For when the user tries to assign to a const input.
     @formatted
-    cannont_assign_to_const_input {
+    cannot_assign_to_const_input {
         args: (input: impl Display),
         msg: format!(
             "Cannot assign to const input `{input}`",
@@ -43,7 +43,7 @@ create_messages!(
 
     /// For when the user tries to assign to a const input.
     @formatted
-    cannont_assign_to_const_var {
+    cannot_assign_to_const_var {
         args: (var: impl Display),
         msg: format!(
             "Cannot assign to const variable `{var}`",
@@ -57,6 +57,16 @@ create_messages!(
         args: (type_: impl Display, expected: impl Display),
         msg: format!(
             "Found type `{type_}` but type `{expected}` was expected",
+        ),
+        help: None,
+    }
+
+    /// For when the type checker cannot find a type for an expression.
+    @formatted
+    could_not_find_type {
+        args: (expr: impl Display),
+        msg: format!(
+            "Could not find type for `{expr}`",
         ),
         help: None,
     }
@@ -201,12 +211,22 @@ create_messages!(
         help: None,
     }
 
+    /// For when the user is missing a circuit member during initialization.
+    @formatted
+    missing_circuit_member {
+        args: (circuit: impl Display, member: impl Display),
+        msg: format!(
+            "Circuit `{circuit}` missing member `{member}`.",
+        ),
+        help: None,
+    }
+
     /// An invalid access call is made e.g., `bool::MAX`
     @formatted
-    invalid_access_expression {
+    invalid_core_circuit_call {
         args: (expr: impl Display),
         msg: format!(
-            "Invalid method call to {expr}."
+            "{expr} is not a valid core circuit call."
         ),
         help: None,
     }
