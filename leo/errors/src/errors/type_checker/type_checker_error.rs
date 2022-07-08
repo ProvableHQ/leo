@@ -61,12 +61,12 @@ create_messages!(
         help: None,
     }
 
-    /// For when the type checker cannot find a type for an expression.
+    /// For when the type checker cannot determine the type of an expression.
     @formatted
-    could_not_find_type {
+    could_not_determine_type {
         args: (expr: impl Display),
         msg: format!(
-            "Could not find type for `{expr}`",
+            "Could not determine the type of `{expr}`",
         ),
         help: None,
     }
