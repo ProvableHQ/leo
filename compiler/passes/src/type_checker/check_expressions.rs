@@ -63,13 +63,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 if let Some(core_instruction) = self.check_core_circuit_call(&access.ty, &access.name) {
                     // Check num input arguments.
                     if core_instruction.num_args() != access.args.len() {
-                        self.handler.emit_err(
-                            TypeCheckerError::incorrect_num_args_to_call(
-                                core_instruction.num_args(),
-                                access.args.len(),
-                                input.span(),
-                            )
-                        );
+                        self.handler.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                            core_instruction.num_args(),
+                            access.args.len(),
+                            input.span(),
+                        ));
                     }
 
                     // Check first argument type.
