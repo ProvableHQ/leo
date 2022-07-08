@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, IntegerType};
+use crate::{Identifier, IntegerType, Tuple};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -39,6 +39,8 @@ pub enum Type {
     IntegerType(IntegerType),
     /// A reference to a built in type.
     Identifier(Identifier),
+    /// A static tuple of at least one type.
+    Tuple(Tuple),
 
     /// Placeholder for a type that could not be resolved or was not well-formed.
     /// Will eventually lead to a compile error.
@@ -60,6 +62,10 @@ impl Type {
             | (Type::Scalar, Type::Scalar)
             | (Type::String, Type::String) => true,
             (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(right),
+            (Type::Tuple(left), Type::Tuple(right)) => left
+                .iter()
+                .zip(right.iter())
+                .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
             (Type::Identifier(left), Type::Identifier(right)) => left.matches(right),
             _ => false,
         }
@@ -77,6 +83,7 @@ impl fmt::Display for Type {
             Type::String => write!(f, "string"),
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
             Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
+            Type::Tuple(ref tuple) => write!(f, "{}", tuple),
             Type::Err => write!(f, "error"),
         }
     }
