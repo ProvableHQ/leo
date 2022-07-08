@@ -55,7 +55,7 @@ git = "https://github.com/AleoHQ/snarkVM.git"
 rev = "51633e2"
 
 [dependencies.backtrace]
-version = "0.3.65"
+version = "0.3.66"
 
 [dependencies.clap]
 version = "3.2.8"

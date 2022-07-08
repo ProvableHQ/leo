@@ -19,7 +19,7 @@ edition = "2021"
 rust-version = "1.56"
 
 [dependencies.backtrace]
-version = "0.3.65"
+version = "0.3.66"
 
 [dependencies.leo-span]
 path = "../span"
