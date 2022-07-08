@@ -126,7 +126,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     // Lookup circuit variable name.
                     if let Some(actual) = input.members.iter().find(|member| member.identifier.name == name.name) {
                         if let Some(expr) = &actual.expression {
-                            self.visit_expression(expr, &Some(*ty));
+                            self.visit_expression(expr, &Some(ty.clone()));
                         }
                     } else {
                         self.handler.emit_err(
@@ -147,7 +147,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         if let Some(circuit) = self.symbol_table.borrow().lookup_circuit(&var.name) {
             Some(self.assert_and_return_type(Type::Identifier(circuit.identifier), expected, var.span))
         } else if let Some(var) = self.symbol_table.borrow().lookup_variable(&var.name) {
-            Some(self.assert_and_return_type(var.type_, expected, var.span))
+            Some(self.assert_and_return_type(var.type_.clone(), expected, var.span))
         } else {
             self.handler
                 .emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()).into());
@@ -366,7 +366,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         // Lhs type is checked to be an integer by above.
                         // Rhs type must be magnitude (u8, u16, u32).
                         self.assert_magnitude_type(&t2, input.right.span());
-                        *destination
+                        destination.clone()
                     }
                 }
             }
@@ -554,7 +554,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         .iter()
                         .zip(input.arguments.iter())
                         .for_each(|(expected, argument)| {
-                            self.visit_expression(argument, &Some(expected.get_variable().type_));
+                            self.visit_expression(argument, &Some(expected.get_variable().type_.clone()));
                         });
 
                     Some(ret)

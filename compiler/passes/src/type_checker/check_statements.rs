@@ -27,7 +27,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // statements should always have some parent block
         let parent = self.parent.unwrap();
 
-        let return_type = &self.symbol_table.borrow().lookup_fn(&parent).map(|f| f.output);
+        let return_type = &self.symbol_table.borrow().lookup_fn(&parent).map(|f| f.output.clone());
         self.check_ident_type(return_type);
         self.has_return = true;
 
@@ -42,14 +42,14 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         };
 
         input.variable_names.iter().for_each(|v| {
-            self.check_ident_type(&Some(input.type_));
+            self.check_ident_type(&Some(input.type_.clone()));
 
-            self.visit_expression(&input.value, &Some(input.type_));
+            self.visit_expression(&input.value, &Some(input.type_.clone()));
 
             if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
                 v.identifier.name,
                 VariableSymbol {
-                    type_: input.type_,
+                    type_: input.type_.clone(),
                     span: input.span(),
                     declaration: declaration.clone(),
                 },
@@ -81,7 +81,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 _ => {}
             }
 
-            Some(var.type_)
+            Some(var.type_.clone())
         } else {
             self.handler
                 .emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span).into());
@@ -104,13 +104,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
-        let iter_type = &Some(input.type_);
+        let iter_type = &Some(input.type_.clone());
         self.check_ident_type(iter_type);
 
         if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
             input.variable.name,
             VariableSymbol {
-                type_: input.type_,
+                type_: input.type_.clone(),
                 span: input.span(),
                 declaration: Declaration::Const,
             },

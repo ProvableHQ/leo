@@ -105,7 +105,7 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn assert_and_return_type(&self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
         if let Some(expected) = expected {
             if !actual.eq_flat(expected) {
-                self.emit_err(TypeCheckerError::type_should_be(actual, expected, span));
+                self.emit_err(TypeCheckerError::type_should_be(actual.clone(), expected, span));
             }
         }
 

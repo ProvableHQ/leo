@@ -35,13 +35,13 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.parent = Some(input.name());
         input.input.iter().for_each(|i| {
             let input_var = i.get_variable();
-            self.check_ident_type(&Some(input_var.type_));
+            self.check_ident_type(&Some(input_var.type_.clone()));
 
             // Check for conflicting variable names.
             if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
                 input_var.identifier.name,
                 VariableSymbol {
-                    type_: input_var.type_,
+                    type_: input_var.type_.clone(),
                     span: input_var.identifier.span(),
                     declaration: Declaration::Input(input_var.mode()),
                 },

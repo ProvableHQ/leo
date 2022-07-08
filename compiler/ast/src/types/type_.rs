@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Explicit type used for defining a variable or expression type
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Type {
     // Data types
     /// The `address` type.
