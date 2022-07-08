@@ -84,8 +84,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             Some(var.type_)
         } else {
             self.handler
-                .emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span).into());
-
+                .emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span));
             None
         };
 
@@ -105,7 +104,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
         let iter_type = &Some(input.type_);
-        self.check_ident_type(iter_type);
+        self.assert_int_type(iter_type, input.variable.span);
+        self.check_core_type_conflict(iter_type);
 
         if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
             input.variable.name,
@@ -136,10 +136,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_block(&mut self, input: &'a Block) {
         // Creates a new sub-scope since we are in a block.
         let scope_index = self.symbol_table.borrow_mut().insert_block();
-        let prev_st = std::mem::take(&mut self.symbol_table);
+        let previous_symbol_table = std::mem::take(&mut self.symbol_table);
         self.symbol_table
-            .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
-        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
+            .swap(previous_symbol_table.borrow().get_block_scope(scope_index).unwrap());
+        self.symbol_table.borrow_mut().parent = Some(Box::new(previous_symbol_table.into_inner()));
 
         input.statements.iter().for_each(|stmt| {
             match stmt {
@@ -153,8 +153,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             };
         });
 
-        let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        self.symbol_table.swap(prev_st.get_block_scope(scope_index).unwrap());
-        self.symbol_table = RefCell::new(prev_st);
+        let previous_symbol_table = *self.symbol_table.borrow_mut().parent.take().unwrap();
+        // TODO: Is this swap necessary?
+        self.symbol_table
+            .swap(previous_symbol_table.get_block_scope(scope_index).unwrap());
+        self.symbol_table = RefCell::new(previous_symbol_table);
     }
 }
