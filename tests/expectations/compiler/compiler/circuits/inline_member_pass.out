@@ -1,7 +1,5 @@
 ---
 namespace: Compile
-expectation: Pass
+expectation: Fail
 outputs:
-  - output:
-      - initial_input_ast: no input
-    initial_ast: 9489ab9b78bd31ac516e1674a83c6b35708238174df88374a7b19cef3d4a8e8a
+  - "Error [ETYC0372006]: Unknown variable `b`\n    --> compiler-test:10:13\n     |\n  10 |     return (b.x == a.x) == y;\n     |             ^\nError [ETYC0372004]: Could not find type for `b`\n    --> compiler-test:10:13\n     |\n  10 |     return (b.x == a.x) == y;\n     |             ^\n"

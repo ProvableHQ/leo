@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372005]: Unknown circuit member variable `owner`\n    --> compiler-test:5:5\n     |\n   5 |     owner: address,\n     |     ^^^^^\n"
+  - "Error [ETYC0372006]: Unknown circuit member variable `owner`\n    --> compiler-test:5:5\n     |\n   5 |     owner: address,\n     |     ^^^^^\n"
