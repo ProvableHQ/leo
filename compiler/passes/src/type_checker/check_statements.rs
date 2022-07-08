@@ -14,10 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::{Declaration, TypeChecker, VariableSymbol};
+
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
 
-use crate::{Declaration, TypeChecker, VariableSymbol};
+use std::cell::RefCell;
 
 impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_return(&mut self, input: &'a ReturnStatement) {
@@ -25,7 +27,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // statements should always have some parent block
         let parent = self.parent.unwrap();
 
-        let return_type = &self.symbol_table.lookup_fn(parent).map(|f| f.output);
+        let return_type = &self.symbol_table.borrow().lookup_fn(&parent).map(|f| f.output);
         self.check_ident_type(return_type);
         self.has_return = true;
 
@@ -44,10 +46,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
             self.visit_expression(&input.value, &Some(input.type_));
 
-            if let Err(err) = self.symbol_table.insert_variable(
+            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
                 v.identifier.name,
                 VariableSymbol {
-                    type_: &input.type_,
+                    type_: input.type_,
                     span: input.span(),
                     declaration: declaration.clone(),
                 },
@@ -67,7 +69,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
         };
 
-        let var_type = if let Some(var) = self.symbol_table.lookup_variable(&var_name.name) {
+        let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(&var_name.name) {
+            // TODO: Check where this check is moved to in `improved-flattening`.
             match &var.declaration {
                 Declaration::Const => self
                     .handler
@@ -78,7 +81,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 _ => {}
             }
 
-            Some(*var.type_)
+            Some(var.type_)
         } else {
             self.handler
                 .emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span).into());
@@ -101,10 +104,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
-        if let Err(err) = self.symbol_table.insert_variable(
+        let iter_type = &Some(input.type_);
+        self.check_ident_type(iter_type);
+
+        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
             input.variable.name,
             VariableSymbol {
-                type_: &input.type_,
+                type_: input.type_,
                 span: input.span(),
                 declaration: Declaration::Const,
             },
@@ -112,8 +118,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             self.handler.emit_err(err);
         }
 
-        let iter_type = &Some(input.type_);
-        self.check_ident_type(iter_type);
         self.visit_expression(&input.start, iter_type);
         self.visit_expression(&input.stop, iter_type);
     }
@@ -130,8 +134,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_block(&mut self, input: &'a Block) {
-        // creates a new sub-scope since we are in a block.
-        self.symbol_table.push_variable_scope();
+        // Creates a new sub-scope since we are in a block.
+        let scope_index = self.symbol_table.borrow_mut().insert_block();
+        let prev_st = std::mem::take(&mut self.symbol_table);
+        self.symbol_table
+            .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
+        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
+
         input.statements.iter().for_each(|stmt| {
             match stmt {
                 Statement::Return(stmt) => self.visit_return(stmt),
@@ -143,6 +152,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 Statement::Block(stmt) => self.visit_block(stmt),
             };
         });
-        self.symbol_table.pop_variable_scope();
+
+        let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
+        self.symbol_table.swap(prev_st.get_block_scope(scope_index).unwrap());
+        self.symbol_table = RefCell::new(prev_st);
     }
 }

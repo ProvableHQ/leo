@@ -6,4 +6,3 @@ outputs:
       - initial_input_ast: d8b075a0c14b12b53de228108da7cf61ba2e7892b134075063684769996a7e45
       - initial_input_ast: c4310c1bdce965b70f52ba768a13f976e0611adcec05feaffc3530c03dbcd8b5
     initial_ast: e3aecaf6a5adfcd4f82cde7fa2360ae63738141788c8de35eabedecf7da26dde
-    symbol_table: 2471d7a0f956f30747d5bd8c5d03e8a47c628ac64766d2f19caaf3dadd7f1c06

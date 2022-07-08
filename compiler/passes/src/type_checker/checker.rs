@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::SymbolTable;
+
 use leo_ast::{Identifier, IntegerType, Node, Type};
 use leo_core::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
@@ -22,9 +23,10 @@ use leo_span::{Span, Symbol};
 
 use indexmap::IndexSet;
 use itertools::Itertools;
+use std::cell::RefCell;
 
 pub struct TypeChecker<'a> {
-    pub(crate) symbol_table: &'a mut SymbolTable<'a>,
+    pub(crate) symbol_table: RefCell<SymbolTable>,
     pub(crate) handler: &'a Handler,
     pub(crate) parent: Option<Symbol>,
     pub(crate) has_return: bool,
@@ -70,9 +72,9 @@ const MAGNITUDE_TYPES: [Type; 3] = [
 
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
-    pub fn new(symbol_table: &'a mut SymbolTable<'a>, handler: &'a Handler) -> Self {
+    pub fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
         Self {
-            symbol_table,
+            symbol_table: RefCell::new(symbol_table),
             handler,
             parent: None,
             has_return: false,
@@ -100,7 +102,7 @@ impl<'a> TypeChecker<'a> {
 
     /// Use this method when you know the actual type.
     /// Emits an error to the handler if the `actual` type is not equal to the `expected` type.
-    pub(crate) fn assert_and_return_type(&mut self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
+    pub(crate) fn assert_and_return_type(&self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
         if let Some(expected) = expected {
             if !actual.eq_flat(expected) {
                 self.emit_err(TypeCheckerError::type_should_be(actual, expected, span));

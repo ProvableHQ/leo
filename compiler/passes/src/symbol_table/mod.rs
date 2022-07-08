@@ -17,11 +17,11 @@
 pub mod create;
 pub use create::*;
 
+pub mod function_symbol;
+pub use function_symbol::*;
+
 pub mod table;
 pub use table::*;
-
-pub mod variable_scope;
-pub use variable_scope::*;
 
 pub mod variable_symbol;
 pub use variable_symbol::*;
@@ -33,13 +33,14 @@ use leo_errors::{emitter::Handler, Result};
 
 impl<'a> Pass for CreateSymbolTable<'a> {
     type Input = (&'a Ast, &'a Handler);
-    type Output = Result<SymbolTable<'a>>;
+    type Output = Result<SymbolTable>;
 
+    /// Runs the compiler pass.
     fn do_pass((ast, handler): Self::Input) -> Self::Output {
         let mut visitor = CreateSymbolTable::new(handler);
         visitor.visit_program(ast.as_repr());
         handler.last_err()?;
 
-        Ok(visitor.symbol_table())
+        Ok(visitor.symbol_table)
     }
 }
