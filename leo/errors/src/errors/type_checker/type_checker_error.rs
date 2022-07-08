@@ -216,7 +216,7 @@ create_messages!(
     missing_circuit_member {
         args: (circuit: impl Display, member: impl Display),
         msg: format!(
-            "Circuit `{circuit}` missing member `{member}`.",
+            "Circuit initialization expression for `{circuit}` is missing member `{member}`.",
         ),
         help: None,
     }
