@@ -22,7 +22,7 @@ name = "leo_compiler"
 harness = false
 
 [dependencies]
-backtrace = "0.3.65"
+backtrace = "0.3.66"
 walkdir = "2.3.2"
 
 [dependencies.serde]
