@@ -86,7 +86,7 @@ impl<'a> TypeChecker<'a> {
 
     /// Emits a type checker error.
     pub(crate) fn emit_err(&self, err: TypeCheckerError) {
-        self.handler.emit_err(err.into());
+        self.handler.emit_err(err);
     }
 
     /// Emits an error if the two given types are not equal.
@@ -310,7 +310,7 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Emits an error if the given type conflicts with a core library type.
-    pub(crate) fn check_ident_type(&self, type_: &Option<Type>) {
+    pub(crate) fn check_core_type_conflict(&self, type_: &Option<Type>) {
         // todo: deprecate this method.
         if let Some(Type::Identifier(ident)) = type_ {
             if self.account_types.contains(&ident.name) || self.algorithms_types.contains(&ident.name) {
