@@ -162,9 +162,6 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
 
             // Check circuit member types.
-            // TODO: Leo errors for:
-            //  - missing members on initialization.
-            //  - members that don't exist in the circuit
             circ.members
                 .iter()
                 .for_each(|CircuitMember::CircuitVariable(name, ty)| {
@@ -174,9 +171,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             self.visit_expression(expr, &Some(*ty));
                         }
                     } else {
-                        self.handler.emit_err(
-                            TypeCheckerError::unknown_sym("circuit member variable", name, name.span()).into(),
-                        );
+                        self.handler.emit_err(TypeCheckerError::missing_circuit_member(
+                            circ.identifier,
+                            name,
+                            input.span(),
+                        ));
                     };
                 });
 
