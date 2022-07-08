@@ -42,7 +42,7 @@ pub trait ExpressionReconstructor {
         (Expression::Identifier(input), Default::default())
     }
 
-    fn reconstruct_literal(&mut self, input: LiteralExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_literal(&mut self, input: Literal) -> (Expression, Self::AdditionalOutput) {
         (Expression::Literal(input), Default::default())
     }
 

@@ -127,7 +127,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         None
                     }
                     None => {
-                        self.handler.emit_err(TypeCheckerError::could_not_find_type(
+                        self.handler.emit_err(TypeCheckerError::could_not_determine_type(
                             &access.inner,
                             access.inner.span(),
                         ));
@@ -202,12 +202,12 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_literal(&mut self, input: &'a LiteralExpression, expected: &Self::AdditionalInput) -> Self::Output {
+    fn visit_literal(&mut self, input: &'a Literal, expected: &Self::AdditionalInput) -> Self::Output {
         Some(match input {
-            LiteralExpression::Address(_, _) => self.assert_and_return_type(Type::Address, expected, input.span()),
-            LiteralExpression::Boolean(_, _) => self.assert_and_return_type(Type::Boolean, expected, input.span()),
-            LiteralExpression::Field(_, _) => self.assert_and_return_type(Type::Field, expected, input.span()),
-            LiteralExpression::Integer(type_, str_content, _) => {
+            Literal::Address(_, _) => self.assert_and_return_type(Type::Address, expected, input.span()),
+            Literal::Boolean(_, _) => self.assert_and_return_type(Type::Boolean, expected, input.span()),
+            Literal::Field(_, _) => self.assert_and_return_type(Type::Field, expected, input.span()),
+            Literal::Integer(type_, str_content, _) => {
                 match type_ {
                     IntegerType::I8 => {
                         let int = if self.negate {
@@ -288,9 +288,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 }
                 self.assert_and_return_type(Type::IntegerType(*type_), expected, input.span())
             }
-            LiteralExpression::Group(_) => self.assert_and_return_type(Type::Group, expected, input.span()),
-            LiteralExpression::Scalar(_, _) => self.assert_and_return_type(Type::Scalar, expected, input.span()),
-            LiteralExpression::String(_, _) => self.assert_and_return_type(Type::String, expected, input.span()),
+            Literal::Group(_) => self.assert_and_return_type(Type::Group, expected, input.span()),
+            Literal::Scalar(_, _) => self.assert_and_return_type(Type::Scalar, expected, input.span()),
+            Literal::String(_, _) => self.assert_and_return_type(Type::String, expected, input.span()),
         })
     }
 
