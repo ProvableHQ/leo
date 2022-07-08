@@ -88,11 +88,56 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     Some(self.assert_and_return_type(core_instruction.return_type(), expected, access.span()))
                 } else {
                     self.handler
-                        .emit_err(TypeCheckerError::invalid_access_expression(access, access.span()));
+                        .emit_err(TypeCheckerError::invalid_core_circuit_call(access, access.span()));
                     None
                 }
             }
-            _expr => None, // todo: Add support for associated constants (u8::MAX).
+            AccessExpression::Member(access) => {
+                // Check that the type of `inner` in `inner.name` is a circuit.
+                match self.visit_expression(&access.inner, &None) {
+                    Some(Type::Identifier(identifier)) => {
+                        // Retrieve the circuit definition associated with `identifier`.
+                        let circ = self.symbol_table.borrow().lookup_circuit(&identifier.name).cloned();
+                        if let Some(circ) = circ {
+                            // Check that `access.name` is a member of the circuit.
+                            match circ
+                                .members
+                                .iter()
+                                .find(|circuit_member| circuit_member.name() == access.name.name)
+                            {
+                                // Case where `access.name` is a member of the circuit.
+                                Some(CircuitMember::CircuitVariable(_, type_)) => Some(*type_),
+                                // Case where `access.name` is not a member of the circuit.
+                                None => {
+                                    self.handler.emit_err(TypeCheckerError::invalid_circuit_variable(
+                                        &access.name,
+                                        &circ,
+                                        access.name.span(),
+                                    ));
+                                    None
+                                }
+                            }
+                        } else {
+                            self.handler
+                                .emit_err(TypeCheckerError::invalid_circuit(&access.inner, access.inner.span()));
+                            None
+                        }
+                    }
+                    Some(type_) => {
+                        self.handler
+                            .emit_err(TypeCheckerError::type_should_be(type_, "circuit", access.inner.span()));
+                        None
+                    }
+                    None => {
+                        self.handler.emit_err(TypeCheckerError::could_not_find_type(
+                            &access.inner,
+                            access.inner.span(),
+                        ));
+                        None
+                    }
+                }
+            }
+            AccessExpression::AssociatedConstant(..) => None, // todo: Add support for associated constants (u8::MAX).
         }
     }
 
@@ -116,6 +161,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
 
             // Check circuit member types.
+            // TODO: Leo errors for:
+            //  - missing members on initialization.
+            //  - members that don't exist in the circuit
             circ.members
                 .iter()
                 .for_each(|CircuitMember::CircuitVariable(name, ty)| {
@@ -534,6 +582,8 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match &*input.function {
             Expression::Identifier(ident) => {
+                // Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
+                // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table` alive for the entire block and will be very memory inefficient!
                 let func = self.symbol_table.borrow().lookup_fn(&ident.name).cloned();
                 if let Some(func) = func {
                     let ret = self.assert_and_return_type(func.output, expected, func.span);
@@ -562,6 +612,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     None
                 }
             }
+            // TODO: Is this case sufficient?
             expr => self.visit_expression(expr, expected),
         }
     }
