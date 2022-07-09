@@ -384,9 +384,7 @@ impl ParserContext<'_> {
     /// tuple initialization expression or an affine group literal.
     fn parse_tuple_expression(&mut self) -> Result<Expression> {
         if let Some(gt) = self.eat_group_partial().transpose()? {
-            return Ok(Expression::Literal(LiteralExpression::Group(Box::new(
-                GroupLiteral::Tuple(gt),
-            ))));
+            return Ok(Expression::Literal(Literal::Group(Box::new(GroupLiteral::Tuple(gt)))));
         }
 
         let (mut tuple, trailing, span) = self.parse_expr_tuple()?;
@@ -475,7 +473,7 @@ impl ParserContext<'_> {
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// circuit initialization expression.
     /// let foo = Foo { x: 1u8 };
-    pub fn parse_circuit_expression(&mut self, identifier: Identifier) -> Result<Expression> {
+    pub fn parse_circuit_init_expression(&mut self, identifier: Identifier) -> Result<Expression> {
         let (members, _, end) = self.parse_list(Delimiter::Brace, Some(Token::Comma), |p| {
             p.parse_circuit_member().map(Some)
         })?;
@@ -511,44 +509,42 @@ impl ParserContext<'_> {
                     // Literal followed by `field`, e.g., `42field`.
                     Some(Token::Field) => {
                         assert_no_whitespace("field")?;
-                        Expression::Literal(LiteralExpression::Field(value, full_span))
+                        Expression::Literal(Literal::Field(value, full_span))
                     }
                     // Literal followed by `group`, e.g., `42group`.
                     Some(Token::Group) => {
                         assert_no_whitespace("group")?;
-                        Expression::Literal(LiteralExpression::Group(Box::new(GroupLiteral::Single(
-                            value, full_span,
-                        ))))
+                        Expression::Literal(Literal::Group(Box::new(GroupLiteral::Single(value, full_span))))
                     }
                     // Literal followed by `scalar` e.g., `42scalar`.
                     Some(Token::Scalar) => {
                         assert_no_whitespace("scalar")?;
-                        Expression::Literal(LiteralExpression::Scalar(value, full_span))
+                        Expression::Literal(Literal::Scalar(value, full_span))
                     }
                     // Literal followed by other type suffix, e.g., `42u8`.
                     Some(suffix) => {
                         assert_no_whitespace(&suffix.to_string())?;
                         let int_ty = Self::token_to_int_type(suffix).expect("unknown int type token");
-                        Expression::Literal(LiteralExpression::Integer(int_ty, value, full_span))
+                        Expression::Literal(Literal::Integer(int_ty, value, full_span))
                     }
                     None => return Err(ParserError::implicit_values_not_allowed(value, span).into()),
                 }
             }
-            Token::True => Expression::Literal(LiteralExpression::Boolean(true, span)),
-            Token::False => Expression::Literal(LiteralExpression::Boolean(false, span)),
+            Token::True => Expression::Literal(Literal::Boolean(true, span)),
+            Token::False => Expression::Literal(Literal::Boolean(false, span)),
             Token::AddressLit(addr) => {
                 if addr.parse::<Address<Testnet2>>().is_err() {
                     self.emit_err(ParserError::invalid_address_lit(&addr, span));
                 }
-                Expression::Literal(LiteralExpression::Address(addr, span))
+                Expression::Literal(Literal::Address(addr, span))
             }
-            Token::StaticString(value) => Expression::Literal(LiteralExpression::String(value, span)),
+            Token::StaticString(value) => Expression::Literal(Literal::String(value, span)),
             Token::Identifier(name) => {
                 let ident = Identifier { name, span };
                 if !self.disallow_circuit_construction && self.check(&Token::LeftCurly) {
                     // Parse circuit and records inits as circuit expressions.
                     // Enforce circuit or record type later at type checking.
-                    self.parse_circuit_expression(ident)?
+                    self.parse_circuit_init_expression(ident)?
                 } else {
                     Expression::Identifier(ident)
                 }

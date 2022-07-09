@@ -72,22 +72,23 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_err(&mut self, _input: &'a ErrExpression, _additional: &Self::AdditionalInput) -> Self::Output {
-        Default::default()
-    }
-    fn visit_identifier(&mut self, _input: &'a Identifier, _additional: &Self::AdditionalInput) -> Self::Output {
-        Default::default()
-    }
-
-    fn visit_literal(&mut self, _input: &'a LiteralExpression, _additional: &Self::AdditionalInput) -> Self::Output {
-        Default::default()
-    }
-
     fn visit_circuit_init(
         &mut self,
         _input: &'a CircuitExpression,
         _additional: &Self::AdditionalInput,
     ) -> Self::Output {
+        Default::default()
+    }
+
+    fn visit_err(&mut self, _input: &'a ErrExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        Default::default()
+    }
+
+    fn visit_identifier(&mut self, _input: &'a Identifier, _additional: &Self::AdditionalInput) -> Self::Output {
+        Default::default()
+    }
+
+    fn visit_literal(&mut self, _input: &'a Literal, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
 

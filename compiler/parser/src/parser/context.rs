@@ -120,7 +120,7 @@ impl<'a> ParserContext<'a> {
 
     /// Emit the error `err`.
     pub(super) fn emit_err(&self, err: ParserError) {
-        self.handler.emit_err(err.into());
+        self.handler.emit_err(err);
     }
 
     /// Emit the error `err`.

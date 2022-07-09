@@ -53,6 +53,7 @@ impl Type {
     ///
     /// Flattens array syntax: `[[u8; 1]; 2] == [u8; (2, 1)] == true`
     ///
+    // TODO: Does not seem to flatten?
     pub fn eq_flat(&self, other: &Self) -> bool {
         match (self, other) {
             (Type::Address, Type::Address)

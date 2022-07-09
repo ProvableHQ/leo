@@ -44,8 +44,8 @@ pub use tuple_init::*;
 mod unary;
 pub use unary::*;
 
-mod value;
-pub use value::*;
+mod literal;
+pub use literal::*;
 
 /// Expression that evaluates to a value.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -64,7 +64,7 @@ pub enum Expression {
     /// An identifier.
     Identifier(Identifier),
     /// A literal expression.
-    Literal(LiteralExpression),
+    Literal(Literal),
     /// A ternary conditional expression `cond ? if_expr : else_expr`.
     Ternary(TernaryExpression),
     /// A tuple expression e.g., `(foo, 42, true)`.

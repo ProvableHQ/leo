@@ -85,7 +85,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     // Check return type.
                     return Some(self.assert_and_return_type(core_instruction.return_type(), expected, access.span()));
                 } else {
-                    self.emit_err(TypeCheckerError::invalid_access_expression(access, access.span()));
+                    self.emit_err(TypeCheckerError::invalid_core_circuit_call(access, access.span()));
                 }
             }
             AccessExpression::Tuple(access) => {
@@ -118,11 +118,197 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             self.emit_err(TypeCheckerError::type_should_be(type_, "tuple", access.span()));
                         }
                     }
+                    self.emit_err(TypeCheckerError::invalid_core_circuit_call(access, access.span()));
                 }
             }
-            _expr => {} // todo: Add support for associated constants (u8::MAX).
+            AccessExpression::Member(access) => {
+                // Check that the type of `inner` in `inner.name` is a circuit.
+                match self.visit_expression(&access.inner, &None) {
+                    Some(Type::Identifier(identifier)) => {
+                        // Retrieve the circuit definition associated with `identifier`.
+                        let circ = self.symbol_table.borrow().lookup_circuit(&identifier.name).cloned();
+                        if let Some(circ) = circ {
+                            // Check that `access.name` is a member of the circuit.
+                            match circ
+                                .members
+                                .iter()
+                                .find(|circuit_member| circuit_member.name() == access.name.name)
+                            {
+                                // Case where `access.name` is a member of the circuit.
+                                Some(CircuitMember::CircuitVariable(_, type_)) => return Some(type_.clone()),
+                                // Case where `access.name` is not a member of the circuit.
+                                None => {
+                                    self.emit_err(TypeCheckerError::invalid_circuit_variable(
+                                        &access.name,
+                                        &circ,
+                                        access.name.span(),
+                                    ));
+                                }
+                            }
+                        } else {
+                            self.emit_err(TypeCheckerError::invalid_circuit(&access.inner, access.inner.span()));
+                        }
+                    }
+                    Some(type_) => {
+                        self.emit_err(TypeCheckerError::type_should_be(type_, "circuit", access.inner.span()));
+                    }
+                    None => {
+                        self.emit_err(TypeCheckerError::could_not_determine_type(
+                            &access.inner,
+                            access.inner.span(),
+                        ));
+                    }
+                }
+            }
+            AccessExpression::AssociatedConstant(..) => {} // todo: Add support for associated constants (u8::MAX).
         }
         None
+    }
+
+    fn visit_circuit_init(
+        &mut self,
+        input: &'a CircuitExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        let circ = self.symbol_table.borrow().lookup_circuit(&input.name.name).cloned();
+        if let Some(circ) = circ {
+            // Check circuit type name.
+            let ret = self.check_expected_circuit(circ.identifier, additional, input.name.span());
+
+            // Check number of circuit members.
+            if circ.members.len() != input.members.len() {
+                self.emit_err(TypeCheckerError::incorrect_num_circuit_members(
+                    circ.members.len(),
+                    input.members.len(),
+                    input.span(),
+                ));
+            }
+
+            // Check circuit member types.
+            circ.members
+                .iter()
+                .for_each(|CircuitMember::CircuitVariable(name, ty)| {
+                    // Lookup circuit variable name.
+                    if let Some(actual) = input.members.iter().find(|member| member.identifier.name == name.name) {
+                        if let Some(expr) = &actual.expression {
+                            self.visit_expression(expr, &Some(ty.clone()));
+                        }
+                    } else {
+                        self.emit_err(TypeCheckerError::missing_circuit_member(
+                            circ.identifier,
+                            name,
+                            input.span(),
+                        ));
+                    };
+                });
+
+            Some(ret)
+        } else {
+            self.emit_err(TypeCheckerError::unknown_sym(
+                "circuit",
+                &input.name.name,
+                input.name.span(),
+            ));
+            None
+        }
+    }
+
+    fn visit_identifier(&mut self, var: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
+        if let Some(circuit) = self.symbol_table.borrow().lookup_circuit(&var.name) {
+            Some(self.assert_and_return_type(Type::Identifier(circuit.identifier), expected, var.span))
+        } else if let Some(var) = self.symbol_table.borrow().lookup_variable(&var.name) {
+            Some(self.assert_and_return_type(var.type_.clone(), expected, var.span))
+        } else {
+            self.emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()));
+            None
+        }
+    }
+
+    fn visit_literal(&mut self, input: &'a Literal, expected: &Self::AdditionalInput) -> Self::Output {
+        Some(match input {
+            Literal::Address(_, _) => self.assert_and_return_type(Type::Address, expected, input.span()),
+            Literal::Boolean(_, _) => self.assert_and_return_type(Type::Boolean, expected, input.span()),
+            Literal::Field(_, _) => self.assert_and_return_type(Type::Field, expected, input.span()),
+            Literal::Integer(type_, str_content, _) => {
+                match type_ {
+                    IntegerType::I8 => {
+                        let int = if self.negate {
+                            format!("-{str_content}")
+                        } else {
+                            str_content.clone()
+                        };
+
+                        if int.parse::<i8>().is_err() {
+                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i8", input.span()));
+                        }
+                    }
+                    IntegerType::I16 => {
+                        let int = if self.negate {
+                            format!("-{str_content}")
+                        } else {
+                            str_content.clone()
+                        };
+
+                        if int.parse::<i16>().is_err() {
+                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i16", input.span()));
+                        }
+                    }
+                    IntegerType::I32 => {
+                        let int = if self.negate {
+                            format!("-{str_content}")
+                        } else {
+                            str_content.clone()
+                        };
+
+                        if int.parse::<i32>().is_err() {
+                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i32", input.span()));
+                        }
+                    }
+                    IntegerType::I64 => {
+                        let int = if self.negate {
+                            format!("-{str_content}")
+                        } else {
+                            str_content.clone()
+                        };
+
+                        if int.parse::<i64>().is_err() {
+                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i64", input.span()));
+                        }
+                    }
+                    IntegerType::I128 => {
+                        let int = if self.negate {
+                            format!("-{str_content}")
+                        } else {
+                            str_content.clone()
+                        };
+
+                        if int.parse::<i128>().is_err() {
+                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i128", input.span()));
+                        }
+                    }
+                    IntegerType::U8 if str_content.parse::<u8>().is_err() => {
+                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u8", input.span()))
+                    }
+                    IntegerType::U16 if str_content.parse::<u16>().is_err() => {
+                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u16", input.span()))
+                    }
+                    IntegerType::U32 if str_content.parse::<u32>().is_err() => {
+                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u32", input.span()))
+                    }
+                    IntegerType::U64 if str_content.parse::<u64>().is_err() => {
+                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u64", input.span()))
+                    }
+                    IntegerType::U128 if str_content.parse::<u128>().is_err() => {
+                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u128", input.span()))
+                    }
+                    _ => {}
+                }
+                self.assert_and_return_type(Type::IntegerType(*type_), expected, input.span())
+            }
+            Literal::Group(_) => self.assert_and_return_type(Type::Group, expected, input.span()),
+            Literal::Scalar(_, _) => self.assert_and_return_type(Type::Scalar, expected, input.span()),
+            Literal::String(_, _) => self.assert_and_return_type(Type::String, expected, input.span()),
+        })
     }
 
     fn visit_binary(&mut self, input: &'a BinaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
@@ -350,13 +536,15 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match &*input.function {
             Expression::Identifier(ident) => {
+                // Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
+                // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table` alive for the entire block and will be very memory inefficient!
                 let func = self.symbol_table.borrow().lookup_fn(&ident.name).cloned();
                 if let Some(func) = func {
                     let ret = self.assert_and_return_type(func.output, expected, func.span);
 
                     // Check number of function arguments.
                     if func.input.len() != input.arguments.len() {
-                        self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                        self.handler.emit_err(TypeCheckerError::incorrect_num_args_to_call(
                             func.input.len(),
                             input.arguments.len(),
                             input.span(),
@@ -377,150 +565,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     None
                 }
             }
+            // TODO: Is this case sufficient?
             expr => self.visit_expression(expr, expected),
         }
-    }
-
-    fn visit_circuit_init(&mut self, input: &'a CircuitExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        let circ = self.symbol_table.borrow().lookup_circuit(&input.name.name).cloned();
-        if let Some(circ) = circ {
-            // Check circuit type name.
-            let ret = self.check_expected_circuit(circ.identifier, additional, input.name.span());
-
-            // Check number of circuit members.
-            if circ.members.len() != input.members.len() {
-                self.emit_err(TypeCheckerError::incorrect_num_circuit_members(
-                    circ.members.len(),
-                    input.members.len(),
-                    input.span(),
-                ));
-            }
-
-            // Check circuit member types.
-            circ.members
-                .iter()
-                .for_each(|CircuitMember::CircuitVariable(name, ty)| {
-                    // Lookup circuit variable name.
-                    if let Some(actual) = input.members.iter().find(|member| member.identifier.name == name.name) {
-                        if let Some(expr) = &actual.expression {
-                            self.visit_expression(expr, &Some(ty.clone()));
-                        }
-                    } else {
-                        self.emit_err(TypeCheckerError::unknown_sym(
-                            "circuit member variable",
-                            name,
-                            name.span(),
-                        ));
-                    };
-                });
-
-            Some(ret)
-        } else {
-            self.emit_err(TypeCheckerError::unknown_sym(
-                "circuit",
-                &input.name.name,
-                input.name.span(),
-            ));
-            None
-        }
-    }
-
-    fn visit_identifier(&mut self, var: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
-        if let Some(circuit) = self.symbol_table.borrow().lookup_circuit(&var.name) {
-            Some(self.assert_and_return_type(Type::Identifier(circuit.identifier), expected, var.span))
-        } else if let Some(var) = self.symbol_table.borrow().lookup_variable(&var.name) {
-            Some(self.assert_and_return_type(var.type_.clone(), expected, var.span))
-        } else {
-            self.emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()));
-            None
-        }
-    }
-
-    fn visit_literal(&mut self, input: &'a LiteralExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        Some(match input {
-            LiteralExpression::Address(_, _) => self.assert_and_return_type(Type::Address, expected, input.span()),
-            LiteralExpression::Boolean(_, _) => self.assert_and_return_type(Type::Boolean, expected, input.span()),
-            LiteralExpression::Field(_, _) => self.assert_and_return_type(Type::Field, expected, input.span()),
-            LiteralExpression::Integer(type_, str_content, _) => {
-                match type_ {
-                    IntegerType::I8 => {
-                        let int = if self.negate {
-                            format!("-{str_content}")
-                        } else {
-                            str_content.clone()
-                        };
-
-                        if int.parse::<i8>().is_err() {
-                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i8", input.span()));
-                        }
-                    }
-                    IntegerType::I16 => {
-                        let int = if self.negate {
-                            format!("-{str_content}")
-                        } else {
-                            str_content.clone()
-                        };
-
-                        if int.parse::<i16>().is_err() {
-                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i16", input.span()));
-                        }
-                    }
-                    IntegerType::I32 => {
-                        let int = if self.negate {
-                            format!("-{str_content}")
-                        } else {
-                            str_content.clone()
-                        };
-
-                        if int.parse::<i32>().is_err() {
-                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i32", input.span()));
-                        }
-                    }
-                    IntegerType::I64 => {
-                        let int = if self.negate {
-                            format!("-{str_content}")
-                        } else {
-                            str_content.clone()
-                        };
-
-                        if int.parse::<i64>().is_err() {
-                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i64", input.span()));
-                        }
-                    }
-                    IntegerType::I128 => {
-                        let int = if self.negate {
-                            format!("-{str_content}")
-                        } else {
-                            str_content.clone()
-                        };
-
-                        if int.parse::<i128>().is_err() {
-                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i128", input.span()));
-                        }
-                    }
-                    IntegerType::U8 if str_content.parse::<u8>().is_err() => {
-                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u8", input.span()))
-                    }
-                    IntegerType::U16 if str_content.parse::<u16>().is_err() => {
-                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u16", input.span()))
-                    }
-                    IntegerType::U32 if str_content.parse::<u32>().is_err() => {
-                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u32", input.span()))
-                    }
-                    IntegerType::U64 if str_content.parse::<u64>().is_err() => {
-                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u64", input.span()))
-                    }
-                    IntegerType::U128 if str_content.parse::<u128>().is_err() => {
-                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u128", input.span()))
-                    }
-                    _ => {}
-                }
-                self.assert_and_return_type(Type::IntegerType(*type_), expected, input.span())
-            }
-            LiteralExpression::Group(_) => self.assert_and_return_type(Type::Group, expected, input.span()),
-            LiteralExpression::Scalar(_, _) => self.assert_and_return_type(Type::Scalar, expected, input.span()),
-            LiteralExpression::String(_, _) => self.assert_and_return_type(Type::String, expected, input.span()),
-        })
     }
 
     fn visit_ternary(&mut self, input: &'a TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
