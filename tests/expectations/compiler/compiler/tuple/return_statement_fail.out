@@ -1,7 +1,5 @@
 ---
 namespace: Compile
-expectation: Pass
+expectation: Fail
 outputs:
-  - output:
-      - initial_input_ast: 6607a8eab25d6001b58441084978cbf2d37295c9d77e3730c1dd74d2fa1e0a94
-    initial_ast: e1960f775049d0d2b246d0da716aa5b8c261b518cab913d287f26fe2c1e0515f
+  - "Error [ETYC0372003]: Expected type `u64` but type `bool` was found\n    --> compiler-test:6:21\n     |\n   6 |     return (t.0, t.1); // The second element should be type u64 as in the function declaration.\n     |                     ^\n"
