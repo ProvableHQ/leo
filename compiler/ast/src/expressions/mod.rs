@@ -41,8 +41,8 @@ pub use ternary::*;
 mod unary;
 pub use unary::*;
 
-mod value;
-pub use value::*;
+mod literal;
+pub use literal::*;
 
 /// Expression that evaluates to a value.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -52,7 +52,7 @@ pub enum Expression {
     /// An identifier expression.
     Identifier(Identifier),
     /// A literal expression.
-    Literal(LiteralExpression),
+    Literal(Literal),
     /// A binary expression, e.g., `42 + 24`.
     Binary(BinaryExpression),
     /// A call expression, e.g., `my_fun(args)`.

@@ -19,6 +19,7 @@ use std::fmt::Display;
 use leo_ast::{ParamMode, Type};
 use leo_span::Span;
 
+/// An enumeration of the different types of declarations.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Declaration {
     Const,
@@ -38,14 +39,18 @@ impl Display for Declaration {
     }
 }
 
+/// An entry for a variable in the symbol table.
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct VariableSymbol<'a> {
-    pub type_: &'a Type,
+pub struct VariableSymbol {
+    /// The `Type` of the variable.
+    pub type_: Type,
+    /// The `Span` associated with the variable.
     pub span: Span,
+    /// The type of declaration for the variable.
     pub declaration: Declaration,
 }
 
-impl<'a> Display for VariableSymbol<'a> {
+impl Display for VariableSymbol {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}: {}", self.declaration, self.type_)?;
         Ok(())

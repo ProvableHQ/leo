@@ -55,7 +55,7 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_literal(&mut self, _input: &'a LiteralExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_literal(&mut self, _input: &'a Literal, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
 

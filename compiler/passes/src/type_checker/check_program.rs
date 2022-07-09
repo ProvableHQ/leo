@@ -15,26 +15,33 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Declaration, TypeChecker, VariableSymbol};
+
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
 
 use leo_span::sym;
+
+use std::cell::RefCell;
 use std::collections::HashSet;
 
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_function(&mut self, input: &'a Function) {
+        let prev_st = std::mem::take(&mut self.symbol_table);
+        self.symbol_table
+            .swap(prev_st.borrow().get_fn_scope(&input.name()).unwrap());
+        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
+
         self.has_return = false;
-        self.symbol_table.clear_variables();
         self.parent = Some(input.name());
         input.input.iter().for_each(|i| {
             let input_var = i.get_variable();
-            self.check_ident_type(&Some(input_var.type_));
+            self.check_core_type_conflict(&Some(input_var.type_));
 
             // Check for conflicting variable names.
-            if let Err(err) = self.symbol_table.insert_variable(
+            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
                 input_var.identifier.name,
                 VariableSymbol {
-                    type_: &input_var.type_,
+                    type_: input_var.type_,
                     span: input_var.identifier.span(),
                     declaration: Declaration::Input(input_var.mode()),
                 },
@@ -46,18 +53,22 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         if !self.has_return {
             self.handler
-                .emit_err(TypeCheckerError::function_has_no_return(input.name(), input.span()).into());
+                .emit_err(TypeCheckerError::function_has_no_return(input.name(), input.span()));
         }
+
+        let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
+        self.symbol_table.swap(prev_st.get_fn_scope(&input.name()).unwrap());
+        self.symbol_table = RefCell::new(prev_st);
     }
 
     fn visit_circuit(&mut self, input: &'a Circuit) {
-        // Check for conflicting circuit member names.
+        // Check for conflicting circuit/record member names.
         let mut used = HashSet::new();
         if !input.members.iter().all(|member| used.insert(member.name())) {
             self.handler.emit_err(if input.is_record {
-                TypeCheckerError::duplicate_record_variable(input.name(), input.span()).into()
+                TypeCheckerError::duplicate_record_variable(input.name(), input.span())
             } else {
-                TypeCheckerError::duplicate_circuit_member(input.name(), input.span()).into()
+                TypeCheckerError::duplicate_circuit_member(input.name(), input.span())
             });
         }
 
@@ -70,12 +81,18 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             {
                 Some((_, actual_ty)) if expected_ty.eq_flat(actual_ty) => {} // All good, found + right type!
                 Some((field, _)) => {
-                    self.handler
-                        .emit_err(TypeCheckerError::record_var_wrong_type(field, expected_ty, input.span()).into());
+                    self.handler.emit_err(TypeCheckerError::record_var_wrong_type(
+                        field,
+                        expected_ty,
+                        input.span(),
+                    ));
                 }
                 None => {
-                    self.handler
-                        .emit_err(TypeCheckerError::required_record_variable(need, expected_ty, input.span()).into());
+                    self.handler.emit_err(TypeCheckerError::required_record_variable(
+                        need,
+                        expected_ty,
+                        input.span(),
+                    ));
                 }
             };
             check_has_field(sym::owner, Type::Address);

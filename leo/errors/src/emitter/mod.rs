@@ -205,8 +205,8 @@ impl Handler {
     }
 
     /// Emit the error `err`.
-    pub fn emit_err(&self, err: LeoError) {
-        self.inner.borrow_mut().emit_err(err);
+    pub fn emit_err<E: Into<LeoError>>(&self, err: E) {
+        self.inner.borrow_mut().emit_err(err.into());
     }
 
     /// Emit the error `err`.
@@ -282,9 +282,9 @@ mod tests {
             let res: Result<(), _> = Handler::with(|h| {
                 let s = Span::default();
                 assert_eq!(h.err_count(), 0);
-                h.emit_err(ParserError::invalid_import_list(s).into());
+                h.emit_err(ParserError::invalid_import_list(s));
                 assert_eq!(h.err_count(), 1);
-                h.emit_err(ParserError::unexpected_eof(s).into());
+                h.emit_err(ParserError::unexpected_eof(s));
                 assert_eq!(h.err_count(), 2);
                 Err(ParserError::spread_in_array_init(s).into())
             });
@@ -293,8 +293,8 @@ mod tests {
 
             let res: Result<(), _> = Handler::with(|h| {
                 let s = Span::default();
-                h.emit_err(ParserError::invalid_import_list(s).into());
-                h.emit_err(ParserError::unexpected_eof(s).into());
+                h.emit_err(ParserError::invalid_import_list(s));
+                h.emit_err(ParserError::unexpected_eof(s));
                 Ok(())
             });
             assert_eq!(count_err(res.unwrap_err().to_string()), 2);
