@@ -94,10 +94,7 @@ impl<'a> ParserContext<'a> {
 
     /// Checks whether the current token is a `Token::Int(_)`.
     pub(super) fn check_int(&self) -> bool {
-        match &self.token.token {
-            Token::Integer(_) => true,
-            _ => false,
-        }
+        matches!(&self.token.token, Token::Integer(_))
     }
 
     /// Returns `true` if the next token is equal to the given token.

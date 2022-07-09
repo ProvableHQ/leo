@@ -52,7 +52,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.visit_block(&input.block);
 
         if !self.has_return {
-            self.emit_err(TypeCheckerError::function_has_no_return(input.name(), input.span()).into());
+            self.emit_err(TypeCheckerError::function_has_no_return(input.name(), input.span()));
         }
 
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
@@ -64,10 +64,10 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Check for conflicting circuit/record member names.
         let mut used = HashSet::new();
         if !input.members.iter().all(|member| used.insert(member.name())) {
-            self.handler.emit_err(if input.is_record {
-                TypeCheckerError::duplicate_record_variable(input.name(), input.span()).into()
+            self.emit_err(if input.is_record {
+                TypeCheckerError::duplicate_record_variable(input.name(), input.span())
             } else {
-                TypeCheckerError::duplicate_circuit_member(input.name(), input.span()).into()
+                TypeCheckerError::duplicate_circuit_member(input.name(), input.span())
             });
         }
 
@@ -80,12 +80,18 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             {
                 Some((_, actual_ty)) if expected_ty.eq_flat(actual_ty) => {} // All good, found + right type!
                 Some((field, _)) => {
-                    self.handler
-                        .emit_err(TypeCheckerError::record_var_wrong_type(field, expected_ty, input.span()).into());
+                    self.emit_err(TypeCheckerError::record_var_wrong_type(
+                        field,
+                        expected_ty,
+                        input.span(),
+                    ));
                 }
                 None => {
-                    self.handler
-                        .emit_err(TypeCheckerError::required_record_variable(need, expected_ty, input.span()).into());
+                    self.emit_err(TypeCheckerError::required_record_variable(
+                        need,
+                        expected_ty,
+                        input.span(),
+                    ));
                 }
             };
             check_has_field(sym::owner, Type::Address);

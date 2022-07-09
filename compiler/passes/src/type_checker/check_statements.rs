@@ -63,8 +63,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let var_name = match input.place {
             Expression::Identifier(id) => id,
             _ => {
-                self.handler
-                    .emit_err(TypeCheckerError::invalid_assignment_target(input.place.span()).into());
+                self.emit_err(TypeCheckerError::invalid_assignment_target(input.place.span()));
                 return;
             }
         };
@@ -72,18 +71,16 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(&var_name.name) {
             // TODO: Check where this check is moved to in `improved-flattening`.
             match &var.declaration {
-                Declaration::Const => self
-                    .handler
-                    .emit_err(TypeCheckerError::cannont_assign_to_const_var(var_name, var.span).into()),
-                Declaration::Input(ParamMode::Const) => self
-                    .handler
-                    .emit_err(TypeCheckerError::cannont_assign_to_const_input(var_name, var.span).into()),
+                Declaration::Const => self.emit_err(TypeCheckerError::cannont_assign_to_const_var(var_name, var.span)),
+                Declaration::Input(ParamMode::Const) => {
+                    self.emit_err(TypeCheckerError::cannont_assign_to_const_input(var_name, var.span))
+                }
                 _ => {}
             }
 
             Some(var.type_.clone())
         } else {
-            self.emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span).into());
+            self.emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span));
 
             None
         };

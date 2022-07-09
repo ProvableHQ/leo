@@ -282,7 +282,7 @@ create_messages!(
     @formatted
     invalid_tuple {
         args: (),
-        msg: format!("Tuples must be explicitly typed in Leo"),
+        msg: "Tuples must be explicitly typed in Leo".to_string(),
         help: Some("The function definition must match the function return statement".to_string()),
     }
 

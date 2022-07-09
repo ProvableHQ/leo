@@ -299,7 +299,7 @@ mod tests {
             });
             assert_eq!(count_err(res.unwrap_err().to_string()), 2);
 
-            let () = Handler::with(|_| Ok(())).unwrap();
+            Handler::with(|_| Ok(())).unwrap();
         })
     }
 }

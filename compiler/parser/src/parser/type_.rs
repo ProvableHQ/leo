@@ -89,7 +89,7 @@ impl ParserContext<'_> {
         let (types, _, span) = self.parse_paren_comma_list(|p| p.parse_single_type().map(Some))?;
         let elements = types.into_iter().map(|(type_, _)| type_).collect::<Vec<_>>();
 
-        Ok((Tuple::new(elements, span)?, span))
+        Ok((Tuple::try_new(elements, span)?, span))
     }
 
     /// Returns a [`(Type, Span)`] where `Type` is a tuple or single type.

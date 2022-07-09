@@ -27,7 +27,7 @@ pub struct Tuple(Vec<Type>);
 
 impl Tuple {
     /// Returns a new `Type::Tuple` enumeration.
-    pub fn new(elements: Vec<Type>, span: Span) -> Result<Type> {
+    pub fn try_new(elements: Vec<Type>, span: Span) -> Result<Type> {
         match elements.len() {
             0 => Err(AstError::empty_tuple(span).into()),
             1 => Err(AstError::one_element_tuple(span).into()),
