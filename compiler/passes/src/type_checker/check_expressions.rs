@@ -165,11 +165,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         None
     }
 
-    fn visit_circuit_init(
-        &mut self,
-        input: &'a CircuitExpression,
-        additional: &Self::AdditionalInput,
-    ) -> Self::Output {
+    fn visit_circuit_init(&mut self, input: &'a CircuitExpression, additional: &Self::AdditionalInput) -> Self::Output {
         let circ = self.symbol_table.borrow().lookup_circuit(&input.name.name).cloned();
         if let Some(circ) = circ {
             // Check circuit type name.
@@ -544,7 +540,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
                     // Check number of function arguments.
                     if func.input.len() != input.arguments.len() {
-                        self.handler.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                        self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
                             func.input.len(),
                             input.arguments.len(),
                             input.span(),
