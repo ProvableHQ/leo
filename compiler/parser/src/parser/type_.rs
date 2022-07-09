@@ -84,7 +84,8 @@ impl ParserContext<'_> {
     }
 
     /// Returns a [`(Type, Span)`] where `Type` is a `Type::Tuple` AST node.
-    pub fn parse_tuple_type(&mut self) -> Result<(Type, Span)> { // todo: catch and return error for nested tuple type.
+    pub fn parse_tuple_type(&mut self) -> Result<(Type, Span)> {
+        // todo: catch and return error for nested tuple type.
         let (types, _, span) = self.parse_paren_comma_list(|p| p.parse_single_type().map(Some))?;
         let elements = types.into_iter().map(|(type_, _)| type_).collect::<Vec<_>>();
 

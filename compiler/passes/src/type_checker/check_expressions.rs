@@ -98,7 +98,6 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-
     fn visit_binary(&mut self, input: &'a BinaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
         match input.op {
             BinaryOperation::And | BinaryOperation::Or | BinaryOperation::Nand | BinaryOperation::Nor => {
@@ -322,7 +321,6 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-
     fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match &*input.function {
             Expression::Identifier(ident) => {
@@ -338,7 +336,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                 input.arguments.len(),
                                 input.span(),
                             )
-                                .into(),
+                            .into(),
                         );
                     }
 
@@ -361,11 +359,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_circuit_init(
-        &mut self,
-        input: &'a CircuitExpression,
-        additional: &Self::AdditionalInput,
-    ) -> Self::Output {
+    fn visit_circuit_init(&mut self, input: &'a CircuitExpression, additional: &Self::AdditionalInput) -> Self::Output {
         let circ = self.symbol_table.borrow().lookup_circuit(&input.name.name).cloned();
         if let Some(circ) = circ {
             // Check circuit type name.
@@ -509,8 +503,6 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         })
     }
 
-
-
     fn visit_ternary(&mut self, input: &'a TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.condition, &Some(Type::Boolean));
 
@@ -525,7 +517,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         if let Some(Type::Tuple(expected_types)) = expected {
             // Check actual length is equal to expected length.
             if expected_types.len() != input.elements.len() {
-                self.emit_err(TypeCheckerError::incorrect_tuple_length(expected_types.len(), input.elements.len(), input.span()));
+                self.emit_err(TypeCheckerError::incorrect_tuple_length(
+                    expected_types.len(),
+                    input.elements.len(),
+                    input.span(),
+                ));
             }
 
             expected_types
@@ -594,5 +590,4 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
         }
     }
-
 }

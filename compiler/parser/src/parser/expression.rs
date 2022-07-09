@@ -384,10 +384,7 @@ impl ParserContext<'_> {
         if !trailing && tuple.len() == 1 {
             Ok(tuple.swap_remove(0))
         } else {
-            Ok(Expression::Tuple(TupleExpression {
-                elements: tuple,
-                span
-            }))
+            Ok(Expression::Tuple(TupleExpression { elements: tuple, span }))
         }
     }
 

@@ -40,7 +40,34 @@ pub trait ExpressionReconstructor {
     }
 
     fn reconstruct_access(&mut self, input: AccessExpression) -> (Expression, Self::AdditionalOutput) {
-        (Expression::Access(input), Default::default())
+        (
+            Expression::Access(match input {
+                AccessExpression::AssociatedFunction(function) => {
+                    AccessExpression::AssociatedFunction(AssociatedFunction {
+                        ty: function.ty,
+                        name: function.name,
+                        args: function
+                            .args
+                            .into_iter()
+                            .map(|arg| self.reconstruct_expression(arg).0)
+                            .collect(),
+                        span: function.span,
+                    })
+                }
+                AccessExpression::Member(member) => AccessExpression::Member(MemberAccess {
+                    inner: Box::new(self.reconstruct_expression(*member.inner).0),
+                    name: member.name,
+                    span: member.span,
+                }),
+                AccessExpression::Tuple(tuple) => AccessExpression::Tuple(TupleAccess {
+                    tuple: Box::new(self.reconstruct_expression(*tuple.tuple).0),
+                    index: tuple.index,
+                    span: tuple.span,
+                }),
+                expr => expr,
+            }),
+            Default::default(),
+        )
     }
 
     fn reconstruct_binary(&mut self, input: BinaryExpression) -> (Expression, Self::AdditionalOutput) {
@@ -54,7 +81,6 @@ pub trait ExpressionReconstructor {
             Default::default(),
         )
     }
-
 
     fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
         (

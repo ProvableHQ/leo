@@ -40,7 +40,22 @@ pub trait ExpressionVisitor<'a> {
         }
     }
 
-    fn visit_access(&mut self, _input: &'a AccessExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_access(&mut self, input: &'a AccessExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        match input {
+            AccessExpression::AssociatedFunction(function) => {
+                function.args.iter().for_each(|arg| {
+                    self.visit_expression(arg, &Default::default());
+                });
+            }
+            AccessExpression::Member(member) => {
+                self.visit_expression(&member.inner, additional);
+            }
+            AccessExpression::Tuple(tuple) => {
+                self.visit_expression(&tuple.tuple, additional);
+            }
+            _ => {}
+        }
+
         Default::default()
     }
 
@@ -69,9 +84,9 @@ pub trait ExpressionVisitor<'a> {
     }
 
     fn visit_circuit_init(
-    &mut self,
-    _input: &'a CircuitExpression,
-    _additional: &Self::AdditionalInput,
+        &mut self,
+        _input: &'a CircuitExpression,
+        _additional: &Self::AdditionalInput,
     ) -> Self::Output {
         Default::default()
     }
