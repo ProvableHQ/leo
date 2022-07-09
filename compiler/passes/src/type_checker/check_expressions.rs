@@ -101,8 +101,21 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             if index > tuple.len() - 1 {
                                 self.emit_err(TypeCheckerError::tuple_out_of_range(index, tuple.len(), access.span()));
                             } else {
+                                // Lookup type of tuple index.
+                                let actual = tuple.get(index).expect("failed to get tuple index").clone();
+                                if let Some(expected) = expected {
+                                    // Emit error for mismatched types.
+                                    if !actual.eq_flat(expected) {
+                                        self.emit_err(TypeCheckerError::type_should_be(
+                                            &actual,
+                                            expected,
+                                            access.span(),
+                                        ))
+                                    }
+                                }
+
                                 // Return type of tuple index.
-                                return Some(tuple.get(index).expect("failed to get tuple index").clone());
+                                return Some(actual);
                             }
                         }
                         type_ => {
