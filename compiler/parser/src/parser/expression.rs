@@ -470,7 +470,7 @@ impl ParserContext<'_> {
             p.parse_circuit_member().map(Some)
         })?;
 
-        Ok(Expression::CircuitInit(CircuitInitExpression {
+        Ok(Expression::Circuit(CircuitExpression {
             span: identifier.span + end,
             name: identifier,
             members,

@@ -52,8 +52,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.visit_block(&input.block);
 
         if !self.has_return {
-            self.handler
-                .emit_err(TypeCheckerError::function_has_no_return(input.name(), input.span()).into());
+            self.emit_err(TypeCheckerError::function_has_no_return(input.name(), input.span()).into());
         }
 
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();

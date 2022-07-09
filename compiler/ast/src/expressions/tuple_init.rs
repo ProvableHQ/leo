@@ -14,42 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Type;
-use leo_errors::{AstError, Result};
-use leo_span::Span;
+use super::*;
 
-use serde::{Deserialize, Serialize};
-use std::{fmt, ops::Deref};
-
-/// A type list of at least two types.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct Tuple(Vec<Type>);
-
-impl Tuple {
-    /// Returns a new `Type::Tuple` enumeration.
-    pub fn new(elements: Vec<Type>, span: Span) -> Result<Type> {
-        match elements.len() {
-            0 => Err(AstError::empty_tuple(span).into()),
-            1 => Err(AstError::one_element_tuple(span).into()),
-            _ => Ok(Type::Tuple(Tuple(elements))),
-        }
-    }
+/// A tuple construction expression, e.g., `(foo, false, 42)`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TupleExpression {
+    /// The elements of the tuple.
+    /// In the example above, it would be `foo`, `false`, and `42`.
+    pub elements: Vec<Expression>,
+    /// The span from `(` to `)`.
+    pub span: Span,
 }
 
-impl Deref for Tuple {
-    type Target = Vec<Type>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl fmt::Display for Tuple {
+impl fmt::Display for TupleExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
             "({})",
-            self.0.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",")
+            self.elements
+                .iter()
+                .map(|x| x.to_string())
+                .collect::<Vec<_>>()
+                .join(",")
         )
     }
 }
+
+crate::simple_node_impl!(TupleExpression);

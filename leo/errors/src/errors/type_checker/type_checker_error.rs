@@ -271,4 +271,18 @@ create_messages!(
         msg: format!("Comparison `{operator}` is not supported for the address type."),
         help: None,
     }
+
+    @formatted
+    incorrect_tuple_length {
+        args: (expected: impl Display, actual: impl Display),
+        msg: format!("Expected a tuple of length `{expected}` got `{actual}`"),
+        help: None,
+    }
+
+    @formatted
+    invalid_tuple {
+        args: (),
+        msg: format!("Tuples must be explicitly typed in Leo"),
+        help: Some("The function definition must match the function return statement".to_string()),
+    }
 );

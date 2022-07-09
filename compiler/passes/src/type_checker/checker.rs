@@ -85,7 +85,7 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Emits a type checker error.
-    fn emit_err(&self, err: TypeCheckerError) {
+    pub fn emit_err(&self, err: TypeCheckerError) {
         self.handler.emit_err(err.into());
     }
 
