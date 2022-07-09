@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, GroupLiteral, IntegerType, LiteralExpression, Node, Type, UnaryOperation};
+use crate::{Expression, GroupLiteral, IntegerType, Literal, Node, Type, UnaryOperation};
 use leo_errors::{InputError, LeoError, Result};
 
 use serde::{Deserialize, Serialize};
@@ -34,11 +34,11 @@ impl TryFrom<(Type, Expression)> for InputValue {
     fn try_from(value: (Type, Expression)) -> Result<Self> {
         Ok(match value {
             (type_, Expression::Literal(lit)) => match (type_, lit) {
-                (Type::Address, LiteralExpression::Address(value, _)) => Self::Address(value),
-                (Type::Boolean, LiteralExpression::Boolean(value, _)) => Self::Boolean(value),
-                (Type::Field, LiteralExpression::Field(value, _)) => Self::Field(value),
-                (Type::Group, LiteralExpression::Group(value)) => Self::Group(*value),
-                (Type::IntegerType(expected), LiteralExpression::Integer(actual, value, span)) => {
+                (Type::Address, Literal::Address(value, _)) => Self::Address(value),
+                (Type::Boolean, Literal::Boolean(value, _)) => Self::Boolean(value),
+                (Type::Field, Literal::Field(value, _)) => Self::Field(value),
+                (Type::Group, Literal::Group(value)) => Self::Group(*value),
+                (Type::IntegerType(expected), Literal::Integer(actual, value, span)) => {
                     if expected == actual {
                         Self::Integer(expected, value)
                     } else {

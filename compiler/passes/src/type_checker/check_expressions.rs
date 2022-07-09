@@ -63,14 +63,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 if let Some(core_instruction) = self.check_core_circuit_call(&access.ty, &access.name) {
                     // Check num input arguments.
                     if core_instruction.num_args() != access.args.len() {
-                        self.handler.emit_err(
-                            TypeCheckerError::incorrect_num_args_to_call(
-                                core_instruction.num_args(),
-                                access.args.len(),
-                                input.span(),
-                            )
-                            .into(),
-                        );
+                        self.handler.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                            core_instruction.num_args(),
+                            access.args.len(),
+                            input.span(),
+                        ));
                     }
 
                     // Check first argument type.
@@ -89,11 +86,56 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     Some(self.assert_and_return_type(core_instruction.return_type(), expected, access.span()))
                 } else {
                     self.handler
-                        .emit_err(TypeCheckerError::invalid_access_expression(access, access.span()).into());
+                        .emit_err(TypeCheckerError::invalid_core_circuit_call(access, access.span()));
                     None
                 }
             }
-            _expr => None, // todo: Add support for associated constants (u8::MAX).
+            AccessExpression::Member(access) => {
+                // Check that the type of `inner` in `inner.name` is a circuit.
+                match self.visit_expression(&access.inner, &None) {
+                    Some(Type::Identifier(identifier)) => {
+                        // Retrieve the circuit definition associated with `identifier`.
+                        let circ = self.symbol_table.borrow().lookup_circuit(&identifier.name).cloned();
+                        if let Some(circ) = circ {
+                            // Check that `access.name` is a member of the circuit.
+                            match circ
+                                .members
+                                .iter()
+                                .find(|circuit_member| circuit_member.name() == access.name.name)
+                            {
+                                // Case where `access.name` is a member of the circuit.
+                                Some(CircuitMember::CircuitVariable(_, type_)) => Some(*type_),
+                                // Case where `access.name` is not a member of the circuit.
+                                None => {
+                                    self.handler.emit_err(TypeCheckerError::invalid_circuit_variable(
+                                        &access.name,
+                                        &circ,
+                                        access.name.span(),
+                                    ));
+                                    None
+                                }
+                            }
+                        } else {
+                            self.handler
+                                .emit_err(TypeCheckerError::invalid_circuit(&access.inner, access.inner.span()));
+                            None
+                        }
+                    }
+                    Some(type_) => {
+                        self.handler
+                            .emit_err(TypeCheckerError::type_should_be(type_, "circuit", access.inner.span()));
+                        None
+                    }
+                    None => {
+                        self.handler.emit_err(TypeCheckerError::could_not_determine_type(
+                            &access.inner,
+                            access.inner.span(),
+                        ));
+                        None
+                    }
+                }
+            }
+            AccessExpression::AssociatedConstant(..) => None, // todo: Add support for associated constants (u8::MAX).
         }
     }
 
@@ -109,14 +151,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
             // Check number of circuit members.
             if circ.members.len() != input.members.len() {
-                self.handler.emit_err(
-                    TypeCheckerError::incorrect_num_circuit_members(
-                        circ.members.len(),
-                        input.members.len(),
-                        input.span(),
-                    )
-                    .into(),
-                );
+                self.handler.emit_err(TypeCheckerError::incorrect_num_circuit_members(
+                    circ.members.len(),
+                    input.members.len(),
+                    input.span(),
+                ));
             }
 
             // Check circuit member types.
@@ -129,16 +168,21 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             self.visit_expression(expr, &Some(*ty));
                         }
                     } else {
-                        self.handler.emit_err(
-                            TypeCheckerError::unknown_sym("circuit member variable", name, name.span()).into(),
-                        );
+                        self.handler.emit_err(TypeCheckerError::missing_circuit_member(
+                            circ.identifier,
+                            name,
+                            input.span(),
+                        ));
                     };
                 });
 
             Some(ret)
         } else {
-            self.handler
-                .emit_err(TypeCheckerError::unknown_sym("circuit", &input.name.name, input.name.span()).into());
+            self.handler.emit_err(TypeCheckerError::unknown_sym(
+                "circuit",
+                &input.name.name,
+                input.name.span(),
+            ));
             None
         }
     }
@@ -150,17 +194,17 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             Some(self.assert_and_return_type(var.type_, expected, var.span))
         } else {
             self.handler
-                .emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()).into());
+                .emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()));
             None
         }
     }
 
-    fn visit_literal(&mut self, input: &'a LiteralExpression, expected: &Self::AdditionalInput) -> Self::Output {
+    fn visit_literal(&mut self, input: &'a Literal, expected: &Self::AdditionalInput) -> Self::Output {
         Some(match input {
-            LiteralExpression::Address(_, _) => self.assert_and_return_type(Type::Address, expected, input.span()),
-            LiteralExpression::Boolean(_, _) => self.assert_and_return_type(Type::Boolean, expected, input.span()),
-            LiteralExpression::Field(_, _) => self.assert_and_return_type(Type::Field, expected, input.span()),
-            LiteralExpression::Integer(type_, str_content, _) => {
+            Literal::Address(_, _) => self.assert_and_return_type(Type::Address, expected, input.span()),
+            Literal::Boolean(_, _) => self.assert_and_return_type(Type::Boolean, expected, input.span()),
+            Literal::Field(_, _) => self.assert_and_return_type(Type::Field, expected, input.span()),
+            Literal::Integer(type_, str_content, _) => {
                 match type_ {
                     IntegerType::I8 => {
                         let int = if self.negate {
@@ -171,7 +215,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
                         if int.parse::<i8>().is_err() {
                             self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(int, "i8", input.span()).into());
+                                .emit_err(TypeCheckerError::invalid_int_value(int, "i8", input.span()));
                         }
                     }
                     IntegerType::I16 => {
@@ -183,7 +227,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
                         if int.parse::<i16>().is_err() {
                             self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(int, "i16", input.span()).into());
+                                .emit_err(TypeCheckerError::invalid_int_value(int, "i16", input.span()));
                         }
                     }
                     IntegerType::I32 => {
@@ -195,7 +239,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
                         if int.parse::<i32>().is_err() {
                             self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(int, "i32", input.span()).into());
+                                .emit_err(TypeCheckerError::invalid_int_value(int, "i32", input.span()));
                         }
                     }
                     IntegerType::I64 => {
@@ -207,7 +251,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
                         if int.parse::<i64>().is_err() {
                             self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(int, "i64", input.span()).into());
+                                .emit_err(TypeCheckerError::invalid_int_value(int, "i64", input.span()));
                         }
                     }
                     IntegerType::I128 => {
@@ -219,31 +263,31 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
                         if int.parse::<i128>().is_err() {
                             self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(int, "i128", input.span()).into());
+                                .emit_err(TypeCheckerError::invalid_int_value(int, "i128", input.span()));
                         }
                     }
                     IntegerType::U8 if str_content.parse::<u8>().is_err() => self
                         .handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u8", input.span()).into()),
+                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u8", input.span())),
                     IntegerType::U16 if str_content.parse::<u16>().is_err() => self
                         .handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u16", input.span()).into()),
+                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u16", input.span())),
                     IntegerType::U32 if str_content.parse::<u32>().is_err() => self
                         .handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u32", input.span()).into()),
+                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u32", input.span())),
                     IntegerType::U64 if str_content.parse::<u64>().is_err() => self
                         .handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u64", input.span()).into()),
+                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u64", input.span())),
                     IntegerType::U128 if str_content.parse::<u128>().is_err() => self
                         .handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u128", input.span()).into()),
+                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u128", input.span())),
                     _ => {}
                 }
                 self.assert_and_return_type(Type::IntegerType(*type_), expected, input.span())
             }
-            LiteralExpression::Group(_) => self.assert_and_return_type(Type::Group, expected, input.span()),
-            LiteralExpression::Scalar(_, _) => self.assert_and_return_type(Type::Scalar, expected, input.span()),
-            LiteralExpression::String(_, _) => self.assert_and_return_type(Type::String, expected, input.span()),
+            Literal::Group(_) => self.assert_and_return_type(Type::Group, expected, input.span()),
+            Literal::Scalar(_, _) => self.assert_and_return_type(Type::Scalar, expected, input.span()),
+            Literal::String(_, _) => self.assert_and_return_type(Type::String, expected, input.span()),
         })
     }
 
@@ -403,7 +447,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     (Some(Type::Address), _) | (_, Some(Type::Address)) => {
                         // Emit an error for address comparison.
                         self.handler
-                            .emit_err(TypeCheckerError::compare_address(input.op, input.span()).into());
+                            .emit_err(TypeCheckerError::compare_address(input.op, input.span()));
                     }
                     (Some(Type::Field), t2) => {
                         // Assert rhs is field.
@@ -533,20 +577,19 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match &*input.function {
             Expression::Identifier(ident) => {
+                // Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
+                // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table` alive for the entire block and will be very memory inefficient!
                 let func = self.symbol_table.borrow().lookup_fn(&ident.name).cloned();
                 if let Some(func) = func {
                     let ret = self.assert_and_return_type(func.output, expected, func.span);
 
                     // Check number of function arguments.
                     if func.input.len() != input.arguments.len() {
-                        self.handler.emit_err(
-                            TypeCheckerError::incorrect_num_args_to_call(
-                                func.input.len(),
-                                input.arguments.len(),
-                                input.span(),
-                            )
-                            .into(),
-                        );
+                        self.handler.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                            func.input.len(),
+                            input.arguments.len(),
+                            input.span(),
+                        ));
                     }
 
                     // Check function argument types.
@@ -560,10 +603,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     Some(ret)
                 } else {
                     self.handler
-                        .emit_err(TypeCheckerError::unknown_sym("function", &ident.name, ident.span()).into());
+                        .emit_err(TypeCheckerError::unknown_sym("function", &ident.name, ident.span()));
                     None
                 }
             }
+            // TODO: Is this case sufficient?
             expr => self.visit_expression(expr, expected),
         }
     }
