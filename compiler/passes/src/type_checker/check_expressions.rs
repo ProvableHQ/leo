@@ -57,7 +57,6 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_access(&mut self, input: &'a AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        // CAUTION: This implementation only allows access to core circuits.
         match input {
             AccessExpression::AssociatedFunction(access) => {
                 // Check core circuit name and function.
@@ -87,15 +86,34 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     }
 
                     // Check return type.
-                    Some(self.assert_and_return_type(core_instruction.return_type(), expected, access.span()))
+                    return Some(self.assert_and_return_type(core_instruction.return_type(), expected, access.span()));
                 } else {
                     self.handler
                         .emit_err(TypeCheckerError::invalid_access_expression(access, access.span()).into());
-                    None
                 }
             }
-            _expr => None, // todo: Add support for associated constants (u8::MAX).
+            AccessExpression::Tuple(access) => {
+                if let Some(type_) = self.visit_expression(&access.tuple, &None) {
+                    match type_ {
+                        Type::Tuple(tuple) => {
+                            // Check out of range access.
+                            let index = access.index.to_usize();
+                            if index > tuple.len() - 1 {
+                                self.emit_err(TypeCheckerError::tuple_out_of_range(index, tuple.len(), access.span()));
+                            } else {
+                                // Return type of tuple index.
+                                return Some(tuple.get(index).expect("failed to get tuple index").clone());
+                            }
+                        }
+                        type_ => {
+                            self.emit_err(TypeCheckerError::type_should_be(type_, "tuple", access.span()));
+                        }
+                    }
+                }
+            }
+            _expr => {} // todo: Add support for associated constants (u8::MAX).
         }
+        None
     }
 
     fn visit_binary(&mut self, input: &'a BinaryExpression, destination: &Self::AdditionalInput) -> Self::Output {

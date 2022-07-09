@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372003]: Found type `u64` but type `address` was expected\n    --> compiler-test:12:28\n     |\n  12 | function mint(r0: address, r1: u64) -> Token {\n     |                            ^^\nError [ETYC0372003]: Found type `address` but type `u64` was expected\n    --> compiler-test:12:15\n     |\n  12 | function mint(r0: address, r1: u64) -> Token {\n     |               ^^\n"
+  - "Error [ETYC0372003]: Expected type `address` but type `u64` was found\n    --> compiler-test:12:28\n     |\n  12 | function mint(r0: address, r1: u64) -> Token {\n     |                            ^^\nError [ETYC0372003]: Expected type `u64` but type `address` was found\n    --> compiler-test:12:15\n     |\n  12 | function mint(r0: address, r1: u64) -> Token {\n     |               ^^\n"

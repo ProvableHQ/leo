@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372028]: Tuple index `2` out of range for a tuple with length `2`\n    --> compiler-test:6:21\n     |\n   6 |     return (t.0, t.2); // Index `t.2` is out of bounds.\n     |                     ^\n"
