@@ -320,8 +320,8 @@ impl ParserContext<'_> {
         }))
     }
 
-    /// Parses a tuple of expressions.
-    fn parse_expr_tuple(&mut self) -> Result<(Vec<Expression>, bool, Span)> {
+    /// Parses a tuple of `Expression` AST nodes.
+    pub(crate) fn parse_expr_tuple(&mut self) -> Result<(Vec<Expression>, bool, Span)> {
         self.parse_paren_comma_list(|p| p.parse_expression().map(Some))
     }
 
@@ -384,7 +384,10 @@ impl ParserContext<'_> {
         if !trailing && tuple.len() == 1 {
             Ok(tuple.swap_remove(0))
         } else {
-            Err(ParserError::unexpected("A tuple expression.", "A valid expression.", span).into())
+            Ok(Expression::Tuple(TupleExpression {
+                elements: tuple,
+                span
+            }))
         }
     }
 

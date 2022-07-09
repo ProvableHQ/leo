@@ -275,7 +275,7 @@ create_messages!(
     @formatted
     incorrect_tuple_length {
         args: (expected: impl Display, actual: impl Display),
-        msg: format!("Expected a tuple of length `{expected}` got `{actual}`"),
+        msg: format!("Expected a tuple of length `{expected}` found length `{actual}`"),
         help: None,
     }
 

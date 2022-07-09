@@ -103,7 +103,7 @@ impl ParserContext<'_> {
         let start_span = self.expect(&Token::For)?;
         let ident = self.expect_ident()?;
         self.expect(&Token::Colon)?;
-        let type_ = self.parse_all_types()?;
+        let type_ = self.parse_single_type()?;
         self.expect(&Token::In)?;
 
         // Parse iteration range.
@@ -222,7 +222,7 @@ impl ParserContext<'_> {
         };
 
         self.expect(&Token::Colon)?;
-        let type_ = self.parse_all_types()?;
+        let type_ = self.parse_single_type()?;
 
         self.expect(&Token::Assign)?;
         let expr = self.parse_expression()?;

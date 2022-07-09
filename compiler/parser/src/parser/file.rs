@@ -107,7 +107,7 @@ impl ParserContext<'_> {
     fn parse_member(&mut self) -> Result<(Identifier, Type)> {
         let name = self.expect_ident()?;
         self.expect(&Token::Colon)?;
-        let type_ = self.parse_all_types()?.0;
+        let type_ = self.parse_single_type()?.0;
 
         Ok((name, type_))
     }
@@ -201,7 +201,7 @@ impl ParserContext<'_> {
         let name = self.expect_ident()?;
 
         self.expect(&Token::Colon)?;
-        let type_ = self.parse_all_types()?.0;
+        let type_ = self.parse_single_type()?.0;
         Ok(FunctionInput::Variable(FunctionInputVariable::new(
             name, mode, type_, name.span,
         )))
@@ -229,7 +229,7 @@ impl ParserContext<'_> {
         // Parse return type.
         self.expect(&Token::Arrow)?;
         self.disallow_circuit_construction = true;
-        let output = self.parse_all_types()?.0;
+        let output = self.parse_any_type()?.0;
         self.disallow_circuit_construction = false;
 
         // Parse the function body.

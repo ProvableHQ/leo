@@ -131,19 +131,19 @@ create_messages!(
         help: None,
     }
 
-    /// For when a user tries to define a tuple dimension of 1.
+    /// For when a user tries to define an empty tuple.
     @formatted
     empty_tuple {
         args: (),
-        msg: "Tuples of 0 elements are not allowed.",
+        msg: "Tuples of zero elements are not allowed.",
         help: None,
     }
 
-    /// For when a user tries to define a tuple dimension of 1.
+    /// For when a user tries to define a tuple dimension of one.
     @formatted
     one_element_tuple {
         args: (),
-        msg: "Tuples of 1 element are not allowed.",
+        msg: "Tuples of one element are not allowed.",
         help: Some("Try defining a single type by removing the parenthesis `( )`".to_string()),
     }
 
