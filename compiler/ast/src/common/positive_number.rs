@@ -16,6 +16,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use std::str::FromStr;
 
 /// A number string guaranteed to be positive.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
@@ -29,6 +30,10 @@ impl PositiveNumber {
     /// Returns `true` if this number is zero.
     pub fn is_zero(&self) -> bool {
         self.value.eq("0")
+    }
+
+    pub fn to_usize(&self) -> usize {
+        usize::from_str(&self.value).expect("failed to parse positive number")
     }
 }
 

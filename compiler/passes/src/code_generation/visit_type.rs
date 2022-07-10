@@ -28,14 +28,15 @@ impl<'a> CodeGenerator<'a> {
             | Type::Group
             | Type::Scalar
             | Type::String
-            | Type::IntegerType(..) => format!("{}", input),
+            | Type::IntegerType(..)
+            | Type::Tuple(..) => format!("{}", input),
             Type::Identifier(ident) => {
                 if let Some(type_) = self.composite_mapping.get(&ident.name) {
                     format!("{}.{}", ident.to_string().to_lowercase(), type_)
                 } else {
                     unreachable!("All composite types should be known at this phase of compilation")
                 }
-            }
+            },
             Type::Err => unreachable!("Error types should not exist at this phase of compilation"),
         }
     }

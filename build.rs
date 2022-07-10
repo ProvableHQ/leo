@@ -45,15 +45,15 @@ fn compare_license_text(path: &Path, expected_lines: &[&str]) {
     for (i, (file_line, expected_line)) in reader.lines().zip(expected_lines).enumerate() {
         let file_line =
             file_line.unwrap_or_else(|_| panic!("Can't read line {} in file \"{}\"!", i + 1, path.display()));
-
-        assert!(
-            &file_line == expected_line,
+        assert_eq!(
+            &file_line,
+            expected_line,
             "Line {} in file \"{}\" was expected to contain the license text \"{}\", but contains \"{}\" instead! \
             Consult the expected license text in \".resources/license_header\"",
             i + 1,
             path.display(),
             expected_line,
-            file_line,
+            file_line
         );
     }
 }

@@ -146,23 +146,23 @@ impl<'a> Compiler<'a> {
     ///
     /// Runs the symbol table pass.
     ///
-    pub fn symbol_table_pass(&self) -> Result<SymbolTable<'_>> {
+    pub fn symbol_table_pass(&self) -> Result<SymbolTable> {
         CreateSymbolTable::do_pass((&self.ast, self.handler))
     }
 
     ///
     /// Runs the type checker pass.
     ///
-    pub fn type_checker_pass(&'a self, symbol_table: &mut SymbolTable<'_>) -> Result<()> {
-        TypeChecker::do_pass((&self.ast, &mut symbol_table.clone(), self.handler))
+    pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<SymbolTable> {
+        TypeChecker::do_pass((&self.ast, self.handler, symbol_table))
     }
 
     ///
     /// Runs the compiler stages.
     ///
-    pub fn compiler_stages(&self) -> Result<SymbolTable<'_>> {
-        let mut st = self.symbol_table_pass()?;
-        self.type_checker_pass(&mut st)?;
+    pub fn compiler_stages(&self) -> Result<SymbolTable> {
+        let st = self.symbol_table_pass()?;
+        let st = self.type_checker_pass(st)?;
         Ok(st)
     }
 
@@ -170,7 +170,7 @@ impl<'a> Compiler<'a> {
     /// Returns a compiled Leo program and prints the resulting bytecode.
     /// TODO: Remove when code generation is ready to be integrated into the compiler.
     ///
-    pub fn compile_and_generate_bytecode(&mut self) -> Result<(SymbolTable<'_>, String)> {
+    pub fn compile_and_generate_bytecode(&mut self) -> Result<(SymbolTable, String)> {
         self.parse_program()?;
         let symbol_table = self.compiler_stages()?;
 
@@ -182,7 +182,7 @@ impl<'a> Compiler<'a> {
     ///
     /// Returns a compiled Leo program.
     ///
-    pub fn compile(&mut self) -> Result<SymbolTable<'_>> {
+    pub fn compile(&mut self) -> Result<SymbolTable> {
         self.parse_program()?;
         self.compiler_stages()
     }

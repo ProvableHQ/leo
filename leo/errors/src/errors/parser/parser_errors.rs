@@ -67,8 +67,8 @@ create_messages!(
     /// For when the parser encountered an unexpected list of tokens.
     @formatted
     unexpected {
-        args: (got: impl Display, expected: impl Display),
-        msg: format!("expected {} -- got '{}'", expected, got),
+        args: (found: impl Display, expected: impl Display),
+        msg: format!("expected {} -- found '{}'", expected, found),
         help: None,
     }
 
@@ -83,15 +83,15 @@ create_messages!(
     /// For when the parser encountered an unexpected identifier.
     @formatted
     unexpected_ident {
-        args: (got: impl Display, expected: &[impl Display]),
+        args: (found: impl Display, expected: &[impl Display]),
         msg: format!(
-            "unexpected identifier: expected {} -- got '{}'",
+            "unexpected identifier: expected {} -- found '{}'",
             expected
                 .iter()
                 .map(|x| format!("'{}'", x))
                 .collect::<Vec<_>>()
                 .join(", "),
-            got
+            found
         ),
         help: None,
     }
@@ -99,16 +99,16 @@ create_messages!(
     /// For when the parser encountered an unexpected statement.
     @formatted
     unexpected_statement {
-        args: (got: impl Display, expected: impl Display),
-        msg: format!("unexpected statement: expected '{}', got '{}'", expected, got),
+        args: (found: impl Display, expected: impl Display),
+        msg: format!("unexpected statement: expected '{}', found '{}'", expected, found),
         help: None,
     }
 
     /// For when the parser encountered an unexpected string.
     @formatted
     unexpected_str {
-        args: (got: impl Display, expected: impl Display),
-        msg: format!("unexpected string: expected '{}', got '{}'", expected, got),
+        args: (found: impl Display, expected: impl Display),
+        msg: format!("unexpected string: expected '{}', found '{}'", expected, found),
         help: None,
     }
 

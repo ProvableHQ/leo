@@ -15,10 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::CodeGenerator;
-use leo_ast::{
-    AccessExpression, BinaryExpression, BinaryOperation, CallExpression, CircuitInitExpression, ErrExpression,
-    Expression, Identifier, LiteralExpression, MemberAccess, TernaryExpression, UnaryExpression, UnaryOperation,
-};
+use leo_ast::{AccessExpression, BinaryExpression, BinaryOperation, CallExpression, CircuitExpression, ErrExpression, Expression, Identifier, Literal, MemberAccess, TernaryExpression, TupleExpression, UnaryExpression, UnaryOperation};
 
 use std::fmt::Write as _;
 
@@ -32,12 +29,13 @@ impl<'a> CodeGenerator<'a> {
             Expression::Access(expr) => self.visit_access(expr),
             Expression::Binary(expr) => self.visit_binary(expr),
             Expression::Call(expr) => self.visit_call(expr),
-            Expression::CircuitInit(expr) => self.visit_circuit_init(expr),
+            Expression::Circuit(expr) => self.visit_circuit_init(expr),
             Expression::Err(expr) => self.visit_err(expr),
             Expression::Identifier(expr) => self.visit_identifier(expr),
-            Expression::Ternary(expr) => self.visit_ternary(expr),
-            Expression::Unary(expr) => self.visit_unary(expr),
             Expression::Literal(expr) => self.visit_value(expr),
+            Expression::Ternary(expr) => self.visit_ternary(expr),
+            Expression::Tuple(expr) => self.visit_tuple(expr),
+            Expression::Unary(expr) => self.visit_unary(expr),
         }
     }
 
@@ -45,7 +43,7 @@ impl<'a> CodeGenerator<'a> {
         (self.variable_mapping.get(&input.name).unwrap().clone(), String::new())
     }
 
-    fn visit_value(&mut self, input: &'a LiteralExpression) -> (String, String) {
+    fn visit_value(&mut self, input: &'a Literal) -> (String, String) {
         (format!("{}", input), String::new())
     }
 
@@ -150,7 +148,7 @@ impl<'a> CodeGenerator<'a> {
         (destination_register, instructions)
     }
 
-    fn visit_circuit_init(&mut self, input: &'a CircuitInitExpression) -> (String, String) {
+    fn visit_circuit_init(&mut self, input: &'a CircuitExpression) -> (String, String) {
         // Initialize instruction builder strings.
         let mut instructions = String::new();
         let mut circuit_init_instruction = format!("    {} ", input.name.to_string().to_lowercase());
@@ -198,6 +196,7 @@ impl<'a> CodeGenerator<'a> {
             AccessExpression::Member(access) => self.visit_member_access(access),
             AccessExpression::AssociatedConstant(_) => todo!(),
             AccessExpression::AssociatedFunction(_) => todo!(),
+            AccessExpression::Tuple(_) => todo!(),
         }
     }
 
@@ -220,6 +219,10 @@ impl<'a> CodeGenerator<'a> {
         self.next_register += 1;
 
         (destination_register, instructions)
+    }
+
+    fn visit_tuple(&mut self, _input: &'a TupleExpression) -> (String, String) {
+        todo!()
     }
 
     fn visit_err(&mut self, _input: &'a ErrExpression) -> (String, String) {

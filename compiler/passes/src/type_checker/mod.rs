@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 pub mod check_expressions;
+
 pub use check_expressions::*;
 
 pub mod check_program;
@@ -32,14 +33,14 @@ use leo_ast::{Ast, ProgramVisitor};
 use leo_errors::{emitter::Handler, Result};
 
 impl<'a> Pass for TypeChecker<'a> {
-    type Input = (&'a Ast, &'a mut SymbolTable<'a>, &'a Handler);
-    type Output = Result<()>;
+    type Input = (&'a Ast, &'a Handler, SymbolTable);
+    type Output = Result<SymbolTable>;
 
-    fn do_pass((ast, symbol_table, handler): Self::Input) -> Self::Output {
-        let mut visitor = TypeChecker::new(symbol_table, handler);
+    fn do_pass((ast, handler, st): Self::Input) -> Self::Output {
+        let mut visitor = TypeChecker::new(st, handler);
         visitor.visit_program(ast.as_repr());
         handler.last_err()?;
 
-        Ok(())
+        Ok(visitor.symbol_table.take())
     }
 }

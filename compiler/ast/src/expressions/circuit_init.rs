@@ -38,7 +38,7 @@ impl fmt::Display for CircuitVariableInitializer {
 
 /// A circuit initialization expression, e.g., `Foo { bar: 42, baz }`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CircuitInitExpression {
+pub struct CircuitExpression {
     /// The name of the structure type to initialize.
     pub name: Identifier,
     /// Initializer expressions for each of the fields in the circuit.
@@ -50,7 +50,7 @@ pub struct CircuitInitExpression {
     pub span: Span,
 }
 
-impl fmt::Display for CircuitInitExpression {
+impl fmt::Display for CircuitExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} {{ ", self.name)?;
         for member in self.members.iter() {
@@ -61,4 +61,4 @@ impl fmt::Display for CircuitInitExpression {
     }
 }
 
-crate::simple_node_impl!(CircuitInitExpression);
+crate::simple_node_impl!(CircuitExpression);

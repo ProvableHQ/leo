@@ -19,20 +19,22 @@ use leo_errors::emitter::Handler;
 
 use crate::SymbolTable;
 
+/// A compiler pass during which the `SymbolTable` is created.
+/// Note that this pass only creates the initial entries for functions and circuits.
+/// The table is populated further during the type checking pass.
 pub struct CreateSymbolTable<'a> {
-    symbol_table: SymbolTable<'a>,
+    /// The `SymbolTable` constructed by this compiler pass.
+    pub(crate) symbol_table: SymbolTable,
+    /// The error handler.
     handler: &'a Handler,
 }
 
 impl<'a> CreateSymbolTable<'a> {
     pub fn new(handler: &'a Handler) -> Self {
         Self {
-            symbol_table: SymbolTable::default(),
+            symbol_table: Default::default(),
             handler,
         }
-    }
-    pub fn symbol_table(self) -> SymbolTable<'a> {
-        self.symbol_table
     }
 }
 

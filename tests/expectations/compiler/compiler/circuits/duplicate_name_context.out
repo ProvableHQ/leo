@@ -1,8 +1,5 @@
 ---
 namespace: Compile
-expectation: Pass
+expectation: Fail
 outputs:
-  - output:
-      - initial_input_ast: acb54d555ee391d519919827f5949bf1600d18004ce461097d062f91108563ba
-    initial_ast: 2fd04130d93c29b06f1288c682dd1ce37731ef0762f8e8d70d994aa97fa55c1e
-    symbol_table: 862016bdb0f3f5516b1c9311b674207d4fc2a533066ef43e2a80e413119eeab7
+  - "Error [EAST0372016]: circuit `Bar` shadowed by\n    --> compiler-test:8:5\n     |\n   8 |     const Bar: u32 = 66u32;\n     |     ^^^^^^^^^^^^^^^^^^^^^^\n"

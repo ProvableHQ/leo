@@ -163,9 +163,9 @@ impl Sample {
                         compiler
                             .parse_program_from_string(input, name)
                             .expect("Failed to parse program");
-                        let mut symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
+                        let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
                         let start = Instant::now();
-                        let out = compiler.type_checker_pass(&mut symbol_table);
+                        let out = compiler.type_checker_pass(symbol_table);
                         time += start.elapsed();
                         out.expect("failed to run type check pass")
                     });
@@ -190,9 +190,9 @@ impl Sample {
                         compiler
                             .parse_program_from_string(input, name)
                             .expect("Failed to parse program");
-                        let mut symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
+                        let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
                         compiler
-                            .type_checker_pass(&mut symbol_table)
+                            .type_checker_pass(symbol_table)
                             .expect("failed to run type check pass");
                         time += start.elapsed();
                     });

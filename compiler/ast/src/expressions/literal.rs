@@ -18,9 +18,9 @@ use crate::GroupLiteral;
 
 use super::*;
 
-/// A literal expression.
+/// A literal.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum LiteralExpression {
+pub enum Literal {
     // todo: deserialize values here
     /// An address literal, e.g., `aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9`.
     Address(String, #[serde(with = "leo_span::span_json")] Span),
@@ -41,7 +41,7 @@ pub enum LiteralExpression {
     String(String, #[serde(with = "leo_span::span_json")] Span),
 }
 
-impl fmt::Display for LiteralExpression {
+impl fmt::Display for Literal {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match &self {
             Self::Address(address, _) => write!(f, "{}", address),
@@ -55,7 +55,7 @@ impl fmt::Display for LiteralExpression {
     }
 }
 
-impl Node for LiteralExpression {
+impl Node for Literal {
     fn span(&self) -> Span {
         match &self {
             Self::Address(_, span)
