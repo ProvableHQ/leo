@@ -44,6 +44,9 @@ pub use unary::*;
 mod literal;
 pub use literal::*;
 
+mod value;
+pub use value::*;
+
 /// Expression that evaluates to a value.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Expression {
