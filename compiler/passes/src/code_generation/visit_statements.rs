@@ -38,10 +38,10 @@ impl<'a> CodeGenerator<'a> {
 
     fn visit_return(&mut self, input: &'a ReturnStatement) -> String {
         let (operand, mut expression_instructions) = self.visit_expression(&input.expression);
-        let operands = operand.split('\n').collect::<Vec<_>>();
         let types = self.visit_return_type(&self.current_function.unwrap().output, None);
         // TODO: Bytecode functions have an associated output mode. Currently defaulting to private since we do not yet support this at the Leo level.
-        let mut instructions = operands
+        let mut instructions = operand
+            .split('\n')
             .into_iter()
             .zip(types.iter())
             .map(|(operand, type_)| format!("    output {} as {};", operand, type_))
