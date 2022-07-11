@@ -96,7 +96,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 }
             };
             check_has_field(sym::owner, Type::Address);
-            check_has_field(sym::balance, Type::IntegerType(IntegerType::U64));
+            check_has_field(sym::balance, Type::U64);
         }
     }
 }
