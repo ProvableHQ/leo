@@ -54,10 +54,6 @@ version = "1.5.3"
 git = "https://github.com/AleoHQ/snarkVM.git"
 rev = "18ee4e5"
 
-[dependencies.snarkvm-circuit]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "18ee4e5"
-
 [dependencies.backtrace]
 version = "0.3.66"
 

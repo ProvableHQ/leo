@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! An Aleo file.
+//! The program JSON file for an aleo file.
 
 use crate::outputs::OUTPUTS_DIRECTORY_NAME;
 use leo_errors::{PackageError, Result};
@@ -29,51 +29,56 @@ use std::{
     path::Path,
 };
 
-pub static MAIN_ALEO_FILE_NAME: &str = "main.aleo";
+pub static PROGRAM_JSON_FILE_NAME: &str = "program.json";
 
 #[derive(Deserialize)]
-pub struct AleoFile {
-    pub package_name: String,
-    pub network: String,
+pub struct ProgramJson {
+    pub program: String,
+    pub version: String,
+    pub description: String,
+    pub license: String,
 }
 
-impl AleoFile {
-    pub fn new(package_name: &str, network: &str) -> Self {
+impl ProgramJson {
+    pub fn new(
+        program: String,
+        version: String,
+        description: String,
+        license: String,
+    ) -> Self {
         Self {
-            package_name: package_name.to_string(),
-            network: network.to_string(),
+            program,
+            version,
+            description,
+            license,
         }
     }
 
-    pub fn exists_at(&self, path: &Path) -> bool {
-        let path = self.setup_file_path(path);
-        path.exists()
-    }
-
-    /// Reads the aleo file from the given file path if it exists.
-    pub fn read_from(&self, path: &Path) -> Result<String> {
-        let path = self.setup_file_path(path);
-
-        let string =
-            fs::read_to_string(&path).map_err(|_| PackageError::failed_to_read_aleo_file(path.into_owned()))?;
-        Ok(string)
-    }
-
-    /// Writes the given aleo string to a file.
-    pub fn write_to(&self, path: &Path, program_string: String) -> Result<()> {
+    /// Writes the given program id to a program json file.
+    pub fn write_to(&self, path: &Path) -> Result<()> {
         let path = self.setup_file_path(path);
         let mut file = File::create(&path).map_err(PackageError::io_error_aleo_file)?;
 
-        // Write program id to file.
-        let mut aleo_file = format!("program {}.{};\n", self.package_name, self.network);
-        aleo_file.push_str(&program_string);
+        // Write program json file.
+        let aleo_file = format!(
+            r#"{{
+    "program": "{program}",
+    "version": "{version}",
+    "description": "{description}",
+    "license": "{license}"
+}}"#,
+            program = self.program,
+            version = self.version,
+            description = self.description,
+            license = self.license,
+        );
 
         file.write_all(aleo_file.as_bytes())
             .map_err(PackageError::io_error_aleo_file)?;
         Ok(())
     }
 
-    /// Removes the aleo file at the given path if it exists. Returns `true` on success,
+    /// Removes the program json file at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
     pub fn remove(&self, path: &Path) -> Result<bool> {
         let path = self.setup_file_path(path);
@@ -92,13 +97,8 @@ impl AleoFile {
                 path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
             }
             path.to_mut()
-                .push(MAIN_ALEO_FILE_NAME);
+                .push(PROGRAM_JSON_FILE_NAME);
         }
         path
-    }
-
-    /// Returns the program id as a string.
-    pub fn program_id(&self) -> String {
-        format!("{}.{}", self.package_name, self.network)
     }
 }

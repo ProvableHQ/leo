@@ -21,8 +21,8 @@ rust-version = "1.56.1"
 [lib]
 path = "src/lib.rs"
 
-[dependencies]
-indexmap = "1.7.0"
+[dependencies.indexmap]
+version = "1.9"
 
 [dependencies.leo-ast]
 path = "../ast"

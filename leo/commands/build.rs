@@ -25,10 +25,9 @@ use leo_package::{
     source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
-use snarkvm_circuit::prelude::*;
-
 use clap::StructOpt;
 use tracing::span::Span;
+use leo_package::outputs::ProgramJson;
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
 /// require Build command output as their input.
@@ -181,6 +180,15 @@ impl Command for Build {
             // Write the Aleo file to the output directory.
             let aleo_file = AleoFile::new(&package_name, "aleo"); // Specifies `.aleo` in `program foo.aleo;` identifier.
             aleo_file.write_to(&path, bytecode)?;
+
+            // Write the program.json file to the output directory.
+            let program_file = ProgramJson::new(
+                aleo_file.program_id(),
+                "0.0.0".to_string(),
+                "".to_string(),
+                "MIT".to_string(),
+            );
+            program_file.write_to(&path)?;
         }
 
         // Generate the program on the constraint system and verify correctness

@@ -28,6 +28,9 @@ pub use self::checksum::*;
 pub mod directory;
 pub use directory::*;
 
+pub mod program_json;
+pub use program_json::*;
+
 pub mod proof;
 pub use self::proof::*;
 
