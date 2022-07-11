@@ -54,6 +54,9 @@ pub use self::statements::*;
 pub mod types;
 pub use self::types::*;
 
+pub mod value;
+pub use self::value::*;
+
 mod node;
 pub use node::*;
 

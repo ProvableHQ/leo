@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{GroupLiteral, Identifier, Type};
+use crate::{GroupLiteral, Identifier, IntegerType, Type};
 
 use leo_ast::{GroupLiteral, Identifier, IntegerType, LiteralExpression, Type};
 use leo_errors::{type_name, FlattenError, LeoError, Result};
@@ -25,6 +25,8 @@ use std::{
     fmt::Display,
     ops::{BitAnd, BitOr, BitXor, Not},
 };
+
+// TODO: Consider refactoring this module to use the console implementations from snarkVM.
 
 // Macro for making implementing unary operations over appropriate types easier.
 macro_rules! implement_const_unary {
