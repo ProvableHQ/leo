@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{GroupLiteral, Identifier, IntegerType, Literal, Type};
+use crate::{GroupLiteral, Identifier, Type};
 
 use leo_errors::{type_name, FlattenError, LeoError, Result};
 use leo_span::{Span, Symbol};
@@ -215,18 +215,16 @@ impl Value {
     pub(crate) fn from_u128(type_: Type, value: u128, span: Span) -> Self {
         // Should never error since we converted from a start..stop and then back.
         match type_ {
-            Type::IntegerType(int_type) => match int_type {
-                IntegerType::U8 => Value::U8(value.try_into().unwrap(), span),
-                IntegerType::U16 => Value::U16(value.try_into().unwrap(), span),
-                IntegerType::U32 => Value::U32(value.try_into().unwrap(), span),
-                IntegerType::U64 => Value::U64(value.try_into().unwrap(), span),
-                IntegerType::U128 => Value::U128(value, span),
-                IntegerType::I8 => Value::I8(value.try_into().unwrap(), span),
-                IntegerType::I16 => Value::I16(value.try_into().unwrap(), span),
-                IntegerType::I32 => Value::I32(value.try_into().unwrap(), span),
-                IntegerType::I64 => Value::I64(value.try_into().unwrap(), span),
-                IntegerType::I128 => Value::I128(value.try_into().unwrap(), span),
-            },
+            Type::U8 => Value::U8(value.try_into().unwrap(), span),
+            Type::U16 => Value::U16(value.try_into().unwrap(), span),
+            Type::U32 => Value::U32(value.try_into().unwrap(), span),
+            Type::U64 => Value::U64(value.try_into().unwrap(), span),
+            Type::U128 => Value::U128(value, span),
+            Type::I8 => Value::I8(value.try_into().unwrap(), span),
+            Type::I16 => Value::I16(value.try_into().unwrap(), span),
+            Type::I32 => Value::I32(value.try_into().unwrap(), span),
+            Type::I64 => Value::I64(value.try_into().unwrap(), span),
+            Type::I128 => Value::I128(value.try_into().unwrap(), span),
             _ => unreachable!(),
         }
     }
@@ -835,30 +833,30 @@ impl From<&Value> for Type {
     }
 }
 
-impl From<Value> for Literal {
-    fn from(v: Value) -> Self {
-        use Value::*;
-        match v {
-            Input(_, _) => panic!("We need to test if this is hittable"),
-            Address(v, span) => Literal::Address(v, span),
-            Boolean(v, span) => Literal::Boolean(v, span),
-            Circuit(ident, values) => {
-                Literal::Circuit(ident, values.into_iter().map(|(n, v)| (n, v.into())).collect())
-            }
-            Field(v, span) => Literal::Field(v, span),
-            Group(v) => Literal::Group(v),
-            I8(v, span) => Literal::I8(v.to_string(), span),
-            I16(v, span) => Literal::I16(v.to_string(), span),
-            I32(v, span) => Literal::I32(v.to_string(), span),
-            I64(v, span) => Literal::I64(v.to_string(), span),
-            I128(v, span) => Literal::I128(v.to_string(), span),
-            U8(v, span) => Literal::U8(v.to_string(), span),
-            U16(v, span) => Literal::U16(v.to_string(), span),
-            U32(v, span) => Literal::U32(v.to_string(), span),
-            U64(v, span) => Literal::U64(v.to_string(), span),
-            U128(v, span) => Literal::U128(v.to_string(), span),
-            Scalar(v, span) => Literal::Scalar(v, span),
-            String(v, span) => Literal::String(v, span),
-        }
-    }
-}
+// impl From<Value> for Literal {
+//     fn from(v: Value) -> Self {
+//         use Value::*;
+//         match v {
+//             Input(_, _) => panic!("We need to test if this is hittable"),
+//             Address(v, span) => Literal::Address(v, span),
+//             Boolean(v, span) => Literal::Boolean(v, span),
+//             Circuit(ident, values) => {
+//                 Literal::Circuit(ident, values.into_iter().map(|(n, v)| (n, v.into())).collect())
+//             }
+//             Field(v, span) => Literal::Field(v, span),
+//             Group(v) => Literal::Group(v),
+//             I8(v, span) => Literal::I8(v.to_string(), span),
+//             I16(v, span) => Literal::I16(v.to_string(), span),
+//             I32(v, span) => Literal::I32(v.to_string(), span),
+//             I64(v, span) => Literal::I64(v.to_string(), span),
+//             I128(v, span) => Literal::I128(v.to_string(), span),
+//             U8(v, span) => Literal::U8(v.to_string(), span),
+//             U16(v, span) => Literal::U16(v.to_string(), span),
+//             U32(v, span) => Literal::U32(v.to_string(), span),
+//             U64(v, span) => Literal::U64(v.to_string(), span),
+//             U128(v, span) => Literal::U128(v.to_string(), span),
+//             Scalar(v, span) => Literal::Scalar(v, span),
+//             String(v, span) => Literal::String(v, span),
+//         }
+//     }
+// }
