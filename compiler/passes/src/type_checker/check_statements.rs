@@ -134,7 +134,18 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.symbol_table = RefCell::new(prev_st);
 
         self.visit_expression(&input.start, iter_type);
+
+        // If `input.start` is a literal, instantiate it as a value.
+        if let Expression::Literal(literal) = &input.start {
+            input.start_value.replace(Some(Value::from(literal)));
+        }
+
         self.visit_expression(&input.stop, iter_type);
+
+        // If `input.stop` is a literal, instantiate it as a value.
+        if let Expression::Literal(literal) = &input.stop {
+            input.stop_value.replace(Some(Value::from(literal)));
+        }
     }
 
     fn visit_console(&mut self, input: &'a ConsoleStatement) {

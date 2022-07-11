@@ -32,6 +32,11 @@ pub enum Literal {
     /// A group literal, either product or affine.
     /// For example, `42group` or `(12, 52)group`.
     Group(Box<GroupLiteral>),
+    /// A scalar literal, e.g. `1scalar`.
+    /// An unsigned number followed by the keyword `scalar`.
+    Scalar(String, #[serde(with = "leo_span::span_json")] Span),
+    /// A string literal, e.g., `"foobar"`.
+    String(String, #[serde(with = "leo_span::span_json")] Span),
     /// An 8-bit signed integer literal, e.g., `42i8`.
     I8(String, #[serde(with = "leo_span::span_json")] Span),
     /// A 16-bit signed integer literal, e.g., `42i16`.
@@ -42,11 +47,6 @@ pub enum Literal {
     I64(String, #[serde(with = "leo_span::span_json")] Span),
     /// A 128-bit signed integer literal, e.g., `42i128`.
     I128(String, #[serde(with = "leo_span::span_json")] Span),
-    /// A scalar literal, e.g. `1scalar`.
-    /// An unsigned number followed by the keyword `scalar`.
-    Scalar(String, #[serde(with = "leo_span::span_json")] Span),
-    /// A string literal, e.g., `"foobar"`.
-    String(String, #[serde(with = "leo_span::span_json")] Span),
     /// A 8-bit unsigned integer literal, e.g., `42u8`.
     U8(String, #[serde(with = "leo_span::span_json")] Span),
     /// A 16-bit unsigned integer literal, e.g., `42u16`.

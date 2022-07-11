@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{GroupLiteral, Identifier, Type};
+use crate::{GroupLiteral, Identifier, Literal, Type};
 
-use leo_errors::{type_name, FlattenError, LeoError, Result};
+use leo_errors::{type_name, FlattenError, LeoError, Result, TypeCheckerError};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
@@ -829,6 +829,32 @@ impl From<&Value> for Type {
             U128(_, _) => Type::U128,
             Scalar(_, _) => Type::Scalar,
             String(_, _) => Type::String,
+        }
+    }
+}
+
+// TODO: Consider making this `Option<Value>` instead of `Value`.
+impl From<&Literal> for Value {
+    /// Converts a literal to a value.
+    /// This should only be invoked on literals that are known to be valid.
+    fn from(literal: &Literal) -> Self {
+        match literal {
+            Literal::Address(string, span) => Self::Address(string.clone(), span.clone()),
+            Literal::Boolean(bool, span) => Self::Boolean(bool.clone(), span.clone()),
+            Literal::Field(string, span) => Self::Field(string.clone(), span.clone()),
+            Literal::Group(group_literal) => Self::Group(group_literal.clone()),
+            Literal::Scalar(string, span) => Self::Scalar(string.clone(), span.clone()),
+            Literal::String(string, span) => Self::String(string.clone(), span.clone()),
+            Literal::I8(string, span) => Self::I8(string.parse::<i8>().unwrap(), span.clone()),
+            Literal::I16(string, span) => Self::I16(string.parse::<i16>().unwrap(), span.clone()),
+            Literal::I32(string, span) => Self::I32(string.parse::<i32>().unwrap(), span.clone()),
+            Literal::I64(string, span) => Self::I64(string.parse::<i64>().unwrap(), span.clone()),
+            Literal::I128(string, span) => Self::I128(string.parse::<i128>().unwrap(), span.clone()),
+            Literal::U8(string, span) => Self::U8(string.parse::<u8>().unwrap(), span.clone()),
+            Literal::U16(string, span) => Self::U16(string.parse::<u16>().unwrap(), span.clone()),
+            Literal::U32(string, span) => Self::U32(string.parse::<u32>().unwrap(), span.clone()),
+            Literal::U64(string, span) => Self::U64(string.parse::<u64>().unwrap(), span.clone()),
+            Literal::U128(string, span) => Self::U128(string.parse::<u128>().unwrap(), span.clone()),
         }
     }
 }
