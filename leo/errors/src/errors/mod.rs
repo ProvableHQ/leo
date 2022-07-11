@@ -29,6 +29,10 @@ pub use self::cli::*;
 pub mod compiler;
 pub use self::compiler::*;
 
+/// Contains the Flattener error definitions.
+pub mod flattener;
+pub use self::flattener::*;
+
 /// Contains the Input error definitions.
 pub mod input;
 pub use self::input::*;
@@ -67,9 +71,12 @@ pub enum LeoError {
     /// Represents an Parser Error in a Leo Error.
     #[error(transparent)]
     ParserError(#[from] ParserError),
-    /// Represents an Type Checker Error in a Leo Error.
+    /// Represents a Type Checker Error in a Leo Error.
     #[error(transparent)]
     TypeCheckerError(#[from] TypeCheckerError),
+    /// Represents a Flatten Error in a Leo Error.
+    #[error(transparent)]
+    FlattenError(#[from] FlattenError),
     /// Purely for just exiting with the correct status code and
     /// not re-displaying an error.
     #[error("")]
@@ -89,6 +96,7 @@ impl LeoError {
             ParserError(error) => error.error_code(),
             PackageError(error) => error.error_code(),
             TypeCheckerError(error) => error.error_code(),
+            FlattenError(error) => error.error_code(),
             LastErrorCode(_) => unreachable!(),
         }
     }
@@ -105,6 +113,7 @@ impl LeoError {
             ParserError(error) => error.exit_code(),
             PackageError(error) => error.exit_code(),
             TypeCheckerError(error) => error.exit_code(),
+            FlattenError(error) => error.exit_code(),
             LastErrorCode(code) => *code,
         }
     }
