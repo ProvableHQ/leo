@@ -50,7 +50,7 @@ version = "1.0.138"
 features = ["derive"]
 
 [dev-dependencies.serde_yaml]
-version = "0.8.24"
+version = "0.8.25"
 
 [features]
 default = []
