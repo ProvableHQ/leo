@@ -235,7 +235,9 @@ primitive-type =  boolean-type / arithmetic-type / address-type / string-type
 
 named-type = primitive-type / identifier
 
-type = named-type
+tuple-type = "(" [ type 1*( "," type ) [ "," ] ] ")"
+
+type = named-type / tuple-type
 
 group-coordinate = ( [ "-" ] numeral ) / "+" / "-" / "_"
 
@@ -251,6 +253,7 @@ primary-expression = literal
                    / "(" expression ")"
                    / free-function-call
                    / static-function-call
+                   / tuple-expression
                    / circuit-expression
 
 variable-or-free-constant = identifier
@@ -263,6 +266,8 @@ static-function-call = named-type "::" identifier function-arguments
 
 function-arguments = "(" [ expression *( "," expression ) [ "," ] ] ")"
 
+tuple-expression = "(" [ expression 1*( "," expression ) [ "," ] ] ")"
+
 circuit-expression = identifier "{" circuit-component-initializer
                                     *( "," circuit-component-initializer )
                                     [ "," ] "}"
@@ -271,8 +276,11 @@ circuit-component-initializer = identifier
                               / identifier ":" expression
 
 postfix-expression = primary-expression
+                   / tuple-component-expression
                    / circuit-component-expression
                    / operator-call
+
+tuple-component-expression = postfix-expression "." numeral
 
 circuit-component-expression = postfix-expression "." identifier
 
