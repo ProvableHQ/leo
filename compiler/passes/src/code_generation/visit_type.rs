@@ -35,14 +35,13 @@ impl<'a> CodeGenerator<'a> {
                 } else {
                     unreachable!("All composite types should be known at this phase of compilation")
                 }
-            },
+            }
             Type::Tuple(_) => {
                 unreachable!("All composite types should be known at this phase of compilation")
-            },
+            }
             Type::Err => unreachable!("Error types should not exist at this phase of compilation"),
         }
     }
-
 
     pub(crate) fn visit_type_with_visibility(&mut self, input: &'a Type, visibility: Option<ParamMode>) -> String {
         let mut type_string = self.visit_type(input);
@@ -58,8 +57,7 @@ impl<'a> CodeGenerator<'a> {
         type_string
     }
 
-
-        /// Returns one or more types equal to the number of return tuple members.
+    /// Returns one or more types equal to the number of return tuple members.
     pub(crate) fn visit_return_type(&mut self, input: &'a Type, visibility: Option<ParamMode>) -> Vec<String> {
         // Handle return tuples.
         if let Type::Tuple(types) = input {

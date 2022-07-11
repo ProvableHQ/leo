@@ -15,7 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::CodeGenerator;
-use leo_ast::{AccessExpression, BinaryExpression, BinaryOperation, CallExpression, CircuitExpression, ErrExpression, Expression, Identifier, Literal, MemberAccess, TernaryExpression, TupleExpression, UnaryExpression, UnaryOperation};
+use leo_ast::{
+    AccessExpression, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, CircuitExpression,
+    ErrExpression, Expression, Identifier, Literal, MemberAccess, TernaryExpression, TupleExpression, Type,
+    UnaryExpression, UnaryOperation,
+};
+use leo_span::sym;
 
 use std::fmt::Write as _;
 
@@ -191,12 +196,55 @@ impl<'a> CodeGenerator<'a> {
         (member_access_instruction, String::new())
     }
 
+    // Pedersen64::hash() -> hash.ped64
+    fn visit_associated_function(&mut self, input: &'a AssociatedFunction) -> (String, String) {
+        // Write identifier as opcode. `Pedersen64` -> `ped64`.
+        let symbol: &str = if let Type::Identifier(identifier) = input.ty {
+            match identifier.name {
+                sym::BHP256 => "bhp256",
+                sym::BHP512 => "bhp512",
+                sym::BHP768 => "bhp768",
+                sym::BHP1024 => "bhp1024",
+                sym::Pedersen64 => "ped64",
+                sym::Pedersen128 => "ped128",
+                sym::Poseidon2 => "psd2",
+                sym::Poseidon4 => "psd4",
+                sym::Poseidon8 => "psd8",
+                _ => unreachable!("All core circuit function calls should be known at this time."),
+            }
+        } else {
+            unreachable!("All core circuits should be known at this time.")
+        };
+
+        // Construct associated function call.
+        let mut associated_function_call = format!("    {}.{} ", input.name, symbol);
+        let mut instructions = String::new();
+
+        // Visit each function argument and accumulate instructions from expressions.
+        for arg in input.args.iter() {
+            let (arg_string, arg_instructions) = self.visit_expression(arg);
+            write!(associated_function_call, "{} ", arg_string).expect("failed to write associated function argument");
+            instructions.push_str(&arg_instructions);
+        }
+
+        // Push destination register to associated function call instruction.
+        let destination_register = format!("r{}", self.next_register);
+        writeln!(associated_function_call, "into {};", destination_register)
+            .expect("failed to write dest register for associated function");
+        instructions.push_str(&associated_function_call);
+
+        // Increment the register counter.
+        self.next_register += 1;
+
+        (destination_register, instructions)
+    }
+
     fn visit_access(&mut self, input: &'a AccessExpression) -> (String, String) {
         match input {
             AccessExpression::Member(access) => self.visit_member_access(access),
-            AccessExpression::AssociatedConstant(_) => todo!(),
-            AccessExpression::AssociatedFunction(_) => todo!(),
-            AccessExpression::Tuple(_) => todo!(),
+            AccessExpression::AssociatedConstant(_) => todo!(), // Associated constants are not supported in AVM yet.
+            AccessExpression::AssociatedFunction(function) => self.visit_associated_function(function),
+            AccessExpression::Tuple(_) => todo!(), // Tuples are not supported in AVM yet.
         }
     }
 
@@ -227,13 +275,12 @@ impl<'a> CodeGenerator<'a> {
         let mut tuple_elements = String::new();
         let mut instructions = String::new();
 
-        input.elements
-            .iter()
-            .for_each(|element| {
-                let (element, element_instructions) = self.visit_expression(element);
-                writeln!(tuple_elements, "{}", element).expect("failed to write tuple to string");
-                instructions.push_str(&element_instructions);
-            });
+        // Visit each tuple element and accumulate instructions from expressions.
+        for element in input.elements.iter() {
+            let (element, element_instructions) = self.visit_expression(element);
+            writeln!(tuple_elements, "{}", element).expect("failed to write tuple to string");
+            instructions.push_str(&element_instructions);
+        }
 
         // CAUTION: does not return the destination_register.
         (tuple_elements, instructions)
