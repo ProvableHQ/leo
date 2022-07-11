@@ -14,9 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{GroupLiteral, Identifier, IntegerType, Type};
+use crate::{GroupLiteral, Identifier, IntegerType, Literal, Type};
 
-use leo_ast::{GroupLiteral, Identifier, IntegerType, LiteralExpression, Type};
 use leo_errors::{type_name, FlattenError, LeoError, Result};
 use leo_span::{Span, Symbol};
 
@@ -820,46 +819,46 @@ impl From<&Value> for Type {
             Circuit(ident, _) => Type::Identifier(*ident),
             Field(_, _) => Type::Field,
             Group(_) => Type::Group,
-            I8(_, _) => Type::IntegerType(IntegerType::I8),
-            I16(_, _) => Type::IntegerType(IntegerType::I16),
-            I32(_, _) => Type::IntegerType(IntegerType::I32),
-            I64(_, _) => Type::IntegerType(IntegerType::I64),
-            I128(_, _) => Type::IntegerType(IntegerType::I128),
-            U8(_, _) => Type::IntegerType(IntegerType::U8),
-            U16(_, _) => Type::IntegerType(IntegerType::U16),
-            U32(_, _) => Type::IntegerType(IntegerType::U32),
-            U64(_, _) => Type::IntegerType(IntegerType::U64),
-            U128(_, _) => Type::IntegerType(IntegerType::U128),
+            I8(_, _) => Type::I8,
+            I16(_, _) => Type::I16,
+            I32(_, _) => Type::I32,
+            I64(_, _) => Type::I64,
+            I128(_, _) => Type::I128,
+            U8(_, _) => Type::U8,
+            U16(_, _) => Type::U16,
+            U32(_, _) => Type::U32,
+            U64(_, _) => Type::U64,
+            U128(_, _) => Type::U128,
             Scalar(_, _) => Type::Scalar,
             String(_, _) => Type::String,
         }
     }
 }
 
-impl From<Value> for LiteralExpression {
+impl From<Value> for Literal {
     fn from(v: Value) -> Self {
         use Value::*;
         match v {
             Input(_, _) => panic!("We need to test if this is hittable"),
-            Address(v, span) => LiteralExpression::Address(v, span),
-            Boolean(v, span) => LiteralExpression::Boolean(v, span),
+            Address(v, span) => Literal::Address(v, span),
+            Boolean(v, span) => Literal::Boolean(v, span),
             Circuit(ident, values) => {
-                LiteralExpression::Circuit(ident, values.into_iter().map(|(n, v)| (n, v.into())).collect())
+                Literal::Circuit(ident, values.into_iter().map(|(n, v)| (n, v.into())).collect())
             }
-            Field(v, span) => LiteralExpression::Field(v, span),
-            Group(v) => LiteralExpression::Group(v),
-            I8(v, span) => LiteralExpression::Integer(IntegerType::I8, v.to_string(), span),
-            I16(v, span) => LiteralExpression::Integer(IntegerType::I16, v.to_string(), span),
-            I32(v, span) => LiteralExpression::Integer(IntegerType::I32, v.to_string(), span),
-            I64(v, span) => LiteralExpression::Integer(IntegerType::I64, v.to_string(), span),
-            I128(v, span) => LiteralExpression::Integer(IntegerType::I128, v.to_string(), span),
-            U8(v, span) => LiteralExpression::Integer(IntegerType::U8, v.to_string(), span),
-            U16(v, span) => LiteralExpression::Integer(IntegerType::U16, v.to_string(), span),
-            U32(v, span) => LiteralExpression::Integer(IntegerType::U32, v.to_string(), span),
-            U64(v, span) => LiteralExpression::Integer(IntegerType::U64, v.to_string(), span),
-            U128(v, span) => LiteralExpression::Integer(IntegerType::U128, v.to_string(), span),
-            Scalar(v, span) => LiteralExpression::Scalar(v, span),
-            String(v, span) => LiteralExpression::String(v, span),
+            Field(v, span) => Literal::Field(v, span),
+            Group(v) => Literal::Group(v),
+            I8(v, span) => Literal::I8(v.to_string(), span),
+            I16(v, span) => Literal::I16(v.to_string(), span),
+            I32(v, span) => Literal::I32(v.to_string(), span),
+            I64(v, span) => Literal::I64(v.to_string(), span),
+            I128(v, span) => Literal::I128(v.to_string(), span),
+            U8(v, span) => Literal::U8(v.to_string(), span),
+            U16(v, span) => Literal::U16(v.to_string(), span),
+            U32(v, span) => Literal::U32(v.to_string(), span),
+            U64(v, span) => Literal::U64(v.to_string(), span),
+            U128(v, span) => Literal::U128(v.to_string(), span),
+            Scalar(v, span) => Literal::Scalar(v, span),
+            String(v, span) => Literal::String(v, span),
         }
     }
 }
