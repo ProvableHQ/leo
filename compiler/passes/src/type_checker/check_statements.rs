@@ -118,6 +118,21 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             self.handler.emit_err(err);
         }
 
+        // Create a new scope for the loop body.
+        let scope_index = self.symbol_table.borrow_mut().insert_block();
+        let prev_st = std::mem::take(&mut self.symbol_table);
+        self.symbol_table
+            .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
+        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
+
+        input.block.statements.iter().for_each(|s| self.visit_statement(s));
+
+        // Restore the previous scope.
+        let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
+        // TODO: Is this swap necessary?
+        self.symbol_table.swap(prev_st.get_block_scope(scope_index).unwrap());
+        self.symbol_table = RefCell::new(prev_st);
+
         self.visit_expression(&input.start, iter_type);
         self.visit_expression(&input.stop, iter_type);
     }

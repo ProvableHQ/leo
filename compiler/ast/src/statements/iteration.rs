@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, Expression, Identifier, Node, Type};
+use crate::{Block, Expression, Identifier, Node, Type, Value};
+
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -29,8 +30,14 @@ pub struct IterationStatement {
     pub type_: Type,
     /// The start of the iteration.
     pub start: Expression,
+    /// The concrete value of `start`.
+    #[serde(skip)]
+    pub start_value: Box<Option<Value>>,
     /// The end of the iteration, possibly `inclusive`.
     pub stop: Expression,
+    /// The concrete value of `stop`.
+    #[serde(skip)]
+    pub stop_value: Box<Option<Value>>,
     /// Whether `stop` is inclusive or not.
     /// Signified with `=` when parsing.
     pub inclusive: bool,

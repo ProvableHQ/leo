@@ -120,7 +120,9 @@ impl ParserContext<'_> {
             variable: ident,
             type_: type_.0,
             start,
+            start_value: Default::default(),
             stop,
+            stop_value: Default::default(),
             inclusive: false,
             block,
         })
