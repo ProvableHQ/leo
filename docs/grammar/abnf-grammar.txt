@@ -235,7 +235,7 @@ primitive-type =  boolean-type / arithmetic-type / address-type / string-type
 
 named-type = primitive-type / identifier
 
-tuple-type = "(" [ type *( "," type ) [ "," ] ] ")"
+tuple-type = "(" [ type 1*( "," type ) [ "," ] ] ")"
 
 type = named-type / tuple-type
 
@@ -266,7 +266,7 @@ static-function-call = named-type "::" identifier function-arguments
 
 function-arguments = "(" [ expression *( "," expression ) [ "," ] ] ")"
 
-tuple-expression = "(" [ expression *( "," expression ) [ "," ] ] ")"
+tuple-expression = "(" [ expression 1*( "," expression ) [ "," ] ] ")"
 
 circuit-expression = identifier "{" circuit-component-initializer
                                     *( "," circuit-component-initializer )
