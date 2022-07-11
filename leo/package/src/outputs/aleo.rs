@@ -34,12 +34,14 @@ pub static CHECKSUM_FILE_EXTENSION: &str = ".aleo";
 #[derive(Deserialize)]
 pub struct AleoFile {
     pub package_name: String,
+    pub network: String,
 }
 
 impl AleoFile {
-    pub fn new(package_name: &str) -> Self {
+    pub fn new(package_name: &str, network: &str) -> Self {
         Self {
             package_name: package_name.to_string(),
+            network: network.to_string(),
         }
     }
 
@@ -58,13 +60,13 @@ impl AleoFile {
     }
 
     /// Writes the given aleo string to a file.
-    pub fn write_to(&self, path: &Path, aleo: String) -> Result<()> {
+    pub fn write_to(&self, path: &Path, program_string: String) -> Result<()> {
         let path = self.setup_file_path(path);
         let mut file = File::create(&path).map_err(PackageError::io_error_aleo_file)?;
 
         // Write program id to file.
-        let mut aleo_file = format!("program {}.aleo;\n\n", self.package_name);
-        aleo_file.push_str(&aleo);
+        let mut aleo_file = format!("program {}.{};\n\n", self.package_name, self.network);
+        aleo_file.push_str(&program_string);
 
         file.write_all(aleo_file.as_bytes())
             .map_err(PackageError::io_error_aleo_file)?;

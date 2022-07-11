@@ -179,7 +179,7 @@ impl Command for Build {
             // println!("program output: {}\n", output.first().unwrap());
 
             // Write the Aleo file to the output directory.
-            let aleo_file = AleoFile::new(&package_name);
+            let aleo_file = AleoFile::new(&package_name, "aleo"); // Specifies `.aleo` in `program foo.aleo;` identifier.
             aleo_file.write_to(&path, bytecode)?;
         }
 
