@@ -221,8 +221,22 @@ impl<'a> CodeGenerator<'a> {
         (destination_register, instructions)
     }
 
-    fn visit_tuple(&mut self, _input: &'a TupleExpression) -> (String, String) {
-        todo!()
+    fn visit_tuple(&mut self, input: &'a TupleExpression) -> (String, String) {
+        // Need to return a single string here so we will join the tuple elements with '\n'
+        // and split them after this method is called.
+        let mut tuple_elements = String::new();
+        let mut instructions = String::new();
+
+        input.elements
+            .iter()
+            .for_each(|element| {
+                let (element, element_instructions) = self.visit_expression(element);
+                writeln!(tuple_elements, "{}", element).expect("failed to write tuple to string");
+                instructions.push_str(&element_instructions);
+            });
+
+        // CAUTION: does not return the destination_register.
+        (tuple_elements, instructions)
     }
 
     fn visit_err(&mut self, _input: &'a ErrExpression) -> (String, String) {

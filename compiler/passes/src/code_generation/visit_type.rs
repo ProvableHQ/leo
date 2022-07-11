@@ -20,7 +20,7 @@ use leo_ast::{ParamMode, Type};
 use std::fmt::Write as _;
 
 impl<'a> CodeGenerator<'a> {
-    pub(crate) fn visit_type(&mut self, input: &'a Type) -> String {
+    fn visit_type(&mut self, input: &'a Type) -> String {
         match input {
             Type::Address
             | Type::Boolean
@@ -28,8 +28,7 @@ impl<'a> CodeGenerator<'a> {
             | Type::Group
             | Type::Scalar
             | Type::String
-            | Type::IntegerType(..)
-            | Type::Tuple(..) => format!("{}", input),
+            | Type::IntegerType(..) => format!("{}", input),
             Type::Identifier(ident) => {
                 if let Some(type_) = self.composite_mapping.get(&ident.name) {
                     format!("{}.{}", ident.to_string().to_lowercase(), type_)
@@ -37,21 +36,39 @@ impl<'a> CodeGenerator<'a> {
                     unreachable!("All composite types should be known at this phase of compilation")
                 }
             },
+            Type::Tuple(_) => {
+                unreachable!("All composite types should be known at this phase of compilation")
+            },
             Type::Err => unreachable!("Error types should not exist at this phase of compilation"),
         }
     }
 
+
     pub(crate) fn visit_type_with_visibility(&mut self, input: &'a Type, visibility: Option<ParamMode>) -> String {
-        let mut return_type = self.visit_type(input);
+        let mut type_string = self.visit_type(input);
 
         if let Type::Identifier(_) = input {
             // Do not append anything for record and circuit types.
         } else {
             // Append `.private` to return type.
             // todo: CAUTION private by default.
-            write!(return_type, ".{}", visibility.unwrap_or(ParamMode::Private)).expect("failed to write to string");
+            write!(type_string, ".{}", visibility.unwrap_or(ParamMode::Private)).expect("failed to write to string");
         }
 
-        return_type
+        type_string
+    }
+
+
+        /// Returns one or more types equal to the number of return tuple members.
+    pub(crate) fn visit_return_type(&mut self, input: &'a Type, visibility: Option<ParamMode>) -> Vec<String> {
+        // Handle return tuples.
+        if let Type::Tuple(types) = input {
+            types
+                .iter()
+                .map(|type_| self.visit_type_with_visibility(type_, visibility))
+                .collect()
+        } else {
+            vec![self.visit_type_with_visibility(input, visibility)]
+        }
     }
 }
