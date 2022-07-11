@@ -8,8 +8,7 @@ outputs:
       "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
         input: []
-        output:
-          IntegerType: U8
+        output: U8
         core_mapping: ~
         block:
           statements: []

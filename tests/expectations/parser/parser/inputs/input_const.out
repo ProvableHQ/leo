@@ -19,13 +19,11 @@ outputs:
               lo: 18
               hi: 22
           - mode: Const
-            type_:
-              IntegerType: U8
+            type_: U8
             name: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":38,\\\"hi\\\":39}\"}"
             value:
               Literal:
-                Integer:
-                  - U8
+                U8:
                   - "2"
                   - span:
                       lo: 49
@@ -85,15 +83,13 @@ outputs:
               lo: 118
               hi: 125
           - mode: Const
-            type_:
-              IntegerType: I8
+            type_: I8
             name: "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":199,\\\"hi\\\":200}\"}"
             value:
               Unary:
                 receiver:
                   Literal:
-                    Integer:
-                      - I8
+                    I8:
                       - "2"
                       - span:
                           lo: 211
@@ -124,13 +120,11 @@ outputs:
               lo: 233
               hi: 237
           - mode: Private
-            type_:
-              IntegerType: U8
+            type_: U8
             name: "{\"name\":\"r1\",\"span\":\"{\\\"lo\\\":247,\\\"hi\\\":249}\"}"
             value:
               Literal:
-                Integer:
-                  - U8
+                U8:
                   - "2"
                   - span:
                       lo: 259
@@ -190,15 +184,13 @@ outputs:
               lo: 313
               hi: 320
           - mode: Private
-            type_:
-              IntegerType: I8
+            type_: I8
             name: "{\"name\":\"r4\",\"span\":\"{\\\"lo\\\":388,\\\"hi\\\":390}\"}"
             value:
               Unary:
                 receiver:
                   Literal:
-                    Integer:
-                      - I8
+                    I8:
                       - "1"
                       - span:
                           lo: 398

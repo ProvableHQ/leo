@@ -51,8 +51,7 @@ outputs:
   - Unary:
       receiver:
         Literal:
-          Integer:
-            - I8
+          I8:
             - "5"
             - span:
                 lo: 1

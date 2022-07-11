@@ -452,8 +452,17 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 let t1 = self.visit_expression(&input.left, &None);
                 let t2 = self.visit_expression(&input.right, &None);
 
-                self.assert_field_scalar_int_type(&t1, input.left.span());
-                self.assert_field_scalar_int_type(&t2, input.right.span());
+                match (t1, t2) {
+                    (Some(Type::Address), _) | (_, Some(Type::Address)) => {
+                        // Emit an error for address comparison.
+                        self.handler
+                            .emit_err(TypeCheckerError::compare_address(input.op, input.span()));
+                    }
+                    (t1, t2) => {
+                        self.assert_field_scalar_int_type(&t1, input.left.span());
+                        self.assert_field_scalar_int_type(&t2, input.right.span());
+                    }
+                }
 
                 // Check that the types of the operands are equal.
                 self.check_eq_types(&t1, &t2, input.span());
