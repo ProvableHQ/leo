@@ -35,7 +35,7 @@ impl ParserContext<'_> {
                     let (id, function) = self.parse_function()?;
                     functions.insert(id, function);
                 }
-                Token::Ident(sym::test) => return Err(ParserError::test_function(self.token.span).into()),
+                Token::Identifier(sym::test) => return Err(ParserError::test_function(self.token.span).into()),
                 Token::Function => {
                     let (id, function) = self.parse_function()?;
                     functions.insert(id, function);
@@ -54,7 +54,7 @@ impl ParserContext<'_> {
     fn unexpected_item(token: &SpannedToken) -> ParserError {
         ParserError::unexpected(
             &token.token,
-            [Token::Function, Token::Circuit, Token::Ident(sym::test)]
+            [Token::Function, Token::Circuit, Token::Identifier(sym::test)]
                 .iter()
                 .map(|x| format!("'{}'", x))
                 .collect::<Vec<_>>()
@@ -105,9 +105,9 @@ impl ParserContext<'_> {
 
     /// Parses `IDENT: TYPE`.
     fn parse_member(&mut self) -> Result<(Identifier, Type)> {
-        let name = self.expect_ident()?;
+        let name = self.expect_identifier()?;
         self.expect(&Token::Colon)?;
-        let type_ = self.parse_all_types()?.0;
+        let type_ = self.parse_single_type()?.0;
 
         Ok((name, type_))
     }
@@ -154,7 +154,7 @@ impl ParserContext<'_> {
     pub(super) fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
         let is_record = matches!(&self.token.token, Token::Record);
         let start = self.expect_any(&[Token::Circuit, Token::Record])?;
-        let circuit_name = self.expect_ident()?;
+        let circuit_name = self.expect_identifier()?;
 
         self.expect(&Token::LeftCurly)?;
         let (members, end) = self.parse_circuit_members()?;
@@ -197,11 +197,10 @@ impl ParserContext<'_> {
     /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
     fn parse_function_parameter(&mut self) -> Result<FunctionInput> {
         let mode = self.parse_function_parameter_mode()?;
-
-        let name = self.expect_ident()?;
+        let name = self.expect_identifier()?;
 
         self.expect(&Token::Colon)?;
-        let type_ = self.parse_all_types()?.0;
+        let type_ = self.parse_single_type()?.0;
         Ok(FunctionInput::Variable(FunctionInputVariable::new(
             name, mode, type_, name.span,
         )))
@@ -221,7 +220,7 @@ impl ParserContext<'_> {
     fn parse_function(&mut self) -> Result<(Identifier, Function)> {
         // Parse `function IDENT`.
         let start = self.expect(&Token::Function)?;
-        let name = self.expect_ident()?;
+        let name = self.expect_identifier()?;
 
         // Parse parameters.
         let (inputs, ..) = self.parse_paren_comma_list(|p| p.parse_function_parameter().map(Some))?;
@@ -229,7 +228,7 @@ impl ParserContext<'_> {
         // Parse return type.
         self.expect(&Token::Arrow)?;
         self.disallow_circuit_construction = true;
-        let output = self.parse_all_types()?.0;
+        let output = self.parse_any_type()?.0;
         self.disallow_circuit_construction = false;
 
         // Parse the function body.

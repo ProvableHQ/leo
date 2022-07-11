@@ -27,30 +27,32 @@ pub enum AccessExpression {
     // Array(ArrayAccess),
     // /// An expression accessing a range of an array.
     // ArrayRange(ArrayRangeAccess),
-    /// An expression accessing a field in a structure, e.g., `circuit_var.field`.
-    Member(MemberAccess),
-    // /// Access to a tuple field using its position, e.g., `tuple.1`.
-    // Tuple(TupleAccess),
     /// Access to an associated variable of a circuit e.g `u8::MAX`.
     AssociatedConstant(AssociatedConstant),
     /// Access to an associated function of a circuit e.g `Pedersen64::hash()`.
     AssociatedFunction(AssociatedFunction),
+    /// An expression accessing a field in a structure, e.g., `circuit_var.field`.
+    Member(MemberAccess),
+    /// Access to a tuple field using its position, e.g., `tuple.1`.
+    Tuple(TupleAccess),
 }
 
 impl Node for AccessExpression {
     fn span(&self) -> Span {
         match self {
-            AccessExpression::Member(n) => n.span(),
             AccessExpression::AssociatedConstant(n) => n.span(),
             AccessExpression::AssociatedFunction(n) => n.span(),
+            AccessExpression::Member(n) => n.span(),
+            AccessExpression::Tuple(n) => n.span(),
         }
     }
 
     fn set_span(&mut self, span: Span) {
         match self {
-            AccessExpression::Member(n) => n.set_span(span),
             AccessExpression::AssociatedConstant(n) => n.set_span(span),
             AccessExpression::AssociatedFunction(n) => n.set_span(span),
+            AccessExpression::Member(n) => n.set_span(span),
+            AccessExpression::Tuple(n) => n.set_span(span),
         }
     }
 }
@@ -60,12 +62,10 @@ impl fmt::Display for AccessExpression {
         use AccessExpression::*;
 
         match self {
-            // Array(access) => access.fmt(f),
-            // ArrayRange(access) => access.fmt(f),
-            Member(access) => access.fmt(f),
-            // Tuple(access) => access.fmt(f),
             AssociatedConstant(access) => access.fmt(f),
             AssociatedFunction(access) => access.fmt(f),
+            Member(access) => access.fmt(f),
+            Tuple(access) => access.fmt(f),
         }
     }
 }

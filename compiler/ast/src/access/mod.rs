@@ -14,11 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod member_access;
-pub use member_access::*;
+mod associated_constant_access;
+pub use associated_constant_access::*;
 
 mod associated_function_access;
 pub use associated_function_access::*;
 
-mod associated_constant_access;
-pub use associated_constant_access::*;
+mod member_access;
+pub use member_access::*;
+
+mod tuple_access;
+pub use tuple_access::*;

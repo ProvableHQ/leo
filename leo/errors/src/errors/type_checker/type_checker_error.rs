@@ -56,7 +56,7 @@ create_messages!(
     type_should_be {
         args: (type_: impl Display, expected: impl Display),
         msg: format!(
-            "Found type `{type_}` but type `{expected}` was expected",
+            "Expected type `{expected}` but type `{type_}` was found",
         ),
         help: None,
     }
@@ -289,6 +289,27 @@ create_messages!(
     compare_address {
         args: (operator: impl Display),
         msg: format!("Comparison `{operator}` is not supported for the address type."),
+        help: None,
+    }
+
+    @formatted
+    incorrect_tuple_length {
+        args: (expected: impl Display, actual: impl Display),
+        msg: format!("Expected a tuple of length `{expected}` found length `{actual}`"),
+        help: None,
+    }
+
+    @formatted
+    invalid_tuple {
+        args: (),
+        msg: "Tuples must be explicitly typed in Leo".to_string(),
+        help: Some("The function definition must match the function return statement".to_string()),
+    }
+
+    @formatted
+    tuple_out_of_range {
+        args: (index: impl Display, length: impl Display),
+        msg: format!("Tuple index `{index}` out of range for a tuple with length `{length}`"),
         help: None,
     }
 );

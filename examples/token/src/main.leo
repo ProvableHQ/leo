@@ -26,7 +26,7 @@ function mint(r0: address, r1: u64) -> Token {
 
 // The `transfer` function sends the specified number of tokens
 // to the receiver from the provided token record.
-function transfer(r0: Token, r1: Receiver) -> Token {
+function transfer(r0: Token, r1: Receiver) -> (Token, Token) {
     // Checks the given token record has sufficient balance.
     // This `sub` operation is safe, and the proof will fail
     // if an overflow occurs. The output register `r2` holds
@@ -41,8 +41,7 @@ function transfer(r0: Token, r1: Receiver) -> Token {
     // with the change amount for the sender.
     let r4: Token = mint(r0.owner, r0.amount);
 
-    // return (r3, r4);
-    return r3;
+    return (r3, r4);
 }
 
 function main() -> u8 {
