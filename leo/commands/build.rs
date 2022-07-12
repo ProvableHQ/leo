@@ -20,14 +20,14 @@ use leo_compiler::{Ast, Compiler, InputAst, OutputOptions};
 use leo_errors::{CliError, Result};
 use leo_package::{
     inputs::InputFile,
-    // inputs::*,
-    // outputs::CircuitFile
-    outputs::{ChecksumFile, OutputsDirectory, MAIN_ALEO_FILE_NAME, OUTPUTS_DIRECTORY_NAME},
+    outputs::{ChecksumFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
-use std::str::FromStr;
+
+use aleo::commands::Build as AleoBuild;
 
 use clap::StructOpt;
+use std::str::FromStr;
 use tracing::span::Span;
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
@@ -86,15 +86,11 @@ impl Command for Build {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        // Get the package path.
         let path = context.dir()?;
-        let manifest = context.manifest().map_err(|_| CliError::manifest_file_not_found())?;
-        let package_name = manifest.program_id().name().to_string();
-        // let imports_map = manifest.get_imports_map().unwrap_or_default();
-        //
-        // // Error out if there are dependencies but no lock file found.
-        // if !imports_map.is_empty() && !context.lock_file_exists()? {
-        //     return Err(CliError::dependencies_are_not_installed().into());
-        // }
+
+        // Get the package name.
+        let package_name = context.program_name()?;
 
         // Sanitize the package path to the root directory.
         let mut package_path = path.clone();
@@ -113,9 +109,6 @@ impl Command for Build {
             return Err(CliError::package_main_file_not_found().into());
         }
 
-        // Create the output directory
-        OutputsDirectory::create(&package_path)?;
-
         // Construct the path to the main file in the source directory
         let mut main_file_path = package_path.clone();
         main_file_path.push(SOURCE_DIRECTORY_NAME);
@@ -124,32 +117,11 @@ impl Command for Build {
         // Load the input file at `package_name.in`
         let input_path = InputFile::new(&package_name).setup_file_path(&path);
 
-        // Load the state file at `package_name.in`
-        // let (state_string, state_path) = StateFile::new(&package_name).read_from(&path)?;
+        // Create the outputs directory
+        OutputsDirectory::create(&package_path)?;
 
         // Log compilation of files to console
         tracing::info!("Compiling main program... ({:?})", main_file_path);
-
-        // let imports_map = if context.lock_file_exists()? {
-        //     context.lock_file()?.to_import_map()
-        // } else {
-        //     Default::default()
-        // };
-
-        // Load the program at `main_file_path`
-        // let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_input(
-        //     package_name.clone(),
-        //     main_file_path,
-        //     output_directory,
-        //     &input_string,
-        //     &input_path,
-        //     &state_string,
-        //     &state_path,
-        //     thread_leaked_context(),
-        //     Some(self.compiler_options.clone().into()),
-        //     imports_map,
-        //     Some(self.compiler_options.into()),
-        // )?;
 
         // Initialize error handler
         let handler = leo_errors::emitter::Handler::default();
@@ -170,35 +142,24 @@ impl Command for Build {
 
         // Compile the program.
         {
-            let program_id_string = format!("{}.aleo", package_name); // todo: read this from a config file.
+            // Compile the Leo program into Aleo instructions.
             let (_, instructions) = program.compile_and_generate_instructions()?;
 
-            // Parse the generated instructions into an Aleo file.
-            let file =
-                AleoFile::<Testnet3>::from_str(&instructions).expect("Failed to parse generated Aleo instructions.");
+            // Parse the generated Aleo instructions into an Aleo file.
+            let file = AleoFile::<Network>::from_str(&instructions).map_err(CliError::failed_to_load_instructions)?;
+
+            // Create the path to the Aleo file.
+            let mut aleo_file_path = package_path.clone();
+            aleo_file_path.push(AleoFile::<Network>::main_file_name());
 
             // Write the Aleo file to `main.aleo`.
-            let mut aleo_file_path = package_path.clone();
-            aleo_file_path.push(MAIN_ALEO_FILE_NAME);
+            file.write_to(&aleo_file_path)
+                .map_err(|err| CliError::failed_to_write_to_aleo_file(aleo_file_path.display(), err))?;
 
-            file.write_to(&aleo_file_path).expect("Failed to write the aleo file.");
-
-            // Initialize the program id.
-            let program_id =
-                ProgramID::<Testnet3>::from_str(&program_id_string).expect("Failed to parse program id from string.");
-
-            // Create the program.json file to the output directory.
-            let _manifest_file = if Manifest::<Testnet3>::exists_at(&package_path) {
-                Manifest::<Testnet3>::open(&package_path).expect("Failed to open manifest file.")
-            } else {
-                Manifest::<Testnet3>::create(&package_path, &program_id).expect("Failed to create manifest file.")
-            };
-
-            // Call the `build` command from the Aleo SDK.
-            // todo error: thread 'main' panicked at 'Failed to call `aleo build` command from the Aleo SDK: Development private key not found.', leo/commands/build.rs:203:37
-            // let build = aleo::commands::Build;
-            // let res = build.parse().expect("Failed to call `aleo build` command from the Aleo SDK");
-            // tracing::info!("Result: {}", res);
+            // Call the `aleo build` command from the Aleo SDK.
+            let res = AleoBuild.parse().map_err(CliError::failed_to_call_aleo_build)?;
+            // Log the result of the build
+            tracing::info!("Result: {}", res);
         }
 
         // If a checksum file exists, check if it differs from the new checksum

@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::config::Config;
 use leo_errors::{CliError, Result};
 
 use std::fmt::Write as _;
@@ -91,24 +90,13 @@ impl Updater {
 
     /// Display the CLI message, if the Leo configuration allows.
     pub fn print_cli() {
-        let config = Config::read_config().unwrap();
+        // If the auto update configuration is off, notify the user to update leo.
+        if let Ok(latest_version) = Self::update_available() {
+            let mut message = "🟢 A new version is available! Run".bold().green().to_string();
+            message += &" `leo update` ".bold().white();
+            message += &format!("to update to v{}.", latest_version).bold().green();
 
-        if config.update.automatic {
-            // If the auto update configuration is on, attempt to update the version.
-            if let Ok(status) = Self::update_to_latest_release(false) {
-                if status.updated() {
-                    tracing::info!("Successfully updated to {}", status.version());
-                }
-            }
-        } else {
-            // If the auto update configuration is off, notify the user to update leo.
-            if let Ok(latest_version) = Self::update_available() {
-                let mut message = "🟢 A new version is available! Run".bold().green().to_string();
-                message += &" `leo update` ".bold().white();
-                message += &format!("to update to v{}.", latest_version).bold().green();
-
-                tracing::info!("\n{}\n", message);
-            }
+            tracing::info!("\n{}\n", message);
         }
     }
 }

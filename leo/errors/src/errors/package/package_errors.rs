@@ -172,61 +172,61 @@ create_messages!(
         help: None,
     }
 
-    /// For when creating the manifest file failed.
-    @backtraced
-    failed_to_create_manifest_file {
-        args: (filename: impl Display, error: impl ErrorArg),
-        msg: format!("failed creating manifest file `{}` {}", filename, error),
-        help: None,
-    }
-
-    /// For when parsing the manifest file failed.
-    @backtraced
-    failed_to_parse_manifest_file {
-        args: (filename: impl Display, error: impl ErrorArg),
-        msg: format!("failed parsing manifest file `{}` {}", filename, error),
-        help: None,
-    }
-
-    /// For when opening the manifest file failed.
-    @backtraced
-    failed_to_open_manifest_file {
-        args: (filename: impl Display, error: impl ErrorArg),
-        msg: format!("failed openining manifest file `{}` {}", filename, error),
-        help: None,
-    }
-
-    /// For when reading the manifest file failed.
-    @backtraced
-    failed_to_read_manifest_file {
-        args: (filename: impl Display, error: impl ErrorArg),
-        msg: format!("failed reading manifest file `{}` {}", filename, error),
-        help: None,
-    }
-
-    /// For when writing the manifest file failed.
-    @backtraced
-    failed_to_write_manifest_file {
-        args: (filename: impl Display, error: impl ErrorArg),
-        msg: format!("failed writing manifest file `{}` {}", filename, error),
-        help: None,
-    }
-
-    /// For when the manifest file has an IO error.
-    @backtraced
-    io_error_manifest_file {
-        args: (error: impl ErrorArg),
-        msg: format!("IO error manifest file from the provided file path - {}", error),
-        help: None,
-    }
-
-    /// For when getting the manifest metadata file failed.
-    @backtraced
-    failed_to_get_manifest_metadata_file {
-        args: (filename: impl Display, error: impl ErrorArg),
-        msg: format!("failed getting manifest metadata file `{}` {}", filename, error),
-        help: None,
-    }
+    // /// For when creating the manifest file failed.
+    // @backtraced
+    // failed_to_create_manifest_file {
+    //     args: (filename: impl Display, error: impl ErrorArg),
+    //     msg: format!("failed creating manifest file `{}` {}", filename, error),
+    //     help: None,
+    // }
+    //
+    // /// For when parsing the manifest file failed.
+    // @backtraced
+    // failed_to_parse_manifest_file {
+    //     args: (filename: impl Display, error: impl ErrorArg),
+    //     msg: format!("failed parsing manifest file `{}` {}", filename, error),
+    //     help: None,
+    // }
+    //
+    // /// For when opening the manifest file failed.
+    // @backtraced
+    // failed_to_open_manifest_file {
+    //     args: (filename: impl Display, error: impl ErrorArg),
+    //     msg: format!("failed openining manifest file `{}` {}", filename, error),
+    //     help: None,
+    // }
+    //
+    // /// For when reading the manifest file failed.
+    // @backtraced
+    // failed_to_read_manifest_file {
+    //     args: (filename: impl Display, error: impl ErrorArg),
+    //     msg: format!("failed reading manifest file `{}` {}", filename, error),
+    //     help: None,
+    // }
+    //
+    // /// For when writing the manifest file failed.
+    // @backtraced
+    // failed_to_write_manifest_file {
+    //     args: (filename: impl Display, error: impl ErrorArg),
+    //     msg: format!("failed writing manifest file `{}` {}", filename, error),
+    //     help: None,
+    // }
+    //
+    // /// For when the manifest file has an IO error.
+    // @backtraced
+    // io_error_manifest_file {
+    //     args: (error: impl ErrorArg),
+    //     msg: format!("IO error manifest file from the provided file path - {}", error),
+    //     help: None,
+    // }
+    //
+    // /// For when getting the manifest metadata file failed.
+    // @backtraced
+    // failed_to_get_manifest_metadata_file {
+    //     args: (filename: impl Display, error: impl ErrorArg),
+    //     msg: format!("failed getting manifest metadata file `{}` {}", filename, error),
+    //     help: None,
+    // }
 
 
     /// For when creating the zip file failed.

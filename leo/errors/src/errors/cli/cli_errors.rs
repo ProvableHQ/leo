@@ -400,6 +400,34 @@ create_messages!(
         msg: "unable to parse imported dependency's manifest",
         help: None,
     }
+
+    @backtraced
+    failed_to_open_manifest {
+        args: (error: impl Display),
+        msg: format!("Failed to open manifest file: {}", error),
+        help: Some("Create a package by running `leo new`.".to_string()),
+    }
+
+    @backtraced
+    failed_to_load_instructions {
+        args: (error: impl Display),
+        msg: format!("Failed to load compiled Aleo instructions into an Aleo file: {}", error),
+        help: Some("This is a Leo code generation bug. Please report it to https://github.com/AleoHQ/leo/issues/new/choose".to_string()),
+    }
+
+    @backtraced
+    failed_to_write_to_aleo_file {
+        args: (path: impl Display, error: impl Display),
+        msg: format!("Failed to write to the Aleo file at `{}`. Error: {}", path, error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_call_aleo_build {
+        args: (error: impl Display),
+        msg: format!("Failed to call the `aleo build` command. Error: {}", error),
+        help: None,
+    }
 );
 
 impl CliError {

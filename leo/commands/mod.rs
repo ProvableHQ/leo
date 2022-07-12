@@ -21,25 +21,24 @@ pub use build::Build;
 pub mod clean;
 pub use clean::Clean;
 
+pub mod new;
+pub use new::New;
+
 pub mod run;
 pub use run::Run;
 
 // pub mod init;
 // pub use init::Init;
 
-// pub mod new;
-// pub use new::New;
-
 use crate::context::*;
 use leo_errors::Result;
 
-use snarkvm::{
-    console::{network::Testnet3, program::ProgramID},
-    file::{AleoFile, Manifest},
-};
+use snarkvm::file::AleoFile;
 
 use std::time::Instant;
 use tracing::span::Span;
+
+pub(crate) type Network = snarkvm::prelude::Testnet3;
 
 /// Base trait for the Leo CLI, see methods and their documentation for details.
 pub trait Command {

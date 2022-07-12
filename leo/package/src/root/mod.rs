@@ -16,6 +16,3 @@
 
 pub mod gitignore;
 pub use self::gitignore::*;
-
-pub mod readme;
-pub use self::readme::*;

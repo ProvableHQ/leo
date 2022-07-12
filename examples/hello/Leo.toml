@@ -1,9 +1,0 @@
-[project]
-name = "hello"
-version = "0.3.0"
-description = "A minimal token program in Leo."
-license = "LICENSE-MIT"
-
-[remote]
-author = "aleo"
-

@@ -16,7 +16,7 @@
 
 use crate::{commands::Command, context::Context};
 use leo_errors::Result;
-use leo_package::outputs::ChecksumFile;
+// use leo_package::outputs::ChecksumFile;
 
 use clap::StructOpt;
 use tracing::span::Span;
@@ -37,14 +37,14 @@ impl Command for Clean {
         Ok(())
     }
 
-    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        let path = context.dir()?;
-        let package_name = context.manifest()?.program_id().name().to_string();
+    fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
+        // let path = context.dir()?;
+        // let package_name = context.manifest()?.program_id().name().to_string();
 
         // Removes the aleo file from the output directory.
 
         // Remove the checksum from the output directory
-        ChecksumFile::new(&package_name).remove(&path)?;
+        // ChecksumFile::new(&package_name).remove(&path)?;
 
         // // Remove the serialized circuit from the output directory
         // CircuitFile::new(&package_name).remove(&path)?;

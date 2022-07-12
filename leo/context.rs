@@ -14,28 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{api::Api, config};
+use crate::commands::Network;
 use leo_errors::{CliError, Result};
-
 use snarkvm::file::Manifest;
-use snarkvm::prelude::Testnet3;
 
 use std::{env::current_dir, path::PathBuf};
-
-pub const PACKAGE_MANAGER_URL: &str = "https://api.aleo.pm/";
 
 /// Project context, manifest, current directory etc
 /// All the info that is relevant in most of the commands
 #[derive(Clone)]
 pub struct Context {
-    /// Api client for Aleo PM
-    pub api: Api,
-
     /// Path at which the command is called, None when default
     pub path: Option<PathBuf>,
 }
 
 impl Context {
+    pub fn new(path: Option<PathBuf>) -> Result<Context> {
+        Ok(Context { path })
+    }
+
+    /// Returns the path to the Leo package.
     pub fn dir(&self) -> Result<PathBuf> {
         match &self.path {
             Some(path) => Ok(path.clone()),
@@ -43,26 +41,16 @@ impl Context {
         }
     }
 
-    /// Get package manifest for current context.
-    pub fn manifest(&self) -> Result<Manifest<Testnet3>> {
-        Ok(Manifest::<Testnet3>::open(self.dir()?.as_path())?)
+    /// Returns the program name as a String.
+    pub fn program_name(&self) -> Result<String> {
+        // Open the manifest file.
+        let path = self.dir()?;
+        let manifest = Manifest::<Network>::open(&path).map_err(CliError::failed_to_open_manifest)?;
+
+        // Lookup the program id.
+        let program_id = manifest.program_id();
+
+        // Get package name from program id.
+        Ok(program_id.name().to_string())
     }
-}
-
-/// Create a new context for the current directory.
-pub fn create_context(path: PathBuf, api_url: Option<String>) -> Result<Context> {
-    let token = config::read_token().ok();
-
-    let api = Api::new(api_url.unwrap_or_else(|| PACKAGE_MANAGER_URL.to_string()), token);
-
-    Ok(Context { api, path: Some(path) })
-}
-
-/// Returns project context.
-pub fn get_context(api_url: Option<String>) -> Result<Context> {
-    let token = config::read_token().ok();
-
-    let api = Api::new(api_url.unwrap_or_else(|| PACKAGE_MANAGER_URL.to_string()), token);
-
-    Ok(Context { api, path: None })
 }

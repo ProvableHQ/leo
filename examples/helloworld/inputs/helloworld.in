@@ -1,0 +1,4 @@
+// The program input for helloworld/src/main.leo
+[main]
+a: u32 = 1u32;
+b: u32 = 2u32;

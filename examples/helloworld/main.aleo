@@ -1,4 +1,4 @@
-program hello.aleo;
+program helloworld.aleo;
 
 function main:
     input r0 as u32.private;

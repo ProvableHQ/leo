@@ -14,17 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, config::*, context::Context};
-use leo_errors::{CliError, Result};
-use leo_package::LeoPackage;
+use crate::{commands::Command, context::Context};
+use leo_errors::{PackageError, Result};
+use leo_package::package::Package;
 
-use std::fs;
-use structopt::StructOpt;
+use aleo::commands::New as AleoNew;
+
+use clap::StructOpt;
 use tracing::span::Span;
 
 /// Create new Leo project
 #[derive(StructOpt, Debug)]
-#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct New {
     #[structopt(name = "NAME", help = "Set package name")]
     name: String,
@@ -42,28 +42,22 @@ impl Command for New {
         Ok(())
     }
 
-    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        // Check that the given package name is valid.
-        let package_name = self.name;
-        if !LeoPackage::is_package_name_valid(&package_name) {
-            return Err(CliError::invalid_project_name().into());
-        }
+    fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
+        // Call the `aleo new` command from the Aleo SDK.
+        let command = AleoNew::try_parse_from(&["aleo", &self.name]).expect("Failed to parse `aleo new` command");
+        let result = command.parse().expect("Failed to create a new Aleo project");
 
-        let username = read_username().ok();
+        // Derive the program directory path.
+        let mut path = std::env::current_dir().map_err(|e| PackageError::io_error("current directory", e))?;
+        path.push(&self.name);
 
-        // Derive the package directory path.
-        let mut path = context.dir()?;
-        path.push(&package_name);
+        // Initialize the Leo package in the directory created by `aleo new`.
+        Package::initialize(&self.name, &path)?;
 
-        // Verify the package directory path does not exist yet.
-        if path.exists() {
-            return Err(CliError::package_directory_already_exists(&path).into());
-        }
+        // todo: modify the readme file to build with `leo build`.
 
-        // Create the package directory
-        fs::create_dir_all(&path).map_err(CliError::package_could_not_create_directory)?;
-
-        LeoPackage::initialize(&package_name, &path, username)?;
+        // Log success.
+        tracing::info!("{}", result);
 
         Ok(())
     }
