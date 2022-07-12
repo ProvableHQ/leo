@@ -3,6 +3,7 @@ namespace: Parse
 expectation: Pass
 outputs:
   - name: ""
+    network: ""
     expected_input: []
     functions:
       "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":

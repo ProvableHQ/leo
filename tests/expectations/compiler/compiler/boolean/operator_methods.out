@@ -7,4 +7,4 @@ outputs:
       - initial_input_ast: 3254bbbc78ad3eec1c6667ade0b3d3da5ee17c7e569118cc1c771ba607e79ab0
       - initial_input_ast: 19f1be52a19445695f23724e1979b362dd3fcf31aace997c829e2206dc1cccbe
       - initial_input_ast: d2fc1992beaf062678bbf6c3e862820dbbea39926589afcdc46c19c8669f0e37
-    initial_ast: b8707d1d3f6c111db2515d4093d15b4739765bfb9e114ed345ebedce0c04024d
+    initial_ast: 10acf87c7211999c31d2a9ea2fba3fb4bee0304c03dd23b0501f2ba0fadd0177
