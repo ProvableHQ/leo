@@ -37,8 +37,6 @@ pub struct ConstantFolder<'a> {
     pub(crate) non_const_block: bool,
     /// a flag to tell value parsing that were in a negate expr
     pub(crate) negate: bool,
-    /// a flag to tell the flattener that were in an iterator and should create new scopes
-    pub(crate) create_iter_scopes: bool,
     /// a buffer of variables slated to be deconstified
     pub(crate) deconstify_buffer: Option<Vec<Symbol>>,
 }
@@ -70,7 +68,6 @@ impl<'a> ConstantFolder<'a> {
             next_block_non_const: false,
             non_const_block: false,
             negate: false,
-            create_iter_scopes: false,
             deconstify_buffer: None,
         }
     }

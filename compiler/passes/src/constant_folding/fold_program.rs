@@ -20,7 +20,7 @@ use indexmap::IndexMap;
 use leo_ast::*;
 use leo_errors::FlattenError;
 
-use crate::{ConstantFolder, Declaration, Flattener, Value, VariableSymbol};
+use crate::{ConstantFolder, DeclarationType, Flattener, Value, VariableSymbol};
 
 impl<'a> ProgramReconstructor for ConstantFolder<'a> {
     fn reconstruct_function(&mut self, input: Function) -> Function {
@@ -62,7 +62,7 @@ impl<'a> ProgramReconstructor for ConstantFolder<'a> {
                                     VariableSymbol {
                                         type_: var.type_,
                                         span: var.span(),
-                                        declaration: Declaration::Const(Some(match const_value {
+                                        declaration: DeclarationType::Const(Some(match const_value {
                                             InputValue::Address(value) if matches!(var.type_, Type::Address) => {
                                                 Value::Address(value.clone(), var.span())
                                             }

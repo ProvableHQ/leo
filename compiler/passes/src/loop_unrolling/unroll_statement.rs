@@ -16,8 +16,7 @@
 
 use leo_ast::*;
 
-use crate::unroller::Unroller;
-use crate::{VariableSymbol, VariableType};
+use crate::{LoopUnroller, VariableSymbol, VariableType};
 
 impl StatementReconstructor for LoopUnroller<'_> {
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> Statement {

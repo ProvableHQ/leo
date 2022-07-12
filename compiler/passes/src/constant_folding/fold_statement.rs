@@ -19,7 +19,7 @@ use std::cell::RefCell;
 use leo_ast::*;
 use leo_errors::{FlattenError, TypeCheckerError};
 
-use crate::{ConstantFolder, Declaration, Flattener, Value, VariableSymbol};
+use crate::{ConstantFolder, DeclarationType, Flattener, Value, VariableSymbol};
 
 /// Returns the literal value if the value is const.
 /// Otherwise returns the const.
@@ -52,8 +52,8 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
                             type_: (&const_val).into(),
                             span: var.identifier.span,
                             declaration: match &input.declaration_type {
-                                Declare::Const => Declaration::Const(Some(const_val.clone())),
-                                Declare::Let => Declaration::Mut(Some(const_val.clone())),
+                                Declare::Const => DeclarationType::Const(Some(const_val.clone())),
+                                Declare::Let => DeclarationType::Mut(Some(const_val.clone())),
                             },
                         },
                     ) {
@@ -71,8 +71,8 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
                         type_: input.type_,
                         span: var.identifier.span,
                         declaration: match &input.declaration_type {
-                            Declare::Const => Declaration::Const(None),
-                            Declare::Let => Declaration::Mut(None),
+                            Declare::Const => DeclarationType::Const(None),
+                            Declare::Let => DeclarationType::Mut(None),
                         },
                     },
                 ) {
@@ -88,8 +88,8 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
                         type_: input.type_,
                         span: var.identifier.span,
                         declaration: match &input.declaration_type {
-                            Declare::Const => Declaration::Const(None),
-                            Declare::Let => Declaration::Mut(None),
+                            Declare::Const => DeclarationType::Const(None),
+                            Declare::Let => DeclarationType::Mut(None),
                         },
                     },
                 );
@@ -118,11 +118,11 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
         if place_const.is_some() {
             if let Some(var) = self.symbol_table.borrow().lookup_variable(&var_name) {
                 match &var.declaration {
-                    Declaration::Const(_) => self.handler.emit_err(TypeCheckerError::cannot_assign_to_const_var(
+                    DeclarationType::Const(_) => self.handler.emit_err(TypeCheckerError::cannot_assign_to_const_var(
                         var_name,
                         place_expr.span(),
                     )),
-                    Declaration::Input(_, ParamMode::Const) => self.handler.emit_err(
+                    DeclarationType::Input(_, ParamMode::Const) => self.handler.emit_err(
                         TypeCheckerError::cannot_assign_to_const_input(var_name, place_expr.span()),
                     ),
                     _ => {}
@@ -317,7 +317,7 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
                                 VariableSymbol {
                                     type_: input.type_,
                                     span: input.variable.span,
-                                    declaration: Declaration::Const(Some(Value::from_u128(
+                                    declaration: DeclarationType::Const(Some(Value::from_u128(
                                         input.type_,
                                         iter_var,
                                         input.variable.span,

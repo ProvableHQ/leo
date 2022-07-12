@@ -45,6 +45,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                     type_: input_var.type_.clone(),
                     span: input_var.identifier.span(),
                     declaration: VariableType::Input(input_var.mode()),
+                    value: Default::default(),
                 },
             ) {
                 self.handler.emit_err(err);
