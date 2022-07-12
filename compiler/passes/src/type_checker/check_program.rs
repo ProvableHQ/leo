@@ -59,7 +59,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Ensure there are no nested tuples in the return type.
         if let Type::Tuple(tys) = &input.output {
             for ty in &tys.0 {
-                self.assert_not_tuple(input.span, &ty);
+                self.assert_not_tuple(input.span, ty);
             }
         }
 
@@ -108,7 +108,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Ensure there are no tuple typed members.
         for CircuitMember::CircuitVariable(v, type_) in input.members.iter() {
-            self.assert_not_tuple(v.span, &type_);
+            self.assert_not_tuple(v.span, type_);
         }
     }
 }

@@ -50,7 +50,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             VariableSymbol {
                 type_: input.type_.clone(),
                 span: input.span(),
-                declaration: declaration.clone(),
+                declaration,
             },
         ) {
             self.handler.emit_err(err);
