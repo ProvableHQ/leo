@@ -47,7 +47,7 @@ pub use self::type_checker::*;
 
 /// The LeoError type that contains all sub error types.
 /// This allows a unified error type throughout the Leo crates.
-#[derive(Clone, Debug, Error)]
+#[derive(Debug, Error)]
 pub enum LeoError {
     /// Represents an AST Error in a Leo Error.
     #[error(transparent)]
@@ -74,6 +74,9 @@ pub enum LeoError {
     /// not re-displaying an error.
     #[error("")]
     LastErrorCode(i32),
+    /// Anyhow errors.
+    #[error(transparent)]
+    Anyhow(#[from] anyhow::Error),
 }
 
 impl LeoError {
@@ -90,6 +93,7 @@ impl LeoError {
             PackageError(error) => error.error_code(),
             TypeCheckerError(error) => error.error_code(),
             LastErrorCode(_) => unreachable!(),
+            Anyhow(_) => unimplemented!(), // todo: implement error codes for snarkvm errors.
         }
     }
 
@@ -106,6 +110,7 @@ impl LeoError {
             PackageError(error) => error.exit_code(),
             TypeCheckerError(error) => error.exit_code(),
             LastErrorCode(code) => *code,
+            Anyhow(_) => unimplemented!(), // todo: implement exit codes for snarkvm errors.
         }
     }
 }

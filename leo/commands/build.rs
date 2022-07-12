@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use super::*;
 use crate::{commands::Command, context::Context};
 use leo_compiler::{Ast, Compiler, InputAst, OutputOptions};
 use leo_errors::{CliError, Result};
@@ -23,10 +24,6 @@ use leo_package::{
     // outputs::CircuitFile
     outputs::{ChecksumFile, OutputsDirectory, MAIN_ALEO_FILE_NAME, OUTPUTS_DIRECTORY_NAME},
     source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
-};
-use snarkvm::{
-    console::{network::Testnet3, program::ProgramID},
-    file::{AleoFile, Manifest},
 };
 use std::str::FromStr;
 

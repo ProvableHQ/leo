@@ -18,12 +18,15 @@ license = "GPL-3.0"
 edition = "2021"
 rust-version = "1.56"
 
-[dependencies.backtrace]
-version = "0.3.66"
-
 [dependencies.leo-span]
 path = "../span"
 version = "1.5.3"
+
+[dependencies.anyhow]
+version = "1.0"
+
+[dependencies.backtrace]
+version = "0.3.66"
 
 [dependencies.colored]
 version = "2.0.0"

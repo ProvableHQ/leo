@@ -1194,6 +1194,7 @@ dependencies = [
 name = "leo-errors"
 version = "1.5.3"
 dependencies = [
+ "anyhow",
  "backtrace",
  "color-backtrace",
  "colored",

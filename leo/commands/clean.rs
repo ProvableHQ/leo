@@ -41,8 +41,7 @@ impl Command for Clean {
         let path = context.dir()?;
         let package_name = context.manifest()?.get_package_name();
 
-        // Remove the aleo file from the output directory.
-        // AleoFile::new(&package_name, "aleo").remove(&path)?;
+        // Removes the aleo file from the output directory.
 
         // Remove the checksum from the output directory
         ChecksumFile::new(&package_name).remove(&path)?;

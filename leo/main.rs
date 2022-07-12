@@ -21,24 +21,19 @@ pub mod context;
 pub mod logger;
 pub mod updater;
 
-use commands::{
-    // package::{Clone, Fetch, Login, Logout, Publish},
-    Build,
-    Clean,
-    Command,
-    // Deploy, Init, Lint, New, Prove, Run, Setup, Test, Update, Watch,
-};
+use crate::commands::*;
+use crate::context::*;
 use leo_errors::Result;
 use leo_span::symbol::create_session_if_not_set_then;
-// use snarkvm_utilities::Write;
 
 use clap::StructOpt;
-use std::{path::PathBuf, process::exit};
+use std::path::PathBuf;
+use std::process::exit;
 
 /// CLI Arguments entry point - includes global parameters and subcommands
 #[derive(StructOpt, Debug)]
 #[structopt(name = "leo", author = "The Aleo Team <hello@aleo.org>")]
-struct Opt {
+pub struct CLI {
     #[structopt(short, global = true, help = "Print additional information for debugging")]
     debug: bool,
 
@@ -46,7 +41,7 @@ struct Opt {
     quiet: bool,
 
     #[structopt(subcommand)]
-    command: CommandOpts,
+    command: Commands,
 
     #[structopt(help = "Custom Aleo PM backend URL", env = "APM_URL")]
     api: Option<String>,
@@ -62,7 +57,7 @@ struct Opt {
 
 ///Leo compiler and package manager
 #[derive(StructOpt, Debug)]
-enum CommandOpts {
+enum Commands {
     // #[structopt(about = "Create a new Leo package in an existing directory")]
     // Init {
     //     #[structopt(flatten)]
@@ -84,93 +79,10 @@ enum CommandOpts {
         #[structopt(flatten)]
         command: Clean,
     },
-    //
-    // #[structopt(about = "Run a program setup")]
-    // Setup {
-    //     #[structopt(flatten)]
-    //     command: Setup,
-    // },
-    //
-    // #[structopt(about = "Run the program and produce a proof")]
-    // Prove {
-    //     #[structopt(flatten)]
-    //     command: Prove,
-    // },
-    //
     // #[structopt(about = "Run a program with input variables")]
     // Run {
     //     #[structopt(flatten)]
     //     command: Run,
-    // },
-    //
-    // #[structopt(about = "Watch for changes of Leo source files")]
-    // Watch {
-    //     #[structopt(flatten)]
-    //     command: Watch,
-    // },
-    //
-    // #[structopt(about = "Update Leo to the latest version")]
-    // Update {
-    //     #[structopt(flatten)]
-    //     command: Update,
-    // },
-    //
-    // #[structopt(about = "Compile and run all tests in the current package")]
-    // Test {
-    //     #[structopt(flatten)]
-    //     command: Test,
-    // },
-    //
-    // #[structopt(about = "Import a package from the Aleo Package Manager")]
-    // Add {
-    //     #[structopt(flatten)]
-    //     command: Add,
-    // },
-    // #[structopt(about = "Pull dependencies from Aleo Package Manager")]
-    // Fetch {
-    //     #[structopt(flatten)]
-    //     command: Fetch,
-    // },
-    //
-    // #[structopt(about = "Clone a package from the Aleo Package Manager")]
-    // Clone {
-    //     #[structopt(flatten)]
-    //     command: Clone,
-    // },
-    //
-    // #[structopt(about = "Login to the Aleo Package Manager")]
-    // Login {
-    //     #[structopt(flatten)]
-    //     command: Login,
-    // },
-    //
-    // #[structopt(about = "Logout of the Aleo Package Manager")]
-    // Logout {
-    //     #[structopt(flatten)]
-    //     command: Logout,
-    // },
-    //
-    // #[structopt(about = "Publish the current package to the Aleo Package Manager")]
-    // Publish {
-    //     #[structopt(flatten)]
-    //     command: Publish,
-    // },
-    //
-    // #[structopt(about = "Uninstall a package from the current package")]
-    // Remove {
-    //     #[structopt(flatten)]
-    //     command: Remove,
-    // },
-    // #[structopt(about = "Lints the Leo files in the package (*)")]
-    // Lint {
-    //     #[structopt(flatten)]
-    //     command: Lint,
-    // },
-    //
-    // #[structopt(about = "Deploy the current package as a program to the network (*)")]
-    // Deploy {
-    //     #[structopt(flatten)]
-    //     command: Deploy,
     // },
 }
 
@@ -203,18 +115,23 @@ fn set_panic_hook() {
     });
 }
 
-fn main() {
-    set_panic_hook();
-    create_session_if_not_set_then(|_| handle_error(run_with_args(Opt::parse())));
+pub fn handle_error<T>(res: Result<T>) -> T {
+    match res {
+        Ok(t) => t,
+        Err(err) => {
+            eprintln!("{}", err);
+            exit(err.exit_code());
+        }
+    }
 }
 
 /// Run command with custom build arguments.
-fn run_with_args(opt: Opt) -> Result<()> {
-    if !opt.quiet {
+pub fn run_with_args(cli: CLI) -> Result<()> {
+    if !cli.quiet {
         // Init logger with optional debug flag.
         logger::init_logger(
             "leo",
-            match opt.debug {
+            match cli.debug {
                 false => 1,
                 true => 2,
             },
@@ -223,16 +140,16 @@ fn run_with_args(opt: Opt) -> Result<()> {
 
     // Get custom root folder and create context for it.
     // If not specified, default context will be created in cwd.
-    let context = handle_error(match opt.path {
-        Some(path) => context::create_context(path, opt.api),
-        None => context::get_context(opt.api),
+    let context = handle_error(match cli.path {
+        Some(path) => create_context(path, cli.api),
+        None => get_context(cli.api),
     });
 
-    match opt.command {
+    match cli.command {
         // CommandOpts::Init { command } => command.try_execute(context),
         // CommandOpts::New { command } => command.try_execute(context),
-        CommandOpts::Build { command } => command.try_execute(context),
-        CommandOpts::Clean { command } => command.try_execute(context),
+        Commands::Build { command } => command.try_execute(context),
+        Commands::Clean { command } => command.try_execute(context),
         // CommandOpts::Setup { command } => command.try_execute(context),
         // CommandOpts::Prove { command } => command.try_execute(context),
         // CommandOpts::Test { command } => command.try_execute(context),
@@ -252,15 +169,11 @@ fn run_with_args(opt: Opt) -> Result<()> {
     }
 }
 
-fn handle_error<T>(res: Result<T>) -> T {
-    match res {
-        Ok(t) => t,
-        Err(err) => {
-            eprintln!("{}", err);
-            exit(err.exit_code());
-        }
-    }
+fn main() {
+    set_panic_hook();
+    create_session_if_not_set_then(|_| handle_error(run_with_args(CLI::parse())));
 }
+
 // todo (collin): uncomment after refactor
 // #[cfg(test)]
 // mod cli_tests {
