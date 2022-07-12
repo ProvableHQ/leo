@@ -29,7 +29,7 @@ path = "leo/main.rs"
 members = [
   "compiler/compiler",
   "docs/grammar",
-  "leo/errors",
+  "errors",
   "leo/package",
   "tests/test-framework",
 ]
@@ -39,7 +39,7 @@ path = "./compiler/compiler"
 version = "1.5.3"
 
 [dependencies.leo-errors]
-path = "./leo/errors"
+path = "./errors"
 version = "1.5.3"
 
 [dependencies.leo-package]

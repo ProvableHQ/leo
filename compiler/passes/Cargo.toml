@@ -29,7 +29,7 @@ path = "../ast"
 version = "1.5.3"
 
 [dependencies.leo-errors]
-path = "../../leo/errors"
+path = "../../errors"
 version = "1.5.3"
 
 [dependencies.leo-parser]
