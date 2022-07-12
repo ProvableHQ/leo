@@ -14,33 +14,33 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Ast, Definitions, ProgramReconstructor};
-use leo_errors::{emitter::Handler, Result};
+pub mod unroller;
+pub use unroller::*;
 
-pub mod flattener;
-pub use flattener::*;
+pub mod unroll_expression;
+pub use unroll_expression::*;
 
-pub mod flatten_expression;
-pub use flatten_expression::*;
+pub mod unroll_program;
+pub use unroll_program::*;
 
-pub mod flatten_program;
-pub use flatten_program::*;
-
-pub mod flatten_statement;
-pub use flatten_statement::*;
+pub mod unroll_statement;
+pub use unroll_statement::*;
 
 use crate::{Pass, SymbolTable};
 
-impl<'a> Pass for Flattener<'a> {
-    type Input = (Ast, &'a Handler, SymbolTable, Option<&'a Definitions>);
-    type Output = Result<Ast>;
+use leo_ast::{Ast, ProgramReconstructor};
+use leo_errors::{emitter::Handler, Result};
 
-    fn do_pass((ast, handler, st, input_consts): Self::Input) -> Self::Output {
+impl<'a> Pass for Unroller<'a> {
+    type Input = (Ast, &'a Handler, SymbolTable);
+    type Output = Result<(Ast, SymbolTable)>;
+
+    fn do_pass((ast, handler, st): Self::Input) -> Self::Output {
         // Reconstructs the AST based off any flattening work that is done.
-        let mut reconstructor = Self::new(st, handler, input_consts);
+        let mut reconstructor = Self::new(st, handler);
         let program = reconstructor.reconstruct_program(ast.into_repr());
         handler.last_err()?;
 
-        Ok(Ast::new(program))
+        Ok((Ast::new(program), reconstructor.symbol_table.take()))
     }
 }

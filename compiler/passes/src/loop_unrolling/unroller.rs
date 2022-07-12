@@ -14,26 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![doc = include_str!("../README.md")]
+use std::cell::RefCell;
 
-// Temporarily disable canonicalization.
-/* pub mod canonicalization;
-pub use canonicalization::*;
- */
+use leo_errors::emitter::Handler;
 
-// Temporarily disable import resolution
-// until we migrate core and then import resolution.
-/* pub mod import_resolution;
-pub use import_resolution::*; */
+use crate::SymbolTable;
 
-pub mod pass;
-pub use self::pass::*;
+pub struct Unroller<'a> {
+    /// the symbol table for the function
+    pub(crate) symbol_table: RefCell<SymbolTable>,
+    /// the current block scope index
+    pub(crate) block_index: usize,
+    /// error handler
+    pub(crate) handler: &'a Handler,
+    /// A flag indicating whether or not `Unroller` is in the midst of unrolling a loop.
+    pub(crate) is_unrolling: bool,
+}
 
-pub mod loop_unrolling;
-pub use self::loop_unrolling::*;
-
-pub mod symbol_table;
-pub use symbol_table::*;
-
-pub mod type_checking;
-pub use type_checking::*;
+impl<'a> Unroller<'a> {
+    pub(crate) fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
+        Self {
+            symbol_table: RefCell::new(symbol_table),
+            block_index: 0,
+            handler,
+            is_unrolling: false,
+        }
+    }
+}

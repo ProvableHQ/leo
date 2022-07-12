@@ -14,26 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![doc = include_str!("../README.md")]
+use leo_ast::*;
 
-// Temporarily disable canonicalization.
-/* pub mod canonicalization;
-pub use canonicalization::*;
- */
+use crate::Unroller;
 
-// Temporarily disable import resolution
-// until we migrate core and then import resolution.
-/* pub mod import_resolution;
-pub use import_resolution::*; */
-
-pub mod pass;
-pub use self::pass::*;
-
-pub mod loop_unrolling;
-pub use self::loop_unrolling::*;
-
-pub mod symbol_table;
-pub use symbol_table::*;
-
-pub mod type_checking;
-pub use type_checking::*;
+impl<'a> ExpressionReconstructor for Unroller<'a> {
+    type AdditionalOutput = ();
+}
