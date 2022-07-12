@@ -147,7 +147,7 @@ impl<'a> ProgramReconstructor for ConstantFolder<'a> {
         self.symbol_table.swap(prev_st.borrow().get_fn_scope(&f_name).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
         // Set our current block scope index to 0
-        self.block_index = 0;
+        self.scope_index = 0;
 
         // Reconstruct the function block.
         let f = Function {

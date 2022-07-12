@@ -26,8 +26,8 @@ pub struct ConstantFolder<'a> {
     pub(crate) symbol_table: RefCell<SymbolTable>,
     /// constant inputs for the function
     pub(crate) constant_inputs: Option<&'a Definitions>,
-    /// the current block scope index
-    pub(crate) block_index: usize,
+    /// the current scope index
+    pub(crate) scope_index: usize,
     /// error handler
     pub(crate) handler: &'a Handler,
     /// a flag to tell value parsing that were in a negate expr
@@ -43,7 +43,7 @@ impl<'a> ConstantFolder<'a> {
         Self {
             symbol_table: RefCell::new(symbol_table),
             constant_inputs,
-            block_index: 0,
+            scope_index: 0,
             handler,
             negate: false,
         }

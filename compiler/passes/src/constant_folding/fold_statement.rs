@@ -49,7 +49,8 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
                     }
                     // If the variable is not in the current scope, create a new entry with the appropriate value.
                     false => {
-                        if let Err(err) = st.insert_variable(
+                        // Note that we do not need to check for shadowing since type checking has already taken place.
+                        st.insert_variable_unchecked(
                             var.identifier.name,
                             VariableSymbol {
                                 type_: Type::from(&const_val),
@@ -60,9 +61,7 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
                                 },
                                 value: Some(const_val),
                             },
-                        ) {
-                            self.handler.emit_err(err);
-                        }
+                        )
                     }
                 }
             }
@@ -108,7 +107,8 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
                         .expect("Variable should exist in parent scope.")
                         .variable_type
                         .clone();
-                    if let Err(err) = st.insert_variable(
+                    // Note that we do not need to obey shadowing rules since type checking has already taken place.
+                    st.insert_variable_unchecked(
                         var_name,
                         VariableSymbol {
                             type_: Type::from(&const_val),
@@ -116,9 +116,7 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
                             variable_type,
                             value: Some(const_val),
                         },
-                    ) {
-                        self.handler.emit_err(err);
-                    }
+                    )
                 }
             }
         }
@@ -142,12 +140,12 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
             Some(Value::Boolean(true)) => {
                 let block = Statement::Block(self.reconstruct_block(input.block));
                 if input.next.is_some() {
-                    self.block_index += 1;
+                    self.scope_index += 1;
                 }
                 let mut next = input.next;
                 while let Some(Statement::Conditional(c)) = next.as_deref() {
                     if c.next.is_some() {
-                        self.block_index += 1;
+                        self.scope_index += 1;
                     }
                     next = c.next.clone();
                 }
@@ -156,12 +154,12 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
             }
             // If branch const false and another branch follows this one
             Some(Value::Boolean(false)) if input.next.is_some() => {
-                self.block_index += 1;
+                self.scope_index += 1;
                 self.reconstruct_statement(*input.next.unwrap())
             }
             // If branch const false and no branch follows it
             Some(Value::Boolean(false)) => {
-                self.block_index += 1;
+                self.scope_index += 1;
                 Statement::Block(Block {
                     statements: Vec::new(),
                     span: input.span,
@@ -185,21 +183,7 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
         let (start, start_value) = self.reconstruct_expression(input.start);
         let (stop, stop_value) = self.reconstruct_expression(input.stop);
 
-        // Load the scope for the loop body.
-        let prev_st = std::mem::take(&mut self.symbol_table);
-        self.symbol_table
-            .swap(prev_st.borrow().get_block_scope(self.block_index).unwrap());
-        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
-
         let block = self.reconstruct_block(input.block);
-
-        // Restore the previous scope.
-        let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        // TODO: Is this swap necessary?
-        self.symbol_table
-            .swap(prev_st.get_block_scope(self.block_index).unwrap());
-        self.symbol_table = RefCell::new(prev_st);
-        self.block_index += 1;
 
         Statement::Iteration(Box::new(IterationStatement {
             variable: input.variable,
@@ -242,11 +226,20 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
     }
 
     fn reconstruct_block(&mut self, input: Block) -> Block {
+        println!(
+            "Reconstructing block beginning, block index: {:?}, num_blocks: {:?}",
+            self.scope_index,
+            self.symbol_table.borrow().scopes.len()
+        );
+        let block_str = format!("Block: {:}\n", input);
+        println!("{}", block_str);
         // Enter block scope.
+        let current_scope = self.scope_index;
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
-            .swap(prev_st.borrow().get_block_scope(self.block_index).unwrap());
+            .swap(prev_st.borrow().get_block_scope(current_scope).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
+        self.scope_index = 0;
 
         let block = Block {
             statements: input
@@ -257,12 +250,16 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
             span: input.span,
         };
 
+        println!(
+            "Reconstructing block end, block index: {:?}, num_blocks: {:?}",
+            current_scope,
+            self.symbol_table.borrow().scopes.len()
+        );
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
         // TODO: Is this swap necessary?
-        self.symbol_table
-            .swap(prev_st.get_block_scope(self.block_index).unwrap());
+        self.symbol_table.swap(prev_st.get_block_scope(current_scope).unwrap());
         self.symbol_table = RefCell::new(prev_st);
-        self.block_index += 1;
+        self.scope_index = current_scope + 1;
 
         block
     }

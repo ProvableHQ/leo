@@ -106,7 +106,25 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.assert_int_type(iter_type, input.variable.span);
         self.check_core_type_conflict(iter_type);
 
+        // Visit the start expression.
+        self.visit_expression(&input.start, iter_type);
+
+        // If `input.start` is a literal, instantiate it as a value.
+        if let Expression::Literal(literal) = &input.start {
+            input.start_value.replace(Some(Value::from(literal)));
+        }
+
+        // Visit the end expression.
+        self.visit_expression(&input.stop, iter_type);
+
+        // If `input.stop` is a literal, instantiate it as a value.
+        if let Expression::Literal(literal) = &input.stop {
+            input.stop_value.replace(Some(Value::from(literal)));
+        }
+
         // Create a new scope for the loop body.
+        // Note that we construct a new scope in this method (as opposed to constructing it via `self.visit_block`)
+        // in order to add the loop variable to the scope.
         let scope_index = self.symbol_table.borrow_mut().insert_block();
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
@@ -126,6 +144,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             self.handler.emit_err(err);
         }
 
+        // Directly visit the constituent statements in the loop body.
+        // Note: Do not invoke `self.visit_block` directly, as it will create a new sub-scope.
         input.block.statements.iter().for_each(|s| self.visit_statement(s));
 
         // Restore the previous scope.
@@ -133,20 +153,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.symbol_table
             .swap(prev_st.lookup_scope_by_index(scope_index).unwrap());
         self.symbol_table = RefCell::new(prev_st);
-
-        self.visit_expression(&input.start, iter_type);
-
-        // If `input.start` is a literal, instantiate it as a value.
-        if let Expression::Literal(literal) = &input.start {
-            input.start_value.replace(Some(Value::from(literal)));
-        }
-
-        self.visit_expression(&input.stop, iter_type);
-
-        // If `input.stop` is a literal, instantiate it as a value.
-        if let Expression::Literal(literal) = &input.stop {
-            input.stop_value.replace(Some(Value::from(literal)));
-        }
     }
 
     fn visit_console(&mut self, input: &'a ConsoleStatement) {

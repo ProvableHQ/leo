@@ -95,6 +95,11 @@ impl SymbolTable {
         Ok(())
     }
 
+    /// Inserts a variable into the symbol table without checking for shadowing.
+    pub fn insert_variable_unchecked(&mut self, symbol: Symbol, insert: VariableSymbol) {
+        self.variables.insert(symbol, insert);
+    }
+
     /// Creates a new scope for the block and stores it in the symbol table.
     pub fn insert_block(&mut self) -> usize {
         self.scopes.push(RefCell::new(Default::default()));
