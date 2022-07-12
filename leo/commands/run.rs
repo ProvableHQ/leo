@@ -14,18 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::{build::BuildOptions, prove::Prove};
+use super::build::BuildOptions;
 use crate::{commands::Command, context::Context};
-use leo_errors::{Result, SnarkVMError};
+use leo_errors::Result;
 
-use snarkvm_algorithms::{snark::groth16::Groth16, traits::SNARK};
-use snarkvm_curves::bls12_377::{Bls12_377, Fr};
-use structopt::StructOpt;
+// use aleo::commands::CLI as AleoCLI;
+
+use clap::StructOpt;
 use tracing::span::Span;
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(StructOpt, Debug)]
-#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Run {
     #[structopt(long = "skip-key-check", help = "Skip key verification on Setup stage")]
     pub(crate) skip_key_check: bool,
@@ -35,35 +34,25 @@ pub struct Run {
 }
 
 impl Command for Run {
-    type Input = <Prove as Command>::Output;
+    type Input = ();
     type Output = ();
 
     fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Verifying")
+        tracing::span!(tracing::Level::INFO, "Executing")
     }
 
-    fn prelude(&self, context: Context) -> Result<Self::Input> {
-        (Prove {
-            skip_key_check: self.skip_key_check,
-            compiler_options: self.compiler_options.clone(),
-        })
-        .execute(context)
+    fn prelude(&self, _context: Context) -> Result<Self::Input> {
+        Ok(()) // todo: call aleo build here?
     }
 
-    fn apply(self, _context: Context, input: Self::Input) -> Result<Self::Output> {
-        let (proof, prepared_verifying_key) = input;
-
+    fn apply(self, _context: Context, _input: Self::Input) -> Result<Self::Output> {
         tracing::info!("Starting...");
 
-        // Run the verifier
-        let is_success = Groth16::<Bls12_377, Vec<Fr>>::verify_prepared(&prepared_verifying_key, &vec![], &proof)
-            .map_err(|_| SnarkVMError::default())?;
+        // Execute the aleo program.
+        // let cli = AleoCLI::parse_from(&["aleo", "run", "main"]);
 
         // Log the verifier output
-        match is_success {
-            true => tracing::info!("Proof is valid"),
-            false => tracing::error!("Proof is invalid"),
-        };
+        // tracing::info!("Result: {}", res);
 
         Ok(())
     }

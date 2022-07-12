@@ -79,11 +79,11 @@ enum Commands {
         #[structopt(flatten)]
         command: Clean,
     },
-    // #[structopt(about = "Run a program with input variables")]
-    // Run {
-    //     #[structopt(flatten)]
-    //     command: Run,
-    // },
+    #[structopt(about = "Run a program with input variables")]
+    Run {
+        #[structopt(flatten)]
+        command: Run,
+    },
 }
 
 fn set_panic_hook() {
@@ -150,22 +150,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         // CommandOpts::New { command } => command.try_execute(context),
         Commands::Build { command } => command.try_execute(context),
         Commands::Clean { command } => command.try_execute(context),
-        // CommandOpts::Setup { command } => command.try_execute(context),
-        // CommandOpts::Prove { command } => command.try_execute(context),
-        // CommandOpts::Test { command } => command.try_execute(context),
-        // CommandOpts::Run { command } => command.try_execute(context),
-        // CommandOpts::Watch { command } => command.try_execute(context),
-        // CommandOpts::Update { command } => command.try_execute(context),
-        //
-        // // CommandOpts::Add { command } => command.try_execute(context),
-        // CommandOpts::Fetch { command } => command.try_execute(context),
-        // CommandOpts::Clone { command } => command.try_execute(context),
-        // CommandOpts::Login { command } => command.try_execute(context),
-        // CommandOpts::Logout { command } => command.try_execute(context),
-        // CommandOpts::Publish { command } => command.try_execute(context),
-        // // CommandOpts::Remove { command } => command.try_execute(context),
-        // CommandOpts::Lint { command } => command.try_execute(context),
-        // CommandOpts::Deploy { command } => command.try_execute(context),
+        Commands::Run { command } => command.try_execute(context),
     }
 }
 

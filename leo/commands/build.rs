@@ -88,13 +88,13 @@ impl Command for Build {
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         let path = context.dir()?;
         let manifest = context.manifest().map_err(|_| CliError::manifest_file_not_found())?;
-        let package_name = manifest.get_package_name();
-        let imports_map = manifest.get_imports_map().unwrap_or_default();
-
-        // Error out if there are dependencies but no lock file found.
-        if !imports_map.is_empty() && !context.lock_file_exists()? {
-            return Err(CliError::dependencies_are_not_installed().into());
-        }
+        let package_name = manifest.program_id().name().to_string();
+        // let imports_map = manifest.get_imports_map().unwrap_or_default();
+        //
+        // // Error out if there are dependencies but no lock file found.
+        // if !imports_map.is_empty() && !context.lock_file_exists()? {
+        //     return Err(CliError::dependencies_are_not_installed().into());
+        // }
 
         // Sanitize the package path to the root directory.
         let mut package_path = path.clone();

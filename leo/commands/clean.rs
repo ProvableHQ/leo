@@ -39,7 +39,7 @@ impl Command for Clean {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         let path = context.dir()?;
-        let package_name = context.manifest()?.get_package_name();
+        let package_name = context.manifest()?.program_id().name().to_string();
 
         // Removes the aleo file from the output directory.
 

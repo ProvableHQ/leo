@@ -21,14 +21,14 @@ pub use build::Build;
 pub mod clean;
 pub use clean::Clean;
 
+pub mod run;
+pub use run::Run;
+
 // pub mod init;
 // pub use init::Init;
 
 // pub mod new;
 // pub use new::New;
-
-// pub mod run;
-// pub use run::Run;
 
 use crate::context::*;
 use leo_errors::Result;
