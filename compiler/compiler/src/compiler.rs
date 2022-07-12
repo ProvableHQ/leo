@@ -93,7 +93,7 @@ impl<'a> Compiler<'a> {
         // Use the parser to construct the abstract syntax tree (ast).
         let ast: leo_ast::Ast = leo_parser::parse_ast(self.handler, &prg_sf.src, prg_sf.start_pos)?;
 
-        if self.output_options.ast_initial {
+        if self.output_options.initial_ast {
             // Write the AST snapshot post parsing.
             if self.output_options.spans_enabled {
                 ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
@@ -125,7 +125,7 @@ impl<'a> Compiler<'a> {
 
             // Parse and serialize it.
             let input_ast = leo_parser::parse_input(self.handler, &input_sf.src, input_sf.start_pos)?;
-            if self.output_options.ast_initial {
+            if self.output_options.initial_ast {
                 // Write the input AST snapshot post parsing.
                 if self.output_options.spans_enabled {
                     input_ast.to_json_file(self.output_directory.clone(), "initial_input_ast.json")?;

@@ -46,8 +46,9 @@ fn new_compiler(handler: &Handler, main_file_path: PathBuf) -> Compiler<'_> {
         output_dir,
         Some(OutputOptions {
             spans_enabled: false,
-            input_ast_initial: true,
-            ast_initial: true,
+            initial_input_ast: true,
+            initial_ast: true,
+            unrolled_ast: true,
         }),
     )
 }
@@ -102,6 +103,7 @@ struct OutputItem {
 struct CompileOutput {
     pub output: Vec<OutputItem>,
     pub initial_ast: String,
+    pub unrolled_ast: String,
 }
 
 /// Get the path of the `input_file` given in `input` into `list`.
@@ -213,6 +215,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     }
 
     let initial_ast = hash_file("/tmp/output/initial_ast.json");
+    let unrolled_ast = hash_file("/tmp/output/urolled_ast.json");
 
     if fs::read_dir("/tmp/output").is_ok() {
         fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
@@ -221,6 +224,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     let final_output = CompileOutput {
         output: output_items,
         initial_ast,
+        unrolled_ast,
     };
     Ok(serde_yaml::to_value(&final_output).expect("serialization failed"))
 }
