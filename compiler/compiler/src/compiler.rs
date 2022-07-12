@@ -158,11 +158,21 @@ impl<'a> Compiler<'a> {
     }
 
     ///
+    /// Runs the loop unrolling pass.
+    ///
+    pub fn loop_unrolling_pass(&mut self, symbol_table: SymbolTable) -> Result<SymbolTable> {
+        let (ast, symbol_table) = Unroller::do_pass((std::mem::take(&mut self.ast), self.handler, symbol_table))?;
+        self.ast = ast;
+        Ok(symbol_table)
+    }
+
+    ///
     /// Runs the compiler stages.
     ///
-    pub fn compiler_stages(&self) -> Result<SymbolTable> {
+    pub fn compiler_stages(&mut self) -> Result<SymbolTable> {
         let st = self.symbol_table_pass()?;
         let st = self.type_checker_pass(st)?;
+        let st = self.loop_unrolling_pass(st)?;
         Ok(st)
     }
 
