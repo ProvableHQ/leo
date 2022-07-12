@@ -27,7 +27,7 @@ path = "../../leo/errors"
 version = "1.5.3"
 
 [dependencies.leo-span]
-path = "../../leo/span"
+path = "../span"
 version = "1.5.3"
 
 [dependencies.snarkvm-dpc]

@@ -47,7 +47,7 @@ path = "./leo/package"
 version = "1.5.3"
 
 [dependencies.leo-span]
-path = "./leo/span"
+path = "./compiler/span"
 version = "1.5.3"
 
 [dependencies.aleo]
