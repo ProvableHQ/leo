@@ -50,6 +50,7 @@ fn new_compiler(handler: &Handler, main_file_path: PathBuf) -> Compiler<'_> {
             spans_enabled: false,
             initial_input_ast: true,
             initial_ast: true,
+            constant_folded_ast: true,
             unrolled_ast: true,
         }),
     )
@@ -105,6 +106,7 @@ struct OutputItem {
 struct CompileOutput {
     pub output: Vec<OutputItem>,
     pub initial_ast: String,
+    pub constant_folded_ast: String,
     pub unrolled_ast: String,
 }
 
@@ -138,6 +140,7 @@ fn collect_all_inputs(test: &Test) -> Result<Vec<PathBuf>, String> {
 fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<SymbolTable, LeoError> {
     let st = parsed.symbol_table_pass()?;
     let st = parsed.type_checker_pass(st)?;
+    let st = parsed.constant_folding_pass(st)?;
     let st = parsed.loop_unrolling_pass(st)?;
     Ok(st)
 }
@@ -218,6 +221,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     }
 
     let initial_ast = hash_file("/tmp/output/initial_ast.json");
+    let constant_folded_ast = hash_file("/tmp/output/constant_folded_ast.json");
     let unrolled_ast = hash_file("/tmp/output/unrolled_ast.json");
 
     if fs::read_dir("/tmp/output").is_ok() {
@@ -227,6 +231,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     let final_output = CompileOutput {
         output: output_items,
         initial_ast,
+        constant_folded_ast,
         unrolled_ast,
     };
     Ok(serde_yaml::to_value(&final_output).expect("serialization failed"))

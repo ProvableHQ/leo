@@ -33,7 +33,7 @@ use crate::{Pass, SymbolTable};
 
 impl<'a> Pass for ConstantFolder<'a> {
     type Input = (Ast, &'a Handler, SymbolTable, Option<&'a Definitions>);
-    type Output = Result<Ast>;
+    type Output = Result<(Ast, SymbolTable)>;
 
     fn do_pass((ast, handler, st, input_consts): Self::Input) -> Self::Output {
         // Reconstructs the AST based off any flattening work that is done.
@@ -41,6 +41,6 @@ impl<'a> Pass for ConstantFolder<'a> {
         let program = reconstructor.reconstruct_program(ast.into_repr());
         handler.last_err()?;
 
-        Ok(Ast::new(program))
+        Ok((Ast::new(program), reconstructor.symbol_table.take()))
     }
 }

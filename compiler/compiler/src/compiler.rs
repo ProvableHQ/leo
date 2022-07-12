@@ -17,8 +17,8 @@
 //! The compiler for Leo programs.
 //!
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
-use leo_ast::Program;
 pub use leo_ast::{Ast, InputAst};
+use leo_ast::{Program, ProgramInput};
 use leo_errors::emitter::Handler;
 use leo_errors::{CompilerError, Result};
 pub use leo_passes::SymbolTable;
@@ -47,7 +47,7 @@ pub struct Compiler<'a> {
     pub network: String,
     /// The AST for the program.
     pub ast: Ast,
-    /// The input ast for the program if it exists.
+    /// The program input, if it exists.
     pub input_ast: Option<InputAst>,
     /// Compiler options on some optional output files.
     output_options: OutputOptions,
@@ -99,16 +99,12 @@ impl<'a> Compiler<'a> {
         ast = ast.set_program_name(self.program_name.clone());
         ast = ast.set_network(self.network.clone());
 
-        if self.output_options.initial_ast {
-            // Write the AST snapshot post parsing.
-            if self.output_options.spans_enabled {
-                ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
-            } else {
-                ast.to_json_file_without_keys(self.output_directory.clone(), "initial_ast.json", &["span"])?;
-            }
-        }
-
+        // Store the AST.
         self.ast = ast;
+
+        if self.output_options.initial_ast {
+            self.write_ast_to_json("initial_ast.json")?;
+        }
 
         Ok(())
     }
@@ -144,7 +140,7 @@ impl<'a> Compiler<'a> {
                 }
             }
 
-            self.input_ast = Some(input_ast);
+            self.input_ast = Some(input_ast.try_into()?);
         }
         Ok(())
     }
@@ -157,6 +153,23 @@ impl<'a> Compiler<'a> {
     /// Runs the type checker pass.
     pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<SymbolTable> {
         TypeChecker::do_pass((&self.ast, self.handler, symbol_table))
+    }
+
+    /// Runs the constant folding pass.
+    pub fn constant_folding_pass(&mut self, symbol_table: SymbolTable) -> Result<SymbolTable> {
+        let (ast, symbol_table) = ConstantFolder::do_pass((
+            std::mem::take(&mut self.ast),
+            self.handler,
+            symbol_table,
+            self.input_ast.as_ref().map(|i| &i.constants),
+        ))?;
+        self.ast = ast;
+
+        if self.output_options.constant_folded_ast {
+            self.write_ast_to_json("constant_folded_ast.json")?;
+        }
+
+        Ok(symbol_table)
     }
 
     /// Runs the loop unrolling pass.
@@ -175,6 +188,9 @@ impl<'a> Compiler<'a> {
     pub fn compiler_stages(&mut self) -> Result<SymbolTable> {
         let st = self.symbol_table_pass()?;
         let st = self.type_checker_pass(st)?;
+
+        // TODO: Make this pass optional.
+        let st = self.constant_folding_pass(st)?;
 
         // TODO: Make this pass optional.
         let st = self.loop_unrolling_pass(st)?;

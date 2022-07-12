@@ -40,6 +40,7 @@ pub mod groups;
 pub use self::groups::*;
 
 pub mod input;
+pub use self::input::ProgramInput;
 pub use self::input::*;
 
 pub mod passes;
