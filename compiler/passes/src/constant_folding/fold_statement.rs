@@ -17,6 +17,7 @@
 use std::cell::RefCell;
 
 use leo_ast::*;
+use leo_errors::TypeCheckerError;
 
 use crate::{ConstantFolder, VariableSymbol, VariableType};
 
@@ -63,6 +64,15 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
                     )
                 }
             }
+        } else {
+            // TODO: Uncomment when constant folding is implemented for all types.
+            // // Check that the variable's declaration type is not const.
+            // match input.declaration_type {
+            //     DeclarationType::Let => {},
+            //     DeclarationType::Const => {
+            //         self.handler.emit_err(TypeCheckerError::cannot_assign_to_const_var(var, var.span()));
+            //     }
+            // }
         }
 
         Statement::Definition(DefinitionStatement {
@@ -88,34 +98,34 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
 
         let mut st = self.symbol_table.borrow_mut();
 
-        // If the rhs of the AssignStatement is a constant value, store it in the symbol table.
-        if let Some(const_val) = const_val {
-            match st.variable_in_local_scope(var_name) {
-                // If the variable is in the current scope, update it's value.
-                true => {
-                    st.set_value_in_local_scope(var_name, Some(const_val));
-                }
-                // If the variable is not in the current scope, create a new entry with the appropriate value.
-                // Note that we create a new entry even if the variable is defined in the parent scope. This is
-                // necessary to ensure that symbol table contains the correct constant value at this point in the program.
-                false => {
-                    // Lookup the variable in the parent scope.
-                    let variable_type = st
+        // Update the value associated with `input.place`.
+        // Note that this may turn a previously constant value into a non-constant value.
+        match st.variable_in_local_scope(var_name) {
+            // If the variable is in the current scope, update it's value.
+            true => {
+                st.set_value_in_local_scope(var_name, const_val);
+            }
+            // If the variable is not in the current scope, create a new entry with the appropriate value.
+            // Note that we create a new entry even if the variable is defined in the parent scope. This is
+            // necessary to ensure that symbol table contains the correct constant value at this point in the program.
+            false => {
+                // Lookup the variable in the parent scope.
+                let (type_, variable_type) = {
+                    let variable_symbol = st
                         .lookup_variable(var_name)
-                        .expect("Variable should exist in parent scope.")
-                        .variable_type
-                        .clone();
-                    // Note that we do not need to obey shadowing rules since type checking has already taken place.
-                    st.insert_variable_unchecked(
-                        var_name,
-                        VariableSymbol {
-                            type_: Type::from(&const_val),
-                            span: place_expr.span(),
-                            variable_type,
-                            value: Some(const_val),
-                        },
-                    )
-                }
+                        .expect("Variable should exist in parent scope.");
+                    (variable_symbol.type_.clone(), variable_symbol.variable_type.clone())
+                };
+                // Note that we do not need to obey shadowing rules since type checking has already taken place.
+                st.insert_variable_unchecked(
+                    var_name,
+                    VariableSymbol {
+                        type_,
+                        span: place_expr.span(),
+                        variable_type,
+                        value: const_val,
+                    },
+                )
             }
         }
 
