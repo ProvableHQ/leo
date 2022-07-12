@@ -1,6 +1,6 @@
 [main]
-b: bool = true;
 constant a: bool = true;
+b: bool = true;
 
 [registers]
 r0: bool = true;

@@ -5,7 +5,7 @@ input_file: inputs/point.in
 */
 
 function main(a: group, b: group, c: group) -> bool {
-    const r: group = true ? a : b;
+    let r: group = true ? a : b;
 
     console.assert(r == c);
     return r == c;

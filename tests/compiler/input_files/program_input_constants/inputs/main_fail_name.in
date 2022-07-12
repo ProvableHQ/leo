@@ -1,2 +1,2 @@
-[main]
-constant bad_name: bool = true;
+[constants]
+bad_name: bool = true;

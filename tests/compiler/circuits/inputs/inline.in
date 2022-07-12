@@ -1,0 +1,6 @@
+[main]
+y: bool = true;
+x: u8 = 10u8;
+
+[registers]
+r0: bool = false; 

@@ -1,0 +1,5 @@
+[main]
+constant b: bool = false;
+
+[registers]
+r0: bool = false;

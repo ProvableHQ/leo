@@ -7,7 +7,8 @@ circuit Foo {
     x: u32;
 }
 
-function main() {
+function main() -> bool {
     // no member y in Foo
     const a: Foo = Foo { y: 0u32 };
+    return true;
 }

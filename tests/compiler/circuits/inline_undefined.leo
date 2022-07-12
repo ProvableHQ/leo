@@ -3,6 +3,7 @@ namespace: Compile
 expectation: Fail
 */
 
-function main() {
+function main() -> bool {
     const a: Foo = Foo { };
+    return true;
 }
