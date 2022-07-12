@@ -1,2 +1,2 @@
-[constants]
-x: [i16; 1] = [0i16; 1];
+[main]
+constant x: [i16; 1] = [0i16; 1];

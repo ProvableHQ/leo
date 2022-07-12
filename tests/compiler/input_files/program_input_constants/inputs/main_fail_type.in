@@ -1,2 +1,2 @@
-[constants]
-a: u8 = 1;
+[main]
+constant a: u8 = 1;

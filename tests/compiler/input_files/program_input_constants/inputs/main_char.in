@@ -1,8 +1,6 @@
 [main]
 y: bool = true;
-
-[constants]
-a: char = '👍';
+constant a: char = '👍';
 
 [registers]
 r0: bool = true;
