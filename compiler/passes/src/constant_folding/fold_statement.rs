@@ -39,38 +39,36 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
         let (value, const_val) = self.reconstruct_expression(input.value);
         let mut st = self.symbol_table.borrow_mut();
 
-        input.variable_names.iter().for_each(|var| {
-            // If the rhs of the DefinitionStatement is a constant value, store it in the symbol table.
-            if let Some(const_val) = const_val.clone() {
-                match st.variable_in_local_scope(&var.identifier.name) {
-                    // If the variable is in the current scope, update it's value.
-                    true => {
-                        st.set_value_in_local_scope(&var.identifier.name, Some(const_val));
-                    }
-                    // If the variable is not in the current scope, create a new entry with the appropriate value.
-                    false => {
-                        // Note that we do not need to check for shadowing since type checking has already taken place.
-                        st.insert_variable_unchecked(
-                            var.identifier.name,
-                            VariableSymbol {
-                                type_: Type::from(&const_val),
-                                span: var.identifier.span,
-                                variable_type: match input.declaration_type {
-                                    DeclarationType::Const => VariableType::Const,
-                                    DeclarationType::Let => VariableType::Mut,
-                                },
-                                value: Some(const_val),
+        // If the rhs of the DefinitionStatement is a constant value, store it in the symbol table.
+        if let Some(const_val) = const_val.clone() {
+            match st.variable_in_local_scope(input.variable_name.name) {
+                // If the variable is in the current scope, update it's value.
+                true => {
+                    st.set_value_in_local_scope(input.variable_name.name, Some(const_val));
+                }
+                // If the variable is not in the current scope, create a new entry with the appropriate value.
+                false => {
+                    // Note that we do not need to check for shadowing since type checking has already taken place.
+                    st.insert_variable_unchecked(
+                        input.variable_name.name,
+                        VariableSymbol {
+                            type_: Type::from(&const_val),
+                            span: input.variable_name.span,
+                            variable_type: match input.declaration_type {
+                                DeclarationType::Const => VariableType::Const,
+                                DeclarationType::Let => VariableType::Mut,
                             },
-                        )
-                    }
+                            value: Some(const_val),
+                        },
+                    )
                 }
             }
-        });
+        }
 
         Statement::Definition(DefinitionStatement {
             declaration_type: input.declaration_type,
-            variable_names: input.variable_names.clone(),
-            type_: input.type_.clone(),
+            variable_name: input.variable_name,
+            type_: input.type_,
             value,
             span: input.span,
         })
@@ -92,10 +90,10 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
 
         // If the rhs of the AssignStatement is a constant value, store it in the symbol table.
         if let Some(const_val) = const_val {
-            match st.variable_in_local_scope(&var_name) {
+            match st.variable_in_local_scope(var_name) {
                 // If the variable is in the current scope, update it's value.
                 true => {
-                    st.set_value_in_local_scope(&var_name, Some(const_val));
+                    st.set_value_in_local_scope(var_name, Some(const_val));
                 }
                 // If the variable is not in the current scope, create a new entry with the appropriate value.
                 // Note that we create a new entry even if the variable is defined in the parent scope. This is
@@ -103,7 +101,7 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
                 false => {
                     // Lookup the variable in the parent scope.
                     let variable_type = st
-                        .lookup_variable(&var_name)
+                        .lookup_variable(var_name)
                         .expect("Variable should exist in parent scope.")
                         .variable_type
                         .clone();
@@ -226,12 +224,10 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
     }
 
     fn reconstruct_block(&mut self, input: Block) -> Block {
-        // Enter block scope.
         let current_scope = self.scope_index;
-        let prev_st = std::mem::take(&mut self.symbol_table);
-        self.symbol_table
-            .swap(prev_st.borrow().get_block_scope(current_scope).unwrap());
-        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
+
+        // Enter block scope.
+        self.enter_block_scope(current_scope);
         self.scope_index = 0;
 
         let block = Block {
@@ -243,10 +239,8 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
             span: input.span,
         };
 
-        let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        // TODO: Is this swap necessary?
-        self.symbol_table.swap(prev_st.get_block_scope(current_scope).unwrap());
-        self.symbol_table = RefCell::new(prev_st);
+        // Exit block scope.
+        self.exit_block_scope(current_scope);
         self.scope_index = current_scope + 1;
 
         block

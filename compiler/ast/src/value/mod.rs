@@ -756,26 +756,26 @@ impl TryFrom<&Value> for i128 {
     fn try_from(value: &Value) -> Result<Self, Self::Error> {
         use Value::*;
         match value {
-            U8(val, span) => {
-                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
+            U8(val) => {
+                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), Default::default()).into())
             }
-            U16(val, span) => {
-                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
+            U16(val) => {
+                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), Default::default()).into())
             }
-            U32(val, span) => {
-                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
+            U32(val) => {
+                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), Default::default()).into())
             }
-            U64(val, span) => {
-                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
+            U64(val) => {
+                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), Default::default()).into())
             }
-            U128(val, span) => {
-                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
+            U128(val) => {
+                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), Default::default()).into())
             }
-            I8(val, _) => Ok(*val as i128),
-            I16(val, _) => Ok(*val as i128),
-            I32(val, _) => Ok(*val as i128),
-            I64(val, _) => Ok(*val as i128),
-            I128(val, _) => Ok(*val),
+            I8(val) => Ok(*val as i128),
+            I16(val) => Ok(*val as i128),
+            I32(val) => Ok(*val as i128),
+            I64(val) => Ok(*val as i128),
+            I128(val) => Ok(*val),
             _ => unreachable!(),
         }
     }

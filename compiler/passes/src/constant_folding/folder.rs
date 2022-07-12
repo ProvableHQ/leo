@@ -26,7 +26,7 @@ pub struct ConstantFolder<'a> {
     pub(crate) symbol_table: RefCell<SymbolTable>,
     /// constant inputs for the function
     pub(crate) constant_inputs: Option<&'a Definitions>,
-    /// the current scope index
+    /// The index of the current scope.
     pub(crate) scope_index: usize,
     /// error handler
     pub(crate) handler: &'a Handler,
@@ -47,5 +47,20 @@ impl<'a> ConstantFolder<'a> {
             handler,
             negate: false,
         }
+    }
+
+    /// Enters a child block scope.
+    pub(crate) fn enter_block_scope(&mut self, index: usize) {
+        let previous_symbol_table = std::mem::take(&mut self.symbol_table);
+        self.symbol_table
+            .swap(previous_symbol_table.borrow().lookup_scope_by_index(index).unwrap());
+        self.symbol_table.borrow_mut().parent = Some(Box::new(previous_symbol_table.into_inner()));
+    }
+
+    /// Exits the current block scope.
+    pub(crate) fn exit_block_scope(&mut self, index: usize) {
+        let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
+        self.symbol_table.swap(prev_st.lookup_scope_by_index(index).unwrap());
+        self.symbol_table = RefCell::new(prev_st);
     }
 }

@@ -127,7 +127,7 @@ impl<'a> Compiler<'a> {
 
             // Parse and serialize it.
             let input_ast = leo_parser::parse_input(self.handler, &input_sf.src, input_sf.start_pos)?;
-            if self.output_options.initial_ast {
+            if self.output_options.initial_input_ast {
                 // Write the input AST snapshot post parsing.
                 if self.output_options.spans_enabled {
                     input_ast.to_json_file(self.output_directory.clone(), "initial_input_ast.json")?;
@@ -140,7 +140,7 @@ impl<'a> Compiler<'a> {
                 }
             }
 
-            self.input_ast = Some(input_ast.try_into()?);
+            self.input_ast = Some(input_ast);
         }
         Ok(())
     }
@@ -161,7 +161,8 @@ impl<'a> Compiler<'a> {
             std::mem::take(&mut self.ast),
             self.handler,
             symbol_table,
-            self.input_ast.as_ref().map(|i| &i.constants),
+            Default::default(),
+            // self.input_ast.as_ref().map(|i| &i.constants),
         ))?;
         self.ast = ast;
 

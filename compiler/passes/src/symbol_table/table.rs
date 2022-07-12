@@ -141,11 +141,11 @@ impl SymbolTable {
 
     /// Attempts to set a value for a variable in the symbol table.
     /// Returns `true` if the variable was found and set.
-    pub fn set_value_in_local_scope(&mut self, symbol: &Symbol, value: Option<Value>) -> bool {
+    pub fn set_value_in_local_scope(&mut self, symbol: Symbol, value: Option<Value>) -> bool {
         match self.variable_in_local_scope(symbol) {
             false => false,
             true => {
-                self.variables.get_mut(symbol).unwrap().value = value;
+                self.variables.get_mut(&symbol).unwrap().value = value;
                 true
             }
         }

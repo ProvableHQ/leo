@@ -142,7 +142,7 @@ impl<'a> ExpressionReconstructor for ConstantFolder<'a> {
 
     fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
         let st = self.symbol_table.borrow();
-        let var = st.lookup_variable(&input.name).unwrap();
+        let var = st.lookup_variable(input.name).unwrap();
 
         // We grab the constant value of a variable if it exists.
         let val = match &var.variable_type {

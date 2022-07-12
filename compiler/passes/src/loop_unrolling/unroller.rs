@@ -28,7 +28,7 @@ pub struct LoopUnroller<'a> {
     /// The symbol table for the function being processed.
     pub(crate) symbol_table: RefCell<SymbolTable>,
     /// The index of the current block scope.
-    pub(crate) block_index: usize,
+    pub(crate) scope_index: usize,
     /// An error handler used for any errors found during unrolling.
     pub(crate) handler: &'a Handler,
     /// Are we in the midst of unrolling a loop?
@@ -39,7 +39,7 @@ impl<'a> LoopUnroller<'a> {
     pub(crate) fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
         Self {
             symbol_table: RefCell::new(symbol_table),
-            block_index: 0,
+            scope_index: 0,
             handler,
             is_unrolling: false,
         }
@@ -51,7 +51,7 @@ impl<'a> LoopUnroller<'a> {
         if self.is_unrolling {
             self.symbol_table.borrow_mut().insert_block()
         } else {
-            self.block_index
+            self.scope_index
         }
     }
 
@@ -105,7 +105,7 @@ impl<'a> LoopUnroller<'a> {
 
         // Enter the scope of the loop body.
         self.enter_block_scope(scope_index);
-        self.block_index = 0;
+        self.scope_index = 0;
 
         // Clear the symbol table for the loop body.
         // This is necessary because loop unrolling transforms the program, which requires reconstructing the symbol table.
@@ -133,7 +133,7 @@ impl<'a> LoopUnroller<'a> {
 
         // Exit the scope of the loop body.
         self.exit_block_scope(scope_index);
-        self.block_index = scope_index + 1;
+        self.scope_index = scope_index + 1;
 
         iter_blocks
     }

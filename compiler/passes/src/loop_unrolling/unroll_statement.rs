@@ -22,7 +22,7 @@ impl StatementReconstructor for LoopUnroller<'_> {
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> Statement {
         // If we are unrolling a loop, then we need to repopulate the symbol table.
         if self.is_unrolling {
-            let declaration = if input.declaration_type == DeclarationType::Const {
+            let variable_type = if input.declaration_type == DeclarationType::Const {
                 VariableType::Const
             } else {
                 VariableType::Mut
@@ -33,7 +33,7 @@ impl StatementReconstructor for LoopUnroller<'_> {
                 VariableSymbol {
                     type_: input.type_.clone(),
                     span: input.span(),
-                    declaration,
+                    variable_type,
                     value: Default::default()
                 },
             ) {
@@ -73,7 +73,7 @@ impl StatementReconstructor for LoopUnroller<'_> {
 
         // Enter the block scope.
         self.enter_block_scope(scope_index);
-        self.block_index = 0;
+        self.scope_index = 0;
 
         let block = Block {
             statements: input
@@ -86,7 +86,7 @@ impl StatementReconstructor for LoopUnroller<'_> {
 
         // Exit the block scope.
         self.exit_block_scope(scope_index);
-        self.block_index = scope_index + 1;
+        self.scope_index = scope_index + 1;
 
         block
     }

@@ -30,7 +30,7 @@ impl ProgramReconstructor for LoopUnroller<'_> {
             .swap(prev_st.borrow().lookup_fn_scope(function_name).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
         // Set our current block scope index to 0
-        self.block_index = 0;
+        self.scope_index = 0;
 
         // Reconstruct the function block.
         let reconstructed_function = Function {
