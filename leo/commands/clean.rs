@@ -16,9 +16,7 @@
 
 use crate::{commands::Command, context::Context};
 use leo_errors::Result;
-use leo_package::outputs::{
-    AleoFile, ChecksumFile, CircuitFile, ProofFile, ProvingKeyFile, Snapshot, SnapshotFile, VerificationKeyFile,
-};
+use leo_package::outputs::ChecksumFile;
 
 use clap::StructOpt;
 use tracing::span::Span;
@@ -44,31 +42,31 @@ impl Command for Clean {
         let package_name = context.manifest()?.get_package_name();
 
         // Remove the aleo file from the output directory.
-        AleoFile::new(&package_name, "aleo").remove(&path)?;
+        // AleoFile::new(&package_name, "aleo").remove(&path)?;
 
         // Remove the checksum from the output directory
         ChecksumFile::new(&package_name).remove(&path)?;
 
-        // Remove the serialized circuit from the output directory
-        CircuitFile::new(&package_name).remove(&path)?;
+        // // Remove the serialized circuit from the output directory
+        // CircuitFile::new(&package_name).remove(&path)?;
 
         // // Remove the program output file from the output directory
         // OutputFile::new(&package_name).remove(&path)?;
 
-        // Remove the proving key from the output directory
-        ProvingKeyFile::new(&package_name).remove(&path)?;
+        // // Remove the proving key from the output directory
+        // ProvingKeyFile::new(&package_name).remove(&path)?;
 
-        // Remove the verification key from the output directory
-        VerificationKeyFile::new(&package_name).remove(&path)?;
+        // // Remove the verification key from the output directory
+        // VerificationKeyFile::new(&package_name).remove(&path)?;
 
-        // Remove the proof from the output directory
-        ProofFile::new(&package_name).remove(&path)?;
+        // // Remove the proof from the output directory
+        // ProofFile::new(&package_name).remove(&path)?;
 
         // Remove AST snapshots from the output directory
-        SnapshotFile::new(&package_name, Snapshot::Initial).remove(&path)?;
-        SnapshotFile::new(&package_name, Snapshot::ImportsResolved).remove(&path)?;
-        SnapshotFile::new(&package_name, Snapshot::TypeInference).remove(&path)?;
-        SnapshotFile::new(&package_name, Snapshot::Canonicalization).remove(&path)?;
+        // SnapshotFile::new(&package_name, Snapshot::Initial).remove(&path)?;
+        // SnapshotFile::new(&package_name, Snapshot::ImportsResolved).remove(&path)?;
+        // SnapshotFile::new(&package_name, Snapshot::TypeInference).remove(&path)?;
+        // SnapshotFile::new(&package_name, Snapshot::Canonicalization).remove(&path)?;
 
         Ok(())
     }

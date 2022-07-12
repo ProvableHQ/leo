@@ -21,13 +21,17 @@ use leo_package::{
     inputs::InputFile,
     // inputs::*,
     // outputs::CircuitFile
-    outputs::{AleoFile, ChecksumFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
+    outputs::{ChecksumFile, OutputsDirectory, MAIN_ALEO_FILE_NAME, OUTPUTS_DIRECTORY_NAME},
     source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
+use snarkvm::{
+    console::{network::Testnet3, program::ProgramID},
+    file::{AleoFile, Manifest},
+};
+use std::str::FromStr;
 
 use clap::StructOpt;
 use tracing::span::Span;
-use leo_package::outputs::ProgramJson;
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
 /// require Build command output as their input.
@@ -153,7 +157,10 @@ impl Command for Build {
         // Initialize error handler
         let handler = leo_errors::emitter::Handler::default();
 
+        // Create a new instance of the Leo compiler.
         let mut program = Compiler::new(
+            package_name.to_string(),
+            String::from("aleo"),
             &handler,
             main_file_path,
             output_directory,
@@ -166,61 +173,35 @@ impl Command for Build {
 
         // Compile the program.
         {
-            let (_, bytecode) = program.compile_and_generate_bytecode()?;
-            // // Initialize AVM bytecode.
-            // Process::from_str(&bytecode);
-            //
-            // // Run program todo: run with real inputs.
-            // // Run the `HelloWorld` program with the given inputs.
-            // let first = Value::from_str("1field.public");
-            // let second = Value::from_str("1field.private");
-            // let output = Process::get_function(&Identifier::from_str("main")).unwrap().evaluate(&[first, second]);
-            // println!("program output: {}\n", output.first().unwrap());
+            let program_id_string = format!("{}.aleo", package_name); // todo: read this from a config file.
+            let (_, instructions) = program.compile_and_generate_instructions()?;
 
-            // Write the Aleo file to the output directory.
-            let aleo_file = AleoFile::new(&package_name, "aleo"); // Specifies `.aleo` in `program foo.aleo;` identifier.
-            aleo_file.write_to(&path, bytecode)?;
+            // Parse the generated instructions into an Aleo file.
+            let file =
+                AleoFile::<Testnet3>::from_str(&instructions).expect("Failed to parse generated Aleo instructions.");
 
-            // Write the program.json file to the output directory.
-            let program_file = ProgramJson::new(
-                aleo_file.program_id(),
-                "0.0.0".to_string(),
-                "".to_string(),
-                "MIT".to_string(),
-            );
-            program_file.write_to(&path)?;
-        }
+            // Write the Aleo file to `main.aleo`.
+            let mut aleo_file_path = package_path.clone();
+            aleo_file_path.push(MAIN_ALEO_FILE_NAME);
 
-        // Generate the program on the constraint system and verify correctness
-        {
-            // let mut cs = CircuitSynthesizer::<Bls12_377> {
-            //     constraints: Default::default(),
-            //     public_variables: Default::default(),
-            //     private_variables: Default::default(),
-            //     namespaces: Default::default(),
-            // };
-            // let temporary_program = program.clone();
-            // let output = temporary_program.compile_constraints(&mut cs)?;
-            //
-            // tracing::debug!("Compiled output - {:#?}", output);
-            // tracing::info!("Number of constraints - {:#?}", cs.num_constraints());
+            file.write_to(&aleo_file_path).expect("Failed to write the aleo file.");
 
-            // Serialize the circuit
-            // let circuit_object = SerializedCircuit::from(cs);
-            // let json = circuit_object.to_json_string().unwrap();
-            // println!("json: {}", json);
+            // Initialize the program id.
+            let program_id =
+                ProgramID::<Testnet3>::from_str(&program_id_string).expect("Failed to parse program id from string.");
 
-            // Write serialized circuit to circuit `.json` file.
-            // let circuit_file = CircuitFile::new(&package_name);
-            // circuit_file.write_to(&path, json)?;
+            // Create the program.json file to the output directory.
+            let _manifest_file = if Manifest::<Testnet3>::exists_at(&package_path) {
+                Manifest::<Testnet3>::open(&package_path).expect("Failed to open manifest file.")
+            } else {
+                Manifest::<Testnet3>::create(&package_path, &program_id).expect("Failed to create manifest file.")
+            };
 
-            // Check that we can read the serialized circuit file
-            // let serialized = circuit_file.read_from(&package_path)?;
-
-            // Deserialize the circuit
-            // let deserialized = SerializedCircuit::from_json_string(&serialized).unwrap();
-            // let _circuit_synthesizer = CircuitSynthesizer::<Bls12_377>::try_from(deserialized).unwrap();
-            // println!("deserialized {:?}", circuit_synthesizer.num_constraints());
+            // Call the `build` command from the Aleo SDK.
+            // todo error: thread 'main' panicked at 'Failed to call `aleo build` command from the Aleo SDK: Development private key not found.', leo/commands/build.rs:203:37
+            // let build = aleo::commands::Build;
+            // let res = build.parse().expect("Failed to call `aleo build` command from the Aleo SDK");
+            // tracing::info!("Result: {}", res);
         }
 
         // If a checksum file exists, check if it differs from the new checksum

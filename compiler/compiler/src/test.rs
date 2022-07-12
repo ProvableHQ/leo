@@ -41,6 +41,8 @@ fn new_compiler(handler: &Handler, main_file_path: PathBuf) -> Compiler<'_> {
     fs::create_dir_all(output_dir.clone()).unwrap();
 
     Compiler::new(
+        String::from("test"),
+        String::from("testnet3"),
         handler,
         main_file_path,
         output_dir,

@@ -256,6 +256,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
     fn reconstruct_program(&mut self, input: Program) -> Program {
         Program {
             name: input.name,
+            network: input.network,
             expected_input: input.expected_input,
             functions: input
                 .functions

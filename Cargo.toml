@@ -50,9 +50,15 @@ version = "1.5.3"
 path = "./leo/span"
 version = "1.5.3"
 
+[dependencies.aleo]
+git = "https://github.com/AleoHQ/aleo.git"
+rev = "03b12ff"
+
 [dependencies.snarkvm]
+#path = "../snarkVM"
 git = "https://github.com/AleoHQ/snarkVM.git"
 rev = "18ee4e5"
+features = ["circuit", "console"]
 
 [dependencies.backtrace]
 version = "0.3.66"

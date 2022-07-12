@@ -13,8 +13,6 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-pub mod aleo;
-pub use self::aleo::*;
 
 pub mod ast_snapshot;
 pub use self::ast_snapshot::*;
@@ -28,9 +26,6 @@ pub use self::checksum::*;
 pub mod directory;
 pub use directory::*;
 
-pub mod program_json;
-pub use program_json::*;
-
 pub mod proof;
 pub use self::proof::*;
 
@@ -39,3 +34,5 @@ pub use self::proving_key::*;
 
 pub mod verification_key;
 pub use self::verification_key::*;
+
+pub static MAIN_ALEO_FILE_NAME: &str = "main.aleo";
