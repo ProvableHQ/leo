@@ -19,7 +19,7 @@ use std::fmt::Display;
 use leo_ast::{ParamMode, Type, Value};
 use leo_span::Span;
 
-/// An enumeration of the different types of variable type.
+/// An enumeration of the different types of variables.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum VariableType {
     Const,
@@ -47,14 +47,14 @@ pub struct VariableSymbol {
     /// The `Span` associated with the variable.
     pub span: Span,
     /// The type of declaration for the variable.
-    pub declaration: VariableType,
+    pub variable_type: VariableType,
     /// The value of the declaration, if it is a constant.
     pub value: Option<Value>,
 }
 
 impl Display for VariableSymbol {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}: {}", self.declaration, self.type_)?;
+        write!(f, "{}: {}", self.variable_type, self.type_)?;
         Ok(())
     }
 }

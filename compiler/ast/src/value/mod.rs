@@ -859,22 +859,22 @@ impl From<&Literal> for Value {
     /// This should only be invoked on literals that are known to be valid.
     fn from(literal: &Literal) -> Self {
         match literal {
-            Literal::Address(string, span) => Self::Address(string.clone()),
-            Literal::Boolean(bool, span) => Self::Boolean(*bool),
-            Literal::Field(string, span) => Self::Field(string.clone()),
+            Literal::Address(string, _) => Self::Address(string.clone()),
+            Literal::Boolean(bool, _) => Self::Boolean(*bool),
+            Literal::Field(string, _) => Self::Field(string.clone()),
             Literal::Group(group_literal) => Self::Group(group_literal.clone()),
-            Literal::Scalar(string, span) => Self::Scalar(string.clone()),
-            Literal::String(string, span) => Self::String(string.clone()),
-            Literal::I8(string, span) => Self::I8(string.parse::<i8>().unwrap()),
-            Literal::I16(string, span) => Self::I16(string.parse::<i16>().unwrap()),
-            Literal::I32(string, span) => Self::I32(string.parse::<i32>().unwrap()),
-            Literal::I64(string, span) => Self::I64(string.parse::<i64>().unwrap()),
-            Literal::I128(string, span) => Self::I128(string.parse::<i128>().unwrap()),
-            Literal::U8(string, span) => Self::U8(string.parse::<u8>().unwrap()),
-            Literal::U16(string, span) => Self::U16(string.parse::<u16>().unwrap()),
-            Literal::U32(string, span) => Self::U32(string.parse::<u32>().unwrap()),
-            Literal::U64(string, span) => Self::U64(string.parse::<u64>().unwrap()),
-            Literal::U128(string, span) => Self::U128(string.parse::<u128>().unwrap()),
+            Literal::Scalar(string, _) => Self::Scalar(string.clone()),
+            Literal::String(string, _) => Self::String(string.clone()),
+            Literal::I8(string, _) => Self::I8(string.parse::<i8>().unwrap()),
+            Literal::I16(string, _) => Self::I16(string.parse::<i16>().unwrap()),
+            Literal::I32(string, _) => Self::I32(string.parse::<i32>().unwrap()),
+            Literal::I64(string, _) => Self::I64(string.parse::<i64>().unwrap()),
+            Literal::I128(string, _) => Self::I128(string.parse::<i128>().unwrap()),
+            Literal::U8(string, _) => Self::U8(string.parse::<u8>().unwrap()),
+            Literal::U16(string, _) => Self::U16(string.parse::<u16>().unwrap()),
+            Literal::U32(string, _) => Self::U32(string.parse::<u32>().unwrap()),
+            Literal::U64(string, _) => Self::U64(string.parse::<u64>().unwrap()),
+            Literal::U128(string, _) => Self::U128(string.parse::<u128>().unwrap()),
         }
     }
 }

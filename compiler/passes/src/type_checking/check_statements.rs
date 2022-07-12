@@ -39,10 +39,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_definition(&mut self, input: &'a DefinitionStatement) {
-        let declaration = if input.declaration_type == DeclarationType::Const {
-            VariableType::Const
-        } else {
-            VariableType::Mut
+        let variable_type = match input.declaration_type {
+            DeclarationType::Const => VariableType::Const,
+            DeclarationType::Let => VariableType::Mut,
         };
 
         self.check_core_type_conflict(&Some(input.type_.clone()));
@@ -54,7 +53,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             VariableSymbol {
                 type_: input.type_.clone(),
                 span: input.span(),
-                declaration,
+                variable_type,
                 value: Default::default(),
             },
         ) {
@@ -71,8 +70,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
         };
 
-        let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(var_name.name) {
-            match &var.declaration {
+        let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(&var_name.name) {
+            // TODO: Check where this check is moved to in `improved-flattening`.
+            match &var.variable_type {
                 VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
                 VariableType::Input(ParamMode::Const) => {
                     self.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
@@ -119,7 +119,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             VariableSymbol {
                 type_: input.type_.clone(),
                 span: input.span(),
-                declaration: VariableType::Const,
+                variable_type: VariableType::Const,
                 value: Default::default(),
             },
         ) {
