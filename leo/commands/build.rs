@@ -157,7 +157,7 @@ impl Command for Build {
                 .map_err(|err| CliError::failed_to_write_to_aleo_file(aleo_file_path.display(), err))?;
 
             // Call the `aleo build` command from the Aleo SDK.
-            let res = AleoBuild.parse().map_err(CliError::failed_to_call_aleo_build)?;
+            let res = AleoBuild.parse().map_err(CliError::failed_to_execute_aleo_build)?;
             // Log the result of the build
             tracing::info!("Result: {}", res);
         }

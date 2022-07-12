@@ -20,7 +20,7 @@ use crate::{
     commands::{Build, Command},
     context::Context,
 };
-use leo_errors::Result;
+use leo_errors::{CliError, Result};
 
 use aleo::commands::Run as AleoRun;
 
@@ -66,8 +66,8 @@ impl Command for Run {
         tracing::info!("Starting...");
 
         // Call the `aleo run` command from the Aleo SDK.
-        let command = AleoRun::try_parse_from(&arguments).expect("Failed to parse aleo run command");
-        let res = command.parse().expect("Failed to execute Aleo project.");
+        let command = AleoRun::try_parse_from(&arguments).map_err(CliError::failed_to_parse_aleo_run)?;
+        let res = command.parse().map_err(CliError::failed_to_execute_aleo_run)?;
 
         // Log the output of the `aleo run` command.
         tracing::info!("{}", res);

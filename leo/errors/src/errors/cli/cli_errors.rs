@@ -423,9 +423,37 @@ create_messages!(
     }
 
     @backtraced
-    failed_to_call_aleo_build {
+    failed_to_execute_aleo_build {
         args: (error: impl Display),
-        msg: format!("Failed to call the `aleo build` command. Error: {}", error),
+        msg: format!("Failed to execute the `aleo build` command. Error: {}", error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_execute_aleo_new {
+        args: (error: impl Display),
+        msg: format!("Failed to execute the `aleo new` command. Error: {}", error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_execute_aleo_run {
+        args: (error: impl Display),
+        msg: format!("Failed to execute the `aleo run` command. Error: {}", error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_parse_aleo_new {
+        args: (error: impl Display),
+        msg: format!("Failed to parse the `aleo new` command. Error: {}", error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_parse_aleo_run {
+        args: (error: impl Display),
+        msg: format!("Failed to parse the `aleo run` command. Error: {}", error),
         help: None,
     }
 );

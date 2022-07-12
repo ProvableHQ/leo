@@ -14,9 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::commands::ALEO_CLI_COMMAND;
-use crate::{commands::Command, context::Context};
-use leo_errors::{PackageError, Result};
+use crate::{
+    commands::{Command, ALEO_CLI_COMMAND},
+    context::Context,
+};
+use leo_errors::{CliError, Result};
 use leo_package::package::Package;
 
 use aleo::commands::New as AleoNew;
@@ -43,16 +45,16 @@ impl Command for New {
         Ok(())
     }
 
-    fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         tracing::info!("Starting...");
 
         // Call the `aleo new` command from the Aleo SDK.
         let command =
-            AleoNew::try_parse_from(&[ALEO_CLI_COMMAND, &self.name]).expect("Failed to parse `aleo new` command");
-        let result = command.parse().expect("Failed to create a new Aleo project");
+            AleoNew::try_parse_from(&[ALEO_CLI_COMMAND, &self.name]).map_err(CliError::failed_to_parse_aleo_new)?;
+        let result = command.parse().map_err(CliError::failed_to_execute_aleo_new)?;
 
         // Derive the program directory path.
-        let mut path = std::env::current_dir().map_err(|e| PackageError::io_error("current directory", e))?;
+        let mut path = context.dir()?;
         path.push(&self.name);
 
         // Initialize the Leo package in the directory created by `aleo new`.
