@@ -136,6 +136,7 @@ fn collect_all_inputs(test: &Test) -> Result<Vec<PathBuf>, String> {
 fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<SymbolTable, LeoError> {
     let st = parsed.symbol_table_pass()?;
     let st = parsed.type_checker_pass(st)?;
+    let st = parsed.loop_unrolling_pass(st)?;
     Ok(st)
 }
 
@@ -215,7 +216,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     }
 
     let initial_ast = hash_file("/tmp/output/initial_ast.json");
-    let unrolled_ast = hash_file("/tmp/output/urolled_ast.json");
+    let unrolled_ast = hash_file("/tmp/output/unrolled_ast.json");
 
     if fs::read_dir("/tmp/output").is_ok() {
         fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");

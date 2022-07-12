@@ -6,3 +6,4 @@ outputs:
       - initial_input_ast: 6bc83c2aa19b57d081b9676bcc8cd9e8f00d03fa97e862b104a36f38700538de
       - initial_input_ast: 54ff3d57fd6d6a459da0529f1082adf684abe5f57693b861dc7e2af2fb497cdb
     initial_ast: 908a974cd96fd035906cd54b1b9fb6f90334075c247d7c3f35ec6fbf6a370857
+    unrolled_ast: 908a974cd96fd035906cd54b1b9fb6f90334075c247d7c3f35ec6fbf6a370857

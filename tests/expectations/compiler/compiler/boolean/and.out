@@ -8,3 +8,4 @@ outputs:
       - initial_input_ast: 4c5eeffd0306b20c8deece509782b81ea8583245f650e40a4a300d517f6ed5f4
       - initial_input_ast: a56b3f9908dec2acaed302691d4fe0c2cf046f0deb8f188f617e042e75502f71
     initial_ast: 8e4ab3450ec4ffbdba78fc0e1450c319bf538fd716af967419c8ce116ccd3d0e
+    unrolled_ast: 8e4ab3450ec4ffbdba78fc0e1450c319bf538fd716af967419c8ce116ccd3d0e

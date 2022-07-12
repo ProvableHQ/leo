@@ -5,3 +5,4 @@ outputs:
   - output:
       - initial_input_ast: no input
     initial_ast: 97c27f26fd8d201623b1cbb19474a2cb6934c6bda8d4b363c831b0a3193e75ec
+    unrolled_ast: 97c27f26fd8d201623b1cbb19474a2cb6934c6bda8d4b363c831b0a3193e75ec

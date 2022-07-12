@@ -163,6 +163,11 @@ impl<'a> Compiler<'a> {
     pub fn loop_unrolling_pass(&mut self, symbol_table: SymbolTable) -> Result<SymbolTable> {
         let (ast, symbol_table) = Unroller::do_pass((std::mem::take(&mut self.ast), self.handler, symbol_table))?;
         self.ast = ast;
+
+        if self.output_options.unrolled_ast {
+            self.write_ast_to_json("unrolled_ast.json")?;
+        }
+
         Ok(symbol_table)
     }
 
@@ -172,6 +177,8 @@ impl<'a> Compiler<'a> {
     pub fn compiler_stages(&mut self) -> Result<SymbolTable> {
         let st = self.symbol_table_pass()?;
         let st = self.type_checker_pass(st)?;
+
+        // TODO: Make this pass optional.
         let st = self.loop_unrolling_pass(st)?;
         Ok(st)
     }
@@ -182,5 +189,19 @@ impl<'a> Compiler<'a> {
     pub fn compile(&mut self) -> Result<SymbolTable> {
         self.parse_program()?;
         self.compiler_stages()
+    }
+
+    ///
+    /// Writes the AST to a JSON file.
+    ///
+    fn write_ast_to_json(&self, file_name: &str) -> Result<()> {
+        // Remove `Span`s if they are not enabled.
+        if self.output_options.spans_enabled {
+            self.ast.to_json_file(self.output_directory.clone(), file_name)?;
+        } else {
+            self.ast
+                .to_json_file_without_keys(self.output_directory.clone(), file_name, &["span"])?;
+        }
+        Ok(())
     }
 }
