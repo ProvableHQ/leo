@@ -16,16 +16,6 @@
 
 #![doc = include_str!("../README.md")]
 
-// Temporarily disable canonicalization.
-/* pub mod canonicalization;
-pub use canonicalization::*;
- */
-
-// Temporarily disable import resolution
-// until we migrate core and then import resolution.
-/* pub mod import_resolution;
-pub use import_resolution::*; */
-
 pub mod code_generation;
 pub use code_generation::*;
 

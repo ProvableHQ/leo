@@ -1,8 +1,0 @@
-[main]
-y: bool = true;
-
-[constants]
-x: [i16; 1] = [0i16; 1];
-
-[registers]
-r0: bool = true;
