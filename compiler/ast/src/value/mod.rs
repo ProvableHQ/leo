@@ -839,50 +839,48 @@ impl From<&Literal> for Value {
     /// This should only be invoked on literals that are known to be valid.
     fn from(literal: &Literal) -> Self {
         match literal {
-            Literal::Address(string, span) => Self::Address(string.clone(), span.clone()),
-            Literal::Boolean(bool, span) => Self::Boolean(bool.clone(), span.clone()),
-            Literal::Field(string, span) => Self::Field(string.clone(), span.clone()),
+            Literal::Address(string, span) => Self::Address(string.clone(), *span),
+            Literal::Boolean(bool, span) => Self::Boolean(*bool, *span),
+            Literal::Field(string, span) => Self::Field(string.clone(), *span),
             Literal::Group(group_literal) => Self::Group(group_literal.clone()),
-            Literal::Scalar(string, span) => Self::Scalar(string.clone(), span.clone()),
-            Literal::String(string, span) => Self::String(string.clone(), span.clone()),
-            Literal::I8(string, span) => Self::I8(string.parse::<i8>().unwrap(), span.clone()),
-            Literal::I16(string, span) => Self::I16(string.parse::<i16>().unwrap(), span.clone()),
-            Literal::I32(string, span) => Self::I32(string.parse::<i32>().unwrap(), span.clone()),
-            Literal::I64(string, span) => Self::I64(string.parse::<i64>().unwrap(), span.clone()),
-            Literal::I128(string, span) => Self::I128(string.parse::<i128>().unwrap(), span.clone()),
-            Literal::U8(string, span) => Self::U8(string.parse::<u8>().unwrap(), span.clone()),
-            Literal::U16(string, span) => Self::U16(string.parse::<u16>().unwrap(), span.clone()),
-            Literal::U32(string, span) => Self::U32(string.parse::<u32>().unwrap(), span.clone()),
-            Literal::U64(string, span) => Self::U64(string.parse::<u64>().unwrap(), span.clone()),
-            Literal::U128(string, span) => Self::U128(string.parse::<u128>().unwrap(), span.clone()),
+            Literal::Scalar(string, span) => Self::Scalar(string.clone(), *span),
+            Literal::String(string, span) => Self::String(string.clone(), *span),
+            Literal::I8(string, span) => Self::I8(string.parse::<i8>().unwrap(), *span),
+            Literal::I16(string, span) => Self::I16(string.parse::<i16>().unwrap(), *span),
+            Literal::I32(string, span) => Self::I32(string.parse::<i32>().unwrap(), *span),
+            Literal::I64(string, span) => Self::I64(string.parse::<i64>().unwrap(), *span),
+            Literal::I128(string, span) => Self::I128(string.parse::<i128>().unwrap(), *span),
+            Literal::U8(string, span) => Self::U8(string.parse::<u8>().unwrap(), *span),
+            Literal::U16(string, span) => Self::U16(string.parse::<u16>().unwrap(), *span),
+            Literal::U32(string, span) => Self::U32(string.parse::<u32>().unwrap(), *span),
+            Literal::U64(string, span) => Self::U64(string.parse::<u64>().unwrap(), *span),
+            Literal::U128(string, span) => Self::U128(string.parse::<u128>().unwrap(), *span),
         }
     }
 }
 
-// impl From<Value> for Literal {
-//     fn from(v: Value) -> Self {
-//         use Value::*;
-//         match v {
-//             Input(_, _) => panic!("We need to test if this is hittable"),
-//             Address(v, span) => Literal::Address(v, span),
-//             Boolean(v, span) => Literal::Boolean(v, span),
-//             Circuit(ident, values) => {
-//                 Literal::Circuit(ident, values.into_iter().map(|(n, v)| (n, v.into())).collect())
-//             }
-//             Field(v, span) => Literal::Field(v, span),
-//             Group(v) => Literal::Group(v),
-//             I8(v, span) => Literal::I8(v.to_string(), span),
-//             I16(v, span) => Literal::I16(v.to_string(), span),
-//             I32(v, span) => Literal::I32(v.to_string(), span),
-//             I64(v, span) => Literal::I64(v.to_string(), span),
-//             I128(v, span) => Literal::I128(v.to_string(), span),
-//             U8(v, span) => Literal::U8(v.to_string(), span),
-//             U16(v, span) => Literal::U16(v.to_string(), span),
-//             U32(v, span) => Literal::U32(v.to_string(), span),
-//             U64(v, span) => Literal::U64(v.to_string(), span),
-//             U128(v, span) => Literal::U128(v.to_string(), span),
-//             Scalar(v, span) => Literal::Scalar(v, span),
-//             String(v, span) => Literal::String(v, span),
-//         }
-//     }
-// }
+impl From<Value> for Literal {
+    fn from(v: Value) -> Self {
+        use Value::*;
+        match v {
+            Input(_, _) => todo!("We need to test if this is hittable"),
+            Address(v, span) => Literal::Address(v, span),
+            Boolean(v, span) => Literal::Boolean(v, span),
+            Circuit(ident, values) => todo!("We need to test if this is hittable"),
+            Field(v, span) => Literal::Field(v, span),
+            Group(v) => Literal::Group(v),
+            I8(v, span) => Literal::I8(v.to_string(), span),
+            I16(v, span) => Literal::I16(v.to_string(), span),
+            I32(v, span) => Literal::I32(v.to_string(), span),
+            I64(v, span) => Literal::I64(v.to_string(), span),
+            I128(v, span) => Literal::I128(v.to_string(), span),
+            U8(v, span) => Literal::U8(v.to_string(), span),
+            U16(v, span) => Literal::U16(v.to_string(), span),
+            U32(v, span) => Literal::U32(v.to_string(), span),
+            U64(v, span) => Literal::U64(v.to_string(), span),
+            U128(v, span) => Literal::U128(v.to_string(), span),
+            Scalar(v, span) => Literal::Scalar(v, span),
+            String(v, span) => Literal::String(v, span),
+        }
+    }
+}
