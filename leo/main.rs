@@ -108,7 +108,7 @@ fn set_panic_hook() {
                 "note: compiler args: {}\n",
                 std::env::args().collect::<Vec<_>>().join(" ")
             );
-            eprintln!("note: compiler flags: {:?}\n", Opt::parse());
+            eprintln!("note: compiler flags: {:?}\n", CLI::parse());
         })
     });
 }
