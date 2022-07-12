@@ -27,6 +27,8 @@ pub enum InputValue {
     Boolean(bool),
     Field(String),
     Group(GroupLiteral),
+    Scalar(String),
+    String(String),
     I8(i8),
     I16(i16),
     I32(i32),
@@ -48,6 +50,8 @@ impl TryFrom<(Type, Expression)> for InputValue {
                 (Type::Boolean, Literal::Boolean(value, _)) => Self::Boolean(value),
                 (Type::Field, Literal::Field(value, _)) => Self::Field(value),
                 (Type::Group, Literal::Group(value)) => Self::Group(*value),
+                (Type::Scalar, Literal::Scalar(value, _)) => Self::Scalar(value),
+                (Type::String, Literal::String(value, _)) => Self::String(value),
                 (Type::I8, Literal::I8(value, span)) => InputValue::I8(
                     value
                         .parse()
@@ -117,6 +121,8 @@ impl From<&InputValue> for Type {
             InputValue::Boolean(_) => Type::Boolean,
             InputValue::Field(_) => Type::Field,
             InputValue::Group(_) => Type::Group,
+            InputValue::Scalar(_) => Type::Scalar,
+            InputValue::String(_) => Type::String,
             InputValue::I8(_) => Type::I8,
             InputValue::I16(_) => Type::I16,
             InputValue::I32(_) => Type::I32,
@@ -138,6 +144,8 @@ impl fmt::Display for InputValue {
             InputValue::Boolean(ref boolean) => write!(f, "{}", boolean),
             InputValue::Group(ref group) => write!(f, "{}", group),
             InputValue::Field(ref field) => write!(f, "{}", field),
+            InputValue::Scalar(ref scalar) => write!(f, "{}", scalar),
+            InputValue::String(ref string) => write!(f, "{}", string),
             InputValue::I8(ref integer) => write!(f, "{}", integer),
             InputValue::I16(ref integer) => write!(f, "{}", integer),
             InputValue::I32(ref integer) => write!(f, "{}", integer),
