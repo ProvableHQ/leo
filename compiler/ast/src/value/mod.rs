@@ -16,7 +16,7 @@
 
 use crate::{GroupLiteral, Identifier, Literal, Type};
 
-use leo_errors::{type_name, FlattenError, LeoError, Result, TypeCheckerError};
+use leo_errors::{type_name, FlattenError, LeoError, Result};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
@@ -811,7 +811,7 @@ impl From<&Value> for Type {
     fn from(v: &Value) -> Self {
         use Value::*;
         match v {
-            Input(type_, _) => *type_,
+            Input(type_, _) => type_.clone(),
             Address(_, _) => Type::Address,
             Boolean(_, _) => Type::Boolean,
             Circuit(ident, _) => Type::Identifier(*ident),
@@ -866,7 +866,7 @@ impl From<Value> for Literal {
             Input(_, _) => todo!("We need to test if this is hittable"),
             Address(v, span) => Literal::Address(v, span),
             Boolean(v, span) => Literal::Boolean(v, span),
-            Circuit(ident, values) => todo!("We need to test if this is hittable"),
+            Circuit(_ident, _values) => todo!("We need to test if this is hittable"),
             Field(v, span) => Literal::Field(v, span),
             Group(v) => Literal::Group(v),
             I8(v, span) => Literal::I8(v.to_string(), span),

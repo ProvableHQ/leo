@@ -468,19 +468,18 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 Some(Type::Boolean)
             }
             BinaryOperation::Lt | BinaryOperation::Gt | BinaryOperation::Lte | BinaryOperation::Gte => {
-                // TODO: Check that this simplified implementation does break prior functionality.
                 // Assert left and right are equal field, scalar, or integer types.
                 let t1 = self.visit_expression(&input.left, &None);
                 let t2 = self.visit_expression(&input.right, &None);
 
-                match (t1, t2) {
+                match (&t1, &t2) {
                     (Some(Type::Address), _) | (_, Some(Type::Address)) => {
                         // Emit an error for address comparison.
                         self.emit_err(TypeCheckerError::compare_address(input.op, input.span()));
                     }
                     (t1, t2) => {
-                        self.assert_field_scalar_int_type(&t1, input.left.span());
-                        self.assert_field_scalar_int_type(&t2, input.right.span());
+                        self.assert_field_scalar_int_type(t1, input.left.span());
+                        self.assert_field_scalar_int_type(t2, input.right.span());
                     }
                 }
 

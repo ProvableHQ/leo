@@ -119,7 +119,6 @@ impl fmt::Display for Type {
             Type::U32 => write!(f, "u32"),
             Type::U64 => write!(f, "u64"),
             Type::U128 => write!(f, "u128"),
-            Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
             Type::Tuple(ref tuple) => write!(f, "{}", tuple),
             Type::Err => write!(f, "error"),
         }

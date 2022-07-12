@@ -36,7 +36,7 @@ impl<'a> StatementReconstructor for Unroller<'a> {
                 if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
                     v.identifier.name,
                     VariableSymbol {
-                        type_: input.type_,
+                        type_: input.type_.clone(),
                         span: input.span(),
                         declaration: declaration.clone(),
                     },
@@ -152,7 +152,7 @@ impl<'a> StatementReconstructor for Unroller<'a> {
                             let mut statements = vec![
                                 self.reconstruct_definition(DefinitionStatement {
                                     declaration_type: Declare::Const,
-                                    type_: input.type_,
+                                    type_: input.type_.clone(),
                                     value: Expression::Literal(value),
                                     span: Default::default(),
                                     variable_names: vec![VariableName { mutable: false, identifier: input.variable, span: Default::default() }]
