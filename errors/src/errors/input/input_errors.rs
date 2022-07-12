@@ -58,4 +58,12 @@ create_messages!(
         ),
         help: None,
     }
+
+   /// For when an integer expression fails to parse.
+    @formatted
+    invalid_integer_value {
+        args: (value: impl Display, type_: impl Display),
+        msg: format!("the integer value `{value}{type_}` is not valid"),
+        help: None,
+    }
 );

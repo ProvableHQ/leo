@@ -34,4 +34,4 @@ use leo_errors::{InputError, LeoError, Result};
 use leo_span::{sym, Span, Symbol};
 use serde::{Deserialize, Serialize};
 
-type Definitions = IndexMap<Symbol, InputValue>;
+pub type Definitions = IndexMap<Symbol, InputValue>;
