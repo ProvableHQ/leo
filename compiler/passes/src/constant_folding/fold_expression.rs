@@ -16,9 +16,7 @@
 
 use leo_ast::*;
 
-use crate::{ConstantFolder, DeclarationType, Flattener};
-
-use crate::Value;
+use crate::{ConstantFolder, VariableType};
 
 impl<'a> ExpressionReconstructor for ConstantFolder<'a> {
     // This is the possible constant value of an expression.
@@ -147,52 +145,79 @@ impl<'a> ExpressionReconstructor for ConstantFolder<'a> {
         let var = st.lookup_variable(&input.name).unwrap();
 
         // We grab the constant value of a variable if it exists.
-        let val = if let DeclarationType::Const(Some(c)) | DeclarationType::Mut(Some(c)) = &var.declaration {
-            // If we are negating the value we do so.
-            if self.negate {
-                match c.clone().neg(input.span) {
-                    Ok(c) => Some(c),
-                    Err(err) => {
-                        self.handler.emit_err(err);
-                        Some(c.clone())
+        let val = match &var.variable_type {
+            VariableType::Const | VariableType::Mut => match var.value.clone() {
+                Some(value) => {
+                    if self.negate {
+                        match value.clone().neg() {
+                            Ok(c) => Some(c),
+                            Err(err) => {
+                                self.handler.emit_err(err);
+                                Some(value)
+                            }
+                        }
+                    } else {
+                        Some(value)
                     }
                 }
-            } else {
-                Some(c.clone())
-            }
-        } else {
-            None
+                None => None,
+            },
+            VariableType::Input(..) => None,
         };
 
         (Expression::Identifier(input), val)
     }
 
-    fn reconstruct_literal(&mut self, input: LiteralExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_literal(&mut self, input: Literal) -> (Expression, Self::AdditionalOutput) {
         // We parse the literal value as a constant.
         // TODO: we should have these parsed at parsing time.
         let value = match input.clone() {
-            LiteralExpression::Address(val, span) => Value::Address(val, span),
-            LiteralExpression::Boolean(val, span) => Value::Boolean(val, span),
-            LiteralExpression::Circuit(_, _) => unreachable!("Circuits instantiations are not parsed as literals"),
-            LiteralExpression::Field(val, span) => Value::Field(val, span),
-            LiteralExpression::Group(val) => Value::Group(val),
-            LiteralExpression::Integer(itype, istr, span) => {
-                let istr = if self.negate { format!("-{istr}") } else { istr };
-                match itype {
-                    IntegerType::U8 => Value::U8(istr.parse().unwrap(), span),
-                    IntegerType::U16 => Value::U16(istr.parse().unwrap(), span),
-                    IntegerType::U32 => Value::U32(istr.parse().unwrap(), span),
-                    IntegerType::U64 => Value::U64(istr.parse().unwrap(), span),
-                    IntegerType::U128 => Value::U128(istr.parse().unwrap(), span),
-                    IntegerType::I8 => Value::I8(istr.parse().unwrap(), span),
-                    IntegerType::I16 => Value::I16(istr.parse().unwrap(), span),
-                    IntegerType::I32 => Value::I32(istr.parse().unwrap(), span),
-                    IntegerType::I64 => Value::I64(istr.parse().unwrap(), span),
-                    IntegerType::I128 => Value::I128(istr.parse().unwrap(), span),
-                }
+            Literal::Address(val, span) => Value::Address(val),
+            Literal::Boolean(val, span) => Value::Boolean(val),
+            Literal::Field(val, span) => Value::Field(val),
+            Literal::Group(val) => Value::Group(val),
+            Literal::I8(istr, span) => {
+                let istr = if self.negate { format!("-{}", istr) } else { istr };
+                Value::I8(istr.parse().unwrap())
             }
-            LiteralExpression::Scalar(val, span) => Value::Scalar(val, span),
-            LiteralExpression::String(val, span) => Value::String(val, span),
+            Literal::I16(istr, span) => {
+                let istr = if self.negate { format!("-{}", istr) } else { istr };
+                Value::I16(istr.parse().unwrap())
+            }
+            Literal::I32(istr, span) => {
+                let istr = if self.negate { format!("-{}", istr) } else { istr };
+                Value::I32(istr.parse().unwrap())
+            }
+            Literal::I64(istr, span) => {
+                let istr = if self.negate { format!("-{}", istr) } else { istr };
+                Value::I64(istr.parse().unwrap())
+            }
+            Literal::I128(istr, span) => {
+                let istr = if self.negate { format!("-{}", istr) } else { istr };
+                Value::I128(istr.parse().unwrap())
+            }
+            Literal::U8(ustr, span) => {
+                let ustr = if self.negate { format!("-{}", ustr) } else { ustr };
+                Value::U8(ustr.parse().unwrap())
+            }
+            Literal::U16(ustr, span) => {
+                let ustr = if self.negate { format!("-{}", ustr) } else { ustr };
+                Value::U16(ustr.parse().unwrap())
+            }
+            Literal::U32(ustr, span) => {
+                let ustr = if self.negate { format!("-{}", ustr) } else { ustr };
+                Value::U32(ustr.parse().unwrap())
+            }
+            Literal::U64(ustr, span) => {
+                let ustr = if self.negate { format!("-{}", ustr) } else { ustr };
+                Value::U64(ustr.parse().unwrap())
+            }
+            Literal::U128(ustr, span) => {
+                let ustr = if self.negate { format!("-{}", ustr) } else { ustr };
+                Value::U128(ustr.parse().unwrap())
+            }
+            Literal::Scalar(val, _) => Value::Scalar(val),
+            Literal::String(val, _) => Value::String(val),
         };
 
         (Expression::Literal(input), Some(value))
@@ -204,8 +229,8 @@ impl<'a> ExpressionReconstructor for ConstantFolder<'a> {
         let (if_false, const_if_false) = self.reconstruct_expression(*input.if_false);
         // If the ternary condition is constant, we just return the appropriate ternary branch.
         match const_cond {
-            Some(Value::Boolean(true, _)) => (if_true, const_if_true),
-            Some(Value::Boolean(false, _)) => (if_false, const_if_false),
+            Some(Value::Boolean(true)) => (if_true, const_if_true),
+            Some(Value::Boolean(false)) => (if_false, const_if_false),
             _ => (
                 Expression::Ternary(TernaryExpression {
                     condition: Box::new(condition),
@@ -234,12 +259,12 @@ impl<'a> ExpressionReconstructor for ConstantFolder<'a> {
         // The rest don't support non int/bool types.
         // The only types we constant fold are int and bool types.
         let out = match (val, input.op) {
-            (Some(v), UnaryOperation::Abs) if v.is_supported_const_fold_type() => Some(v.abs(input.span)).transpose(),
+            (Some(v), UnaryOperation::Abs) if v.is_supported_const_fold_type() => Some(v.abs()).transpose(),
             (Some(v), UnaryOperation::AbsWrapped) if v.is_supported_const_fold_type() => {
-                Some(v.abs_wrapped(input.span)).transpose()
+                Some(v.abs_wrapped()).transpose()
             }
             (Some(v), UnaryOperation::Negate) if v.is_supported_const_fold_type() => Ok(Some(v)),
-            (Some(v), UnaryOperation::Not) if v.is_supported_const_fold_type() => Some(v.not(input.span)).transpose(),
+            (Some(v), UnaryOperation::Not) if v.is_supported_const_fold_type() => Some(v.not()).transpose(),
             _ => Ok(None),
         };
 

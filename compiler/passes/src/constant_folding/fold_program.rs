@@ -20,7 +20,7 @@ use indexmap::IndexMap;
 use leo_ast::*;
 use leo_errors::FlattenError;
 
-use crate::{ConstantFolder, DeclarationType, Flattener, Value, VariableSymbol};
+use crate::{ConstantFolder, VariableSymbol, VariableType};
 
 impl<'a> ProgramReconstructor for ConstantFolder<'a> {
     fn reconstruct_function(&mut self, input: Function) -> Function {
@@ -62,98 +62,57 @@ impl<'a> ProgramReconstructor for ConstantFolder<'a> {
                                     VariableSymbol {
                                         type_: var.type_,
                                         span: var.span(),
-                                        declaration: DeclarationType::Const(Some(match const_value {
+                                        variable_type: VariableType::Const,
+                                        value: Some(match const_value {
                                             InputValue::Address(value) if matches!(var.type_, Type::Address) => {
-                                                Value::Address(value.clone(), var.span())
+                                                Value::Address(value.clone())
                                             }
                                             InputValue::Boolean(value) if matches!(var.type_, Type::Boolean) => {
-                                                Value::Boolean(*value, var.span())
+                                                Value::Boolean(*value)
                                             }
                                             InputValue::Field(value) if matches!(var.type_, Type::Field) => {
-                                                Value::Field(value.clone(), var.span())
+                                                Value::Field(value.clone())
                                             }
                                             InputValue::Group(value) if matches!(var.type_, Type::Group) => {
                                                 Value::Group(Box::new(value.clone()))
                                             }
-                                            InputValue::Integer(int_type, value) => match value {
-                                                IntegerValue::I8(value)
-                                                    if matches!(var.type_, Type::IntegerType(IntegerType::I8)) =>
-                                                {
-                                                    Value::I8(*value, var.span())
-                                                }
-                                                IntegerValue::I16(value)
-                                                    if matches!(var.type_, Type::IntegerType(IntegerType::I16)) =>
-                                                {
-                                                    Value::I16(*value, var.span())
-                                                }
-                                                IntegerValue::I32(value)
-                                                    if matches!(var.type_, Type::IntegerType(IntegerType::I32)) =>
-                                                {
-                                                    Value::I32(*value, var.span())
-                                                }
-                                                IntegerValue::I64(value)
-                                                    if matches!(var.type_, Type::IntegerType(IntegerType::I64)) =>
-                                                {
-                                                    Value::I64(*value, var.span())
-                                                }
-                                                IntegerValue::I128(value)
-                                                    if matches!(var.type_, Type::IntegerType(IntegerType::I128)) =>
-                                                {
-                                                    Value::I128(*value, var.span())
-                                                }
-                                                IntegerValue::U8(value)
-                                                    if matches!(var.type_, Type::IntegerType(IntegerType::U8)) =>
-                                                {
-                                                    Value::U8(*value, var.span())
-                                                }
-                                                IntegerValue::U16(value)
-                                                    if matches!(var.type_, Type::IntegerType(IntegerType::U16)) =>
-                                                {
-                                                    Value::U16(*value, var.span())
-                                                }
-                                                IntegerValue::U32(value)
-                                                    if matches!(var.type_, Type::IntegerType(IntegerType::U32)) =>
-                                                {
-                                                    Value::U32(*value, var.span())
-                                                }
-                                                IntegerValue::U64(value)
-                                                    if matches!(var.type_, Type::IntegerType(IntegerType::U64)) =>
-                                                {
-                                                    Value::U64(*value, var.span())
-                                                }
-                                                IntegerValue::U128(value)
-                                                    if matches!(var.type_, Type::IntegerType(IntegerType::U128)) =>
-                                                {
-                                                    Value::U128(*value, var.span())
-                                                }
-                                                _ => {
-                                                    self.handler.emit_err(
-                                                        FlattenError::main_function_mismatching_const_input_type(
-                                                            var.type_,
-                                                            int_type,
-                                                            var.span(),
-                                                        ),
-                                                    );
-                                                    return input;
-                                                }
-                                            },
-                                            InputValue::Scalar(value) if matches!(var.type_, Type::Scalar) => {
-                                                Value::Scalar(value.clone(), var.span())
+                                            InputValue::I8(value) if matches!(var.type_, Type::I8) => Value::I8(*value),
+                                            InputValue::I16(value) if matches!(var.type_, Type::I16) => {
+                                                Value::I16(*value)
                                             }
-                                            InputValue::String(value) if matches!(var.type_, Type::String) => {
-                                                Value::String(value.clone(), var.span())
+                                            InputValue::I32(value) if matches!(var.type_, Type::I32) => {
+                                                Value::I32(*value)
+                                            }
+                                            InputValue::I64(value) if matches!(var.type_, Type::I64) => {
+                                                Value::I64(*value)
+                                            }
+                                            InputValue::I128(value) if matches!(var.type_, Type::I128) => {
+                                                Value::I128(*value)
+                                            }
+                                            InputValue::U8(value) if matches!(var.type_, Type::U8) => Value::U8(*value),
+                                            InputValue::U16(value) if matches!(var.type_, Type::U16) => {
+                                                Value::U16(*value)
+                                            }
+                                            InputValue::U32(value) if matches!(var.type_, Type::U32) => {
+                                                Value::U32(*value)
+                                            }
+                                            InputValue::U64(value) if matches!(var.type_, Type::U64) => {
+                                                Value::U64(*value)
+                                            }
+                                            InputValue::U128(value) if matches!(var.type_, Type::U128) => {
+                                                Value::U128(*value)
                                             }
                                             t => {
                                                 self.handler.emit_err(
                                                     FlattenError::main_function_mismatching_const_input_type(
-                                                        var.type_,
+                                                        &var.type_,
                                                         Type::from(t),
                                                         var.span(),
                                                     ),
                                                 );
                                                 return input;
                                             }
-                                        })),
+                                        }),
                                     },
                                 );
                             } else {

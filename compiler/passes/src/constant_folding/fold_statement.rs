@@ -17,9 +17,9 @@
 use std::cell::RefCell;
 
 use leo_ast::*;
-use leo_errors::{FlattenError, TypeCheckerError};
+use leo_errors::TypeCheckerError;
 
-use crate::{ConstantFolder, DeclarationType, Flattener, Value, VariableSymbol};
+use crate::{ConstantFolder, VariableSymbol, VariableType};
 
 /// Returns the literal value if the value is const.
 /// Otherwise returns the const.
@@ -51,10 +51,11 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
                         VariableSymbol {
                             type_: (&const_val).into(),
                             span: var.identifier.span,
-                            declaration: match &input.declaration_type {
-                                Declare::Const => DeclarationType::Const(Some(const_val.clone())),
-                                Declare::Let => DeclarationType::Mut(Some(const_val.clone())),
+                            variable_type: match input.declaration_type {
+                                DeclarationType::Const => VariableType::Const,
+                                DeclarationType::Let => VariableType::Mut,
                             },
+                            value: Some(const_val.clone()),
                         },
                     ) {
                         self.handler.emit_err(err);
@@ -70,10 +71,11 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
                     VariableSymbol {
                         type_: input.type_,
                         span: var.identifier.span,
-                        declaration: match &input.declaration_type {
-                            Declare::Const => DeclarationType::Const(None),
-                            Declare::Let => DeclarationType::Mut(None),
+                        variable_type: match &input.declaration_type {
+                            DeclarationType::Const => VariableType::Const,
+                            DeclarationType::Let => VariableType::Mut,
                         },
+                        value: None,
                     },
                 ) {
                     self.handler.emit_err(err);
@@ -87,10 +89,11 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
                     VariableSymbol {
                         type_: input.type_,
                         span: var.identifier.span,
-                        declaration: match &input.declaration_type {
-                            Declare::Const => DeclarationType::Const(None),
-                            Declare::Let => DeclarationType::Mut(None),
+                        variable_type: match &input.declaration_type {
+                            DeclarationType::Const => VariableType::Const,
+                            DeclarationType::Let => VariableType::Mut,
                         },
+                        value: None,
                     },
                 );
             });
@@ -99,7 +102,7 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
         Statement::Definition(DefinitionStatement {
             declaration_type: input.declaration_type,
             variable_names: input.variable_names.clone(),
-            type_: input.type_,
+            type_: input.type_.clone(),
             value: map_const((value, const_val)),
             span: input.span,
         })
@@ -108,21 +111,21 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
     fn reconstruct_assign(&mut self, input: AssignStatement) -> Statement {
         // Gets the target and its const value
         let (place_expr, place_const) = self.reconstruct_expression(input.place);
-        let var_name = if let Expression::Identifier(var) = place_expr {
-            var.name
-        } else {
-            unreachable!()
+
+        let var_name = match place_expr {
+            Expression::Identifier(var) => var.name,
+            _ => unreachable!("The LHS of an assignment must be an identifier."),
         };
 
         // If the target has a constant value, asserts that the target wasn't declared as constant
         if place_const.is_some() {
             if let Some(var) = self.symbol_table.borrow().lookup_variable(&var_name) {
-                match &var.declaration {
-                    DeclarationType::Const(_) => self.handler.emit_err(TypeCheckerError::cannot_assign_to_const_var(
+                match &var.variable_type {
+                    VariableType::Const => self.handler.emit_err(TypeCheckerError::cannot_assign_to_const_var(
                         var_name,
                         place_expr.span(),
                     )),
-                    DeclarationType::Input(_, ParamMode::Const) => self.handler.emit_err(
+                    VariableType::Input(ParamMode::Const) => self.handler.emit_err(
                         TypeCheckerError::cannot_assign_to_const_input(var_name, place_expr.span()),
                     ),
                     _ => {}
@@ -137,26 +140,10 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
         let var_in_local = st.variable_in_local_scope(&var_name);
 
         // Sets the variable in scope as needed and returns if the value should be deconstified or not
-        let deconstify = if let Some(c) = const_val.clone() {
-            if !self.non_const_block || var_in_local {
-                // Find the value in a parent scope and updates it
-                st.set_variable(&var_name, c);
-                false
-            } else {
-                // SHADOWS the variable with a constant in the local scope
-                st.locally_constify_variable(var_name, c)
-            }
-        } else {
-            true
-        };
-
-        match &mut self.deconstify_buffer {
-            // If deconstify buffer exists, value is set to deconstify,
-            // And the value is not locally declared then slates the value for deconstification at the end of scope
-            Some(buf) if deconstify && !var_in_local => buf.push(var_name),
-            // immediately deconstifies value in all parent scopes
-            _ if deconstify => st.deconstify_variable(&var_name),
-            _ => {}
+        // TODO: Set the variable, no need for deconstification.
+        if let Some(c) = const_val.clone() {
+            // Find the value in a parent scope and updates it
+            st.set_variable(&var_name, c);
         }
 
         Statement::Assign(Box::new(AssignStatement {
@@ -171,20 +158,11 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
         // Flattens the condition and gets its expression and possible const value
         let (condition, const_value) = self.reconstruct_expression(input.condition);
 
-        // Stores any current const buffer so it doesn't get cleared during a child scope
-        let prev_buffered = self.deconstify_buffer.replace(Vec::new());
-        // Stores the flag for the blocks global constyness and updates the flag with the current blocks const-ness
-        let prev_non_const_block = self.non_const_block;
-        self.non_const_block = const_value.is_none() || prev_non_const_block;
-        // Stores the flag for the blocks local constyness, and updates the flag with the current blocks const-ness
-        let prev_non_const_flag = self.next_block_non_const;
-        self.next_block_non_const = const_value.is_none() || prev_non_const_flag;
-
         // TODO: in future if symbol table is used for other passes.
         // We will have to remove these scopes instead of skipping over them.
-        let out = match const_value {
+        match const_value {
             // If branch const true
-            Some(Value::Boolean(true, _)) => {
+            Some(Value::Boolean(true)) => {
                 let block = Statement::Block(self.reconstruct_block(input.block));
                 if input.next.is_some() {
                     self.block_index += 1;
@@ -200,12 +178,12 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
                 block
             }
             // If branch const false and another branch follows this one
-            Some(Value::Boolean(false, _)) if input.next.is_some() => {
+            Some(Value::Boolean(false)) if input.next.is_some() => {
                 self.block_index += 1;
                 self.reconstruct_statement(*input.next.unwrap())
             }
             // If branch const false and no branch follows it
-            Some(Value::Boolean(false, _)) => {
+            Some(Value::Boolean(false)) => {
                 self.block_index += 1;
                 Statement::Block(Block {
                     statements: Vec::new(),
@@ -223,159 +201,42 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
                     span: input.span,
                 })
             }
-        };
-
-        // Clears out any values that were slated for deconstification at end of conditional
-        self.deconstify_buffered();
-        // Restores previous buffers/flags
-        self.deconstify_buffer = prev_buffered;
-        self.non_const_block = prev_non_const_block;
-        self.next_block_non_const = prev_non_const_flag;
-        out
+        }
     }
 
     fn reconstruct_iteration(&mut self, input: IterationStatement) -> Statement {
-        let (start_expr, start) = self.reconstruct_expression(input.start);
-        let (stop_expr, stop) = self.reconstruct_expression(input.stop);
+        let (start, start_value) = self.reconstruct_expression(input.start);
+        let (stop, stop_value) = self.reconstruct_expression(input.stop);
+
+        // TODO: Assign const values to `start_value` and `stop_value`.
 
         // We match on start and stop cause loops require
         // bounds to be constants.
-        match (start, stop) {
-            (Some(start), Some(stop)) => {
-                // Closure to check constant value is valid usize.
-                // We already know these are integers because of tyc pass happened.
-                let cast_to_usize = |v: Value| -> Result<u128, Statement> {
-                    match v.try_into() {
-                        Ok(val_as_usize) => Ok(val_as_usize),
-                        Err(err) => {
-                            self.handler.emit_err(err);
-                            Err(Statement::Block(Block {
-                                statements: Vec::new(),
-                                span: input.span,
-                            }))
-                        }
-                    }
-                };
-                let start = match cast_to_usize(start) {
-                    Ok(v) => v,
-                    Err(s) => return s,
-                };
-                let stop = match cast_to_usize(stop) {
-                    Ok(v) => v,
-                    Err(s) => return s,
-                };
 
-                // Create iteration range accounting for inclusive bounds.
-                let range = if start < stop {
-                    if let Some(stop) = stop.checked_add(input.inclusive as u128) {
-                        start..stop
-                    } else {
-                        self.handler
-                            .emit_err(FlattenError::incorrect_loop_bound("stop", "usize::MAX + 1", input.span));
-                        Default::default()
-                    }
-                } else if let Some(start) = start.checked_sub(input.inclusive as u128) {
-                    stop..(start)
-                } else {
-                    self.handler
-                        .emit_err(FlattenError::incorrect_loop_bound("start", "-1", input.span));
-                    Default::default()
-                };
+        let prev_st = std::mem::take(&mut self.symbol_table);
+        self.symbol_table
+            .swap(prev_st.borrow().get_block_scope(self.block_index).unwrap());
+        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
 
-                // Create the iteration scope if it does not exist.
-                // Otherwise grab the existing one.
-                let scope_index = if self.create_iter_scopes {
-                    self.symbol_table.borrow_mut().insert_block(self.next_block_non_const)
-                } else {
-                    self.block_index
-                };
-                // Stores local const flag
-                let prev_non_const_flag = self.next_block_non_const;
-                // Iterations are always locally constant inside.
-                self.next_block_non_const = false;
-                let prev_st = std::mem::take(&mut self.symbol_table);
-                self.symbol_table
-                    .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
-                self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
-                self.block_index = 0;
+        let block = self.reconstruct_block(input.block);
 
-                // Create a block statement to replace the iteration statement.
-                // Creates a new block per iteration inside the outer block statement.
-                let iter_blocks = Statement::Block(Block {
-                    statements: range
-                        .into_iter()
-                        .map(|iter_var| {
-                            let scope_index = self.symbol_table.borrow_mut().insert_block(self.next_block_non_const);
-                            let prev_st = std::mem::take(&mut self.symbol_table);
-                            self.symbol_table
-                                .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
-                            self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
+        let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
+        self.symbol_table
+            .swap(prev_st.get_block_scope(self.block_index).unwrap());
+        self.symbol_table = RefCell::new(prev_st);
+        self.block_index = self.block_index + 1;
 
-                            // Insert the loop variable as a constant variable in the scope as its current value.
-                            self.symbol_table.borrow_mut().variables.insert(
-                                input.variable.name,
-                                VariableSymbol {
-                                    type_: input.type_,
-                                    span: input.variable.span,
-                                    declaration: DeclarationType::Const(Some(Value::from_u128(
-                                        input.type_,
-                                        iter_var,
-                                        input.variable.span,
-                                    ))),
-                                },
-                            );
-
-                            let prev_create_iter_scopes = self.create_iter_scopes;
-                            self.create_iter_scopes = true;
-                            let block = Statement::Block(Block {
-                                statements: input
-                                    .block
-                                    .statements
-                                    .clone()
-                                    .into_iter()
-                                    .map(|s| self.reconstruct_statement(s))
-                                    .collect(),
-                                span: input.block.span,
-                            });
-                            self.create_iter_scopes = prev_create_iter_scopes;
-
-                            self.symbol_table.borrow_mut().variables.remove(&input.variable.name);
-
-                            let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-                            self.symbol_table.swap(prev_st.get_block_scope(scope_index).unwrap());
-                            self.symbol_table = RefCell::new(prev_st);
-
-                            block
-                        })
-                        .collect(),
-                    span: input.span,
-                });
-                let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-                self.symbol_table.swap(prev_st.get_block_scope(scope_index).unwrap());
-                self.symbol_table = RefCell::new(prev_st);
-                self.block_index = scope_index + 1;
-                self.next_block_non_const = prev_non_const_flag;
-
-                return iter_blocks;
-            }
-            (None, Some(_)) => self
-                .handler
-                .emit_err(FlattenError::non_const_loop_bounds("start", start_expr.span())),
-            (Some(_), None) => self
-                .handler
-                .emit_err(FlattenError::non_const_loop_bounds("stop", stop_expr.span())),
-            (None, None) => {
-                self.handler
-                    .emit_err(FlattenError::non_const_loop_bounds("start", start_expr.span()));
-                self.handler
-                    .emit_err(FlattenError::non_const_loop_bounds("stop", stop_expr.span()));
-            }
-        }
-
-        Statement::Block(Block {
-            statements: Vec::new(),
+        Statement::Iteration(Box::new(IterationStatement {
+            variable: input.variable,
+            type_: input.type_,
+            start,
+            start_value: RefCell::new(start_value),
+            stop,
+            stop_value: RefCell::new(stop_value),
+            block,
+            inclusive: input.inclusive,
             span: input.span,
-        })
+        }))
     }
 
     fn reconstruct_console(&mut self, input: ConsoleStatement) -> Statement {
@@ -406,27 +267,13 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
     }
 
     fn reconstruct_block(&mut self, input: Block) -> Block {
-        // If we are in an iteration scope we create any sub scopes for it.
-        // This is because in TYC we remove all its sub scopes to avoid clashing variables
-        // during flattening.
-        let current_block = if self.create_iter_scopes {
-            self.symbol_table.borrow_mut().insert_block(self.next_block_non_const)
-        } else {
-            self.block_index
-        };
-
-        // Store previous block's local constyness.
-        let prev_non_const_flag = self.next_block_non_const;
-        self.next_block_non_const = false;
-
         // Enter block scope.
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
-            .swap(prev_st.borrow().get_block_scope(current_block).unwrap());
+            .swap(prev_st.borrow().get_block_scope(self.block_index).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
-        self.block_index = 0;
 
-        let b = Block {
+        let block = Block {
             statements: input
                 .statements
                 .into_iter()
@@ -436,11 +283,12 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
         };
 
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        self.symbol_table.swap(prev_st.get_block_scope(current_block).unwrap());
+        // TODO: Is this swap necessary?
+        self.symbol_table
+            .swap(prev_st.get_block_scope(self.block_index).unwrap());
         self.symbol_table = RefCell::new(prev_st);
-        self.block_index = current_block + 1;
-        self.next_block_non_const = prev_non_const_flag;
+        self.block_index = self.block_index + 1;
 
-        b
+        block
     }
 }

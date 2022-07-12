@@ -18,7 +18,6 @@ use std::cell::RefCell;
 
 use leo_ast::Definitions;
 use leo_errors::emitter::Handler;
-use leo_span::Symbol;
 
 use crate::SymbolTable;
 
@@ -31,27 +30,8 @@ pub struct ConstantFolder<'a> {
     pub(crate) block_index: usize,
     /// error handler
     pub(crate) handler: &'a Handler,
-    /// a flag that shows if the next block will always be executed from the current block
-    pub(crate) next_block_non_const: bool,
-    /// a flag that tells us if the current block will always be executed by the function or not
-    pub(crate) non_const_block: bool,
     /// a flag to tell value parsing that were in a negate expr
     pub(crate) negate: bool,
-    /// a buffer of variables slated to be deconstified
-    pub(crate) deconstify_buffer: Option<Vec<Symbol>>,
-}
-
-impl<'a> ConstantFolder<'a> {
-    /// drains the buffer of variables slated for deconstification and deconstifies every instance of them in all parent scopes
-    pub(crate) fn deconstify_buffered(&mut self) {
-        let mut st = self.symbol_table.borrow_mut();
-        let mut names = self.deconstify_buffer.take().unwrap_or_default();
-        names.sort();
-        names.dedup();
-        for name in names {
-            st.deconstify_variable(&name);
-        }
-    }
 }
 
 impl<'a> ConstantFolder<'a> {
@@ -65,10 +45,7 @@ impl<'a> ConstantFolder<'a> {
             constant_inputs,
             block_index: 0,
             handler,
-            next_block_non_const: false,
-            non_const_block: false,
             negate: false,
-            deconstify_buffer: None,
         }
     }
 }
