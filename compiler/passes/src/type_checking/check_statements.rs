@@ -107,6 +107,14 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.assert_int_type(iter_type, input.variable.span);
         self.check_core_type_conflict(iter_type);
 
+        // Create a new scope for the loop body.
+        let scope_index = self.symbol_table.borrow_mut().insert_block();
+        let prev_st = std::mem::take(&mut self.symbol_table);
+        self.symbol_table
+            .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
+        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
+
+        // Add the loop variable to the scope of the loop body.
         if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
             input.variable.name,
             VariableSymbol {
@@ -117,13 +125,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         ) {
             self.handler.emit_err(err);
         }
-
-        // Create a new scope for the loop body.
-        let scope_index = self.symbol_table.borrow_mut().insert_block();
-        let prev_st = std::mem::take(&mut self.symbol_table);
-        self.symbol_table
-            .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
-        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
 
         input.block.statements.iter().for_each(|s| self.visit_statement(s));
 
@@ -167,17 +168,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             .swap(previous_symbol_table.borrow().get_block_scope(scope_index).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(previous_symbol_table.into_inner()));
 
-        input.statements.iter().for_each(|stmt| {
-            match stmt {
-                Statement::Return(stmt) => self.visit_return(stmt),
-                Statement::Definition(stmt) => self.visit_definition(stmt),
-                Statement::Assign(stmt) => self.visit_assign(stmt),
-                Statement::Conditional(stmt) => self.visit_conditional(stmt),
-                Statement::Iteration(stmt) => self.visit_iteration(stmt),
-                Statement::Console(stmt) => self.visit_console(stmt),
-                Statement::Block(stmt) => self.visit_block(stmt),
-            };
-        });
+        input.statements.iter().for_each(|stmt| self.visit_statement(stmt));
 
         let previous_symbol_table = *self.symbol_table.borrow_mut().parent.take().unwrap();
         // TODO: Is this swap necessary?
