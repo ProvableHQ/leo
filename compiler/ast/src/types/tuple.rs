@@ -23,7 +23,7 @@ use std::{fmt, ops::Deref};
 
 /// A type list of at least two types.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct Tuple(Vec<Type>);
+pub struct Tuple(pub Vec<Type>);
 
 impl Tuple {
     /// Returns a new `Type::Tuple` enumeration.

@@ -66,7 +66,7 @@ impl ParserContext<'_> {
 
     /// Returns a [`Vec<CircuitMember>`] AST node if the next tokens represent a circuit member variable
     /// or circuit member function or circuit member constant.
-    pub fn parse_circuit_members(&mut self) -> Result<(Vec<CircuitMember>, Span)> {
+    fn parse_circuit_members(&mut self) -> Result<(Vec<CircuitMember>, Span)> {
         let mut members = Vec::new();
 
         let (mut semi_colons, mut commas) = (false, false);
@@ -105,21 +105,21 @@ impl ParserContext<'_> {
     }
 
     /// Parses `IDENT: TYPE`.
-    fn parse_member(&mut self) -> Result<(Identifier, Type)> {
+    pub(super) fn parse_typed_ident(&mut self) -> Result<(Identifier, Type)> {
         let name = self.expect_identifier()?;
         self.expect(&Token::Colon)?;
-        let type_ = self.parse_single_type()?.0;
+        let type_ = self.parse_type()?.0;
 
         Ok((name, type_))
     }
 
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member static constant.
-    pub fn parse_const_member_variable_declaration(&mut self) -> Result<CircuitMember> {
+    fn parse_const_member_variable_declaration(&mut self) -> Result<CircuitMember> {
         self.expect(&Token::Static)?;
         self.expect(&Token::Const)?;
 
         // `IDENT: TYPE = EXPR`:
-        let (_name, _type_) = self.parse_member()?;
+        let (_name, _type_) = self.parse_typed_ident()?;
         self.expect(&Token::Assign)?;
         let expr = self.parse_expression()?;
 
@@ -132,14 +132,14 @@ impl ParserContext<'_> {
     }
 
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.
-    pub fn parse_member_variable_declaration(&mut self) -> Result<CircuitMember> {
-        let (name, type_) = self.parse_member()?;
+    fn parse_member_variable_declaration(&mut self) -> Result<CircuitMember> {
+        let (name, type_) = self.parse_typed_ident()?;
 
         Ok(CircuitMember::CircuitVariable(name, type_))
     }
 
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member function.
-    pub fn parse_member_function_declaration(&mut self) -> Result<CircuitMember> {
+    fn parse_member_function_declaration(&mut self) -> Result<CircuitMember> {
         if self.peek_is_function() {
             // CAUTION: function members are unstable for testnet3.
             let function = self.parse_function()?;
@@ -198,10 +198,7 @@ impl ParserContext<'_> {
     /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
     fn parse_function_parameter(&mut self) -> Result<FunctionInput> {
         let mode = self.parse_function_parameter_mode()?;
-        let name = self.expect_identifier()?;
-
-        self.expect(&Token::Colon)?;
-        let type_ = self.parse_single_type()?.0;
+        let (name, type_) = self.parse_typed_ident()?;
         Ok(FunctionInput::Variable(FunctionInputVariable::new(
             name, mode, type_, name.span,
         )))
@@ -229,7 +226,7 @@ impl ParserContext<'_> {
         // Parse return type.
         self.expect(&Token::Arrow)?;
         self.disallow_circuit_construction = true;
-        let output = self.parse_any_type()?.0;
+        let output = self.parse_type()?.0;
         self.disallow_circuit_construction = false;
 
         // Parse the function body.

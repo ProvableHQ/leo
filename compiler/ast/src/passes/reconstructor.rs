@@ -175,7 +175,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> Statement {
         Statement::Definition(DefinitionStatement {
             declaration_type: input.declaration_type,
-            variable_names: input.variable_names.clone(),
+            variable_name: input.variable_name,
             type_: input.type_,
             value: self.reconstruct_expression(input.value).0,
             span: input.span,

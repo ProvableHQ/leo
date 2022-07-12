@@ -36,6 +36,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         input.input.iter().for_each(|i| {
             let input_var = i.get_variable();
             self.check_core_type_conflict(&Some(input_var.type_.clone()));
+            self.assert_not_tuple(input_var.span, &input_var.type_);
 
             // Check for conflicting variable names.
             if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
@@ -53,6 +54,13 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         if !self.has_return {
             self.emit_err(TypeCheckerError::function_has_no_return(input.name(), input.span()));
+        }
+
+        // Ensure there are no nested tuples in the return type.
+        if let Type::Tuple(tys) = &input.output {
+            for ty in &tys.0 {
+                self.assert_not_tuple(input.span, &ty);
+            }
         }
 
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
@@ -96,6 +104,11 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             };
             check_has_field(sym::owner, Type::Address);
             check_has_field(sym::balance, Type::IntegerType(IntegerType::U64));
+        }
+
+        // Ensure there are no tuple typed members.
+        for CircuitMember::CircuitVariable(v, type_) in input.members.iter() {
+            self.assert_not_tuple(v.span, &type_);
         }
     }
 }

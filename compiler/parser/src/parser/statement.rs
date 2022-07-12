@@ -103,7 +103,7 @@ impl ParserContext<'_> {
         let start_span = self.expect(&Token::For)?;
         let ident = self.expect_identifier()?;
         self.expect(&Token::Colon)?;
-        let type_ = self.parse_single_type()?;
+        let type_ = self.parse_type()?;
         self.expect(&Token::In)?;
 
         // Parse iteration range.
@@ -186,17 +186,6 @@ impl ParserContext<'_> {
         })
     }
 
-    /// Returns a [`VariableName`] AST node if the next tokens represent a variable name with
-    /// valid keywords.
-    fn parse_variable_name(&mut self, decl_ty: Declare, _span: Span) -> Result<VariableName> {
-        let name = self.expect_identifier()?;
-        Ok(VariableName {
-            span: name.span,
-            mutable: matches!(decl_ty, Declare::Let),
-            identifier: name,
-        })
-    }
-
     /// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.
     pub(super) fn parse_definition_statement(&mut self) -> Result<DefinitionStatement> {
         self.expect_any(&[Token::Let, Token::Const])?;
@@ -206,34 +195,20 @@ impl ParserContext<'_> {
             Token::Const => Declare::Const,
             _ => unreachable!("parse_definition_statement_ shouldn't produce this"),
         };
-        // Parse variable names.
-        let variable_names = if self.peek_is_left_par() {
-            let vars = self
-                .parse_paren_comma_list(|p| p.parse_variable_name(decl_type, decl_span).map(Some))
-                .map(|(vars, ..)| vars)?;
 
-            if vars.len() == 1 {
-                self.emit_err(ParserError::invalid_parens_around_single_variable(vars[0].span()));
-            }
-
-            vars
-        } else {
-            vec![self.parse_variable_name(decl_type, decl_span)?]
-        };
-
-        self.expect(&Token::Colon)?;
-        let type_ = self.parse_any_type()?;
+        // Parse variable name and type.
+        let (variable_name, type_) = self.parse_typed_ident()?;
 
         self.expect(&Token::Assign)?;
-        let expr = self.parse_expression()?;
+        let value = self.parse_expression()?;
         self.expect(&Token::Semicolon)?;
 
         Ok(DefinitionStatement {
-            span: decl_span + expr.span(),
+            span: decl_span + value.span(),
             declaration_type: decl_type,
-            variable_names,
-            type_: type_.0,
-            value: expr,
+            variable_name,
+            type_,
+            value,
         })
     }
 }

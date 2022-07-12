@@ -87,7 +87,7 @@ impl<'a> ParserContext<'a> {
         self.prev_token = mem::replace(&mut self.token, next_token);
     }
 
-    /// Checks whether the current token is `Token`.
+    /// Checks whether the current token is `tok`.
     pub(super) fn check(&self, tok: &Token) -> bool {
         &self.token.token == tok
     }
@@ -159,10 +159,10 @@ impl<'a> ParserContext<'a> {
     /// the next token is not a [`Token::Integer(_)`] or if the next token does not exist.
     ///
     pub fn eat_integer(&mut self) -> Result<(PositiveNumber, Span)> {
-        let token = self.token.token.clone();
-        if let Token::Integer(value) = token {
+        if let Token::Integer(value) = &self.token.token {
+            let value = value.clone();
             self.bump();
-            Ok((PositiveNumber { value }, self.token.span))
+            Ok((PositiveNumber { value }, self.prev_token.span))
         } else {
             Err(ParserError::unexpected(&self.token.token, "integer literal", self.token.span).into())
         }

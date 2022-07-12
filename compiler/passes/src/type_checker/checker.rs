@@ -319,6 +319,13 @@ impl<'a> TypeChecker<'a> {
             }
         }
     }
+
+    /// Emits an error if the type is a tuple.
+    pub(crate) fn assert_not_tuple(&self, span: Span, type_: &Type) {
+        if type_.is_tuple() {
+            self.emit_err(TypeCheckerError::tuple_not_allowed(span))
+        }
+    }
 }
 
 fn types_to_string(types: &[Type]) -> String {

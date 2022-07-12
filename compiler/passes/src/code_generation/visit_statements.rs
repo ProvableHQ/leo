@@ -56,16 +56,9 @@ impl<'a> CodeGenerator<'a> {
     fn visit_definition(&mut self, input: &'a DefinitionStatement) -> String {
         // Note: `DefinitionStatement`s should not exist in SSA form. However, for the purposes of this
         // prototype, we will need to support them.
-        match input.variable_names.len() == 1 {
-            // TODO: Is this a valid assumption?
-            false => unreachable!("DefinitionStatements should contain only one variable once put into SSA form"),
-            true => {
-                let (operand, expression_instructions) = self.visit_expression(&input.value);
-                self.variable_mapping
-                    .insert(&input.variable_names[0].identifier.name, operand);
-                expression_instructions
-            }
-        }
+        let (operand, expression_instructions) = self.visit_expression(&input.value);
+        self.variable_mapping.insert(&input.variable_name.name, operand);
+        expression_instructions
     }
 
     fn visit_assign(&mut self, _input: &'a AssignStatement) -> String {

@@ -41,22 +41,20 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             Declaration::Mut
         };
 
-        input.variable_names.iter().for_each(|v| {
-            self.check_core_type_conflict(&Some(input.type_.clone()));
+        self.check_core_type_conflict(&Some(input.type_.clone()));
 
-            self.visit_expression(&input.value, &Some(input.type_.clone()));
+        self.visit_expression(&input.value, &Some(input.type_.clone()));
 
-            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                v.identifier.name,
-                VariableSymbol {
-                    type_: input.type_.clone(),
-                    span: input.span(),
-                    declaration: declaration.clone(),
-                },
-            ) {
-                self.handler.emit_err(err);
-            }
-        });
+        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+            input.variable_name.name,
+            VariableSymbol {
+                type_: input.type_.clone(),
+                span: input.span(),
+                declaration: declaration.clone(),
+            },
+        ) {
+            self.handler.emit_err(err);
+        }
     }
 
     fn visit_assign(&mut self, input: &'a AssignStatement) {

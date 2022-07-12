@@ -312,4 +312,11 @@ create_messages!(
         msg: format!("Tuple index `{index}` out of range for a tuple with length `{length}`"),
         help: None,
     }
+
+    @formatted
+    tuple_not_allowed {
+        args: (),
+        msg: format!("Tuples are only allowed as function return types."),
+        help: None,
+    }
 );

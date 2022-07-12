@@ -303,15 +303,7 @@ create_messages!(
         help: None,
     }
 
-    /// For when a user puts parens around a single defined variable.
-    @formatted
-    invalid_parens_around_single_variable {
-        args: (),
-        msg: "do not put parens around single variable names",
-        help: None,
-    }
-
-    /// For when a user puts parens around a single defined variable.
+    /// For when a user puts parens around a single array dimension.
     @formatted
     invalid_parens_around_single_array_dimension_size {
         args: (),

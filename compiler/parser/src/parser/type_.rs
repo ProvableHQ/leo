@@ -74,30 +74,19 @@ impl ParserContext<'_> {
 
     /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a type.
     /// Also returns the span of the parsed token.
-    pub fn parse_single_type(&mut self) -> Result<(Type, Span)> {
-        Ok(if let Some(ident) = self.eat_identifier() {
-            let span = ident.span;
-            (Type::Identifier(ident), span)
-        } else {
-            self.parse_non_ident_types()?
-        })
-    }
-
-    /// Returns a [`(Type, Span)`] where `Type` is a `Type::Tuple` AST node.
-    pub fn parse_tuple_type(&mut self) -> Result<(Type, Span)> {
-        // todo: catch and return error for nested tuple type.
-        let (types, _, span) = self.parse_paren_comma_list(|p| p.parse_single_type().map(Some))?;
-        let elements = types.into_iter().map(|(type_, _)| type_).collect::<Vec<_>>();
-
-        Ok((Tuple::try_new(elements, span)?, span))
-    }
-
-    /// Returns a [`(Type, Span)`] where `Type` is a tuple or single type.
-    pub fn parse_any_type(&mut self) -> Result<(Type, Span)> {
-        if self.peek_is_left_par() {
+    pub fn parse_type(&mut self) -> Result<(Type, Span)> {
+        if let Some(ident) = self.eat_identifier() {
+            Ok((Type::Identifier(ident), ident.span))
+        } else if self.peek_is_left_par() {
             self.parse_tuple_type()
         } else {
-            self.parse_single_type()
+            self.parse_non_ident_types()
         }
+    }
+
+    /// Parses a type of form `(ty_0, ty_1, ...)`.
+    fn parse_tuple_type(&mut self) -> Result<(Type, Span)> {
+        let (types, _, span) = self.parse_paren_comma_list(|p| p.parse_type().map(|(ty, _)| ty).map(Some))?;
+        Ok((Tuple::try_new(types, span)?, span))
     }
 }

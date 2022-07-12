@@ -71,6 +71,14 @@ impl Type {
             _ => false,
         }
     }
+
+    /// Returns true if the type is a tuple.
+    pub fn is_tuple(&self) -> bool {
+        match self {
+            Type::Tuple(_) => true,
+            _ => false,
+        }
+    }
 }
 
 impl fmt::Display for Type {
