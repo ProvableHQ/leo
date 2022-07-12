@@ -43,7 +43,7 @@ macro_rules! implement_const_unary {
             name: $name,
             patterns: [$([
                 t: $type,
-                l: |l: $m_type, span| l.$method().ok_or_else(|| FlattenError::unary_overflow(l, $str, span))
+                l: |l: $m_type| l.$method().ok_or_else(|| FlattenError::unary_overflow(l, $str, Default::default()))
             ]),+]
         }
     };
@@ -58,7 +58,7 @@ macro_rules! implement_const_unary {
             name: $name,
             patterns: [$([
                 t: $type,
-                l: |l: $m_type, _| -> Result<$m_type> { Ok(l.$method()) }
+                l: |l: $m_type| -> Result<$m_type> { Ok(l.$method()) }
             ]),+]
         }
     };
@@ -70,15 +70,13 @@ macro_rules! implement_const_unary {
             l: $logic:expr
         ]),+]
     ) => {
-        // TODO: This is temporary since the currently unused code is used in constant folding.
-        #[allow(dead_code)]
-        pub(crate) fn $name(self, span: Span) -> Result<Self> {
+        pub fn $name(self) -> Result<Self> {
             use Value::*;
 
             match self {
                 $(
-                    $type(v, _) => {
-                        Ok($type($logic(v.into(), span)?, span))
+                    $type(v) => {
+                        Ok($type($logic(v.into())?))
                     },
                 )+
                 // Unreachable because type checking should have already caught this and errored out.
@@ -105,7 +103,7 @@ macro_rules! implement_const_binary {
             name: $name,
             patterns: [$([
                 types: $lhs, [$($rhs),+], $out,
-                logic: |l: $m_lhs, r: $m_rhs, t, span| l.$method(r).ok_or_else(|| FlattenError::binary_overflow(l, $str, r, t, span))
+                logic: |l: $m_lhs, r: $m_rhs, t| l.$method(r).ok_or_else(|| FlattenError::binary_overflow(l, $str, r, t, Default::default()))
             ]),+]
         }
     };
@@ -124,7 +122,7 @@ macro_rules! implement_const_binary {
             name: $name,
             patterns: [$([
                 types: $lhs, [$($rhs),+], $out,
-                logic: |l: $m_lhs, r: $m_rhs, _, _| -> Result<$m_lhs> {Ok(l.$method(r))}
+                logic: |l: $m_lhs, r: $m_rhs, _| -> Result<$m_lhs> {Ok(l.$method(r))}
             ]),+]
         }
     };
@@ -144,7 +142,7 @@ macro_rules! implement_const_binary {
             name: $name,
             patterns: [$([
                 types: $lhs, [$($rhs),+], $out,
-                logic: |l: $m_lhs, r: $m_rhs, _, _| -> Result<bool> {Ok(l.$method(&r))}
+                logic: |l: $m_lhs, r: $m_rhs, _| -> Result<bool> {Ok(l.$method(&r))}
             ]),+]
         }
     };
@@ -156,18 +154,16 @@ macro_rules! implement_const_binary {
             logic: $logic:expr
         ]),+]
     ) => {
-        // This is temporary since the currently unused code is used in constant folding.
-        #[allow(dead_code)]
-        pub(crate) fn $name(self, other: Self, span: Span) -> Result<Self> {
+        pub fn $name(self, other: Self) -> Result<Self> {
             use Value::*;
 
             match (self, other) {
                 $(
                     $(
-                        ($lhs(types, _), $rhs(rhs, _)) => {
+                        ($lhs(types), $rhs(rhs)) => {
                             let rhs_type = type_name(&rhs);
-                            let out = $logic(types, rhs.into(), rhs_type, span)?;
-                            Ok($out(out, span))
+                            let out = $logic(types, rhs.into(), rhs_type)?;
+                            Ok($out(out))
                         },
                     )+
                 )+
@@ -181,43 +177,41 @@ macro_rules! implement_const_binary {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Value {
     Input(Type, Identifier),
-    Address(String, Span),
-    Boolean(bool, Span),
+    Address(String),
+    Boolean(bool),
     Circuit(Identifier, IndexMap<Symbol, Value>),
-    Field(String, Span),
+    Field(String),
     Group(Box<GroupLiteral>),
-    I8(i8, Span),
-    I16(i16, Span),
-    I32(i32, Span),
-    I64(i64, Span),
-    I128(i128, Span),
-    U8(u8, Span),
-    U16(u16, Span),
-    U32(u32, Span),
-    U64(u64, Span),
-    U128(u128, Span),
-    Scalar(String, Span),
-    String(String, Span),
+    I8(i8),
+    I16(i16),
+    I32(i32),
+    I64(i64),
+    I128(i128),
+    U8(u8),
+    U16(u16),
+    U32(u32),
+    U64(u64),
+    U128(u128),
+    Scalar(String),
+    String(String),
 }
 
 impl Value {
-    // TODO: This is temporary since the currently unused code is used in constant folding.
-    #[allow(dead_code)]
-    pub(crate) fn is_supported_const_fold_type(&self) -> bool {
+    pub fn is_supported_const_fold_type(&self) -> bool {
         use Value::*;
         matches!(
             self,
-            Boolean(_, _)
-                | I8(_, _)
-                | I16(_, _)
-                | I32(_, _)
-                | I64(_, _)
-                | I128(_, _)
-                | U8(_, _)
-                | U16(_, _)
-                | U32(_, _)
-                | U64(_, _)
-                | U128(_, _)
+            Boolean(..)
+                | I8(..)
+                | I16(..)
+                | I32(..)
+                | I64(..)
+                | I128(..)
+                | U8(..)
+                | U16(..)
+                | U32(..)
+                | U64(..)
+                | U128(..)
         )
     }
 
@@ -727,23 +721,23 @@ impl Display for Value {
         use Value::*;
         match self {
             Input(type_, ident) => write!(f, "input var {}: {type_}", ident.name),
-            Address(val, _) => write!(f, "{val}"),
+            Address(val) => write!(f, "{val}"),
             Circuit(val, _) => write!(f, "{}", val.name),
-            Boolean(val, _) => write!(f, "{val}"),
-            Field(val, _) => write!(f, "{val}"),
+            Boolean(val) => write!(f, "{val}"),
+            Field(val) => write!(f, "{val}"),
             Group(val) => write!(f, "{val}"),
-            I8(val, _) => write!(f, "{val}"),
-            I16(val, _) => write!(f, "{val}"),
-            I32(val, _) => write!(f, "{val}"),
-            I64(val, _) => write!(f, "{val}"),
-            I128(val, _) => write!(f, "{val}"),
-            U8(val, _) => write!(f, "{val}"),
-            U16(val, _) => write!(f, "{val}"),
-            U32(val, _) => write!(f, "{val}"),
-            U64(val, _) => write!(f, "{val}"),
-            U128(val, _) => write!(f, "{val}"),
-            Scalar(val, _) => write!(f, "{val}"),
-            String(val, _) => write!(f, "{val}"),
+            I8(val) => write!(f, "{val}"),
+            I16(val) => write!(f, "{val}"),
+            I32(val) => write!(f, "{val}"),
+            I64(val) => write!(f, "{val}"),
+            I128(val) => write!(f, "{val}"),
+            U8(val) => write!(f, "{val}"),
+            U16(val) => write!(f, "{val}"),
+            U32(val) => write!(f, "{val}"),
+            U64(val) => write!(f, "{val}"),
+            U128(val) => write!(f, "{val}"),
+            Scalar(val) => write!(f, "{val}"),
+            String(val) => write!(f, "{val}"),
         }
     }
 }
@@ -801,26 +795,21 @@ impl TryFrom<&Value> for u128 {
     fn try_from(value: &Value) -> Result<Self, Self::Error> {
         use Value::*;
         match value {
-            I8(val, span) => {
-                u128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
-            }
-            I16(val, span) => {
-                u128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
-            }
-            I32(val, span) => {
-                u128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
-            }
-            I64(val, span) => {
-                u128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
-            }
-            I128(val, span) => {
-                u128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
-            }
-            U8(val, _) => Ok(*val as u128),
-            U16(val, _) => Ok(*val as u128),
-            U32(val, _) => Ok(*val as u128),
-            U64(val, _) => Ok(*val as u128),
-            U128(val, _) => Ok(*val),
+            I8(val) => u128::try_from(*val)
+                .map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), Default::default()).into()),
+            I16(val) => u128::try_from(*val)
+                .map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), Default::default()).into()),
+            I32(val) => u128::try_from(*val)
+                .map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), Default::default()).into()),
+            I64(val) => u128::try_from(*val)
+                .map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), Default::default()).into()),
+            I128(val) => u128::try_from(*val)
+                .map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), Default::default()).into()),
+            U8(val) => Ok(*val as u128),
+            U16(val) => Ok(*val as u128),
+            U32(val) => Ok(*val as u128),
+            U64(val) => Ok(*val as u128),
+            U128(val) => Ok(*val),
             _ => unreachable!(),
         }
     }
@@ -843,23 +832,23 @@ impl From<&Value> for Type {
         use Value::*;
         match v {
             Input(type_, _) => type_.clone(),
-            Address(_, _) => Type::Address,
-            Boolean(_, _) => Type::Boolean,
+            Address(..) => Type::Address,
+            Boolean(..) => Type::Boolean,
             Circuit(ident, _) => Type::Identifier(*ident),
-            Field(_, _) => Type::Field,
-            Group(_) => Type::Group,
-            I8(_, _) => Type::I8,
-            I16(_, _) => Type::I16,
-            I32(_, _) => Type::I32,
-            I64(_, _) => Type::I64,
-            I128(_, _) => Type::I128,
-            U8(_, _) => Type::U8,
-            U16(_, _) => Type::U16,
-            U32(_, _) => Type::U32,
-            U64(_, _) => Type::U64,
-            U128(_, _) => Type::U128,
-            Scalar(_, _) => Type::Scalar,
-            String(_, _) => Type::String,
+            Field(..) => Type::Field,
+            Group(..) => Type::Group,
+            I8(..) => Type::I8,
+            I16(..) => Type::I16,
+            I32(..) => Type::I32,
+            I64(..) => Type::I64,
+            I128(..) => Type::I128,
+            U8(..) => Type::U8,
+            U16(..) => Type::U16,
+            U32(..) => Type::U32,
+            U64(..) => Type::U64,
+            U128(..) => Type::U128,
+            Scalar(..) => Type::Scalar,
+            String(..) => Type::String,
         }
     }
 }
@@ -870,22 +859,22 @@ impl From<&Literal> for Value {
     /// This should only be invoked on literals that are known to be valid.
     fn from(literal: &Literal) -> Self {
         match literal {
-            Literal::Address(string, span) => Self::Address(string.clone(), *span),
-            Literal::Boolean(bool, span) => Self::Boolean(*bool, *span),
-            Literal::Field(string, span) => Self::Field(string.clone(), *span),
+            Literal::Address(string, span) => Self::Address(string.clone()),
+            Literal::Boolean(bool, span) => Self::Boolean(*bool),
+            Literal::Field(string, span) => Self::Field(string.clone()),
             Literal::Group(group_literal) => Self::Group(group_literal.clone()),
-            Literal::Scalar(string, span) => Self::Scalar(string.clone(), *span),
-            Literal::String(string, span) => Self::String(string.clone(), *span),
-            Literal::I8(string, span) => Self::I8(string.parse::<i8>().unwrap(), *span),
-            Literal::I16(string, span) => Self::I16(string.parse::<i16>().unwrap(), *span),
-            Literal::I32(string, span) => Self::I32(string.parse::<i32>().unwrap(), *span),
-            Literal::I64(string, span) => Self::I64(string.parse::<i64>().unwrap(), *span),
-            Literal::I128(string, span) => Self::I128(string.parse::<i128>().unwrap(), *span),
-            Literal::U8(string, span) => Self::U8(string.parse::<u8>().unwrap(), *span),
-            Literal::U16(string, span) => Self::U16(string.parse::<u16>().unwrap(), *span),
-            Literal::U32(string, span) => Self::U32(string.parse::<u32>().unwrap(), *span),
-            Literal::U64(string, span) => Self::U64(string.parse::<u64>().unwrap(), *span),
-            Literal::U128(string, span) => Self::U128(string.parse::<u128>().unwrap(), *span),
+            Literal::Scalar(string, span) => Self::Scalar(string.clone()),
+            Literal::String(string, span) => Self::String(string.clone()),
+            Literal::I8(string, span) => Self::I8(string.parse::<i8>().unwrap()),
+            Literal::I16(string, span) => Self::I16(string.parse::<i16>().unwrap()),
+            Literal::I32(string, span) => Self::I32(string.parse::<i32>().unwrap()),
+            Literal::I64(string, span) => Self::I64(string.parse::<i64>().unwrap()),
+            Literal::I128(string, span) => Self::I128(string.parse::<i128>().unwrap()),
+            Literal::U8(string, span) => Self::U8(string.parse::<u8>().unwrap()),
+            Literal::U16(string, span) => Self::U16(string.parse::<u16>().unwrap()),
+            Literal::U32(string, span) => Self::U32(string.parse::<u32>().unwrap()),
+            Literal::U64(string, span) => Self::U64(string.parse::<u64>().unwrap()),
+            Literal::U128(string, span) => Self::U128(string.parse::<u128>().unwrap()),
         }
     }
 }
@@ -895,23 +884,23 @@ impl From<Value> for Literal {
         use Value::*;
         match v {
             Input(_, _) => todo!("We need to test if this is hittable"),
-            Address(v, span) => Literal::Address(v, span),
-            Boolean(v, span) => Literal::Boolean(v, span),
+            Address(v) => Literal::Address(v, Default::default()),
+            Boolean(v) => Literal::Boolean(v, Default::default()),
             Circuit(_ident, _values) => todo!("We need to test if this is hittable"),
-            Field(v, span) => Literal::Field(v, span),
+            Field(v) => Literal::Field(v, Default::default()),
             Group(v) => Literal::Group(v),
-            I8(v, span) => Literal::I8(v.to_string(), span),
-            I16(v, span) => Literal::I16(v.to_string(), span),
-            I32(v, span) => Literal::I32(v.to_string(), span),
-            I64(v, span) => Literal::I64(v.to_string(), span),
-            I128(v, span) => Literal::I128(v.to_string(), span),
-            U8(v, span) => Literal::U8(v.to_string(), span),
-            U16(v, span) => Literal::U16(v.to_string(), span),
-            U32(v, span) => Literal::U32(v.to_string(), span),
-            U64(v, span) => Literal::U64(v.to_string(), span),
-            U128(v, span) => Literal::U128(v.to_string(), span),
-            Scalar(v, span) => Literal::Scalar(v, span),
-            String(v, span) => Literal::String(v, span),
+            I8(v) => Literal::I8(v.to_string(), Default::default()),
+            I16(v) => Literal::I16(v.to_string(), Default::default()),
+            I32(v) => Literal::I32(v.to_string(), Default::default()),
+            I64(v) => Literal::I64(v.to_string(), Default::default()),
+            I128(v) => Literal::I128(v.to_string(), Default::default()),
+            U8(v) => Literal::U8(v.to_string(), Default::default()),
+            U16(v) => Literal::U16(v.to_string(), Default::default()),
+            U32(v) => Literal::U32(v.to_string(), Default::default()),
+            U64(v) => Literal::U64(v.to_string(), Default::default()),
+            U128(v) => Literal::U128(v.to_string(), Default::default()),
+            Scalar(v) => Literal::Scalar(v, Default::default()),
+            String(v) => Literal::String(v, Default::default()),
         }
     }
 }
