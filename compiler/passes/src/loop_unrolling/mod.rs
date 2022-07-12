@@ -34,7 +34,7 @@ use crate::{Pass, SymbolTable};
 use leo_ast::{Ast, ProgramReconstructor};
 use leo_errors::{emitter::Handler, Result};
 
-impl<'a> Pass for Unroller<'a> {
+impl<'a> Pass for LoopUnroller<'a> {
     type Input = (Ast, &'a Handler, SymbolTable);
     type Output = Result<(Ast, SymbolTable)>;
 

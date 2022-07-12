@@ -19,7 +19,7 @@ use std::cell::RefCell;
 use leo_ast::*;
 use leo_errors::{FlattenError, TypeCheckerError};
 
-use crate::{Declaration, Flattener, Value, VariableSymbol};
+use crate::{ConstantFolder, Declaration, Flattener, Value, VariableSymbol};
 
 /// Returns the literal value if the value is const.
 /// Otherwise returns the const.
@@ -27,7 +27,7 @@ fn map_const((expr, val): (Expression, Option<Value>)) -> Expression {
     val.map(|v| Expression::Literal(v.into())).unwrap_or(expr)
 }
 
-impl<'a> StatementReconstructor for Flattener<'a> {
+impl<'a> StatementReconstructor for ConstantFolder<'a> {
     fn reconstruct_return(&mut self, input: ReturnStatement) -> Statement {
         Statement::Return(ReturnStatement {
             expression: map_const(self.reconstruct_expression(input.expression)),

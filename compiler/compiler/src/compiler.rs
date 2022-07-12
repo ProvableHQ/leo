@@ -161,7 +161,7 @@ impl<'a> Compiler<'a> {
 
     /// Runs the loop unrolling pass.
     pub fn loop_unrolling_pass(&mut self, symbol_table: SymbolTable) -> Result<SymbolTable> {
-        let (ast, symbol_table) = Unroller::do_pass((std::mem::take(&mut self.ast), self.handler, symbol_table))?;
+        let (ast, symbol_table) = LoopUnroller::do_pass((std::mem::take(&mut self.ast), self.handler, symbol_table))?;
         self.ast = ast;
 
         if self.output_options.unrolled_ast {

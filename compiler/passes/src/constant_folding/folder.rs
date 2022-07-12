@@ -22,7 +22,7 @@ use leo_span::Symbol;
 
 use crate::SymbolTable;
 
-pub struct Flattener<'a> {
+pub struct ConstantFolder<'a> {
     /// the symbol table for the function
     pub(crate) symbol_table: RefCell<SymbolTable>,
     /// constant inputs for the function
@@ -43,7 +43,7 @@ pub struct Flattener<'a> {
     pub(crate) deconstify_buffer: Option<Vec<Symbol>>,
 }
 
-impl<'a> Flattener<'a> {
+impl<'a> ConstantFolder<'a> {
     /// drains the buffer of variables slated for deconstification and deconstifies every instance of them in all parent scopes
     pub(crate) fn deconstify_buffered(&mut self) {
         let mut st = self.symbol_table.borrow_mut();
@@ -56,7 +56,7 @@ impl<'a> Flattener<'a> {
     }
 }
 
-impl<'a> Flattener<'a> {
+impl<'a> ConstantFolder<'a> {
     pub(crate) fn new(
         symbol_table: SymbolTable,
         handler: &'a Handler,

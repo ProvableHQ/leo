@@ -18,9 +18,9 @@ use std::cell::RefCell;
 
 use leo_ast::*;
 
-use crate::Unroller;
+use crate::LoopUnroller;
 
-impl ProgramReconstructor for Unroller<'_> {
+impl ProgramReconstructor for LoopUnroller<'_> {
     fn reconstruct_function(&mut self, function: Function) -> Function {
         let function_name = function.name();
 

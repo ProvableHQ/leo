@@ -24,7 +24,7 @@ use leo_errors::emitter::Handler;
 
 use crate::{Clusivity, LoopBound, RangeIterator, SymbolTable};
 
-pub struct Unroller<'a> {
+pub struct LoopUnroller<'a> {
     /// The symbol table for the function being processed.
     pub(crate) symbol_table: RefCell<SymbolTable>,
     /// The index of the current block scope.
@@ -35,7 +35,7 @@ pub struct Unroller<'a> {
     pub(crate) is_unrolling: bool,
 }
 
-impl<'a> Unroller<'a> {
+impl<'a> LoopUnroller<'a> {
     pub(crate) fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
         Self {
             symbol_table: RefCell::new(symbol_table),

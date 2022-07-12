@@ -16,11 +16,11 @@
 
 use leo_ast::*;
 
-use crate::{Declaration, Flattener};
+use crate::{ConstantFolder, Declaration, Flattener};
 
 use crate::Value;
 
-impl<'a> ExpressionReconstructor for Flattener<'a> {
+impl<'a> ExpressionReconstructor for ConstantFolder<'a> {
     // This is the possible constant value of an expression.
     type AdditionalOutput = Option<Value>;
     fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {

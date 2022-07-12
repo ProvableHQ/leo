@@ -19,6 +19,9 @@
 pub mod code_generation;
 pub use code_generation::*;
 
+pub mod constant_folding;
+pub use constant_folding::*;
+
 pub mod pass;
 pub use self::pass::*;
 

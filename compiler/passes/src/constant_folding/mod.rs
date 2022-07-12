@@ -17,21 +17,21 @@
 use leo_ast::{Ast, Definitions, ProgramReconstructor};
 use leo_errors::{emitter::Handler, Result};
 
-pub mod flattener;
-pub use flattener::*;
+pub mod folder;
+pub use folder::*;
 
-pub mod flatten_expression;
-pub use flatten_expression::*;
+pub mod fold_expression;
+pub use fold_expression::*;
 
-pub mod flatten_program;
-pub use flatten_program::*;
+pub mod fold_program;
+pub use fold_program::*;
 
-pub mod flatten_statement;
-pub use flatten_statement::*;
+pub mod fold_statement;
+pub use fold_statement::*;
 
 use crate::{Pass, SymbolTable};
 
-impl<'a> Pass for Flattener<'a> {
+impl<'a> Pass for ConstantFolder<'a> {
     type Input = (Ast, &'a Handler, SymbolTable, Option<&'a Definitions>);
     type Output = Result<Ast>;
 

@@ -20,9 +20,9 @@ use indexmap::IndexMap;
 use leo_ast::*;
 use leo_errors::FlattenError;
 
-use crate::{Declaration, Flattener, Value, VariableSymbol};
+use crate::{ConstantFolder, Declaration, Flattener, Value, VariableSymbol};
 
-impl<'a> ProgramReconstructor for Flattener<'a> {
+impl<'a> ProgramReconstructor for ConstantFolder<'a> {
     fn reconstruct_function(&mut self, input: Function) -> Function {
         let f_name = input.name();
 

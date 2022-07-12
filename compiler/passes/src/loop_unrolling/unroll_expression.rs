@@ -16,8 +16,8 @@
 
 use leo_ast::*;
 
-use crate::Unroller;
+use crate::LoopUnroller;
 
-impl ExpressionReconstructor for Unroller<'_> {
+impl ExpressionReconstructor for LoopUnroller<'_> {
     type AdditionalOutput = ();
 }
