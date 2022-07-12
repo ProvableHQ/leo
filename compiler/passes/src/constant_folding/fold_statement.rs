@@ -226,13 +226,6 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
     }
 
     fn reconstruct_block(&mut self, input: Block) -> Block {
-        println!(
-            "Reconstructing block beginning, block index: {:?}, num_blocks: {:?}",
-            self.scope_index,
-            self.symbol_table.borrow().scopes.len()
-        );
-        let block_str = format!("Block: {:}\n", input);
-        println!("{}", block_str);
         // Enter block scope.
         let current_scope = self.scope_index;
         let prev_st = std::mem::take(&mut self.symbol_table);
@@ -250,11 +243,6 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
             span: input.span,
         };
 
-        println!(
-            "Reconstructing block end, block index: {:?}, num_blocks: {:?}",
-            current_scope,
-            self.symbol_table.borrow().scopes.len()
-        );
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
         // TODO: Is this swap necessary?
         self.symbol_table.swap(prev_st.get_block_scope(current_scope).unwrap());
