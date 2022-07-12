@@ -106,7 +106,7 @@ create_messages!(
         help: None,
     }
 
-    /// This error is for when a user tries to use the library and programatically inject an import
+    /// This error is for when a user tries to use the library and programmatically inject an import
     /// on the rust side.
     @backtraced
     injected_programs {
@@ -131,12 +131,20 @@ create_messages!(
         help: None,
     }
 
-    /// For when a user tries to define a tuple dimension of 1.
+    /// For when a user tries to define an empty tuple.
     @formatted
-    invalid_tuple_dimension_size {
+    empty_tuple {
         args: (),
-        msg: "tuples of 1 element are not allowed",
+        msg: "Tuples of zero elements are not allowed.",
         help: None,
+    }
+
+    /// For when a user tries to define a tuple dimension of one.
+    @formatted
+    one_element_tuple {
+        args: (),
+        msg: "Tuples of one element are not allowed.",
+        help: Some("Try defining a single type by removing the parenthesis `( )`".to_string()),
     }
 
     /// For when a user shadows a function.

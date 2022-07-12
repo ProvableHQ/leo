@@ -27,27 +27,60 @@ pub trait ExpressionVisitor<'a> {
 
     fn visit_expression(&mut self, input: &'a Expression, additional: &Self::AdditionalInput) -> Self::Output {
         match input {
-            Expression::Access(expr) => self.visit_access(expr, additional),
-            Expression::CircuitInit(expr) => self.visit_circuit_init(expr, additional),
-            Expression::Identifier(expr) => self.visit_identifier(expr, additional),
-            Expression::Literal(expr) => self.visit_literal(expr, additional),
-            Expression::Binary(expr) => self.visit_binary(expr, additional),
-            Expression::Unary(expr) => self.visit_unary(expr, additional),
-            Expression::Ternary(expr) => self.visit_ternary(expr, additional),
-            Expression::Call(expr) => self.visit_call(expr, additional),
-            Expression::Err(expr) => self.visit_err(expr, additional),
+            Expression::Access(access) => self.visit_access(access, additional),
+            Expression::Binary(binary) => self.visit_binary(binary, additional),
+            Expression::Call(call) => self.visit_call(call, additional),
+            Expression::Circuit(circuit) => self.visit_circuit_init(circuit, additional),
+            Expression::Err(err) => self.visit_err(err, additional),
+            Expression::Identifier(identifier) => self.visit_identifier(identifier, additional),
+            Expression::Literal(literal) => self.visit_literal(literal, additional),
+            Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
+            Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
+            Expression::Unary(unary) => self.visit_unary(unary, additional),
         }
     }
 
-    fn visit_access(&mut self, _input: &'a AccessExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_access(&mut self, input: &'a AccessExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        match input {
+            AccessExpression::AssociatedFunction(function) => {
+                function.args.iter().for_each(|arg| {
+                    self.visit_expression(arg, &Default::default());
+                });
+            }
+            AccessExpression::Member(member) => {
+                self.visit_expression(&member.inner, additional);
+            }
+            AccessExpression::Tuple(tuple) => {
+                self.visit_expression(&tuple.tuple, additional);
+            }
+            _ => {}
+        }
+
+        Default::default()
+    }
+
+    fn visit_binary(&mut self, input: &'a BinaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.left, additional);
+        self.visit_expression(&input.right, additional);
+        Default::default()
+    }
+
+    fn visit_call(&mut self, input: &'a CallExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        input.arguments.iter().for_each(|expr| {
+            self.visit_expression(expr, additional);
+        });
         Default::default()
     }
 
     fn visit_circuit_init(
         &mut self,
-        _input: &'a CircuitInitExpression,
+        _input: &'a CircuitExpression,
         _additional: &Self::AdditionalInput,
     ) -> Self::Output {
+        Default::default()
+    }
+
+    fn visit_err(&mut self, _input: &'a ErrExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
 
@@ -59,17 +92,6 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_binary(&mut self, input: &'a BinaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        self.visit_expression(&input.left, additional);
-        self.visit_expression(&input.right, additional);
-        Default::default()
-    }
-
-    fn visit_unary(&mut self, input: &'a UnaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        self.visit_expression(&input.receiver, additional);
-        Default::default()
-    }
-
     fn visit_ternary(&mut self, input: &'a TernaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.condition, additional);
         self.visit_expression(&input.if_true, additional);
@@ -77,14 +99,15 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_call(&mut self, input: &'a CallExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        input.arguments.iter().for_each(|expr| {
+    fn visit_tuple(&mut self, input: &'a TupleExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        input.elements.iter().for_each(|expr| {
             self.visit_expression(expr, additional);
         });
         Default::default()
     }
 
-    fn visit_err(&mut self, _input: &'a ErrExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_unary(&mut self, input: &'a UnaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.receiver, additional);
         Default::default()
     }
 }

@@ -79,6 +79,15 @@ impl<'a> TypeChecker<'a> {
         self.handler.emit_err(err);
     }
 
+    /// Emits an error to the handler if the given type is invalid.
+    fn check_type(&self, is_valid: impl Fn(&Type) -> bool, error_string: String, type_: &Option<Type>, span: Span) {
+        if let Some(type_) = type_ {
+            if !is_valid(type_) {
+                self.emit_err(TypeCheckerError::expected_one_type_of(error_string, type_, span));
+            }
+        }
+    }
+
     /// Emits an error if the two given types are not equal.
     pub(crate) fn check_eq_types(&self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
         match (t1, t2) {
@@ -95,21 +104,13 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn assert_and_return_type(&self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
         if let Some(expected) = expected {
             if !actual.eq_flat(expected) {
-                self.emit_err(TypeCheckerError::type_should_be(actual, expected, span));
+                self.emit_err(TypeCheckerError::type_should_be(actual.clone(), expected, span));
             }
         }
 
         actual
     }
 
-    /// Emits an error to the handler if the given type is invalid.
-    fn check_type(&self, is_valid: impl Fn(&Type) -> bool, error_string: String, type_: &Option<Type>, span: Span) {
-        if let Some(type_) = type_ {
-            if !is_valid(type_) {
-                self.emit_err(TypeCheckerError::expected_one_type_of(error_string, type_, span));
-            }
-        }
-    }
     /// Emits an error to the error handler if the `actual` type is not equal to the `expected` type.
     pub(crate) fn assert_type(&self, actual: &Option<Type>, expected: &Type, span: Span) {
         self.check_type(

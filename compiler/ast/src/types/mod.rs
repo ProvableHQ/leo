@@ -14,5 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+pub mod tuple;
+pub use tuple::*;
+
 pub mod type_;
 pub use type_::*;

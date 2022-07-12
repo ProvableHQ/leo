@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Identifier;
+use crate::{Identifier, Tuple};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Explicit type used for defining a variable or expression type
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Type {
     // Data types
     /// The `address` type.
@@ -57,6 +57,8 @@ pub enum Type {
     U64,
     /// The 128-bit unsigned integer type.
     U128,
+    /// A static tuple of at least one type.
+    Tuple(Tuple),
 
     /// Placeholder for a type that could not be resolved or was not well-formed.
     /// Will eventually lead to a compile error.
@@ -87,6 +89,10 @@ impl Type {
             | (Type::U32, Type::U32)
             | (Type::U64, Type::U64)
             | (Type::U128, Type::U128) => true,
+            (Type::Tuple(left), Type::Tuple(right)) => left
+                .iter()
+                .zip(right.iter())
+                .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
             (Type::Identifier(left), Type::Identifier(right)) => left.matches(right),
             _ => false,
         }
@@ -113,6 +119,8 @@ impl fmt::Display for Type {
             Type::U32 => write!(f, "u32"),
             Type::U64 => write!(f, "u64"),
             Type::U128 => write!(f, "u128"),
+            Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
+            Type::Tuple(ref tuple) => write!(f, "{}", tuple),
             Type::Err => write!(f, "error"),
         }
     }

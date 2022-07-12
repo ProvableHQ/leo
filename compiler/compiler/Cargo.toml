@@ -46,11 +46,11 @@ path = "../../tests/test-framework"
 version = "1.4.0"
 
 [dev-dependencies.serde]
-version = "1.0.138"
+version = "1.0.139"
 features = ["derive"]
 
 [dev-dependencies.serde_yaml]
-version = "0.8.24"
+version = "0.8.25"
 
 [features]
 default = []

@@ -42,11 +42,11 @@ impl ParserContext<'_> {
     /// Returns [`Section`].
     fn parse_section(&mut self) -> Result<Section> {
         self.expect(&Token::LeftSquare)?;
-        let section = self.expect_ident()?;
+        let section = self.expect_identifier()?;
         self.expect(&Token::RightSquare)?;
 
         let mut definitions = Vec::new();
-        while let Token::Const | Token::Constant | Token::Public | Token::Ident(_) = self.token.token {
+        while let Token::Const | Token::Constant | Token::Public | Token::Identifier(_) = self.token.token {
             definitions.push(self.parse_input_definition()?);
         }
 
@@ -63,7 +63,7 @@ impl ParserContext<'_> {
     fn parse_input_definition(&mut self) -> Result<Definition> {
         let mode = self.parse_function_parameter_mode()?;
 
-        let name = self.expect_ident()?;
+        let name = self.expect_identifier()?;
         self.expect(&Token::Colon)?;
         let (type_, span) = self.parse_primitive_type()?;
         self.expect(&Token::Assign)?;

@@ -101,9 +101,9 @@ impl ParserContext<'_> {
     /// Returns an [`IterationStatement`] AST node if the next tokens represent an iteration statement.
     fn parse_loop_statement(&mut self) -> Result<IterationStatement> {
         let start_span = self.expect(&Token::For)?;
-        let ident = self.expect_ident()?;
+        let ident = self.expect_identifier()?;
         self.expect(&Token::Colon)?;
-        let type_ = self.parse_all_types()?;
+        let type_ = self.parse_single_type()?;
         self.expect(&Token::In)?;
 
         // Parse iteration range.
@@ -160,7 +160,7 @@ impl ParserContext<'_> {
     fn parse_console_statement(&mut self) -> Result<ConsoleStatement> {
         let keyword = self.expect(&Token::Console)?;
         self.expect(&Token::Dot)?;
-        let function = self.expect_ident()?;
+        let function = self.expect_identifier()?;
         let function = match function.name {
             sym::assert => {
                 self.expect(&Token::LeftParen)?;
@@ -191,7 +191,7 @@ impl ParserContext<'_> {
     /// Returns a [`VariableName`] AST node if the next tokens represent a variable name with
     /// valid keywords.
     fn parse_variable_name(&mut self, decl_ty: Declare, _span: Span) -> Result<VariableName> {
-        let name = self.expect_ident()?;
+        let name = self.expect_identifier()?;
         Ok(VariableName {
             span: name.span,
             mutable: matches!(decl_ty, Declare::Let),
@@ -224,7 +224,7 @@ impl ParserContext<'_> {
         };
 
         self.expect(&Token::Colon)?;
-        let type_ = self.parse_all_types()?;
+        let type_ = self.parse_any_type()?;
 
         self.expect(&Token::Assign)?;
         let expr = self.parse_expression()?;

@@ -20,7 +20,6 @@
 //! separated by whitespace.
 
 pub(crate) mod token;
-use std::iter;
 
 pub use self::token::KEYWORD_TOKENS;
 pub(crate) use self::token::*;
@@ -30,6 +29,7 @@ pub(crate) use self::lexer::*;
 
 use leo_errors::Result;
 use leo_span::span::{BytePos, Pos, Span};
+use std::iter;
 
 /// Creates a new vector of spanned tokens from a given file path and source code text.
 pub(crate) fn tokenize(input: &str, start_pos: BytePos) -> Result<Vec<SpannedToken>> {
@@ -65,6 +65,7 @@ pub(crate) fn tokenize_iter(mut input: &str, mut lo: BytePos) -> impl '_ + Itera
 mod tests {
     use super::*;
     use leo_span::{source_map::FileName, symbol::create_session_if_not_set_then};
+    use std::fmt::Write;
 
     #[test]
     fn test_tokenizer() {
@@ -147,7 +148,7 @@ mod tests {
             let tokens = tokenize(&sf.src, sf.start_pos).unwrap();
             let mut output = String::new();
             for SpannedToken { token, .. } in tokens.iter() {
-                output += &format!("{} ", token);
+                write!(output, "{} ", token).expect("failed to write string");
             }
 
             assert_eq!(
