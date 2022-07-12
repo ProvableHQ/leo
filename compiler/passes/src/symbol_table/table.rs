@@ -16,7 +16,7 @@
 
 use std::cell::RefCell;
 
-use leo_ast::{Circuit, Function};
+use leo_ast::{Circuit, Function, Value};
 use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
@@ -131,6 +131,18 @@ impl SymbolTable {
             parent.lookup_variable(symbol)
         } else {
             None
+        }
+    }
+
+    /// Attempts to set a value for a variable in the symbol table.
+    /// Returns `true` if the variable was found and set.
+    pub fn set_value_in_local_scope(&mut self, symbol: &Symbol, value: Option<Value>) -> bool {
+        match self.variable_in_local_scope(symbol) {
+            false => false,
+            true => {
+                self.variables.get_mut(symbol).unwrap().value = value;
+                true
+            }
         }
     }
 

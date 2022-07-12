@@ -17,7 +17,6 @@
 use std::cell::RefCell;
 
 use leo_ast::*;
-use leo_errors::TypeCheckerError;
 
 use crate::{ConstantFolder, VariableSymbol, VariableType};
 
@@ -40,116 +39,94 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
         let (value, const_val) = self.reconstruct_expression(input.value);
         let mut st = self.symbol_table.borrow_mut();
 
-        // If it has a const value, we can assign constantly to it.
-        if let Some(const_val) = const_val.clone() {
-            input.variable_names.iter().for_each(|var| {
-                // This sets the variable to the new constant value if it exists.
-                if !st.set_variable(&var.identifier.name, const_val.clone()) {
-                    // Otherwise we insert it.
-                    if let Err(err) = st.insert_variable(
-                        var.identifier.name,
-                        VariableSymbol {
-                            type_: (&const_val).into(),
-                            span: var.identifier.span,
-                            variable_type: match input.declaration_type {
-                                DeclarationType::Const => VariableType::Const,
-                                DeclarationType::Let => VariableType::Mut,
+        input.variable_names.iter().for_each(|var| {
+            // If the rhs of the DefinitionStatement is a constant value, store it in the symbol table.
+            if let Some(const_val) = const_val.clone() {
+                match st.variable_in_local_scope(&var.identifier.name) {
+                    // If the variable is in the current scope, update it's value.
+                    true => {
+                        st.set_value_in_local_scope(&var.identifier.name, Some(const_val));
+                    }
+                    // If the variable is not in the current scope, create a new entry with the appropriate value.
+                    false => {
+                        if let Err(err) = st.insert_variable(
+                            var.identifier.name,
+                            VariableSymbol {
+                                type_: Type::from(&const_val),
+                                span: var.identifier.span,
+                                variable_type: match input.declaration_type {
+                                    DeclarationType::Const => VariableType::Const,
+                                    DeclarationType::Let => VariableType::Mut,
+                                },
+                                value: Some(const_val),
                             },
-                            value: Some(const_val.clone()),
-                        },
-                    ) {
-                        self.handler.emit_err(err);
+                        ) {
+                            self.handler.emit_err(err);
+                        }
                     }
                 }
-            });
-        } else if const_val.is_none() && self.create_iter_scopes {
-            // Otherwise if const_value is none or we are in a iteration scope.
-            // We always insert the variable but do not try to update it.
-            input.variable_names.iter().for_each(|var| {
-                if let Err(err) = st.insert_variable(
-                    var.identifier.name,
-                    VariableSymbol {
-                        type_: input.type_,
-                        span: var.identifier.span,
-                        variable_type: match &input.declaration_type {
-                            DeclarationType::Const => VariableType::Const,
-                            DeclarationType::Let => VariableType::Mut,
-                        },
-                        value: None,
-                    },
-                ) {
-                    self.handler.emit_err(err);
-                }
-            });
-        } else if const_val.is_none() {
-            input.variable_names.iter().for_each(|var| {
-                // Overwrite the TYC value with NONE.
-                st.variables.insert(
-                    var.identifier.name,
-                    VariableSymbol {
-                        type_: input.type_,
-                        span: var.identifier.span,
-                        variable_type: match &input.declaration_type {
-                            DeclarationType::Const => VariableType::Const,
-                            DeclarationType::Let => VariableType::Mut,
-                        },
-                        value: None,
-                    },
-                );
-            });
-        }
+            }
+        });
 
         Statement::Definition(DefinitionStatement {
             declaration_type: input.declaration_type,
             variable_names: input.variable_names.clone(),
             type_: input.type_.clone(),
-            value: map_const((value, const_val)),
+            value,
             span: input.span,
         })
     }
 
     fn reconstruct_assign(&mut self, input: AssignStatement) -> Statement {
         // Gets the target and its const value
-        let (place_expr, place_const) = self.reconstruct_expression(input.place);
+        let (place_expr, _) = self.reconstruct_expression(input.place);
 
         let var_name = match place_expr {
             Expression::Identifier(var) => var.name,
             _ => unreachable!("The LHS of an assignment must be an identifier."),
         };
 
-        // If the target has a constant value, asserts that the target wasn't declared as constant
-        if place_const.is_some() {
-            if let Some(var) = self.symbol_table.borrow().lookup_variable(&var_name) {
-                match &var.variable_type {
-                    VariableType::Const => self.handler.emit_err(TypeCheckerError::cannot_assign_to_const_var(
-                        var_name,
-                        place_expr.span(),
-                    )),
-                    VariableType::Input(ParamMode::Const) => self.handler.emit_err(
-                        TypeCheckerError::cannot_assign_to_const_input(var_name, place_expr.span()),
-                    ),
-                    _ => {}
-                }
-            }
-        }
-
-        // Gets the rhs value and its possible const value
+        // Reconstruct `input.value` and optionally compute its value.
         let (value, const_val) = self.reconstruct_expression(input.value);
 
         let mut st = self.symbol_table.borrow_mut();
-        let var_in_local = st.variable_in_local_scope(&var_name);
 
-        // Sets the variable in scope as needed and returns if the value should be deconstified or not
-        // TODO: Set the variable, no need for deconstification.
-        if let Some(c) = const_val.clone() {
-            // Find the value in a parent scope and updates it
-            st.set_variable(&var_name, c);
+        // If the rhs of the AssignStatement is a constant value, store it in the symbol table.
+        if let Some(const_val) = const_val {
+            match st.variable_in_local_scope(&var_name) {
+                // If the variable is in the current scope, update it's value.
+                true => {
+                    st.set_value_in_local_scope(&var_name, Some(const_val));
+                }
+                // If the variable is not in the current scope, create a new entry with the appropriate value.
+                // Note that we create a new entry even if the variable is defined in the parent scope. This is
+                // necessary to ensure that symbol table contains the correct constant value at this point in the program.
+                false => {
+                    // Lookup the variable in the parent scope.
+                    let variable_type = st
+                        .lookup_variable(&var_name)
+                        .expect("Variable should exist in parent scope.")
+                        .variable_type
+                        .clone();
+                    if let Err(err) = st.insert_variable(
+                        var_name,
+                        VariableSymbol {
+                            type_: Type::from(&const_val),
+                            span: place_expr.span(),
+                            variable_type,
+                            value: Some(const_val),
+                        },
+                    ) {
+                        self.handler.emit_err(err);
+                    }
+                }
+            }
         }
 
         Statement::Assign(Box::new(AssignStatement {
             operation: input.operation,
             place: place_expr,
-            value: map_const((value, const_val)),
+            value,
             span: input.span,
         }))
     }
@@ -208,11 +185,7 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
         let (start, start_value) = self.reconstruct_expression(input.start);
         let (stop, stop_value) = self.reconstruct_expression(input.stop);
 
-        // TODO: Assign const values to `start_value` and `stop_value`.
-
-        // We match on start and stop cause loops require
-        // bounds to be constants.
-
+        // Load the scope for the loop body.
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
             .swap(prev_st.borrow().get_block_scope(self.block_index).unwrap());
@@ -220,11 +193,13 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
 
         let block = self.reconstruct_block(input.block);
 
+        // Restore the previous scope.
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
+        // TODO: Is this swap necessary?
         self.symbol_table
             .swap(prev_st.get_block_scope(self.block_index).unwrap());
         self.symbol_table = RefCell::new(prev_st);
-        self.block_index = self.block_index + 1;
+        self.block_index += 1;
 
         Statement::Iteration(Box::new(IterationStatement {
             variable: input.variable,
@@ -287,7 +262,7 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
         self.symbol_table
             .swap(prev_st.get_block_scope(self.block_index).unwrap());
         self.symbol_table = RefCell::new(prev_st);
-        self.block_index = self.block_index + 1;
+        self.block_index += 1;
 
         block
     }

@@ -17,7 +17,7 @@
 use crate::{GroupLiteral, Identifier, Literal, Type};
 
 use leo_errors::{type_name, FlattenError, LeoError, Result};
-use leo_span::{Span, Symbol};
+use leo_span::Symbol;
 
 use indexmap::IndexMap;
 use std::{

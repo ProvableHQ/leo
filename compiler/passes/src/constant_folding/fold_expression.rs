@@ -172,47 +172,47 @@ impl<'a> ExpressionReconstructor for ConstantFolder<'a> {
         // We parse the literal value as a constant.
         // TODO: we should have these parsed at parsing time.
         let value = match input.clone() {
-            Literal::Address(val, span) => Value::Address(val),
-            Literal::Boolean(val, span) => Value::Boolean(val),
-            Literal::Field(val, span) => Value::Field(val),
+            Literal::Address(val, _) => Value::Address(val),
+            Literal::Boolean(val, _) => Value::Boolean(val),
+            Literal::Field(val, _) => Value::Field(val),
             Literal::Group(val) => Value::Group(val),
-            Literal::I8(istr, span) => {
+            Literal::I8(istr, _) => {
                 let istr = if self.negate { format!("-{}", istr) } else { istr };
                 Value::I8(istr.parse().unwrap())
             }
-            Literal::I16(istr, span) => {
+            Literal::I16(istr, _) => {
                 let istr = if self.negate { format!("-{}", istr) } else { istr };
                 Value::I16(istr.parse().unwrap())
             }
-            Literal::I32(istr, span) => {
+            Literal::I32(istr, _) => {
                 let istr = if self.negate { format!("-{}", istr) } else { istr };
                 Value::I32(istr.parse().unwrap())
             }
-            Literal::I64(istr, span) => {
+            Literal::I64(istr, _) => {
                 let istr = if self.negate { format!("-{}", istr) } else { istr };
                 Value::I64(istr.parse().unwrap())
             }
-            Literal::I128(istr, span) => {
+            Literal::I128(istr, _) => {
                 let istr = if self.negate { format!("-{}", istr) } else { istr };
                 Value::I128(istr.parse().unwrap())
             }
-            Literal::U8(ustr, span) => {
+            Literal::U8(ustr, _) => {
                 let ustr = if self.negate { format!("-{}", ustr) } else { ustr };
                 Value::U8(ustr.parse().unwrap())
             }
-            Literal::U16(ustr, span) => {
+            Literal::U16(ustr, _) => {
                 let ustr = if self.negate { format!("-{}", ustr) } else { ustr };
                 Value::U16(ustr.parse().unwrap())
             }
-            Literal::U32(ustr, span) => {
+            Literal::U32(ustr, _) => {
                 let ustr = if self.negate { format!("-{}", ustr) } else { ustr };
                 Value::U32(ustr.parse().unwrap())
             }
-            Literal::U64(ustr, span) => {
+            Literal::U64(ustr, _) => {
                 let ustr = if self.negate { format!("-{}", ustr) } else { ustr };
                 Value::U64(ustr.parse().unwrap())
             }
-            Literal::U128(ustr, span) => {
+            Literal::U128(ustr, _) => {
                 let ustr = if self.negate { format!("-{}", ustr) } else { ustr };
                 Value::U128(ustr.parse().unwrap())
             }

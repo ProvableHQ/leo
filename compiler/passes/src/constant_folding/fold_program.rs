@@ -60,7 +60,7 @@ impl<'a> ProgramReconstructor for ConstantFolder<'a> {
                                 const_input_values.insert(
                                     var.identifier.name,
                                     VariableSymbol {
-                                        type_: var.type_,
+                                        type_: var.type_.clone(),
                                         span: var.span(),
                                         variable_type: VariableType::Const,
                                         value: Some(match const_value {
