@@ -39,6 +39,7 @@ use std::time::Instant;
 use tracing::span::Span;
 
 pub(crate) type Network = snarkvm::prelude::Testnet3;
+pub(crate) const ALEO_CLI_COMMAND: &str = "aleo";
 
 /// Base trait for the Leo CLI, see methods and their documentation for details.
 pub trait Command {

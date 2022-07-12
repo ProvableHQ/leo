@@ -16,7 +16,7 @@
 
 use super::*;
 use crate::{commands::Command, context::Context};
-use leo_compiler::{Ast, Compiler, InputAst, OutputOptions};
+use leo_compiler::{Compiler, InputAst, OutputOptions};
 use leo_errors::{CliError, Result};
 use leo_package::{
     inputs::InputFile,
@@ -75,7 +75,7 @@ pub struct Build {
 
 impl Command for Build {
     type Input = ();
-    type Output = (Option<InputAst>, Ast, bool);
+    type Output = Option<InputAst>;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Build")
@@ -89,8 +89,8 @@ impl Command for Build {
         // Get the package path.
         let path = context.dir()?;
 
-        // Get the package name.
-        let package_name = context.program_name()?;
+        // Get the program name.
+        let program_name = context.program_name()?;
 
         // Sanitize the package path to the root directory.
         let mut package_path = path.clone();
@@ -115,7 +115,7 @@ impl Command for Build {
         main_file_path.push(MAIN_FILENAME);
 
         // Load the input file at `package_name.in`
-        let input_path = InputFile::new(&package_name).setup_file_path(&path);
+        let input_path = InputFile::new(&program_name).setup_file_path(&path);
 
         // Create the outputs directory
         OutputsDirectory::create(&package_path)?;
@@ -128,7 +128,7 @@ impl Command for Build {
 
         // Create a new instance of the Leo compiler.
         let mut program = Compiler::new(
-            package_name.to_string(),
+            program_name.to_string(),
             String::from("aleo"),
             &handler,
             main_file_path,
@@ -163,7 +163,7 @@ impl Command for Build {
         }
 
         // If a checksum file exists, check if it differs from the new checksum
-        let checksum_file = ChecksumFile::new(&package_name);
+        let checksum_file = ChecksumFile::new(&program_name);
         let checksum_differs = if checksum_file.exists_at(&package_path) {
             let previous_checksum = checksum_file.read_from(&package_path)?;
             program_checksum != previous_checksum
@@ -182,6 +182,6 @@ impl Command for Build {
 
         tracing::info!("Complete");
 
-        Ok((program.input_ast, program.ast, checksum_differs))
+        Ok(program.input_ast)
     }
 }

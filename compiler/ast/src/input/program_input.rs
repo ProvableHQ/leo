@@ -20,24 +20,17 @@ use super::*;
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ProgramInput {
     pub main: Definitions,
-    pub registers: Definitions,
 }
 
 impl TryFrom<InputAst> for ProgramInput {
     type Error = LeoError;
     fn try_from(input: InputAst) -> Result<Self> {
         let mut main = IndexMap::new();
-        let mut registers = IndexMap::new();
 
         for section in input.sections {
             let target = match section.name {
                 sym::main => &mut main,
-                sym::registers => &mut registers,
-                _ => {
-                    return Err(
-                        InputError::unexpected_section(&["main", "registers"], section.name, section.span).into(),
-                    )
-                }
+                _ => return Err(InputError::unexpected_section(&["main"], section.name, section.span).into()),
             };
 
             for definition in section.definitions {
@@ -48,6 +41,6 @@ impl TryFrom<InputAst> for ProgramInput {
             }
         }
 
-        Ok(ProgramInput { main, registers })
+        Ok(ProgramInput { main })
     }
 }

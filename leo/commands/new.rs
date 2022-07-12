@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::commands::ALEO_CLI_COMMAND;
 use crate::{commands::Command, context::Context};
 use leo_errors::{PackageError, Result};
 use leo_package::package::Package;
@@ -43,8 +44,11 @@ impl Command for New {
     }
 
     fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
+        tracing::info!("Starting...");
+
         // Call the `aleo new` command from the Aleo SDK.
-        let command = AleoNew::try_parse_from(&["aleo", &self.name]).expect("Failed to parse `aleo new` command");
+        let command =
+            AleoNew::try_parse_from(&[ALEO_CLI_COMMAND, &self.name]).expect("Failed to parse `aleo new` command");
         let result = command.parse().expect("Failed to create a new Aleo project");
 
         // Derive the program directory path.
@@ -54,9 +58,9 @@ impl Command for New {
         // Initialize the Leo package in the directory created by `aleo new`.
         Package::initialize(&self.name, &path)?;
 
-        // todo: modify the readme file to build with `leo build`.
+        // todo: modify the readme file to recommend building with `leo build`.
 
-        // Log success.
+        // Log the output of the `aleo new` command.
         tracing::info!("{}", result);
 
         Ok(())

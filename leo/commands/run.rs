@@ -15,10 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::build::BuildOptions;
-use crate::{commands::Command, context::Context};
+use crate::commands::ALEO_CLI_COMMAND;
+use crate::{
+    commands::{Build, Command},
+    context::Context,
+};
 use leo_errors::Result;
 
-// use aleo::commands::CLI as AleoCLI;
+use aleo::commands::Run as AleoRun;
 
 use clap::StructOpt;
 use tracing::span::Span;
@@ -34,25 +38,39 @@ pub struct Run {
 }
 
 impl Command for Run {
-    type Input = ();
+    type Input = <Build as Command>::Output;
     type Output = ();
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Executing")
     }
 
-    fn prelude(&self, _context: Context) -> Result<Self::Input> {
-        Ok(()) // todo: call aleo build here?
+    fn prelude(&self, context: Context) -> Result<Self::Input> {
+        (Build {
+            compiler_options: self.compiler_options.clone(),
+        })
+        .execute(context)
     }
 
-    fn apply(self, _context: Context, _input: Self::Input) -> Result<Self::Output> {
+    fn apply(self, _context: Context, input: Self::Input) -> Result<Self::Output> {
+        // Compose the `aleo run` command.
+        let mut arguments = vec![ALEO_CLI_COMMAND.to_string(), "main".to_string()];
+
+        // Get the input values.
+        let mut values = match input {
+            Some(input_ast) => input_ast.values(),
+            None => Vec::new(),
+        };
+        arguments.append(&mut values);
+
         tracing::info!("Starting...");
 
-        // Execute the aleo program.
-        // let cli = AleoCLI::parse_from(&["aleo", "run", "main"]);
+        // Call the `aleo run` command from the Aleo SDK.
+        let command = AleoRun::try_parse_from(&arguments).expect("Failed to parse aleo run command");
+        let res = command.parse().expect("Failed to execute Aleo project.");
 
-        // Log the verifier output
-        // tracing::info!("Result: {}", res);
+        // Log the output of the `aleo run` command.
+        tracing::info!("{}", res);
 
         Ok(())
     }
