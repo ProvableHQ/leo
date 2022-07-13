@@ -1,0 +1,3 @@
+// The program input for message/src/main.leo
+[main]
+a: Message = Message { first: 2field, second: 3field};
