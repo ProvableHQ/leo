@@ -74,7 +74,7 @@ version = "0.2.0"
 source = "git+https://github.com/AleoHQ/aleo.git?rev=a0895e0#a0895e0f1b1d4ceb78199dec5439425e7abb0b53"
 dependencies = [
  "anyhow",
- "clap 3.2.8",
+ "clap 3.2.10",
  "colored",
  "rand",
  "rand_chacha",
@@ -408,9 +408,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.2.8"
+version = "3.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "190814073e85d238f31ff738fcb0bf6910cedeb73376c87cd69291028966fd83"
+checksum = "69c5a7f9997be616e47f0577ee38c91decb33392c5be4866494f34cdf329a9aa"
 dependencies = [
  "atty",
  "bitflags",
@@ -1212,7 +1212,7 @@ dependencies = [
  "ansi_term",
  "assert_cmd",
  "backtrace",
- "clap 3.2.8",
+ "clap 3.2.10",
  "color-backtrace",
  "colored",
  "console",
@@ -1256,7 +1256,7 @@ dependencies = [
 name = "leo-parser"
 version = "1.5.3"
 dependencies = [
- "clap 3.2.8",
+ "clap 3.2.10",
  "indexmap",
  "lazy_static",
  "leo-ast",
@@ -1299,7 +1299,7 @@ name = "leo-test-framework"
 version = "1.5.3"
 dependencies = [
  "backtrace",
- "clap 3.2.8",
+ "clap 3.2.10",
  "criterion",
  "leo-compiler",
  "leo-errors",
@@ -2262,7 +2262,7 @@ version = "0.7.5"
 source = "git+https://github.com/AleoHQ/snarkVM.git?rev=f25e0b2#f25e0b23ab842eb7c4063677d51d141cd1750ea2"
 dependencies = [
  "anyhow",
- "clap 3.2.8",
+ "clap 3.2.10",
  "colored",
  "rand",
  "self_update 0.30.0",
@@ -2280,7 +2280,7 @@ version = "0.7.5"
 source = "git+https://github.com/AleoHQ/snarkVM.git?rev=f25e0b23a#f25e0b23ab842eb7c4063677d51d141cd1750ea2"
 dependencies = [
  "anyhow",
- "clap 3.2.8",
+ "clap 3.2.10",
  "colored",
  "rand",
  "self_update 0.30.0",
