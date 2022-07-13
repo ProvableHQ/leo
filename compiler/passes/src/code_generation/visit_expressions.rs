@@ -156,7 +156,7 @@ impl<'a> CodeGenerator<'a> {
     fn visit_circuit_init(&mut self, input: &'a CircuitExpression) -> (String, String) {
         // Initialize instruction builder strings.
         let mut instructions = String::new();
-        let mut circuit_init_instruction = format!("    {} ", input.name.to_string().to_lowercase());
+        let mut circuit_init_instruction = format!("    cast ");
 
         // Visit each circuit member and accumulate instructions from expressions.
         for member in input.members.iter() {
@@ -180,7 +180,7 @@ impl<'a> CodeGenerator<'a> {
 
         // Push destination register to circuit init instruction.
         let destination_register = format!("r{}", self.next_register);
-        writeln!(circuit_init_instruction, "into {};", destination_register).expect("failed to write to string");
+        writeln!(circuit_init_instruction, "into {} as {};", destination_register, input.name.to_string().to_lowercase()).expect("failed to write to string");
         instructions.push_str(&circuit_init_instruction);
 
         // Increment the register counter.
