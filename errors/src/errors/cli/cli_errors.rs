@@ -411,49 +411,49 @@ create_messages!(
     @backtraced
     failed_to_load_instructions {
         args: (error: impl Display),
-        msg: format!("Failed to load compiled Aleo instructions into an Aleo file:\n{}", error),
+        msg: format!("Failed to load compiled Aleo instructions into an Aleo file.\nSnarkVM Error: {}", error),
         help: Some("Generated Aleo instructions have been left in `main.aleo`".to_string()),
     }
 
     @backtraced
     failed_to_write_to_aleo_file {
         args: (path: impl Display, error: impl Display),
-        msg: format!("Failed to write to the Aleo file at `{}`. Error: {}", path, error),
+        msg: format!("Failed to write to the Aleo file at `{}`.\nSnarkVM Error: {}", path, error),
         help: None,
     }
 
     @backtraced
     failed_to_execute_aleo_build {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `aleo build` command. Error: {}", error),
+        msg: format!("Failed to execute the `aleo build` command.\nSnarkVM Error: {}", error),
         help: None,
     }
 
     @backtraced
     failed_to_execute_aleo_new {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `aleo new` command. Error: {}", error),
+        msg: format!("Failed to execute the `aleo new` command.\nSnarkVM Error: {}", error),
         help: None,
     }
 
     @backtraced
     failed_to_execute_aleo_run {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `aleo run` command. Error: {}", error),
+        msg: format!("Failed to execute the `aleo run` command.\nSnarkVM Error: {}", error),
         help: None,
     }
 
     @backtraced
     failed_to_parse_aleo_new {
         args: (error: impl Display),
-        msg: format!("Failed to parse the `aleo new` command. Error: {}", error),
+        msg: format!("Failed to parse the `aleo new` command.\nSnarkVM Error: {}", error),
         help: None,
     }
 
     @backtraced
     failed_to_parse_aleo_run {
         args: (error: impl Display),
-        msg: format!("Failed to parse the `aleo run` command. Error: {}", error),
+        msg: format!("Failed to parse the `aleo run` command.\nSnarkVM Error: {}", error),
         help: None,
     }
 );

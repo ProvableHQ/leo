@@ -1,6 +1,5 @@
 program helloworld.aleo;
 
-
 function compute:
     input r0 as u32.private;
     input r1 as u32.private;

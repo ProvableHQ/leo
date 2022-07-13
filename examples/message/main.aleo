@@ -1,4 +1,5 @@
 program message.aleo;
+
 interface message:
     first as field;
     second as field;
