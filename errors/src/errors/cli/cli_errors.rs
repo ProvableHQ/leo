@@ -412,7 +412,7 @@ create_messages!(
     failed_to_load_instructions {
         args: (error: impl Display),
         msg: format!("Failed to load compiled Aleo instructions into an Aleo file:\n{}", error),
-        help: Some("This is a Leo code generation bug. Please report it to https://github.com/AleoHQ/leo/issues/new/choose".to_string()),
+        help: Some("Generated Aleo instructions have been left in `main.aleo`".to_string()),
     }
 
     @backtraced

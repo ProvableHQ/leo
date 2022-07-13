@@ -27,7 +27,7 @@ use leo_package::{
 use aleo::commands::Build as AleoBuild;
 
 use clap::StructOpt;
-use std::str::FromStr;
+use std::io::Write;
 use tracing::span::Span;
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
@@ -145,16 +145,26 @@ impl Command for Build {
             // Compile the Leo program into Aleo instructions.
             let (_, instructions) = program.compile_and_generate_instructions()?;
 
-            // Parse the generated Aleo instructions into an Aleo file.
-            let file = AleoFile::<Network>::from_str(&instructions).map_err(CliError::failed_to_load_instructions)?;
+            // // Parse the generated Aleo instructions into an Aleo file.
+            // let file = AleoFile::<Network>::from_str(&instructions).map_err(CliError::failed_to_load_instructions)?;
+            //
+            // // Create the path to the Aleo file.
+            // let mut aleo_file_path = package_path.clone();
+            // aleo_file_path.push(AleoFile::<Network >::main_file_name());
+            //
+            // // Write the Aleo file to `main.aleo`.
+            // file.write_to(&aleo_file_path)
+            //     .map_err(|err| CliError::failed_to_write_to_aleo_file(aleo_file_path.display(), err))?;
 
-            // Create the path to the Aleo file.
+            // Create the path to the main Aleo file.
             let mut aleo_file_path = package_path.clone();
             aleo_file_path.push(AleoFile::<Network>::main_file_name());
 
-            // Write the Aleo file to `main.aleo`.
-            file.write_to(&aleo_file_path)
-                .map_err(|err| CliError::failed_to_write_to_aleo_file(aleo_file_path.display(), err))?;
+            // Write the instructions.
+            std::fs::File::create(&aleo_file_path)
+                .map_err(CliError::failed_to_load_instructions)?
+                .write_all(instructions.as_bytes())
+                .map_err(CliError::failed_to_load_instructions)?;
 
             // Call the `aleo build` command from the Aleo SDK.
             let res = AleoBuild.parse().map_err(CliError::failed_to_execute_aleo_build)?;
