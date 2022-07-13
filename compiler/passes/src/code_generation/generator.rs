@@ -18,7 +18,7 @@ use leo_ast::Function;
 use leo_errors::emitter::Handler;
 use leo_span::Symbol;
 
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 pub struct CodeGenerator<'a> {
     _handler: &'a Handler,
@@ -27,9 +27,9 @@ pub struct CodeGenerator<'a> {
     /// Reference to the current function.
     pub(crate) current_function: Option<&'a Function>,
     /// Mapping of variables to registers.
-    pub(crate) variable_mapping: HashMap<&'a Symbol, String>,
+    pub(crate) variable_mapping: IndexMap<&'a Symbol, String>,
     /// Mapping of composite names to type (`circuit` or `register`).
-    pub(crate) composite_mapping: HashMap<&'a Symbol, String>,
+    pub(crate) composite_mapping: IndexMap<&'a Symbol, String>,
 }
 
 impl<'a> CodeGenerator<'a> {
@@ -39,8 +39,8 @@ impl<'a> CodeGenerator<'a> {
             _handler: handler,
             next_register: 0,
             current_function: None,
-            variable_mapping: HashMap::new(),
-            composite_mapping: HashMap::new(),
+            variable_mapping: IndexMap::new(),
+            composite_mapping: IndexMap::new(),
         }
     }
 }

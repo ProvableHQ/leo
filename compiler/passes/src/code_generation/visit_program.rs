@@ -18,8 +18,9 @@ use crate::CodeGenerator;
 
 use leo_ast::{Circuit, CircuitMember, Function, Program};
 
+use indexmap::IndexMap;
 use itertools::Itertools;
-use std::{collections::HashMap, fmt::Write as _};
+use std::fmt::Write as _;
 
 impl<'a> CodeGenerator<'a> {
     pub(crate) fn visit_program(&mut self, input: &'a Program) -> String {
@@ -103,7 +104,7 @@ impl<'a> CodeGenerator<'a> {
     fn visit_function(&mut self, function: &'a Function) -> String {
         // Initialize the state of `self` with the appropriate values before visiting `function`.
         self.next_register = 0;
-        self.variable_mapping = HashMap::new();
+        self.variable_mapping = IndexMap::new();
         self.current_function = Some(function);
 
         // Construct the header of the function.
