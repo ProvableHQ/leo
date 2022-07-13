@@ -23,7 +23,7 @@ use std::{collections::HashMap, fmt::Write as _};
 
 impl<'a> CodeGenerator<'a> {
     pub(crate) fn visit_program(&mut self, input: &'a Program) -> String {
-        let mut program_string = format!("program {}.{};\n", input.name, input.network);
+        let mut program_string = format!("program {}.{};\n\n", input.name, input.network);
 
         // Visit each `Circuit` or `Record` in the Leo AST and produce a bytecode circuit.
         program_string.push_str(
