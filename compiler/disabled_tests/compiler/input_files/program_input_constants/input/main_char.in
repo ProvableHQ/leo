@@ -1,8 +1,0 @@
-[main]
-y: bool = true;
-
-[constants]
-a: char = '👍';
-
-[registers]
-r0: bool = true;

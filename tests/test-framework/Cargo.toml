@@ -21,9 +21,16 @@ edition = "2018"
 name = "leo_compiler"
 harness = false
 
-[dependencies]
-backtrace = "0.3.66"
-walkdir = "2.3.2"
+[dependencies.leo-errors]
+path = "../../errors"
+version = "1.5.3"
+
+[dependencies.backtrace]
+version = "0.3.66"
+
+[dependencies.clap]
+version = "3.1"
+features = ["derive"]
 
 [dependencies.serde]
 version = "1.0"
@@ -36,24 +43,19 @@ features = ["preserve_order"]
 [dependencies.serde_yaml]
 version = "0.8"
 
-[dependencies.clap]
-version = "3.2.8"
-features = ["derive"]
-
-[dependencies.leo-errors]
-path = "../../leo/errors"
-version = "1.5.3"
+[dependencies.walkdir]
+version = "2.3"
 
 [dependencies.regex]
 version = "1.6"
-
-[dev-dependencies.criterion]
-version = "0.3"
 
 [dev-dependencies.leo-compiler]
 path = "../../compiler/compiler"
 version = "1.5.3"
 
 [dev-dependencies.leo-span]
-path = "../../leo/span"
+path = "../../compiler/span"
 version = "1.5.3"
+
+[dev-dependencies.criterion]
+version = "0.3"

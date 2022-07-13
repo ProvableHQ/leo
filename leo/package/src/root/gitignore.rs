@@ -52,6 +52,6 @@ impl Gitignore {
     }
 
     fn template(&self) -> String {
-        "outputs/\n".to_string()
+        "outputs/\nbuild/\n".to_string()
     }
 }

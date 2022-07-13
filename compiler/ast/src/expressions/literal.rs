@@ -46,10 +46,10 @@ impl fmt::Display for Literal {
         match &self {
             Self::Address(address, _) => write!(f, "{}", address),
             Self::Boolean(boolean, _) => write!(f, "{}", boolean),
-            Self::Field(field, _) => write!(f, "{}", field),
-            Self::Group(group) => write!(f, "{}", group),
+            Self::Field(field, _) => write!(f, "{}field", field),
+            Self::Group(group) => write!(f, "{}group", group),
             Self::Integer(type_, value, _) => write!(f, "{}{}", value, type_),
-            Self::Scalar(scalar, _) => write!(f, "{}", scalar),
+            Self::Scalar(scalar, _) => write!(f, "{}scalar", scalar),
             Self::String(string, _) => write!(f, "{}", string),
         }
     }

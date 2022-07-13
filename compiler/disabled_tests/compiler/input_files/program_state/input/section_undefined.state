@@ -1,4 +1,0 @@
-[[public]]
-
-[invalid]
-a: bool = true;

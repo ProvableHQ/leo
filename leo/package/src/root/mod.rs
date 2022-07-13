@@ -16,12 +16,3 @@
 
 pub mod gitignore;
 pub use self::gitignore::*;
-
-pub mod lock_file;
-pub use self::lock_file::*;
-
-pub mod manifest;
-pub use self::manifest::*;
-
-pub mod readme;
-pub use self::readme::*;

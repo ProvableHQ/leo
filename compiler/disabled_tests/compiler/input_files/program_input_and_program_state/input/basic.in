@@ -1,5 +1,0 @@
-[main]
-a: bool = true;
-
-[registers]
-b: bool = true;
