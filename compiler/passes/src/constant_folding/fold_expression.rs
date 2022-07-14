@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use indexmap::IndexMap;
 use leo_ast::*;
 
 use crate::ConstantFolder;
@@ -21,6 +22,7 @@ use crate::ConstantFolder;
 impl<'a> ExpressionReconstructor for ConstantFolder<'a> {
     // This is the possible constant value of an expression.
     type AdditionalOutput = Option<Value>;
+
     fn reconstruct_binary(&mut self, input: BinaryExpression) -> (Expression, Self::AdditionalOutput) {
         let (left_expr, left_const_value) = self.reconstruct_expression(*input.left.clone());
         let (right_expr, right_const_value) = self.reconstruct_expression(*input.right.clone());
@@ -138,6 +140,73 @@ impl<'a> ExpressionReconstructor for ConstantFolder<'a> {
     fn reconstruct_call(&mut self, _: CallExpression) -> (Expression, Self::AdditionalOutput) {
         // We only support the main function for now in flattening.
         unimplemented!("Flattening functions not yet implemented")
+    }
+
+    fn reconstruct_circuit_init(&mut self, input: CircuitExpression) -> (Expression, Self::AdditionalOutput) {
+        let mut constant_members = IndexMap::new();
+        let members = input
+            .members
+            .into_iter()
+            .map(|member| {
+                match member.expression {
+                    Some(expression) => {
+                        // Reconstruct the expression associated with the member.
+                        let (expression, constant_value) = self.reconstruct_expression(expression);
+
+                        // If the expression is constant, we add it to `constant_members`.
+                        if let Some(constant_value) = constant_value {
+                            constant_members.insert(member.identifier.name, constant_value);
+                        }
+
+                        CircuitVariableInitializer {
+                            identifier: member.identifier,
+                            expression: Some(expression),
+                        }
+                    }
+                    None => {
+                        // Reconstruct the identifier associated with the member.
+                        let (identifer, constant_value) = self.reconstruct_identifier(member.identifier);
+
+                        // Extract the `Identifier` from `Expression::Identifier`.
+                        let identifier = match identifer {
+                            Expression::Identifier(identifier) => identifier,
+                            _ => unreachable!("Reconstructing an identifier should always return an identifier"),
+                        };
+
+                        // If the identifier has a constant value, we add it to `constant_members`.
+                        if let Some(constant_value) = constant_value {
+                            constant_members.insert(member.identifier.name, constant_value);
+                        }
+
+                        CircuitVariableInitializer {
+                            identifier,
+                            expression: None,
+                        }
+                    }
+                }
+            })
+            .collect::<Vec<_>>();
+
+        match members.len() == constant_members.len() {
+            // If all members of the circuit are constant, then we can output a constant circuit init expression.
+            true => (
+                Expression::Circuit(CircuitExpression {
+                    name: input.name,
+                    members,
+                    span: input.span,
+                }),
+                Some(Value::Circuit(input.name, constant_members)),
+            ),
+            // Otherwise, do not return a constant.
+            false => (
+                Expression::Circuit(CircuitExpression {
+                    name: input.name,
+                    members,
+                    span: input.span,
+                }),
+                None,
+            ),
+        }
     }
 
     fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
