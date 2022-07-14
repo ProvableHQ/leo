@@ -192,7 +192,8 @@ impl<'a> CodeGenerator<'a> {
             "into {dest} as {name};",
             dest = destination_register,
             name = name,
-        ).expect("failed to write to string");
+        )
+        .expect("failed to write to string");
 
         instructions.push_str(&circuit_init_instruction);
 

@@ -467,10 +467,7 @@ impl ParserContext<'_> {
             None
         };
 
-        Ok(CircuitVariableInitializer {
-            identifier,
-            expression,
-        })
+        Ok(CircuitVariableInitializer { identifier, expression })
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
