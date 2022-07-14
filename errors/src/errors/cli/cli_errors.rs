@@ -456,6 +456,13 @@ create_messages!(
         msg: format!("Failed to parse the `aleo run` command.\nSnarkVM Error: {}", error),
         help: None,
     }
+
+    @backtraced
+    failed_to_execute_aleo_clean {
+        args: (error: impl Display),
+        msg: format!("Failed to execute the `aleo clean` command.\nSnarkVM Error: {}", error),
+        help: None,
+    }
 );
 
 impl CliError {
