@@ -163,7 +163,7 @@ impl<'a> CodeGenerator<'a> {
 
         // Initialize instruction builder strings.
         let mut instructions = String::new();
-        let mut circuit_init_instruction = format!("    cast ");
+        let mut circuit_init_instruction = String::from("    cast ");
 
         // Visit each circuit member and accumulate instructions from expressions.
         for member in input.members.iter() {
