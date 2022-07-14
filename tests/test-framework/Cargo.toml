@@ -29,7 +29,7 @@ version = "1.5.3"
 version = "0.3.66"
 
 [dependencies.clap]
-version = "3.1"
+version = "3.2"
 features = ["derive"]
 
 [dependencies.serde]
