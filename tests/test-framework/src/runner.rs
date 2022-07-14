@@ -122,9 +122,15 @@ impl TestCases {
                     true
                 }
                 Some(cfg) => {
-                    let res = additional_check(&cfg);
-                    configs.push(cfg);
-                    res
+                    // Skip tests that whose expectation mode is `Skip`
+                    match cfg.expectation {
+                        TestExpectationMode::Skip => false,
+                        _ => {
+                            let res = additional_check(&cfg);
+                            configs.push(cfg);
+                            res
+                        }
+                    }
                 }
             })
             .collect();
@@ -195,6 +201,8 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
             Some(ns) => ns,
             None => return,
         };
+
+
 
         let (expectation_path, expectations) = cases.load_expectations(path, expectation_category);
 
