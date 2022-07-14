@@ -19,18 +19,18 @@ use std::fmt;
 
 /// The sort of bindings to introduce, either `let` or `const`.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum Declare {
+pub enum DeclarationType {
     /// This is a `const` binding.
     Const,
     /// This is a `let` binding.
     Let,
 }
 
-impl fmt::Display for Declare {
+impl fmt::Display for DeclarationType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Declare::Const => write!(f, "const"),
-            Declare::Let => write!(f, "let"),
+            DeclarationType::Const => write!(f, "const"),
+            DeclarationType::Let => write!(f, "let"),
         }
     }
 }

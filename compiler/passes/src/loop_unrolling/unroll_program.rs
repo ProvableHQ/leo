@@ -20,7 +20,7 @@ use leo_ast::*;
 
 use crate::Unroller;
 
-impl<'a> ProgramReconstructor for Unroller<'a> {
+impl ProgramReconstructor for Unroller<'_> {
     fn reconstruct_function(&mut self, function: Function) -> Function {
         let function_name = &function.name();
 

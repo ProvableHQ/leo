@@ -23,14 +23,14 @@ use std::fmt;
 mod variable_name;
 pub use variable_name::*;
 
-mod declare;
-pub use declare::*;
+mod declaration_type;
+pub use declaration_type::*;
 
 /// A `let` or `const` declaration statement.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct DefinitionStatement {
     /// What sort of declaration is this? `let` or `const`?.
-    pub declaration_type: Declare,
+    pub declaration_type: DeclarationType,
     /// The bindings / variable names to declare.
     pub variable_names: Vec<VariableName>,
     /// The types of the bindings, if specified, or inferred otherwise.

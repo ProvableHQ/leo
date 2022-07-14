@@ -50,9 +50,7 @@ pub struct Compiler<'a> {
 }
 
 impl<'a> Compiler<'a> {
-    ///
     /// Returns a new Leo compiler.
-    ///
     pub fn new(
         handler: &'a Handler,
         main_file_path: PathBuf,
@@ -69,9 +67,7 @@ impl<'a> Compiler<'a> {
         }
     }
 
-    ///
     /// Returns a SHA256 checksum of the program file.
-    ///
     pub fn checksum(&self) -> Result<String> {
         // Read in the main file as string
         let unparsed_file = fs::read_to_string(&self.main_file_path)
@@ -85,7 +81,7 @@ impl<'a> Compiler<'a> {
         Ok(format!("{:x}", hash))
     }
 
-    // Parses and stores a program file content from a string, constructs a syntax tree, and generates a program.
+    /// Parses and stores a program file content from a string, constructs a syntax tree, and generates a program.
     pub fn parse_program_from_string(&mut self, program_string: &str, name: FileName) -> Result<()> {
         // Register the source (`program_string`) in the source map.
         let prg_sf = with_session_globals(|s| s.source_map.new_source(program_string, name));
@@ -143,23 +139,17 @@ impl<'a> Compiler<'a> {
         Ok(())
     }
 
-    ///
     /// Runs the symbol table pass.
-    ///
     pub fn symbol_table_pass(&self) -> Result<SymbolTable> {
         CreateSymbolTable::do_pass((&self.ast, self.handler))
     }
 
-    ///
     /// Runs the type checker pass.
-    ///
     pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<SymbolTable> {
         TypeChecker::do_pass((&self.ast, self.handler, symbol_table))
     }
 
-    ///
     /// Runs the loop unrolling pass.
-    ///
     pub fn loop_unrolling_pass(&mut self, symbol_table: SymbolTable) -> Result<SymbolTable> {
         let (ast, symbol_table) = Unroller::do_pass((std::mem::take(&mut self.ast), self.handler, symbol_table))?;
         self.ast = ast;
@@ -171,9 +161,7 @@ impl<'a> Compiler<'a> {
         Ok(symbol_table)
     }
 
-    ///
     /// Runs the compiler stages.
-    ///
     pub fn compiler_stages(&mut self) -> Result<SymbolTable> {
         let st = self.symbol_table_pass()?;
         let st = self.type_checker_pass(st)?;
@@ -183,17 +171,13 @@ impl<'a> Compiler<'a> {
         Ok(st)
     }
 
-    ///
     /// Returns a compiled Leo program.
-    ///
     pub fn compile(&mut self) -> Result<SymbolTable> {
         self.parse_program()?;
         self.compiler_stages()
     }
 
-    ///
     /// Writes the AST to a JSON file.
-    ///
     fn write_ast_to_json(&self, file_name: &str) -> Result<()> {
         // Remove `Span`s if they are not enabled.
         if self.output_options.spans_enabled {

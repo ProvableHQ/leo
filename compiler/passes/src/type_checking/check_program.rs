@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Declaration, TypeChecker, VariableSymbol};
+use crate::{VariableType, TypeChecker, VariableSymbol};
 
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
@@ -43,7 +43,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 VariableSymbol {
                     type_: input_var.type_.clone(),
                     span: input_var.identifier.span(),
-                    declaration: Declaration::Input(input_var.mode()),
+                    declaration: VariableType::Input(input_var.mode()),
                 },
             ) {
                 self.handler.emit_err(err);

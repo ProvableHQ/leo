@@ -21,13 +21,13 @@ use leo_errors::emitter::Handler;
 use crate::SymbolTable;
 
 pub struct Unroller<'a> {
-    /// the symbol table for the function
+    /// The symbol table for the function being processed.
     pub(crate) symbol_table: RefCell<SymbolTable>,
-    /// the current block scope index
+    /// The index of the current block scope.
     pub(crate) block_index: usize,
-    /// error handler
+    /// An error handler used for any errors found during unrolling.
     pub(crate) handler: &'a Handler,
-    /// A flag indicating whether or not `Unroller` is in the midst of unrolling a loop.
+    /// Are we in the midst of unrolling a loop?
     pub(crate) is_unrolling: bool,
 }
 

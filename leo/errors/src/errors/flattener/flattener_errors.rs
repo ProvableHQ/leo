@@ -69,7 +69,7 @@ create_messages!(
     non_const_loop_bounds {
         args: (pos: impl Display),
         msg: format!(
-            "The loop has an `{pos}` bound that is non_const.",
+            "The loop has a `{pos}` bound that is non_const.",
         ),
         help: None,
     }

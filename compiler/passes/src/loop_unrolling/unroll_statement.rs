@@ -20,16 +20,16 @@ use leo_ast::*;
 use leo_errors::FlattenError;
 
 use crate::unroller::Unroller;
-use crate::{Declaration, VariableSymbol};
+use crate::{VariableType, VariableSymbol};
 
-impl<'a> StatementReconstructor for Unroller<'a> {
+impl StatementReconstructor for Unroller<'_> {
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> Statement {
         // If we are unrolling a loop, then we need to repopulate the symbol table.
         if self.is_unrolling {
-            let declaration = if input.declaration_type == Declare::Const {
-                Declaration::Const
+            let declaration = if input.declaration_type == DeclarationType::Const {
+                VariableType::Const
             } else {
-                Declaration::Mut
+                VariableType::Mut
             };
 
             input.variable_names.iter().for_each(|v| {
@@ -151,7 +151,7 @@ impl<'a> StatementReconstructor for Unroller<'a> {
                             // The first statement in the block is the assignment of the loop variable to the current iteration count.
                             let mut statements = vec![
                                 self.reconstruct_definition(DefinitionStatement {
-                                    declaration_type: Declare::Const,
+                                    declaration_type: DeclarationType::Const,
                                     type_: input.type_.clone(),
                                     value: Expression::Literal(value),
                                     span: Default::default(),
