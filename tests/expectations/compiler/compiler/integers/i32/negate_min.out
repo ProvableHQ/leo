@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EFLA0373001]: The const operation `(neg -2147483648i32` causes an overflow.\n    --> compiler-test:1:1\n     |\n   1 | \n     | \nError [ETYC0372002]: Cannot assign a non-const or invalid expression `(neg a)` to const variable `b`\n    --> compiler-test:5:5\n     |\n   5 |     const b: i32 = -a;\n     |     ^^^^^^^^^^^^^^^^^\nError [EFLA0373001]: The const operation `(neg -2147483648i32` causes an overflow.\n    --> compiler-test:1:1\n     |\n   1 | \n     | \n"
+  - "Error [EFLA0373001]: The const operation `(neg -2147483648i32)` causes an overflow.\n    --> compiler-test:1:1\n     |\n   1 | \n     | \nError [ETYC0372002]: Cannot assign a non-const or invalid expression `(neg a)` to const variable `b`\n    --> compiler-test:5:5\n     |\n   5 |     const b: i32 = -a;\n     |     ^^^^^^^^^^^^^^^^^\nError [EFLA0373001]: The const operation `(neg -2147483648i32)` causes an overflow.\n    --> compiler-test:1:1\n     |\n   1 | \n     | \n"

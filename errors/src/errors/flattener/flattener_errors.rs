@@ -40,7 +40,7 @@ create_messages!(
     @formatted
     unary_overflow {
         args: (left: impl Display, op: impl Display),
-        msg: format!("The const operation `({op} {left}{}` causes an overflow.", type_name(&left)),
+        msg: format!("The const operation `({op} {left}{})` causes an overflow.", type_name(&left)),
         help: None,
     }
 
