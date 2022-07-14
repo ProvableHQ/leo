@@ -44,9 +44,9 @@ create_messages!(
     /// For when the user tries to assign to a const input.
     @formatted
     cannot_assign_to_const_var {
-        args: (var: impl Display),
+        args: (expr: impl Display, var: impl Display),
         msg: format!(
-            "Cannot assign to const variable `{var}`",
+            "Cannot assign a non-const or invalid expression `{expr}` to const variable `{var}`",
         ),
         help: None,
     }

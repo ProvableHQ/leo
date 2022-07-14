@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372002]: Cannot assign a non-const or invalid expression `a` to const variable `a`\n    --> compiler-test:5:5\n     |\n   5 |     a = b;\n     |     ^^^^^\nError [ETYC0372002]: Cannot assign a non-const or invalid expression `i` to const variable `i`\n    --> compiler-test:7:9\n     |\n   7 |         i = 1u32;\n     |         ^^^^^^^^\n"

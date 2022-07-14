@@ -1,0 +1,9 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - output:
+      - initial_input_ast: 20cf180c204f60443f0c85bf796587115fe9ddc1ccc2f5926168b7b893b9e378
+    initial_ast: 854aceeaa2e4f31ada9ac89b0477ea75345639b4ba0203d1106a5cc5d04c953d
+    constant_folded_ast: 854aceeaa2e4f31ada9ac89b0477ea75345639b4ba0203d1106a5cc5d04c953d
+    unrolled_ast: 367166e38186ce2dba371cf4d79e0949f0a3dc4d16a984cebaef14eaffab842a

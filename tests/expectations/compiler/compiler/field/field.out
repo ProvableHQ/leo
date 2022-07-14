@@ -5,4 +5,5 @@ outputs:
   - output:
       - initial_input_ast: 3a510480221eb323713b4b10cc374ba357f130e8ac2b07bf1c69ad5d8c936f12
     initial_ast: 103c76ecc5358ae585e4cea32287890acfafc3fcbe53e5c6326b5750eafedbe7
-    unrolled_ast: 103c76ecc5358ae585e4cea32287890acfafc3fcbe53e5c6326b5750eafedbe7
+    constant_folded_ast: 9a34bff2ff62d6d72641f278b49a76abfb4e989041ed51a6c70de21e8c1766fa
+    unrolled_ast: 9a34bff2ff62d6d72641f278b49a76abfb4e989041ed51a6c70de21e8c1766fa

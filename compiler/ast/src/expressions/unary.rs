@@ -82,7 +82,7 @@ pub struct UnaryExpression {
 
 impl fmt::Display for UnaryExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}{}", self.op.as_str(), self.receiver)
+        write!(f, "({} {})", self.op.as_str(), self.receiver)
     }
 }
 

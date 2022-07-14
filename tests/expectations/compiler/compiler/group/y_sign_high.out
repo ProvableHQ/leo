@@ -5,4 +5,5 @@ outputs:
   - output:
       - initial_input_ast: no input
     initial_ast: 7fc9bd0e110f629f957d5deeca1a1586e197c883aac5211c741944c1229943f6
-    unrolled_ast: 7fc9bd0e110f629f957d5deeca1a1586e197c883aac5211c741944c1229943f6
+    constant_folded_ast: 40ee90a8509ea8564fb38e26889fb799b9a438ceaa28ca7029707f8abafcd2dd
+    unrolled_ast: 40ee90a8509ea8564fb38e26889fb799b9a438ceaa28ca7029707f8abafcd2dd

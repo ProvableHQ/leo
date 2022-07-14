@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372002]: Cannot assign a non-const or invalid expression `{x, y: 0u8}` to const variable `a`\n    --> compiler-test:9:5\n     |\n   9 |     const a: Foo = Foo { x, y: 0u8 };\n     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"

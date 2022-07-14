@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372007]: Expected one type from `bool`, but got `u8`\n    --> compiler-test:5:12\n     |\n   5 |     return d == 2u8;\n     |            ^^^^^^^^\n"

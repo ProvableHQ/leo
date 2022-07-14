@@ -1,8 +1,5 @@
 ---
 namespace: Compile
-expectation: Pass
+expectation: Fail
 outputs:
-  - output:
-      - initial_input_ast: 7643261a1792f68251258ad1b6be18e95528a86816b3772140d130b2784736cb
-    initial_ast: c335c6a17b17a588b88276813d1faa2ceb732c65ab884092450bdbaa0fb962c3
-    unrolled_ast: c335c6a17b17a588b88276813d1faa2ceb732c65ab884092450bdbaa0fb962c3
+  - "Error [EFLA0373001]: The const operation `(neg -32768i16` causes an overflow.\n    --> compiler-test:1:1\n     |\n   1 | \n     | \nError [ETYC0372002]: Cannot assign a non-const or invalid expression `(neg a)` to const variable `b`\n    --> compiler-test:5:5\n     |\n   5 |     const b: i16 = -a;\n     |     ^^^^^^^^^^^^^^^^^\nError [EFLA0373001]: The const operation `(neg -32768i16` causes an overflow.\n    --> compiler-test:1:1\n     |\n   1 | \n     | \n"

@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372012]: Circuit expected `1` members, but got `2`\n    --> compiler-test:8:20\n     |\n   8 |     const a: Foo = Foo { x: 0u8, x: 1u8 };\n     |                    ^^^^^^^^^^^^^^^^^^^^^^\n"

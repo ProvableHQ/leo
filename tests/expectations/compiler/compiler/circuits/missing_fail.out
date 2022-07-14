@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372012]: Circuit expected `2` members, but got `1`\n    --> compiler-test:9:20\n     |\n   9 |     const a: Foo = Foo { y: 0u32 };\n     |                    ^^^^^^^^^^^^^^^\nError [ETYC0372013]: Circuit initialization expression for `Foo` is missing member `x`.\n    --> compiler-test:9:20\n     |\n   9 |     const a: Foo = Foo { y: 0u32 };\n     |                    ^^^^^^^^^^^^^^^\n"

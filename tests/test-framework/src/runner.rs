@@ -202,8 +202,6 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
             None => return,
         };
 
-
-
         let (expectation_path, expectations) = cases.load_expectations(path, expectation_category);
 
         let tests = match namespace.parse_type() {

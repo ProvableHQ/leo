@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EFLA0373001]: The const operation `(neg -128i8` causes an overflow.\n    --> compiler-test:1:1\n     |\n   1 | \n     | \n"

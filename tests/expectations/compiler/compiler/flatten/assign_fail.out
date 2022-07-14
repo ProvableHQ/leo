@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372002]: Cannot assign a non-const or invalid expression `x` to const variable `a`\n    --> compiler-test:4:5\n     |\n   4 |     const a: u8 = x;\n     |     ^^^^^^^^^^^^^^^\nError [ETYC0372002]: Cannot assign a non-const or invalid expression `a` to const variable `b`\n    --> compiler-test:5:5\n     |\n   5 |     const b: u8 = a;\n     |     ^^^^^^^^^^^^^^^\nError [ETYC0372002]: Cannot assign a non-const or invalid expression `c` to const variable `d`\n    --> compiler-test:7:5\n     |\n   7 |     const d: u8 = c;\n     |     ^^^^^^^^^^^^^^^\n"

@@ -37,7 +37,7 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
 
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> Statement {
         // We grab the place and its possible const value.
-        let (value, const_val) = self.reconstruct_expression(input.value);
+        let (value, const_val) = self.reconstruct_expression(input.value.clone());
         let mut st = self.symbol_table.borrow_mut();
 
         if const_val.is_none() {
@@ -46,6 +46,7 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
                 DeclarationType::Let => {}
                 DeclarationType::Const => {
                     self.handler.emit_err(TypeCheckerError::cannot_assign_to_const_var(
+                        input.value,
                         input.variable_name,
                         input.span,
                     ));
