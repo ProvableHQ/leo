@@ -5,5 +5,9 @@ circuit Message {
 }
 
 function main(m: Message) -> field {
-    return m.first + m.second;
+    let m1: Message = Message {
+        first: m.first,
+        second: m.second,
+    };
+    return m1.first + m1.second;
 }

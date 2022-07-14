@@ -24,19 +24,12 @@ pub struct CircuitVariableInitializer {
     /// The expression to initialize the field with.
     /// When `None`, a binding, in scope, with the name will be used instead.
     pub expression: Option<Expression>,
-    /// `true` if the circuit is a `record` type.
-    pub is_record: bool,
 }
 
 impl fmt::Display for CircuitVariableInitializer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(expr) = &self.expression {
-            write!(f, "{}: {}", self.identifier, expr)?;
-            if self.is_record {
-                write!(f, "private")
-            } else {
-                write!(f, "")
-            }
+            write!(f, "{}: {}", self.identifier, expr)
         } else {
             write!(f, "{}", self.identifier)
         }

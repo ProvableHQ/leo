@@ -467,13 +467,7 @@ impl ParserContext<'_> {
             None
         };
 
-        let is_record = identifier.to_string().eq("Record");
-
-        Ok(CircuitVariableInitializer {
-            identifier,
-            expression,
-            is_record,
-        })
+        Ok(CircuitVariableInitializer { identifier, expression })
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a

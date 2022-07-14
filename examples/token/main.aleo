@@ -7,4 +7,4 @@ record token:
 function main:
     input r0 as token.record;
     add r0.token_amount r0.token_amount into r1;
-    output r1 as field.private;
+    output r1 as u64.private;
