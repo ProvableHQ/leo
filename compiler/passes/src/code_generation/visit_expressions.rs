@@ -154,6 +154,13 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_circuit_init(&mut self, input: &'a CircuitExpression) -> (String, String) {
+        // Lookup circuit or record.
+        let name = if let Some(type_) = self.composite_mapping.get(&input.name.name) {
+            format!("{}.{}", input.name.to_string().to_lowercase(), type_)
+        } else {
+            unreachable!("All composite types should be known at this phase of compilation")
+        };
+
         // Initialize instruction builder strings.
         let mut instructions = String::new();
         let mut circuit_init_instruction = format!("    cast ");
@@ -180,7 +187,13 @@ impl<'a> CodeGenerator<'a> {
 
         // Push destination register to circuit init instruction.
         let destination_register = format!("r{}", self.next_register);
-        writeln!(circuit_init_instruction, "into {} as {};", destination_register, input.name.to_string().to_lowercase()).expect("failed to write to string");
+        writeln!(
+            circuit_init_instruction,
+            "into {dest} as {name};",
+            dest = destination_register,
+            name = name,
+        ).expect("failed to write to string");
+
         instructions.push_str(&circuit_init_instruction);
 
         // Increment the register counter.

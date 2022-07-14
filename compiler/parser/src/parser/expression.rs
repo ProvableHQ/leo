@@ -467,12 +467,9 @@ impl ParserContext<'_> {
             None
         };
 
-        let is_record = identifier.to_string().eq("Record");
-
         Ok(CircuitVariableInitializer {
             identifier,
             expression,
-            is_record,
         })
     }
 
