@@ -18,6 +18,7 @@ use std::cell::RefCell;
 
 use leo_ast::Definitions;
 use leo_errors::emitter::Handler;
+use leo_span::Symbol;
 
 use crate::SymbolTable;
 
@@ -32,6 +33,10 @@ pub struct ConstantFolder<'a> {
     pub(crate) handler: &'a Handler,
     /// a flag to tell value parsing that were in a negate expr
     pub(crate) negate: bool,
+    /// A flag indicating if `ConstantFolder` is traversing a `ConditionalStatement`
+    pub(crate) in_conditional: bool,
+    /// A buffer to store variables whose values are not constant after a `ConditionalStatement`.
+    pub(crate) non_constant_variables: Vec<Symbol>,
 }
 
 impl<'a> ConstantFolder<'a> {
@@ -46,6 +51,8 @@ impl<'a> ConstantFolder<'a> {
             scope_index: 0,
             handler,
             negate: false,
+            in_conditional: false,
+            non_constant_variables: Default::default(),
         }
     }
 

@@ -16,7 +16,7 @@
 
 use std::fmt::Display;
 
-use leo_ast::{ParamMode, Type, Value};
+use leo_ast::{ParamMode, Type};
 use leo_span::Span;
 
 /// An enumeration of the different types of variables.
@@ -48,8 +48,6 @@ pub struct VariableSymbol {
     pub span: Span,
     /// The type of declaration for the variable.
     pub variable_type: VariableType,
-    /// The value of the declaration, if it is a constant.
-    pub value: Option<Value>,
 }
 
 impl Display for VariableSymbol {

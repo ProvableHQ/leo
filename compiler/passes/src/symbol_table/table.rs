@@ -38,6 +38,8 @@ pub struct SymbolTable {
     /// The variables defined in a scope.
     /// This field is populated as necessary.
     pub(crate) variables: IndexMap<Symbol, VariableSymbol>,
+    /// The value associated with a variable in a scope.
+    pub(crate) values: IndexMap<Symbol, Option<Value>>,
     /// The index of the current scope.
     pub(crate) scope_index: usize,
     /// The sub-scopes of this scope.
@@ -75,9 +77,8 @@ impl SymbolTable {
     /// Inserts a function into the symbol table.
     pub fn insert_fn(&mut self, symbol: Symbol, insert: &Function) -> Result<()> {
         self.check_shadowing(symbol, insert.span)?;
-        let id = self.scope_index();
-        self.functions.insert(symbol, Self::new_function_symbol(id, insert));
-        self.scopes.push(Default::default());
+        let index = self.push_scope();
+        self.functions.insert(symbol, Self::new_function_symbol(index, insert));
         Ok(())
     }
 
@@ -102,8 +103,7 @@ impl SymbolTable {
 
     /// Creates a new scope for the block and stores it in the symbol table.
     pub fn insert_block(&mut self) -> usize {
-        self.scopes.push(RefCell::new(Default::default()));
-        self.scope_index()
+        self.push_scope()
     }
 
     /// Attempts to lookup a function in the symbol table.
@@ -139,18 +139,6 @@ impl SymbolTable {
         }
     }
 
-    /// Attempts to set a value for a variable in the symbol table.
-    /// Returns `true` if the variable was found and set.
-    pub fn set_value_in_local_scope(&mut self, symbol: Symbol, value: Option<Value>) -> bool {
-        match self.variable_in_local_scope(symbol) {
-            false => false,
-            true => {
-                self.variables.get_mut(&symbol).unwrap().value = value;
-                true
-            }
-        }
-    }
-
     /// Returns true if the variable exists in the local scope
     pub fn variable_in_local_scope(&self, symbol: Symbol) -> bool {
         self.variables.contains_key(&symbol)
@@ -182,11 +170,56 @@ impl SymbolTable {
 
     /// Returns the scope associated with the function symbol, if it exists in the symbol table.
     pub fn lookup_fn_scope(&self, symbol: Symbol) -> Option<&RefCell<Self>> {
-        self.lookup_fn_symbol(symbol).and_then(|func| self.scopes.get(func.id))
+        self.lookup_fn_symbol(symbol).and_then(|func| self.scopes.get(func.index))
     }
 
     /// Returns the scope associated with `index`, if it exists in the symbol table.
     pub fn lookup_scope_by_index(&self, index: usize) -> Option<&RefCell<Self>> {
         self.scopes.get(index)
+    }
+
+    /// Creates a new default scope and returns its its index in `self.scopes`.
+    pub fn push_scope(&mut self) -> usize {
+        self.scopes.push(RefCell::new(Default::default()));
+        self.scopes.len() - 1
+    }
+
+    /// Removes the scope associated with `index`, if it exists in the symbol table.
+    /// The order of existing scopes is preserved.
+    pub fn remove_scope(&mut self, index: usize) {
+        self.scopes.remove(index);
+    }
+
+    /// Attempts to set a value for a variable in the current scope.
+    pub fn set_value(&mut self, symbol: Symbol, value: Option<Value>) {
+        self.values.insert(symbol, value);
+    }
+
+    /// Unsets the value for a variable in the current scope.
+    // Developer Note: This method does not remove the entry from `self.values`, rather
+    // it sets the entry to `None`. This is necessary to prevent a following call
+    // `lookup_value` from returning the value in a parent scope.
+    pub fn unset_value(&mut self, symbol: &Symbol) {
+        self.values.entry(*symbol).and_modify(|v| *v = None);
+    }
+
+    /// Looks up a value for a variable in the symbol table.
+    pub fn lookup_value(&self, symbol: &Symbol) -> &Option<Value> {
+        if let Some(value) = self.values.get(symbol) {
+            value
+        } else if let Some(parent) = self.parent.as_ref() {
+            parent.lookup_value(symbol)
+        } else {
+            &None
+        }
+    }
+
+    /// Clears the symbol table.
+    pub fn clear(&mut self) {
+        self.functions.clear();
+        self.circuits.clear();
+        self.variables.clear();
+        self.values.clear();
+        self.scopes.clear();
     }
 }

@@ -53,7 +53,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 type_: input.type_.clone(),
                 span: input.span(),
                 variable_type,
-                value: Default::default(),
             },
         ) {
             self.handler.emit_err(err);
@@ -136,7 +135,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 type_: input.type_.clone(),
                 span: input.span(),
                 variable_type: VariableType::Const,
-                value: Default::default(),
             },
         ) {
             self.handler.emit_err(err);

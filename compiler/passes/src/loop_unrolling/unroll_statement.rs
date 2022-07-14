@@ -34,7 +34,6 @@ impl StatementReconstructor for LoopUnroller<'_> {
                     type_: input.type_.clone(),
                     span: input.span(),
                     variable_type,
-                    value: Default::default()
                 },
             ) {
                 self.handler.emit_err(err);

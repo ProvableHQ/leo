@@ -40,40 +40,21 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
         let (value, const_val) = self.reconstruct_expression(input.value);
         let mut st = self.symbol_table.borrow_mut();
 
-        // If the rhs of the DefinitionStatement is a constant value, store it in the symbol table.
-        if let Some(const_val) = const_val.clone() {
-            match st.variable_in_local_scope(input.variable_name.name) {
-                // If the variable is in the current scope, update it's value.
-                true => {
-                    st.set_value_in_local_scope(input.variable_name.name, Some(const_val));
-                }
-                // If the variable is not in the current scope, create a new entry with the appropriate value.
-                false => {
-                    // Note that we do not need to check for shadowing since type checking has already taken place.
-                    st.insert_variable_unchecked(
-                        input.variable_name.name,
-                        VariableSymbol {
-                            type_: Type::from(&const_val),
-                            span: input.variable_name.span,
-                            variable_type: match input.declaration_type {
-                                DeclarationType::Const => VariableType::Const,
-                                DeclarationType::Let => VariableType::Mut,
-                            },
-                            value: Some(const_val),
-                        },
-                    )
+        if const_val.is_none() {
+            // Check that the variable's declaration type is not constant.
+            match input.declaration_type {
+                DeclarationType::Let => {}
+                DeclarationType::Const => {
+                    self.handler.emit_err(TypeCheckerError::cannot_assign_to_const_var(
+                        input.variable_name,
+                        input.span,
+                    ));
                 }
             }
-        } else {
-            // TODO: Uncomment when constant folding is implemented for all types.
-            // // Check that the variable's declaration type is not const.
-            // match input.declaration_type {
-            //     DeclarationType::Let => {},
-            //     DeclarationType::Const => {
-            //         self.handler.emit_err(TypeCheckerError::cannot_assign_to_const_var(var, var.span()));
-            //     }
-            // }
         }
+
+        st.set_value(input.variable_name.name, const_val.clone());
+
 
         Statement::Definition(DefinitionStatement {
             declaration_type: input.declaration_type,
@@ -88,7 +69,7 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
         // Gets the target and its const value
         let (place_expr, _) = self.reconstruct_expression(input.place);
 
-        let var_name = match place_expr {
+        let variable_name = match place_expr {
             Expression::Identifier(var) => var.name,
             _ => unreachable!("The LHS of an assignment must be an identifier."),
         };
@@ -97,36 +78,10 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
         let (value, const_val) = self.reconstruct_expression(input.value);
 
         let mut st = self.symbol_table.borrow_mut();
+        st.set_value(variable_name, const_val);
 
-        // Update the value associated with `input.place`.
-        // Note that this may turn a previously constant value into a non-constant value.
-        match st.variable_in_local_scope(var_name) {
-            // If the variable is in the current scope, update it's value.
-            true => {
-                st.set_value_in_local_scope(var_name, const_val);
-            }
-            // If the variable is not in the current scope, create a new entry with the appropriate value.
-            // Note that we create a new entry even if the variable is defined in the parent scope. This is
-            // necessary to ensure that symbol table contains the correct constant value at this point in the program.
-            false => {
-                // Lookup the variable in the parent scope.
-                let (type_, variable_type) = {
-                    let variable_symbol = st
-                        .lookup_variable(var_name)
-                        .expect("Variable should exist in parent scope.");
-                    (variable_symbol.type_.clone(), variable_symbol.variable_type.clone())
-                };
-                // Note that we do not need to obey shadowing rules since type checking has already taken place.
-                st.insert_variable_unchecked(
-                    var_name,
-                    VariableSymbol {
-                        type_,
-                        span: place_expr.span(),
-                        variable_type,
-                        value: const_val,
-                    },
-                )
-            }
+        if self.in_conditional {
+            self.non_constant_variables.push(variable_name);
         }
 
         Statement::Assign(Box::new(AssignStatement {
@@ -141,42 +96,102 @@ impl<'a> StatementReconstructor for ConstantFolder<'a> {
         // Flattens the condition and gets its expression and possible const value
         let (condition, const_value) = self.reconstruct_expression(input.condition);
 
-        // TODO: in future if symbol table is used for other passes.
-        // We will have to remove these scopes instead of skipping over them.
+        // TODO: Consider zeroing out the scopes that are never traversed, instead of removing them.
         match const_value {
-            // If branch const true
+            // If `input.condition` is `true`, the conditional statement is replaced with the `if` branch.
             Some(Value::Boolean(true)) => {
                 let block = Statement::Block(self.reconstruct_block(input.block));
-                if input.next.is_some() {
-                    self.scope_index += 1;
-                }
+
+                // Remove `input.next` from the symbol table.
+                let mut st = self.symbol_table.borrow_mut();
                 let mut next = input.next;
-                while let Some(Statement::Conditional(c)) = next.as_deref() {
-                    if c.next.is_some() {
-                        self.scope_index += 1;
+                while next.is_some() {
+                    st.remove_scope(self.scope_index);
+                    match *next.unwrap() {
+                        // If `input.next` is a `ConditionalStatement`, we need to remove both the `if` and `else` blocks.
+                        // Since the AST may contain a chain of ConditionalStatements, we must iteratively remove blocks until no further `ConditionalStatement`s are found.
+                        Statement::Conditional(c) => next = c.next,
+                        Statement::Block(..) => next = None,
+                        _ => unreachable!(
+                            "The next statement of a conditional statement must be a conditional statement or a block."
+                        ),
                     }
-                    next = c.next.clone();
                 }
 
                 block
             }
-            // If branch const false and another branch follows this one
-            Some(Value::Boolean(false)) if input.next.is_some() => {
-                self.scope_index += 1;
-                self.reconstruct_statement(*input.next.unwrap())
-            }
-            // If branch const false and no branch follows it
             Some(Value::Boolean(false)) => {
-                self.scope_index += 1;
-                Statement::Block(Block {
-                    statements: Vec::new(),
-                    span: input.span,
-                })
+                match input.next.is_some() {
+                    // If `input.condition` is `false` and there is `next` branch, the conditional statement is replaced with a reconstructed `input.next`.
+                    true => {
+                        // Remove the scope associated with `input.block` since it is never traversed.
+                        let mut st = self.symbol_table.borrow_mut();
+                        st.remove_scope(self.scope_index);
+
+                        // Drop the mutable reference to the symbol table as it is no longer needed.
+                        // We do this to avoid a borrow error (E0502).
+                        drop(st);
+
+                        match *input.next.unwrap() {
+                            Statement::Block(block) => self.reconstruct_statement(Statement::Block(block)),
+                            Statement::Conditional(conditional) => {
+                                // Store the prior state of `ConstantFolder`.
+                                let prior_in_conditional = std::mem::replace(&mut self.in_conditional, true);
+                                let prior_non_constant_variables = std::mem::take(&mut self.non_constant_variables);
+
+                                // Reconstruct the `else` branch.
+                                let result = self.reconstruct_statement(Statement::Conditional(conditional));
+
+                                // Restore the prior state of `ConstantFolder`.
+                                self.in_conditional = prior_in_conditional;
+                                let variables_to_be_cleared = std::mem::replace(&mut self.non_constant_variables, prior_non_constant_variables);
+
+                                // Unset all values that were written to during the conditional.
+                                let mut st = self.symbol_table.borrow_mut();
+                                variables_to_be_cleared.iter().for_each(|v| st.unset_value(v));
+
+                                result
+                            }
+                            _ => unreachable!("The next statement of a conditional statement must be a block or a conditional statement."),
+                        }
+                    }
+
+                    // If `input.condition` is `false` and there is no `next` branch, the conditional statement is replaced with an empty block statement.
+                    false => {
+                        // Clear the scope associated with `input.block` since it is never traversed.
+                        match self.symbol_table.borrow_mut().lookup_scope_by_index(self.scope_index) {
+                            Some(scope) => {
+                                scope.borrow_mut().clear();
+                                self.scope_index += 1
+                            }
+                            _ => unreachable!("The scope associated with `input.block` must exist."),
+                        }
+
+                        Statement::Block(Block {
+                            statements: Vec::new(),
+                            span: input.span,
+                        })
+                    }
+                }
             }
-            // If conditional is non-const
+            // If `input.condition` is not a condition, then visit both branches.
             _ => {
+                // Store the prior state of `ConstantFolder`.
+                let prior_in_conditional = std::mem::replace(&mut self.in_conditional, true);
+                let prior_non_constant_variables = std::mem::take(&mut self.non_constant_variables);
+
                 let block = self.reconstruct_block(input.block);
                 let next = input.next.map(|n| Box::new(self.reconstruct_statement(*n)));
+
+                // Restore the prior state of `ConstantFolder`.
+                self.in_conditional = prior_in_conditional;
+
+                // Unset all values that were written to during the conditional.
+                let variables_to_be_cleared =
+                    std::mem::replace(&mut self.non_constant_variables, prior_non_constant_variables);
+                let mut st = self.symbol_table.borrow_mut();
+                variables_to_be_cleared.iter().for_each(|v| st.unset_value(v));
+
                 Statement::Conditional(ConditionalStatement {
                     condition,
                     block,

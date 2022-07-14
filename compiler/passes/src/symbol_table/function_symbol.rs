@@ -23,7 +23,7 @@ use crate::SymbolTable;
 #[derive(Clone, Debug)]
 pub struct FunctionSymbol {
     /// The index associated with the scope in the parent symbol table.
-    pub(crate) id: usize,
+    pub(crate) index: usize,
     /// The output type of the function.
     pub(crate) output: Type,
     /// The `Span` associated with the function.
@@ -35,7 +35,7 @@ pub struct FunctionSymbol {
 impl SymbolTable {
     pub(crate) fn new_function_symbol(id: usize, func: &Function) -> FunctionSymbol {
         FunctionSymbol {
-            id,
+            index: id,
             output: func.output.clone(),
             span: func.span,
             input: func.input.clone(),

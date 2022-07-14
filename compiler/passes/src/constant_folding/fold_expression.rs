@@ -16,7 +16,7 @@
 
 use leo_ast::*;
 
-use crate::{ConstantFolder, VariableType};
+use crate::ConstantFolder;
 
 impl<'a> ExpressionReconstructor for ConstantFolder<'a> {
     // This is the possible constant value of an expression.
@@ -142,28 +142,9 @@ impl<'a> ExpressionReconstructor for ConstantFolder<'a> {
 
     fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
         let st = self.symbol_table.borrow();
-        let var = st.lookup_variable(input.name).unwrap();
 
         // We grab the constant value of a variable if it exists.
-        let val = match &var.variable_type {
-            VariableType::Const | VariableType::Mut => match var.value.clone() {
-                Some(value) => {
-                    if self.negate {
-                        match value.clone().neg() {
-                            Ok(c) => Some(c),
-                            Err(err) => {
-                                self.handler.emit_err(err);
-                                Some(value)
-                            }
-                        }
-                    } else {
-                        Some(value)
-                    }
-                }
-                None => None,
-            },
-            VariableType::Input(..) => None,
-        };
+        let val = st.lookup_value(&input.name).clone();
 
         (Expression::Identifier(input), val)
     }
@@ -244,15 +225,26 @@ impl<'a> ExpressionReconstructor for ConstantFolder<'a> {
     }
 
     fn reconstruct_unary(&mut self, input: UnaryExpression) -> (Expression, Self::AdditionalOutput) {
-        // If we are doing a negation operation we set appropriate flags.
-        let (receiver, val) = if matches!(input.op, UnaryOperation::Negate) {
-            let prior_negate_state = self.negate;
-            self.negate = !self.negate;
-            let ret = self.reconstruct_expression(*input.receiver.clone());
-            self.negate = prior_negate_state;
-            ret
-        } else {
-            self.reconstruct_expression(*input.receiver.clone())
+        let (receiver, val) = match (input.op, &*input.receiver) {
+            // If a literal is negated, then set the appropriate flags, so that it can be parsed appropriately.
+            (UnaryOperation::Negate, Expression::Literal(..)) => {
+                let prior_negate = std::mem::replace(&mut self.negate, true);
+
+                let result = self.reconstruct_expression(*input.receiver.clone());
+
+                self.negate = prior_negate;
+
+                return (
+                    Expression::Unary(UnaryExpression {
+                        op: input.op,
+                        receiver: Box::new(result.0),
+                        span: input.span,
+                    }),
+                    result.1,
+                );
+            }
+            // Otherwise, reconstruct the expression.
+            _ => self.reconstruct_expression(*input.receiver.clone()),
         };
 
         // We handle the following constant folding operations.
@@ -263,7 +255,7 @@ impl<'a> ExpressionReconstructor for ConstantFolder<'a> {
             (Some(v), UnaryOperation::AbsWrapped) if v.is_supported_const_fold_type() => {
                 Some(v.abs_wrapped()).transpose()
             }
-            (Some(v), UnaryOperation::Negate) if v.is_supported_const_fold_type() => Ok(Some(v)),
+            (Some(v), UnaryOperation::Negate) if v.is_supported_const_fold_type() => Some(v.neg()).transpose(),
             (Some(v), UnaryOperation::Not) if v.is_supported_const_fold_type() => Some(v.not()).transpose(),
             _ => Ok(None),
         };

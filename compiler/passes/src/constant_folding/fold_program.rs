@@ -20,7 +20,7 @@ use indexmap::IndexMap;
 use leo_ast::*;
 use leo_errors::FlattenError;
 
-use crate::{ConstantFolder, VariableSymbol, VariableType};
+use crate::ConstantFolder;
 
 impl<'a> ProgramReconstructor for ConstantFolder<'a> {
     fn reconstruct_function(&mut self, input: Function) -> Function {
@@ -41,7 +41,7 @@ impl<'a> ProgramReconstructor for ConstantFolder<'a> {
                 // We grab the main function's scope id.
                 let id = if let Some(main) = self.symbol_table.borrow_mut().functions.get_mut(&f_name) {
                     main.input = non_consts.clone();
-                    main.id
+                    main.index
                 } else {
                     // self.handler.emit_err(FlattenError::no_main_function());
                     return input;
@@ -54,67 +54,51 @@ impl<'a> ProgramReconstructor for ConstantFolder<'a> {
                 // Grabbing variable definitions for each main input with the value of
                 // the specified constant from the input file.
                 let mut const_input_values = IndexMap::new();
+
                 // for c in consts.into_iter() {
                 //     match c {
                 //         FunctionInput::Variable(var) => {
                 //             if let Some(const_value) = const_inputs.get(&var.identifier.name) {
                 //                 const_input_values.insert(
                 //                     var.identifier.name,
-                //                     VariableSymbol {
-                //                         type_: var.type_.clone(),
-                //                         span: var.span(),
-                //                         variable_type: VariableType::Const,
-                //                         value: Some(match const_value {
-                //                             InputValue::Address(value) if matches!(var.type_, Type::Address) => {
-                //                                 Value::Address(value.clone())
-                //                             }
-                //                             InputValue::Boolean(value) if matches!(var.type_, Type::Boolean) => {
-                //                                 Value::Boolean(*value)
-                //                             }
-                //                             InputValue::Field(value) if matches!(var.type_, Type::Field) => {
-                //                                 Value::Field(value.clone())
-                //                             }
-                //                             InputValue::Group(value) if matches!(var.type_, Type::Group) => {
-                //                                 Value::Group(Box::new(value.clone()))
-                //                             }
-                //                             InputValue::I8(value) if matches!(var.type_, Type::I8) => Value::I8(*value),
-                //                             InputValue::I16(value) if matches!(var.type_, Type::I16) => {
-                //                                 Value::I16(*value)
-                //                             }
-                //                             InputValue::I32(value) if matches!(var.type_, Type::I32) => {
-                //                                 Value::I32(*value)
-                //                             }
-                //                             InputValue::I64(value) if matches!(var.type_, Type::I64) => {
-                //                                 Value::I64(*value)
-                //                             }
-                //                             InputValue::I128(value) if matches!(var.type_, Type::I128) => {
-                //                                 Value::I128(*value)
-                //                             }
-                //                             InputValue::U8(value) if matches!(var.type_, Type::U8) => Value::U8(*value),
-                //                             InputValue::U16(value) if matches!(var.type_, Type::U16) => {
-                //                                 Value::U16(*value)
-                //                             }
-                //                             InputValue::U32(value) if matches!(var.type_, Type::U32) => {
-                //                                 Value::U32(*value)
-                //                             }
-                //                             InputValue::U64(value) if matches!(var.type_, Type::U64) => {
-                //                                 Value::U64(*value)
-                //                             }
-                //                             InputValue::U128(value) if matches!(var.type_, Type::U128) => {
-                //                                 Value::U128(*value)
-                //                             }
-                //                             t => {
-                //                                 self.handler.emit_err(
-                //                                     FlattenError::main_function_mismatching_const_input_type(
-                //                                         &var.type_,
-                //                                         Type::from(t),
-                //                                         var.span(),
-                //                                     ),
-                //                                 );
-                //                                 return input;
-                //                             }
-                //                         }),
-                //                     },
+                //                     Some(match const_value {
+                //                         InputValue::Address(value) if matches!(var.type_, Type::Address) => {
+                //                             Value::Address(value.clone())
+                //                         }
+                //                         InputValue::Boolean(value) if matches!(var.type_, Type::Boolean) => {
+                //                             Value::Boolean(*value)
+                //                         }
+                //                         InputValue::Field(value) if matches!(var.type_, Type::Field) => {
+                //                             Value::Field(value.clone())
+                //                         }
+                //                         InputValue::Group(value) if matches!(var.type_, Type::Group) => {
+                //                             Value::Group(Box::new(value.clone()))
+                //                         }
+                //                         InputValue::I8(value) if matches!(var.type_, Type::I8) => Value::I8(*value),
+                //                         InputValue::I16(value) if matches!(var.type_, Type::I16) => Value::I16(*value),
+                //                         InputValue::I32(value) if matches!(var.type_, Type::I32) => Value::I32(*value),
+                //                         InputValue::I64(value) if matches!(var.type_, Type::I64) => Value::I64(*value),
+                //                         InputValue::I128(value) if matches!(var.type_, Type::I128) => {
+                //                             Value::I128(*value)
+                //                         }
+                //                         InputValue::U8(value) if matches!(var.type_, Type::U8) => Value::U8(*value),
+                //                         InputValue::U16(value) if matches!(var.type_, Type::U16) => Value::U16(*value),
+                //                         InputValue::U32(value) if matches!(var.type_, Type::U32) => Value::U32(*value),
+                //                         InputValue::U64(value) if matches!(var.type_, Type::U64) => Value::U64(*value),
+                //                         InputValue::U128(value) if matches!(var.type_, Type::U128) => {
+                //                             Value::U128(*value)
+                //                         }
+                //                         t => {
+                //                             self.handler.emit_err(
+                //                                 FlattenError::main_function_mismatching_const_input_type(
+                //                                     &var.type_,
+                //                                     Type::from(t),
+                //                                     var.span(),
+                //                                 ),
+                //                             );
+                //                             return input;
+                //                         }
+                //                     }),
                 //                 );
                 //             } else {
                 //                 self.handler.emit_err(FlattenError::input_file_does_not_have_constant(
@@ -128,7 +112,7 @@ impl<'a> ProgramReconstructor for ConstantFolder<'a> {
                 // }
 
                 // We then insert those constant inputs as variables to the main function scope.
-                fn_scope.borrow_mut().variables.extend(const_input_values);
+                fn_scope.borrow_mut().values.extend(const_input_values);
             } else if !consts.is_empty() && self.constant_inputs.is_none() {
                 // This case is for there being constants in the main function.
                 // But no constants in the input file.
