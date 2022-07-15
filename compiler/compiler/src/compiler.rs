@@ -41,6 +41,10 @@ pub struct Compiler<'a> {
     main_file_path: PathBuf,
     /// The path to where the compiler outputs all generated files.
     output_directory: PathBuf,
+    /// The program name,
+    pub program_name: String,
+    /// The network name,
+    pub network: String,
     /// The AST for the program.
     pub ast: Ast,
     /// The input ast for the program if it exists.
@@ -52,6 +56,8 @@ pub struct Compiler<'a> {
 impl<'a> Compiler<'a> {
     /// Returns a new Leo compiler.
     pub fn new(
+        program_name: String,
+        network: String,
         handler: &'a Handler,
         main_file_path: PathBuf,
         output_directory: PathBuf,
@@ -61,7 +67,9 @@ impl<'a> Compiler<'a> {
             handler,
             main_file_path,
             output_directory,
-            ast: Ast::new(Program::new("Initial".to_string())),
+            program_name,
+            network,
+            ast: Ast::new(Program::default()),
             input_ast: None,
             output_options: output_options.unwrap_or_default(),
         }
@@ -87,7 +95,9 @@ impl<'a> Compiler<'a> {
         let prg_sf = with_session_globals(|s| s.source_map.new_source(program_string, name));
 
         // Use the parser to construct the abstract syntax tree (ast).
-        let ast: leo_ast::Ast = leo_parser::parse_ast(self.handler, &prg_sf.src, prg_sf.start_pos)?;
+        let mut ast: leo_ast::Ast = leo_parser::parse_ast(self.handler, &prg_sf.src, prg_sf.start_pos)?;
+        ast = ast.set_program_name(self.program_name.clone());
+        ast = ast.set_network(self.network.clone());
 
         if self.output_options.initial_ast {
             // Write the AST snapshot post parsing.
@@ -169,6 +179,17 @@ impl<'a> Compiler<'a> {
         // TODO: Make this pass optional.
         let st = self.loop_unrolling_pass(st)?;
         Ok(st)
+    }
+
+    /// Returns a compiled Leo program and prints the resulting bytecode.
+    // TODO: Remove when code generation is ready to be integrated into the compiler.
+    pub fn compile_and_generate_instructions(&mut self) -> Result<(SymbolTable, String)> {
+        self.parse_program()?;
+        let symbol_table = self.compiler_stages()?;
+
+        let bytecode = CodeGenerator::do_pass((&self.ast, self.handler))?;
+
+        Ok((symbol_table, bytecode))
     }
 
     /// Returns a compiled Leo program.

@@ -52,12 +52,15 @@ pub struct CircuitExpression {
 
 impl fmt::Display for CircuitExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} {{ ", self.name)?;
-        for member in self.members.iter() {
-            write!(f, "{}", member)?;
-            write!(f, ", ")?;
-        }
-        write!(f, "}}")
+        write!(
+            f,
+            "{{{}}}",
+            self.members
+                .iter()
+                .map(|x| x.to_string())
+                .collect::<Vec<_>>()
+                .join(", ")
+        )
     }
 }
 

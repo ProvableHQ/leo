@@ -45,6 +45,7 @@ impl ParserContext<'_> {
         }
         Ok(Program {
             name: String::new(),
+            network: String::new(),
             expected_input: Vec::new(),
             functions,
             circuits,

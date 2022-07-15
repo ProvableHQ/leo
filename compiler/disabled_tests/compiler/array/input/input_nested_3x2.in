@@ -1,5 +1,0 @@
-[main]
-a: [u8; (3, 2)] = [[0u8; 2]; 3];
-
-[registers]
-x: bool = false;

@@ -23,7 +23,7 @@ path = "../ast"
 version = "1.5.3"
 
 [dependencies.leo-errors]
-path = "../../leo/errors"
+path = "../../errors"
 version = "1.5.3"
 
 [dependencies.leo-passes]
@@ -34,12 +34,12 @@ version = "1.5.3"
 path = "../parser"
 version = "1.5.3"
 
+[dependencies.leo-span]
+path = "../span"
+version = "1.5.3"
+
 [dependencies.sha2]
 version = "0.10"
-
-[dependencies.leo-span]
-path = "../../leo/span"
-version = "1.5.3"
 
 [dev-dependencies.leo-test-framework]
 path = "../../tests/test-framework"

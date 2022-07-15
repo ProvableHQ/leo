@@ -76,11 +76,8 @@ impl InputFile {
         format!(
             r#"// The program input for {}/src/main.leo
 [main]
-a: u32 = 1;
-b: u32 = 2;
-
-[registers]
-r0: u32 = 0;
+public a: u32 = 1u32;
+b: u32 = 2u32;
 "#,
             self.package_name
         )

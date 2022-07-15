@@ -14,18 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use super::*;
 use crate::{commands::Command, context::Context};
-use leo_compiler::{Ast, Compiler, InputAst, OutputOptions};
+use leo_compiler::{Compiler, InputAst, OutputOptions};
 use leo_errors::{CliError, Result};
 use leo_package::{
     inputs::InputFile,
-    // inputs::*,
-    // outputs::CircuitFile
     outputs::{ChecksumFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
+use aleo::commands::Build as AleoBuild;
+
 use clap::StructOpt;
+use std::io::Write;
 use tracing::span::Span;
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
@@ -42,6 +44,12 @@ pub struct BuildOptions {
     pub enable_initial_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot of the unrolled AST.")]
     pub enable_unrolled_ast_snapshot: bool,
+    // Note: This is currently made optional since code generation is just a prototype.
+    #[structopt(
+        long,
+        help = "Runs the code generation stage of the compiler and prints the resulting bytecode."
+    )]
+    pub enable_code_generation: bool,
 }
 
 impl From<BuildOptions> for OutputOptions {
@@ -71,7 +79,7 @@ pub struct Build {
 
 impl Command for Build {
     type Input = ();
-    type Output = (Option<InputAst>, Ast, bool);
+    type Output = Option<InputAst>;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Build")
@@ -82,15 +90,11 @@ impl Command for Build {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        // Get the package path.
         let path = context.dir()?;
-        let manifest = context.manifest().map_err(|_| CliError::manifest_file_not_found())?;
-        let package_name = manifest.get_package_name();
-        let imports_map = manifest.get_imports_map().unwrap_or_default();
 
-        // Error out if there are dependencies but no lock file found.
-        if !imports_map.is_empty() && !context.lock_file_exists()? {
-            return Err(CliError::dependencies_are_not_installed().into());
-        }
+        // Get the program name.
+        let program_name = context.program_name()?;
 
         // Sanitize the package path to the root directory.
         let mut package_path = path.clone();
@@ -109,48 +113,27 @@ impl Command for Build {
             return Err(CliError::package_main_file_not_found().into());
         }
 
-        // Create the output directory
-        OutputsDirectory::create(&package_path)?;
-
         // Construct the path to the main file in the source directory
         let mut main_file_path = package_path.clone();
         main_file_path.push(SOURCE_DIRECTORY_NAME);
         main_file_path.push(MAIN_FILENAME);
 
         // Load the input file at `package_name.in`
-        let input_path = InputFile::new(&package_name).setup_file_path(&path);
+        let input_path = InputFile::new(&program_name).setup_file_path(&path);
 
-        // Load the state file at `package_name.in`
-        // let (state_string, state_path) = StateFile::new(&package_name).read_from(&path)?;
+        // Create the outputs directory
+        OutputsDirectory::create(&package_path)?;
 
         // Log compilation of files to console
         tracing::info!("Compiling main program... ({:?})", main_file_path);
 
-        // let imports_map = if context.lock_file_exists()? {
-        //     context.lock_file()?.to_import_map()
-        // } else {
-        //     Default::default()
-        // };
-
-        // Load the program at `main_file_path`
-        // let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_input(
-        //     package_name.clone(),
-        //     main_file_path,
-        //     output_directory,
-        //     &input_string,
-        //     &input_path,
-        //     &state_string,
-        //     &state_path,
-        //     thread_leaked_context(),
-        //     Some(self.compiler_options.clone().into()),
-        //     imports_map,
-        //     Some(self.compiler_options.into()),
-        // )?;
-
         // Initialize error handler
         let handler = leo_errors::emitter::Handler::default();
 
+        // Create a new instance of the Leo compiler.
         let mut program = Compiler::new(
+            program_name.to_string(),
+            String::from("aleo"),
             &handler,
             main_file_path,
             output_directory,
@@ -161,43 +144,40 @@ impl Command for Build {
         // Compute the current program checksum
         let program_checksum = program.checksum()?;
 
-        // Compile the program
-        program.compile()?;
-
-        // Generate the program on the constraint system and verify correctness
+        // Compile the program.
         {
-            // let mut cs = CircuitSynthesizer::<Bls12_377> {
-            //     constraints: Default::default(),
-            //     public_variables: Default::default(),
-            //     private_variables: Default::default(),
-            //     namespaces: Default::default(),
-            // };
-            // let temporary_program = program.clone();
-            // let output = temporary_program.compile_constraints(&mut cs)?;
+            // Compile the Leo program into Aleo instructions.
+            let (_, instructions) = program.compile_and_generate_instructions()?;
+
+            // // Parse the generated Aleo instructions into an Aleo file.
+            // let file = AleoFile::<Network>::from_str(&instructions).map_err(CliError::failed_to_load_instructions)?;
             //
-            // tracing::debug!("Compiled output - {:#?}", output);
-            // tracing::info!("Number of constraints - {:#?}", cs.num_constraints());
+            // // Create the path to the Aleo file.
+            // let mut aleo_file_path = package_path.clone();
+            // aleo_file_path.push(AleoFile::<Network >::main_file_name());
+            //
+            // // Write the Aleo file to `main.aleo`.
+            // file.write_to(&aleo_file_path)
+            //     .map_err(|err| CliError::failed_to_write_to_aleo_file(aleo_file_path.display(), err))?;
 
-            // Serialize the circuit
-            // let circuit_object = SerializedCircuit::from(cs);
-            // let json = circuit_object.to_json_string().unwrap();
-            // println!("json: {}", json);
+            // Create the path to the main Aleo file.
+            let mut aleo_file_path = package_path.clone();
+            aleo_file_path.push(AleoFile::<Network>::main_file_name());
 
-            // Write serialized circuit to circuit `.json` file.
-            // let circuit_file = CircuitFile::new(&package_name);
-            // circuit_file.write_to(&path, json)?;
+            // Write the instructions.
+            std::fs::File::create(&aleo_file_path)
+                .map_err(CliError::failed_to_load_instructions)?
+                .write_all(instructions.as_bytes())
+                .map_err(CliError::failed_to_load_instructions)?;
 
-            // Check that we can read the serialized circuit file
-            // let serialized = circuit_file.read_from(&package_path)?;
-
-            // Deserialize the circuit
-            // let deserialized = SerializedCircuit::from_json_string(&serialized).unwrap();
-            // let _circuit_synthesizer = CircuitSynthesizer::<Bls12_377>::try_from(deserialized).unwrap();
-            // println!("deserialized {:?}", circuit_synthesizer.num_constraints());
+            // Call the `aleo build` command from the Aleo SDK.
+            let res = AleoBuild.parse().map_err(CliError::failed_to_execute_aleo_build)?;
+            // Log the result of the build
+            tracing::info!("Result: {}", res);
         }
 
         // If a checksum file exists, check if it differs from the new checksum
-        let checksum_file = ChecksumFile::new(&package_name);
+        let checksum_file = ChecksumFile::new(&program_name);
         let checksum_differs = if checksum_file.exists_at(&package_path) {
             let previous_checksum = checksum_file.read_from(&package_path)?;
             program_checksum != previous_checksum
@@ -216,6 +196,6 @@ impl Command for Build {
 
         tracing::info!("Complete");
 
-        Ok((program.input_ast, program.ast, checksum_differs))
+        Ok(program.input_ast)
     }
 }
