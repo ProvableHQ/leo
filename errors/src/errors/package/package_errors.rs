@@ -545,7 +545,7 @@ create_messages!(
     @backtraced
     failed_to_create_directory {
         args: (dirname: impl Display, error: impl ErrorArg),
-        msg: format!("failed to create directory: {}, error: {}", dirname, error),
+        msg: format!("failed to create directory `{}`, error: {}", dirname, error),
         help: None,
     }
 

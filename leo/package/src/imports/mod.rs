@@ -14,12 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![doc = include_str!("../README.md")]
-
-pub mod build;
-pub mod imports;
-pub mod inputs;
-pub mod outputs;
-pub mod package;
-pub mod root;
-pub mod source;
+pub mod directory;
+pub use directory::*;
