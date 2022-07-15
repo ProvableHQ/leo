@@ -16,6 +16,7 @@
 
 use leo_errors::{PackageError, Result};
 
+use std::fs::ReadDir;
 use std::{
     borrow::Cow,
     fs,
@@ -45,21 +46,30 @@ impl SourceDirectory {
         let mut path = Cow::from(path);
         path.to_mut().push(SOURCE_DIRECTORY_NAME);
 
-        let directory = fs::read_dir(&path).map_err(PackageError::failed_to_read_inputs_directory)?;
-
+        let directory = fs::read_dir(&path).map_err(|err| PackageError::failed_to_read_file(path.display(), err))?;
         let mut file_paths = Vec::new();
-        for file_entry in directory {
-            let file_entry = file_entry.map_err(PackageError::failed_to_get_source_file_entry)?;
-            let file_path = file_entry.path();
 
-            // Verify that the entry is structured as a valid file
-            let file_type = file_entry
-                .file_type()
-                .map_err(|e| PackageError::failed_to_get_source_file_type(file_path.as_os_str().to_owned(), e))?;
-            if !file_type.is_file() {
-                return Err(PackageError::invalid_source_file_type(file_path.as_os_str().to_owned(), file_type).into());
-            }
+        parse_file_paths(directory, &mut file_paths)?;
 
+        println!("{:?}", file_paths);
+
+        Ok(file_paths)
+    }
+}
+
+fn parse_file_paths(directory: ReadDir, file_paths: &mut Vec<PathBuf>) -> Result<()> {
+    for file_entry in directory {
+        let file_entry = file_entry.map_err(PackageError::failed_to_get_source_file_entry)?;
+        let file_path = file_entry.path();
+
+        // Verify that the entry is structured as a valid file or directory
+        if file_path.is_dir() {
+            let directory =
+                fs::read_dir(&file_path).map_err(|err| PackageError::failed_to_read_file(file_path.display(), err))?;
+
+            parse_file_paths(directory, file_paths)?;
+            continue;
+        } else {
             // Verify that the file has the default file extension
             let file_extension = file_path
                 .extension()
@@ -74,7 +84,7 @@ impl SourceDirectory {
 
             file_paths.push(file_path);
         }
-
-        Ok(file_paths)
     }
+
+    Ok(())
 }

@@ -580,4 +580,11 @@ create_messages!(
         msg: format!("i/o operation failed, file: {}, error: {}", file, error),
         help: None,
     }
+
+    @backtraced
+    failed_to_get_file_name {
+        args: (),
+        msg: "Failed to get names of Leo files in the `src/` directory.".to_string(),
+        help: Some("Check your `src/` directory for invalid file names.".to_string()),
+    }
 );

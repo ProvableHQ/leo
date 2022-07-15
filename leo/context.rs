@@ -41,8 +41,8 @@ impl Context {
         }
     }
 
-    /// Returns the program name as a String.
-    pub fn program_name(&self) -> Result<String> {
+    /// Returns the package name as a String.
+    pub fn package_name(&self) -> Result<String> {
         // Open the manifest file.
         let path = self.dir()?;
         let manifest = Manifest::<Network>::open(&path).map_err(CliError::failed_to_open_manifest)?;

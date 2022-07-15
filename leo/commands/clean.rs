@@ -46,7 +46,7 @@ impl Command for Clean {
         // Removes the outputs directory.
         let path_string = OutputsDirectory::remove(&path)?;
 
-        tracing::info!("✅ Cleaned the build directory {}", path_string.dimmed());
+        tracing::info!("✅ Cleaned the outputs directory {}", path_string.dimmed());
 
         // Call the `aleo clean` command.
         let result = AleoClean.parse().map_err(CliError::failed_to_execute_aleo_clean)?;

@@ -42,7 +42,7 @@ impl OutputsDirectory {
         }
 
         if path.exists() {
-            fs::remove_dir_all(&path).map_err(PackageError::failed_to_create_inputs_directory)?;
+            fs::remove_dir_all(&path).map_err(|e| PackageError::failed_to_remove_directory(path.display(), e))?;
         }
 
         Ok(format!("(in \"{}\")", path.display()))

@@ -28,6 +28,7 @@ path = "leo/main.rs"
 [workspace]
 members = [
   "compiler/compiler",
+  "compiler/parser",
   "docs/grammar",
   "errors",
   "leo/package",
@@ -44,6 +45,10 @@ version = "1.5.3"
 
 [dependencies.leo-package]
 path = "./leo/package"
+version = "1.5.3"
+
+[dependencies.leo-parser]
+path = "./compiler/parser"
 version = "1.5.3"
 
 [dependencies.leo-span]
