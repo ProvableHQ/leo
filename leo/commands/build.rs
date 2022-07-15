@@ -29,7 +29,7 @@ use aleo::commands::Build as AleoBuild;
 use clap::StructOpt;
 use colored::Colorize;
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use leo_errors::emitter::Handler;
 use leo_package::build::BuildDirectory;
@@ -159,12 +159,14 @@ impl Command for Build {
         };
 
         // Change the cwd to the build directory to compile aleo files.
+        std::env::set_current_dir(&build_directory)
+            .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
 
         // // Call the `aleo build` command from the Aleo SDK.
-        // let result = AleoBuild.parse().map_err(CliError::failed_to_execute_aleo_build)?;
-        //
-        // // Log the result of the build
-        // tracing::info!("{}", result);
+        let result = AleoBuild.parse().map_err(CliError::failed_to_execute_aleo_build)?;
+
+        // Log the result of the build
+        tracing::info!("{}", result);
 
         Ok(input_ast)
     }
@@ -174,8 +176,8 @@ fn compile_leo_file(
     file_path: PathBuf,
     package_path: &PathBuf,
     package_name: &String,
-    outputs: &PathBuf,
-    build: &PathBuf,
+    outputs: &Path,
+    build: &Path,
     handler: &Handler,
     options: BuildOptions,
 ) -> Result<()> {
@@ -204,7 +206,7 @@ fn compile_leo_file(
         String::from("aleo"), // todo: fetch this from Network::Testnet3
         handler,
         file_path.clone(),
-        outputs.clone(),
+        outputs.to_path_buf(),
         Some(options.into()),
     );
 
@@ -241,7 +243,7 @@ fn compile_leo_file(
         let (_, instructions) = program.compile_and_generate_instructions()?;
 
         // Create the path to the Aleo file.
-        let mut aleo_file_path = build.clone();
+        let mut aleo_file_path = build.to_path_buf();
         aleo_file_path.push(format!("{}.aleo", program_name));
 
         // Write the instructions.

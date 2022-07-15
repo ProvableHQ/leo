@@ -587,4 +587,11 @@ create_messages!(
         msg: "Failed to get names of Leo files in the `src/` directory.".to_string(),
         help: Some("Check your `src/` directory for invalid file names.".to_string()),
     }
+
+    @backtraced
+    failed_to_set_cwd {
+        args: (dir: impl Display, error: impl ErrorArg),
+        msg: format!("Failed to set current working directory to `{}`. Error: {}.", dir, error),
+        help: None,
+    }
 );
