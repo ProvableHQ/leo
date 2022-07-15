@@ -212,23 +212,6 @@ impl Value {
         )
     }
 
-    pub(crate) fn from_u128(type_: Type, value: u128, span: Span) -> Self {
-        // Should never error since we converted from a start..stop and then back.
-        match type_ {
-            Type::U8 => Value::U8(value.try_into().unwrap(), span),
-            Type::U16 => Value::U16(value.try_into().unwrap(), span),
-            Type::U32 => Value::U32(value.try_into().unwrap(), span),
-            Type::U64 => Value::U64(value.try_into().unwrap(), span),
-            Type::U128 => Value::U128(value, span),
-            Type::I8 => Value::I8(value.try_into().unwrap(), span),
-            Type::I16 => Value::I16(value.try_into().unwrap(), span),
-            Type::I32 => Value::I32(value.try_into().unwrap(), span),
-            Type::I64 => Value::I64(value.try_into().unwrap(), span),
-            Type::I128 => Value::I128(value.try_into().unwrap(), span),
-            _ => unreachable!(),
-        }
-    }
-
     implement_const_unary!(
         @overflowing
         name: abs,
