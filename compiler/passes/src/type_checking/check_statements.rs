@@ -127,7 +127,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         // Restore the previous scope.
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        // TODO: Is this swap necessary?
         self.symbol_table.swap(prev_st.get_block_scope(scope_index).unwrap());
         self.symbol_table = RefCell::new(prev_st);
 
@@ -168,7 +167,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         input.statements.iter().for_each(|stmt| self.visit_statement(stmt));
 
         let previous_symbol_table = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        // TODO: Is this swap necessary?
         self.symbol_table
             .swap(previous_symbol_table.get_block_scope(scope_index).unwrap());
         self.symbol_table = RefCell::new(previous_symbol_table);

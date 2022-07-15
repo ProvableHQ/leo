@@ -40,4 +40,15 @@ impl<'a> Unroller<'a> {
             is_unrolling: false,
         }
     }
+
+
+    /// Returns the index of the current block scope.
+    /// Note that if we are in the midst of unrolling an IterationStatement, a new scope is created.
+    pub(crate) fn get_current_block(&mut self) -> usize {
+        if self.is_unrolling {
+            self.symbol_table.borrow_mut().insert_block()
+        } else {
+            self.block_index
+        }
+    }
 }

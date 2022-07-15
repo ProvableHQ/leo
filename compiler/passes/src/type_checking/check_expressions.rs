@@ -221,16 +221,21 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_literal(&mut self, input: &'a Literal, expected: &Self::AdditionalInput) -> Self::Output {
+
+        let negate_int = |str_content: &string| {
+            if self.negate {
+                format!("-{str_content}")
+            } else {
+                str_content.clone()
+            }
+        };
+
         Some(match input {
             Literal::Address(_, _) => self.assert_and_return_type(Type::Address, expected, input.span()),
             Literal::Boolean(_, _) => self.assert_and_return_type(Type::Boolean, expected, input.span()),
             Literal::Field(_, _) => self.assert_and_return_type(Type::Field, expected, input.span()),
             Literal::I8(str_content, _) => {
-                let int = if self.negate {
-                    format!("-{str_content}")
-                } else {
-                    str_content.clone()
-                };
+                let int = negate_int(str_content);
 
                 if int.parse::<i8>().is_err() {
                     self.handler
@@ -239,11 +244,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 self.assert_and_return_type(Type::I8, expected, input.span())
             }
             Literal::I16(str_content, _) => {
-                let int = if self.negate {
-                    format!("-{str_content}")
-                } else {
-                    str_content.clone()
-                };
+                let int = negate_int(str_content);
 
                 if int.parse::<i16>().is_err() {
                     self.handler
@@ -252,11 +253,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 self.assert_and_return_type(Type::I16, expected, input.span())
             }
             Literal::I32(str_content, _) => {
-                let int = if self.negate {
-                    format!("-{str_content}")
-                } else {
-                    str_content.clone()
-                };
+                let int = negate_int(str_content);
 
                 if int.parse::<i32>().is_err() {
                     self.handler
@@ -265,11 +262,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 self.assert_and_return_type(Type::I32, expected, input.span())
             }
             Literal::I64(str_content, _) => {
-                let int = if self.negate {
-                    format!("-{str_content}")
-                } else {
-                    str_content.clone()
-                };
+                let int = negate_int(str_content);
 
                 if int.parse::<i64>().is_err() {
                     self.handler
@@ -278,11 +271,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 self.assert_and_return_type(Type::I64, expected, input.span())
             }
             Literal::I128(str_content, _) => {
-                let int = if self.negate {
-                    format!("-{str_content}")
-                } else {
-                    str_content.clone()
-                };
+                let int = negate_int(str_content);
 
                 if int.parse::<i128>().is_err() {
                     self.handler

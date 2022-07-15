@@ -32,6 +32,7 @@ impl StatementReconstructor for Unroller<'_> {
                 VariableType::Mut
             };
 
+            // TODO: Do we need to obey shadowing rules?
             input.variable_names.iter().for_each(|v| {
                 if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
                     v.identifier.name,
@@ -64,10 +65,7 @@ impl StatementReconstructor for Unroller<'_> {
                         Ok(val_as_usize) => Ok(val_as_usize),
                         Err(err) => {
                             self.handler.emit_err(err);
-                            Err(Statement::Block(Block {
-                                statements: Vec::new(),
-                                span: input.span,
-                            }))
+                            Err(Statement::dummy(input.span))
                         }
                     }
                 };
@@ -97,12 +95,7 @@ impl StatementReconstructor for Unroller<'_> {
                     Default::default()
                 };
 
-                // Create the iteration scope if it does not exist, otherwise grab the existing one.
-                let scope_index = if self.is_unrolling {
-                    self.symbol_table.borrow_mut().insert_block()
-                } else {
-                    self.block_index
-                };
+                let scope_index = self.get_current_block();
 
                 // Enter the scope of the loop body.
                 let prev_st = std::mem::take(&mut self.symbol_table);
@@ -171,12 +164,8 @@ impl StatementReconstructor for Unroller<'_> {
 
                             self.is_unrolling = prev_create_iter_scopes;
 
-                            // TODO: Should this be removed?
-                            // self.symbol_table.borrow_mut().variables.remove(&input.variable.name);
-
                             // Restore the previous symbol table.
                             let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-                            // TODO: Is this swap necessary?
                             self.symbol_table.swap(prev_st.get_block_scope(scope_index).unwrap());
                             self.symbol_table = RefCell::new(prev_st);
 
@@ -188,42 +177,20 @@ impl StatementReconstructor for Unroller<'_> {
 
                 // Restore the previous symbol table.
                 let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-                // TODO: Is this swap necessary?
                 self.symbol_table.swap(prev_st.get_block_scope(scope_index).unwrap());
                 self.symbol_table = RefCell::new(prev_st);
                 self.block_index = scope_index + 1;
 
                 iter_blocks
             }
-            (None, Some(_)) => {
-                self.handler
-                    .emit_err(FlattenError::non_const_loop_bounds("start", input.start.span()));
-                Statement::Iteration(Box::from(input))
-            }
-            (Some(_), None) => {
-                self.handler
-                    .emit_err(FlattenError::non_const_loop_bounds("stop", input.stop.span()));
-                Statement::Iteration(Box::from(input))
-            }
-            (None, None) => {
-                self.handler
-                    .emit_err(FlattenError::non_const_loop_bounds("start", input.start.span()));
-                self.handler
-                    .emit_err(FlattenError::non_const_loop_bounds("stop", input.stop.span()));
-                Statement::Iteration(Box::from(input))
-            }
+            // If both loop bounds are not constant, then the loop is not unrolled.
+            _ => Statement::Iteration(Box::from(input))
         }
     }
 
     fn reconstruct_block(&mut self, input: Block) -> Block {
-        // If we are in an iteration scope we create any sub scopes for it.
-        // This is because in TYC we remove all its sub scopes to avoid clashing variables
-        // during flattening.
-        let current_block = if self.is_unrolling {
-            self.symbol_table.borrow_mut().insert_block()
-        } else {
-            self.block_index
-        };
+
+        self.get_current_block();
 
         // Enter block scope.
         let prev_st = std::mem::take(&mut self.symbol_table);
