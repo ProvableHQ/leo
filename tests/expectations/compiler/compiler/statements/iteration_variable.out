@@ -1,5 +1,8 @@
 ---
 namespace: Compile
-expectation: Fail
+expectation: Pass
 outputs:
-  - "Error [EFLA0373004]: The loop has a `stop` bound that is non_const.\n    --> compiler-test:7:25\n     |\n   7 |     for i: u32 in 0u32..COUNT {\n     |                         ^^^^^\n"
+  - output:
+      - initial_input_ast: 38bd70450af900f8f29df8355e234d0940c125835e73128115c421deb1559dcc
+    initial_ast: c34103e55484773e5ecc365a64a5602d51314177fc641c85ecbccbed28d5fff2
+    unrolled_ast: c34103e55484773e5ecc365a64a5602d51314177fc641c85ecbccbed28d5fff2

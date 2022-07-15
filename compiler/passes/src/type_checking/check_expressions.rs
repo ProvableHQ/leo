@@ -221,8 +221,8 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_literal(&mut self, input: &'a Literal, expected: &Self::AdditionalInput) -> Self::Output {
-
-        let negate_int = |str_content: &string| {
+        // Closure to produce a negated integer as a string.
+        let negate_int = |str_content: &String| {
             if self.negate {
                 format!("-{str_content}")
             } else {

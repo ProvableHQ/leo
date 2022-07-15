@@ -174,17 +174,6 @@ impl SymbolTable {
         }
     }
 
-    /// Returns the index associated with the function symbol, if it exists in the symbol table.
-    pub fn get_fn_index(&self, symbol: &Symbol) -> Option<usize> {
-        if let Some(func) = self.functions.get(symbol) {
-            Some(func.id)
-        } else if let Some(parent) = self.parent.as_ref() {
-            parent.get_fn_id(symbol)
-        } else {
-            None
-        }
-    }
-
     /// Returns the scope associated with `index`, if it exists in the symbol table.
     pub fn get_block_scope(&self, index: usize) -> Option<&RefCell<Self>> {
         self.scopes.get(index)

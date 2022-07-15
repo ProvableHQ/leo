@@ -190,7 +190,7 @@ impl StatementReconstructor for Unroller<'_> {
 
     fn reconstruct_block(&mut self, input: Block) -> Block {
 
-        self.get_current_block();
+        let current_block = self.get_current_block();
 
         // Enter block scope.
         let prev_st = std::mem::take(&mut self.symbol_table);

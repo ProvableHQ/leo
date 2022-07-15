@@ -41,7 +41,6 @@ impl<'a> Unroller<'a> {
         }
     }
 
-
     /// Returns the index of the current block scope.
     /// Note that if we are in the midst of unrolling an IterationStatement, a new scope is created.
     pub(crate) fn get_current_block(&mut self) -> usize {
