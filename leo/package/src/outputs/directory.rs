@@ -35,7 +35,7 @@ impl OutputsDirectory {
     }
 
     /// Removes the directory at the provided path.
-    pub fn remove(path: &Path) -> Result<()> {
+    pub fn remove(path: &Path) -> Result<String> {
         let mut path = Cow::from(path);
         if path.is_dir() && !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
             path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
@@ -45,6 +45,6 @@ impl OutputsDirectory {
             fs::remove_dir_all(&path).map_err(PackageError::failed_to_create_inputs_directory)?;
         }
 
-        Ok(())
+        Ok(format!("(in \"{}\")", path.display()))
     }
 }

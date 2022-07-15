@@ -27,6 +27,7 @@ use leo_package::{
 use aleo::commands::Build as AleoBuild;
 
 use clap::StructOpt;
+use colored::Colorize;
 use std::io::Write;
 use tracing::span::Span;
 
@@ -121,7 +122,7 @@ impl Command for Build {
         OutputsDirectory::create(&package_path)?;
 
         // Log compilation of files to console
-        tracing::info!("Compiling main program... ({:?})", main_file_path);
+        tracing::info!("Compiling '{}' in (in \"{}\")", MAIN_FILENAME, main_file_path.display());
 
         // Initialize error handler
         let handler = leo_errors::emitter::Handler::default();
@@ -165,11 +166,20 @@ impl Command for Build {
                 .map_err(CliError::failed_to_load_instructions)?
                 .write_all(instructions.as_bytes())
                 .map_err(CliError::failed_to_load_instructions)?;
+            // Prepare the path string.
+            let path_string = format!("(in \"{}\")", aleo_file_path.display());
+
+            // Log the build as successful.
+            tracing::info!(
+                "✅ Compiled '{}' into Aleo instructions {}",
+                MAIN_FILENAME,
+                path_string.dimmed()
+            );
 
             // Call the `aleo build` command from the Aleo SDK.
             let res = AleoBuild.parse().map_err(CliError::failed_to_execute_aleo_build)?;
             // Log the result of the build
-            tracing::info!("Result: {}", res);
+            tracing::info!("{}", res);
         }
 
         // If a checksum file exists, check if it differs from the new checksum
