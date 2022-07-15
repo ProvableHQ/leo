@@ -162,7 +162,7 @@ impl<'a> CodeGenerator<'a> {
                 format!("{}.{}", name, type_)
             } else {
                 // foo; // no visibility for interfaces
-                name.to_string()
+                name
             }
         } else {
             unreachable!("All composite types should be known at this phase of compilation")

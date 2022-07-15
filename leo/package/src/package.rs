@@ -168,7 +168,7 @@ impl Package {
         // Create the source directory.
         SourceDirectory::create(path)?;
 
-        // Create the input directory.
+        // Create the inputs directory.
         InputsDirectory::create(path)?;
 
         // Create the input file in the inputs directory.
@@ -176,11 +176,10 @@ impl Package {
 
         // Create the main file in the source directory.
         MainFile::new(package_name).write_to(path)?;
+
         // Next, verify that a valid Leo package has been initialized in this directory
-        {
-            if !Self::is_initialized(package_name, path) {
-                return Err(PackageError::failed_to_initialize_package(package_name, path.as_os_str()).into());
-            }
+        if !Self::is_initialized(package_name, path) {
+            return Err(PackageError::failed_to_initialize_package(package_name, path.as_os_str()).into());
         }
 
         Ok(())

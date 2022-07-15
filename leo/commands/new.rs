@@ -18,7 +18,8 @@ use crate::{
     commands::{Command, ALEO_CLI_COMMAND},
     context::Context,
 };
-use leo_errors::{CliError, Result};
+use leo_errors::{CliError, PackageError, Result};
+use leo_package::build::BuildDirectory;
 use leo_package::package::Package;
 
 use aleo::commands::New as AleoNew;
@@ -47,18 +48,26 @@ impl Command for New {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         tracing::info!("Starting...");
+        let path = context.dir()?;
+
+        // Derive the program directory path.
+        let mut package_path = path.clone();
+        package_path.push(&self.name);
+
+        // Initialize the Leo package in the directory created by `aleo new`.
+        Package::initialize(&self.name, &package_path)?;
+
+        // Create the Leo build/ directory
+        let build_directory = BuildDirectory::create(&path)?;
+
+        // Change the cwd to the Leo build/ directory to compile aleo files.
+        std::env::set_current_dir(&build_directory)
+            .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
 
         // Call the `aleo new` command from the Aleo SDK.
         let command =
             AleoNew::try_parse_from(&[ALEO_CLI_COMMAND, &self.name]).map_err(CliError::failed_to_parse_aleo_new)?;
         let result = command.parse().map_err(CliError::failed_to_execute_aleo_new)?;
-
-        // Derive the program directory path.
-        let mut path = context.dir()?;
-        path.push(&self.name);
-
-        // Initialize the Leo package in the directory created by `aleo new`.
-        Package::initialize(&self.name, &path)?;
 
         // todo: modify the readme file to recommend building with `leo build`.
 
