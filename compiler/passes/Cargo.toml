@@ -46,3 +46,6 @@ version = "1.5.3"
 
 [dependencies.itertools]
 version = "0.10.3"
+
+[dependencies.num-traits]
+version = "0.2.15"

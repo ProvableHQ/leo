@@ -756,6 +756,45 @@ impl Display for Value {
     }
 }
 
+impl TryFrom<Value> for i128 {
+    type Error = LeoError;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        value.as_ref().try_into()
+    }
+}
+
+impl TryFrom<&Value> for i128 {
+    type Error = LeoError;
+
+    fn try_from(value: &Value) -> Result<Self, Self::Error> {
+        use Value::*;
+        match value {
+            U8(val, span) => {
+                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
+            }
+            U16(val, span) => {
+                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
+            }
+            U32(val, span) => {
+                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
+            }
+            U64(val, span) => {
+                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
+            }
+            U128(val, span) => {
+                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
+            }
+            I8(val, _) => Ok(*val as i128),
+            I16(val, _) => Ok(*val as i128),
+            I32(val, _) => Ok(*val as i128),
+            I64(val, _) => Ok(*val as i128),
+            I128(val, _) => Ok(*val),
+            _ => unreachable!(),
+        }
+    }
+}
+
 impl TryFrom<Value> for u128 {
     type Error = LeoError;
 
