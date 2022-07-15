@@ -96,12 +96,12 @@ impl Namespace for CompileNamespace {
     }
 }
 
-#[derive(Deserialize, PartialEq, Serialize)]
+#[derive(Deserialize, PartialEq, Eq, Serialize)]
 struct OutputItem {
     pub initial_input_ast: String,
 }
 
-#[derive(Deserialize, PartialEq, Serialize)]
+#[derive(Deserialize, PartialEq, Eq, Serialize)]
 struct CompileOutput {
     pub output: Vec<OutputItem>,
     pub initial_ast: String,

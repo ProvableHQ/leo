@@ -29,7 +29,6 @@ impl StatementReconstructor for Unroller<'_> {
                 VariableType::Mut
             };
 
-            // TODO: Do we need to obey shadowing rules?
             input.variable_names.iter().for_each(|v| {
                 if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
                     v.identifier.name,

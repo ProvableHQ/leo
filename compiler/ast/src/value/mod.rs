@@ -27,6 +27,9 @@ use std::{
 
 // TODO: Consider refactoring this module to use the console implementations from snarkVM.
 
+// This is temporary since the currently unused code is used in constant folding.
+#[allow(dead_code)]
+
 // Macro for making implementing unary operations over appropriate types easier.
 macro_rules! implement_const_unary {
     (
@@ -67,6 +70,8 @@ macro_rules! implement_const_unary {
             l: $logic:expr
         ]),+]
     ) => {
+        // TODO: This is temporary since the currently unused code is used in constant folding.
+        #[allow(dead_code)]
         pub(crate) fn $name(self, span: Span) -> Result<Self> {
             use Value::*;
 
@@ -151,6 +156,8 @@ macro_rules! implement_const_binary {
             logic: $logic:expr
         ]),+]
     ) => {
+        // This is temporary since the currently unused code is used in constant folding.
+        #[allow(dead_code)]
         pub(crate) fn $name(self, other: Self, span: Span) -> Result<Self> {
             use Value::*;
 
@@ -194,6 +201,8 @@ pub enum Value {
 }
 
 impl Value {
+    // TODO: This is temporary since the currently unused code is used in constant folding.
+    #[allow(dead_code)]
     pub(crate) fn is_supported_const_fold_type(&self) -> bool {
         use Value::*;
         matches!(

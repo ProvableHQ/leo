@@ -69,7 +69,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         };
 
         let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(&var_name.name) {
-            // TODO: Check where this check is moved to in `improved-flattening`.
             match &var.declaration {
                 VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
                 VariableType::Input(ParamMode::Const) => {
