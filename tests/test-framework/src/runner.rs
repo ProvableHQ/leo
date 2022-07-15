@@ -172,8 +172,11 @@ impl TestCases {
             } else {
                 let raw = std::fs::read_to_string(&expectation_path).expect("failed to read expectations file");
                 (
-                    expectation_path,
-                    Some(serde_yaml::from_str(&raw).expect("invalid yaml in expectations file")),
+                    expectation_path.clone(),
+                    Some(
+                        serde_yaml::from_str(&raw)
+                            .expect(&format!("invalid yaml in expectations file: {:?}", expectation_path)),
+                    ),
                 )
             }
         } else {

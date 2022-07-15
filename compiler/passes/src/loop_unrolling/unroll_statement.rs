@@ -20,7 +20,7 @@ use leo_ast::*;
 use leo_errors::FlattenError;
 
 use crate::unroller::Unroller;
-use crate::{VariableType, VariableSymbol};
+use crate::{VariableSymbol, VariableType};
 
 impl StatementReconstructor for Unroller<'_> {
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> Statement {
@@ -184,12 +184,11 @@ impl StatementReconstructor for Unroller<'_> {
                 iter_blocks
             }
             // If both loop bounds are not constant, then the loop is not unrolled.
-            _ => Statement::Iteration(Box::from(input))
+            _ => Statement::Iteration(Box::from(input)),
         }
     }
 
     fn reconstruct_block(&mut self, input: Block) -> Block {
-
         let current_block = self.get_current_block();
 
         // Enter block scope.

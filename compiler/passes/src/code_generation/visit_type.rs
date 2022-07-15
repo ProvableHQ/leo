@@ -28,7 +28,16 @@ impl<'a> CodeGenerator<'a> {
             | Type::Group
             | Type::Scalar
             | Type::String
-            | Type::IntegerType(..) => format!("{}", input),
+            | Type::I8
+            | Type::I16
+            | Type::I32
+            | Type::I64
+            | Type::I128
+            | Type::U8
+            | Type::U16
+            | Type::U32
+            | Type::U64
+            | Type::U128 => format!("{}", input),
             Type::Identifier(ident) => {
                 if let Some(type_) = self.composite_mapping.get(&ident.name) {
                     format!("{}.{}", ident.to_string().to_lowercase(), type_)
