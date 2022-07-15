@@ -14,8 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::parse_file_paths;
 use leo_errors::{PackageError, Result};
 
+use std::path::PathBuf;
 use std::{borrow::Cow, fs, path::Path};
 
 pub static IMPORTS_DIRECTORY_NAME: &str = "imports/";
@@ -23,16 +25,19 @@ pub static IMPORTS_DIRECTORY_NAME: &str = "imports/";
 pub struct ImportsDirectory;
 
 impl ImportsDirectory {
-    /// Creates a directory at the provided path with the default directory name.
-    pub fn create(path: &Path) -> Result<()> {
+    /// Creates a directory at the provided path with the default directory name if it does not exist.
+    pub fn create(path: &Path) -> Result<PathBuf> {
         let mut path = Cow::from(path);
         if path.is_dir() && !path.ends_with(IMPORTS_DIRECTORY_NAME) {
             path.to_mut().push(IMPORTS_DIRECTORY_NAME);
         }
 
-        fs::create_dir_all(&path)
-            .map_err(|err| PackageError::failed_to_create_directory(IMPORTS_DIRECTORY_NAME, err))?;
-        Ok(())
+        if !path.exists() {
+            fs::create_dir_all(&path)
+                .map_err(|err| PackageError::failed_to_create_directory(IMPORTS_DIRECTORY_NAME, err))?;
+        }
+
+        Ok(path.to_path_buf())
     }
 
     /// Removes the directory at the provided path.
@@ -47,5 +52,34 @@ impl ImportsDirectory {
         }
 
         Ok(format!("(in \"{}\")", path.display()))
+    }
+
+    /// Returns true if the imports directory does not exist or does not contain files.
+    pub fn is_empty(path: &Path) -> Result<bool> {
+        let imports_path = path.join(Path::new(IMPORTS_DIRECTORY_NAME));
+        if !imports_path.exists() {
+            return Ok(true);
+        }
+
+        Ok(imports_path
+            .read_dir()
+            .map_err(|err| PackageError::failed_to_read_file(IMPORTS_DIRECTORY_NAME, err))?
+            .next()
+            .is_none())
+    }
+
+    /// Returns a list of files in the imports directory.
+    pub fn files(path: &Path) -> Result<Vec<PathBuf>> {
+        let mut path = Cow::from(path);
+        if path.is_dir() && !path.ends_with(IMPORTS_DIRECTORY_NAME) {
+            path.to_mut().push(IMPORTS_DIRECTORY_NAME);
+        }
+
+        let directory = fs::read_dir(&path).map_err(|err| PackageError::failed_to_read_file(path.display(), err))?;
+        let mut file_paths = Vec::new();
+
+        parse_file_paths(directory, &mut file_paths)?;
+
+        Ok(file_paths)
     }
 }

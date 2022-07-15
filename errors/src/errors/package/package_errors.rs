@@ -427,47 +427,39 @@ create_messages!(
     @backtraced
     failed_to_create_source_directory {
         args: (error: impl ErrorArg),
-        msg: format!("failed creating source directory {}", error),
+        msg: format!("Failed creating source directory {}.", error),
         help: None,
     }
 
-    /// For when getting a source file entry failed.
+    /// For when getting a Leo file entry failed.
     @backtraced
-    failed_to_get_source_file_entry {
+    failed_to_get_leo_file_entry {
         args: (error: impl ErrorArg),
-        msg: format!("failed to get input file entry: {}", error),
+        msg: format!("Failed to get Leo file entry: {}.", error),
         help: None,
     }
 
     /// For when getting the source file extension failed.
     @backtraced
-    failed_to_get_source_file_extension {
+    failed_to_get_leo_file_extension {
         args: (extension: impl Debug),
-        msg: format!("failed to get source file extension: {:?}", extension),
+        msg: format!("Failed to get Leo file extension: {:?}.", extension),
         help: None,
     }
 
-    /// For when getting the source file type failed.
+    /// For when getting the Leo file type failed.
     @backtraced
-    failed_to_get_source_file_type {
+    failed_to_get_leo_file_type {
         args: (file: impl Debug, error: impl ErrorArg),
-        msg: format!("failed to get source file `{:?}` type: {}", file, error),
+        msg: format!("Failed to get Leo file `{:?}` type: {}.", file, error),
         help: None,
     }
 
-    /// For when getting the source file has an invalid extension.
+    /// For when the Leo file has an invalid extension.
     @backtraced
-    invalid_source_file_extension {
+    invalid_leo_file_extension {
         args: (file: impl Debug, extension: impl Debug),
-        msg: format!("source file `{:?}` has invalid extension: {:?}", file, extension),
-        help: None,
-    }
-
-    /// For when getting the source file has an invalid file type.
-    @backtraced
-    invalid_source_file_type {
-        args: (file: impl Debug, type_: std::fs::FileType),
-        msg: format!("source file `{:?}` has invalid type: {:?}", file, type_),
+        msg: format!("Source file `{:?}` has invalid extension: {:?}.", file, extension),
         help: None,
     }
 
@@ -541,11 +533,19 @@ create_messages!(
         help: None,
     }
 
+    /// For when opening a directory failed.
+    @backtraced
+    directory_not_found {
+        args: (dirname: impl Display, path: impl Display),
+        msg: format!("The `{}` does not exist at `{}`.", dirname, path),
+        help: None,
+    }
+
     /// For when creating a directory failed.
     @backtraced
     failed_to_create_directory {
         args: (dirname: impl Display, error: impl ErrorArg),
-        msg: format!("failed to create directory `{}`, error: {}", dirname, error),
+        msg: format!("failed to create directory `{}`, error: {}.", dirname, error),
         help: None,
     }
 
