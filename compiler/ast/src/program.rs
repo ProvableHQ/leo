@@ -43,7 +43,7 @@ pub struct Program {
 
 impl fmt::Display for Program {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        for(_, import) in self.imports.iter() {
+        for (_, import) in self.imports.iter() {
             import.fmt(f)?;
             writeln!(f,)?;
         }

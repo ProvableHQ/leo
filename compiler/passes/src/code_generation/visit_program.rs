@@ -42,7 +42,8 @@ impl<'a> CodeGenerator<'a> {
         }
 
         // Print the program id.
-        writeln!(program_string, "program {}.{};", input.name, input.network).expect("Failed to write program id to string.");
+        writeln!(program_string, "program {}.{};", input.name, input.network)
+            .expect("Failed to write program id to string.");
 
         // Newline separator.
         program_string.push('\n');

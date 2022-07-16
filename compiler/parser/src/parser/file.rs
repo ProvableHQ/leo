@@ -79,7 +79,7 @@ impl ParserContext<'_> {
         let leo_file_extension = self.expect_identifier()?;
 
         if leo_file_extension.name.ne(&sym::leo) {
-            return Err(ParserError::leo_imports_only(leo_file_extension, self.token.span).into())
+            return Err(ParserError::leo_imports_only(leo_file_extension, self.token.span).into());
         }
         let end = self.expect(&Token::Semicolon)?;
 
