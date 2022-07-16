@@ -192,5 +192,7 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
 
     fn visit_circuit(&mut self, _input: &'a Circuit) {}
 
-    fn visit_import(&mut self, _input: &'a ImportStatement) {}
+    fn visit_import(&mut self, input: &'a Program) {
+        self.visit_program(input)
+    }
 }

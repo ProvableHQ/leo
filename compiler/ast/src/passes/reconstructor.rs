@@ -291,7 +291,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
         input
     }
 
-    fn reconstruct_import(&mut self, input: ImportStatement) -> ImportStatement {
+    fn reconstruct_import(&mut self, input: Program) -> Program {
         input
     }
 }

@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{Circuit, CircuitMember, Function, ImportStatement, Program};
+use leo_ast::{Circuit, CircuitMember, Function, Identifier, Program};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -32,8 +32,8 @@ impl<'a> CodeGenerator<'a> {
             program_string.push_str(
                 &input
                     .imports
-                    .values()
-                    .map(|import| self.visit_import(import))
+                    .iter()
+                    .map(|(identifier, imported_program)| self.visit_import(identifier, imported_program))
                     .join("\n"),
             );
 
@@ -72,8 +72,13 @@ impl<'a> CodeGenerator<'a> {
         program_string
     }
 
-    fn visit_import(&mut self, import: &'a ImportStatement) -> String {
-        format!("import {}.aleo;", import.identifier)
+    fn visit_import(&mut self, import_name: &'a Identifier, import_program: &'a Program) -> String {
+        // Load symbols into composite mapping.
+        let _import_program_string = self.visit_program(import_program);
+        // todo: We do not need the import program string because we generate instructions for imports separately during leo build.
+
+        // Generate string for import statement.
+        format!("import {}.aleo;", import_name)
     }
 
     fn visit_circuit_or_record(&mut self, circuit: &'a Circuit) -> String {

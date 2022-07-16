@@ -15,9 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-
-use leo_errors::{ParserError, ParserWarning, Result};
+use crate::parse_ast;
+use leo_errors::{CompilerError, ParserError, ParserWarning, Result};
+use leo_span::source_map::FileName;
 use leo_span::sym;
+use leo_span::symbol::with_session_globals;
+
+use std::fs;
 
 impl ParserContext<'_> {
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
@@ -71,25 +75,50 @@ impl ParserContext<'_> {
     }
 
     /// Parses an import statement `import foo.leo;`.
-    pub(super) fn parse_import(&mut self) -> Result<(Identifier, ImportStatement)> {
-        let start = self.expect(&Token::Import)?;
+    pub(super) fn parse_import(&mut self) -> Result<(Identifier, Program)> {
+        // Parse `import`.
+        let _start = self.expect(&Token::Import)?;
+
+        // Parse `foo`.
         let import_name = self.expect_identifier()?;
 
+        // Parse `.leo`.
         self.expect(&Token::Dot)?;
         let leo_file_extension = self.expect_identifier()?;
 
+        // Throw error for non-leo files.
         if leo_file_extension.name.ne(&sym::leo) {
             return Err(ParserError::leo_imports_only(leo_file_extension, self.token.span).into());
         }
-        let end = self.expect(&Token::Semicolon)?;
+        let _end = self.expect(&Token::Semicolon)?;
 
-        Ok((
-            import_name,
-            ImportStatement {
-                identifier: import_name,
-                span: start + end,
-            },
-        ))
+        // Tokenize and parse import file.
+        // Todo: move this to a different module.
+        let mut import_file_path =
+            std::env::current_dir().map_err(|err| CompilerError::cannot_open_cwd(err, self.token.span))?;
+        import_file_path.push("imports");
+        import_file_path.push(format!("{}.leo", import_name.name));
+
+        // Throw an error if the import file doesn't exist.
+        if !import_file_path.exists() {
+            return Err(CompilerError::import_not_found(import_file_path.display(), self.token.span).into());
+        }
+
+        // Read the import file into string.
+        // Todo: protect against cyclic imports.
+        let program_string =
+            fs::read_to_string(&import_file_path).map_err(|e| CompilerError::file_read_error(&import_file_path, e))?;
+
+        // Create import file name.
+        let name: FileName = FileName::Real(import_file_path);
+
+        // Register the source (`program_string`) in the source map.
+        let prg_sf = with_session_globals(|s| s.source_map.new_source(&program_string, name));
+
+        // Use the parser to construct the imported abstract syntax tree (ast).
+        let program_ast = parse_ast(self.handler, &prg_sf.src, prg_sf.start_pos)?;
+
+        Ok((import_name, program_ast.into_repr()))
     }
 
     /// Returns a [`Vec<CircuitMember>`] AST node if the next tokens represent a circuit member variable
