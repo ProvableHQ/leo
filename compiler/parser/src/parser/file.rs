@@ -22,11 +22,16 @@ use leo_span::sym;
 impl ParserContext<'_> {
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     pub fn parse_program(&mut self) -> Result<Program> {
+        let mut imports = IndexMap::new();
         let mut functions = IndexMap::new();
         let mut circuits = IndexMap::new();
 
         while self.has_next() {
             match &self.token.token {
+                Token::Import => {
+                    let (id, import) = self.parse_import()?;
+                    imports.insert(id, import);
+                }
                 Token::Circuit | Token::Record => {
                     let (id, circuit) = self.parse_circuit()?;
                     circuits.insert(id, circuit);
@@ -47,6 +52,7 @@ impl ParserContext<'_> {
             name: String::new(),
             network: String::new(),
             expected_input: Vec::new(),
+            imports,
             functions,
             circuits,
         })
@@ -62,6 +68,28 @@ impl ParserContext<'_> {
                 .join(", "),
             token.span,
         )
+    }
+
+    /// Parses an import statement `import foo.leo;`.
+    pub(super) fn parse_import(&mut self) -> Result<(Identifier, ImportStatement)> {
+        let start = self.expect(&Token::Import)?;
+        let import_name = self.expect_identifier()?;
+
+        self.expect(&Token::Dot)?;
+        let leo_file_extension = self.expect_identifier()?;
+
+        if leo_file_extension.name.ne(&sym::leo) {
+            return Err(ParserError::leo_imports_only(leo_file_extension, self.token.span).into())
+        }
+        let end = self.expect(&Token::Semicolon)?;
+
+        Ok((
+            import_name,
+            ImportStatement {
+                identifier: import_name,
+                span: start + end,
+            },
+        ))
     }
 
     /// Returns a [`Vec<CircuitMember>`] AST node if the next tokens represent a circuit member variable

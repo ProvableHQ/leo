@@ -258,6 +258,11 @@ pub trait ProgramReconstructor: StatementReconstructor {
             name: input.name,
             network: input.network,
             expected_input: input.expected_input,
+            imports: input
+                .imports
+                .into_iter()
+                .map(|(id, import)| (id, self.reconstruct_import(import)))
+                .collect(),
             functions: input
                 .functions
                 .into_iter()
@@ -283,6 +288,10 @@ pub trait ProgramReconstructor: StatementReconstructor {
     }
 
     fn reconstruct_circuit(&mut self, input: Circuit) -> Circuit {
+        input
+    }
+
+    fn reconstruct_import(&mut self, input: ImportStatement) -> ImportStatement {
         input
     }
 }

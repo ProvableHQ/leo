@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{Circuit, CircuitMember, Function, Program};
+use leo_ast::{Circuit, CircuitMember, Function, ImportStatement, Program};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -24,9 +24,30 @@ use std::fmt::Write as _;
 
 impl<'a> CodeGenerator<'a> {
     pub(crate) fn visit_program(&mut self, input: &'a Program) -> String {
-        let mut program_string = format!("program {}.{};\n", input.name, input.network);
+        // Accumulate instructions into a program string.
+        let mut program_string = String::new();
 
-        // Visit each `Circuit` or `Record` in the Leo AST and produce a bytecode circuit.
+        if !input.imports.is_empty() {
+            // Visit each import statement and produce a Aleo import instruction.
+            program_string.push_str(
+                &input
+                    .imports
+                    .values()
+                    .map(|import| self.visit_import(import))
+                    .join("\n"),
+            );
+
+            // Newline separator.
+            program_string.push('\n');
+        }
+
+        // Print the program id.
+        writeln!(program_string, "program {}.{};", input.name, input.network).expect("Failed to write program id to string.");
+
+        // Newline separator.
+        program_string.push('\n');
+
+        // Visit each `Circuit` or `Record` in the Leo AST and produce a Aleo interface instruction.
         program_string.push_str(
             &input
                 .circuits
@@ -35,9 +56,10 @@ impl<'a> CodeGenerator<'a> {
                 .join("\n"),
         );
 
+        // Newline separator.
         program_string.push('\n');
 
-        // Visit each `Function` in the Leo AST and produce a bytecode function.
+        // Visit each `Function` in the Leo AST and produce a Aleo function instruction.
         program_string.push_str(
             &input
                 .functions
@@ -47,6 +69,10 @@ impl<'a> CodeGenerator<'a> {
         );
 
         program_string
+    }
+
+    fn visit_import(&mut self, import: &'a ImportStatement) -> String {
+        format!("import {}.aleo;", import.identifier)
     }
 
     fn visit_circuit_or_record(&mut self, circuit: &'a Circuit) -> String {
