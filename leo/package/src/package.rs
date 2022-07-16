@@ -22,6 +22,7 @@ use crate::{
 
 use leo_errors::{PackageError, Result};
 
+use crate::build::BuildDirectory;
 use serde::Deserialize;
 use std::path::Path;
 
@@ -170,6 +171,9 @@ impl Package {
 
         // Create the inputs directory.
         InputsDirectory::create(path)?;
+
+        // Create the Leo build/ directory
+        BuildDirectory::create(&path)?;
 
         // Create the input file in the inputs directory.
         InputFile::new(package_name).write_to(path)?;

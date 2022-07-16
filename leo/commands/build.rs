@@ -96,7 +96,7 @@ impl Command for Build {
         let package_path = context.dir()?;
 
         // Get the program name.
-        let package_name = context.open_manifest()?;
+        let package_name = context.open_manifest()?.program_id().name().to_string();
 
         // Create the outputs directory.
         let outputs_directory = OutputsDirectory::create(&package_path)?;
@@ -162,7 +162,7 @@ impl Command for Build {
         std::env::set_current_dir(&build_directory)
             .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
 
-        // // Call the `aleo build` command from the Aleo SDK.
+        // Call the `aleo build` command from the Aleo SDK.
         let result = AleoBuild.parse().map_err(CliError::failed_to_execute_aleo_build)?;
 
         // Log the result of the build

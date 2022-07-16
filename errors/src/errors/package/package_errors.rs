@@ -319,14 +319,6 @@ create_messages!(
 
     /// For when removing the circuit file failed.
     @backtraced
-    failed_to_remove_aleo_file {
-        args: (path: impl Debug),
-        msg: format!("failed removing aleo file from the provided file path - {:?}", path),
-        help: None,
-    }
-
-    /// For when removing the circuit file failed.
-    @backtraced
     failed_to_remove_circuit_file {
         args: (path: impl Debug),
         msg: format!("failed removing circuit file from the provided file path - {:?}", path),
@@ -592,6 +584,41 @@ create_messages!(
     failed_to_set_cwd {
         args: (dir: impl Display, error: impl ErrorArg),
         msg: format!("Failed to set current working directory to `{}`. Error: {}.", dir, error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_open_manifest {
+        args: (error: impl Display),
+        msg: format!("Failed to open manifest file: {}", error),
+        help: Some("Create a package by running `leo new`.".to_string()),
+    }
+
+    @backtraced
+    failed_to_open_aleo_file {
+        args: (error: impl Display),
+        msg: format!("Failed to open Aleo file: {}", error),
+        help: Some("Create a package by running `leo new`.".to_string()),
+    }
+
+    @backtraced
+    failed_to_create_aleo_file {
+        args: (error: impl Display),
+        msg: format!("Failed to create Aleo file: {}.", error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_write_aleo_file {
+        args: (error: impl Display),
+        msg: format!("Failed to write aleo file: {}.", error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_remove_aleo_file {
+        args: (error: impl Display),
+        msg: format!("Failed to remove aleo file: {}.", error),
         help: None,
     }
 );

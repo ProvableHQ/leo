@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::commands::Network;
-use leo_errors::{CliError, Result};
+use leo_errors::{CliError, PackageError, Result};
 use snarkvm::file::Manifest;
 
 use leo_package::build::{BuildDirectory, BUILD_DIRECTORY_NAME};
@@ -47,10 +47,10 @@ impl Context {
 
     /// Returns the package name as a String.
     /// Opens the manifest file `program.json` and creates the build directory if it doesn't exist.
-    pub fn open_manifest(&self) -> Result<String> {
+    pub fn open_manifest(&self) -> Result<Manifest<Network>> {
         // Open the manifest file.
         let path = self.dir()?;
-        let manifest = Manifest::<Network>::open(&path).map_err(CliError::failed_to_open_manifest)?;
+        let manifest = Manifest::<Network>::open(&path).map_err(PackageError::failed_to_open_manifest)?;
 
         // Lookup the program id.
         let program_id = manifest.program_id();
@@ -63,10 +63,10 @@ impl Context {
 
         // Mirror the program.json file in the Leo build/ directory for Aleo SDK compilation.
         if !Manifest::<Network>::exists_at(&build_path) {
-            Manifest::<Network>::create(&build_path, program_id).map_err(CliError::failed_to_open_manifest)?;
+            Manifest::<Network>::create(&build_path, program_id).map_err(PackageError::failed_to_open_manifest)?;
         }
 
         // Get package name from program id.
-        Ok(program_id.name().to_string())
+        Ok(manifest)
     }
 }
