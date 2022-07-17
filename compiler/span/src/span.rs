@@ -26,10 +26,10 @@ use crate::symbol::with_session_globals;
 /// This is used in many spots throughout the rest of the Leo crates.
 #[derive(Copy, Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 pub struct Span {
-    /// The start position of the span.
+    /// The start (low) position of the span, inclusive.
     pub lo: BytePos,
-    /// The end position of the span.
-    /// The length is simply `end - start`.
+    /// The end (high) position of the span, exclusive.
+    /// The length is simply `hi - lo`.
     pub hi: BytePos,
 }
 
