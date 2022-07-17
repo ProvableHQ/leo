@@ -44,7 +44,7 @@ impl InputAst {
     pub fn program_inputs(&self, program_name: &str) -> Vec<String> {
         self.sections
             .iter()
-            .filter(|section| &section.name() == program_name)
+            .filter(|section| section.name() == program_name)
             .flat_map(|section| {
                 section
                     .definitions
