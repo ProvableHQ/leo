@@ -156,7 +156,14 @@ impl<'a> CodeGenerator<'a> {
     fn visit_circuit_init(&mut self, input: &'a CircuitExpression) -> (String, String) {
         // Lookup circuit or record.
         let name = if let Some(type_) = self.composite_mapping.get(&input.name.name) {
-            format!("{}.{}", input.name.to_string().to_lowercase(), type_)
+            let name = input.name.to_string().to_lowercase();
+            if name.eq("record") {
+                // record.private;
+                format!("{}.{}", name, type_)
+            } else {
+                // foo; // no visibility for interfaces
+                name
+            }
         } else {
             unreachable!("All composite types should be known at this phase of compilation")
         };

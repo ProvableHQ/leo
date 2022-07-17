@@ -389,4 +389,11 @@ create_messages!(
         msg: format!("Invalid associated access call to circuit {name}."),
         help: Some("Double colon `::` syntax is only supported for core circuits in Leo for testnet3.".to_string()),
     }
+
+    @formatted
+    leo_imports_only {
+        args: (name: impl Display),
+        msg: format!("Invalid import call to non-leo file `{name}`."),
+        help: Some("Only imports of Leo `.leo` files are currently supported.".to_string()),
+    }
 );

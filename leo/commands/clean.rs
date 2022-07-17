@@ -15,10 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{commands::Command, context::Context};
-use leo_errors::{CliError, Result};
+use leo_errors::Result;
+use leo_package::build::BuildDirectory;
 use leo_package::outputs::OutputsDirectory;
-
-use aleo::commands::Clean as AleoClean;
 
 use clap::StructOpt;
 use colored::Colorize;
@@ -43,16 +42,13 @@ impl Command for Clean {
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         let path = context.dir()?;
 
-        // Removes the outputs directory.
-        let path_string = OutputsDirectory::remove(&path)?;
+        // Removes the outputs/ directory.
+        let outputs_path = OutputsDirectory::remove(&path)?;
+        tracing::info!("✅ Cleaned the outputs directory {}", outputs_path.dimmed());
 
-        tracing::info!("✅ Cleaned the build directory {}", path_string.dimmed());
-
-        // Call the `aleo clean` command.
-        let result = AleoClean.parse().map_err(CliError::failed_to_execute_aleo_clean)?;
-
-        // Log the result of the build
-        tracing::info!("{}", result);
+        // Removes the build/ directory.
+        let build_path = BuildDirectory::remove(&path)?;
+        tracing::info!("✅ Cleaned the build directory {}", build_path.dimmed());
 
         // Remove the checksum from the output directory
         // ChecksumFile::new(&package_name).remove(&path)?;
