@@ -4,20 +4,17 @@ expectation: Pass
 outputs:
   - Iteration:
       variable: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_:
-        IntegerType: U8
+      type_: U8
       start:
         Literal:
-          Integer:
-            - U8
+          U8:
             - "0"
             - span:
                 lo: 13
                 hi: 16
       stop:
         Literal:
-          Integer:
-            - U8
+          U8:
             - "7"
             - span:
                 lo: 18
@@ -33,20 +30,17 @@ outputs:
         hi: 24
   - Iteration:
       variable: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_:
-        IntegerType: I64
+      type_: I64
       start:
         Literal:
-          Integer:
-            - I64
+          I64:
             - "0"
             - span:
                 lo: 14
                 hi: 18
       stop:
         Literal:
-          Integer:
-            - I64
+          I64:
             - "7"
             - span:
                 lo: 20
@@ -57,8 +51,7 @@ outputs:
           - Return:
               expression:
                 Literal:
-                  Integer:
-                    - U8
+                  U8:
                     - "1"
                     - span:
                         lo: 34
@@ -84,8 +77,7 @@ outputs:
                 hi: 22
       stop:
         Literal:
-          Integer:
-            - U8
+          U8:
             - "99"
             - span:
                 lo: 24
@@ -96,8 +88,7 @@ outputs:
           - Return:
               expression:
                 Literal:
-                  Integer:
-                    - U8
+                  U8:
                     - "1"
                     - span:
                         lo: 38
@@ -116,8 +107,7 @@ outputs:
       type_: Boolean
       start:
         Literal:
-          Integer:
-            - U8
+          U8:
             - "0"
             - span:
                 lo: 15
@@ -130,8 +120,7 @@ outputs:
           - Return:
               expression:
                 Literal:
-                  Integer:
-                    - U8
+                  U8:
                     - "1"
                     - span:
                         lo: 34

@@ -48,6 +48,8 @@ pub struct BuildOptions {
     pub enable_initial_input_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot of the initial parse.")]
     pub enable_initial_ast_snapshot: bool,
+    #[structopt(long, help = "Writes AST snapshot of the unrolled AST.")]
+    pub enable_unrolled_ast_snapshot: bool,
     // Note: This is currently made optional since code generation is just a prototype.
     #[structopt(
         long,
@@ -60,12 +62,14 @@ impl From<BuildOptions> for OutputOptions {
     fn from(options: BuildOptions) -> Self {
         let mut out_options = Self {
             spans_enabled: options.enable_spans,
-            input_ast_initial: options.enable_initial_input_ast_snapshot,
-            ast_initial: options.enable_initial_ast_snapshot,
+            initial_input_ast: options.enable_initial_input_ast_snapshot,
+            initial_ast: options.enable_initial_ast_snapshot,
+            unrolled_ast: options.enable_unrolled_ast_snapshot,
         };
         if options.enable_all_ast_snapshots {
-            out_options.input_ast_initial = true;
-            out_options.ast_initial = true;
+            out_options.initial_input_ast = true;
+            out_options.initial_ast = true;
+            out_options.unrolled_ast = true;
         }
 
         out_options

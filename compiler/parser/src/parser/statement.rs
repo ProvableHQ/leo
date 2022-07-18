@@ -120,7 +120,9 @@ impl ParserContext<'_> {
             variable: ident,
             type_: type_.0,
             start,
+            start_value: Default::default(),
             stop,
+            stop_value: Default::default(),
             inclusive: false,
             block,
         })
@@ -188,11 +190,11 @@ impl ParserContext<'_> {
 
     /// Returns a [`VariableName`] AST node if the next tokens represent a variable name with
     /// valid keywords.
-    fn parse_variable_name(&mut self, decl_ty: Declare, _span: Span) -> Result<VariableName> {
+    fn parse_variable_name(&mut self, decl_ty: DeclarationType, _span: Span) -> Result<VariableName> {
         let name = self.expect_identifier()?;
         Ok(VariableName {
             span: name.span,
-            mutable: matches!(decl_ty, Declare::Let),
+            mutable: matches!(decl_ty, DeclarationType::Let),
             identifier: name,
         })
     }
@@ -202,8 +204,8 @@ impl ParserContext<'_> {
         self.expect_any(&[Token::Let, Token::Const])?;
         let decl_span = self.prev_token.span;
         let decl_type = match &self.prev_token.token {
-            Token::Let => Declare::Let,
-            Token::Const => Declare::Const,
+            Token::Let => DeclarationType::Let,
+            Token::Const => DeclarationType::Const,
             _ => unreachable!("parse_definition_statement_ shouldn't produce this"),
         };
         // Parse variable names.

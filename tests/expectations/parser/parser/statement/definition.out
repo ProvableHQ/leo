@@ -10,8 +10,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
@@ -25,8 +24,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U16
+      type_: U16
       value:
         Binary:
           left:
@@ -48,8 +46,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Call:
           function:
@@ -83,8 +80,7 @@ outputs:
           span:
             lo: 6
             hi: 7
-      type_:
-        IntegerType: I8
+      type_: I8
       value:
         Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":18}\"}"
       span:
@@ -98,8 +94,7 @@ outputs:
           span:
             lo: 6
             hi: 7
-      type_:
-        IntegerType: I16
+      type_: I16
       value:
         Binary:
           left:
@@ -121,8 +116,7 @@ outputs:
           span:
             lo: 6
             hi: 7
-      type_:
-        IntegerType: I8
+      type_: I8
       value:
         Call:
           function:
@@ -156,8 +150,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U32
+      type_: U32
       value:
         Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":17}\"}"
       span:
@@ -171,8 +164,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U32
+      type_: U32
       value:
         Binary:
           left:
@@ -194,8 +186,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U32
+      type_: U32
       value:
         Call:
           function:
@@ -215,8 +206,7 @@ outputs:
           span:
             lo: 6
             hi: 7
-      type_:
-        IntegerType: U32
+      type_: U32
       value:
         Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":19}\"}"
       span:
@@ -230,8 +220,7 @@ outputs:
           span:
             lo: 6
             hi: 7
-      type_:
-        IntegerType: U32
+      type_: U32
       value:
         Binary:
           left:
@@ -253,8 +242,7 @@ outputs:
           span:
             lo: 6
             hi: 7
-      type_:
-        IntegerType: U32
+      type_: U32
       value:
         Call:
           function:

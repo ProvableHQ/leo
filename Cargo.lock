@@ -1274,6 +1274,7 @@ dependencies = [
  "leo-errors",
  "leo-parser",
  "leo-span",
+ "num-traits",
 ]
 
 [[package]]

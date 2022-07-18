@@ -10,8 +10,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"aimport\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":19}\"}"
       span:
@@ -25,8 +24,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"a_\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":14}\"}"
       span:
@@ -40,8 +38,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"aas\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":15}\"}"
       span:
@@ -55,8 +52,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"aconsole\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":20}\"}"
       span:
@@ -70,8 +66,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"aconst\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":18}\"}"
       span:
@@ -85,8 +80,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"alet\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
@@ -100,8 +94,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"afor\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
@@ -115,8 +108,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"aif\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":15}\"}"
       span:
@@ -130,8 +122,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"aelse\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
       span:
@@ -145,8 +136,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"ai8\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":15}\"}"
       span:
@@ -160,8 +150,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"ai16\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
@@ -175,8 +164,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"ai32\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
@@ -190,8 +178,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"ai64\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
@@ -205,8 +192,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"ai128\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
       span:
@@ -220,8 +206,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"au8\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":15}\"}"
       span:
@@ -235,8 +220,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"au16\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
@@ -250,8 +234,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"au32\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
@@ -265,8 +248,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"au64\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
@@ -280,8 +262,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"au128\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
       span:
@@ -295,8 +276,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"areturn\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":19}\"}"
       span:
@@ -310,8 +290,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"aself\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
       span:
@@ -325,8 +304,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"aSelf\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
       span:
@@ -340,8 +318,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"atrue\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
       span:
@@ -355,8 +332,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"afalse\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":18}\"}"
       span:
@@ -370,8 +346,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Identifier: "{\"name\":\"a0\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":14}\"}"
       span:

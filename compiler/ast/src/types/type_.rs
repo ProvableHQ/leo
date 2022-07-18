@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, IntegerType, Tuple};
+use crate::{Identifier, Tuple};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -31,14 +31,32 @@ pub enum Type {
     Field,
     /// The `group` type.
     Group,
+    /// The 8-bit signed integer type.
+    I8,
+    /// The 16-bit signed integer type.
+    I16,
+    /// The 32-bit signed integer type.
+    I32,
+    /// The 64-bit signed integer type.
+    I64,
+    /// The 128-bit signed integer type.
+    I128,
+    /// A reference to a built in type.
+    Identifier(Identifier),
     /// The `scalar` type.
     Scalar,
     /// The `string` type.
     String,
-    /// An integer type.
-    IntegerType(IntegerType),
-    /// A reference to a built in type.
-    Identifier(Identifier),
+    /// The 8-bit unsigned integer type.
+    U8,
+    /// The 16-bit unsigned integer type.
+    U16,
+    /// The 32-bit unsigned integer type.
+    U32,
+    /// The 64-bit unsigned integer type.
+    U64,
+    /// The 128-bit unsigned integer type.
+    U128,
     /// A static tuple of at least one type.
     Tuple(Tuple),
 
@@ -53,16 +71,24 @@ impl Type {
     ///
     /// Flattens array syntax: `[[u8; 1]; 2] == [u8; (2, 1)] == true`
     ///
-    // TODO: Does not seem to flatten?
     pub fn eq_flat(&self, other: &Self) -> bool {
         match (self, other) {
             (Type::Address, Type::Address)
             | (Type::Boolean, Type::Boolean)
             | (Type::Field, Type::Field)
             | (Type::Group, Type::Group)
+            | (Type::I8, Type::I8)
+            | (Type::I16, Type::I16)
+            | (Type::I32, Type::I32)
+            | (Type::I64, Type::I64)
+            | (Type::I128, Type::I128)
             | (Type::Scalar, Type::Scalar)
-            | (Type::String, Type::String) => true,
-            (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(right),
+            | (Type::String, Type::String)
+            | (Type::U8, Type::U8)
+            | (Type::U16, Type::U16)
+            | (Type::U32, Type::U32)
+            | (Type::U64, Type::U64)
+            | (Type::U128, Type::U128) => true,
             (Type::Tuple(left), Type::Tuple(right)) => left
                 .iter()
                 .zip(right.iter())
@@ -80,10 +106,19 @@ impl fmt::Display for Type {
             Type::Boolean => write!(f, "bool"),
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
+            Type::I8 => write!(f, "i8"),
+            Type::I16 => write!(f, "i16"),
+            Type::I32 => write!(f, "i32"),
+            Type::I64 => write!(f, "i64"),
+            Type::I128 => write!(f, "i128"),
+            Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
             Type::Scalar => write!(f, "scalar"),
             Type::String => write!(f, "string"),
-            Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
-            Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
+            Type::U8 => write!(f, "u8"),
+            Type::U16 => write!(f, "u16"),
+            Type::U32 => write!(f, "u32"),
+            Type::U64 => write!(f, "u64"),
+            Type::U128 => write!(f, "u128"),
             Type::Tuple(ref tuple) => write!(f, "{}", tuple),
             Type::Err => write!(f, "error"),
         }

@@ -16,7 +16,7 @@
 
 use crate::SymbolTable;
 
-use leo_ast::{Identifier, IntegerType, Node, Type};
+use leo_ast::{Identifier, Node, Type};
 use leo_core::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
@@ -44,31 +44,21 @@ const GROUP_TYPE: Type = Type::Group;
 const SCALAR_TYPE: Type = Type::Scalar;
 
 const INT_TYPES: [Type; 10] = [
-    Type::IntegerType(IntegerType::I8),
-    Type::IntegerType(IntegerType::I16),
-    Type::IntegerType(IntegerType::I32),
-    Type::IntegerType(IntegerType::I64),
-    Type::IntegerType(IntegerType::I128),
-    Type::IntegerType(IntegerType::U8),
-    Type::IntegerType(IntegerType::U16),
-    Type::IntegerType(IntegerType::U32),
-    Type::IntegerType(IntegerType::U64),
-    Type::IntegerType(IntegerType::U128),
+    Type::I8,
+    Type::I16,
+    Type::I32,
+    Type::I64,
+    Type::I128,
+    Type::U8,
+    Type::U16,
+    Type::U32,
+    Type::U64,
+    Type::U128,
 ];
 
-const SIGNED_INT_TYPES: [Type; 5] = [
-    Type::IntegerType(IntegerType::I8),
-    Type::IntegerType(IntegerType::I16),
-    Type::IntegerType(IntegerType::I32),
-    Type::IntegerType(IntegerType::I64),
-    Type::IntegerType(IntegerType::I128),
-];
+const SIGNED_INT_TYPES: [Type; 5] = [Type::I8, Type::I16, Type::I32, Type::I64, Type::I128];
 
-const MAGNITUDE_TYPES: [Type; 3] = [
-    Type::IntegerType(IntegerType::U8),
-    Type::IntegerType(IntegerType::U16),
-    Type::IntegerType(IntegerType::U32),
-];
+const MAGNITUDE_TYPES: [Type; 3] = [Type::U8, Type::U16, Type::U32];
 
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
@@ -256,6 +246,16 @@ impl<'a> TypeChecker<'a> {
         self.check_type(
             |type_: &Type| FIELD_TYPE.eq(type_) | GROUP_TYPE.eq(type_) | SIGNED_INT_TYPES.contains(type_),
             format!("{}, {}, {}", FIELD_TYPE, GROUP_TYPE, types_to_string(&SIGNED_INT_TYPES),),
+            type_,
+            span,
+        )
+    }
+
+    /// Emits an error to the handler if the given type is not a field, scalar, or integer.
+    pub(crate) fn assert_field_scalar_int_type(&self, type_: &Option<Type>, span: Span) {
+        self.check_type(
+            |type_: &Type| FIELD_TYPE.eq(type_) | SCALAR_TYPE.eq(type_) | INT_TYPES.contains(type_),
+            format!("{}, {}, {}", FIELD_TYPE, SCALAR_TYPE, types_to_string(&INT_TYPES),),
             type_,
             span,
         )

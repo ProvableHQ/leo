@@ -10,8 +10,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Binary:
           left:
@@ -33,8 +32,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Binary:
           left:
@@ -56,8 +54,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Binary:
           left:
@@ -79,8 +76,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Binary:
           left:
@@ -102,8 +98,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Binary:
           left:
@@ -125,8 +120,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Binary:
           left:
@@ -148,8 +142,7 @@ outputs:
           span:
             lo: 4
             hi: 5
-      type_:
-        IntegerType: U8
+      type_: U8
       value:
         Binary:
           left:

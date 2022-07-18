@@ -1,7 +1,5 @@
 ---
 namespace: Compile
-expectation: Pass
+expectation: Fail
 outputs:
-  - output:
-      - initial_input_ast: fb915314d9b78be969b79981f55977bf7ef662c72c93184cf0e60788575f763a
-    initial_ast: 91fc2897bb922d557a4dedd79764aac3b3cb86f37eec0ec46f8dc11a947494df
+  - "Error [ETYC0372003]: Expected type `u8` but type `i8` was found\n    --> compiler-test:4:19\n     |\n   4 |     let b: bool = a == 1u8;\n     |                   ^^^^^^^^\nError [ETYC0372003]: Expected type `u8` but type `i8` was found\n    --> compiler-test:5:19\n     |\n   5 |     let c: bool = a != 1u8;\n     |                   ^^^^^^^^\nError [ETYC0372003]: Expected type `u8` but type `i8` was found\n    --> compiler-test:6:19\n     |\n   6 |     let d: bool = a > 1u8;\n     |                   ^^^^^^^\nError [ETYC0372003]: Expected type `u8` but type `i8` was found\n    --> compiler-test:7:19\n     |\n   7 |     let e: bool = a < 1u8;\n     |                   ^^^^^^^\nError [ETYC0372003]: Expected type `u8` but type `i8` was found\n    --> compiler-test:8:19\n     |\n   8 |     let f: bool = a >= 1u8;\n     |                   ^^^^^^^^\nError [ETYC0372003]: Expected type `u8` but type `i8` was found\n    --> compiler-test:9:19\n     |\n   9 |     let g: bool = a <= 1u8;\n     |                   ^^^^^^^^\n"

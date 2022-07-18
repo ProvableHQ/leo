@@ -23,7 +23,8 @@ mod poseidon;
 pub use poseidon::*;
 
 use crate::Types;
-use leo_ast::{IntegerType, Type};
+
+use leo_ast::Type;
 use leo_span::{sym, Symbol};
 
 use indexmap::IndexSet;
@@ -191,45 +192,45 @@ const ALL_TYPES: [Type; 16] = [
     Type::Boolean,
     Type::Field,
     Type::Group,
-    Type::IntegerType(IntegerType::I8),
-    Type::IntegerType(IntegerType::I16),
-    Type::IntegerType(IntegerType::I32),
-    Type::IntegerType(IntegerType::I64),
-    Type::IntegerType(IntegerType::I128),
-    Type::IntegerType(IntegerType::U8),
-    Type::IntegerType(IntegerType::U16),
-    Type::IntegerType(IntegerType::U32),
-    Type::IntegerType(IntegerType::U64),
-    Type::IntegerType(IntegerType::U128),
+    Type::I8,
+    Type::I16,
+    Type::I32,
+    Type::I64,
+    Type::I128,
+    Type::U8,
+    Type::U16,
+    Type::U32,
+    Type::U64,
+    Type::U128,
     Type::Scalar,
     Type::String,
 ];
 
 const BOOL_INT_STRING_TYPES: [Type; 12] = [
     Type::Boolean,
-    Type::IntegerType(IntegerType::I8),
-    Type::IntegerType(IntegerType::I16),
-    Type::IntegerType(IntegerType::I32),
-    Type::IntegerType(IntegerType::I64),
-    Type::IntegerType(IntegerType::I128),
-    Type::IntegerType(IntegerType::U8),
-    Type::IntegerType(IntegerType::U16),
-    Type::IntegerType(IntegerType::U32),
-    Type::IntegerType(IntegerType::U64),
-    Type::IntegerType(IntegerType::U128),
+    Type::I8,
+    Type::I16,
+    Type::I32,
+    Type::I64,
+    Type::I128,
+    Type::U8,
+    Type::U16,
+    Type::U32,
+    Type::U64,
+    Type::U128,
     Type::String,
 ];
 
 const BOOL_INT64_STRING_TYPES: [Type; 10] = [
     Type::Boolean,
-    Type::IntegerType(IntegerType::I8),
-    Type::IntegerType(IntegerType::I16),
-    Type::IntegerType(IntegerType::I32),
-    Type::IntegerType(IntegerType::I64),
-    Type::IntegerType(IntegerType::U8),
-    Type::IntegerType(IntegerType::U16),
-    Type::IntegerType(IntegerType::U32),
-    Type::IntegerType(IntegerType::U64),
+    Type::I8,
+    Type::I16,
+    Type::I32,
+    Type::I64,
+    Type::U8,
+    Type::U16,
+    Type::U32,
+    Type::U64,
     Type::String,
 ];
 

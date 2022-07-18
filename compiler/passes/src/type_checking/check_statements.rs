@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Declaration, TypeChecker, VariableSymbol};
+use crate::{TypeChecker, VariableSymbol, VariableType};
 
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
@@ -26,7 +26,11 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // we can safely unwrap all self.parent instances because
         // statements should always have some parent block
         let parent = self.parent.unwrap();
-        let return_type = &self.symbol_table.borrow().lookup_fn(&parent).map(|f| f.output.clone());
+        let return_type = &self
+            .symbol_table
+            .borrow()
+            .lookup_fn_symbol(parent)
+            .map(|f| f.output.clone());
         self.check_core_type_conflict(return_type);
 
         self.has_return = true;
@@ -35,10 +39,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_definition(&mut self, input: &'a DefinitionStatement) {
-        let declaration = if input.declaration_type == Declare::Const {
-            Declaration::Const
+        let declaration = if input.declaration_type == DeclarationType::Const {
+            VariableType::Const
         } else {
-            Declaration::Mut
+            VariableType::Mut
         };
 
         input.variable_names.iter().for_each(|v| {
@@ -68,11 +72,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
         };
 
-        let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(&var_name.name) {
-            // TODO: Check where this check is moved to in `improved-flattening`.
+        let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(var_name.name) {
             match &var.declaration {
-                Declaration::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
-                Declaration::Input(ParamMode::Const) => {
+                VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
+                VariableType::Input(ParamMode::Const) => {
                     self.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
                 }
                 _ => {}
@@ -104,19 +107,46 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.assert_int_type(iter_type, input.variable.span);
         self.check_core_type_conflict(iter_type);
 
+        // Create a new scope for the loop body.
+        let scope_index = self.symbol_table.borrow_mut().insert_block();
+        let prev_st = std::mem::take(&mut self.symbol_table);
+        self.symbol_table
+            .swap(prev_st.borrow().lookup_scope_by_index(scope_index).unwrap());
+        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
+
+        // Add the loop variable to the scope of the loop body.
         if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
             input.variable.name,
             VariableSymbol {
                 type_: input.type_.clone(),
                 span: input.span(),
-                declaration: Declaration::Const,
+                declaration: VariableType::Const,
             },
         ) {
             self.handler.emit_err(err);
         }
 
+        input.block.statements.iter().for_each(|s| self.visit_statement(s));
+
+        // Restore the previous scope.
+        let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
+        self.symbol_table
+            .swap(prev_st.lookup_scope_by_index(scope_index).unwrap());
+        self.symbol_table = RefCell::new(prev_st);
+
         self.visit_expression(&input.start, iter_type);
+
+        // If `input.start` is a literal, instantiate it as a value.
+        if let Expression::Literal(literal) = &input.start {
+            input.start_value.replace(Some(Value::from(literal)));
+        }
+
         self.visit_expression(&input.stop, iter_type);
+
+        // If `input.stop` is a literal, instantiate it as a value.
+        if let Expression::Literal(literal) = &input.stop {
+            input.stop_value.replace(Some(Value::from(literal)));
+        }
     }
 
     fn visit_console(&mut self, input: &'a ConsoleStatement) {
@@ -134,26 +164,19 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Creates a new sub-scope since we are in a block.
         let scope_index = self.symbol_table.borrow_mut().insert_block();
         let previous_symbol_table = std::mem::take(&mut self.symbol_table);
-        self.symbol_table
-            .swap(previous_symbol_table.borrow().get_block_scope(scope_index).unwrap());
+        self.symbol_table.swap(
+            previous_symbol_table
+                .borrow()
+                .lookup_scope_by_index(scope_index)
+                .unwrap(),
+        );
         self.symbol_table.borrow_mut().parent = Some(Box::new(previous_symbol_table.into_inner()));
 
-        input.statements.iter().for_each(|stmt| {
-            match stmt {
-                Statement::Return(stmt) => self.visit_return(stmt),
-                Statement::Definition(stmt) => self.visit_definition(stmt),
-                Statement::Assign(stmt) => self.visit_assign(stmt),
-                Statement::Conditional(stmt) => self.visit_conditional(stmt),
-                Statement::Iteration(stmt) => self.visit_iteration(stmt),
-                Statement::Console(stmt) => self.visit_console(stmt),
-                Statement::Block(stmt) => self.visit_block(stmt),
-            };
-        });
+        input.statements.iter().for_each(|stmt| self.visit_statement(stmt));
 
         let previous_symbol_table = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        // TODO: Is this swap necessary?
         self.symbol_table
-            .swap(previous_symbol_table.get_block_scope(scope_index).unwrap());
+            .swap(previous_symbol_table.lookup_scope_by_index(scope_index).unwrap());
         self.symbol_table = RefCell::new(previous_symbol_table);
     }
 }

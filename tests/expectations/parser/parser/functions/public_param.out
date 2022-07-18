@@ -13,29 +13,25 @@ outputs:
           - Variable:
               identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
               mode: Private
-              type_:
-                IntegerType: U32
+              type_: U32
               span:
                 lo: 13
                 hi: 14
           - Variable:
               identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":28,\\\"hi\\\":29}\"}"
               mode: Public
-              type_:
-                IntegerType: I32
+              type_: I32
               span:
                 lo: 28
                 hi: 29
-        output:
-          IntegerType: U8
+        output: U8
         core_mapping: ~
         block:
           statements:
             - Return:
                 expression:
                   Literal:
-                    Integer:
-                      - U8
+                    U8:
                       - "0"
                       - span:
                           lo: 55
@@ -55,29 +51,25 @@ outputs:
           - Variable:
               identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":81,\\\"hi\\\":82}\"}"
               mode: Public
-              type_:
-                IntegerType: U32
+              type_: U32
               span:
                 lo: 81
                 hi: 82
           - Variable:
               identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":90}\"}"
               mode: Private
-              type_:
-                IntegerType: I32
+              type_: I32
               span:
                 lo: 89
                 hi: 90
-        output:
-          IntegerType: U8
+        output: U8
         core_mapping: ~
         block:
           statements:
             - Return:
                 expression:
                   Literal:
-                    Integer:
-                      - U8
+                    U8:
                       - "0"
                       - span:
                           lo: 116

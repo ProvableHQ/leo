@@ -14,23 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use serde::{Deserialize, Serialize};
-use std::fmt;
-
-/// The sort of bindings to introduce, either `let` or `const`.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum Declare {
-    /// This is a `const` binding.
-    Const,
-    /// This is a `let` binding.
-    Let,
-}
-
-impl fmt::Display for Declare {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Declare::Const => write!(f, "const"),
-            Declare::Let => write!(f, "let"),
-        }
-    }
-}
+/// This module contains the Flattener error definitions.
+pub mod flattener_errors;
+pub use self::flattener_errors::*;

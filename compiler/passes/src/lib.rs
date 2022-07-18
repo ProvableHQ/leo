@@ -22,8 +22,11 @@ pub use code_generation::*;
 pub mod pass;
 pub use self::pass::*;
 
+pub mod loop_unrolling;
+pub use self::loop_unrolling::*;
+
 pub mod symbol_table;
 pub use symbol_table::*;
 
-pub mod type_checker;
-pub use type_checker::*;
+pub mod type_checking;
+pub use type_checking::*;

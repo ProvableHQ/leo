@@ -14,10 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, Expression, Identifier, Node, Type};
+use crate::{Block, Expression, Identifier, Node, Type, Value};
+
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
+use std::cell::RefCell;
 use std::fmt;
 
 /// A bounded `for` loop statement `for variable in start .. =? stop block`.
@@ -29,8 +31,14 @@ pub struct IterationStatement {
     pub type_: Type,
     /// The start of the iteration.
     pub start: Expression,
+    /// The concrete value of `start`.
+    #[serde(skip)]
+    pub start_value: RefCell<Option<Value>>,
     /// The end of the iteration, possibly `inclusive`.
     pub stop: Expression,
+    /// The concrete value of `stop`.
+    #[serde(skip)]
+    pub stop_value: RefCell<Option<Value>>,
     /// Whether `stop` is inclusive or not.
     /// Signified with `=` when parsing.
     pub inclusive: bool,

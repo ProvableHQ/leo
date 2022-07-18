@@ -24,7 +24,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Stores the Leo program abstract syntax tree.
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Program {
     /// The name of the program.
     pub name: String,

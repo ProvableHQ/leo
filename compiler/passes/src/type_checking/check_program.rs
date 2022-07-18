@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Declaration, TypeChecker, VariableSymbol};
+use crate::{TypeChecker, VariableSymbol, VariableType};
 
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
@@ -28,7 +28,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_function(&mut self, input: &'a Function) {
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
-            .swap(prev_st.borrow().get_fn_scope(&input.name()).unwrap());
+            .swap(prev_st.borrow().lookup_fn_scope(input.name()).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
 
         self.has_return = false;
@@ -43,7 +43,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 VariableSymbol {
                     type_: input_var.type_.clone(),
                     span: input_var.identifier.span(),
-                    declaration: Declaration::Input(input_var.mode()),
+                    declaration: VariableType::Input(input_var.mode()),
                 },
             ) {
                 self.handler.emit_err(err);
@@ -56,7 +56,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
 
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        self.symbol_table.swap(prev_st.get_fn_scope(&input.name()).unwrap());
+        self.symbol_table.swap(prev_st.lookup_fn_scope(input.name()).unwrap());
         self.symbol_table = RefCell::new(prev_st);
     }
 
@@ -95,7 +95,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 }
             };
             check_has_field(sym::owner, Type::Address);
-            check_has_field(sym::gates, Type::IntegerType(IntegerType::U64));
+            check_has_field(sym::gates, Type::U64);
         }
     }
 }
