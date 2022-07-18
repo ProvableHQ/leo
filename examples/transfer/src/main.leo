@@ -1,13 +1,13 @@
 record Token {
 	owner: address,
-	balance: u64,
+	gates: u64,
 	amount: u64,
 }
 
 function main(owner: address, amount: u64) -> Token {
 	return Token { 
 		owner: owner,
-		balance: 0u64,
+		gates: 0u64,
 		amount: amount,
 	};
 }
@@ -21,13 +21,13 @@ function transfer(
 
 	let t1: Token = Token {
 		owner: r,
-		balance: 0u64,
+		gates: 0u64,
 		amount: a,
 	};
 
 	let t2: Token = Token {
 		owner: t.owner,
-		balance: t.balance,
+		gates: t.gates,
 		amount: change
 	};
 
