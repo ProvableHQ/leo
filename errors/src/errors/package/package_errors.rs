@@ -319,14 +319,6 @@ create_messages!(
 
     /// For when removing the circuit file failed.
     @backtraced
-    failed_to_remove_aleo_file {
-        args: (path: impl Debug),
-        msg: format!("failed removing aleo file from the provided file path - {:?}", path),
-        help: None,
-    }
-
-    /// For when removing the circuit file failed.
-    @backtraced
     failed_to_remove_circuit_file {
         args: (path: impl Debug),
         msg: format!("failed removing circuit file from the provided file path - {:?}", path),
@@ -427,47 +419,39 @@ create_messages!(
     @backtraced
     failed_to_create_source_directory {
         args: (error: impl ErrorArg),
-        msg: format!("failed creating source directory {}", error),
+        msg: format!("Failed creating source directory {}.", error),
         help: None,
     }
 
-    /// For when getting a source file entry failed.
+    /// For when getting a Leo file entry failed.
     @backtraced
-    failed_to_get_source_file_entry {
+    failed_to_get_leo_file_entry {
         args: (error: impl ErrorArg),
-        msg: format!("failed to get input file entry: {}", error),
+        msg: format!("Failed to get Leo file entry: {}.", error),
         help: None,
     }
 
     /// For when getting the source file extension failed.
     @backtraced
-    failed_to_get_source_file_extension {
+    failed_to_get_leo_file_extension {
         args: (extension: impl Debug),
-        msg: format!("failed to get source file extension: {:?}", extension),
+        msg: format!("Failed to get Leo file extension: {:?}.", extension),
         help: None,
     }
 
-    /// For when getting the source file type failed.
+    /// For when getting the Leo file type failed.
     @backtraced
-    failed_to_get_source_file_type {
+    failed_to_get_leo_file_type {
         args: (file: impl Debug, error: impl ErrorArg),
-        msg: format!("failed to get source file `{:?}` type: {}", file, error),
+        msg: format!("Failed to get Leo file `{:?}` type: {}.", file, error),
         help: None,
     }
 
-    /// For when getting the source file has an invalid extension.
+    /// For when the Leo file has an invalid extension.
     @backtraced
-    invalid_source_file_extension {
+    invalid_leo_file_extension {
         args: (file: impl Debug, extension: impl Debug),
-        msg: format!("source file `{:?}` has invalid extension: {:?}", file, extension),
-        help: None,
-    }
-
-    /// For when getting the source file has an invalid file type.
-    @backtraced
-    invalid_source_file_type {
-        args: (file: impl Debug, type_: std::fs::FileType),
-        msg: format!("source file `{:?}` has invalid type: {:?}", file, type_),
+        msg: format!("Source file `{:?}` has invalid extension: {:?}.", file, extension),
         help: None,
     }
 
@@ -541,11 +525,19 @@ create_messages!(
         help: None,
     }
 
+    /// For when opening a directory failed.
+    @backtraced
+    directory_not_found {
+        args: (dirname: impl Display, path: impl Display),
+        msg: format!("The `{}` does not exist at `{}`.", dirname, path),
+        help: None,
+    }
+
     /// For when creating a directory failed.
     @backtraced
     failed_to_create_directory {
         args: (dirname: impl Display, error: impl ErrorArg),
-        msg: format!("failed to create directory: {}, error: {}", dirname, error),
+        msg: format!("failed to create directory `{}`, error: {}.", dirname, error),
         help: None,
     }
 
@@ -578,6 +570,55 @@ create_messages!(
     io_error {
         args: (file: impl Display, error: impl ErrorArg),
         msg: format!("i/o operation failed, file: {}, error: {}", file, error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_get_file_name {
+        args: (),
+        msg: "Failed to get names of Leo files in the `src/` directory.".to_string(),
+        help: Some("Check your `src/` directory for invalid file names.".to_string()),
+    }
+
+    @backtraced
+    failed_to_set_cwd {
+        args: (dir: impl Display, error: impl ErrorArg),
+        msg: format!("Failed to set current working directory to `{}`. Error: {}.", dir, error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_open_manifest {
+        args: (error: impl Display),
+        msg: format!("Failed to open manifest file: {}", error),
+        help: Some("Create a package by running `leo new`.".to_string()),
+    }
+
+    @backtraced
+    failed_to_open_aleo_file {
+        args: (error: impl Display),
+        msg: format!("Failed to open Aleo file: {}", error),
+        help: Some("Create a package by running `leo new`.".to_string()),
+    }
+
+    @backtraced
+    failed_to_create_aleo_file {
+        args: (error: impl Display),
+        msg: format!("Failed to create Aleo file: {}.", error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_write_aleo_file {
+        args: (error: impl Display),
+        msg: format!("Failed to write aleo file: {}.", error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_remove_aleo_file {
+        args: (error: impl Display),
+        msg: format!("Failed to remove aleo file: {}.", error),
         help: None,
     }
 );

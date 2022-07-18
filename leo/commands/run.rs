@@ -20,7 +20,8 @@ use crate::{
     commands::{Build, Command},
     context::Context,
 };
-use leo_errors::{CliError, Result};
+use leo_errors::{CliError, PackageError, Result};
+use leo_package::build::BuildDirectory;
 
 use aleo::commands::Run as AleoRun;
 
@@ -52,7 +53,7 @@ impl Command for Run {
         .execute(context)
     }
 
-    fn apply(self, _context: Context, input: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
         // Compose the `aleo run` command.
         let mut arguments = vec![ALEO_CLI_COMMAND.to_string(), "main".to_string()];
 
@@ -64,6 +65,14 @@ impl Command for Run {
         arguments.append(&mut values);
 
         tracing::info!("Starting...");
+
+        // Open the Leo build/ directory
+        let path = context.dir()?;
+        let build_directory = BuildDirectory::open(&path)?;
+
+        // Change the cwd to the Leo build/ directory to compile aleo files.
+        std::env::set_current_dir(&build_directory)
+            .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
 
         // Call the `aleo run` command from the Aleo SDK.
         let command = AleoRun::try_parse_from(&arguments).map_err(CliError::failed_to_parse_aleo_run)?;

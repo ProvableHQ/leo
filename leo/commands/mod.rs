@@ -33,8 +33,6 @@ pub use run::Run;
 use crate::context::*;
 use leo_errors::Result;
 
-use snarkvm::file::AleoFile;
-
 use std::time::Instant;
 use tracing::span::Span;
 

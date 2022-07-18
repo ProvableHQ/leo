@@ -402,13 +402,6 @@ create_messages!(
     }
 
     @backtraced
-    failed_to_open_manifest {
-        args: (error: impl Display),
-        msg: format!("Failed to open manifest file: {}", error),
-        help: Some("Create a package by running `leo new`.".to_string()),
-    }
-
-    @backtraced
     failed_to_load_instructions {
         args: (error: impl Display),
         msg: format!("Failed to load compiled Aleo instructions into an Aleo file.\nSnarkVM Error: {}", error),
@@ -454,6 +447,13 @@ create_messages!(
     failed_to_parse_aleo_run {
         args: (error: impl Display),
         msg: format!("Failed to parse the `aleo run` command.\nSnarkVM Error: {}", error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_execute_aleo_clean {
+        args: (error: impl Display),
+        msg: format!("Failed to execute the `aleo clean` command.\nSnarkVM Error: {}", error),
         help: None,
     }
 );

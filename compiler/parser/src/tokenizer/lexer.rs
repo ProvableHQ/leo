@@ -314,6 +314,7 @@ impl Token {
                     "i128" => Token::I128,
                     "if" => Token::If,
                     "in" => Token::In,
+                    "import" => Token::Import,
                     "let" => Token::Let,
                     "public" => Token::Public,
                     "record" => Token::Record,

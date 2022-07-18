@@ -28,6 +28,7 @@ path = "leo/main.rs"
 [workspace]
 members = [
   "compiler/compiler",
+  "compiler/parser",
   "docs/grammar",
   "errors",
   "leo/package",
@@ -46,18 +47,22 @@ version = "1.5.3"
 path = "./leo/package"
 version = "1.5.3"
 
+[dependencies.leo-parser]
+path = "./compiler/parser"
+version = "1.5.3"
+
 [dependencies.leo-span]
 path = "./compiler/span"
 version = "1.5.3"
 
 [dependencies.aleo]
 git = "https://github.com/AleoHQ/aleo.git"
-rev = "02db93e"
+rev = "220e56"
 
 [dependencies.snarkvm]
 #path = "../snarkVM"
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "0dea89e"
+rev = "5657881"
 features = ["circuit", "console"]
 
 [dependencies.backtrace]
