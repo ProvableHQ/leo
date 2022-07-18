@@ -173,7 +173,7 @@ impl Package {
         InputsDirectory::create(path)?;
 
         // Create the Leo build/ directory
-        BuildDirectory::create(&path)?;
+        BuildDirectory::create(path)?;
 
         // Create the input file in the inputs directory.
         InputFile::new(package_name).write_to(path)?;
