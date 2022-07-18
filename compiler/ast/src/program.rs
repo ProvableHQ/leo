@@ -27,11 +27,14 @@ use std::fmt;
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Program {
     /// The name of the program.
-    /// Empty after parsing.
     pub name: String,
+    /// The network of the program.
+    pub network: String,
     /// Expected main function inputs.
     /// Empty after parsing.
     pub expected_input: Vec<FunctionInput>,
+    /// A map from import names to import definitions.
+    pub imports: IndexMap<Identifier, Program>,
     /// A map from function names to function definitions.
     pub functions: IndexMap<Identifier, Function>,
     /// A map from circuit names to circuit definitions.
@@ -40,6 +43,9 @@ pub struct Program {
 
 impl fmt::Display for Program {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for (id, _import) in self.imports.iter() {
+            writeln!(f, "import {}.leo;", id)?;
+        }
         for (_, function) in self.functions.iter() {
             function.fmt(f)?;
             writeln!(f,)?;
@@ -52,25 +58,16 @@ impl fmt::Display for Program {
     }
 }
 
-impl Program {
-    /// Constructs an empty program with `name`.
-    pub fn new(name: String) -> Self {
+impl Default for Program {
+    /// Constructs an empty program node.
+    fn default() -> Self {
         Self {
-            name,
+            name: String::new(),
+            network: String::new(),
             expected_input: vec![],
+            imports: IndexMap::new(),
             functions: IndexMap::new(),
             circuits: IndexMap::new(),
         }
-    }
-
-    /// Extract the name of the program.
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-
-    /// Sets the name of the program.
-    pub fn set_name(mut self, name: String) -> Self {
-        self.name = name;
-        self
     }
 }

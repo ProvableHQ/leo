@@ -28,8 +28,9 @@ path = "leo/main.rs"
 [workspace]
 members = [
   "compiler/compiler",
+  "compiler/parser",
   "docs/grammar",
-  "leo/errors",
+  "errors",
   "leo/package",
   "tests/test-framework",
 ]
@@ -39,26 +40,36 @@ path = "./compiler/compiler"
 version = "1.5.3"
 
 [dependencies.leo-errors]
-path = "./leo/errors"
+path = "./errors"
 version = "1.5.3"
 
 [dependencies.leo-package]
 path = "./leo/package"
 version = "1.5.3"
 
-[dependencies.leo-span]
-path = "./leo/span"
+[dependencies.leo-parser]
+path = "./compiler/parser"
 version = "1.5.3"
 
-[dependencies.snarkvm-utilities]
+[dependencies.leo-span]
+path = "./compiler/span"
+version = "1.5.3"
+
+[dependencies.aleo]
+git = "https://github.com/AleoHQ/aleo.git"
+rev = "220e56"
+
+[dependencies.snarkvm]
+#path = "../snarkVM"
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "51633e2"
+rev = "5657881"
+features = ["circuit", "console"]
 
 [dependencies.backtrace]
 version = "0.3.66"
 
 [dependencies.clap]
-version = "3.2.8"
+version = "3.2"
 features = ["derive", "env"]
 
 [dependencies.color-backtrace]

@@ -19,11 +19,10 @@ use crate::{normalize_json_value, remove_key_from_json};
 use super::*;
 use leo_errors::{AstError, Result};
 
-/// Input data which includes [`ProgramInput`] and [`ProgramState`].
+/// Input data which includes [`ProgramInput`].
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Input {
     pub program_input: ProgramInput,
-    pub program_state: ProgramState,
 }
 
 impl Input {
@@ -34,13 +33,27 @@ impl Input {
 }
 
 /// A raw unprocessed input or state file data. Used for future conversion
-/// into [`ProgramInput`] or [`ProgramState`].
+/// into [`ProgramInput`].
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct InputAst {
     pub sections: Vec<Section>,
 }
 
 impl InputAst {
+    /// Returns all values of the input AST for execution with `leo run`.
+    pub fn program_inputs(&self, program_name: &str) -> Vec<String> {
+        self.sections
+            .iter()
+            .filter(|section| section.name() == program_name)
+            .flat_map(|section| {
+                section
+                    .definitions
+                    .iter()
+                    .map(|definition| definition.value.to_string())
+            })
+            .collect::<Vec<_>>()
+    }
+
     /// Serializes the `Input` into a JSON Value.
     pub fn to_json_value(&self) -> Result<serde_json::Value> {
         Ok(serde_json::to_value(&self).map_err(|e| AstError::failed_to_convert_ast_to_json_value(&e))?)

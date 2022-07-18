@@ -24,3 +24,9 @@ pub struct Section {
     pub definitions: Vec<Definition>,
     pub span: Span,
 }
+
+impl Section {
+    pub fn name(&self) -> String {
+        self.name.to_string()
+    }
+}

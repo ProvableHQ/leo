@@ -14,26 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{api::Api, config};
-use leo_errors::{CliError, Result};
-use leo_package::root::{LockFile, Manifest};
+use crate::commands::Network;
+use leo_errors::{CliError, PackageError, Result};
+use snarkvm::file::Manifest;
 
-use std::{convert::TryFrom, env::current_dir, path::PathBuf};
-
-pub const PACKAGE_MANAGER_URL: &str = "https://api.aleo.pm/";
+use leo_package::build::{BuildDirectory, BUILD_DIRECTORY_NAME};
+use std::{
+    env::current_dir,
+    path::{Path, PathBuf},
+};
 
 /// Project context, manifest, current directory etc
 /// All the info that is relevant in most of the commands
 #[derive(Clone)]
 pub struct Context {
-    /// Api client for Aleo PM
-    pub api: Api,
-
     /// Path at which the command is called, None when default
     pub path: Option<PathBuf>,
 }
 
 impl Context {
+    pub fn new(path: Option<PathBuf>) -> Result<Context> {
+        Ok(Context { path })
+    }
+
+    /// Returns the path to the Leo package.
     pub fn dir(&self) -> Result<PathBuf> {
         match &self.path {
             Some(path) => Ok(path.clone()),
@@ -41,36 +45,28 @@ impl Context {
         }
     }
 
-    /// Get package manifest for current context.
-    pub fn manifest(&self) -> Result<Manifest> {
-        Ok(Manifest::try_from(self.dir()?.as_path())?)
+    /// Returns the package name as a String.
+    /// Opens the manifest file `program.json` and creates the build directory if it doesn't exist.
+    pub fn open_manifest(&self) -> Result<Manifest<Network>> {
+        // Open the manifest file.
+        let path = self.dir()?;
+        let manifest = Manifest::<Network>::open(&path).map_err(PackageError::failed_to_open_manifest)?;
+
+        // Lookup the program id.
+        let program_id = manifest.program_id();
+
+        // Create the Leo build/ directory if it doesn't exist.
+        let build_path = path.join(Path::new(BUILD_DIRECTORY_NAME));
+        if !build_path.exists() {
+            BuildDirectory::create(&build_path)?;
+        }
+
+        // Mirror the program.json file in the Leo build/ directory for Aleo SDK compilation.
+        if !Manifest::<Network>::exists_at(&build_path) {
+            Manifest::<Network>::create(&build_path, program_id).map_err(PackageError::failed_to_open_manifest)?;
+        }
+
+        // Get package name from program id.
+        Ok(manifest)
     }
-
-    /// Get lock file for current context.
-    pub fn lock_file(&self) -> Result<LockFile> {
-        Ok(LockFile::try_from(self.dir()?.as_path())?)
-    }
-
-    /// Check if lock file exists.
-    pub fn lock_file_exists(&self) -> Result<bool> {
-        Ok(LockFile::exists_at(&self.dir()?))
-    }
-}
-
-/// Create a new context for the current directory.
-pub fn create_context(path: PathBuf, api_url: Option<String>) -> Result<Context> {
-    let token = config::read_token().ok();
-
-    let api = Api::new(api_url.unwrap_or_else(|| PACKAGE_MANAGER_URL.to_string()), token);
-
-    Ok(Context { api, path: Some(path) })
-}
-
-/// Returns project context.
-pub fn get_context(api_url: Option<String>) -> Result<Context> {
-    let token = config::read_token().ok();
-
-    let api = Api::new(api_url.unwrap_or_else(|| PACKAGE_MANAGER_URL.to_string()), token);
-
-    Ok(Context { api, path: None })
 }

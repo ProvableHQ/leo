@@ -1,6 +1,5 @@
-// CAUTION: Work in progress
-
 record Token {
+<<<<<<< HEAD
     // The token owner.
     owner: address,
     // The Aleo balance (in gates).
@@ -43,8 +42,13 @@ function transfer(r0: Token, r1: Receiver) -> Token {
 
     // return (r3, r4);
     return r3;
+=======
+	owner: address,
+	balance: u64,
+	token_amount: u64,
+>>>>>>> f2a00dfeec64a04a7777653e1df08613160f1822
 }
 
-function main() -> u8 {
-    return 1u8;
+function main(t: Token) -> u64 {
+	return t.token_amount + t.token_amount;
 }

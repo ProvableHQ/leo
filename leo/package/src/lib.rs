@@ -16,6 +16,7 @@
 
 #![doc = include_str!("../README.md")]
 
+pub mod build;
 pub mod imports;
 pub mod inputs;
 pub mod outputs;
@@ -23,25 +24,41 @@ pub mod package;
 pub mod root;
 pub mod source;
 
-use std::path::Path;
+use leo_errors::{PackageError, Result};
 
-use leo_errors::Result;
+use std::fs::ReadDir;
+use std::{fs, path::PathBuf};
 
-pub struct LeoPackage;
+pub static LEO_FILE_EXTENSION: &str = ".leo";
 
-impl LeoPackage {
-    /// Initializes a Leo package at the given path.
-    pub fn initialize(package_name: &str, path: &Path, author: Option<String>) -> Result<()> {
-        package::Package::initialize(package_name, path, author)
+pub(crate) fn parse_file_paths(directory: ReadDir, file_paths: &mut Vec<PathBuf>) -> Result<()> {
+    for file_entry in directory {
+        let file_entry = file_entry.map_err(PackageError::failed_to_get_leo_file_entry)?;
+        let file_path = file_entry.path();
+
+        // Verify that the entry is structured as a valid file or directory
+        if file_path.is_dir() {
+            let directory =
+                fs::read_dir(&file_path).map_err(|err| PackageError::failed_to_read_file(file_path.display(), err))?;
+
+            parse_file_paths(directory, file_paths)?;
+            continue;
+        } else {
+            // Verify that the file has the Leo file extension
+            let file_extension = file_path
+                .extension()
+                .ok_or_else(|| PackageError::failed_to_get_leo_file_extension(file_path.as_os_str().to_owned()))?;
+            if file_extension != LEO_FILE_EXTENSION.trim_start_matches('.') {
+                return Err(PackageError::invalid_leo_file_extension(
+                    file_path.as_os_str().to_owned(),
+                    file_extension.to_owned(),
+                )
+                .into());
+            }
+
+            file_paths.push(file_path);
+        }
     }
 
-    /// Returns `true` if the given Leo package name is valid.
-    pub fn is_package_name_valid(package_name: &str) -> bool {
-        package::Package::is_package_name_valid(package_name)
-    }
-
-    /// Removes an imported Leo package
-    pub fn remove_imported_package(package_name: &str, path: &Path) -> Result<()> {
-        package::Package::remove_imported_package(package_name, path)
-    }
+    Ok(())
 }

@@ -43,27 +43,27 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
     fn visit_expression(&mut self, input: &'a Expression, expected: &Self::AdditionalInput) -> Self::Output {
         match input {
-            Expression::Access(expr) => self.visit_access(expr, expected),
-            Expression::Identifier(expr) => self.visit_identifier(expr, expected),
-            Expression::Literal(expr) => self.visit_literal(expr, expected),
-            Expression::Binary(expr) => self.visit_binary(expr, expected),
-            Expression::Call(expr) => self.visit_call(expr, expected),
-            Expression::CircuitInit(expr) => self.visit_circuit_init(expr, expected),
-            Expression::Err(expr) => self.visit_err(expr, expected),
-            Expression::Ternary(expr) => self.visit_ternary(expr, expected),
+            Expression::Access(access) => self.visit_access(access, expected),
+            Expression::Binary(binary) => self.visit_binary(binary, expected),
+            Expression::Call(call) => self.visit_call(call, expected),
+            Expression::Circuit(circuit) => self.visit_circuit_init(circuit, expected),
+            Expression::Identifier(identifier) => self.visit_identifier(identifier, expected),
+            Expression::Err(err) => self.visit_err(err, expected),
+            Expression::Literal(literal) => self.visit_literal(literal, expected),
+            Expression::Ternary(ternary) => self.visit_ternary(ternary, expected),
+            Expression::Tuple(tuple) => self.visit_tuple(tuple, expected),
             Expression::Unary(expr) => self.visit_unary(expr, expected),
         }
     }
 
     fn visit_access(&mut self, input: &'a AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        // CAUTION: This implementation only allows access to core circuits.
         match input {
             AccessExpression::AssociatedFunction(access) => {
                 // Check core circuit name and function.
                 if let Some(core_instruction) = self.check_core_circuit_call(&access.ty, &access.name) {
                     // Check num input arguments.
                     if core_instruction.num_args() != access.args.len() {
-                        self.handler.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                        self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
                             core_instruction.num_args(),
                             access.args.len(),
                             input.span(),
@@ -83,11 +83,42 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     }
 
                     // Check return type.
-                    Some(self.assert_and_return_type(core_instruction.return_type(), expected, access.span()))
+                    return Some(self.assert_and_return_type(core_instruction.return_type(), expected, access.span()));
                 } else {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_core_circuit_call(access, access.span()));
-                    None
+                    self.emit_err(TypeCheckerError::invalid_core_circuit_call(access, access.span()));
+                }
+            }
+            AccessExpression::Tuple(access) => {
+                if let Some(type_) = self.visit_expression(&access.tuple, &None) {
+                    match type_ {
+                        Type::Tuple(tuple) => {
+                            // Check out of range access.
+                            let index = access.index.to_usize();
+                            if index > tuple.len() - 1 {
+                                self.emit_err(TypeCheckerError::tuple_out_of_range(index, tuple.len(), access.span()));
+                            } else {
+                                // Lookup type of tuple index.
+                                let actual = tuple.get(index).expect("failed to get tuple index").clone();
+                                if let Some(expected) = expected {
+                                    // Emit error for mismatched types.
+                                    if !actual.eq_flat(expected) {
+                                        self.emit_err(TypeCheckerError::type_should_be(
+                                            &actual,
+                                            expected,
+                                            access.span(),
+                                        ))
+                                    }
+                                }
+
+                                // Return type of tuple index.
+                                return Some(actual);
+                            }
+                        }
+                        type_ => {
+                            self.emit_err(TypeCheckerError::type_should_be(type_, "tuple", access.span()));
+                        }
+                    }
+                    self.emit_err(TypeCheckerError::invalid_core_circuit_call(access, access.span()));
                 }
             }
             AccessExpression::Member(access) => {
@@ -104,46 +135,37 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                 .find(|circuit_member| circuit_member.name() == access.name.name)
                             {
                                 // Case where `access.name` is a member of the circuit.
-                                Some(CircuitMember::CircuitVariable(_, type_)) => Some(*type_),
+                                Some(CircuitMember::CircuitVariable(_, type_)) => return Some(type_.clone()),
                                 // Case where `access.name` is not a member of the circuit.
                                 None => {
-                                    self.handler.emit_err(TypeCheckerError::invalid_circuit_variable(
+                                    self.emit_err(TypeCheckerError::invalid_circuit_variable(
                                         &access.name,
                                         &circ,
                                         access.name.span(),
                                     ));
-                                    None
                                 }
                             }
                         } else {
-                            self.handler
-                                .emit_err(TypeCheckerError::invalid_circuit(&access.inner, access.inner.span()));
-                            None
+                            self.emit_err(TypeCheckerError::invalid_circuit(&access.inner, access.inner.span()));
                         }
                     }
                     Some(type_) => {
-                        self.handler
-                            .emit_err(TypeCheckerError::type_should_be(type_, "circuit", access.inner.span()));
-                        None
+                        self.emit_err(TypeCheckerError::type_should_be(type_, "circuit", access.inner.span()));
                     }
                     None => {
-                        self.handler.emit_err(TypeCheckerError::could_not_determine_type(
+                        self.emit_err(TypeCheckerError::could_not_determine_type(
                             &access.inner,
                             access.inner.span(),
                         ));
-                        None
                     }
                 }
             }
-            AccessExpression::AssociatedConstant(..) => None, // todo: Add support for associated constants (u8::MAX).
+            AccessExpression::AssociatedConstant(..) => {} // todo: Add support for associated constants (u8::MAX).
         }
+        None
     }
 
-    fn visit_circuit_init(
-        &mut self,
-        input: &'a CircuitInitExpression,
-        additional: &Self::AdditionalInput,
-    ) -> Self::Output {
+    fn visit_circuit_init(&mut self, input: &'a CircuitExpression, additional: &Self::AdditionalInput) -> Self::Output {
         let circ = self.symbol_table.borrow().lookup_circuit(&input.name.name).cloned();
         if let Some(circ) = circ {
             // Check circuit type name.
@@ -151,7 +173,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
             // Check number of circuit members.
             if circ.members.len() != input.members.len() {
-                self.handler.emit_err(TypeCheckerError::incorrect_num_circuit_members(
+                self.emit_err(TypeCheckerError::incorrect_num_circuit_members(
                     circ.members.len(),
                     input.members.len(),
                     input.span(),
@@ -165,10 +187,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     // Lookup circuit variable name.
                     if let Some(actual) = input.members.iter().find(|member| member.identifier.name == name.name) {
                         if let Some(expr) = &actual.expression {
-                            self.visit_expression(expr, &Some(*ty));
+                            self.visit_expression(expr, &Some(ty.clone()));
                         }
                     } else {
-                        self.handler.emit_err(TypeCheckerError::missing_circuit_member(
+                        self.emit_err(TypeCheckerError::missing_circuit_member(
                             circ.identifier,
                             name,
                             input.span(),
@@ -178,7 +200,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
             Some(ret)
         } else {
-            self.handler.emit_err(TypeCheckerError::unknown_sym(
+            self.emit_err(TypeCheckerError::unknown_sym(
                 "circuit",
                 &input.name.name,
                 input.name.span(),
@@ -191,10 +213,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         if let Some(circuit) = self.symbol_table.borrow().lookup_circuit(&var.name) {
             Some(self.assert_and_return_type(Type::Identifier(circuit.identifier), expected, var.span))
         } else if let Some(var) = self.symbol_table.borrow().lookup_variable(&var.name) {
-            Some(self.assert_and_return_type(var.type_, expected, var.span))
+            Some(self.assert_and_return_type(var.type_.clone(), expected, var.span))
         } else {
-            self.handler
-                .emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()));
+            self.emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()));
             None
         }
     }
@@ -214,8 +235,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         };
 
                         if int.parse::<i8>().is_err() {
-                            self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(int, "i8", input.span()));
+                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i8", input.span()));
                         }
                     }
                     IntegerType::I16 => {
@@ -226,8 +246,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         };
 
                         if int.parse::<i16>().is_err() {
-                            self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(int, "i16", input.span()));
+                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i16", input.span()));
                         }
                     }
                     IntegerType::I32 => {
@@ -238,8 +257,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         };
 
                         if int.parse::<i32>().is_err() {
-                            self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(int, "i32", input.span()));
+                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i32", input.span()));
                         }
                     }
                     IntegerType::I64 => {
@@ -250,8 +268,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         };
 
                         if int.parse::<i64>().is_err() {
-                            self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(int, "i64", input.span()));
+                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i64", input.span()));
                         }
                     }
                     IntegerType::I128 => {
@@ -262,25 +279,24 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         };
 
                         if int.parse::<i128>().is_err() {
-                            self.handler
-                                .emit_err(TypeCheckerError::invalid_int_value(int, "i128", input.span()));
+                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i128", input.span()));
                         }
                     }
-                    IntegerType::U8 if str_content.parse::<u8>().is_err() => self
-                        .handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u8", input.span())),
-                    IntegerType::U16 if str_content.parse::<u16>().is_err() => self
-                        .handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u16", input.span())),
-                    IntegerType::U32 if str_content.parse::<u32>().is_err() => self
-                        .handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u32", input.span())),
-                    IntegerType::U64 if str_content.parse::<u64>().is_err() => self
-                        .handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u64", input.span())),
-                    IntegerType::U128 if str_content.parse::<u128>().is_err() => self
-                        .handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u128", input.span())),
+                    IntegerType::U8 if str_content.parse::<u8>().is_err() => {
+                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u8", input.span()))
+                    }
+                    IntegerType::U16 if str_content.parse::<u16>().is_err() => {
+                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u16", input.span()))
+                    }
+                    IntegerType::U32 if str_content.parse::<u32>().is_err() => {
+                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u32", input.span()))
+                    }
+                    IntegerType::U64 if str_content.parse::<u64>().is_err() => {
+                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u64", input.span()))
+                    }
+                    IntegerType::U128 if str_content.parse::<u128>().is_err() => {
+                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u128", input.span()))
+                    }
                     _ => {}
                 }
                 self.assert_and_return_type(Type::IntegerType(*type_), expected, input.span())
@@ -410,7 +426,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         // Lhs type is checked to be an integer by above.
                         // Rhs type must be magnitude (u8, u16, u32).
                         self.assert_magnitude_type(&t2, input.right.span());
-                        *destination
+                        destination.clone()
                     }
                 }
             }
@@ -446,8 +462,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 match (t1, t2) {
                     (Some(Type::Address), _) | (_, Some(Type::Address)) => {
                         // Emit an error for address comparison.
-                        self.handler
-                            .emit_err(TypeCheckerError::compare_address(input.op, input.span()));
+                        self.emit_err(TypeCheckerError::compare_address(input.op, input.span()));
                     }
                     (Some(Type::Field), t2) => {
                         // Assert rhs is field.
@@ -514,6 +529,80 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
+    fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
+        match &*input.function {
+            Expression::Identifier(ident) => {
+                // Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
+                // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table` alive for the entire block and will be very memory inefficient!
+                let func = self.symbol_table.borrow().lookup_fn(&ident.name).cloned();
+                if let Some(func) = func {
+                    let ret = self.assert_and_return_type(func.output, expected, func.span);
+
+                    // Check number of function arguments.
+                    if func.input.len() != input.arguments.len() {
+                        self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                            func.input.len(),
+                            input.arguments.len(),
+                            input.span(),
+                        ));
+                    }
+
+                    // Check function argument types.
+                    func.input
+                        .iter()
+                        .zip(input.arguments.iter())
+                        .for_each(|(expected, argument)| {
+                            self.visit_expression(argument, &Some(expected.get_variable().type_.clone()));
+                        });
+
+                    Some(ret)
+                } else {
+                    self.emit_err(TypeCheckerError::unknown_sym("function", &ident.name, ident.span()));
+                    None
+                }
+            }
+            // TODO: Is this case sufficient?
+            expr => self.visit_expression(expr, expected),
+        }
+    }
+
+    fn visit_ternary(&mut self, input: &'a TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.condition, &Some(Type::Boolean));
+
+        let t1 = self.visit_expression(&input.if_true, expected);
+        let t2 = self.visit_expression(&input.if_false, expected);
+
+        return_incorrect_type(t1, t2, expected)
+    }
+
+    fn visit_tuple(&mut self, input: &'a TupleExpression, expected: &Self::AdditionalInput) -> Self::Output {
+        // Check the expected tuple types if they are known.
+        if let Some(Type::Tuple(expected_types)) = expected {
+            // Check actual length is equal to expected length.
+            if expected_types.len() != input.elements.len() {
+                self.emit_err(TypeCheckerError::incorrect_tuple_length(
+                    expected_types.len(),
+                    input.elements.len(),
+                    input.span(),
+                ));
+            }
+
+            expected_types
+                .iter()
+                .zip(input.elements.iter())
+                .for_each(|(expected, expr)| {
+                    self.visit_expression(expr, &Some(expected.clone()));
+                });
+
+            Some(Type::Tuple(expected_types.clone()))
+        } else {
+            // Tuples must be explicitly typed in testnet3.
+            self.emit_err(TypeCheckerError::invalid_tuple(input.span()));
+
+            None
+        }
+    }
+
     fn visit_unary(&mut self, input: &'a UnaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
         match input.op {
             UnaryOperation::Abs => {
@@ -562,53 +651,6 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 self.assert_field_scalar_type(destination, input.span());
                 self.visit_expression(&input.receiver, destination)
             }
-        }
-    }
-
-    fn visit_ternary(&mut self, input: &'a TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        self.visit_expression(&input.condition, &Some(Type::Boolean));
-
-        let t1 = self.visit_expression(&input.if_true, expected);
-        let t2 = self.visit_expression(&input.if_false, expected);
-
-        return_incorrect_type(t1, t2, expected)
-    }
-
-    fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        match &*input.function {
-            Expression::Identifier(ident) => {
-                // Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
-                // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table` alive for the entire block and will be very memory inefficient!
-                let func = self.symbol_table.borrow().lookup_fn(&ident.name).cloned();
-                if let Some(func) = func {
-                    let ret = self.assert_and_return_type(func.output, expected, func.span);
-
-                    // Check number of function arguments.
-                    if func.input.len() != input.arguments.len() {
-                        self.handler.emit_err(TypeCheckerError::incorrect_num_args_to_call(
-                            func.input.len(),
-                            input.arguments.len(),
-                            input.span(),
-                        ));
-                    }
-
-                    // Check function argument types.
-                    func.input
-                        .iter()
-                        .zip(input.arguments.iter())
-                        .for_each(|(expected, argument)| {
-                            self.visit_expression(argument, &Some(expected.get_variable().type_));
-                        });
-
-                    Some(ret)
-                } else {
-                    self.handler
-                        .emit_err(TypeCheckerError::unknown_sym("function", &ident.name, ident.span()));
-                    None
-                }
-            }
-            // TODO: Is this case sufficient?
-            expr => self.visit_expression(expr, expected),
         }
     }
 }

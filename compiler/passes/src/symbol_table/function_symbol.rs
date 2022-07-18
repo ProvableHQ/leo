@@ -36,7 +36,7 @@ impl SymbolTable {
     pub(crate) fn new_function_symbol(id: usize, func: &Function) -> FunctionSymbol {
         FunctionSymbol {
             id,
-            output: func.output,
+            output: func.output.clone(),
             span: func.span,
             input: func.input.clone(),
         }

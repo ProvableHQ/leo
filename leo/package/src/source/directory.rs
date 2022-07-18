@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::parse_file_paths;
 use leo_errors::{PackageError, Result};
 
 use std::{
@@ -23,8 +24,6 @@ use std::{
 };
 
 pub static SOURCE_DIRECTORY_NAME: &str = "src/";
-
-pub static SOURCE_FILE_EXTENSION: &str = ".leo";
 
 pub struct SourceDirectory;
 
@@ -43,37 +42,14 @@ impl SourceDirectory {
     /// Returns a list of files in the source directory.
     pub fn files(path: &Path) -> Result<Vec<PathBuf>> {
         let mut path = Cow::from(path);
-        path.to_mut().push(SOURCE_DIRECTORY_NAME);
-
-        let directory = fs::read_dir(&path).map_err(PackageError::failed_to_read_inputs_directory)?;
-
-        let mut file_paths = Vec::new();
-        for file_entry in directory {
-            let file_entry = file_entry.map_err(PackageError::failed_to_get_source_file_entry)?;
-            let file_path = file_entry.path();
-
-            // Verify that the entry is structured as a valid file
-            let file_type = file_entry
-                .file_type()
-                .map_err(|e| PackageError::failed_to_get_source_file_type(file_path.as_os_str().to_owned(), e))?;
-            if !file_type.is_file() {
-                return Err(PackageError::invalid_source_file_type(file_path.as_os_str().to_owned(), file_type).into());
-            }
-
-            // Verify that the file has the default file extension
-            let file_extension = file_path
-                .extension()
-                .ok_or_else(|| PackageError::failed_to_get_source_file_extension(file_path.as_os_str().to_owned()))?;
-            if file_extension != SOURCE_FILE_EXTENSION.trim_start_matches('.') {
-                return Err(PackageError::invalid_source_file_extension(
-                    file_path.as_os_str().to_owned(),
-                    file_extension.to_owned(),
-                )
-                .into());
-            }
-
-            file_paths.push(file_path);
+        if path.is_dir() && !path.ends_with(SOURCE_DIRECTORY_NAME) {
+            path.to_mut().push(SOURCE_DIRECTORY_NAME);
         }
+
+        let directory = fs::read_dir(&path).map_err(|err| PackageError::failed_to_read_file(path.display(), err))?;
+        let mut file_paths = Vec::new();
+
+        parse_file_paths(directory, &mut file_paths)?;
 
         Ok(file_paths)
     }

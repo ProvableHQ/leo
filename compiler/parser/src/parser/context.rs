@@ -87,9 +87,14 @@ impl<'a> ParserContext<'a> {
         self.prev_token = mem::replace(&mut self.token, next_token);
     }
 
-    /// Checks whether the current token is `token`.
+    /// Checks whether the current token is `Token`.
     pub(super) fn check(&self, tok: &Token) -> bool {
         &self.token.token == tok
+    }
+
+    /// Checks whether the current token is a `Token::Int(_)`.
+    pub(super) fn check_int(&self) -> bool {
+        matches!(&self.token.token, Token::Integer(_))
     }
 
     /// Returns `true` if the next token is equal to the given token.
@@ -136,7 +141,7 @@ impl<'a> ParserContext<'a> {
 
     /// Eats the next token if its an identifier and returns it.
     pub(super) fn eat_identifier(&mut self) -> Option<Identifier> {
-        if let Token::Ident(name) = self.token.token {
+        if let Token::Identifier(name) = self.token.token {
             self.bump();
             return Some(self.mk_ident_prev(name));
         }
@@ -144,9 +149,23 @@ impl<'a> ParserContext<'a> {
     }
 
     /// Expects an [`Identifier`], or errors.
-    pub(super) fn expect_ident(&mut self) -> Result<Identifier> {
+    pub(super) fn expect_identifier(&mut self) -> Result<Identifier> {
         self.eat_identifier()
-            .ok_or_else(|| ParserError::unexpected_str(&self.token.token, "ident", self.token.span).into())
+            .ok_or_else(|| ParserError::unexpected_str(&self.token.token, "identifier", self.token.span).into())
+    }
+
+    ///
+    /// Removes the next token if it is a [`Token::Integer(_)`] and returns it, or [None] if
+    /// the next token is not a [`Token::Integer(_)`] or if the next token does not exist.
+    ///
+    pub fn eat_integer(&mut self) -> Result<(PositiveNumber, Span)> {
+        let token = self.token.token.clone();
+        if let Token::Integer(value) = token {
+            self.bump();
+            Ok((PositiveNumber { value }, self.token.span))
+        } else {
+            Err(ParserError::unexpected(&self.token.token, "integer literal", self.token.span).into())
+        }
     }
 
     /// Eats any of the given `tokens`, returning `true` if anything was eaten.

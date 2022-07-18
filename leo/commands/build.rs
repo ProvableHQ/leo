@@ -15,17 +15,25 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{commands::Command, context::Context};
-use leo_compiler::{Ast, Compiler, InputAst, OutputOptions};
-use leo_errors::{CliError, Result};
+use leo_compiler::{Compiler, InputAst, OutputOptions};
+use leo_errors::{CliError, CompilerError, PackageError, Result};
+use leo_package::source::{SourceDirectory, MAIN_FILENAME};
 use leo_package::{
     inputs::InputFile,
-    // inputs::*,
-    // outputs::CircuitFile
-    outputs::{ChecksumFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
-    source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
+    outputs::{ChecksumFile, OutputsDirectory},
 };
+use leo_span::symbol::with_session_globals;
+
+use aleo::commands::Build as AleoBuild;
 
 use clap::StructOpt;
+use colored::Colorize;
+use std::io::Write;
+use std::path::{Path, PathBuf};
+
+use leo_errors::emitter::Handler;
+use leo_package::build::BuildDirectory;
+use leo_package::imports::ImportsDirectory;
 use tracing::span::Span;
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
@@ -40,6 +48,12 @@ pub struct BuildOptions {
     pub enable_initial_input_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot of the initial parse.")]
     pub enable_initial_ast_snapshot: bool,
+    // Note: This is currently made optional since code generation is just a prototype.
+    #[structopt(
+        long,
+        help = "Runs the code generation stage of the compiler and prints the resulting bytecode."
+    )]
+    pub enable_code_generation: bool,
 }
 
 impl From<BuildOptions> for OutputOptions {
@@ -67,7 +81,7 @@ pub struct Build {
 
 impl Command for Build {
     type Input = ();
-    type Output = (Option<InputAst>, Ast, bool);
+    type Output = Option<InputAst>;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Build")
@@ -78,140 +92,176 @@ impl Command for Build {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        let path = context.dir()?;
-        let manifest = context.manifest().map_err(|_| CliError::manifest_file_not_found())?;
-        let package_name = manifest.get_package_name();
-        let imports_map = manifest.get_imports_map().unwrap_or_default();
+        // Get the package path.
+        let package_path = context.dir()?;
 
-        // Error out if there are dependencies but no lock file found.
-        if !imports_map.is_empty() && !context.lock_file_exists()? {
-            return Err(CliError::dependencies_are_not_installed().into());
-        }
+        // Get the program name.
+        let package_name = context.open_manifest()?.program_id().name().to_string();
 
-        // Sanitize the package path to the root directory.
-        let mut package_path = path.clone();
-        if package_path.is_file() {
-            package_path.pop();
-        }
+        // Create the outputs directory.
+        let outputs_directory = OutputsDirectory::create(&package_path)?;
 
-        // Construct the path to the output directory.
-        let mut output_directory = package_path.clone();
-        output_directory.push(OUTPUTS_DIRECTORY_NAME);
-
-        tracing::info!("Starting...");
-
-        // Compile the main.leo file along with constraints
-        if !MainFile::exists_at(&package_path) {
-            return Err(CliError::package_main_file_not_found().into());
-        }
-
-        // Create the output directory
-        OutputsDirectory::create(&package_path)?;
-
-        // Construct the path to the main file in the source directory
-        let mut main_file_path = package_path.clone();
-        main_file_path.push(SOURCE_DIRECTORY_NAME);
-        main_file_path.push(MAIN_FILENAME);
-
-        // Load the input file at `package_name.in`
-        let input_path = InputFile::new(&package_name).setup_file_path(&path);
-
-        // Load the state file at `package_name.in`
-        // let (state_string, state_path) = StateFile::new(&package_name).read_from(&path)?;
-
-        // Log compilation of files to console
-        tracing::info!("Compiling main program... ({:?})", main_file_path);
-
-        // let imports_map = if context.lock_file_exists()? {
-        //     context.lock_file()?.to_import_map()
-        // } else {
-        //     Default::default()
-        // };
-
-        // Load the program at `main_file_path`
-        // let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_input(
-        //     package_name.clone(),
-        //     main_file_path,
-        //     output_directory,
-        //     &input_string,
-        //     &input_path,
-        //     &state_string,
-        //     &state_path,
-        //     thread_leaked_context(),
-        //     Some(self.compiler_options.clone().into()),
-        //     imports_map,
-        //     Some(self.compiler_options.into()),
-        // )?;
+        // Open the build directory.
+        let build_directory = BuildDirectory::open(&package_path)?;
 
         // Initialize error handler
         let handler = leo_errors::emitter::Handler::default();
 
-        let mut program = Compiler::new(
-            &handler,
-            main_file_path,
-            output_directory,
-            Some(self.compiler_options.into()),
-        );
-        program.parse_input(input_path.to_path_buf())?;
+        // Fetch paths to all .leo files in the source directory.
+        let source_files = SourceDirectory::files(&package_path)?;
 
-        // Compute the current program checksum
-        let program_checksum = program.checksum()?;
-
-        // Compile the program
-        program.compile()?;
-
-        // Generate the program on the constraint system and verify correctness
-        {
-            // let mut cs = CircuitSynthesizer::<Bls12_377> {
-            //     constraints: Default::default(),
-            //     public_variables: Default::default(),
-            //     private_variables: Default::default(),
-            //     namespaces: Default::default(),
-            // };
-            // let temporary_program = program.clone();
-            // let output = temporary_program.compile_constraints(&mut cs)?;
-            //
-            // tracing::debug!("Compiled output - {:#?}", output);
-            // tracing::info!("Number of constraints - {:#?}", cs.num_constraints());
-
-            // Serialize the circuit
-            // let circuit_object = SerializedCircuit::from(cs);
-            // let json = circuit_object.to_json_string().unwrap();
-            // println!("json: {}", json);
-
-            // Write serialized circuit to circuit `.json` file.
-            // let circuit_file = CircuitFile::new(&package_name);
-            // circuit_file.write_to(&path, json)?;
-
-            // Check that we can read the serialized circuit file
-            // let serialized = circuit_file.read_from(&package_path)?;
-
-            // Deserialize the circuit
-            // let deserialized = SerializedCircuit::from_json_string(&serialized).unwrap();
-            // let _circuit_synthesizer = CircuitSynthesizer::<Bls12_377>::try_from(deserialized).unwrap();
-            // println!("deserialized {:?}", circuit_synthesizer.num_constraints());
+        // Compile all .leo files into .aleo files.
+        for file_path in source_files.into_iter() {
+            compile_leo_file(
+                file_path,
+                &package_path,
+                &package_name,
+                &outputs_directory,
+                &build_directory,
+                &handler,
+                self.compiler_options.clone(),
+            )?;
         }
 
-        // If a checksum file exists, check if it differs from the new checksum
-        let checksum_file = ChecksumFile::new(&package_name);
-        let checksum_differs = if checksum_file.exists_at(&package_path) {
-            let previous_checksum = checksum_file.read_from(&package_path)?;
+        if !ImportsDirectory::is_empty(&package_path)? {
+            // Create Aleo build/imports/ directory.
+            let build_imports_directory = ImportsDirectory::create(&build_directory)?;
+
+            // Fetch paths to all .leo files in the imports directory.
+            let import_files = ImportsDirectory::files(&package_path)?;
+
+            // Compile all .leo files into .aleo files.
+            for file_path in import_files.into_iter() {
+                compile_leo_file(
+                    file_path,
+                    &package_path,
+                    &package_name,
+                    &outputs_directory,
+                    &build_imports_directory,
+                    &handler,
+                    self.compiler_options.clone(),
+                )?;
+            }
+        }
+
+        // Load the input file at `package_name.in`
+        let input_file_path = InputFile::new(&package_name).setup_file_path(&package_path);
+
+        // Parse the input file.
+        let input_ast = if input_file_path.exists() {
+            // Load the input file into the source map.
+            let input_sf = with_session_globals(|s| s.source_map.load_file(&input_file_path))
+                .map_err(|e| CompilerError::file_read_error(&input_file_path, e))?;
+
+            leo_parser::parse_input(&handler, &input_sf.src, input_sf.start_pos).ok()
+        } else {
+            None
+        };
+
+        // Change the cwd to the build directory to compile aleo files.
+        std::env::set_current_dir(&build_directory)
+            .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
+
+        // Call the `aleo build` command from the Aleo SDK.
+        let result = AleoBuild.parse().map_err(CliError::failed_to_execute_aleo_build)?;
+
+        // Log the result of the build
+        tracing::info!("{}", result);
+
+        Ok(input_ast)
+    }
+}
+
+fn compile_leo_file(
+    file_path: PathBuf,
+    package_path: &PathBuf,
+    package_name: &String,
+    outputs: &Path,
+    build: &Path,
+    handler: &Handler,
+    options: BuildOptions,
+) -> Result<()> {
+    // Construct the Leo file name with extension `foo.leo`.
+    let file_name = file_path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .ok_or_else(PackageError::failed_to_get_file_name)?;
+
+    // Construct program name from file_path name `foo`.
+    let program_name = file_name
+        .strip_suffix(".leo")
+        .ok_or_else(PackageError::failed_to_get_file_name)?;
+
+    // Construct program id header for aleo file.
+    // Do not create a program with main.aleo as the ID.
+    let program_id_name = if file_name.eq(MAIN_FILENAME) {
+        package_name
+    } else {
+        program_name
+    };
+
+    // Create a new instance of the Leo compiler.
+    let mut program = Compiler::new(
+        program_id_name.to_string(),
+        String::from("aleo"), // todo: fetch this from Network::Testnet3
+        handler,
+        file_path.clone(),
+        outputs.to_path_buf(),
+        Some(options.into()),
+    );
+
+    // Check if we need to compile the Leo program.
+    let checksum_differs = {
+        // Compute the current program checksum.
+        let program_checksum = program.checksum()?;
+
+        // Get the current program checksum.
+        let checksum_file = ChecksumFile::new(program_name);
+
+        // If a checksum file exists, check if it differs from the new checksum.
+        let checksum_differs = if checksum_file.exists_at(package_path) {
+            let previous_checksum = checksum_file.read_from(package_path)?;
             program_checksum != previous_checksum
         } else {
-            // By default, the checksum differs if there is no checksum to compare against
+            // By default, the checksum differs if there is no checksum to compare against.
             true
         };
 
         // If checksum differs, compile the program
         if checksum_differs {
             // Write the new checksum to the output directory
-            checksum_file.write_to(&path, program_checksum)?;
+            checksum_file.write_to(package_path, program_checksum)?;
 
-            tracing::debug!("Checksum saved ({:?})", path);
+            tracing::debug!("Checksum saved ({:?})", package_path);
         }
 
-        tracing::info!("Complete");
+        checksum_differs
+    };
 
-        Ok((program.input_ast, program.ast, checksum_differs))
+    if checksum_differs {
+        // Compile the Leo program into Aleo instructions.
+        let (_, instructions) = program.compile_and_generate_instructions()?;
+
+        // Create the path to the Aleo file.
+        let mut aleo_file_path = build.to_path_buf();
+        aleo_file_path.push(format!("{}.aleo", program_name));
+
+        // Write the instructions.
+        std::fs::File::create(&aleo_file_path)
+            .map_err(CliError::failed_to_load_instructions)?
+            .write_all(instructions.as_bytes())
+            .map_err(CliError::failed_to_load_instructions)?;
+
+        // Prepare the path string.
+        let path_string = format!("(in \"{}\")", aleo_file_path.display());
+
+        // Log the build as successful.
+        tracing::info!(
+            "✅ Compiled '{}' into Aleo instructions {}",
+            file_name,
+            path_string.dimmed()
+        );
     }
+
+    Ok(())
 }

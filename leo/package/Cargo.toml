@@ -19,7 +19,7 @@ edition = "2021"
 rust-version = "1.56.1"
 
 [dependencies.leo-errors]
-path = "../errors"
+path = "../../errors"
 version = "1.5.3"
 
 [dependencies.indexmap]

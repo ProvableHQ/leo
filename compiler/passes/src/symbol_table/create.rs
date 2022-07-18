@@ -57,4 +57,8 @@ impl<'a> ProgramVisitor<'a> for CreateSymbolTable<'a> {
             self.handler.emit_err(err);
         }
     }
+
+    fn visit_import(&mut self, input: &'a Program) {
+        self.visit_program(input)
+    }
 }

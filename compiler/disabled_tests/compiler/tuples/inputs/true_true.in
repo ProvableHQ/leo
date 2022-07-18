@@ -1,6 +1,0 @@
-[main]
-a: (bool, bool) = (false, true);
-
-[registers]
-b: bool = true;
-c: bool = false;

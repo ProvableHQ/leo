@@ -26,9 +26,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // we can safely unwrap all self.parent instances because
         // statements should always have some parent block
         let parent = self.parent.unwrap();
-
-        let return_type = &self.symbol_table.borrow().lookup_fn(&parent).map(|f| f.output);
+        let return_type = &self.symbol_table.borrow().lookup_fn(&parent).map(|f| f.output.clone());
         self.check_core_type_conflict(return_type);
+
         self.has_return = true;
 
         self.visit_expression(&input.expression, return_type);
@@ -42,14 +42,14 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         };
 
         input.variable_names.iter().for_each(|v| {
-            self.check_core_type_conflict(&Some(input.type_));
+            self.check_core_type_conflict(&Some(input.type_.clone()));
 
-            self.visit_expression(&input.value, &Some(input.type_));
+            self.visit_expression(&input.value, &Some(input.type_.clone()));
 
             if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
                 v.identifier.name,
                 VariableSymbol {
-                    type_: input.type_,
+                    type_: input.type_.clone(),
                     span: input.span(),
                     declaration: declaration.clone(),
                 },
@@ -63,8 +63,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let var_name = match input.place {
             Expression::Identifier(id) => id,
             _ => {
-                self.handler
-                    .emit_err(TypeCheckerError::invalid_assignment_target(input.place.span()));
+                self.emit_err(TypeCheckerError::invalid_assignment_target(input.place.span()));
                 return;
             }
         };
@@ -72,19 +71,17 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(&var_name.name) {
             // TODO: Check where this check is moved to in `improved-flattening`.
             match &var.declaration {
-                Declaration::Const => self
-                    .handler
-                    .emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
-                Declaration::Input(ParamMode::Const) => self
-                    .handler
-                    .emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span)),
+                Declaration::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
+                Declaration::Input(ParamMode::Const) => {
+                    self.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
+                }
                 _ => {}
             }
 
-            Some(var.type_)
+            Some(var.type_.clone())
         } else {
-            self.handler
-                .emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span));
+            self.emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span));
+
             None
         };
 
@@ -103,14 +100,14 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
-        let iter_type = &Some(input.type_);
+        let iter_type = &Some(input.type_.clone());
         self.assert_int_type(iter_type, input.variable.span);
         self.check_core_type_conflict(iter_type);
 
         if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
             input.variable.name,
             VariableSymbol {
-                type_: input.type_,
+                type_: input.type_.clone(),
                 span: input.span(),
                 declaration: Declaration::Const,
             },

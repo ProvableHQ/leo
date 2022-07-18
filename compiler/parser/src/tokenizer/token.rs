@@ -27,8 +27,8 @@ pub enum Token {
     CommentLine(String),
     CommentBlock(String),
     StaticString(String),
-    Ident(Symbol),
-    Int(String),
+    Identifier(Symbol),
+    Integer(String),
     True,
     False,
     AddressLit(String),
@@ -94,17 +94,18 @@ pub enum Token {
     // Regular Keywords
     Circuit,
     Console,
-    /// Const variable and a const function.
+    // Const variable and a const function.
     Const,
-    /// Constant parameter
+    // Constant parameter
     Constant,
     Else,
     For,
     Function,
     If,
+    Import,
     In,
     Let,
-    /// For public inputs.
+    // For public inputs.
     Public,
     Return,
     SelfLower,
@@ -137,6 +138,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::I64,
     Token::I128,
     Token::If,
+    Token::Import,
     Token::In,
     Token::Let,
     Token::Public,
@@ -182,6 +184,7 @@ impl Token {
             Token::I128 => sym::i128,
             Token::If => sym::If,
             Token::In => sym::In,
+            Token::Import => sym::import,
             Token::Let => sym::Let,
             Token::Public => sym::Public,
             Token::Record => sym::record,
@@ -208,8 +211,8 @@ impl fmt::Display for Token {
             CommentLine(s) => write!(f, "{}", s),
             CommentBlock(s) => write!(f, "{}", s),
             StaticString(s) => write!(f, "\"{}\"", s),
-            Ident(s) => write!(f, "{}", s),
-            Int(s) => write!(f, "{}", s),
+            Identifier(s) => write!(f, "{}", s),
+            Integer(s) => write!(f, "{}", s),
             True => write!(f, "true"),
             False => write!(f, "false"),
             AddressLit(s) => write!(f, "{}", s),
@@ -277,6 +280,7 @@ impl fmt::Display for Token {
             For => write!(f, "for"),
             Function => write!(f, "function"),
             If => write!(f, "if"),
+            Import => write!(f, "import"),
             In => write!(f, "in"),
             Let => write!(f, "let"),
             SelfLower => write!(f, "self"),

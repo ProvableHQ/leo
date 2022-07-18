@@ -172,7 +172,7 @@ impl Token {
             int.push(c);
         }
 
-        Ok((int.len(), Token::Int(int)))
+        Ok((int.len(), Token::Integer(int)))
     }
 
     /// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns [`None`].
@@ -314,6 +314,7 @@ impl Token {
                     "i128" => Token::I128,
                     "if" => Token::If,
                     "in" => Token::In,
+                    "import" => Token::Import,
                     "let" => Token::Let,
                     "public" => Token::Public,
                     "record" => Token::Record,
@@ -326,7 +327,7 @@ impl Token {
                     "u32" => Token::U32,
                     "u64" => Token::U64,
                     "u128" => Token::U128,
-                    _ => Token::Ident(Symbol::intern(&ident)),
+                    _ => Token::Identifier(Symbol::intern(&ident)),
                 },
             ));
         }
