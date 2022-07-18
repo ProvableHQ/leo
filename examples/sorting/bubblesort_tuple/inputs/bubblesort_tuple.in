@@ -1,0 +1,12 @@
+// The program input for bubblesort_tuple/src/main.leo
+[bubble_sort]
+arr0: u32 = 13u32;
+arr1: u32 = 2u32;
+arr2: u32 = 4u32;
+arr3: u32 = 3u32;
+arr4: u32 = 5u32;
+arr5: u32 = 10u32;
+arr6: u32 = 7u32;
+arr7: u32 = 1u32;
+
+
