@@ -29,9 +29,13 @@ impl<'a> StatementReconstructor for StaticSingleAssigner<'a> {
     /// Reconstructs the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
     fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> Statement {
         self.is_lhs = true;
-        let identifier = match self.reconstruct_identifier(definition.variable_name.identifier).0 {
-            Expression::Identifier(identifier) => identifier,
-            _ => unreachable!("`reconstruct_identifier` will always return an `Identifier`."),
+        // TODO: Change to support a vector of identifiers.
+        let identifier = match definition.variable_names.len() == 1 {
+            true => match self.reconstruct_identifier(definition.variable_names[0].identifier).0 {
+                Expression::Identifier(identifier) => identifier,
+                _ => unreachable!("`reconstruct_identifier` will always return an `Identifier`."),
+            },
+            false => unreachable!("DefinitionStatement should have only one variable name."),
         };
         self.is_lhs = false;
 
@@ -100,17 +104,19 @@ impl<'a> StatementReconstructor for StaticSingleAssigner<'a> {
 
         // Instantiate a `RenameTable` for the else-block.
         self.push();
-        let next = conditional
-            .next
-            .map(|statement| Box::new(match *statement {
+        let next = conditional.next.map(|statement| {
+            Box::new(match *statement {
                 // The `ConditionalStatement` must be reconstructed as a `Block` statement to ensure that appropriate statements are produced.
-                Statement::Conditional(stmt) => { self.reconstruct_statement(Statement::Block(Block {
+                Statement::Conditional(stmt) => self.reconstruct_statement(Statement::Block(Block {
                     statements: vec![Statement::Conditional(stmt)],
-                    span: Default::default()
-                }))}
-                Statement::Block(stmt) => { self.reconstruct_statement(Statement::Block(stmt)) }
-                _ => unreachable!("`ConditionalStatement`s next statement must be a `ConditionalStatement` or a `Block`."),
-            }));
+                    span: Default::default(),
+                })),
+                Statement::Block(stmt) => self.reconstruct_statement(Statement::Block(stmt)),
+                _ => unreachable!(
+                    "`ConditionalStatement`s next statement must be a `ConditionalStatement` or a `Block`."
+                ),
+            })
+        });
 
         let else_table = self.pop();
 
@@ -195,7 +201,12 @@ impl<'a> StatementReconstructor for StaticSingleAssigner<'a> {
                         Expression::Identifier(..) | Expression::Literal(..) => {
                             self.reconstruct_conditional(conditional_statement)
                         }
-                        Expression::Binary(..) | Expression::Unary(..) | Expression::Ternary(..) => {
+                        Expression::Access(..)
+                        | Expression::Circuit(..)
+                        | Expression::Tuple(..)
+                        | Expression::Binary(..)
+                        | Expression::Unary(..)
+                        | Expression::Ternary(..) => {
                             // Create a fresh variable name for the condition.
                             let symbol = Symbol::intern(&format!("cond${}", self.get_unique_id()));
                             self.rename_table.update(symbol, symbol);

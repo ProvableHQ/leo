@@ -25,6 +25,9 @@ pub use self::pass::*;
 pub mod loop_unrolling;
 pub use self::loop_unrolling::*;
 
+pub mod static_single_assignment;
+pub use static_single_assignment::*;
+
 pub mod symbol_table;
 pub use symbol_table::*;
 

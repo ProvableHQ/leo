@@ -40,6 +40,8 @@ enum BenchMode {
     Type,
     /// Benchmarks loop unrolling.
     Unroll,
+    /// Benchmarks static single assignment.
+    Ssa,
     /// Benchmarks all the above stages.
     Full,
 }
@@ -103,6 +105,7 @@ impl Sample {
             BenchMode::Symbol => self.bench_symbol_table(c),
             BenchMode::Type => self.bench_type_checker(c),
             BenchMode::Unroll => self.bench_loop_unroller(c),
+            BenchMode::Ssa => self.bench_ssa(c),
             BenchMode::Full => self.bench_full(c),
         }
     }
@@ -209,6 +212,38 @@ impl Sample {
         });
     }
 
+    fn bench_ssa(&self, c: &mut Criterion) {
+        c.bench_function(&format!("full {}", self.name), |b| {
+            // Iter custom is used so we can use custom timings around the compiler stages.
+            // This way we can only time the necessary stages.
+            b.iter_custom(|iters| {
+                let mut time = Duration::default();
+                for _ in 0..iters {
+                    SESSION_GLOBALS.set(&SessionGlobals::default(), || {
+                        let handler = BufEmitter::new_handler();
+                        let mut compiler = new_compiler(&handler);
+                        let (input, name) = self.data();
+                        compiler
+                            .parse_program_from_string(input, name)
+                            .expect("Failed to parse program");
+                        let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
+                        let symbol_table = compiler
+                            .type_checker_pass(symbol_table)
+                            .expect("failed to run type check pass");
+                        compiler
+                            .loop_unrolling_pass(symbol_table)
+                            .expect("failed to run loop unrolling pass");
+                        let start = Instant::now();
+                        let out = compiler.static_single_assignment_pass();
+                        time += start.elapsed();
+                        out.expect("failed to run ssa pass")
+                    });
+                }
+                time
+            })
+        });
+    }
+
     fn bench_full(&self, c: &mut Criterion) {
         c.bench_function(&format!("full {}", self.name), |b| {
             // Iter custom is used so we can use custom timings around the compiler stages.
@@ -231,6 +266,9 @@ impl Sample {
                         compiler
                             .loop_unrolling_pass(symbol_table)
                             .expect("failed to run loop unrolling pass");
+                        compiler
+                            .static_single_assignment_pass()
+                            .expect("failed to run ssa pass");
                         time += start.elapsed();
                     });
                 }
@@ -252,6 +290,7 @@ bench!(bench_parse, BenchMode::Parse);
 bench!(bench_symbol, BenchMode::Symbol);
 bench!(bench_type, BenchMode::Type);
 bench!(bench_unroll, BenchMode::Unroll);
+bench!(bench_ssa, BenchMode::Ssa);
 bench!(bench_full, BenchMode::Full);
 
 criterion_group!(
@@ -262,6 +301,7 @@ criterion_group!(
         bench_symbol,
         bench_type,
         bench_unroll,
+        bench_ssa,
         bench_full
 );
 criterion_main!(benches);
