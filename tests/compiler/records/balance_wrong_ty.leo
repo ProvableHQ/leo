@@ -3,9 +3,9 @@ namespace: Compile
 expectation: Fail
 */
 
-// This record does define the `balance` variable but with the wrong type.
+// This record does define the `gates` variable but with the wrong type.
 record Token {
-    balance: address,
+    gates: address,
     owner: address,
 }
 

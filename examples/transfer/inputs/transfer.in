@@ -1,4 +1,5 @@
 // The program input for transfer/src/main.leo
 [main]
 owner: address = aleo12aw0kcnzyn5xj46z9u6mzpa67tzuqnvmwe0q2ejfjm8c2ue4pgys3877fr;
+gates: u64 = 5u64;
 amount: u64 = 100u64;
