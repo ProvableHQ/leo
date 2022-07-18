@@ -61,30 +61,17 @@ impl<I: LoopBound> Iterator for RangeIterator<I> {
     fn next(&mut self) -> Option<Self::Item> {
         match self.current {
             None => None,
-            Some(value) => match self.clusivity {
-                Clusivity::Exclusive => {
-                    if value < self.end {
-                        self.current = Some(value.add(I::one()));
-                        Some(value)
-                    } else if value == self.end {
-                        self.current = None;
-                        None
-                    } else {
-                        None
-                    }
+            Some(value) if value < self.end => {
+                self.current = Some(value.add(I::one()));
+                Some(value)
+            }
+            Some(value) => {
+                self.current = None;
+                match self.clusivity {
+                    Clusivity::Exclusive => None,
+                    Clusivity::Inclusive => Some(value),
                 }
-                Clusivity::Inclusive => {
-                    if value < self.end {
-                        self.current = Some(value.add(I::one()));
-                        Some(value)
-                    } else if value == self.end {
-                        self.current = None;
-                        Some(value)
-                    } else {
-                        None
-                    }
-                }
-            },
+            }
         }
     }
 }

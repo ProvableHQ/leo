@@ -47,7 +47,7 @@ impl<'a> Unroller<'a> {
 
     /// Returns the index of the current scope.
     /// Note that if we are in the midst of unrolling an IterationStatement, a new scope is created.
-    pub(crate) fn get_current_scope_index(&mut self) -> usize {
+    pub(crate) fn current_scope_index(&mut self) -> usize {
         if self.is_unrolling {
             self.symbol_table.borrow_mut().insert_block()
         } else {
@@ -59,14 +59,14 @@ impl<'a> Unroller<'a> {
     pub(crate) fn enter_block_scope(&mut self, index: usize) {
         let previous_symbol_table = std::mem::take(&mut self.symbol_table);
         self.symbol_table
-            .swap(previous_symbol_table.borrow().get_block_scope(index).unwrap());
+            .swap(previous_symbol_table.borrow().lookup_scope_by_index(index).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(previous_symbol_table.into_inner()));
     }
 
     /// Exits the current block scope.
     pub(crate) fn exit_block_scope(&mut self, index: usize) {
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        self.symbol_table.swap(prev_st.get_block_scope(index).unwrap());
+        self.symbol_table.swap(prev_st.lookup_scope_by_index(index).unwrap());
         self.symbol_table = RefCell::new(prev_st);
     }
 
@@ -101,7 +101,7 @@ impl<'a> Unroller<'a> {
         };
 
         // Get the index of the current scope.
-        let scope_index = self.get_current_scope_index();
+        let scope_index = self.current_scope_index();
 
         // Enter the scope of the loop body.
         self.enter_block_scope(scope_index);

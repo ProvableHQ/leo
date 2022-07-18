@@ -126,7 +126,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 match self.visit_expression(&access.inner, &None) {
                     Some(Type::Identifier(identifier)) => {
                         // Retrieve the circuit definition associated with `identifier`.
-                        let circ = self.symbol_table.borrow().lookup_circuit(&identifier.name).cloned();
+                        let circ = self.symbol_table.borrow().lookup_circuit(identifier.name).cloned();
                         if let Some(circ) = circ {
                             // Check that `access.name` is a member of the circuit.
                             match circ
@@ -166,7 +166,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_circuit_init(&mut self, input: &'a CircuitExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        let circ = self.symbol_table.borrow().lookup_circuit(&input.name.name).cloned();
+        let circ = self.symbol_table.borrow().lookup_circuit(input.name.name).cloned();
         if let Some(circ) = circ {
             // Check circuit type name.
             let ret = self.check_expected_circuit(circ.identifier, additional, input.name.span());
@@ -210,9 +210,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_identifier(&mut self, var: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
-        if let Some(circuit) = self.symbol_table.borrow().lookup_circuit(&var.name) {
+        if let Some(circuit) = self.symbol_table.borrow().lookup_circuit(var.name) {
             Some(self.assert_and_return_type(Type::Identifier(circuit.identifier), expected, var.span))
-        } else if let Some(var) = self.symbol_table.borrow().lookup_variable(&var.name) {
+        } else if let Some(var) = self.symbol_table.borrow().lookup_variable(var.name) {
             Some(self.assert_and_return_type(var.type_.clone(), expected, var.span))
         } else {
             self.emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()));
@@ -516,7 +516,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             Expression::Identifier(ident) => {
                 // Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
                 // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table` alive for the entire block and will be very memory inefficient!
-                let func = self.symbol_table.borrow().lookup_fn(&ident.name).cloned();
+                let func = self.symbol_table.borrow().lookup_fn_symbol(ident.name).cloned();
                 if let Some(func) = func {
                     let ret = self.assert_and_return_type(func.output, expected, func.span);
 

@@ -28,7 +28,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_function(&mut self, input: &'a Function) {
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
-            .swap(prev_st.borrow().get_fn_scope(&input.name()).unwrap());
+            .swap(prev_st.borrow().lookup_fn_scope(input.name()).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
 
         self.has_return = false;
@@ -56,7 +56,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
 
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        self.symbol_table.swap(prev_st.get_fn_scope(&input.name()).unwrap());
+        self.symbol_table.swap(prev_st.lookup_fn_scope(input.name()).unwrap());
         self.symbol_table = RefCell::new(prev_st);
     }
 

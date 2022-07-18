@@ -26,7 +26,11 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // we can safely unwrap all self.parent instances because
         // statements should always have some parent block
         let parent = self.parent.unwrap();
-        let return_type = &self.symbol_table.borrow().lookup_fn(&parent).map(|f| f.output.clone());
+        let return_type = &self
+            .symbol_table
+            .borrow()
+            .lookup_fn_symbol(parent)
+            .map(|f| f.output.clone());
         self.check_core_type_conflict(return_type);
 
         self.has_return = true;
@@ -68,7 +72,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
         };
 
-        let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(&var_name.name) {
+        let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(var_name.name) {
             match &var.declaration {
                 VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
                 VariableType::Input(ParamMode::Const) => {
@@ -107,7 +111,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let scope_index = self.symbol_table.borrow_mut().insert_block();
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
-            .swap(prev_st.borrow().get_block_scope(scope_index).unwrap());
+            .swap(prev_st.borrow().lookup_scope_by_index(scope_index).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
 
         // Add the loop variable to the scope of the loop body.
@@ -126,7 +130,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         // Restore the previous scope.
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        self.symbol_table.swap(prev_st.get_block_scope(scope_index).unwrap());
+        self.symbol_table
+            .swap(prev_st.lookup_scope_by_index(scope_index).unwrap());
         self.symbol_table = RefCell::new(prev_st);
 
         self.visit_expression(&input.start, iter_type);
@@ -159,15 +164,19 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Creates a new sub-scope since we are in a block.
         let scope_index = self.symbol_table.borrow_mut().insert_block();
         let previous_symbol_table = std::mem::take(&mut self.symbol_table);
-        self.symbol_table
-            .swap(previous_symbol_table.borrow().get_block_scope(scope_index).unwrap());
+        self.symbol_table.swap(
+            previous_symbol_table
+                .borrow()
+                .lookup_scope_by_index(scope_index)
+                .unwrap(),
+        );
         self.symbol_table.borrow_mut().parent = Some(Box::new(previous_symbol_table.into_inner()));
 
         input.statements.iter().for_each(|stmt| self.visit_statement(stmt));
 
         let previous_symbol_table = *self.symbol_table.borrow_mut().parent.take().unwrap();
         self.symbol_table
-            .swap(previous_symbol_table.get_block_scope(scope_index).unwrap());
+            .swap(previous_symbol_table.lookup_scope_by_index(scope_index).unwrap());
         self.symbol_table = RefCell::new(previous_symbol_table);
     }
 }

@@ -102,19 +102,19 @@ impl SymbolTable {
     }
 
     /// Attempts to lookup a function in the symbol table.
-    pub fn lookup_fn(&self, symbol: &Symbol) -> Option<&FunctionSymbol> {
-        if let Some(func) = self.functions.get(symbol) {
+    pub fn lookup_fn_symbol(&self, symbol: Symbol) -> Option<&FunctionSymbol> {
+        if let Some(func) = self.functions.get(&symbol) {
             Some(func)
         } else if let Some(parent) = self.parent.as_ref() {
-            parent.lookup_fn(symbol)
+            parent.lookup_fn_symbol(symbol)
         } else {
             None
         }
     }
 
     /// Attempts to lookup a circuit in the symbol table.
-    pub fn lookup_circuit(&self, symbol: &Symbol) -> Option<&Circuit> {
-        if let Some(circ) = self.circuits.get(symbol) {
+    pub fn lookup_circuit(&self, symbol: Symbol) -> Option<&Circuit> {
+        if let Some(circ) = self.circuits.get(&symbol) {
             Some(circ)
         } else if let Some(parent) = self.parent.as_ref() {
             parent.lookup_circuit(symbol)
@@ -124,8 +124,8 @@ impl SymbolTable {
     }
 
     /// Attempts to lookup a variable in the symbol table.
-    pub fn lookup_variable(&self, symbol: &Symbol) -> Option<&VariableSymbol> {
-        if let Some(var) = self.variables.get(symbol) {
+    pub fn lookup_variable(&self, symbol: Symbol) -> Option<&VariableSymbol> {
+        if let Some(var) = self.variables.get(&symbol) {
             Some(var)
         } else if let Some(parent) = self.parent.as_ref() {
             parent.lookup_variable(symbol)
@@ -135,14 +135,14 @@ impl SymbolTable {
     }
 
     /// Returns true if the variable exists in the local scope
-    pub fn variable_in_local_scope(&self, symbol: &Symbol) -> bool {
-        self.variables.contains_key(symbol)
+    pub fn variable_in_local_scope(&self, symbol: Symbol) -> bool {
+        self.variables.contains_key(&symbol)
     }
 
     /// Returns true if the variable exists in any parent scope
-    pub fn variable_in_parent_scope(&self, symbol: &Symbol) -> bool {
+    pub fn variable_in_parent_scope(&self, symbol: Symbol) -> bool {
         if let Some(parent) = self.parent.as_ref() {
-            if parent.variables.contains_key(symbol) {
+            if parent.variables.contains_key(&symbol) {
                 true
             } else {
                 parent.variable_in_parent_scope(symbol)
@@ -153,8 +153,8 @@ impl SymbolTable {
     }
 
     /// Returns a mutable reference to the `VariableSymbol` if it exists in the symbol table.
-    pub fn lookup_variable_mut(&mut self, symbol: &Symbol) -> Option<&mut VariableSymbol> {
-        if let Some(var) = self.variables.get_mut(symbol) {
+    pub fn lookup_variable_mut(&mut self, symbol: Symbol) -> Option<&mut VariableSymbol> {
+        if let Some(var) = self.variables.get_mut(&symbol) {
             Some(var)
         } else if let Some(parent) = self.parent.as_mut() {
             parent.lookup_variable_mut(symbol)
@@ -164,18 +164,12 @@ impl SymbolTable {
     }
 
     /// Returns the scope associated with the function symbol, if it exists in the symbol table.
-    pub fn get_fn_scope(&self, symbol: &Symbol) -> Option<&RefCell<Self>> {
-        if let Some(func) = self.functions.get(symbol) {
-            self.scopes.get(func.id)
-        } else if let Some(parent) = self.parent.as_ref() {
-            parent.get_fn_scope(symbol)
-        } else {
-            None
-        }
+    pub fn lookup_fn_scope(&self, symbol: Symbol) -> Option<&RefCell<Self>> {
+        self.lookup_fn_symbol(symbol).and_then(|func| self.scopes.get(func.id))
     }
 
     /// Returns the scope associated with `index`, if it exists in the symbol table.
-    pub fn get_block_scope(&self, index: usize) -> Option<&RefCell<Self>> {
+    pub fn lookup_scope_by_index(&self, index: usize) -> Option<&RefCell<Self>> {
         self.scopes.get(index)
     }
 }

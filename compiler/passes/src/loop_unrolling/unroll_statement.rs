@@ -71,7 +71,7 @@ impl StatementReconstructor for Unroller<'_> {
     }
 
     fn reconstruct_block(&mut self, input: Block) -> Block {
-        let scope_index = self.get_current_scope_index();
+        let scope_index = self.current_scope_index();
 
         // Enter the block scope.
         self.enter_block_scope(scope_index);

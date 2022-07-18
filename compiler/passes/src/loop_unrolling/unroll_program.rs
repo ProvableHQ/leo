@@ -22,12 +22,12 @@ use crate::Unroller;
 
 impl ProgramReconstructor for Unroller<'_> {
     fn reconstruct_function(&mut self, function: Function) -> Function {
-        let function_name = &function.name();
+        let function_name = function.name();
 
         // Grab our function scope.
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
-            .swap(prev_st.borrow().get_fn_scope(function_name).unwrap());
+            .swap(prev_st.borrow().lookup_fn_scope(function_name).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
         // Set our current block scope index to 0
         self.block_index = 0;
@@ -44,7 +44,7 @@ impl ProgramReconstructor for Unroller<'_> {
 
         // Pop back to parent scope.
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        self.symbol_table.swap(prev_st.get_fn_scope(function_name).unwrap());
+        self.symbol_table.swap(prev_st.lookup_fn_scope(function_name).unwrap());
         self.symbol_table = RefCell::new(prev_st);
 
         reconstructed_function
