@@ -2,6 +2,6 @@
 [main]
 a: Record = Record {
     owner: aleo1d5hg2z3ma00382pngntdp68e74zv54jdxy249qhaujhks9c72yrs33ddah,
-    balance: 5u64,
+    gates: 5u64,
     token_amount: 100u64
 };

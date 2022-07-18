@@ -71,7 +71,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             });
         }
 
-        // For records, enforce presence of `owner: Address` and `balance: u64` members.
+        // For records, enforce presence of `owner: Address` and `gates: u64` members.
         if input.is_record {
             let check_has_field = |need, expected_ty: Type| match input
                 .members
@@ -95,7 +95,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 }
             };
             check_has_field(sym::owner, Type::Address);
-            check_has_field(sym::balance, Type::U64);
+            check_has_field(sym::gates, Type::U64);
         }
     }
 }

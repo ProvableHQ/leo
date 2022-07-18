@@ -31,6 +31,9 @@ use tracing::span::Span;
 /// Build, Prove and Run Leo program with inputs
 #[derive(StructOpt, Debug)]
 pub struct Run {
+    #[structopt(name = "NAME", help = "The name of the program to run.", default_value = "main")]
+    name: String,
+
     #[structopt(long = "skip-key-check", help = "Skip key verification on Setup stage")]
     pub(crate) skip_key_check: bool,
 
@@ -54,17 +57,15 @@ impl Command for Run {
     }
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
-        // Compose the `aleo run` command.
-        let mut arguments = vec![ALEO_CLI_COMMAND.to_string(), "main".to_string()];
-
         // Get the input values.
-        let mut values = match input {
-            Some(input_ast) => input_ast.values(),
+        let mut inputs = match input {
+            Some(input_ast) => input_ast.program_inputs(&self.name),
             None => Vec::new(),
         };
-        arguments.append(&mut values);
 
-        tracing::info!("Starting...");
+        // Compose the `aleo run` command.
+        let mut arguments = vec![ALEO_CLI_COMMAND.to_string(), self.name];
+        arguments.append(&mut inputs);
 
         // Open the Leo build/ directory
         let path = context.dir()?;

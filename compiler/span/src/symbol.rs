@@ -213,7 +213,7 @@ symbols! {
     public,
     private,
     owner,
-    balance,
+    gates,
 
     // todo: remove these.
     CONTAINER_PSEUDO_CIRCUIT: "$InputContainer",
