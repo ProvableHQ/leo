@@ -4,7 +4,7 @@ expectation: Fail
 outputs:
   - "Error [EPAR0370009]: unexpected string: expected 'identifier', found ';'\n    --> test:1:4\n     |\n   1 | x::;\n     |    ^"
   - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '.'\n    --> test:1:4\n     |\n   1 | x::.\n     |    ^"
-  - "Error [EPAR0370005]: expected ; -- found '<eof>'\n    --> test:1:4\n     |\n   1 | x::import\n     |    ^^^^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found 'import'\n    --> test:1:4\n     |\n   1 | x::import\n     |    ^^^^^^"
   - "Error [EPAR0370009]: unexpected string: expected 'identifier', found ','\n    --> test:1:4\n     |\n   1 | x::,\n     |    ^"
   - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '*'\n    --> test:1:4\n     |\n   1 | x::*\n     |    ^"
   - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '+'\n    --> test:1:4\n     |\n   1 | x::+\n     |    ^"

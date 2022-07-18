@@ -205,7 +205,9 @@ pub trait StatementReconstructor: ExpressionReconstructor {
             variable: input.variable,
             type_: input.type_,
             start: self.reconstruct_expression(input.start).0,
+            start_value: input.start_value,
             stop: self.reconstruct_expression(input.stop).0,
+            stop_value: input.stop_value,
             block: self.reconstruct_block(input.block),
             inclusive: input.inclusive,
             span: input.span,
@@ -258,6 +260,11 @@ pub trait ProgramReconstructor: StatementReconstructor {
             name: input.name,
             network: input.network,
             expected_input: input.expected_input,
+            imports: input
+                .imports
+                .into_iter()
+                .map(|(id, import)| (id, self.reconstruct_import(import)))
+                .collect(),
             functions: input
                 .functions
                 .into_iter()
@@ -283,6 +290,10 @@ pub trait ProgramReconstructor: StatementReconstructor {
     }
 
     fn reconstruct_circuit(&mut self, input: Circuit) -> Circuit {
+        input
+    }
+
+    fn reconstruct_import(&mut self, input: Program) -> Program {
         input
     }
 }

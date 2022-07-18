@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{Circuit, CircuitMember, Function, Program};
+use leo_ast::{Circuit, CircuitMember, Function, Identifier, Program};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -24,9 +24,31 @@ use std::fmt::Write as _;
 
 impl<'a> CodeGenerator<'a> {
     pub(crate) fn visit_program(&mut self, input: &'a Program) -> String {
-        let mut program_string = format!("program {}.{};\n", input.name, input.network);
+        // Accumulate instructions into a program string.
+        let mut program_string = String::new();
 
-        // Visit each `Circuit` or `Record` in the Leo AST and produce a bytecode circuit.
+        if !input.imports.is_empty() {
+            // Visit each import statement and produce a Aleo import instruction.
+            program_string.push_str(
+                &input
+                    .imports
+                    .iter()
+                    .map(|(identifier, imported_program)| self.visit_import(identifier, imported_program))
+                    .join("\n"),
+            );
+
+            // Newline separator.
+            program_string.push('\n');
+        }
+
+        // Print the program id.
+        writeln!(program_string, "program {}.{};", input.name, input.network)
+            .expect("Failed to write program id to string.");
+
+        // Newline separator.
+        program_string.push('\n');
+
+        // Visit each `Circuit` or `Record` in the Leo AST and produce a Aleo interface instruction.
         program_string.push_str(
             &input
                 .circuits
@@ -35,9 +57,10 @@ impl<'a> CodeGenerator<'a> {
                 .join("\n"),
         );
 
+        // Newline separator.
         program_string.push('\n');
 
-        // Visit each `Function` in the Leo AST and produce a bytecode function.
+        // Visit each `Function` in the Leo AST and produce a Aleo function instruction.
         program_string.push_str(
             &input
                 .functions
@@ -47,6 +70,15 @@ impl<'a> CodeGenerator<'a> {
         );
 
         program_string
+    }
+
+    fn visit_import(&mut self, import_name: &'a Identifier, import_program: &'a Program) -> String {
+        // Load symbols into composite mapping.
+        let _import_program_string = self.visit_program(import_program);
+        // todo: We do not need the import program string because we generate instructions for imports separately during leo build.
+
+        // Generate string for import statement.
+        format!("import {}.aleo;", import_name)
     }
 
     fn visit_circuit_or_record(&mut self, circuit: &'a Circuit) -> String {

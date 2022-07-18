@@ -24,7 +24,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Stores the Leo program abstract syntax tree.
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Program {
     /// The name of the program.
     pub name: String,
@@ -33,6 +33,8 @@ pub struct Program {
     /// Expected main function inputs.
     /// Empty after parsing.
     pub expected_input: Vec<FunctionInput>,
+    /// A map from import names to import definitions.
+    pub imports: IndexMap<Identifier, Program>,
     /// A map from function names to function definitions.
     pub functions: IndexMap<Identifier, Function>,
     /// A map from circuit names to circuit definitions.
@@ -41,6 +43,9 @@ pub struct Program {
 
 impl fmt::Display for Program {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for (id, _import) in self.imports.iter() {
+            writeln!(f, "import {}.leo;", id)?;
+        }
         for (_, function) in self.functions.iter() {
             function.fmt(f)?;
             writeln!(f,)?;
@@ -60,6 +65,7 @@ impl Default for Program {
             name: String::new(),
             network: String::new(),
             expected_input: vec![],
+            imports: IndexMap::new(),
             functions: IndexMap::new(),
             circuits: IndexMap::new(),
         }

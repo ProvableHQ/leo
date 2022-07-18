@@ -5,12 +5,12 @@ outputs:
   - name: ""
     network: ""
     expected_input: []
+    imports: {}
     functions:
       "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":15}\"}":
         identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":15}\"}"
         input: []
-        output:
-          IntegerType: U8
+        output: U8
         core_mapping: ~
         block:
           statements:
@@ -19,13 +19,9 @@ outputs:
                   Binary:
                     left:
                       Literal:
-                        Integer:
-                          - U8
-                          - "1"
+                        U8: "1"
                     right:
                       Literal:
-                        Integer:
-                          - U8
-                          - "1"
+                        U8: "1"
                     op: Add
     circuits: {}

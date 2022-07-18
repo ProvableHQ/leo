@@ -126,7 +126,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 match self.visit_expression(&access.inner, &None) {
                     Some(Type::Identifier(identifier)) => {
                         // Retrieve the circuit definition associated with `identifier`.
-                        let circ = self.symbol_table.borrow().lookup_circuit(&identifier.name).cloned();
+                        let circ = self.symbol_table.borrow().lookup_circuit(identifier.name).cloned();
                         if let Some(circ) = circ {
                             // Check that `access.name` is a member of the circuit.
                             match circ
@@ -166,7 +166,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_circuit_init(&mut self, input: &'a CircuitExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        let circ = self.symbol_table.borrow().lookup_circuit(&input.name.name).cloned();
+        let circ = self.symbol_table.borrow().lookup_circuit(input.name.name).cloned();
         if let Some(circ) = circ {
             // Check circuit type name.
             let ret = self.check_expected_circuit(circ.identifier, additional, input.name.span());
@@ -210,9 +210,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_identifier(&mut self, var: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
-        if let Some(circuit) = self.symbol_table.borrow().lookup_circuit(&var.name) {
+        if let Some(circuit) = self.symbol_table.borrow().lookup_circuit(var.name) {
             Some(self.assert_and_return_type(Type::Identifier(circuit.identifier), expected, var.span))
-        } else if let Some(var) = self.symbol_table.borrow().lookup_variable(&var.name) {
+        } else if let Some(var) = self.symbol_table.borrow().lookup_variable(var.name) {
             Some(self.assert_and_return_type(var.type_.clone(), expected, var.span))
         } else {
             self.emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()));
@@ -221,85 +221,98 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_literal(&mut self, input: &'a Literal, expected: &Self::AdditionalInput) -> Self::Output {
+        // Closure to produce a negated integer as a string.
+        let negate_int = |str_content: &String| {
+            if self.negate {
+                format!("-{str_content}")
+            } else {
+                str_content.clone()
+            }
+        };
+
         Some(match input {
             Literal::Address(_, _) => self.assert_and_return_type(Type::Address, expected, input.span()),
             Literal::Boolean(_, _) => self.assert_and_return_type(Type::Boolean, expected, input.span()),
             Literal::Field(_, _) => self.assert_and_return_type(Type::Field, expected, input.span()),
-            Literal::Integer(type_, str_content, _) => {
-                match type_ {
-                    IntegerType::I8 => {
-                        let int = if self.negate {
-                            format!("-{str_content}")
-                        } else {
-                            str_content.clone()
-                        };
+            Literal::I8(str_content, _) => {
+                let int = negate_int(str_content);
 
-                        if int.parse::<i8>().is_err() {
-                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i8", input.span()));
-                        }
-                    }
-                    IntegerType::I16 => {
-                        let int = if self.negate {
-                            format!("-{str_content}")
-                        } else {
-                            str_content.clone()
-                        };
-
-                        if int.parse::<i16>().is_err() {
-                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i16", input.span()));
-                        }
-                    }
-                    IntegerType::I32 => {
-                        let int = if self.negate {
-                            format!("-{str_content}")
-                        } else {
-                            str_content.clone()
-                        };
-
-                        if int.parse::<i32>().is_err() {
-                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i32", input.span()));
-                        }
-                    }
-                    IntegerType::I64 => {
-                        let int = if self.negate {
-                            format!("-{str_content}")
-                        } else {
-                            str_content.clone()
-                        };
-
-                        if int.parse::<i64>().is_err() {
-                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i64", input.span()));
-                        }
-                    }
-                    IntegerType::I128 => {
-                        let int = if self.negate {
-                            format!("-{str_content}")
-                        } else {
-                            str_content.clone()
-                        };
-
-                        if int.parse::<i128>().is_err() {
-                            self.emit_err(TypeCheckerError::invalid_int_value(int, "i128", input.span()));
-                        }
-                    }
-                    IntegerType::U8 if str_content.parse::<u8>().is_err() => {
-                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u8", input.span()))
-                    }
-                    IntegerType::U16 if str_content.parse::<u16>().is_err() => {
-                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u16", input.span()))
-                    }
-                    IntegerType::U32 if str_content.parse::<u32>().is_err() => {
-                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u32", input.span()))
-                    }
-                    IntegerType::U64 if str_content.parse::<u64>().is_err() => {
-                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u64", input.span()))
-                    }
-                    IntegerType::U128 if str_content.parse::<u128>().is_err() => {
-                        self.emit_err(TypeCheckerError::invalid_int_value(str_content, "u128", input.span()))
-                    }
-                    _ => {}
+                if int.parse::<i8>().is_err() {
+                    self.handler
+                        .emit_err(TypeCheckerError::invalid_int_value(int, "i8", input.span()));
                 }
-                self.assert_and_return_type(Type::IntegerType(*type_), expected, input.span())
+                self.assert_and_return_type(Type::I8, expected, input.span())
+            }
+            Literal::I16(str_content, _) => {
+                let int = negate_int(str_content);
+
+                if int.parse::<i16>().is_err() {
+                    self.handler
+                        .emit_err(TypeCheckerError::invalid_int_value(int, "i16", input.span()));
+                }
+                self.assert_and_return_type(Type::I16, expected, input.span())
+            }
+            Literal::I32(str_content, _) => {
+                let int = negate_int(str_content);
+
+                if int.parse::<i32>().is_err() {
+                    self.handler
+                        .emit_err(TypeCheckerError::invalid_int_value(int, "i32", input.span()));
+                }
+                self.assert_and_return_type(Type::I32, expected, input.span())
+            }
+            Literal::I64(str_content, _) => {
+                let int = negate_int(str_content);
+
+                if int.parse::<i64>().is_err() {
+                    self.handler
+                        .emit_err(TypeCheckerError::invalid_int_value(int, "i64", input.span()));
+                }
+                self.assert_and_return_type(Type::I64, expected, input.span())
+            }
+            Literal::I128(str_content, _) => {
+                let int = negate_int(str_content);
+
+                if int.parse::<i128>().is_err() {
+                    self.handler
+                        .emit_err(TypeCheckerError::invalid_int_value(int, "i128", input.span()));
+                }
+                self.assert_and_return_type(Type::I128, expected, input.span())
+            }
+            Literal::U8(str_content, _) => {
+                if str_content.parse::<u8>().is_err() {
+                    self.handler
+                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u8", input.span()));
+                }
+                self.assert_and_return_type(Type::U8, expected, input.span())
+            }
+            Literal::U16(str_content, _) => {
+                if str_content.parse::<u16>().is_err() {
+                    self.handler
+                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u16", input.span()));
+                }
+                self.assert_and_return_type(Type::U16, expected, input.span())
+            }
+            Literal::U32(str_content, _) => {
+                if str_content.parse::<u32>().is_err() {
+                    self.handler
+                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u32", input.span()));
+                }
+                self.assert_and_return_type(Type::U32, expected, input.span())
+            }
+            Literal::U64(str_content, _) => {
+                if str_content.parse::<u64>().is_err() {
+                    self.handler
+                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u64", input.span()));
+                }
+                self.assert_and_return_type(Type::U64, expected, input.span())
+            }
+            Literal::U128(str_content, _) => {
+                if str_content.parse::<u128>().is_err() {
+                    self.handler
+                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u128", input.span()));
+                }
+                self.assert_and_return_type(Type::U128, expected, input.span())
             }
             Literal::Group(_) => self.assert_and_return_type(Type::Group, expected, input.span()),
             Literal::Scalar(_, _) => self.assert_and_return_type(Type::Scalar, expected, input.span()),
@@ -435,19 +448,8 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 let t1 = self.visit_expression(&input.left, &None);
                 let t2 = self.visit_expression(&input.right, &None);
 
-                match (t1, t2) {
-                    (Some(Type::IntegerType(_)), t2) => {
-                        // Check rhs is integer and give detailed error message.
-                        self.assert_int_type(&t2, input.left.span());
-                    }
-                    (t1, Some(Type::IntegerType(_))) => {
-                        // Check lhs is integer and give detailed error message.
-                        self.assert_int_type(&t1, input.right.span());
-                    }
-                    (t1, t2) => {
-                        self.check_eq_types(&t1, &t2, input.span());
-                    }
-                }
+                // Check that the types of the operands are equal.
+                self.check_eq_types(&t1, &t2, input.span());
 
                 // Operation returns a boolean.
                 self.assert_bool_type(destination, input.span());
@@ -459,39 +461,19 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 let t1 = self.visit_expression(&input.left, &None);
                 let t2 = self.visit_expression(&input.right, &None);
 
-                match (t1, t2) {
+                match (&t1, &t2) {
                     (Some(Type::Address), _) | (_, Some(Type::Address)) => {
                         // Emit an error for address comparison.
                         self.emit_err(TypeCheckerError::compare_address(input.op, input.span()));
                     }
-                    (Some(Type::Field), t2) => {
-                        // Assert rhs is field.
-                        self.assert_field_type(&t2, input.right.span());
-                    }
-                    (t1, Some(Type::Field)) => {
-                        // Assert lhs is field.
-                        self.assert_field_type(&t1, input.left.span());
-                    }
-                    (Some(Type::Scalar), t2) => {
-                        // Assert rhs is scalar.
-                        self.assert_scalar_type(&t2, input.right.span());
-                    }
-                    (t1, Some(Type::Scalar)) => {
-                        // Assert lhs is scalar.
-                        self.assert_scalar_type(&t1, input.left.span());
-                    }
-                    (Some(Type::IntegerType(_)), t2) => {
-                        // Assert rhs is integer.
-                        self.assert_int_type(&t2, input.right.span());
-                    }
-                    (t1, Some(Type::IntegerType(_))) => {
-                        // Assert lhs is integer.
-                        self.assert_int_type(&t1, input.left.span());
-                    }
-                    (_, _) => {
-                        // Not enough info to assert type.
+                    (t1, t2) => {
+                        self.assert_field_scalar_int_type(t1, input.left.span());
+                        self.assert_field_scalar_int_type(t2, input.right.span());
                     }
                 }
+
+                // Check that the types of the operands are equal.
+                self.check_eq_types(&t1, &t2, input.span());
 
                 // Operation returns a boolean.
                 self.assert_bool_type(destination, input.span());
@@ -534,7 +516,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             Expression::Identifier(ident) => {
                 // Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
                 // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table` alive for the entire block and will be very memory inefficient!
-                let func = self.symbol_table.borrow().lookup_fn(&ident.name).cloned();
+                let func = self.symbol_table.borrow().lookup_fn_symbol(ident.name).cloned();
                 if let Some(func) = func {
                     let ret = self.assert_and_return_type(func.output, expected, func.span);
 

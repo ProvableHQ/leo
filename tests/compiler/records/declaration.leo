@@ -7,7 +7,7 @@ record Token {
     // The token owner.
     owner: address,
     // The Aleo balance (in gates).
-    balance: u64,
+    gates: u64,
     // The token amount.
     amount: u64,
 }

@@ -120,7 +120,9 @@ impl ParserContext<'_> {
             variable: ident,
             type_: type_.0,
             start,
+            start_value: Default::default(),
             stop,
+            stop_value: Default::default(),
             inclusive: false,
             block,
         })
@@ -191,8 +193,8 @@ impl ParserContext<'_> {
         self.expect_any(&[Token::Let, Token::Const])?;
         let decl_span = self.prev_token.span;
         let decl_type = match &self.prev_token.token {
-            Token::Let => Declare::Let,
-            Token::Const => Declare::Const,
+            Token::Let => DeclarationType::Let,
+            Token::Const => DeclarationType::Const,
             _ => unreachable!("parse_definition_statement_ shouldn't produce this"),
         };
 

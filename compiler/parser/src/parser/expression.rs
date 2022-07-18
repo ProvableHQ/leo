@@ -101,20 +101,20 @@ impl ParserContext<'_> {
         Ok(expr)
     }
 
-    /// Returns an [`Expression`] AST node if the next tokens represent a
-    /// binary AND expression.
-    ///
-    /// Otherwise, tries to parse the next token using [`parse_equality_expression`].
-    fn parse_boolean_and_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(&[Token::And], Self::parse_equality_expression)
-    }
-
     /// Returns an [`Expression`] AST node if the next tokens represent
     /// a binary OR expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_boolean_and_expression`].
     fn parse_boolean_or_expression(&mut self) -> Result<Expression> {
         self.parse_bin_expr(&[Token::Or], Self::parse_boolean_and_expression)
+    }
+
+    /// Returns an [`Expression`] AST node if the next tokens represent a
+    /// binary AND expression.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_equality_expression`].
+    fn parse_boolean_and_expression(&mut self) -> Result<Expression> {
+        self.parse_bin_expr(&[Token::And], Self::parse_equality_expression)
     }
 
     /// Eats one of binary operators matching any in `tokens`.
@@ -467,13 +467,7 @@ impl ParserContext<'_> {
             None
         };
 
-        let is_record = identifier.to_string().eq("Record");
-
-        Ok(CircuitVariableInitializer {
-            identifier,
-            expression,
-            is_record,
-        })
+        Ok(CircuitVariableInitializer { identifier, expression })
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -530,8 +524,19 @@ impl ParserContext<'_> {
                     // Literal followed by other type suffix, e.g., `42u8`.
                     Some(suffix) => {
                         assert_no_whitespace(&suffix.to_string())?;
-                        let int_ty = Self::token_to_int_type(suffix).expect("unknown int type token");
-                        Expression::Literal(Literal::Integer(int_ty, value, full_span))
+                        match suffix {
+                            Token::I8 => Expression::Literal(Literal::I8(value, full_span)),
+                            Token::I16 => Expression::Literal(Literal::I16(value, full_span)),
+                            Token::I32 => Expression::Literal(Literal::I32(value, full_span)),
+                            Token::I64 => Expression::Literal(Literal::I64(value, full_span)),
+                            Token::I128 => Expression::Literal(Literal::I128(value, full_span)),
+                            Token::U8 => Expression::Literal(Literal::U8(value, full_span)),
+                            Token::U16 => Expression::Literal(Literal::U16(value, full_span)),
+                            Token::U32 => Expression::Literal(Literal::U32(value, full_span)),
+                            Token::U64 => Expression::Literal(Literal::U64(value, full_span)),
+                            Token::U128 => Expression::Literal(Literal::U128(value, full_span)),
+                            _ => return Err(ParserError::unexpected_token("Expected integer type suffix", span).into()),
+                        }
                     }
                     None => return Err(ParserError::implicit_values_not_allowed(value, span).into()),
                 }

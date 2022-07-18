@@ -19,7 +19,9 @@ pub struct OutputOptions {
     /// Whether spans are enabled in the output ASTs.
     pub spans_enabled: bool,
     /// If enabled writes the AST after parsing.
-    pub ast_initial: bool,
+    pub initial_ast: bool,
     /// If enabled writes the input AST after parsing.
-    pub input_ast_initial: bool,
+    pub initial_input_ast: bool,
+    /// If enabled writes the AST after loop unrolling.
+    pub unrolled_ast: bool,
 }

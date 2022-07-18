@@ -16,9 +16,11 @@
 
 use crate::{commands::Command, context::Context};
 use leo_errors::Result;
-// use leo_package::outputs::ChecksumFile;
+use leo_package::build::BuildDirectory;
+use leo_package::outputs::OutputsDirectory;
 
 use clap::StructOpt;
+use colored::Colorize;
 use tracing::span::Span;
 
 /// Clean outputs folder command
@@ -37,11 +39,16 @@ impl Command for Clean {
         Ok(())
     }
 
-    fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
-        // let path = context.dir()?;
-        // let package_name = context.manifest()?.program_id().name().to_string();
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        let path = context.dir()?;
 
-        // Removes the aleo file from the output directory.
+        // Removes the outputs/ directory.
+        let outputs_path = OutputsDirectory::remove(&path)?;
+        tracing::info!("✅ Cleaned the outputs directory {}", outputs_path.dimmed());
+
+        // Removes the build/ directory.
+        let build_path = BuildDirectory::remove(&path)?;
+        tracing::info!("✅ Cleaned the build directory {}", build_path.dimmed());
 
         // Remove the checksum from the output directory
         // ChecksumFile::new(&package_name).remove(&path)?;

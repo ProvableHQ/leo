@@ -5,20 +5,19 @@ outputs:
   - name: ""
     network: ""
     expected_input: []
+    imports: {}
     functions:
       "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
         input: []
-        output:
-          IntegerType: U32
+        output: U32
         core_mapping: ~
         block:
           statements:
             - Return:
                 expression:
                   Literal:
-                    Integer:
-                      - U8
+                    U8:
                       - "0"
                       - span:
                           lo: 35

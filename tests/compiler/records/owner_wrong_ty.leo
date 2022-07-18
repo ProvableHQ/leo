@@ -5,7 +5,7 @@ expectation: Fail
 
 // This record does define the `owner` variable but with the wrong type.
 record Token {
-    balance: u64,
+    gates: u64,
     owner: bool,
 }
 

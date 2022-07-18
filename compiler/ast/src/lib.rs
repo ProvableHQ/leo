@@ -54,6 +54,9 @@ pub use self::statements::*;
 pub mod types;
 pub use self::types::*;
 
+pub mod value;
+pub use self::value::*;
+
 mod node;
 pub use node::*;
 
@@ -63,7 +66,7 @@ use leo_errors::{AstError, Result};
 ///
 /// The [`Ast`] type represents a Leo program as a series of recursive data types.
 /// These data types form a tree that begins from a [`Program`] type root.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Ast {
     ast: Program,
 }

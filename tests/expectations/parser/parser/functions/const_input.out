@@ -5,6 +5,7 @@ outputs:
   - name: ""
     network: ""
     expected_input: []
+    imports: {}
     functions:
       "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
@@ -12,13 +13,11 @@ outputs:
           - Variable:
               identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":19,\\\"hi\\\":20}\"}"
               mode: Const
-              type_:
-                IntegerType: U8
+              type_: U8
               span:
                 lo: 19
                 hi: 20
-        output:
-          IntegerType: U8
+        output: U8
         core_mapping: ~
         block:
           statements: []
@@ -34,13 +33,11 @@ outputs:
           - Variable:
               identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":56,\\\"hi\\\":57}\"}"
               mode: Const
-              type_:
-                IntegerType: U64
+              type_: U64
               span:
                 lo: 56
                 hi: 57
-        output:
-          IntegerType: U8
+        output: U8
         core_mapping: ~
         block:
           statements: []

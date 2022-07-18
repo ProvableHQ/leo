@@ -309,7 +309,21 @@ create_messages!(
     @formatted
     illegal_static_member_assignment {
         args: (member: impl Display),
-        msg: format!("Tried to assign to static member `{}`", member),
+        msg: format!("Tried to assign to static member `{member}`"),
+        help: None,
+    }
+
+    @formatted
+    import_not_found {
+        args: (file_path: impl Display),
+        msg: format!("Attempted to import a file that does not exist `{file_path}`."),
+        help: None,
+    }
+
+    @formatted
+    cannot_open_cwd {
+        args: (err: impl ErrorArg),
+        msg: format!("Failed to open current working directory. Error: {err}"),
         help: None,
     }
 );

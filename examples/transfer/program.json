@@ -1,0 +1,10 @@
+{
+    "program": "transfer.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkp3FxmbSYjkHsRBzZbCMGXY5u2sGCkgddNKVL7CDwy7KSe",
+        "address": "aleo12aw0kcnzyn5xj46z9u6mzpa67tzuqnvmwe0q2ejfjm8c2ue4pgys3877fr"
+    },
+    "license": "MIT"
+}

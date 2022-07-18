@@ -20,7 +20,8 @@ use crate::{
     commands::{Build, Command},
     context::Context,
 };
-use leo_errors::{CliError, Result};
+use leo_errors::{CliError, PackageError, Result};
+use leo_package::build::BuildDirectory;
 
 use aleo::commands::Run as AleoRun;
 
@@ -30,6 +31,9 @@ use tracing::span::Span;
 /// Build, Prove and Run Leo program with inputs
 #[derive(StructOpt, Debug)]
 pub struct Run {
+    #[structopt(name = "NAME", help = "The name of the program to run.", default_value = "main")]
+    name: String,
+
     #[structopt(long = "skip-key-check", help = "Skip key verification on Setup stage")]
     pub(crate) skip_key_check: bool,
 
@@ -52,18 +56,24 @@ impl Command for Run {
         .execute(context)
     }
 
-    fn apply(self, _context: Context, input: Self::Input) -> Result<Self::Output> {
-        // Compose the `aleo run` command.
-        let mut arguments = vec![ALEO_CLI_COMMAND.to_string(), "main".to_string()];
-
+    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
         // Get the input values.
-        let mut values = match input {
-            Some(input_ast) => input_ast.values(),
+        let mut inputs = match input {
+            Some(input_ast) => input_ast.program_inputs(&self.name),
             None => Vec::new(),
         };
-        arguments.append(&mut values);
 
-        tracing::info!("Starting...");
+        // Compose the `aleo run` command.
+        let mut arguments = vec![ALEO_CLI_COMMAND.to_string(), self.name];
+        arguments.append(&mut inputs);
+
+        // Open the Leo build/ directory
+        let path = context.dir()?;
+        let build_directory = BuildDirectory::open(&path)?;
+
+        // Change the cwd to the Leo build/ directory to compile aleo files.
+        std::env::set_current_dir(&build_directory)
+            .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
 
         // Call the `aleo run` command from the Aleo SDK.
         let command = AleoRun::try_parse_from(&arguments).map_err(CliError::failed_to_parse_aleo_run)?;
