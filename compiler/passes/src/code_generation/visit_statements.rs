@@ -17,8 +17,8 @@
 use crate::CodeGenerator;
 
 use leo_ast::{
-    AssignStatement, Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, IterationStatement,
-    ReturnStatement, Statement,
+    AssignStatement, Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression,
+    IterationStatement, ReturnStatement, Statement,
 };
 
 use itertools::Itertools;
@@ -61,11 +61,16 @@ impl<'a> CodeGenerator<'a> {
         expression_instructions
     }
 
-    fn visit_assign(&mut self, _input: &'a AssignStatement) -> String {
-        // Note: SSA form requires that a variable is assigned to only once.
-        // Since we do not have a compiler pass that transforms the AST into SSA form,
-        // we will disallow `AssignStatement`s. This will only be the case for this prototype.
-        unimplemented!("Code generation is not implemented for `AssignStatement`s.")
+    fn visit_assign(&mut self, input: &'a AssignStatement) -> String {
+        // TODO: This should only be enabled if SSA is enabled.
+        match &input.place {
+            Expression::Identifier(identifier) => {
+                let (operand, expression_instructions) = self.visit_expression(&input.value);
+                self.variable_mapping.insert(&identifier.name, operand);
+                expression_instructions
+            }
+            _ => unreachable!("The left-hand side of an assignment should be an `Identifier`."),
+        }
     }
 
     fn visit_conditional(&mut self, _input: &'a ConditionalStatement) -> String {
