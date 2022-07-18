@@ -32,6 +32,7 @@ impl PositiveNumber {
         self.value.eq("0")
     }
 
+    /// Converts the positive number into a `usize` or panics if it was malformed.
     pub fn to_usize(&self) -> usize {
         usize::from_str(&self.value).expect("failed to parse positive number")
     }

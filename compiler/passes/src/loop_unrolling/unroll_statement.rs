@@ -29,18 +29,16 @@ impl StatementReconstructor for Unroller<'_> {
                 VariableType::Mut
             };
 
-            input.variable_names.iter().for_each(|v| {
-                if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                    v.identifier.name,
-                    VariableSymbol {
-                        type_: input.type_.clone(),
-                        span: input.span(),
-                        declaration: declaration.clone(),
-                    },
-                ) {
-                    self.handler.emit_err(err);
-                }
-            });
+            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+                input.variable_name.name,
+                VariableSymbol {
+                    type_: input.type_.clone(),
+                    span: input.span(),
+                    declaration,
+                },
+            ) {
+                self.handler.emit_err(err);
+            }
         }
         Statement::Definition(input)
     }

@@ -20,7 +20,7 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// An tuple access expression, e.g., `tuple.index`.
+/// A tuple access expression, e.g., `tuple.index`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TupleAccess {
     /// An expression evaluating to some tuple type, e.g., `(5, 2)`.

@@ -65,7 +65,7 @@ impl ParserContext<'_> {
 
         let name = self.expect_identifier()?;
         self.expect(&Token::Colon)?;
-        let (type_, span) = self.parse_single_type()?;
+        let (type_, span) = self.parse_type()?;
         self.expect(&Token::Assign)?;
         let value = self.parse_unary_expression()?;
         self.expect(&Token::Semicolon)?;

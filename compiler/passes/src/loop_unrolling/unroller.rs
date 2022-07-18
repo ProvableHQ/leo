@@ -16,7 +16,7 @@
 
 use leo_ast::{
     Block, DeclarationType, DefinitionStatement, Expression, IterationStatement, Literal, Statement,
-    StatementReconstructor, Type, Value, VariableName,
+    StatementReconstructor, Type, Value,
 };
 use std::cell::RefCell;
 
@@ -170,11 +170,7 @@ impl<'a> Unroller<'a> {
             type_: input.type_.clone(),
             value: Expression::Literal(value),
             span: Default::default(),
-            variable_names: vec![VariableName {
-                mutable: false,
-                identifier: input.variable,
-                span: Default::default(),
-            }],
+            variable_name: input.variable,
         })];
 
         // Reconstruct the statements in the loop body.
