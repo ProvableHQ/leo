@@ -34,7 +34,7 @@ impl StatementReconstructor for Unroller<'_> {
                 VariableSymbol {
                     type_: input.type_.clone(),
                     span: input.span(),
-                    declaration: declaration.clone(),
+                    declaration,
                 },
             ) {
                 self.handler.emit_err(err);
