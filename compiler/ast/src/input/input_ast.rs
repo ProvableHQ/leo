@@ -41,9 +41,10 @@ pub struct InputAst {
 
 impl InputAst {
     /// Returns all values of the input AST for execution with `leo run`.
-    pub fn values(&self) -> Vec<String> {
+    pub fn program_inputs(&self, program_name: &str) -> Vec<String> {
         self.sections
             .iter()
+            .filter(|section| section.name() == program_name)
             .flat_map(|section| {
                 section
                     .definitions
