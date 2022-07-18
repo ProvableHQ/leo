@@ -30,12 +30,9 @@ impl<'a> StatementReconstructor for StaticSingleAssigner<'a> {
     fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> Statement {
         self.is_lhs = true;
         // TODO: Change to support a vector of identifiers.
-        let identifier = match definition.variable_names.len() == 1 {
-            true => match self.reconstruct_identifier(definition.variable_names[0].identifier).0 {
+        let identifier = match self.reconstruct_identifier(definition.variable_name).0 {
                 Expression::Identifier(identifier) => identifier,
                 _ => unreachable!("`reconstruct_identifier` will always return an `Identifier`."),
-            },
-            false => unreachable!("DefinitionStatement should have only one variable name."),
         };
         self.is_lhs = false;
 

@@ -16,11 +16,27 @@
 
 use crate::StaticSingleAssigner;
 
-use leo_ast::{Expression, ExpressionReconstructor, Identifier};
+use leo_ast::{CallExpression, Expression, ExpressionReconstructor, Identifier};
 use leo_span::Symbol;
 
 impl<'a> ExpressionReconstructor for StaticSingleAssigner<'a> {
     type AdditionalOutput = ();
+
+    /// Reconstructs `CallExpression` without visiting the function name.
+    fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
+        (
+            Expression::Call(CallExpression {
+                function: input.function,
+                arguments: input
+                    .arguments
+                    .into_iter()
+                    .map(|arg| self.reconstruct_expression(arg).0)
+                    .collect(),
+                span: input.span,
+            }),
+            Default::default(),
+        )
+    }
 
     /// Produces a new `Identifier` with a unique name.
     /// If this function is invoked on the left-hand side of a definition or assignment, a new unique name is introduced.

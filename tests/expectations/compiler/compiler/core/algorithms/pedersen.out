@@ -6,3 +6,4 @@ outputs:
       - initial_input_ast: no input
     initial_ast: e72f4854cb2c9ea3063fee92b826df43185c6a7a0a33f4fe6d24adc0c3dd8367
     unrolled_ast: e72f4854cb2c9ea3063fee92b826df43185c6a7a0a33f4fe6d24adc0c3dd8367
+    ssa_ast: f19ce554581c2a165ec978b345403738fb16343789a41f3cad90b9a79ced3d02
