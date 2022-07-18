@@ -77,10 +77,12 @@ impl<'a> CodeGenerator<'a> {
         // Note: This requires that the AST is in static-single assignment form.
         // It is not possible to provide an input program with a conditional statement in SSA form as
         // complete SSA has different semantics from source Leo programs.
+        // TODO: Create an Leo error for this.
         unimplemented!("Code generation is not implemented for conditional statements.")
     }
 
     fn visit_iteration(&mut self, _input: &'a IterationStatement) -> String {
+        // TODO: Create a Leo error for this.
         unreachable!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 
