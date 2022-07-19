@@ -1,9 +1,7 @@
-$LEO new hello-world
+# Create a new foo project.
+$LEO new foo
 ls -la
-cd hello-world && ls -la
+cd foo && ls -la
 
-# verify that in Leo.toml there's a placeholder for author
-# because at the time of calling `leo new` user is not logged in
-[[ $(cat Leo.toml | grep "\[AUTHOR\]" | wc -l) -eq 1 ]] || exit 1
-
+# Try to compile and run the template project.
 $LEO run

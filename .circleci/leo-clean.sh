@@ -3,7 +3,7 @@
 $LEO new hello-world
 ls -la
 cd hello-world && ls -la
-$LEO run
+$LEO build
 
 # Assert that the 'outputs' folder is not empty
 
@@ -24,11 +24,20 @@ cd ..
 
 # Assert that the 'outputs' folder is empty
 
-cd outputs || exit 1
-if [ "$(ls -A $DIR)" ]; then
-  echo "$DIR is not empty"
+if [ "$(ls -A outputs)" ]; then
+  echo "outputs is not empty"
   exit 1
 else
-  echo "$DIR is empty"
+  echo "outputs is empty"
+fi
+
+# Assert that the 'build' folder is empty
+
+if [ "$(ls -A build)" ]; then
+  echo "build is not empty"
+  exit 1
+else
+  echo "build is empty"
   exit 0
 fi
+

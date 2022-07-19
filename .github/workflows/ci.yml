@@ -3,9 +3,7 @@ on:
   pull_request:
     push:
       branches:
-        - master
-        - staging
-        - trying
+        - testnet3
       paths-ignore:
         - 'docs/**'
         - 'documentation/**'
@@ -189,7 +187,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          ref: master
+          ref: testnet3
 
       - name: Install sccache
         env:

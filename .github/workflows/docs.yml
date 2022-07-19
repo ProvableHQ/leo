@@ -1,8 +1,8 @@
-name: Master Crates Docs
+name: Testnet3 Crates Docs
 on:
   push:
     branches:
-      - master
+      - testnet3
 
 jobs:
   build-crates-docs:
@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          ref: master
+          ref: testnet3
 
       - name: Install sccache
         env:
