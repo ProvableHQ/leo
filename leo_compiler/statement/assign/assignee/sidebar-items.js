@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["array_index","Resolves assignees in a compiled Leo program."],["array_range_index","Resolves assignees in a compiled Leo program."],["member",""],["tuple",""]],"struct":[["ResolverContext",""]]});

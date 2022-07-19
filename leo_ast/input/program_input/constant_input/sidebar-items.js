@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["ConstantInput","`[$name]` program input section."]]});

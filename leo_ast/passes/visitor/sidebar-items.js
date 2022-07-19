@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["ExpressionVisitor","A Visitor trait for expressions in the AST."],["ProgramVisitor","A Visitor trait for the program represented by the AST."],["StatementVisitor","A Visitor trait for statements in the AST."]]});

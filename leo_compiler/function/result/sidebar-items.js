@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["result","Enforces that one return value is produced in a compiled Leo program."]]});

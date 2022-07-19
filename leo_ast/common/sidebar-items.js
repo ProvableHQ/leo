@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["array_dimensions",""],["const_self_keyword",""],["global_consts_json",""],["identifier",""],["imported_modules",""],["mut_self_keyword",""],["positive_number",""],["self_keyword",""],["spread_or_expression",""],["vec_tendril_json",""]]});
+initSidebarItems({"mod":[["global_consts_json",""],["identifier",""],["imported_modules",""],["positive_number",""],["static_string",""]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["ConsoleFunction",""]],"struct":[["ConsoleArgs",""],["ConsoleStatement",""]]});

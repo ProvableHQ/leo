@@ -161,7 +161,22 @@
 <span id="156">156</span>
 <span id="157">157</span>
 <span id="158">158</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
 <span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
@@ -183,41 +198,45 @@
 <span class="kw">use</span> <span class="ident">color_backtrace</span>::{<span class="ident">BacktracePrinter</span>, <span class="ident">Verbosity</span>};
 <span class="kw">use</span> <span class="ident">colored::Colorize</span>;
 <span class="kw">use</span> <span class="ident">derivative::Derivative</span>;
+<span class="kw">use</span> <span class="ident">leo_span::source_map::is_not_test_framework</span>;
 
 <span class="doccomment">/// The indent for an error message.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">INDENT</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;    &quot;</span>;
 
-<span class="doccomment">/// Backtraced compiler error type</span>
+<span class="doccomment">/// Backtraced compiler ouput type</span>
 <span class="doccomment">///     undefined value `x`</span>
 <span class="doccomment">///     --&gt; file.leo: 2:8</span>
 <span class="doccomment">///      = help: Initialize a variable `x` first.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Derivative</span>)]</span>
 <span class="attribute">#[<span class="ident">derivative</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BacktracedError</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Backtraced</span> {
     <span class="doccomment">/// The error message.</span>
     <span class="kw">pub</span> <span class="ident">message</span>: <span class="ident">String</span>,
     <span class="doccomment">/// The error help message if it exists.</span>
     <span class="kw">pub</span> <span class="ident">help</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The error exit code.</span>
-    <span class="kw">pub</span> <span class="ident">exit_code</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">code</span>: <span class="ident">i32</span>,
     <span class="doccomment">/// The error leading digits identifier.</span>
     <span class="kw">pub</span> <span class="ident">code_identifier</span>: <span class="ident">i8</span>,
     <span class="doccomment">/// The characters representing the type of error.</span>
-    <span class="kw">pub</span> <span class="ident">error_type</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">type_</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// Is this Backtrace a warning or error?</span>
+    <span class="kw">pub</span> <span class="ident">error</span>: <span class="ident">bool</span>,
     <span class="attribute">#[<span class="ident">derivative</span>(<span class="ident">PartialEq</span> <span class="op">=</span> <span class="string">&quot;ignore&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">derivative</span>(<span class="ident">Hash</span> <span class="op">=</span> <span class="string">&quot;ignore&quot;</span>)]</span>
     <span class="doccomment">/// The backtrace representing where the error occured in Leo.</span>
     <span class="kw">pub</span> <span class="ident">backtrace</span>: <span class="ident">Backtrace</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">BacktracedError</span> {
+<span class="kw">impl</span> <span class="ident">Backtraced</span> {
     <span class="doccomment">/// Creates a backtraced error from a backtrace.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_from_backtrace</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(
         <span class="ident">message</span>: <span class="ident">S</span>,
         <span class="ident">help</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-        <span class="ident">exit_code</span>: <span class="ident">i32</span>,
+        <span class="ident">code</span>: <span class="ident">i32</span>,
         <span class="ident">code_identifier</span>: <span class="ident">i8</span>,
-        <span class="ident">error_type</span>: <span class="ident">String</span>,
+        <span class="ident">type_</span>: <span class="ident">String</span>,
+        <span class="ident">error</span>: <span class="ident">bool</span>,
         <span class="ident">backtrace</span>: <span class="ident">Backtrace</span>,
     ) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
@@ -226,14 +245,15 @@
         <span class="self">Self</span> {
             <span class="ident">message</span>: <span class="ident">message</span>.<span class="ident">to_string</span>(),
             <span class="ident">help</span>,
-            <span class="ident">exit_code</span>,
+            <span class="ident">code</span>,
             <span class="ident">code_identifier</span>,
-            <span class="ident">error_type</span>,
+            <span class="ident">type_</span>,
+            <span class="ident">error</span>,
             <span class="ident">backtrace</span>,
         }
     }
 
-    <span class="doccomment">/// Gets the backtraced error error code.</span>
+    <span class="doccomment">/// Gets the backtraced error exit code.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exit_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">code</span>: <span class="ident">i32</span>;
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">code_identifier</span> <span class="op">&gt;</span> <span class="number">99</span> {
@@ -243,7 +263,7 @@
         } <span class="kw">else</span> {
             <span class="ident">code</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">code_identifier</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">*</span> <span class="number">1_000</span>;
         }
-        <span class="ident">code</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">exit_code</span>;
+        <span class="ident">code</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">code</span>;
 
         <span class="ident">code</span>
     }
@@ -252,31 +272,41 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
         <span class="macro">format!</span>(
             <span class="string">&quot;E{error_type}{code_identifier:0&gt;3}{exit_code:0&gt;4}&quot;</span>,
-            <span class="ident">error_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">error_type</span>,
+            <span class="ident">error_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">type_</span>,
             <span class="ident">code_identifier</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">code_identifier</span>,
-            <span class="ident">exit_code</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">exit_code</span>,
+            <span class="ident">exit_code</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">code</span>,
+        )
+    }
+
+    <span class="doccomment">/// Gets a unique warning identifier.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">warning_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
+        <span class="macro">format!</span>(
+            <span class="string">&quot;W{error_type}{code_identifier:0&gt;3}{exit_code:0&gt;4}&quot;</span>,
+            <span class="ident">error_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">type_</span>,
+            <span class="ident">code_identifier</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">code_identifier</span>,
+            <span class="ident">exit_code</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">code</span>,
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">BacktracedError</span> {
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Backtraced</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">let</span> <span class="ident">error_message</span> <span class="op">=</span> <span class="macro">format!</span>(
-            <span class="string">&quot;Error [{error_code}]: {message}&quot;</span>,
-            <span class="ident">error_code</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">error_code</span>(),
-            <span class="ident">message</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">message</span>,
-        );
+        <span class="kw">let</span> (<span class="ident">kind</span>, <span class="ident">code</span>) <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">error</span> {
+            (<span class="string">&quot;Error&quot;</span>, <span class="self">self</span>.<span class="ident">error_code</span>())
+        } <span class="kw">else</span> {
+            (<span class="string">&quot;Warning&quot;</span>, <span class="self">self</span>.<span class="ident">warning_code</span>())
+        };
+        <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{kind} [{code}]: {message}&quot;</span>, <span class="ident">message</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">message</span>,);
 
         <span class="comment">// To avoid the color enabling characters for comparison with test expectations.</span>
-        <span class="kw">if</span> <span class="ident">std::env::var</span>(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>)
-            .<span class="ident">unwrap_or_default</span>()
-            .<span class="ident">trim</span>()
-            .<span class="ident">to_owned</span>()
-            .<span class="ident">is_empty</span>()
-        {
-            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">error_message</span>.<span class="ident">bold</span>().<span class="ident">red</span>())<span class="question-mark">?</span>;
+        <span class="kw">if</span> <span class="ident">is_not_test_framework</span>() {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">error</span> {
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">message</span>.<span class="ident">bold</span>().<span class="ident">red</span>())<span class="question-mark">?</span>;
+            } <span class="kw">else</span> {
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">message</span>.<span class="ident">bold</span>().<span class="ident">yellow</span>())<span class="question-mark">?</span>;
+            }
         } <span class="kw">else</span> {
-            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">error_message</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">message</span>)<span class="question-mark">?</span>;
         };
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">help</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">help</span> {
@@ -314,11 +344,11 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">BacktracedError</span> {
+<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">Backtraced</span> {
     <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">message</span>
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_errors" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_errors" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
 </body></html>

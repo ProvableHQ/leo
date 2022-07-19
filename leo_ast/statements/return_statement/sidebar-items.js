@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ReturnStatement",""]]});
+initSidebarItems({"struct":[["ReturnStatement","A return statement `return expression;`."]]});

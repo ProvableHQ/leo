@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["push_constraints",""]],"struct":[["CircuitSynthesizer",""],["ConstraintSet",""],["Namespace",""]]});

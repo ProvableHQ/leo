@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["integer_type",""],["type_",""]]});
+initSidebarItems({"mod":[["tuple",""],["type_",""]]});

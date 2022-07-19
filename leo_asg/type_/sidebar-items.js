@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["IntegerType","Explicit integer type."],["PartialType",""],["Type","A type in an asg."]]});

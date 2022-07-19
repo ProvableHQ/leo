@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["allocate_group",""],["group_from_input",""]]});

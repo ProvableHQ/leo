@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["SignedIntegerType",""]],"struct":[["I128Type",""],["I16Type",""],["I32Type",""],["I64Type",""],["I8Type",""]]});

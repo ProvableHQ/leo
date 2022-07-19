@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["reconstructing_director","This module contains the reducer which iterates through ast nodes - converting them into asg nodes and saving relevant information."],["reconstructing_reducer",""]]});

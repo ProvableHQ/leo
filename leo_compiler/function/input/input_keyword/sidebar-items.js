@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["RECORD_VARIABLE_NAME",""],["REGISTERS_VARIABLE_NAME",""],["STATE_LEAF_VARIABLE_NAME",""],["STATE_VARIABLE_NAME",""]]});

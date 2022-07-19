@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["FlattenError","CliError enum that represents all the errors for the `leo-lang` crate."]],"fn":[["type_name","Generates the type name of a value."]]});

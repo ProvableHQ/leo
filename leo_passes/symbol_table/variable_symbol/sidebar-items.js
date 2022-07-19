@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["VariableType","An enumeration of the different types of variable type."]],"struct":[["VariableSymbol","An entry for a variable in the symbol table."]]});

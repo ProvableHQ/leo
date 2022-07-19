@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Tuple","A type list of at least two types."]]});

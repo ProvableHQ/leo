@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["FunctionSymbol","An entry for a function in the symbol table."]]});

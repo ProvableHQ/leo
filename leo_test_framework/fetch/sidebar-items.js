@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["find_tests",""],["split_tests_oneline",""],["split_tests_twoline",""]]});
+initSidebarItems({"fn":[["find_tests",""],["split_tests_one_line",""],["split_tests_two_line",""]]});

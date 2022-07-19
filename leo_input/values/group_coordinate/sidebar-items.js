@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["GroupCoordinate",""]],"struct":[["Inferred",""],["SignHigh",""],["SignLow",""]]});

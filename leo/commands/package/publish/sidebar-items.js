@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Publish","Publish package to Aleo Package Manager"]]});

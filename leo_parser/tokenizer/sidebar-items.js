@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["tokenize","Creates a new vector of spanned tokens from a given file path and source code text."]],"mod":[["lexer",""],["token",""]]});
+initSidebarItems({"fn":[["tokenize","Creates a new vector of spanned tokens from a given file path and source code text."],["tokenize_iter","Yields spanned tokens from the given source code text."]],"mod":[["lexer",""],["token",""]]});

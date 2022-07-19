@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["FunctionInputVariable",""]]});
+initSidebarItems({"enum":[["ParamMode",""]],"struct":[["FunctionInputVariable","A function parameter."]]});

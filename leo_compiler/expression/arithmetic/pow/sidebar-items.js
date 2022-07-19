@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["enforce_pow",""]]});

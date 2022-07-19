@@ -41,7 +41,13 @@
 <span id="36">36</span>
 <span id="37">37</span>
 <span id="38">38</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
 <span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
@@ -57,19 +63,25 @@
 <span class="comment">// You should have received a copy of the GNU General Public License</span>
 <span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 
-<span class="doccomment">/// ErrorCode trait that all Errors should implement.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">LeoErrorCode</span>: <span class="ident">Sized</span> {
+<span class="doccomment">/// MessageCode trait that all Errors should implement.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">LeoMessageCode</span>: <span class="ident">Sized</span> {
     <span class="doccomment">/// Returns the error&#39;s exit code for the program.</span>
     <span class="kw">fn</span> <span class="ident">exit_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span>;
 
     <span class="doccomment">/// Returns the prefixed error identifier.</span>
     <span class="kw">fn</span> <span class="ident">error_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
 
-    <span class="doccomment">/// Returns the error&#39;s exit code mask, as to avoid conflicts.</span>
-    <span class="kw">fn</span> <span class="ident">exit_code_mask</span>() -&gt; <span class="ident">i32</span>;
+    <span class="doccomment">/// Returns the prefixed warning identifier.</span>
+    <span class="kw">fn</span> <span class="ident">warning_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
 
-    <span class="doccomment">/// Returns the error&#39;s code type for the program.</span>
-    <span class="kw">fn</span> <span class="ident">error_type</span>() -&gt; <span class="ident">String</span>;
+    <span class="doccomment">/// Returns the messages&#39;s exit code mask, as to avoid conflicts.</span>
+    <span class="kw">fn</span> <span class="ident">code_mask</span>() -&gt; <span class="ident">i32</span>;
+
+    <span class="doccomment">/// Returns the message&#39;s code type for the program.</span>
+    <span class="kw">fn</span> <span class="ident">message_type</span>() -&gt; <span class="ident">String</span>;
+
+    <span class="doccomment">/// Returns if the message is an error or warning.</span>
+    <span class="kw">fn</span> <span class="ident">is_error</span>() -&gt; <span class="ident">bool</span>;
 
     <span class="doccomment">/// The LeoErrorCode which has a default code identifier of 037</span>
     <span class="doccomment">/// (Leo upsidedown and backwards). This is to make the exit codes</span>
@@ -80,5 +92,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_errors" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_errors" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
 </body></html>

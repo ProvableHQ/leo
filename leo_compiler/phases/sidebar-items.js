@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["phase","Compiles a Leo program from a file path."],["reducing_director","Compiles a Leo program from a file path."]]});

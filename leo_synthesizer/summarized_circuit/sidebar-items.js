@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["hash_field",""]],"struct":[["SummarizedCircuit",""]]});

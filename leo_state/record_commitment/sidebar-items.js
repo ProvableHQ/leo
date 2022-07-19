@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["dpc_record_values",""],["record_commitment",""]]});

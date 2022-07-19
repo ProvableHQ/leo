@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["BinaryOperation","A binary operator."]],"struct":[["BinaryExpression","A binary expression `left op right` of two operands separated by some operator. For example, `foo + bar`."]]});

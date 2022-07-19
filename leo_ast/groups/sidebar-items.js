@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["group_coordinate",""],["group_value",""]]});
+initSidebarItems({"mod":[["group_coordinate",""],["group_literal",""]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["MemberAccess","A circuit member access expression `inner.name` to some structure with named members."]]});

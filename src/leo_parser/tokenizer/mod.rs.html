@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `parser/src/tokenizer/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/parser/src/tokenizer/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -193,87 +193,7 @@
 <span id="188">188</span>
 <span id="189">189</span>
 <span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
-<span id="248">248</span>
-<span id="249">249</span>
-<span id="250">250</span>
-<span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
-<span id="254">254</span>
-<span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
 <span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
@@ -295,7 +215,6 @@
 <span class="doccomment">//! separated by whitespace.</span>
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">token</span>;
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::token::KEYWORD_TOKENS</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::token</span>::<span class="kw-2">*</span>;
@@ -303,221 +222,143 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">lexer</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::lexer</span>::<span class="kw-2">*</span>;
 
-<span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">LeoError</span>, <span class="ident">ParserError</span>, <span class="ident">Span</span>};
-
-<span class="kw">use</span> <span class="ident">tendril::StrTendril</span>;
+<span class="kw">use</span> <span class="ident">leo_errors::Result</span>;
+<span class="kw">use</span> <span class="ident">leo_span::span</span>::{<span class="ident">BytePos</span>, <span class="ident">Pos</span>, <span class="ident">Span</span>};
+<span class="kw">use</span> <span class="ident">std::iter</span>;
 
 <span class="doccomment">/// Creates a new vector of spanned tokens from a given file path and source code text.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">tokenize</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">input</span>: <span class="ident">StrTendril</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SpannedToken</span><span class="op">&gt;</span>, <span class="ident">LeoError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">path</span>.<span class="ident">to_string</span>());
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span> <span class="op">=</span> <span class="number">0usize</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">line_no</span> <span class="op">=</span> <span class="number">1usize</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">line_start</span> <span class="op">=</span> <span class="number">0usize</span>;
-    <span class="kw">while</span> <span class="ident">input</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">index</span> {
-        <span class="kw">match</span> <span class="ident">Token::eat</span>(<span class="ident">input</span>.<span class="ident">subtendril</span>(<span class="ident">index</span> <span class="kw">as</span> <span class="ident">u32</span>, (<span class="ident">input</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">index</span>) <span class="kw">as</span> <span class="ident">u32</span>)) {
-            (<span class="ident">token_len</span>, <span class="prelude-val">Some</span>(<span class="ident">token</span>)) =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">Span::new</span>(
-                    <span class="ident">line_no</span>,
-                    <span class="ident">line_no</span>,
-                    <span class="ident">index</span> <span class="op">-</span> <span class="ident">line_start</span> <span class="op">+</span> <span class="number">1</span>,
-                    <span class="ident">index</span> <span class="op">-</span> <span class="ident">line_start</span> <span class="op">+</span> <span class="ident">token_len</span> <span class="op">+</span> <span class="number">1</span>,
-                    <span class="ident">path</span>.<span class="ident">clone</span>(),
-                    <span class="ident">input</span>.<span class="ident">subtendril</span>(
-                        <span class="ident">line_start</span> <span class="kw">as</span> <span class="ident">u32</span>,
-                        <span class="ident">input</span>[<span class="ident">line_start</span>..].<span class="ident">find</span>(<span class="string">&#39;\n&#39;</span>).<span class="ident">unwrap_or</span>(<span class="ident">input</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">line_start</span>) <span class="kw">as</span> <span class="ident">u32</span>,
-                    ),
-                );
-                <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">token</span> {
-                    <span class="ident">Token::CommentLine</span>(<span class="kw">_</span>) =&gt; {
-                        <span class="ident">line_no</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                        <span class="ident">line_start</span> <span class="op">=</span> <span class="ident">index</span> <span class="op">+</span> <span class="ident">token_len</span>;
-                    }
-                    <span class="ident">Token::CommentBlock</span>(<span class="ident">block</span>) =&gt; {
-                        <span class="kw">let</span> <span class="ident">line_ct</span> <span class="op">=</span> <span class="ident">block</span>.<span class="ident">chars</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">==</span> <span class="string">&#39;\n&#39;</span>).<span class="ident">count</span>();
-                        <span class="ident">line_no</span> <span class="op">+</span><span class="op">=</span> <span class="ident">line_ct</span>;
-                        <span class="kw">if</span> <span class="ident">line_ct</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                            <span class="kw">let</span> <span class="ident">last_line_index</span> <span class="op">=</span> <span class="ident">block</span>.<span class="ident">rfind</span>(<span class="string">&#39;\n&#39;</span>).<span class="ident">unwrap</span>();
-                            <span class="ident">line_start</span> <span class="op">=</span> <span class="ident">index</span> <span class="op">+</span> <span class="ident">last_line_index</span> <span class="op">+</span> <span class="number">1</span>;
-                            <span class="ident">span</span>.<span class="ident">col_stop</span> <span class="op">=</span> <span class="ident">index</span> <span class="op">+</span> <span class="ident">token_len</span> <span class="op">-</span> <span class="ident">line_start</span> <span class="op">+</span> <span class="number">1</span>;
-                        }
-                        <span class="ident">span</span>.<span class="ident">line_stop</span> <span class="op">=</span> <span class="ident">line_no</span>;
-                    }
-                    <span class="ident">Token::AddressLit</span>(<span class="ident">address</span>) =&gt; {
-                        <span class="kw">if</span> <span class="op">!</span><span class="ident">check_address</span>(<span class="ident">address</span>) {
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::invalid_address_lit</span>(<span class="ident">address</span>, <span class="kw-2">&amp;</span><span class="ident">span</span>).<span class="ident">into</span>());
-                        }
-                    }
-                    <span class="kw">_</span> =&gt; (),
-                }
-                <span class="ident">tokens</span>.<span class="ident">push</span>(<span class="ident">SpannedToken</span> { <span class="ident">token</span>, <span class="ident">span</span> });
-                <span class="ident">index</span> <span class="op">+</span><span class="op">=</span> <span class="ident">token_len</span>;
-            }
-            (<span class="ident">token_len</span>, <span class="prelude-val">None</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">token_len</span> <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">index</span> <span class="op">==</span> <span class="ident">input</span>.<span class="ident">len</span>() {
-                    <span class="kw">break</span>;
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">token_len</span> <span class="op">==</span> <span class="number">0</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::unexpected_token</span>(
-                        <span class="kw-2">&amp;</span><span class="ident">input</span>[<span class="ident">index</span>..<span class="ident">index</span> <span class="op">+</span> <span class="number">1</span>],
-                        <span class="kw-2">&amp;</span><span class="ident">Span::new</span>(
-                            <span class="ident">line_no</span>,
-                            <span class="ident">line_no</span>,
-                            <span class="ident">index</span> <span class="op">-</span> <span class="ident">line_start</span> <span class="op">+</span> <span class="number">1</span>,
-                            <span class="ident">index</span> <span class="op">-</span> <span class="ident">line_start</span> <span class="op">+</span> <span class="number">2</span>,
-                            <span class="ident">path</span>,
-                            <span class="ident">input</span>.<span class="ident">subtendril</span>(
-                                <span class="ident">line_start</span> <span class="kw">as</span> <span class="ident">u32</span>,
-                                <span class="ident">input</span>[<span class="ident">line_start</span>..].<span class="ident">find</span>(<span class="string">&#39;\n&#39;</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">input</span>.<span class="ident">len</span>()) <span class="kw">as</span> <span class="ident">u32</span>,
-                            ),
-                        ),
-                    )
-                    .<span class="ident">into</span>());
-                }
-                <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">as_bytes</span>()[<span class="ident">index</span>] <span class="op">==</span> <span class="string">b&#39;\n&#39;</span> {
-                    <span class="ident">line_no</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                    <span class="ident">line_start</span> <span class="op">=</span> <span class="ident">index</span> <span class="op">+</span> <span class="ident">token_len</span>;
-                }
-                <span class="ident">index</span> <span class="op">+</span><span class="op">=</span> <span class="ident">token_len</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">tokenize</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">start_pos</span>: <span class="ident">BytePos</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SpannedToken</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="ident">tokenize_iter</span>(<span class="ident">input</span>, <span class="ident">start_pos</span>).<span class="ident">collect</span>()
+}
+
+<span class="doccomment">/// Yields spanned tokens from the given source code text.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The `lo` byte position determines where spans will start.</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">tokenize_iter</span>(<span class="kw-2">mut</span> <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">mut</span> <span class="ident">lo</span>: <span class="ident">BytePos</span>) -&gt; <span class="kw">impl</span> <span class="lifetime">&#39;_</span> <span class="op">+</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SpannedToken</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="ident">iter::from_fn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
+        <span class="kw">while</span> <span class="op">!</span><span class="ident">input</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">let</span> (<span class="ident">token_len</span>, <span class="ident">token</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">Token::eat</span>(<span class="ident">input</span>) {
+                <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)),
+                <span class="prelude-val">Ok</span>(<span class="ident">t</span>) =&gt; <span class="ident">t</span>,
+            };
+            <span class="ident">input</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>[<span class="ident">token_len</span>..];
+
+            <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">Span::new</span>(<span class="ident">lo</span>, <span class="ident">lo</span> <span class="op">+</span> <span class="ident">BytePos::from_usize</span>(<span class="ident">token_len</span>));
+            <span class="ident">lo</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">hi</span>;
+
+            <span class="kw">match</span> <span class="ident">token</span> {
+                <span class="ident">Token::WhiteSpace</span> =&gt; <span class="kw">continue</span>,
+                <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">SpannedToken</span> { <span class="ident">token</span>, <span class="ident">span</span> })),
             }
         }
-    }
-    <span class="prelude-val">Ok</span>(<span class="ident">tokens</span>)
+
+        <span class="prelude-val">None</span>
+    })
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">source_map::FileName</span>, <span class="ident">symbol::create_session_if_not_set_then</span>};
+    <span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_tokenizer</span>() {
-        <span class="comment">// &amp;</span>
-        <span class="comment">// &amp;=</span>
-        <span class="comment">// |</span>
-        <span class="comment">// |=</span>
-        <span class="comment">// ^</span>
-        <span class="comment">// ^=</span>
-        <span class="comment">// ~</span>
-        <span class="comment">// &lt;&lt;</span>
-        <span class="comment">// &lt;&lt;=</span>
-        <span class="comment">// &gt;&gt;</span>
-        <span class="comment">// &gt;&gt;=</span>
-        <span class="comment">// &gt;&gt;&gt;</span>
-        <span class="comment">// &gt;&gt;&gt;=</span>
-        <span class="comment">// %</span>
-        <span class="comment">// %=</span>
-        <span class="comment">// ||=</span>
-        <span class="comment">// &amp;&amp;=</span>
+        <span class="ident">create_session_if_not_set_then</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="string">r#&quot;
+    &quot;test&quot;
+    &quot;test{}test&quot;
+    &quot;test{}&quot;
+    &quot;{}test&quot;
+    &quot;test{&quot;
+    &quot;test}&quot;
+    &quot;test{test&quot;
+    &quot;test}test&quot;
+    &quot;te{{}}&quot;
+    test_ident
+    12345
+    address
+    bool
+    const
+    else
+    false
+    field
+    for
+    function
+    group
+    i128
+    i64
+    i32
+    i16
+    i8
+    if
+    in
+    input
+    let
+    mut
+    return
+    scalar
+    string
+    test
+    true
+    u128
+    u64
+    u32
+    u16
+    u8
+    console
+    !
+    !=
+    &amp;&amp;
+    (
+    )
+    *
+    **
+    +
+    ,
+    -
+    -&gt;
+    _
+    .
+    ..
+    /
+    :
+    ;
+    &lt;
+    &lt;=
+    =
+    ==
+    &gt;
+    &gt;=
+    [
+    ]
+    {{
+    }}
+    ||
+    ?
+    // test
+    /* test */
+    //&quot;#</span>;
+            <span class="kw">let</span> <span class="ident">sf</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">source_map</span>.<span class="ident">new_source</span>(<span class="ident">raw</span>, <span class="ident">FileName::Custom</span>(<span class="string">&quot;test&quot;</span>.<span class="ident">into</span>()));
+            <span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">tokenize</span>(<span class="kw-2">&amp;</span><span class="ident">sf</span>.<span class="ident">src</span>, <span class="ident">sf</span>.<span class="ident">start_pos</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">String::new</span>();
+            <span class="kw">for</span> <span class="ident">SpannedToken</span> { <span class="ident">token</span>, .. } <span class="kw">in</span> <span class="ident">tokens</span>.<span class="ident">iter</span>() {
+                <span class="macro">write!</span>(<span class="ident">output</span>, <span class="string">&quot;{} &quot;</span>, <span class="ident">token</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write string&quot;</span>);
+            }
 
-        <span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">tokenize</span>(
-            <span class="string">&quot;test_path&quot;</span>,
-            <span class="string">r#&quot;
-        &quot;test&quot;
-        &quot;test{}test&quot;
-        &quot;test{}&quot;
-        &quot;{}test&quot;
-        &quot;test{&quot;
-        &quot;test}&quot;
-        &quot;test{test&quot;
-        &quot;test}test&quot;
-        &quot;te{{}}&quot;
-        aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8
-        test_ident
-        12345
-        address
-        as
-        bool
-        circuit
-        const
-        else
-        false
-        field
-        for
-        function
-        group
-        i128
-        i64
-        i32
-        i16
-        i8
-        if
-        import
-        in
-        input
-        let
-        mut
-        return
-        static
-        string
-        test
-        true
-        u128
-        u64
-        u32
-        u16
-        u8
-        self
-        Self
-        console
-        !
-        !=
-        &amp;&amp;
-        (
-        )
-        *
-        **
-        **=
-        *=
-        +
-        +=
-        ,
-        -
-        -=
-        -&gt;
-        _
-        .
-        ..
-        ...
-        /
-        /=
-        :
-        ::
-        ;
-        &lt;
-        &lt;=
-        =
-        ==
-        &gt;
-        &gt;=
-        @
-        [
-        ]
-        {{
-        }}
-        ||
-        ?
-        // test
-        /* test */
-        //&quot;#</span>
-            .<span class="ident">into</span>(),
-        )
-        .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">String::new</span>();
-        <span class="kw">for</span> <span class="ident">SpannedToken</span> { <span class="ident">token</span>, .. } <span class="kw">in</span> <span class="ident">tokens</span>.<span class="ident">iter</span>() {
-            <span class="ident">output</span> <span class="op">+</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{} &quot;</span>, <span class="ident">token</span>.<span class="ident">to_string</span>());
-        }
-
-        <span class="comment">// &amp; &amp;= | |= ^ ^= ~ &lt;&lt; &lt;&lt;= &gt;&gt; &gt;&gt;= &gt;&gt;&gt; &gt;&gt;&gt;= % %= ||= &amp;&amp;=</span>
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">output</span>,
-            <span class="string">r#&quot;&quot;test&quot; &quot;test{}test&quot; &quot;test{}&quot; &quot;{}test&quot; &quot;test{&quot; &quot;test}&quot; &quot;test{test&quot; &quot;test}test&quot; &quot;te{{}}&quot; aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8 test_ident 12345 address as bool circuit const else false field for function group i128 i64 i32 i16 i8 if import in input let mut return static string test true u128 u64 u32 u16 u8 self Self console ! != &amp;&amp; ( ) * ** **= *= + += , - -= -&gt; _ . .. ... / /= : :: ; &lt; &lt;= = == &gt; &gt;= @ [ ] { { } } || ? // test
+            <span class="macro">assert_eq!</span>(
+                <span class="ident">output</span>,
+                <span class="string">r#&quot;&quot;test&quot; &quot;test{}test&quot; &quot;test{}&quot; &quot;{}test&quot; &quot;test{&quot; &quot;test}&quot; &quot;test{test&quot; &quot;test}test&quot; &quot;te{{}}&quot; test_ident 12345 address bool const else false field for function group i128 i64 i32 i16 i8 if in input let mut return scalar string test true u128 u64 u32 u16 u8 console ! != &amp;&amp; ( ) * ** + , - -&gt; _ . .. / : ; &lt; &lt;= = == &gt; &gt;= [ ] { { } } || ? // test
  /* test */ // &quot;#</span>
-        );
+            );
+        });
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_spans</span>() {
-        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="string">r#&quot;
-            test
+        <span class="ident">create_session_if_not_set_then</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="string">r#&quot;
+ppp            test
             // test
             test
             /* test */
@@ -526,23 +367,22 @@
             test */
             test
             &quot;#</span>;
-        <span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">tokenize</span>(<span class="string">&quot;test_path&quot;</span>, <span class="ident">raw</span>.<span class="ident">into</span>()).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">line_indicies</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">0</span>];
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">c</span>) <span class="kw">in</span> <span class="ident">raw</span>.<span class="ident">chars</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\n&#39;</span> {
-                <span class="ident">line_indicies</span>.<span class="ident">push</span>(<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>);
+
+            <span class="kw">let</span> <span class="ident">sm</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">source_map</span>;
+            <span class="kw">let</span> <span class="ident">sf</span> <span class="op">=</span> <span class="ident">sm</span>.<span class="ident">new_source</span>(<span class="ident">raw</span>, <span class="ident">FileName::Custom</span>(<span class="string">&quot;test&quot;</span>.<span class="ident">into</span>()));
+            <span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">tokenize</span>(<span class="kw-2">&amp;</span><span class="ident">sf</span>.<span class="ident">src</span>, <span class="ident">sf</span>.<span class="ident">start_pos</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">line_indicies</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">0</span>];
+            <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">c</span>) <span class="kw">in</span> <span class="ident">raw</span>.<span class="ident">chars</span>().<span class="ident">enumerate</span>() {
+                <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\n&#39;</span> {
+                    <span class="ident">line_indicies</span>.<span class="ident">push</span>(<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>);
+                }
             }
-        }
-        <span class="kw">for</span> <span class="ident">token</span> <span class="kw">in</span> <span class="ident">tokens</span>.<span class="ident">iter</span>() {
-            <span class="kw">let</span> <span class="ident">token_raw</span> <span class="op">=</span> <span class="ident">token</span>.<span class="ident">token</span>.<span class="ident">to_string</span>();
-            <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">line_indicies</span>.<span class="ident">get</span>(<span class="ident">token</span>.<span class="ident">span</span>.<span class="ident">line_start</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">stop</span> <span class="op">=</span> <span class="ident">line_indicies</span>.<span class="ident">get</span>(<span class="ident">token</span>.<span class="ident">span</span>.<span class="ident">line_stop</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">original</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">raw</span>[<span class="kw-2">*</span><span class="ident">start</span> <span class="op">+</span> <span class="ident">token</span>.<span class="ident">span</span>.<span class="ident">col_start</span> <span class="op">-</span> <span class="number">1</span>..<span class="kw-2">*</span><span class="ident">stop</span> <span class="op">+</span> <span class="ident">token</span>.<span class="ident">span</span>.<span class="ident">col_stop</span> <span class="op">-</span> <span class="number">1</span>];
-            <span class="macro">assert_eq!</span>(<span class="ident">original</span>, <span class="kw-2">&amp;</span><span class="ident">token_raw</span>);
-        }
-        <span class="comment">// println!(&quot;{}&quot;, serde_json::to_string_pretty(&amp;tokens).unwrap());</span>
+            <span class="kw">for</span> <span class="ident">token</span> <span class="kw">in</span> <span class="ident">tokens</span>.<span class="ident">iter</span>() {
+                <span class="macro">assert_eq!</span>(<span class="ident">token</span>.<span class="ident">token</span>.<span class="ident">to_string</span>(), <span class="ident">sm</span>.<span class="ident">contents_of_span</span>(<span class="ident">token</span>.<span class="ident">span</span>).<span class="ident">unwrap</span>());
+            }
+        })
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_parser" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_parser" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
 </body></html>

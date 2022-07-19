@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Automatic","Setting for automatic updates of Leo"]],"struct":[["Update","Update Leo to the latest version"]]});

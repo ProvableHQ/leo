@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ErrExpression","Represents a syntactically invalid expression."]]});

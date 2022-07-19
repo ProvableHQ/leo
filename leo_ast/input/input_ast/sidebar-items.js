@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Input","Input data which includes [`ProgramInput`]."],["InputAst","A raw unprocessed input or state file data. Used for future conversion into [`ProgramInput`]."]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Prove","Run the program and produce a proof"]]});

@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["ConsoleFunction",""]]});
+initSidebarItems({"enum":[["ConsoleFunction","A console logging function to invoke."]]});

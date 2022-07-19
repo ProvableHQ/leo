@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["PositiveNumber","A number string guaranteed to be positive by the pest grammar."]]});
+initSidebarItems({"struct":[["PositiveNumber","A number string guaranteed to be positive."]]});

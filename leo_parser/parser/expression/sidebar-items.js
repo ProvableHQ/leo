@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["INT_TYPES",""]]});
+initSidebarItems({"constant":[["INT_TYPES",""]],"fn":[["assert_no_whitespace",""]]});

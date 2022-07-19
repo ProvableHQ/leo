@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["FormattedError","Formatted compiler error type undefined value `x` –> file.leo: 2:8 | 2 | let a = x; |         ^ | = help: Initialize a variable `x` first. Makes use of the same fields as a BacktracedError."]]});
+initSidebarItems({"struct":[["Formatted","Formatted compiler error type undefined value `x` –> file.leo: 2:8 | 2 | let a = x; |         ^ | = help: Initialize a variable `x` first. Makes use of the same fields as a BacktracedError."]]});

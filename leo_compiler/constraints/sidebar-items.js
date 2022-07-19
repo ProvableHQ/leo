@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["constraints","Generates R1CS constraints for a compiled Leo program."]]});

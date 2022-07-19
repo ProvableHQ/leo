@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Integer","An integer type enum wrapping the integer value."]]});

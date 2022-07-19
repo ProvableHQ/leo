@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Clone","Clone a package from Aleo Package Manager"]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["Pass","A compiler pass consuming `Self::Input` and returning `Self::Output`."]]});

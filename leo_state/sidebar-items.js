@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["local_data_commitment",""],["record_commitment",""],["utilities",""]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["AssigneeAccess",""]],"struct":[["Assignee","Definition assignee: v, arr[0..2], Point p.x"]]});

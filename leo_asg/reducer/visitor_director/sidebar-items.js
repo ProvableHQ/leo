@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["VisitorDirector",""]],"type":[["ConcreteVisitResult",""]]});

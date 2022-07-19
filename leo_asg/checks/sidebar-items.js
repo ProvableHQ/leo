@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["return_path",""]],"struct":[["ReturnPathReducer",""]]});

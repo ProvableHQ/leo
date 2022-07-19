@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Block",""]]});
+initSidebarItems({"struct":[["Block","A block `{ [stmt]* }` consisting of a list of statements to execute in order."]]});

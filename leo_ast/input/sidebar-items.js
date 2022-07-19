@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["input",""],["input_value",""],["macros",""],["parameters",""],["program_input",""],["program_state",""]]});
+initSidebarItems({"mod":[["definition",""],["input_ast",""],["input_value",""],["program_input",""],["section",""]],"type":[["Definitions",""]]});

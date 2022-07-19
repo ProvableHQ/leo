@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["create",""],["function_symbol",""],["table",""],["variable_symbol",""]]});

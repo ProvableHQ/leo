@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["TupleAccess","A tuple access expression, e.g., `tuple.index`."]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["conditional","Enforces a conditional expression in a compiled Leo program."]]});

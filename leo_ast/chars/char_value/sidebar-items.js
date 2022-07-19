@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Char",""]],"fn":[["char_from_u32",""],["char_to_u32",""]],"struct":[["CharValue",""]]});

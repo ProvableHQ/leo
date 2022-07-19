@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Test","Build program and run tests command"]]});

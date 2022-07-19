@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["assign",""],["block",""],["conditional",""],["console",""],["definition",""],["expression",""],["iteration",""],["return_statement",""],["statement",""]]});
+initSidebarItems({"mod":[["assign",""],["block",""],["conditional",""],["console",""],["definition",""],["iteration",""],["return_statement",""],["statement",""]]});

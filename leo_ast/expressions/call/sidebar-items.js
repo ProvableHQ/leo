@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["CallExpression","A function call expression, e.g., `foo(args)` or `Foo::bar(args)`."]]});

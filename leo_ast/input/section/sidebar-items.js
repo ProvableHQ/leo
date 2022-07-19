@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Section","A single section in an input or a state file. An example of a section would be: `[main]`."]]});

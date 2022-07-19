@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["CircuitMember",""]]});
+initSidebarItems({"enum":[["CircuitMember","A member of a circuit definition."]]});

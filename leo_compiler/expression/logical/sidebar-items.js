@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["and","Enforces a logical `&&` operator in a resolved Leo program."],["not","Enforces a logical `!` operator in a resolved Leo program."],["or","Enforces a logical `||` operator in a resolved Leo program."]]});

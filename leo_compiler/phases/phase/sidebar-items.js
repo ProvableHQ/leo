@@ -1,1 +1,0 @@
-initSidebarItems({"macro":[["phase",""]],"struct":[["Options",""],["TypeInferencePhase",""]]});

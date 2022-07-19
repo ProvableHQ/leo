@@ -192,7 +192,33 @@
 <span id="187">187</span>
 <span id="188">188</span>
 <span id="189">189</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
 <span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
@@ -208,13 +234,14 @@
 <span class="comment">// You should have received a copy of the GNU General Public License</span>
 <span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">BacktracedError</span>, <span class="ident">Span</span>, <span class="ident">INDENT</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Backtraced</span>, <span class="ident">INDENT</span>};
 
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">source_map::SpanLocation</span>, <span class="ident">symbol::with_session_globals</span>, <span class="ident">Span</span>};
 
 <span class="kw">use</span> <span class="ident">backtrace::Backtrace</span>;
 <span class="kw">use</span> <span class="ident">color_backtrace</span>::{<span class="ident">BacktracePrinter</span>, <span class="ident">Verbosity</span>};
 <span class="kw">use</span> <span class="ident">colored::Colorize</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="doccomment">/// Formatted compiler error type</span>
 <span class="doccomment">///     undefined value `x`</span>
@@ -226,41 +253,44 @@
 <span class="doccomment">///      = help: Initialize a variable `x` first.</span>
 <span class="doccomment">/// Makes use of the same fields as a BacktracedError.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FormattedError</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Formatted</span> {
     <span class="doccomment">/// The formatted error span information.</span>
     <span class="kw">pub</span> <span class="ident">span</span>: <span class="ident">Span</span>,
     <span class="doccomment">/// The backtrace to track where the Leo error originated.</span>
-    <span class="kw">pub</span> <span class="ident">backtrace</span>: <span class="ident">BacktracedError</span>,
+    <span class="kw">pub</span> <span class="ident">backtrace</span>: <span class="ident">Backtraced</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">FormattedError</span> {
+<span class="kw">impl</span> <span class="ident">Formatted</span> {
     <span class="doccomment">/// Creates a backtraced error from a span and a backtrace.</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_from_span</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(
         <span class="ident">message</span>: <span class="ident">S</span>,
         <span class="ident">help</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-        <span class="ident">exit_code</span>: <span class="ident">i32</span>,
+        <span class="ident">code</span>: <span class="ident">i32</span>,
         <span class="ident">code_identifier</span>: <span class="ident">i8</span>,
-        <span class="ident">error_type</span>: <span class="ident">String</span>,
-        <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>,
+        <span class="ident">type_</span>: <span class="ident">String</span>,
+        <span class="ident">error</span>: <span class="ident">bool</span>,
+        <span class="ident">span</span>: <span class="ident">Span</span>,
         <span class="ident">backtrace</span>: <span class="ident">Backtrace</span>,
     ) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">S</span>: <span class="ident">ToString</span>,
     {
         <span class="self">Self</span> {
-            <span class="ident">span</span>: <span class="ident">span</span>.<span class="ident">clone</span>(),
-            <span class="ident">backtrace</span>: <span class="ident">BacktracedError::new_from_backtrace</span>(
+            <span class="ident">span</span>,
+            <span class="ident">backtrace</span>: <span class="ident">Backtraced::new_from_backtrace</span>(
                 <span class="ident">message</span>.<span class="ident">to_string</span>(),
                 <span class="ident">help</span>,
-                <span class="ident">exit_code</span>,
+                <span class="ident">code</span>,
                 <span class="ident">code_identifier</span>,
-                <span class="ident">error_type</span>,
+                <span class="ident">type_</span>,
+                <span class="ident">error</span>,
                 <span class="ident">backtrace</span>,
             ),
         }
     }
 
-    <span class="doccomment">/// Calls the backtraces error code.</span>
+    <span class="doccomment">/// Calls the backtraces error exit code.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exit_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
         <span class="self">self</span>.<span class="ident">backtrace</span>.<span class="ident">exit_code</span>()
     }
@@ -269,9 +299,14 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
         <span class="self">self</span>.<span class="ident">backtrace</span>.<span class="ident">error_code</span>()
     }
+
+    <span class="doccomment">/// Returns an warning identifier.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">warning_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
+        <span class="self">self</span>.<span class="ident">backtrace</span>.<span class="ident">warning_code</span>()
+    }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">FormattedError</span> {
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Formatted</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">let</span> <span class="ident">underline</span> <span class="op">=</span> <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">start</span>: <span class="ident">usize</span>, <span class="kw-2">mut</span> <span class="ident">end</span>: <span class="ident">usize</span><span class="op">|</span> -&gt; <span class="ident">String</span> {
             <span class="kw">if</span> <span class="ident">start</span> <span class="op">&gt;</span> <span class="ident">end</span> {
@@ -292,13 +327,26 @@
             <span class="ident">underline</span>
         };
 
-        <span class="kw">let</span> <span class="ident">underlined</span> <span class="op">=</span> <span class="ident">underline</span>(<span class="self">self</span>.<span class="ident">span</span>.<span class="ident">col_start</span>, <span class="self">self</span>.<span class="ident">span</span>.<span class="ident">col_stop</span>);
+        <span class="kw">let</span> (<span class="ident">loc</span>, <span class="ident">contents</span>) <span class="op">=</span> <span class="ident">with_session_globals</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> {
+            (
+                <span class="ident">s</span>.<span class="ident">source_map</span>
+                    .<span class="ident">span_to_location</span>(<span class="self">self</span>.<span class="ident">span</span>)
+                    .<span class="ident">unwrap_or_else</span>(<span class="ident">SpanLocation::dummy</span>),
+                <span class="ident">s</span>.<span class="ident">source_map</span>
+                    .<span class="ident">line_contents_of_span</span>(<span class="self">self</span>.<span class="ident">span</span>)
+                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;&lt;contents unavailable&gt;&quot;</span>.<span class="ident">to_owned</span>()),
+            )
+        });
 
-        <span class="kw">let</span> <span class="ident">error_message</span> <span class="op">=</span> <span class="macro">format!</span>(
-            <span class="string">&quot;Error [{error_code}]: {message}&quot;</span>,
-            <span class="ident">error_code</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">error_code</span>(),
-            <span class="ident">message</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">backtrace</span>.<span class="ident">message</span>,
-        );
+        <span class="kw">let</span> <span class="ident">underlined</span> <span class="op">=</span> <span class="ident">underline</span>(<span class="ident">loc</span>.<span class="ident">col_start</span>, <span class="ident">loc</span>.<span class="ident">col_stop</span>);
+
+        <span class="kw">let</span> (<span class="ident">kind</span>, <span class="ident">code</span>) <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">backtrace</span>.<span class="ident">error</span> {
+            (<span class="string">&quot;Error&quot;</span>, <span class="self">self</span>.<span class="ident">error_code</span>())
+        } <span class="kw">else</span> {
+            (<span class="string">&quot;Warning&quot;</span>, <span class="self">self</span>.<span class="ident">warning_code</span>())
+        };
+
+        <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{kind} [{code}]: {message}&quot;</span>, <span class="ident">message</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">backtrace</span>.<span class="ident">message</span>,);
 
         <span class="comment">// To avoid the color enabling characters for comparison with test expectations.</span>
         <span class="kw">if</span> <span class="ident">std::env::var</span>(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>)
@@ -307,9 +355,13 @@
             .<span class="ident">to_owned</span>()
             .<span class="ident">is_empty</span>()
         {
-            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">error_message</span>.<span class="ident">bold</span>().<span class="ident">red</span>())<span class="question-mark">?</span>;
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">backtrace</span>.<span class="ident">error</span> {
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">message</span>.<span class="ident">bold</span>().<span class="ident">red</span>())<span class="question-mark">?</span>;
+            } <span class="kw">else</span> {
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">message</span>.<span class="ident">bold</span>().<span class="ident">yellow</span>())<span class="question-mark">?</span>;
+            }
         } <span class="kw">else</span> {
-            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">error_message</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">message</span>)<span class="question-mark">?</span>;
         };
 
         <span class="macro">write!</span>(
@@ -317,17 +369,17 @@
             <span class="string">&quot;\n{indent     }--&gt; {path}:{line_start}:{start}\n\
             {indent     } |\n&quot;</span>,
             <span class="ident">indent</span> <span class="op">=</span> <span class="ident">INDENT</span>,
-            <span class="ident">path</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">span</span>.<span class="ident">path</span>,
-            <span class="ident">line_start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">span</span>.<span class="ident">line_start</span>,
-            <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">span</span>.<span class="ident">col_start</span>,
+            <span class="ident">path</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">loc</span>.<span class="ident">source_file</span>.<span class="ident">name</span>,
+            <span class="ident">line_start</span> <span class="op">=</span> <span class="ident">loc</span>.<span class="ident">line_start</span>,
+            <span class="ident">start</span> <span class="op">=</span> <span class="ident">loc</span>.<span class="ident">col_start</span>,
         )<span class="question-mark">?</span>;
 
-        <span class="kw">for</span> (<span class="ident">line_no</span>, <span class="ident">line</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">span</span>.<span class="ident">content</span>.<span class="ident">lines</span>().<span class="ident">enumerate</span>() {
+        <span class="kw">for</span> (<span class="ident">line_no</span>, <span class="ident">line</span>) <span class="kw">in</span> <span class="ident">contents</span>.<span class="ident">lines</span>().<span class="ident">enumerate</span>() {
             <span class="macro">writeln!</span>(
                 <span class="ident">f</span>,
                 <span class="string">&quot;{line_no:width$} | {text}&quot;</span>,
                 <span class="ident">width</span> <span class="op">=</span> <span class="ident">INDENT</span>.<span class="ident">len</span>(),
-                <span class="ident">line_no</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">span</span>.<span class="ident">line_start</span> <span class="op">+</span> <span class="ident">line_no</span>,
+                <span class="ident">line_no</span> <span class="op">=</span> <span class="ident">loc</span>.<span class="ident">line_start</span> <span class="op">+</span> <span class="ident">line_no</span>,
                 <span class="ident">text</span> <span class="op">=</span> <span class="ident">line</span>,
             )<span class="question-mark">?</span>;
         }
@@ -376,11 +428,11 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">FormattedError</span> {
+<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">Formatted</span> {
     <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">backtrace</span>.<span class="ident">message</span>
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_errors" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_errors" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
 </body></html>

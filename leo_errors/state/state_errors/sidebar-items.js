@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["StateError","StateError enum that represents all the errors for the `leo-state` crate."]]});

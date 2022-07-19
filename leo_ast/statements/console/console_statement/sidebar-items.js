@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ConsoleStatement",""]]});
+initSidebarItems({"struct":[["ConsoleStatement","A console logging statement like `console.log(...);`."]]});

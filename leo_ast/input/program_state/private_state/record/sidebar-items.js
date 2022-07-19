@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Record","An input section declared in an input file with `[$name]`."]]});

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Build","Compile and build program command."],["BuildOptions","Compiler Options wrapper for Build command. Also used by other commands which require Build command output as their input."]]});
+initSidebarItems({"fn":[["compile_leo_file",""]],"struct":[["Build","Compile and build program command."],["BuildOptions","Compiler Options wrapper for Build command. Also used by other commands which require Build command output as their input."]]});

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ConditionalStatement",""]]});
+initSidebarItems({"struct":[["ConditionalStatement","An `if condition block (else next)?` statement."]]});

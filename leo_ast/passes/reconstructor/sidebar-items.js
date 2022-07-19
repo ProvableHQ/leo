@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["ExpressionReconstructor","A Reconstructor trait for expressions in the AST."],["ProgramReconstructor","A Reconstructor trait for the program represented by the AST."],["StatementReconstructor","A Reconstructor trait for statements in the AST."]]});

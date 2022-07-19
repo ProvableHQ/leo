@@ -242,7 +242,7 @@
 <span id="237">237</span>
 <span id="238">238</span>
 <span id="239">239</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
 <span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
@@ -260,9 +260,8 @@
 
 <span class="kw">use</span> <span class="ident">leo_errors::Result</span>;
 
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">sync::Once</span>};
-
 <span class="kw">use</span> <span class="ident">colored::Colorize</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">sync::Once</span>};
 <span class="kw">use</span> <span class="ident">tracing</span>::{<span class="ident">event::Event</span>, <span class="ident">subscriber::Subscriber</span>};
 <span class="kw">use</span> <span class="ident">tracing_subscriber</span>::{
     <span class="ident">fmt</span>::{<span class="ident">format</span>::<span class="kw-2">*</span>, <span class="ident">time</span>::<span class="kw-2">*</span>, <span class="ident">FmtContext</span>, <span class="ident">FormattedFields</span>},
@@ -275,6 +274,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Format</span><span class="op">&lt;</span><span class="ident">F</span> <span class="op">=</span> <span class="ident">Full</span>, <span class="ident">T</span> <span class="op">=</span> <span class="ident">SystemTime</span><span class="op">&gt;</span> {
     <span class="ident">format</span>: <span class="ident">F</span>,
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span> <span class="comment">// todo: revisit this after merging span module</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">timer</span>: <span class="ident">T</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">ansi</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">display_target</span>: <span class="ident">bool</span>,
@@ -434,7 +434,7 @@
                             .<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">FormattedFields</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span><span class="op">&gt;</span>()
                             .<span class="ident">expect</span>(<span class="string">&quot;Unable to find FormattedFields in extensions; this is a bug&quot;</span>);
                         <span class="kw">if</span> <span class="op">!</span><span class="ident">fields</span>.<span class="ident">is_empty</span>() {
-                            <span class="ident">message</span> <span class="op">+</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{{{}}}&quot;</span>, <span class="ident">fields</span>);
+                            <span class="ident">message</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{message} {{{fields}}}&quot;</span>);
                         }
                     }
                 }
@@ -482,5 +482,5 @@
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_lang" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_lang" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
 </body></html>

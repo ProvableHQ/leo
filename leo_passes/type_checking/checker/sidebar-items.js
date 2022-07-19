@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["BOOLEAN_TYPE",""],["FIELD_TYPE",""],["GROUP_TYPE",""],["INT_TYPES",""],["MAGNITUDE_TYPES",""],["SCALAR_TYPE",""],["SIGNED_INT_TYPES",""]],"fn":[["types_to_string",""]],"struct":[["TypeChecker",""]]});

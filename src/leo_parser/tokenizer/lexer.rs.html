@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `parser/src/tokenizer/lexer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lexer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/parser/src/tokenizer/lexer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lexer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -374,206 +374,7 @@
 <span id="369">369</span>
 <span id="370">370</span>
 <span id="371">371</span>
-<span id="372">372</span>
-<span id="373">373</span>
-<span id="374">374</span>
-<span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
-<span id="379">379</span>
-<span id="380">380</span>
-<span id="381">381</span>
-<span id="382">382</span>
-<span id="383">383</span>
-<span id="384">384</span>
-<span id="385">385</span>
-<span id="386">386</span>
-<span id="387">387</span>
-<span id="388">388</span>
-<span id="389">389</span>
-<span id="390">390</span>
-<span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
-<span id="394">394</span>
-<span id="395">395</span>
-<span id="396">396</span>
-<span id="397">397</span>
-<span id="398">398</span>
-<span id="399">399</span>
-<span id="400">400</span>
-<span id="401">401</span>
-<span id="402">402</span>
-<span id="403">403</span>
-<span id="404">404</span>
-<span id="405">405</span>
-<span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
-<span id="413">413</span>
-<span id="414">414</span>
-<span id="415">415</span>
-<span id="416">416</span>
-<span id="417">417</span>
-<span id="418">418</span>
-<span id="419">419</span>
-<span id="420">420</span>
-<span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
-<span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
-<span id="433">433</span>
-<span id="434">434</span>
-<span id="435">435</span>
-<span id="436">436</span>
-<span id="437">437</span>
-<span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
-<span id="505">505</span>
-<span id="506">506</span>
-<span id="507">507</span>
-<span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
-<span id="512">512</span>
-<span id="513">513</span>
-<span id="514">514</span>
-<span id="515">515</span>
-<span id="516">516</span>
-<span id="517">517</span>
-<span id="518">518</span>
-<span id="519">519</span>
-<span id="520">520</span>
-<span id="521">521</span>
-<span id="522">522</span>
-<span id="523">523</span>
-<span id="524">524</span>
-<span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
 <span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
@@ -589,490 +390,293 @@
 <span class="comment">// You should have received a copy of the GNU General Public License</span>
 <span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tokenizer</span>::{<span class="ident">Char</span>, <span class="ident">Token</span>};
-<span class="kw">use</span> <span class="ident">leo_errors::Span</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tokenizer::Token</span>;
+<span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">ParserError</span>, <span class="prelude-ty">Result</span>};
+<span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">Span</span>, <span class="ident">Symbol</span>};
+
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">tendril::StrTendril</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{
+    <span class="ident">fmt</span>,
+    <span class="ident">iter</span>::{<span class="ident">from_fn</span>, <span class="ident">Peekable</span>},
+};
 
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
-
-<span class="doccomment">///</span>
-<span class="doccomment">/// Returns the length of the given `wanted` string if the string can be eaten, otherwise returns [`None`].</span>
-<span class="doccomment">/// A string can be eaten if its bytes are at the front of the given `input` array.</span>
-<span class="doccomment">///</span>
-<span class="kw">fn</span> <span class="ident">eat</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">wanted</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">wanted</span> <span class="op">=</span> <span class="ident">wanted</span>.<span class="ident">as_bytes</span>();
-    <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">wanted</span>.<span class="ident">len</span>() {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
-    }
-    <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">input</span>[<span class="number">0</span>..<span class="ident">wanted</span>.<span class="ident">len</span>()] <span class="op">==</span> <span class="ident">wanted</span> {
-        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">wanted</span>.<span class="ident">len</span>());
-    }
-    <span class="prelude-val">None</span>
+<span class="doccomment">/// Eat an identifier, that is, a string matching &#39;[a-zA-Z][a-zA-Z\d_]*&#39;, if any.</span>
+<span class="kw">fn</span> <span class="ident">eat_identifier</span>(<span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Peekable</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">char</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="ident">input</span>.<span class="ident">peek</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_ascii_alphabetic</span>())<span class="question-mark">?</span>;
+    <span class="prelude-val">Some</span>(<span class="ident">from_fn</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">input</span>.<span class="ident">next_if</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_ascii_alphanumeric</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="string">&#39;_&#39;</span>)).<span class="ident">collect</span>())
 }
 
-<span class="doccomment">///</span>
-<span class="doccomment">/// Returns a new `StrTendril` string if an identifier can be eaten, otherwise returns [`None`].</span>
-<span class="doccomment">/// An identifier can be eaten if its bytes are at the front of the given `input_tendril` string.</span>
-<span class="doccomment">///</span>
-<span class="kw">fn</span> <span class="ident">eat_identifier</span>(<span class="ident">input_tendril</span>: <span class="kw-2">&amp;</span><span class="ident">StrTendril</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">StrTendril</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">input_tendril</span>.<span class="ident">is_empty</span>() {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
-    }
-    <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">input_tendril</span>[..].<span class="ident">as_bytes</span>();
+<span class="doccomment">/// Checks if a char is a Unicode Bidirectional Override code point</span>
+<span class="kw">fn</span> <span class="ident">is_bidi_override</span>(<span class="ident">c</span>: <span class="ident">char</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">c</span> <span class="kw">as</span> <span class="ident">u32</span>;
+    (<span class="number">0x202A</span>..<span class="op">=</span><span class="number">0x202E</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) <span class="op">|</span><span class="op">|</span> (<span class="number">0x2066</span>..<span class="op">=</span><span class="number">0x2069</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>)
+}
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">input</span>[<span class="number">0</span>].<span class="ident">is_ascii_alphabetic</span>() {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
+<span class="doccomment">/// Ensure that `string` contains no Unicode Bidirectional Override code points.</span>
+<span class="kw">fn</span> <span class="ident">ensure_no_bidi_override</span>(<span class="ident">string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="ident">string</span>.<span class="ident">chars</span>().<span class="ident">any</span>(<span class="ident">is_bidi_override</span>) {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::lexer_bidi_override</span>().<span class="ident">into</span>());
     }
-
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">1usize</span>;
-    <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">input</span>.<span class="ident">len</span>() {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">input</span>[<span class="ident">i</span>].<span class="ident">is_ascii_alphanumeric</span>() <span class="op">&amp;&amp;</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">!</span><span class="op">=</span> <span class="string">b&#39;_&#39;</span> {
-            <span class="kw">break</span>;
-        }
-        <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-    }
-    <span class="prelude-val">Some</span>(<span class="ident">input_tendril</span>.<span class="ident">subtendril</span>(<span class="number">0</span>, <span class="ident">i</span> <span class="kw">as</span> <span class="ident">u32</span>))
+    <span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">impl</span> <span class="ident">Token</span> {
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns a `char` if a character can be eaten, otherwise returns [`None`].</span>
-    <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">eat_char</span>(<span class="ident">input_tendril</span>: <span class="ident">StrTendril</span>, <span class="ident">escaped</span>: <span class="ident">bool</span>, <span class="ident">hex</span>: <span class="ident">bool</span>, <span class="ident">unicode</span>: <span class="ident">bool</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Char</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">input_tendril</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
-        }
+    <span class="comment">// todo: remove this unused code or reference https://github.com/Geal/nom/blob/main/examples/string.rs</span>
+    <span class="comment">// // Eats the parts of the unicode character after \u.</span>
+    <span class="comment">// fn eat_unicode_char(input: &amp;mut Peekable&lt;impl Iterator&lt;Item = char&gt;&gt;) -&gt; Result&lt;(usize, Char)&gt; {</span>
+    <span class="comment">//     let mut unicode = String::new();</span>
+    <span class="comment">//     // Account for the chars &#39;\&#39; and &#39;u&#39;.</span>
+    <span class="comment">//     let mut len = 2;</span>
+    <span class="comment">//</span>
+    <span class="comment">//     if input.next_if_eq(&amp;&#39;{&#39;).is_some() {</span>
+    <span class="comment">//         len += 1;</span>
+    <span class="comment">//     } else if let Some(c) = input.next() {</span>
+    <span class="comment">//         return Err(ParserError::lexer_unopened_escaped_unicode_char(c).into());</span>
+    <span class="comment">//     } else {</span>
+    <span class="comment">//         return Err(ParserError::lexer_empty_input_tendril().into());</span>
+    <span class="comment">//     }</span>
+    <span class="comment">//</span>
+    <span class="comment">//     while let Some(c) = input.next_if(|c| c != &amp;&#39;}&#39;) {</span>
+    <span class="comment">//         len += 1;</span>
+    <span class="comment">//         unicode.push(c);</span>
+    <span class="comment">//     }</span>
+    <span class="comment">//</span>
+    <span class="comment">//     if input.next_if_eq(&amp;&#39;}&#39;).is_some() {</span>
+    <span class="comment">//         len += 1;</span>
+    <span class="comment">//     } else {</span>
+    <span class="comment">//         return Err(ParserError::lexer_unclosed_escaped_unicode_char(unicode).into());</span>
+    <span class="comment">//     }</span>
+    <span class="comment">//</span>
+    <span class="comment">//     // Max of 6 digits.</span>
+    <span class="comment">//     // Minimum of 1 digit.</span>
+    <span class="comment">//     if unicode.len() &gt; 6 || unicode.is_empty() {</span>
+    <span class="comment">//         return Err(ParserError::lexer_invalid_escaped_unicode_length(unicode).into());</span>
+    <span class="comment">//     }</span>
+    <span class="comment">//</span>
+    <span class="comment">//     if let Ok(hex) = u32::from_str_radix(&amp;unicode, 16) {</span>
+    <span class="comment">//         if let Some(character) = std::char::from_u32(hex) {</span>
+    <span class="comment">//             Ok((len, Char::Scalar(character)))</span>
+    <span class="comment">//         } else if hex &lt;= 0x10FFFF {</span>
+    <span class="comment">//             Ok((len, Char::NonScalar(hex)))</span>
+    <span class="comment">//         } else {</span>
+    <span class="comment">//             Err(ParserError::lexer_invalid_character_exceeded_max_value(unicode).into())</span>
+    <span class="comment">//         }</span>
+    <span class="comment">//     } else {</span>
+    <span class="comment">//         Err(ParserError::lexer_expected_valid_hex_char(unicode).into())</span>
+    <span class="comment">//     }</span>
+    <span class="comment">// }</span>
 
-        <span class="kw">if</span> <span class="ident">escaped</span> {
-            <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="ident">input_tendril</span>.<span class="ident">to_string</span>();
-            <span class="kw">let</span> <span class="ident">escaped</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">string</span>[<span class="number">1</span>..<span class="ident">string</span>.<span class="ident">len</span>()];
+    <span class="comment">// // Eats the parts of the hex character after \x.</span>
+    <span class="comment">// fn eat_hex_char(input: &amp;mut Peekable&lt;impl Iterator&lt;Item = char&gt;&gt;) -&gt; Result&lt;(usize, Char)&gt; {</span>
+    <span class="comment">//     let mut hex = String::new();</span>
+    <span class="comment">//     // Account for the chars &#39;\&#39; and &#39;x&#39;.</span>
+    <span class="comment">//     let mut len = 2;</span>
+    <span class="comment">//</span>
+    <span class="comment">//     // First hex character.</span>
+    <span class="comment">//     if let Some(c) = input.next_if(|c| c != &amp;&#39;\&#39;&#39;) {</span>
+    <span class="comment">//         len += 1;</span>
+    <span class="comment">//         hex.push(c);</span>
+    <span class="comment">//     } else if let Some(c) = input.next() {</span>
+    <span class="comment">//         return Err(ParserError::lexer_expected_valid_hex_char(c).into());</span>
+    <span class="comment">//     } else {</span>
+    <span class="comment">//         return Err(ParserError::lexer_empty_input_tendril().into());</span>
+    <span class="comment">//     }</span>
+    <span class="comment">//</span>
+    <span class="comment">//     // Second hex character.</span>
+    <span class="comment">//     if let Some(c) = input.next_if(|c| c != &amp;&#39;\&#39;&#39;) {</span>
+    <span class="comment">//         len += 1;</span>
+    <span class="comment">//         hex.push(c);</span>
+    <span class="comment">//     } else if let Some(c) = input.next() {</span>
+    <span class="comment">//         return Err(ParserError::lexer_expected_valid_hex_char(c).into());</span>
+    <span class="comment">//     } else {</span>
+    <span class="comment">//         return Err(ParserError::lexer_empty_input_tendril().into());</span>
+    <span class="comment">//     }</span>
+    <span class="comment">//</span>
+    <span class="comment">//     if let Ok(ascii_number) = u8::from_str_radix(&amp;hex, 16) {</span>
+    <span class="comment">//         // According to RFC, we allow only values less than 128.</span>
+    <span class="comment">//         if ascii_number &gt; 127 {</span>
+    <span class="comment">//             return Err(ParserError::lexer_expected_valid_hex_char(hex).into());</span>
+    <span class="comment">//         }</span>
+    <span class="comment">//</span>
+    <span class="comment">//         Ok((len, Char::Scalar(ascii_number as char)))</span>
+    <span class="comment">//     } else {</span>
+    <span class="comment">//         Err(ParserError::lexer_expected_valid_hex_char(hex).into())</span>
+    <span class="comment">//     }</span>
+    <span class="comment">// }</span>
 
-            <span class="kw">if</span> <span class="ident">escaped</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
-            }
+    <span class="comment">// fn eat_escaped_char(input: &amp;mut Peekable&lt;impl Iterator&lt;Item = char&gt;&gt;) -&gt; Result&lt;(usize, Char)&gt; {</span>
+    <span class="comment">//     match input.next() {</span>
+    <span class="comment">//         None =&gt; Err(ParserError::lexer_empty_input_tendril().into()),</span>
+    <span class="comment">//         // Length of 2 to account the &#39;\&#39;.</span>
+    <span class="comment">//         Some(&#39;0&#39;) =&gt; Ok((2, Char::Scalar(0 as char))),</span>
+    <span class="comment">//         Some(&#39;t&#39;) =&gt; Ok((2, Char::Scalar(9 as char))),</span>
+    <span class="comment">//         Some(&#39;n&#39;) =&gt; Ok((2, Char::Scalar(10 as char))),</span>
+    <span class="comment">//         Some(&#39;r&#39;) =&gt; Ok((2, Char::Scalar(13 as char))),</span>
+    <span class="comment">//         Some(&#39;\&quot;&#39;) =&gt; Ok((2, Char::Scalar(34 as char))),</span>
+    <span class="comment">//         Some(&#39;\&#39;&#39;) =&gt; Ok((2, Char::Scalar(39 as char))),</span>
+    <span class="comment">//         Some(&#39;\\&#39;) =&gt; Ok((2, Char::Scalar(92 as char))),</span>
+    <span class="comment">//         Some(&#39;u&#39;) =&gt; Self::eat_unicode_char(input),</span>
+    <span class="comment">//         Some(&#39;x&#39;) =&gt; Self::eat_hex_char(input),</span>
+    <span class="comment">//         Some(c) =&gt; Err(ParserError::lexer_expected_valid_escaped_char(c).into()),</span>
+    <span class="comment">//     }</span>
+    <span class="comment">// }</span>
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">character</span>) <span class="op">=</span> <span class="ident">escaped</span>.<span class="ident">chars</span>().<span class="ident">next</span>() {
-                <span class="kw">return</span> <span class="kw">match</span> <span class="ident">character</span> {
-                    <span class="string">&#39;0&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">0</span> <span class="kw">as</span> <span class="ident">char</span>)),
-                    <span class="string">&#39;t&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">9</span> <span class="kw">as</span> <span class="ident">char</span>)),
-                    <span class="string">&#39;n&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">10</span> <span class="kw">as</span> <span class="ident">char</span>)),
-                    <span class="string">&#39;r&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">13</span> <span class="kw">as</span> <span class="ident">char</span>)),
-                    <span class="string">&#39;\&quot;&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">34</span> <span class="kw">as</span> <span class="ident">char</span>)),
-                    <span class="string">&#39;\&#39;&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">39</span> <span class="kw">as</span> <span class="ident">char</span>)),
-                    <span class="string">&#39;\\&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="number">92</span> <span class="kw">as</span> <span class="ident">char</span>)),
-                    <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
-                };
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
-            }
-        }
+    <span class="comment">// /// Returns a `char` if a character can be eaten, otherwise returns [`None`].</span>
+    <span class="comment">// fn eat_char(input: &amp;mut Peekable&lt;impl Iterator&lt;Item = char&gt;&gt;) -&gt; Result&lt;(usize, Char)&gt; {</span>
+    <span class="comment">//     match input.next() {</span>
+    <span class="comment">//         None =&gt; Err(ParserError::lexer_empty_input_tendril().into()),</span>
+    <span class="comment">//         Some(&#39;\\&#39;) =&gt; Self::eat_escaped_char(input),</span>
+    <span class="comment">//         Some(c) =&gt; Ok((c.len_utf8(), Char::Scalar(c))),</span>
+    <span class="comment">//     }</span>
+    <span class="comment">// }</span>
 
-        <span class="kw">if</span> <span class="ident">hex</span> {
-            <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="ident">input_tendril</span>.<span class="ident">to_string</span>();
-            <span class="kw">let</span> <span class="ident">hex_string</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">string</span>[<span class="number">2</span>..<span class="ident">string</span>.<span class="ident">len</span>()];
-
-            <span class="kw">if</span> <span class="ident">hex_string</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
-            }
-
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ascii_number</span>) <span class="op">=</span> <span class="ident">u8::from_str_radix</span>(<span class="ident">hex_string</span>, <span class="number">16</span>) {
-                <span class="comment">// According to RFC, we allow only values less than 128.</span>
-                <span class="kw">if</span> <span class="ident">ascii_number</span> <span class="op">&gt;</span> <span class="number">127</span> {
-                    <span class="kw">return</span> <span class="prelude-val">None</span>;
-                }
-
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="ident">ascii_number</span> <span class="kw">as</span> <span class="ident">char</span>));
-            }
-        }
-
-        <span class="kw">if</span> <span class="ident">unicode</span> {
-            <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="ident">input_tendril</span>.<span class="ident">to_string</span>();
-            <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">string</span>[<span class="ident">string</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>..] <span class="op">!</span><span class="op">=</span> <span class="string">&quot;}&quot;</span> {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
-            }
-
-            <span class="kw">let</span> <span class="ident">unicode_number</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">string</span>[<span class="number">3</span>..<span class="ident">string</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>];
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">unicode_number</span>.<span class="ident">len</span>();
-            <span class="kw">if</span> <span class="op">!</span>(<span class="number">1</span>..<span class="op">=</span><span class="number">6</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">len</span>) {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
-            }
-
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">hex</span>) <span class="op">=</span> <span class="ident">u32::from_str_radix</span>(<span class="ident">unicode_number</span>, <span class="number">16</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">character</span>) <span class="op">=</span> <span class="ident">std::char::from_u32</span>(<span class="ident">hex</span>) {
-                    <span class="comment">// scalar</span>
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="ident">character</span>));
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">hex</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0x10FFFF</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Char::NonScalar</span>(<span class="ident">hex</span>));
-                }
-            }
-        }
-
-        <span class="kw">if</span> <span class="ident">input_tendril</span>.<span class="ident">to_string</span>().<span class="ident">chars</span>().<span class="ident">count</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">character</span>) <span class="op">=</span> <span class="ident">input_tendril</span>.<span class="ident">to_string</span>().<span class="ident">chars</span>().<span class="ident">next</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Char::Scalar</span>(<span class="ident">character</span>));
-        }
-
-        <span class="prelude-val">None</span>
-    }
-
-    <span class="doccomment">///</span>
     <span class="doccomment">/// Returns a tuple: [(integer length, integer token)] if an integer can be eaten, otherwise returns [`None`].</span>
-    <span class="doccomment">/// An integer can be eaten if its bytes are at the front of the given `input_tendril` string.</span>
-    <span class="doccomment">///</span>
-    <span class="kw">fn</span> <span class="ident">eat_integer</span>(<span class="ident">input_tendril</span>: <span class="kw-2">&amp;</span><span class="ident">StrTendril</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span>) {
-        <span class="kw">if</span> <span class="ident">input_tendril</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> (<span class="number">0</span>, <span class="prelude-val">None</span>);
+    <span class="doccomment">/// An integer can be eaten if its bytes are at the front of the given `input` string.</span>
+    <span class="kw">fn</span> <span class="ident">eat_integer</span>(<span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Peekable</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">char</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">Token</span>)<span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">peek</span>().<span class="ident">is_none</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::lexer_empty_input</span>().<span class="ident">into</span>());
         }
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">input_tendril</span>[..].<span class="ident">as_bytes</span>();
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">input</span>[<span class="number">0</span>].<span class="ident">is_ascii_digit</span>() {
-            <span class="kw">return</span> (<span class="number">0</span>, <span class="prelude-val">None</span>);
-        }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">1</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">is_hex</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">input</span>.<span class="ident">len</span>() {
-            <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">input</span>[<span class="number">0</span>] <span class="op">==</span> <span class="string">b&#39;0&#39;</span> <span class="op">&amp;&amp;</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="string">b&#39;x&#39;</span> {
-                <span class="ident">is_hex</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="kw">continue</span>;
-            }
-            <span class="kw">if</span> <span class="ident">is_hex</span> {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">input</span>[<span class="ident">i</span>].<span class="ident">is_ascii_hexdigit</span>() {
-                    <span class="kw">break</span>;
-                }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">input</span>[<span class="ident">i</span>].<span class="ident">is_ascii_digit</span>() {
-                <span class="kw">break</span>;
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">int</span> <span class="op">=</span> <span class="ident">String::new</span>();
+        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">input</span>.<span class="ident">next_if</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_ascii_digit</span>()) {
+            <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;0&#39;</span> <span class="op">&amp;&amp;</span> <span class="macro">matches!</span>(<span class="ident">input</span>.<span class="ident">peek</span>(), <span class="prelude-val">Some</span>(<span class="string">&#39;x&#39;</span>)) {
+                <span class="ident">int</span>.<span class="ident">push</span>(<span class="ident">c</span>);
+                <span class="ident">int</span>.<span class="ident">push</span>(<span class="ident">input</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>());
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::lexer_hex_number_provided</span>(<span class="ident">int</span>).<span class="ident">into</span>());
             }
 
-            <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="ident">int</span>.<span class="ident">push</span>(<span class="ident">c</span>);
         }
-        (<span class="ident">i</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Int</span>(<span class="ident">input_tendril</span>.<span class="ident">subtendril</span>(<span class="number">0</span>, <span class="ident">i</span> <span class="kw">as</span> <span class="ident">u32</span>))))
+
+        <span class="prelude-val">Ok</span>((<span class="ident">int</span>.<span class="ident">len</span>(), <span class="ident">Token::Integer</span>(<span class="ident">int</span>)))
     }
 
-    <span class="doccomment">/// Returns the number of bytes in an emoji via a bit mask.</span>
-    <span class="kw">fn</span> <span class="ident">utf8_byte_count</span>(<span class="ident">byte</span>: <span class="ident">u8</span>) -&gt; <span class="ident">u8</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mask</span> <span class="op">=</span> <span class="number">0x80</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">while</span> <span class="ident">byte</span> <span class="op">&amp;</span> <span class="ident">mask</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="ident">result</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="ident">mask</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">1</span>;
-        }
-        <span class="kw">if</span> <span class="ident">result</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="number">1</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">result</span> <span class="op">&gt;</span> <span class="number">4</span> {
-            <span class="number">4</span>
-        } <span class="kw">else</span> {
-            <span class="ident">result</span>
-        }
-    }
-
-    <span class="doccomment">///</span>
     <span class="doccomment">/// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns [`None`].</span>
-    <span class="doccomment">/// The next token can be eaten if the bytes at the front of the given `input_tendril` string can be scanned into a token.</span>
-    <span class="doccomment">///</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">eat</span>(<span class="ident">input_tendril</span>: <span class="ident">StrTendril</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span>) {
-        <span class="kw">if</span> <span class="ident">input_tendril</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> (<span class="number">0</span>, <span class="prelude-val">None</span>);
+    <span class="doccomment">/// The next token can be eaten if the bytes at the front of the given `input` string can be scanned into a token.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">eat</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">Token</span>)<span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::lexer_empty_input</span>().<span class="ident">into</span>());
         }
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">input_tendril</span>[..].<span class="ident">as_bytes</span>();
-        <span class="kw">match</span> <span class="ident">input</span>[<span class="number">0</span>] {
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">is_ascii_whitespace</span>() =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">None</span>),
-            <span class="string">b&#39;&quot;&#39;</span> =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">1</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">1</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">start</span> <span class="op">=</span> <span class="number">1</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">escaped</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hex</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unicode</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">end</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">string</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
-                <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">input</span>.<span class="ident">len</span>() {
-                    <span class="comment">// If it&#39;s an emoji get the length.</span>
-                    <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">&amp;</span> <span class="number">0x80</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                        <span class="ident">len</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::utf8_byte_count</span>(<span class="ident">input</span>[<span class="ident">i</span>]);
-                        <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> (<span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">-</span> <span class="number">1</span>;
-                    }
+        <span class="kw">let</span> <span class="ident">input_str</span> <span class="op">=</span> <span class="ident">input</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">chars</span>().<span class="ident">peekable</span>();
 
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">in_escape</span> {
-                        <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="string">b&#39;&quot;&#39;</span> {
-                            <span class="ident">end</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                            <span class="kw">break</span>;
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="string">b&#39;\\&#39;</span> {
-                            <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                            <span class="ident">start</span> <span class="op">=</span> <span class="ident">i</span>;
-                            <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                            <span class="kw">continue</span>;
-                        }
-                    } <span class="kw">else</span> {
-                        <span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="comment">// Consumes a single character token.</span>
+        <span class="kw">let</span> <span class="ident">single</span> <span class="op">=</span> <span class="op">|</span><span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Peekable</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="ident">token</span><span class="op">|</span> {
+            <span class="ident">input</span>.<span class="ident">next</span>();
+            <span class="prelude-val">Ok</span>((<span class="number">1</span>, <span class="ident">token</span>))
+        };
+        <span class="comment">// Consumes a character followed by `on` with `then` if found or `els` otherwise.</span>
+        <span class="kw">let</span> <span class="ident">followed_by</span> <span class="op">=</span> <span class="op">|</span><span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Peekable</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="ident">on</span>, <span class="ident">then</span>, <span class="ident">els</span><span class="op">|</span> {
+            <span class="ident">input</span>.<span class="ident">next</span>();
+            <span class="prelude-val">Ok</span>(<span class="kw">if</span> <span class="ident">input</span>.<span class="ident">next_if_eq</span>(<span class="kw-2">&amp;</span><span class="ident">on</span>).<span class="ident">is_some</span>() {
+                (<span class="number">2</span>, <span class="ident">then</span>)
+            } <span class="kw">else</span> {
+                (<span class="number">1</span>, <span class="ident">els</span>)
+            })
+        };
+        <span class="comment">// Consumes a character followed by `on_1`, `on_2` or none. Outputs case_1, case_2, or els.</span>
+        <span class="kw">let</span> <span class="ident">three_cases</span> <span class="op">=</span> <span class="op">|</span><span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Peekable</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="ident">on_1</span>, <span class="ident">case_1</span>, <span class="ident">on_2</span>, <span class="ident">case_2</span>, <span class="ident">els</span><span class="op">|</span> {
+            <span class="ident">input</span>.<span class="ident">next</span>();
+            <span class="prelude-val">Ok</span>(<span class="kw">if</span> <span class="ident">input</span>.<span class="ident">next_if_eq</span>(<span class="kw-2">&amp;</span><span class="ident">on_1</span>).<span class="ident">is_some</span>() {
+                (<span class="number">2</span>, <span class="ident">case_1</span>)
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">next_if_eq</span>(<span class="kw-2">&amp;</span><span class="ident">on_2</span>).<span class="ident">is_some</span>() {
+                (<span class="number">2</span>, <span class="ident">case_2</span>)
+            } <span class="kw">else</span> {
+                (<span class="number">1</span>, <span class="ident">els</span>)
+            })
+        };
 
-                        <span class="kw">match</span> <span class="ident">input</span>[<span class="ident">i</span>] {
-                            <span class="string">b&#39;x&#39;</span> =&gt; {
-                                <span class="ident">hex</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                            }
-                            <span class="string">b&#39;u&#39;</span> =&gt; {
-                                <span class="ident">unicode</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                            }
-                            <span class="string">b&#39;}&#39;</span> <span class="kw">if</span> <span class="ident">unicode</span> =&gt; {
-                                <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                            }
-                            <span class="kw">_</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">hex</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">unicode</span> =&gt; {
-                                <span class="ident">escaped</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                                <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                            }
-                            <span class="kw">_</span> <span class="kw">if</span> <span class="ident">hex</span> <span class="op">&amp;&amp;</span> <span class="ident">len</span> <span class="op">==</span> <span class="number">4</span> =&gt; {
-                                <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                            }
-                            <span class="kw">_</span> =&gt; {}
-                        }
-                    }
-
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">in_escape</span> {
-                        <span class="kw">match</span> <span class="ident"><span class="self">Self</span>::eat_char</span>(
-                            <span class="ident">input_tendril</span>.<span class="ident">subtendril</span>(<span class="ident">start</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u32</span>),
-                            <span class="ident">escaped</span>,
-                            <span class="ident">hex</span>,
-                            <span class="ident">unicode</span>,
-                        ) {
-                            <span class="prelude-val">Some</span>(<span class="ident">character</span>) =&gt; {
-                                <span class="ident">len</span> <span class="op">=</span> <span class="number">1</span>;
-                                <span class="ident">escaped</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                                <span class="ident">hex</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                                <span class="ident">unicode</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                                <span class="ident">string</span>.<span class="ident">push</span>(<span class="ident">character</span>.<span class="ident">into</span>());
-                            }
-                            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> (<span class="number">0</span>, <span class="prelude-val">None</span>),
-                        }
-                    }
-
-                    <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">escaped</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">hex</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">unicode</span> {
-                        <span class="ident">start</span> <span class="op">=</span> <span class="ident">i</span>;
-                    }
-                }
-
-                <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="ident">input</span>.<span class="ident">len</span>() <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">end</span> {
-                    <span class="kw">return</span> (<span class="number">0</span>, <span class="prelude-val">None</span>);
-                }
-
-                <span class="kw">return</span> (<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::StringLit</span>(<span class="ident">string</span>)));
-            }
-            <span class="string">b&#39;\&#39;&#39;</span> =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">1</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">escaped</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hex</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unicode</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">end</span> <span class="op">=</span> <span class="bool-val">false</span>;
-
-                <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">input</span>.<span class="ident">len</span>() {
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">in_escape</span> {
-                        <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="string">b&#39;\&#39;&#39;</span> {
-                            <span class="ident">end</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                            <span class="kw">break</span>;
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="string">b&#39;\\&#39;</span> {
-                            <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        }
-                    } <span class="kw">else</span> {
-                        <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="string">b&#39;x&#39;</span> {
-                            <span class="ident">hex</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="string">b&#39;u&#39;</span> {
-                            <span class="kw">if</span> <span class="ident">input</span>[<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>] <span class="op">==</span> <span class="string">b&#39;{&#39;</span> {
-                                <span class="ident">unicode</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                            } <span class="kw">else</span> {
-                                <span class="kw">return</span> (<span class="number">0</span>, <span class="prelude-val">None</span>);
-                            }
-                        } <span class="kw">else</span> {
-                            <span class="ident">escaped</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        }
-
-                        <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                    }
-
-                    <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                }
-
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">end</span> {
-                    <span class="kw">return</span> (<span class="number">0</span>, <span class="prelude-val">None</span>);
-                }
-
-                <span class="kw">return</span> <span class="kw">match</span> <span class="ident"><span class="self">Self</span>::eat_char</span>(<span class="ident">input_tendril</span>.<span class="ident">subtendril</span>(<span class="number">1</span>, (<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">u32</span>), <span class="ident">escaped</span>, <span class="ident">hex</span>, <span class="ident">unicode</span>) {
-                    <span class="prelude-val">Some</span>(<span class="ident">character</span>) =&gt; (<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::CharLit</span>(<span class="ident">character</span>))),
-                    <span class="prelude-val">None</span> =&gt; (<span class="number">0</span>, <span class="prelude-val">None</span>),
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">peek</span>().<span class="ident">ok_or_else</span>(<span class="ident">ParserError::lexer_empty_input</span>)<span class="question-mark">?</span> {
+            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">is_ascii_whitespace</span>() =&gt; <span class="kw">return</span> <span class="ident">single</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::WhiteSpace</span>),
+            <span class="string">&#39;&quot;&#39;</span> =&gt; {
+                <span class="comment">// Find end string quotation mark.</span>
+                <span class="comment">// Instead of checking each `char` and pushing, we can avoid reallocations.</span>
+                <span class="kw">let</span> <span class="ident">rest</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input_str</span>[<span class="number">1</span>..];
+                <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">rest</span>.<span class="ident">as_bytes</span>().<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">c</span> <span class="op">==</span> <span class="string">b&#39;&quot;&#39;</span>) {
+                    <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::lexer_string_not_closed</span>(<span class="ident">rest</span>).<span class="ident">into</span>()),
+                    <span class="prelude-val">Some</span>(<span class="ident">idx</span>) =&gt; <span class="ident">rest</span>[..<span class="ident">idx</span>].<span class="ident">to_owned</span>(),
                 };
+
+                <span class="ident">ensure_no_bidi_override</span>(<span class="kw-2">&amp;</span><span class="ident">string</span>)<span class="question-mark">?</span>;
+
+                <span class="comment">// + 2 to account for parsing quotation marks.</span>
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">string</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">2</span>, <span class="ident">Token::StaticString</span>(<span class="ident">string</span>)));
             }
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">is_ascii_digit</span>() =&gt; {
-                <span class="kw">return</span> <span class="ident"><span class="self">Self</span>::eat_integer</span>(<span class="kw-2">&amp;</span><span class="ident">input_tendril</span>);
-            }
-            <span class="string">b&#39;!&#39;</span> =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;!=&quot;</span>) {
-                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::NotEq</span>));
-                }
-                <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Not</span>));
-            }
-            <span class="string">b&#39;?&#39;</span> =&gt; {
-                <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Question</span>));
-            }
-            <span class="string">b&#39;&amp;&#39;</span> =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;&amp;&amp;&quot;</span>) {
-                    <span class="comment">// if let Some(inner_len) = eat(&amp;input[len..], &quot;=&quot;) {</span>
-                    <span class="comment">//     return (len + inner_len, Some(Token::AndEq));</span>
-                    <span class="comment">// }</span>
-                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::And</span>));
-                }
-                <span class="comment">// else if let Some(len) = eat(input, &quot;&amp;=&quot;) {</span>
-                <span class="comment">//     return (len, Some(Token::BitAndEq));</span>
-                <span class="comment">// }</span>
-                <span class="comment">// return (1, Some(Token::BitAnd));</span>
-            }
-            <span class="string">b&#39;(&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::LeftParen</span>)),
-            <span class="string">b&#39;)&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::RightParen</span>)),
-            <span class="string">b&#39;_&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Underscore</span>)),
-            <span class="string">b&#39;*&#39;</span> =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;**&quot;</span>) {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">inner_len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>[<span class="ident">len</span>..], <span class="string">&quot;=&quot;</span>) {
-                        <span class="kw">return</span> (<span class="ident">len</span> <span class="op">+</span> <span class="ident">inner_len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::ExpEq</span>));
+            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">is_ascii_digit</span>() =&gt; <span class="kw">return</span> <span class="ident"><span class="self">Self</span>::eat_integer</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>),
+            <span class="string">&#39;!&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">followed_by</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="string">&#39;=&#39;</span>, <span class="ident">Token::NotEq</span>, <span class="ident">Token::Not</span>),
+            <span class="string">&#39;?&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">single</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::Question</span>),
+            <span class="string">&#39;&amp;&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">followed_by</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="string">&#39;&amp;&#39;</span>, <span class="ident">Token::And</span>, <span class="ident">Token::BitwiseAnd</span>),
+            <span class="string">&#39;(&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">single</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::LeftParen</span>),
+            <span class="string">&#39;)&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">single</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::RightParen</span>),
+            <span class="string">&#39;_&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">single</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::Underscore</span>),
+            <span class="string">&#39;*&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">followed_by</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="string">&#39;*&#39;</span>, <span class="ident">Token::Exp</span>, <span class="ident">Token::Mul</span>),
+            <span class="string">&#39;+&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">single</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::Add</span>),
+            <span class="string">&#39;,&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">single</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::Comma</span>),
+            <span class="string">&#39;-&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">followed_by</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="string">&#39;&gt;&#39;</span>, <span class="ident">Token::Arrow</span>, <span class="ident">Token::Minus</span>),
+            <span class="string">&#39;.&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">followed_by</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="string">&#39;.&#39;</span>, <span class="ident">Token::DotDot</span>, <span class="ident">Token::Dot</span>),
+            <span class="string">&#39;/&#39;</span> =&gt; {
+                <span class="ident">input</span>.<span class="ident">next</span>();
+                <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">next_if_eq</span>(<span class="kw-2">&amp;</span><span class="string">&#39;/&#39;</span>).<span class="ident">is_some</span>() {
+                    <span class="comment">// Find the end of the comment line.</span>
+                    <span class="kw">let</span> <span class="ident">comment</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input_str</span>.<span class="ident">as_bytes</span>().<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">c</span> <span class="op">==</span> <span class="string">b&#39;\n&#39;</span>) {
+                        <span class="prelude-val">None</span> =&gt; <span class="ident">input_str</span>,
+                        <span class="prelude-val">Some</span>(<span class="ident">idx</span>) =&gt; <span class="kw-2">&amp;</span><span class="ident">input_str</span>[..<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>],
+                    };
+
+                    <span class="ident">ensure_no_bidi_override</span>(<span class="ident">comment</span>)<span class="question-mark">?</span>;
+                    <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">comment</span>.<span class="ident">len</span>(), <span class="ident">Token::CommentLine</span>(<span class="ident">comment</span>.<span class="ident">to_owned</span>())));
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">next_if_eq</span>(<span class="kw-2">&amp;</span><span class="string">&#39;*&#39;</span>).<span class="ident">is_some</span>() {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">comment</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="string">&quot;/*&quot;</span>);
+
+                    <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">peek</span>().<span class="ident">is_none</span>() {
+                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::lexer_empty_block_comment</span>().<span class="ident">into</span>());
                     }
-                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Exp</span>));
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;*=&quot;</span>) {
-                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::MulEq</span>));
-                }
-                <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Mul</span>));
-            }
-            <span class="string">b&#39;+&#39;</span> =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;+=&quot;</span>) {
-                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::AddEq</span>));
-                }
-                <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Add</span>));
-            }
-            <span class="string">b&#39;,&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Comma</span>)),
-            <span class="string">b&#39;-&#39;</span> =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;-&gt;&quot;</span>) {
-                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Arrow</span>));
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;-=&quot;</span>) {
-                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::MinusEq</span>));
-                }
-                <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Minus</span>));
-            }
-            <span class="string">b&#39;.&#39;</span> =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;...&quot;</span>) {
-                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::DotDotDot</span>));
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;..&quot;</span>) {
-                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::DotDot</span>));
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;.len()&quot;</span>) {
-                    <span class="comment">// FIXME: remove this code once we allow method calls</span>
-                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::LengthOf</span>));
-                }
-                <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Dot</span>));
-            }
-            <span class="string">b&#39;/&#39;</span> =&gt; {
-                <span class="kw">if</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;//&quot;</span>).<span class="ident">is_some</span>() {
-                    <span class="kw">let</span> <span class="ident">eol</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">==</span> <span class="string">b&#39;\n&#39;</span>);
-                    <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">eol</span>) <span class="op">=</span> <span class="ident">eol</span> { <span class="ident">eol</span> <span class="op">+</span> <span class="number">1</span> } <span class="kw">else</span> { <span class="ident">input</span>.<span class="ident">len</span>() };
-                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::CommentLine</span>(<span class="ident">input_tendril</span>.<span class="ident">subtendril</span>(<span class="number">0</span>, <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u32</span>))));
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;/*&quot;</span>).<span class="ident">is_some</span>() {
-                    <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">is_empty</span>() {
-                        <span class="kw">return</span> (<span class="number">0</span>, <span class="prelude-val">None</span>);
+
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ended</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">input</span>.<span class="ident">next</span>() {
+                        <span class="ident">comment</span>.<span class="ident">push</span>(<span class="ident">c</span>);
+                        <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;*&#39;</span> <span class="op">&amp;&amp;</span> <span class="ident">input</span>.<span class="ident">next_if_eq</span>(<span class="kw-2">&amp;</span><span class="string">&#39;/&#39;</span>).<span class="ident">is_some</span>() {
+                            <span class="ident">comment</span>.<span class="ident">push</span>(<span class="string">&#39;/&#39;</span>);
+                            <span class="ident">ended</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                            <span class="kw">break</span>;
+                        }
                     }
-                    <span class="kw">let</span> <span class="ident">eol</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">windows</span>(<span class="number">2</span>).<span class="ident">skip</span>(<span class="number">2</span>).<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>[<span class="number">0</span>] <span class="op">==</span> <span class="string">b&#39;*&#39;</span> <span class="op">&amp;&amp;</span> <span class="ident">x</span>[<span class="number">1</span>] <span class="op">==</span> <span class="string">b&#39;/&#39;</span>);
-                    <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">eol</span>) <span class="op">=</span> <span class="ident">eol</span> { <span class="ident">eol</span> <span class="op">+</span> <span class="number">4</span> } <span class="kw">else</span> { <span class="ident">input</span>.<span class="ident">len</span>() };
-                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::CommentBlock</span>(<span class="ident">input_tendril</span>.<span class="ident">subtendril</span>(<span class="number">0</span>, <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u32</span>))));
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;/=&quot;</span>) {
-                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::DivEq</span>));
+
+                    <span class="ident">ensure_no_bidi_override</span>(<span class="kw-2">&amp;</span><span class="ident">comment</span>)<span class="question-mark">?</span>;
+
+                    <span class="kw">if</span> <span class="op">!</span><span class="ident">ended</span> {
+                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::lexer_block_comment_does_not_close_before_eof</span>(<span class="ident">comment</span>).<span class="ident">into</span>());
+                    }
+                    <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">comment</span>.<span class="ident">len</span>(), <span class="ident">Token::CommentBlock</span>(<span class="ident">comment</span>)));
                 }
-                <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Div</span>));
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="number">1</span>, <span class="ident">Token::Div</span>));
             }
-            <span class="string">b&#39;:&#39;</span> =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;::&quot;</span>) {
-                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::DoubleColon</span>));
-                } <span class="kw">else</span> {
-                    <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Colon</span>));
-                }
-            }
-            <span class="string">b&#39;;&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Semicolon</span>)),
-            <span class="string">b&#39;&lt;&#39;</span> =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;&lt;=&quot;</span>) {
-                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::LtEq</span>));
-                }
-                <span class="comment">// else if let Some(len) = eat(input, &quot;&lt;&lt;&quot;) {</span>
-                <span class="comment">//     if let Some(inner_len) = eat(&amp;input[len..], &quot;=&quot;) {</span>
-                <span class="comment">//         return (len + inner_len, Some(Token::ShlEq));</span>
-                <span class="comment">//     }</span>
-                <span class="comment">//     return (len, Some(Token::Shl));</span>
-                <span class="comment">// }</span>
-                <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Lt</span>));
-            }
-            <span class="string">b&#39;&gt;&#39;</span> =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;&gt;=&quot;</span>) {
-                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::GtEq</span>));
-                }
-                <span class="comment">// else if let Some(len) = eat(input, &quot;&gt;&gt;&quot;) {</span>
-                <span class="comment">//     if let Some(inner_len) = eat(&amp;input[len..], &quot;=&quot;) {</span>
-                <span class="comment">//         return (len + inner_len, Some(Token::ShrEq));</span>
-                <span class="comment">//     } else if let Some(inner_len) = eat(&amp;input[len..], &quot;&gt;&quot;) {</span>
-                <span class="comment">//         if let Some(eq_len) = eat(&amp;input[len + inner_len..], &quot;=&quot;) {</span>
-                <span class="comment">//             return (len + inner_len + eq_len, Some(Token::ShrSignedEq));</span>
-                <span class="comment">//         }</span>
-                <span class="comment">//         return (len + inner_len, Some(Token::ShrSigned));</span>
-                <span class="comment">//     }</span>
-                <span class="comment">//     return (len, Some(Token::Shr));</span>
-                <span class="comment">// }</span>
-                <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Gt</span>));
-            }
-            <span class="string">b&#39;=&#39;</span> =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;==&quot;</span>) {
-                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Eq</span>));
-                }
-                <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Assign</span>));
-            }
-            <span class="string">b&#39;@&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::At</span>)),
-            <span class="string">b&#39;[&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::LeftSquare</span>)),
-            <span class="string">b&#39;]&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::RightSquare</span>)),
-            <span class="string">b&#39;{&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::LeftCurly</span>)),
-            <span class="string">b&#39;}&#39;</span> =&gt; <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::RightCurly</span>)),
-            <span class="string">b&#39;|&#39;</span> =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;||&quot;</span>) {
-                    <span class="comment">// if let Some(inner_len) = eat(&amp;input[len..], &quot;=&quot;) {</span>
-                    <span class="comment">//     return (len + inner_len, Some(Token::OrEq));</span>
-                    <span class="comment">// }</span>
-                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Or</span>));
-                }
-                <span class="comment">// else if let Some(len) = eat(input, &quot;|=&quot;) {</span>
-                <span class="comment">//     return (len, Some(Token::BitOrEq));</span>
-                <span class="comment">// }</span>
-                <span class="comment">// return (1, Some(Token::BitOr));</span>
-            }
-            <span class="comment">// b&#39;^&#39; =&gt; {</span>
-            <span class="comment">//     if let Some(len) = eat(input, &quot;^=&quot;) {</span>
-            <span class="comment">//         return (len, Some(Token::BitXorEq));</span>
-            <span class="comment">//     }</span>
-            <span class="comment">//     return (1, Some(Token::BitXor));</span>
-            <span class="comment">// }</span>
-            <span class="comment">// b&#39;~&#39; =&gt; return (1, Some(Token::BitNot)),</span>
-            <span class="comment">// b&#39;%&#39; =&gt; {</span>
-            <span class="comment">//     if let Some(len) = eat(input, &quot;%=&quot;) {</span>
-            <span class="comment">//         return (len, Some(Token::ModEq));</span>
-            <span class="comment">//     }</span>
-            <span class="comment">//     return (1, Some(Token::Mod));</span>
-            <span class="comment">// }</span>
+            <span class="string">&#39;:&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">followed_by</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="string">&#39;:&#39;</span>, <span class="ident">Token::DoubleColon</span>, <span class="ident">Token::Colon</span>),
+            <span class="string">&#39;;&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">single</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::Semicolon</span>),
+            <span class="string">&#39;&lt;&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">three_cases</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="string">&#39;=&#39;</span>, <span class="ident">Token::LtEq</span>, <span class="string">&#39;&lt;&#39;</span>, <span class="ident">Token::Shl</span>, <span class="ident">Token::Lt</span>),
+            <span class="string">&#39;&gt;&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">three_cases</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="string">&#39;=&#39;</span>, <span class="ident">Token::GtEq</span>, <span class="string">&#39;&gt;&#39;</span>, <span class="ident">Token::Shr</span>, <span class="ident">Token::Gt</span>),
+            <span class="string">&#39;=&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">followed_by</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="string">&#39;=&#39;</span>, <span class="ident">Token::Eq</span>, <span class="ident">Token::Assign</span>),
+            <span class="string">&#39;[&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">single</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::LeftSquare</span>),
+            <span class="string">&#39;]&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">single</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::RightSquare</span>),
+            <span class="string">&#39;{&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">single</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::LeftCurly</span>),
+            <span class="string">&#39;}&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">single</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::RightCurly</span>),
+            <span class="string">&#39;|&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">followed_by</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="string">&#39;|&#39;</span>, <span class="ident">Token::Or</span>, <span class="ident">Token::BitwiseOr</span>),
+            <span class="string">&#39;^&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">single</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::Xor</span>),
             <span class="kw">_</span> =&gt; (),
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ident</span>) <span class="op">=</span> <span class="ident">eat_identifier</span>(<span class="kw-2">&amp;</span><span class="ident">input_tendril</span>) {
-            <span class="kw">return</span> (
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ident</span>) <span class="op">=</span> <span class="ident">eat_identifier</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((
                 <span class="ident">ident</span>.<span class="ident">len</span>(),
-                <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">ident</span> {
+                <span class="comment">// todo: match on symbols instead of hard-coded &amp;str&#39;s</span>
+                <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">ident</span> {
                     <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">starts_with</span>(<span class="string">&quot;aleo1&quot;</span>) =&gt; <span class="ident">Token::AddressLit</span>(<span class="ident">ident</span>),
                     <span class="string">&quot;address&quot;</span> =&gt; <span class="ident">Token::Address</span>,
-                    <span class="string">&quot;as&quot;</span> =&gt; <span class="ident">Token::As</span>,
                     <span class="string">&quot;bool&quot;</span> =&gt; <span class="ident">Token::Bool</span>,
-                    <span class="string">&quot;char&quot;</span> =&gt; <span class="ident">Token::Char</span>,
                     <span class="string">&quot;circuit&quot;</span> =&gt; <span class="ident">Token::Circuit</span>,
                     <span class="string">&quot;console&quot;</span> =&gt; <span class="ident">Token::Console</span>,
                     <span class="string">&quot;const&quot;</span> =&gt; <span class="ident">Token::Const</span>,
+                    <span class="string">&quot;constant&quot;</span> =&gt; <span class="ident">Token::Constant</span>,
                     <span class="string">&quot;else&quot;</span> =&gt; <span class="ident">Token::Else</span>,
                     <span class="string">&quot;false&quot;</span> =&gt; <span class="ident">Token::False</span>,
                     <span class="string">&quot;field&quot;</span> =&gt; <span class="ident">Token::Field</span>,
@@ -1085,28 +689,31 @@
                     <span class="string">&quot;i64&quot;</span> =&gt; <span class="ident">Token::I64</span>,
                     <span class="string">&quot;i128&quot;</span> =&gt; <span class="ident">Token::I128</span>,
                     <span class="string">&quot;if&quot;</span> =&gt; <span class="ident">Token::If</span>,
-                    <span class="string">&quot;import&quot;</span> =&gt; <span class="ident">Token::Import</span>,
                     <span class="string">&quot;in&quot;</span> =&gt; <span class="ident">Token::In</span>,
-                    <span class="string">&quot;input&quot;</span> =&gt; <span class="ident">Token::Input</span>,
+                    <span class="string">&quot;import&quot;</span> =&gt; <span class="ident">Token::Import</span>,
                     <span class="string">&quot;let&quot;</span> =&gt; <span class="ident">Token::Let</span>,
-                    <span class="string">&quot;mut&quot;</span> =&gt; <span class="ident">Token::Mut</span>,
+                    <span class="string">&quot;public&quot;</span> =&gt; <span class="ident">Token::Public</span>,
+                    <span class="string">&quot;record&quot;</span> =&gt; <span class="ident">Token::Record</span>,
                     <span class="string">&quot;return&quot;</span> =&gt; <span class="ident">Token::Return</span>,
-                    <span class="string">&quot;Self&quot;</span> =&gt; <span class="ident">Token::BigSelf</span>,
-                    <span class="string">&quot;self&quot;</span> =&gt; <span class="ident">Token::LittleSelf</span>,
-                    <span class="string">&quot;static&quot;</span> =&gt; <span class="ident">Token::Static</span>,
+                    <span class="string">&quot;scalar&quot;</span> =&gt; <span class="ident">Token::Scalar</span>,
+                    <span class="string">&quot;string&quot;</span> =&gt; <span class="ident">Token::String</span>,
                     <span class="string">&quot;true&quot;</span> =&gt; <span class="ident">Token::True</span>,
-                    <span class="string">&quot;type&quot;</span> =&gt; <span class="ident">Token::Type</span>,
                     <span class="string">&quot;u8&quot;</span> =&gt; <span class="ident">Token::U8</span>,
                     <span class="string">&quot;u16&quot;</span> =&gt; <span class="ident">Token::U16</span>,
                     <span class="string">&quot;u32&quot;</span> =&gt; <span class="ident">Token::U32</span>,
                     <span class="string">&quot;u64&quot;</span> =&gt; <span class="ident">Token::U64</span>,
                     <span class="string">&quot;u128&quot;</span> =&gt; <span class="ident">Token::U128</span>,
-                    <span class="kw">_</span> =&gt; <span class="ident">Token::Ident</span>(<span class="ident">ident</span>),
-                }),
-            );
+                    <span class="kw">_</span> =&gt; <span class="ident">Token::Identifier</span>(<span class="ident">Symbol::intern</span>(<span class="kw-2">&amp;</span><span class="ident">ident</span>)),
+                },
+            ));
         }
 
-        (<span class="number">0</span>, <span class="prelude-val">None</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">ParserError::could_not_lex</span>(
+            <span class="ident">input</span>
+                .<span class="ident">take_while</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">c</span> <span class="op">!</span><span class="op">=</span> <span class="string">&#39;;&#39;</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">c</span>.<span class="ident">is_whitespace</span>())
+                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(),
+        )
+        .<span class="ident">into</span>())
     }
 }
 
@@ -1114,6 +721,16 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SpannedToken</span> {
     <span class="kw">pub</span> <span class="ident">token</span>: <span class="ident">Token</span>,
     <span class="kw">pub</span> <span class="ident">span</span>: <span class="ident">Span</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">SpannedToken</span> {
+    <span class="doccomment">/// Returns a dummy token at a dummy span.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">dummy</span>() -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">token</span>: <span class="ident">Token::Question</span>,
+            <span class="ident">span</span>: <span class="ident">Span::dummy</span>(),
+        }
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">SpannedToken</span> {
@@ -1128,21 +745,6 @@
         <span class="op">&lt;</span><span class="ident">SpannedToken</span> <span class="kw">as</span> <span class="ident">fmt::Display</span><span class="op">&gt;</span><span class="ident">::fmt</span>(<span class="self">self</span>, <span class="ident">f</span>)
     }
 }
-
-<span class="doccomment">///</span>
-<span class="doccomment">/// Returns true if the given string looks like Aleo address.</span>
-<span class="doccomment">/// This method DOES NOT check if the address is valid on-chain.</span>
-<span class="doccomment">///</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">check_address</span>(<span class="ident">address</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-    <span class="comment">// &quot;aleo1&quot; (LOWERCASE_LETTER | ASCII_DIGIT){58}</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">address</span>.<span class="ident">starts_with</span>(<span class="string">&quot;aleo1&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">address</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">63</span> {
-        <span class="kw">return</span> <span class="bool-val">false</span>;
-    }
-    <span class="ident">address</span>
-        .<span class="ident">chars</span>()
-        .<span class="ident">skip</span>(<span class="number">5</span>)
-        .<span class="ident">all</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">is_ascii_lowercase</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">is_ascii_digit</span>())
-}
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_parser" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_parser" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
 </body></html>

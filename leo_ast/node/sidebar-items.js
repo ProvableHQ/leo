@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["Node",""]]});
+initSidebarItems({"trait":[["Node","A node in the AST."]]});

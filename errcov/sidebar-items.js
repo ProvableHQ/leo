@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["collect_error_codes",""],["handle_error",""],["main",""],["run_with_args",""]],"struct":[["Opt",""]]});
+initSidebarItems({"fn":[["main",""]]});

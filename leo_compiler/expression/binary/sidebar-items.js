@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["binary","Enforces a binary expression in a compiled Leo program."]]});

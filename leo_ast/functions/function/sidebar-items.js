@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Function",""]]});
+initSidebarItems({"struct":[["Function","A function definition."]]});

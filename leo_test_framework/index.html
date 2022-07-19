@@ -4,12 +4,90 @@
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../leo_test_framework/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"><a href="#">Crate leo_test_framework</a></h2><div class="sidebar-elems"><div class="block"><ul><li class="version">Version 1.5.3</li><li><a id="all-types" href="all.html">All Items</a></li></div></ul><section><div class="block"><ul><li><a href="#modules">Modules</a></li></ul></div></section><div id="sidebar-vars" data-name="leo_test_framework" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../leo_test_framework/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
-    <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">leo_test_framework</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/leo_test_framework/lib.rs.html#17-37">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The test framework to run integration tests with Leo code text.</p>
+    <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">leo_test_framework</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/leo_test_framework/lib.rs.html#17-38">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The test framework to run integration tests with Leo code text.</p>
 <p>This module contains the <a href="runner/fn.run_tests.html" title="run_tests()"><code>run_tests()</code></a> method which runs all integration tests in the
 root [<code>tests/</code>] directory.</p>
 <p>To regenerate the tests after a syntax change or failing test, delete the [<code>tests/expectations/</code>]
 directory and run the [<code>parser_tests()</code>] test in [<code>parser/src/test.rs</code>].</p>
+<h2 id="leo-test-framework"><a href="#leo-test-framework">Leo Test Framework</a></h2>
+<p>This directory includes the code for the Leo Test Framework.</p>
+<h3 id="how-it-works"><a href="#how-it-works">How it works</a></h3>
+<p>You would first create a rust test file inside the folder of some part of the compiler, as the test framework tests are run by the rust test framework.</p>
+<h4 id="namespaces"><a href="#namespaces">Namespaces</a></h4>
+<p>Then you would create a <code>struct</code> that represents a <code>Namespace</code> where you have to implement the following:</p>
+<h5 id="parse-type"><a href="#parse-type">Parse Type</a></h5>
+<p>Each <code>namespace</code> must have a function, <code>parse_type</code> that returns a <code>ParseType</code>. There are several kinds of <code>ParseTypes</code>:</p>
+<ul>
+<li>Line - Parses the File line one by one.</li>
+<li>ContinuousLines - Parses lines continuously as one item until an empty line is encountered.</li>
+<li>Whole - Parses the whole file.</li>
+</ul>
+<h5 id="run-test"><a href="#run-test">Run Test</a></h5>
+<p>Each <code>namespace</code> must have a function, that runs and dictates how you want the tests for that namespace to work. To make running a test possible you are given information about the test file, like its name, content, path, etc. It allows you to return any type of output to be written to an expectation file as long as it’s serializable.</p>
+<h4 id="runner"><a href="#runner">Runner</a></h4>
+<p>Then you would create a <code>struct</code> that represents a <code>Runner</code> where you have to implement the following:</p>
+<h5 id="resolve-namespace"><a href="#resolve-namespace">Resolve Namespace</a></h5>
+<p>Each test file only needs one runner that represents the namespace resolution to which type of test should be run with a given string.</p>
+<p>i.e.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">struct</span> <span class="ident">ParseTestRunner</span>;
+
+<span class="kw">impl</span> <span class="ident">Runner</span> <span class="kw">for</span> <span class="ident">ParseTestRunner</span> {
+    <span class="kw">fn</span> <span class="ident">resolve_namespace</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Namespace</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="ident">name</span> {
+            <span class="string">&quot;Parse&quot;</span> =&gt; <span class="ident">Box::new</span>(<span class="ident">ParseNamespace</span>),
+            <span class="string">&quot;ParseExpression&quot;</span> =&gt; <span class="ident">Box::new</span>(<span class="ident">ParseExpressionNamespace</span>),
+            <span class="string">&quot;ParseStatement&quot;</span> =&gt; <span class="ident">Box::new</span>(<span class="ident">ParseStatementNamespace</span>),
+            <span class="string">&quot;Serialize&quot;</span> =&gt; <span class="ident">Box::new</span>(<span class="ident">SerializeNamespace</span>),
+            <span class="string">&quot;Input&quot;</span> =&gt; <span class="ident">Box::new</span>(<span class="ident">InputNamespace</span>),
+            <span class="string">&quot;Token&quot;</span> =&gt; <span class="ident">Box::new</span>(<span class="ident">TokenNamespace</span>),
+            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
+        })
+    }
+}</code></pre></div>
+<h4 id="rust-test-function"><a href="#rust-test-function">Rust test Function</a></h4>
+<p>A rust test function that calls the framework over the runner, as well as the name of the directory, is the last thing necessary.</p>
+<p>i.e.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">test</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parser_tests</span>() {
+	<span class="comment">// The second argument indicates the directory where tests(.leo files)</span>
+	<span class="comment">// would be found(tests/parser).</span>
+    <span class="ident">leo_test_framework::run_tests</span>(<span class="kw-2">&amp;</span><span class="ident">ParseTestRunner</span>, <span class="string">&quot;parser&quot;</span>);
+}
+</code></pre></div>
+<h4 id="clearing-expectations"><a href="#clearing-expectations">Clearing Expectations</a></h4>
+<p>To do so you can simply remove the corresponding <code>.out</code> file in the <code>tests/expectations</code> directory. Doing so will cause the output to be regenerated. There is an easier way to mass change them as well discussed in the next section.</p>
+<h4 id="test-framework-environment-variables"><a href="#test-framework-environment-variables">Test Framework Environment Variables</a></h4>
+<p>To make several aspects of the test framework easier to work with there are several environment variables:</p>
+<ul>
+<li><code>TEST_FILTER</code> - Now runs all tests in the given directory, or the exact given test.
+<ul>
+<li><code>TEST_FILTER=&quot;address&quot; cargo test -p leo-compiler</code> will run all tests in the located in <code>tests/compiler/address</code>.</li>
+<li><code>TEST_FILTER=&quot;address/branch.leo&quot; cargo test -p leo-compiler</code> will run the test located in <code>tests/compiler/address/branch.leo</code>.</li>
+</ul>
+</li>
+<li><code>CLEAR_LEO_TEST_EXPECTATIONS</code> - which if set clears all current expectations for the tests being run and regenerates them all.</li>
+</ul>
+<p>To set environment variables please look at your Shell(bash/powershell/cmd/fish/etc) specific implementation for doing so</p>
+<p><strong>NOTE</strong>: Don’t forget to clear the environment variable after running it with that setting, or set a temporary env variable if your shell supports it.</p>
+<h4 id="benchmarking"><a href="#benchmarking">Benchmarking</a></h4>
+<p>The test-framework is now used to easily benchmark Leo, by running on all compiler tests that have the <code>Pass</code> expectation.
+Additionally, you can create additional benchmark tests by adding them in the test directory by giving them the namespace of <code>Bench</code>.</p>
+<h5 id="running"><a href="#running">Running</a></h5>
+<p>There are currently four different kinds of benchmarks to run:</p>
+<ul>
+<li>parse - benchmarks parsing of Leo files.</li>
+<li>symbol - benchmarks the symbol table generation pass.</li>
+<li>type - benchmarks the type checking pass.</li>
+<li>full - benchmarks all aspects of compilation.</li>
+</ul>
+<p>To run the benchmarks the command is <code>cargo bench -p leo-test-framework</code>.
+This by default runs all the above-mentioned benchmark suites.
+To specify a specific one you would do <code>cargo bench -p leo-test-framework parse</code> or any of the above-listed benchmark suites.</p>
+<p><strong>NOTE</strong> Benchmarks are affected by the <code>TEST_FILTER</code> environment variable.
+They are also machine dependent on your pc and are impacted by other open applications.</p>
 </div></details><h2 id="reexports" class="small-section-header"><a href="#reexports">Re-exports</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left import-item"><code>pub use <a class="mod" href="runner/index.html" title="mod leo_test_framework::runner">runner</a>::*;</code></div><div class="item-right docblock-short"></div></div></div><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2>
-<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="error/index.html" title="leo_test_framework::error mod">error</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="fetch/index.html" title="leo_test_framework::fetch mod">fetch</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="output/index.html" title="leo_test_framework::output mod">output</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="runner/index.html" title="leo_test_framework::runner mod">runner</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="test/index.html" title="leo_test_framework::test mod">test</a></div><div class="item-right docblock-short"></div></div></div></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="leo_test_framework" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="error/index.html" title="leo_test_framework::error mod">error</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="fetch/index.html" title="leo_test_framework::fetch mod">fetch</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="output/index.html" title="leo_test_framework::output mod">output</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="runner/index.html" title="leo_test_framework::runner mod">runner</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="test/index.html" title="leo_test_framework::test mod">test</a></div><div class="item-right docblock-short"></div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="leo_test_framework" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
 </body></html>

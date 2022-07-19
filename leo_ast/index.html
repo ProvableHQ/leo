@@ -26,17 +26,17 @@ It stores the path to an import and what is being imported.</p>
 <p><strong>NOTE</strong>: The import does not contain the source code of the imported Leo Program.</p>
 <h5 id="circuits"><a href="#circuits">Circuits</a></h5>
 <p>A circuit node represents a defined Circuit in a Leo Program.
-A order preserving map of these are stored on the Program.
-Contains the Circuit’s name, as well as it’s members.
-The members are a function, or a variable.
-For both of them the Circuit preserves their names.</p>
+An order-preserving map of these are stored on the Program.
+Contains the Circuit’s name, as well as its members.
+The members are a function, or a variable, or a constant.
+For all of them the Circuit preserves their names.</p>
 <h5 id="decorators"><a href="#decorators">Decorators</a></h5>
 <p>An annotation node is a decorator that can be applied to a function.
 Stored on the function themselves despite being a top-level node.
 The node stores the name of the annotation, as well as any args passed to it.</p>
 <h5 id="functions"><a href="#functions">Functions</a></h5>
 <p>A function node represents a defined function in a Leo Program.
-A order preserving map of these are stored on the Program.
+An order-preserving map of these are stored on the Program.
 A function node stores the following information:</p>
 <ul>
 <li>The annotations applied to the function.</li>
@@ -47,7 +47,7 @@ A function node stores the following information:</p>
 </ul>
 <h5 id="global-consts"><a href="#global-consts">Global Consts</a></h5>
 <p>A global const is a bit special and has no special node for itself, but rather is a definition statement.
-A order preserving map of these are stored on the Program.</p>
+An order-preserving map of these are stored on the Program.</p>
 <h4 id="types"><a href="#types">Types</a></h4>
 <p>The different types in a Leo Program.
 Types themselves are not a node, but rather just information to be stored on a node.</p>
@@ -58,7 +58,7 @@ Types themselves are not a node, but rather just information to be stored on a n
 <h5 id="char"><a href="#char">Char</a></h5>
 <p>The char type resents a character from the inclusive range [0, 10FFFF].</p>
 <h5 id="field"><a href="#field">Field</a></h5>
-<p>The field type an unsigned number up to the modulus length of the field.</p>
+<p>The field type an unsigned number less than the modulus of the field.</p>
 <h5 id="group"><a href="#group">Group</a></h5>
 <p>The group type a set of affine points on the elliptic curve passed.</p>
 <h5 id="integertype"><a href="#integertype">IntegerType</a></h5>
@@ -84,11 +84,16 @@ Types themselves are not a node, but rather just information to be stored on a n
 <h6 id="i128"><a href="#i128">I128</a></h6>
 <p>A integer in the inclusive range [-170141183460469231731687303715884105728, 170141183460469231731687303715884105727].</p>
 <h5 id="array"><a href="#array">Array</a></h5>
-<p>The array type contains another type, then the number of elements of that type greater than 0.</p>
+<p>The array type contains another type,
+then the number of elements of that type greater than 0
+for monodimensional arrays,
+or a list of such numbers of elements
+for multidimensional arrays.</p>
 <h5 id="tuple"><a href="#tuple">Tuple</a></h5>
 <p>The tuple type contains n types, where n is greater than or equal to 0.</p>
-<h5 id="circuit"><a href="#circuit">Circuit</a></h5>
-<p>The circuit type, every circuit represents a different type.</p>
+<h5 id="identifier"><a href="#identifier">Identifier</a></h5>
+<p>An identifier type is either a circuit type or a type alias;
+every circuit type represents a different type.</p>
 <h5 id="selftype"><a href="#selftype">SelfType</a></h5>
 <p>The self type represented by <code>Self</code> and only usable inside a circuit.</p>
 <h4 id="statements"><a href="#statements">Statements</a></h4>
@@ -101,9 +106,9 @@ Types themselves are not a node, but rather just information to be stored on a n
 <li><strong>=</strong></li>
 <li><strong>+=</strong></li>
 <li><strong>-=</strong></li>
-<li><strong>=</strong></li>
+<li><strong>*=</strong></li>
 <li><strong>/=</strong></li>
-<li><strong>=</strong></li>
+<li><strong>**=</strong></li>
 <li><strong>&amp;&amp;=</strong></li>
 <li><strong>||=</strong></li>
 </ul>
@@ -137,7 +142,7 @@ Types themselves are not a node, but rather just information to be stored on a n
 <li><code>const</code> for cosntant definitions.</li>
 </ul>
 </li>
-<li>The names of the varaibles defined.</li>
+<li>The names of the variables defined.</li>
 <li>The optional type.</li>
 <li>The values to be assigned to the varaibles.</li>
 </ul>
@@ -151,7 +156,8 @@ Types themselves are not a node, but rather just information to be stored on a n
 <ul>
 <li>The loop iterator variable name.</li>
 <li>The expression to define the starting loop value.</li>
-<li>The expression to define the stoping loop value.</li>
+<li>The expression to define the stopping loop value.</li>
+<li>A flag indicating whether the stopping value is inclusive or not.</li>
 <li>The block to run for the loop.</li>
 </ul>
 <h5 id="return-statements"><a href="#return-statements">Return Statements</a></h5>
@@ -176,7 +182,7 @@ Types themselves are not a node, but rather just information to be stored on a n
 <h5 id="arrayinline-expressions"><a href="#arrayinline-expressions">ArrayInline Expressions</a></h5>
 <p>An array inline expression node stores the following:</p>
 <ul>
-<li>The elments of an array which is either an spread or an expression.</li>
+<li>The elements of an array, each of which is either a spread or an expression.</li>
 </ul>
 <h5 id="arrayrangeaccess-expressions"><a href="#arrayrangeaccess-expressions">ArrayRangeAccess Expressions</a></h5>
 <p>An array range access expression node stores the following:</p>
@@ -218,19 +224,21 @@ Types themselves are not a node, but rather just information to be stored on a n
 <p>A circuit init expression node stores the following:</p>
 <ul>
 <li>The name of the circuit expression being initialized.</li>
-<li>The aruments a list of expressions.</li>
+<li>The arguments a list of expressions.</li>
 </ul>
-<h5 id="circuitmemberaccess-expressions"><a href="#circuitmemberaccess-expressions">CircuitMemberAccess Expressions</a></h5>
-<p>A circuit member access expression node stores the following:</p>
+<h5 id="memberaccess-expressions"><a href="#memberaccess-expressions">MemberAccess Expressions</a></h5>
+<p>A member access expression node stores the following:</p>
 <ul>
-<li>The circut expression being accessed.</li>
-<li>The name of the expression being accessed from the circuit.</li>
+<li>The expression being accessed.</li>
+<li>The name of the member being accessed.</li>
+<li>The optional inferred type.</li>
 </ul>
-<h5 id="circuitstaticfunctionaccess-expressions"><a href="#circuitstaticfunctionaccess-expressions">CircuitStaticFunctionAccess Expressions</a></h5>
-<p>A circuit static function access expression node stores the following:</p>
+<h5 id="staticaccess-expressions"><a href="#staticaccess-expressions">StaticAccess Expressions</a></h5>
+<p>A static function access expression node stores the following:</p>
 <ul>
-<li>The circut expression being accessed.</li>
-<li>The name of the expression being statically accessed from the circuit.</li>
+<li>The expression being accessed.</li>
+<li>The name of the member being statically accessed.</li>
+<li>The optional inferred type.</li>
 </ul>
 <h5 id="identifier-expressions"><a href="#identifier-expressions">Identifier Expressions</a></h5>
 <p>An identifer expression node stores the following:</p>
@@ -279,21 +287,20 @@ Types themselves are not a node, but rather just information to be stored on a n
 <li>String and its value and span.</li>
 </ul>
 </div></details><h2 id="reexports" class="small-section-header"><a href="#reexports">Re-exports</a></h2>
-<div class="item-table"><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="aliases/index.html" title="mod leo_ast::aliases">aliases</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="annotation/index.html" title="mod leo_ast::annotation">annotation</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="circuits/index.html" title="mod leo_ast::circuits">circuits</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="chars/index.html" title="mod leo_ast::chars">chars</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="common/index.html" title="mod leo_ast::common">common</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="expression/index.html" title="mod leo_ast::expression">expression</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="functions/index.html" title="mod leo_ast::functions">functions</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="groups/index.html" title="mod leo_ast::groups">groups</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="imports/index.html" title="mod leo_ast::imports">imports</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="input/index.html" title="mod leo_ast::input">input</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="pass/index.html" title="mod leo_ast::pass">pass</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="program/index.html" title="mod leo_ast::program">program</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="reducer/index.html" title="mod leo_ast::reducer">reducer</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="statements/index.html" title="mod leo_ast::statements">statements</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="types/index.html" title="mod leo_ast::types">types</a>::*;</code></div><div class="item-right docblock-short"></div></div></div><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2>
-<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="aliases/index.html" title="leo_ast::aliases mod">aliases</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="annotation/index.html" title="leo_ast::annotation mod">annotation</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="chars/index.html" title="leo_ast::chars mod">chars</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="circuits/index.html" title="leo_ast::circuits mod">circuits</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="common/index.html" title="leo_ast::common mod">common</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="expression/index.html" title="leo_ast::expression mod">expression</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="functions/index.html" title="leo_ast::functions mod">functions</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="groups/index.html" title="leo_ast::groups mod">groups</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="imports/index.html" title="leo_ast::imports mod">imports</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="input/index.html" title="leo_ast::input mod">input</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="node/index.html" title="leo_ast::node mod">node</a><span title="Restricted Visibility">&nbsp;🔒</span> </div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="pass/index.html" title="leo_ast::pass mod">pass</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="program/index.html" title="leo_ast::program mod">program</a></div><div class="item-right docblock-short"><p>A Leo program consists of import, circuit, and function definitions.
+<div class="item-table"><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="access/index.html" title="mod leo_ast::access">access</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="circuits/index.html" title="mod leo_ast::circuits">circuits</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="common/index.html" title="mod leo_ast::common">common</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="expressions/index.html" title="mod leo_ast::expressions">expressions</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="functions/index.html" title="mod leo_ast::functions">functions</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="groups/index.html" title="mod leo_ast::groups">groups</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="input/index.html" title="mod leo_ast::input">input</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="passes/index.html" title="mod leo_ast::passes">passes</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="program/index.html" title="mod leo_ast::program">program</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="statements/index.html" title="mod leo_ast::statements">statements</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="types/index.html" title="mod leo_ast::types">types</a>::*;</code></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left import-item"><code>pub use self::<a class="mod" href="value/index.html" title="mod leo_ast::value">value</a>::*;</code></div><div class="item-right docblock-short"></div></div></div><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="access/index.html" title="leo_ast::access mod">access</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="circuits/index.html" title="leo_ast::circuits mod">circuits</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="common/index.html" title="leo_ast::common mod">common</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="expressions/index.html" title="leo_ast::expressions mod">expressions</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="functions/index.html" title="leo_ast::functions mod">functions</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="groups/index.html" title="leo_ast::groups mod">groups</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="input/index.html" title="leo_ast::input mod">input</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="node/index.html" title="leo_ast::node mod">node</a><span title="Restricted Visibility">&nbsp;🔒</span> </div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="passes/index.html" title="leo_ast::passes mod">passes</a></div><div class="item-right docblock-short"><p>This module contains both a Reducer and Visitor design pattern.
+These both iterate over the AST.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="program/index.html" title="leo_ast::program mod">program</a></div><div class="item-right docblock-short"><p>A Leo program consists of import, circuit, and function definitions.
 Each defined type consists of ast statements and expressions.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="reducer/index.html" title="leo_ast::reducer mod">reducer</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="statements/index.html" title="leo_ast::statements mod">statements</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="types/index.html" title="leo_ast::types mod">types</a></div><div class="item-right docblock-short"></div></div></div><h2 id="macros" class="small-section-header"><a href="#macros">Macros</a></h2>
-<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="macro" href="macro.main_input_section.html" title="leo_ast::main_input_section macro">main_input_section</a></div><div class="item-right docblock-short"><p>Constructs an input section to store data parsed from a Leo input file.
-Constructs sections that pass variables directly to the main function.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="macro" href="macro.record_input_section.html" title="leo_ast::record_input_section macro">record_input_section</a></div><div class="item-right docblock-short"><p>Constructs an input section to store data parsed from a Leo input file.
-Constructs sections that pass variables to the main function through the input keyword.</p>
-</div></div></div><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="statements/index.html" title="leo_ast::statements mod">statements</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="types/index.html" title="leo_ast::types mod">types</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="value/index.html" title="leo_ast::value mod">value</a></div><div class="item-right docblock-short"></div></div></div><h2 id="macros" class="small-section-header"><a href="#macros">Macros</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="macro" href="macro.simple_node_impl.html" title="leo_ast::simple_node_impl macro">simple_node_impl</a></div><div class="item-right docblock-short"></div></div></div><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Ast.html" title="leo_ast::Ast struct">Ast</a></div><div class="item-right docblock-short"><p>The abstract syntax tree (AST) for a Leo program.</p>
 </div></div></div><h2 id="traits" class="small-section-header"><a href="#traits">Traits</a></h2>
-<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.Node.html" title="leo_ast::Node trait">Node</a></div><div class="item-right docblock-short"></div></div></div><h2 id="functions-1" class="small-section-header"><a href="#functions-1">Functions</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.Node.html" title="leo_ast::Node trait">Node</a></div><div class="item-right docblock-short"><p>A node in the AST.</p>
+</div></div></div><h2 id="functions-1" class="small-section-header"><a href="#functions-1">Functions</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.normalize_json_value.html" title="leo_ast::normalize_json_value fn">normalize_json_value</a><span title="Restricted Visibility">&nbsp;🔒</span> </div><div class="item-right docblock-short"><p>Helper function to normalize AST JSON into a form compatible with tgc.
 This function will traverse the original JSON value and produce a new
 one under the following rules:</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.remove_key_from_json.html" title="leo_ast::remove_key_from_json fn">remove_key_from_json</a><span title="Restricted Visibility">&nbsp;🔒</span> </div><div class="item-right docblock-short"><p>Helper function to recursively filter keys from AST JSON</p>
-</div></div></div></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="leo_ast" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
+</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="leo_ast" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
 </body></html>

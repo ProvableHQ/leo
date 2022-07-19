@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["ParseType",""]],"fn":[["run_tests",""]],"struct":[["Test",""]],"trait":[["Namespace",""],["Runner",""]]});
+initSidebarItems({"enum":[["ParseType",""]],"fn":[["get_benches","returns (name, content) for all benchmark samples"],["is_env_var_set",""],["run_tests",""],["set_hook",""],["take_hook",""]],"struct":[["Test",""],["TestCases",""]],"trait":[["Namespace",""],["Runner",""]]});

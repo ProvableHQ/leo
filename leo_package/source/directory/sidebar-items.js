@@ -1,1 +1,1 @@
-initSidebarItems({"static":[["SOURCE_DIRECTORY_NAME",""],["SOURCE_FILE_EXTENSION",""]],"struct":[["SourceDirectory",""]]});
+initSidebarItems({"static":[["SOURCE_DIRECTORY_NAME",""]],"struct":[["SourceDirectory",""]]});

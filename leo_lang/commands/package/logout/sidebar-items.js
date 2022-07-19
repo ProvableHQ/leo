@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Logout","Remove credentials for Aleo PM from .leo directory"]]});

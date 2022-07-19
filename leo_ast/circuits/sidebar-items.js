@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["circuit",""],["circuit_implied_variable_definition",""],["circuit_member",""],["circuit_variable_definition",""]]});
+initSidebarItems({"mod":[["circuit",""],["circuit_member",""]]});
