@@ -17,7 +17,7 @@
 use crate::StaticSingleAssigner;
 
 use leo_ast::{
-    BinaryExpression, CallExpression, CircuitExpression, CircuitVariableInitializer, Expression,
+    CallExpression, CircuitExpression, CircuitVariableInitializer, Expression,
     ExpressionReconstructor, Identifier,
 };
 use leo_span::Symbol;
