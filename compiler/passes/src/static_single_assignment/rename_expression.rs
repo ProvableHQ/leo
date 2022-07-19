@@ -16,7 +16,10 @@
 
 use crate::StaticSingleAssigner;
 
-use leo_ast::{CallExpression, Expression, ExpressionReconstructor, Identifier};
+use leo_ast::{
+    BinaryExpression, CallExpression, CircuitExpression, CircuitVariableInitializer, Expression,
+    ExpressionReconstructor, Identifier,
+};
 use leo_span::Symbol;
 
 impl<'a> ExpressionReconstructor for StaticSingleAssigner<'a> {
@@ -26,6 +29,7 @@ impl<'a> ExpressionReconstructor for StaticSingleAssigner<'a> {
     fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
         (
             Expression::Call(CallExpression {
+                // Note that we do not rename the function name.
                 function: input.function,
                 arguments: input
                     .arguments
@@ -33,6 +37,39 @@ impl<'a> ExpressionReconstructor for StaticSingleAssigner<'a> {
                     .map(|arg| self.reconstruct_expression(arg).0)
                     .collect(),
                 span: input.span,
+            }),
+            Default::default(),
+        )
+    }
+
+    // TODO: Consider moving this functionality to the Reconstructor.
+    /// Produces a new `CircuitExpression` with renamed variables.
+    fn reconstruct_circuit_init(&mut self, input: CircuitExpression) -> (Expression, Self::AdditionalOutput) {
+        (
+            Expression::Circuit(CircuitExpression {
+                name: input.name,
+                span: input.span,
+                members: input
+                    .members
+                    .into_iter()
+                    .map(|arg| match &arg.expression {
+                        // If the expression is None, then it is a `CircuitVariableInitializer` of the form `<id>,`.
+                        // In this case, we must reconstruct the identifier.
+                        None => match self.reconstruct_identifier(arg.identifier).0 {
+                            Expression::Identifier(identifier) => CircuitVariableInitializer {
+                                identifier,
+                                expression: None,
+                            },
+                            _ => unreachable!("`self.reconstruct_identifier` always returns a `Identifier`."),
+                        },
+                        // If expression is not `None`, then it is a `CircuitVariableInitializer` of the form `<id>: <expr>,`.
+                        // In this case, we must reconstruct the expression.
+                        Some(_) => CircuitVariableInitializer {
+                            identifier: arg.identifier,
+                            expression: Some(self.reconstruct_expression(arg.expression.unwrap()).0),
+                        },
+                    })
+                    .collect(),
             }),
             Default::default(),
         )
