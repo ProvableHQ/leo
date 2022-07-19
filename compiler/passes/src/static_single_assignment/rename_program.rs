@@ -18,8 +18,8 @@ use crate::StaticSingleAssigner;
 
 use leo_ast::{Function, FunctionInput, ProgramReconstructor, StatementReconstructor};
 
-impl<'a> ProgramReconstructor for StaticSingleAssigner<'a> {
-    /// Reduces the `Function`s in the `Program`, while allocating the appropriate `RenameTable`s.
+impl ProgramReconstructor for StaticSingleAssigner<'_> {
+    /// Reconstructs the `Function`s in the `Program`, while allocating the appropriate `RenameTable`s.
     fn reconstruct_function(&mut self, function: Function) -> Function {
         // Allocate a `RenameTable` for the function.
         self.push();
@@ -37,6 +37,7 @@ impl<'a> ProgramReconstructor for StaticSingleAssigner<'a> {
             }
         }
 
+        // Rename the function's body.
         let block = self.reconstruct_block(function.block);
 
         // Remove the `RenameTable` for the function.

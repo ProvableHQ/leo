@@ -21,7 +21,7 @@ use leo_ast::{
 };
 use leo_span::Symbol;
 
-impl<'a> ExpressionReconstructor for StaticSingleAssigner<'a> {
+impl ExpressionReconstructor for StaticSingleAssigner<'_> {
     type AdditionalOutput = ();
 
     /// Reconstructs `CallExpression` without visiting the function name.
@@ -41,7 +41,6 @@ impl<'a> ExpressionReconstructor for StaticSingleAssigner<'a> {
         )
     }
 
-    // TODO: Consider moving this functionality to the Reconstructor.
     /// Produces a new `CircuitExpression` with renamed variables.
     fn reconstruct_circuit_init(&mut self, input: CircuitExpression) -> (Expression, Self::AdditionalOutput) {
         (
@@ -75,37 +74,29 @@ impl<'a> ExpressionReconstructor for StaticSingleAssigner<'a> {
     }
 
     /// Produces a new `Identifier` with a unique name.
-    /// If this function is invoked on the left-hand side of a definition or assignment, a new unique name is introduced.
-    /// Otherwise, we look up the previous name in the `RenameTable`.
     fn reconstruct_identifier(&mut self, identifier: Identifier) -> (Expression, Self::AdditionalOutput) {
-        match self.is_lhs {
+        let name = match self.is_lhs {
+            // If reconstructing the left-hand side of a definition or assignment, a new unique name is introduced.
             true => {
-                let new_name = Symbol::intern(&format!("{}${}", identifier.name, self.get_unique_id()));
+                let new_name = Symbol::intern(&format!("{}${}", identifier.name, self.unique_id()));
                 self.rename_table.update(identifier.name, new_name);
-                (
-                    Expression::Identifier(Identifier {
-                        name: new_name,
-                        span: identifier.span,
-                    }),
-                    Default::default(),
+                new_name
+            }
+            // Otherwise, we look up the previous name in the `RenameTable`.
+            false => *self.rename_table.lookup(identifier.name).unwrap_or_else(|| {
+                panic!(
+                    "SSA Error: An entry in the `RenameTable` for {} should exist.",
+                    identifier.name
                 )
-            }
-            false => {
-                match self.rename_table.lookup(&identifier.name) {
-                    // TODO: Better error.
-                    None => panic!(
-                        "Error: A unique name for the variable {} is not defined.",
-                        identifier.name
-                    ),
-                    Some(name) => (
-                        Expression::Identifier(Identifier {
-                            name: *name,
-                            span: identifier.span,
-                        }),
-                        Default::default(),
-                    ),
-                }
-            }
-        }
+            }),
+        };
+
+        (
+            Expression::Identifier(Identifier {
+                name,
+                span: identifier.span,
+            }),
+            Default::default(),
+        )
     }
 }

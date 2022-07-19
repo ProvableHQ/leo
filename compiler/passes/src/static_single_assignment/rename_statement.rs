@@ -25,14 +25,13 @@ use leo_span::{Span, Symbol};
 
 use indexmap::IndexSet;
 
-impl<'a> StatementReconstructor for StaticSingleAssigner<'a> {
+impl StatementReconstructor for StaticSingleAssigner<'_> {
     /// Reconstructs the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
     fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> Statement {
         self.is_lhs = true;
-        // TODO: Change to support a vector of identifiers.
         let identifier = match self.reconstruct_identifier(definition.variable_name).0 {
             Expression::Identifier(identifier) => identifier,
-            _ => unreachable!("`reconstruct_identifier` will always return an `Identifier`."),
+            _ => unreachable!("`self.reconstruct_identifier` will always return an `Identifier`."),
         };
         self.is_lhs = false;
 
@@ -49,7 +48,6 @@ impl<'a> StatementReconstructor for StaticSingleAssigner<'a> {
     ///   `x += y * 3` becomes `x = x + (y * 3)`
     ///   `x &= y | 1` becomes `x = x & (y | 1)`
     ///   `x = y + 3` remains `x = y + 3`
-    // TODO: Verify that these are expected semantics.
     fn reconstruct_assign(&mut self, assign: AssignStatement) -> Statement {
         self.is_lhs = true;
         let place = self.reconstruct_expression(assign.place).0;
@@ -91,16 +89,23 @@ impl<'a> StatementReconstructor for StaticSingleAssigner<'a> {
         }))
     }
 
+    /// Reconstructs a `ConditionalStatement`, producing phi functions for variables written in the if and else-blocks.
     fn reconstruct_conditional(&mut self, conditional: ConditionalStatement) -> Statement {
         let condition = self.reconstruct_expression(conditional.condition).0;
 
         // Instantiate a `RenameTable` for the if-block.
         self.push();
+
+        // Reconstruct the if-block.
         let block = self.reconstruct_block(conditional.block);
+
+        // Remove the `RenameTable` for the if-block.
         let if_table = self.pop();
 
         // Instantiate a `RenameTable` for the else-block.
         self.push();
+
+        // Reconstruct the else-block.
         let next = conditional.next.map(|statement| {
             Box::new(match *statement {
                 // The `ConditionalStatement` must be reconstructed as a `Block` statement to ensure that appropriate statements are produced.
@@ -115,21 +120,23 @@ impl<'a> StatementReconstructor for StaticSingleAssigner<'a> {
             })
         });
 
+        // Remove the `RenameTable` for the else-block.
         let else_table = self.pop();
 
-        // Instantiate phi functions for the nodes written in the `ConditionalStatement`.
-        let if_write_set: IndexSet<&Symbol> = IndexSet::from_iter(if_table.get_local_names().into_iter());
-        let else_write_set: IndexSet<&Symbol> = IndexSet::from_iter(else_table.get_local_names().into_iter());
+        // Compute the write set for the variables written in the if-block or else-block.
+        let if_write_set: IndexSet<&Symbol> = IndexSet::from_iter(if_table.local_names().into_iter());
+        let else_write_set: IndexSet<&Symbol> = IndexSet::from_iter(else_table.local_names().into_iter());
         let write_set = if_write_set.union(&else_write_set);
 
-        // TODO: Better error handling.
+        // For each variable in the write set, instantiate a phi function.
         for symbol in write_set {
-            if self.rename_table.lookup(symbol).is_some() {
+            // Note that phi functions only need to be instantiated if the variable exists before the `ConditionalStatement`.
+            if self.rename_table.lookup(**symbol).is_some() {
                 let if_name = if_table
-                    .lookup(symbol)
+                    .lookup(**symbol)
                     .unwrap_or_else(|| panic!("Symbol {} should exist in the program.", symbol));
                 let else_name = else_table
-                    .lookup(symbol)
+                    .lookup(**symbol)
                     .unwrap_or_else(|| panic!("Symbol {} should exist in the program.", symbol));
 
                 let ternary = Expression::Ternary(TernaryExpression {
@@ -146,7 +153,7 @@ impl<'a> StatementReconstructor for StaticSingleAssigner<'a> {
                 });
 
                 // Create a new name for the variable written to in the `ConditionalStatement`.
-                let new_name = Symbol::intern(&format!("{}${}", symbol, self.get_unique_id()));
+                let new_name = Symbol::intern(&format!("{}${}", symbol, self.unique_id()));
                 self.rename_table.update(*(*symbol), new_name);
 
                 // Create a new `AssignStatement` for the phi function.
@@ -159,10 +166,13 @@ impl<'a> StatementReconstructor for StaticSingleAssigner<'a> {
                     value: ternary,
                     span: Default::default(),
                 }));
+
+                // Store the generate phi functions.
                 self.phi_functions.push(assignment);
             }
         }
 
+        // Note that we only produce
         Statement::Conditional(ConditionalStatement {
             condition,
             block,
@@ -178,23 +188,26 @@ impl<'a> StatementReconstructor for StaticSingleAssigner<'a> {
     ///       - `if x > 0 { x = x + 1 }` becomes `let cond$0 = x > 0; if cond$0 { x = x + 1; }`
     ///       - `if true { x = x + 1 }` remains the same.
     ///       - `if b { x = x + 1 }` remains the same.
-    ///   - Flattens the resulting `ConditionalStatement`s.
+    ///   - Flattens reconstructed `ConditionalStatement`s.
     fn reconstruct_block(&mut self, block: Block) -> Block {
         let mut statements = Vec::with_capacity(block.statements.len());
+
+        // Reconstruct each statement in the block.
         for statement in block.statements.into_iter() {
             match statement {
                 Statement::Conditional(conditional_statement) => {
+                    // Reconstruct the `ConditionalStatement`.
                     let reconstructed_statement = match conditional_statement.condition {
-                        // TODO: Do we have a better way of handling unreachable errors?
-                        Expression::Call(..) => {
-                            unreachable!("Call expressions should not exist in the AST at this stage of compilation.")
-                        }
                         Expression::Err(_) => {
                             unreachable!("Err expressions should not exist in the AST at this stage of compilation.")
+                        }
+                        Expression::Call(..) => {
+                            todo!()
                         }
                         Expression::Identifier(..) | Expression::Literal(..) => {
                             self.reconstruct_conditional(conditional_statement)
                         }
+                        // If the condition is a complex expression, introduce a new `AssignStatement` for it.
                         Expression::Access(..)
                         | Expression::Circuit(..)
                         | Expression::Tuple(..)
@@ -202,7 +215,7 @@ impl<'a> StatementReconstructor for StaticSingleAssigner<'a> {
                         | Expression::Unary(..)
                         | Expression::Ternary(..) => {
                             // Create a fresh variable name for the condition.
-                            let symbol = Symbol::intern(&format!("cond${}", self.get_unique_id()));
+                            let symbol = Symbol::intern(&format!("cond${}", self.unique_id()));
                             self.rename_table.update(symbol, symbol);
 
                             // Initialize a new `AssignStatement` for the condition.
@@ -225,7 +238,7 @@ impl<'a> StatementReconstructor for StaticSingleAssigner<'a> {
                     };
 
                     // Flatten the reconstructed `ConditionalStatement` by lifting the statements in the "if" and "else" block
-                    // into the current `BlockStatement`.
+                    // into their parent block.
                     let mut conditional_statement = match reconstructed_statement {
                         Statement::Conditional(conditional_statement) => conditional_statement,
                         _ => unreachable!("`reconstruct_conditional` will always produce a `ConditionalStatement`"),
@@ -235,10 +248,11 @@ impl<'a> StatementReconstructor for StaticSingleAssigner<'a> {
                         match *statement {
                             // If we encounter a `BlockStatement` we need to lift its constituent statements into the current `BlockStatement`.
                             Statement::Block(mut block) => statements.append(&mut block.statements),
-                            _ => statements.push(*statement),
+                            _ => unreachable!("`self.reconstruct_conditional` will always produce a `BlockStatement` in the next block."),
                         }
                     }
 
+                    // Add all phi functions to the current block.
                     statements.append(&mut self.clear_phi_functions());
                 }
                 _ => statements.push(self.reconstruct_statement(statement)),

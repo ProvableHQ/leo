@@ -18,15 +18,13 @@ use leo_span::Symbol;
 
 use indexmap::IndexMap;
 
-/// `RenameTable` tracks the names assigned by static single assignment in a single block.
-// Developer Note: `RenameTable` is kept distinct from `SymbolTable` for the purposes of this prototype.
-// However, its functionality could be folded into `SymbolTable` after considering the implications of the design.
+/// `RenameTable` tracks the names assigned by static single assignment in a single scope.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub(crate) struct RenameTable {
-    /// The `RenameTable` of the parent block.
+    /// The `RenameTable` of the parent scope.
     pub(crate) parent: Option<Box<RenameTable>>,
     /// The mapping from names in the original AST to new names in the renamed AST.
-    pub(crate) mapping: IndexMap<Symbol, Symbol>,
+    mapping: IndexMap<Symbol, Symbol>,
 }
 
 impl RenameTable {
@@ -38,8 +36,8 @@ impl RenameTable {
         }
     }
 
-    /// Returns the symbols that were renamed in the current basic block.
-    pub(crate) fn get_local_names(&self) -> Vec<&Symbol> {
+    /// Returns the symbols that were renamed in the current scope.
+    pub(crate) fn local_names(&self) -> Vec<&Symbol> {
         self.mapping.keys().collect()
     }
 
@@ -49,8 +47,8 @@ impl RenameTable {
     }
 
     /// Looks up the new name for `symbol`, recursively checking the parent if it is not found.
-    pub(crate) fn lookup(&self, symbol: &Symbol) -> Option<&Symbol> {
-        if let Some(var) = self.mapping.get(symbol) {
+    pub(crate) fn lookup(&self, symbol: Symbol) -> Option<&Symbol> {
+        if let Some(var) = self.mapping.get(&symbol) {
             Some(var)
         } else if let Some(parent) = &self.parent {
             parent.lookup(symbol)
