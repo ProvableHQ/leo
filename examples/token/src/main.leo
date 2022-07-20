@@ -7,10 +7,6 @@ record Token {
     amount: u64,
 }
 
-function main(t: Token) -> u64 {
-	return t.amount + t.amount;
-}
-
 function mint(owner: address, amount: u64) -> Token {
     return Token {
         owner: owner,

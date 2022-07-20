@@ -1,7 +1,4 @@
 // The program input for token/src/main.leo
-[main]
-a: Record = Record {
-    owner: aleo1d5hg2z3ma00382pngntdp68e74zv54jdxy249qhaujhks9c72yrs33ddah,
-    gates: 5u64,
-    token_amount: 100u64
-};
+[mint]
+owner: address = aleo1ht2a9q0gsd38j0se4t9lsfulxgqrens2vgzgry3pkvs93xrrzu8s892zn7;
+amount: u64 = 100u64;
