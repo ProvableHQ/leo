@@ -27,6 +27,7 @@ path = "leo/main.rs"
 
 [workspace]
 members = [
+  "compiler/ast",
   "compiler/compiler",
   "compiler/parser",
   "docs/grammar",
@@ -34,6 +35,10 @@ members = [
   "leo/package",
   "tests/test-framework",
 ]
+
+[dependencies.leo-ast]
+path = "./compiler/ast"
+version = "1.5.3"
 
 [dependencies.leo-compiler]
 path = "./compiler/compiler"
