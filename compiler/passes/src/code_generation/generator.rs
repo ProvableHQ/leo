@@ -28,8 +28,10 @@ pub struct CodeGenerator<'a> {
     pub(crate) current_function: Option<&'a Function>,
     /// Mapping of variables to registers.
     pub(crate) variable_mapping: IndexMap<&'a Symbol, String>,
-    /// Mapping of composite names to type (`circuit` or `register`).
-    pub(crate) composite_mapping: IndexMap<&'a Symbol, String>,
+    /// Mapping of composite names to a tuple containing metadata associated with the name.
+    /// The first element of the tuple indicate whether the composite is a record or not.
+    /// The second element of the tuple is a string modifier used for code generation.
+    pub(crate) composite_mapping: IndexMap<&'a Symbol, (bool, String)>,
 }
 
 impl<'a> CodeGenerator<'a> {

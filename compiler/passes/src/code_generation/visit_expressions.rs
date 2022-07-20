@@ -155,9 +155,9 @@ impl<'a> CodeGenerator<'a> {
 
     fn visit_circuit_init(&mut self, input: &'a CircuitExpression) -> (String, String) {
         // Lookup circuit or record.
-        let name = if let Some(type_) = self.composite_mapping.get(&input.name.name) {
+        let name = if let Some((is_record, type_)) = self.composite_mapping.get(&input.name.name) {
             let name = input.name.to_string().to_lowercase();
-            if name.eq("record") {
+            if *is_record {
                 // record.private;
                 format!("{}.{}", name, type_)
             } else {

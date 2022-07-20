@@ -92,7 +92,7 @@ impl<'a> CodeGenerator<'a> {
     fn visit_circuit(&mut self, circuit: &'a Circuit) -> String {
         // Add private symbol to composite types.
         self.composite_mapping
-            .insert(&circuit.identifier.name, String::from("private")); // todo: private by default here.
+            .insert(&circuit.identifier.name, (false, String::from("private"))); // todo: private by default here.
 
         let mut output_string = format!("interface {}:\n", circuit.identifier.to_string().to_lowercase()); // todo: check if this is safe from name conflicts.
 
@@ -112,7 +112,7 @@ impl<'a> CodeGenerator<'a> {
         // Add record symbol to composite types.
         let mut output_string = String::from("record");
         self.composite_mapping
-            .insert(&record.identifier.name, output_string.clone());
+            .insert(&record.identifier.name, (true, output_string.clone()));
         writeln!(output_string, " {}:", record.identifier.to_string().to_lowercase())
             .expect("failed to write to string"); // todo: check if this is safe from name conflicts.
 
