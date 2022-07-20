@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error [EPAR0370012]: \"test function...\" is deprecated. Did you mean @test annotation?\n    --> test:3:1\n     |\n   3 | test main() {}\n     | ^^^^"
+  - "Error [EPAR0370011]: \"test function...\" is deprecated. Did you mean @test annotation?\n    --> test:3:1\n     |\n   3 | test main() {}\n     | ^^^^"

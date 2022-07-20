@@ -66,63 +66,6 @@ create_messages!(
         help: None,
     }
 
-    /// For when a user tries to use the `Self` keyword outside of a cricuit.
-    @formatted
-    big_self_outside_of_circuit {
-        args: (),
-        msg: "cannot call keyword `Self` outside of a circuit function",
-        help: None,
-    }
-
-    /// For when a user tries to define a array dimension of 0.
-    @formatted
-    invalid_array_dimension_size {
-        args: (),
-        msg: "received dimension size of 0, expected it to be 1 or larger.",
-        help: None,
-    }
-
-    /// For when a user tries to give certain statements a block rather than another statement.
-    @formatted
-    ast_statement_not_block {
-        args: (),
-        msg: "AstStatement should be be a block",
-        help: None,
-    }
-
-    /// For when a user tries to construct an empty string, which is a zero size array.
-    @formatted
-    empty_string {
-        args: (),
-        msg: "Cannot constrcut an empty string: it has the type of [char; 0] which is not possible.",
-        help: None,
-    }
-
-    /// This error should never be reached, but represents trying to expand a console assert.
-    @formatted
-    impossible_console_assert_call {
-        args: (),
-        msg: "Console::Assert cannot be matched here, its handled in another case.",
-        help: None,
-    }
-
-    /// This error is for when a user tries to use the library and programmatically inject an import
-    /// on the rust side.
-    @backtraced
-    injected_programs {
-        args: (injected_import_count: impl Display),
-        msg: format!("It seems the AST has {} injected imports. This is unexpected please import the library naturally", injected_import_count),
-        help: None,
-    }
-
-    /// For when a import of the specified name is unresolved.
-    @formatted
-    unresolved_import {
-        args: (name: impl Display),
-        msg: format!("failed to resolve import: '{}'", name),
-        help: None,
-    }
-
     /// For when the AST fails to be represented as a JSON value.
     @backtraced
     failed_to_convert_ast_to_json_value {

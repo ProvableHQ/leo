@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372006]: Unknown variable `z`\n    --> compiler-test:4:19\n     |\n   4 | \tlet b: u8 = 1u8**z;\n     |                   ^\n"
+  - "Error [ETYC0372005]: Unknown variable `z`\n    --> compiler-test:4:19\n     |\n   4 | \tlet b: u8 = 1u8**z;\n     |                   ^\n"

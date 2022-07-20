@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372025]: The `record` type requires the variable `owner: address`.\n    --> compiler-test:4:1\n     |\n   4 | record Token {\n   5 |     // The Aleo balance (in gates).\n   6 |     gates: u64,\n   7 |     // The token amount.\n   8 |     amount: u64,\n   9 | }\n     | ^\n"
+  - "Error [ETYC0372019]: The `record` type requires the variable `owner: address`.\n    --> compiler-test:4:1\n     |\n   4 | record Token {\n   5 |     // The Aleo balance (in gates).\n   6 |     gates: u64,\n   7 |     // The token amount.\n   8 |     amount: u64,\n   9 | }\n     | ^\n"

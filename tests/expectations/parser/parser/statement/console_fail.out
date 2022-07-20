@@ -2,6 +2,6 @@
 namespace: ParseStatement
 expectation: Fail
 outputs:
-  - "Error [EPAR0370038]: Unicode bidi override code point encountered."
+  - "Error [EPAR0370021]: Unicode bidi override code point encountered."
   - "Error [EPAR0370009]: unexpected string: expected 'formatted static_string', found '1'\n    --> test:1:13\n     |\n   1 | console.log(1);\n     |             ^"
   - "Error [EPAR0370007]: unexpected identifier: expected 'assert', 'error', 'log' -- found 'test'\n    --> test:1:9\n     |\n   1 | console.test();\n     |         ^^^^"

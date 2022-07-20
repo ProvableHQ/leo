@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372026]: The field `owner` in a `record` must have type `address`.\n    --> compiler-test:4:1\n     |\n   4 | record Token {\n   5 |     gates: u64,\n   6 |     owner: bool,\n   7 | }\n     | ^\n"
+  - "Error [ETYC0372020]: The field `owner` in a `record` must have type `address`.\n    --> compiler-test:4:1\n     |\n   4 | record Token {\n   5 |     gates: u64,\n   6 |     owner: bool,\n   7 | }\n     | ^\n"

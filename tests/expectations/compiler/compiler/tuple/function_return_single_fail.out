@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372014]: Tuples of one element are not allowed.\n    --> compiler-test:3:36\n     |\n   3 | function main(a: bool, b: bool) -> (bool) {\n     |                                    ^^^^^^\n     |\n     = Try defining a single type by removing the parenthesis `( )`"
+  - "Error [EAST0372007]: Tuples of one element are not allowed.\n    --> compiler-test:3:36\n     |\n   3 | function main(a: bool, b: bool) -> (bool) {\n     |                                    ^^^^^^\n     |\n     = Try defining a single type by removing the parenthesis `( )`"

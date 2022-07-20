@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372015]: function `main` shadowed by\n    --> compiler-test:8:1\n     |\n   8 | function main(y: bool) -> bool {\n   9 |     console.log(\"{}\", 2u8);\n  10 |     return y; \n  11 | }\n     | ^\n"
+  - "Error [EAST0372008]: function `main` shadowed by\n    --> compiler-test:8:1\n     |\n   8 | function main(y: bool) -> bool {\n   9 |     console.log(\"{}\", 2u8);\n  10 |     return y; \n  11 | }\n     | ^\n"

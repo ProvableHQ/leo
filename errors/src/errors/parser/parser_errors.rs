@@ -120,75 +120,11 @@ create_messages!(
         help: None,
     }
 
-    /// For when the parser encountered an invalid package name.
-    @formatted
-    invalid_package_name {
-        args: (),
-        msg: "package names must be lowercase alphanumeric ascii with underscores and singular dashes",
-        help: None,
-    }
-
     /// For when the parser encountered a deprecated `test function`.
     @formatted
     test_function {
         args: (),
         msg: "\"test function...\" is deprecated. Did you mean @test annotation?",
-        help: None,
-    }
-
-    /// For when the parser encountered a deprecated `@context(...)` annotation.
-    @formatted
-    context_annotation {
-        args: (),
-        msg: "\"@context(...)\" is deprecated. Did you mean @test annotation?",
-        help: None,
-    }
-
-    /// For when the parser failed to parse array dimensions.
-    @formatted
-    unable_to_parse_array_dimensions {
-        args: (),
-        msg: "unable to parse array dimensions",
-        help: None,
-    }
-
-    /// For when the parser encountered a deprecated `mut self` parameter in a member function declaration.
-    @formatted
-    mut_self_parameter {
-        args: (),
-        msg: "`mut self` is no longer accepted. Use `&self` if you would like to pass in a mutable reference to `self`",
-        help: None,
-    }
-
-    /// When a member const comes after a member variable.
-    @formatted
-    member_const_after_var {
-        args: (),
-        msg: "Member variables must come after member consts.",
-        help: None,
-    }
-
-    /// When a member const comes after a member function.
-    @formatted
-    member_const_after_fun {
-        args: (),
-        msg: "Member functions must come after member consts.",
-        help: None,
-    }
-
-    /// When a member variable comes after a member function.
-    @formatted
-    member_var_after_fun {
-        args: (),
-        msg: "Member functions must come after member variables.",
-        help: None,
-    }
-
-    /// E.g., on `[u8; ()]`.
-    @formatted
-    array_tuple_dimensions_empty {
-        args: (),
-        msg: "Array dimensions specified as a tuple cannot be empty.",
         help: None,
     }
 
@@ -240,14 +176,6 @@ create_messages!(
     help: None,
     }
 
-    /// When a valid hex character was expected.
-    @backtraced
-    lexer_expected_valid_hex_char {
-    args: (input: impl Display),
-    msg: format!("Expected a valid hex character but found `{}`.", input),
-    help: None,
-    }
-
     /// When the user tries to pass an implicit value.
     @formatted
     implicit_values_not_allowed {
@@ -256,29 +184,6 @@ create_messages!(
         help: None,
     }
 
-    /// When a escaped unicode char was given but no following closing symbol.
-    @backtraced
-    lexer_unclosed_escaped_unicode_char {
-        args: (input: impl Display),
-        msg: format!("There was no closing `}}` after a escaped unicode `{}`.", input),
-        help: None,
-    }
-
-    /// When a escaped unicode char was given but it had an incorrect length. 38
-    @backtraced
-    lexer_invalid_escaped_unicode_length {
-        args: (input: impl Display),
-        msg: format!("The escaped unicode char `{}` is not within valid length of [1, 6].", input),
-        help: None,
-    }
-
-    /// When a escaped unicode char was given but exceeded maximum value.
-    @backtraced
-    lexer_invalid_character_exceeded_max_value {
-        args: (input: impl Display),
-        msg: format!("The escaped unicode char `{}` is greater than 0x10FFFF.", input),
-        help: None,
-    }
     /// When a hex number is provided.
     @backtraced
     lexer_hex_number_provided {
@@ -287,53 +192,13 @@ create_messages!(
         help: None,
     }
 
-    /// When a function recieved a self argument outside the first argument.
-    @backtraced
-    parser_self_outside_first_argument {
-        args: (),
-        msg: "A function received a self argument as not the first argument.",
-        help: None,
-    }
-
-    /// When a escaped unicode char was given but not opened.
-    @backtraced
-    lexer_unopened_escaped_unicode_char {
-        args: (input: impl Display),
-        msg: format!("There was no opening `{{` after starting an escaped unicode `{}`.", input),
-        help: None,
-    }
-
-    /// For when a user puts parens around a single array dimension.
+    /// For when a user specified more than a type on a parameter.
     @formatted
-    invalid_parens_around_single_array_dimension_size {
+    inputs_multiple_variable_types_specified {
         args: (),
-        msg: "do not put parens around single dimension array size",
+        msg: "A parameter cannot be both public and const.",
         help: None,
     }
-
-    /// For when a user puts parens around a single defined variable.
-    @backtraced
-    lexer_expected_but_found {
-        args: (found: impl Display, expected: impl Display),
-        msg: format!("Found the char `{}`, but expected `{}`", found, expected),
-        help: None,
-    }
-
-     /// For when a user specified more than a type on a parameter.
-     @formatted
-     inputs_multiple_variable_types_specified {
-         args: (),
-         msg: "A parameter cannot be both public and const.",
-         help: None,
-     }
-
-     /// For when a user used const on a parameter or input instead of constant.
-     @formatted
-     const_parameter_or_input {
-         args: (),
-         msg: "`constant` is preferred over `const` for function parameters to indicate a R1CS constant.",
-         help: None,
-     }
 
     /// For when the lexer encountered a bidi override character
     @backtraced
