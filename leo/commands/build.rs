@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::commands::ALEO_CLI_COMMAND;
 use crate::{commands::Command, context::Context};
 
 use leo_ast::Circuit;
@@ -174,7 +175,8 @@ impl Command for Build {
             .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
 
         // Call the `aleo build` command from the Aleo SDK.
-        let result = AleoBuild.parse().map_err(CliError::failed_to_execute_aleo_build)?;
+        let command = AleoBuild::try_parse_from(&[ALEO_CLI_COMMAND]).map_err(CliError::failed_to_execute_aleo_build)?;
+        let result = command.parse().map_err(CliError::failed_to_execute_aleo_build)?;
 
         // Log the result of the build
         tracing::info!("{}", result);
