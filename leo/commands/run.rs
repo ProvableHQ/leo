@@ -59,13 +59,15 @@ impl Command for Run {
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
         // Get the input values.
         let mut inputs = match input {
-            Some(input_ast) => input_ast.program_inputs(&self.name),
-            None => Vec::new(),
+            (Some(input_ast), circuits) => input_ast.program_inputs(&self.name, circuits),
+            _ => Vec::new(),
         };
 
         // Compose the `aleo run` command.
         let mut arguments = vec![ALEO_CLI_COMMAND.to_string(), self.name];
         arguments.append(&mut inputs);
+
+        println!("Arguments: {:?}", arguments);
 
         // Open the Leo build/ directory
         let path = context.dir()?;

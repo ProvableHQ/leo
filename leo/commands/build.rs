@@ -14,26 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::commands::ALEO_CLI_COMMAND;
 use crate::{commands::Command, context::Context};
+
+use leo_ast::Circuit;
 use leo_compiler::{Compiler, InputAst, OutputOptions};
 use leo_errors::{CliError, CompilerError, PackageError, Result};
 use leo_package::source::{SourceDirectory, MAIN_FILENAME};
-use leo_package::{
-    inputs::InputFile,
-    outputs::{ChecksumFile, OutputsDirectory},
-};
+use leo_package::{inputs::InputFile, outputs::OutputsDirectory};
 use leo_span::symbol::with_session_globals;
 
 use aleo::commands::Build as AleoBuild;
 
 use clap::StructOpt;
 use colored::Colorize;
+use indexmap::IndexMap;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use leo_errors::emitter::Handler;
 use leo_package::build::BuildDirectory;
 use leo_package::imports::ImportsDirectory;
+use leo_span::Symbol;
 use tracing::span::Span;
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
@@ -85,7 +87,7 @@ pub struct Build {
 
 impl Command for Build {
     type Input = ();
-    type Output = Option<InputAst>;
+    type Output = (Option<InputAst>, IndexMap<Symbol, Circuit>);
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Build")
@@ -114,9 +116,12 @@ impl Command for Build {
         // Fetch paths to all .leo files in the source directory.
         let source_files = SourceDirectory::files(&package_path)?;
 
+        // Store all circuits declarations made in the source files.
+        let mut circuits = IndexMap::new();
+
         // Compile all .leo files into .aleo files.
         for file_path in source_files.into_iter() {
-            compile_leo_file(
+            circuits.extend(compile_leo_file(
                 file_path,
                 &package_path,
                 &package_name,
@@ -124,7 +129,7 @@ impl Command for Build {
                 &build_directory,
                 &handler,
                 self.compiler_options.clone(),
-            )?;
+            )?);
         }
 
         if !ImportsDirectory::is_empty(&package_path)? {
@@ -136,7 +141,7 @@ impl Command for Build {
 
             // Compile all .leo files into .aleo files.
             for file_path in import_files.into_iter() {
-                compile_leo_file(
+                circuits.extend(compile_leo_file(
                     file_path,
                     &package_path,
                     &package_name,
@@ -144,7 +149,7 @@ impl Command for Build {
                     &build_imports_directory,
                     &handler,
                     self.compiler_options.clone(),
-                )?;
+                )?);
             }
         }
 
@@ -157,7 +162,10 @@ impl Command for Build {
             let input_sf = with_session_globals(|s| s.source_map.load_file(&input_file_path))
                 .map_err(|e| CompilerError::file_read_error(&input_file_path, e))?;
 
-            leo_parser::parse_input(&handler, &input_sf.src, input_sf.start_pos).ok()
+            // TODO: This is a hack to notify the user that something is wrong with the input file. Redesign.
+            leo_parser::parse_input(&handler, &input_sf.src, input_sf.start_pos)
+                .map_err(|_e| println!("Warning: Failed to parse input file"))
+                .ok()
         } else {
             None
         };
@@ -167,24 +175,25 @@ impl Command for Build {
             .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
 
         // Call the `aleo build` command from the Aleo SDK.
-        let result = AleoBuild.parse().map_err(CliError::failed_to_execute_aleo_build)?;
+        let command = AleoBuild::try_parse_from(&[ALEO_CLI_COMMAND]).map_err(CliError::failed_to_execute_aleo_build)?;
+        let result = command.parse().map_err(CliError::failed_to_execute_aleo_build)?;
 
         // Log the result of the build
         tracing::info!("{}", result);
 
-        Ok(input_ast)
+        Ok((input_ast, circuits))
     }
 }
 
 fn compile_leo_file(
     file_path: PathBuf,
-    package_path: &PathBuf,
+    _package_path: &Path,
     package_name: &String,
     outputs: &Path,
     build: &Path,
     handler: &Handler,
     options: BuildOptions,
-) -> Result<()> {
+) -> Result<IndexMap<Symbol, Circuit>> {
     // Construct the Leo file name with extension `foo.leo`.
     let file_name = file_path
         .file_name()
@@ -214,58 +223,59 @@ fn compile_leo_file(
         Some(options.into()),
     );
 
-    // Check if we need to compile the Leo program.
-    let checksum_differs = {
-        // Compute the current program checksum.
-        let program_checksum = program.checksum()?;
+    // TODO: Temporarily removing checksum files. Need to redesign this scheme.
+    // // Check if we need to compile the Leo program.
+    // let checksum_differs = {
+    //     // Compute the current program checksum.
+    //     let program_checksum = program.checksum()?;
+    //
+    //     // Get the current program checksum.
+    //     let checksum_file = ChecksumFile::new(program_name);
+    //
+    //     // If a checksum file exists, check if it differs from the new checksum.
+    //     let checksum_differs = if checksum_file.exists_at(package_path) {
+    //         let previous_checksum = checksum_file.read_from(package_path)?;
+    //         program_checksum != previous_checksum
+    //     } else {
+    //         // By default, the checksum differs if there is no checksum to compare against.
+    //         true
+    //     };
+    //
+    //     // If checksum differs, compile the program
+    //     if checksum_differs {
+    //         // Write the new checksum to the output directory
+    //         checksum_file.write_to(package_path, program_checksum)?;
+    //
+    //         tracing::debug!("Checksum saved ({:?})", package_path);
+    //     }
+    //
+    //     checksum_differs
+    // };
 
-        // Get the current program checksum.
-        let checksum_file = ChecksumFile::new(program_name);
+    // if checksum_differs {
+    // Compile the Leo program into Aleo instructions.
+    let (symbol_table, instructions) = program.compile_and_generate_instructions()?;
 
-        // If a checksum file exists, check if it differs from the new checksum.
-        let checksum_differs = if checksum_file.exists_at(package_path) {
-            let previous_checksum = checksum_file.read_from(package_path)?;
-            program_checksum != previous_checksum
-        } else {
-            // By default, the checksum differs if there is no checksum to compare against.
-            true
-        };
+    // Create the path to the Aleo file.
+    let mut aleo_file_path = build.to_path_buf();
+    aleo_file_path.push(format!("{}.aleo", program_name));
 
-        // If checksum differs, compile the program
-        if checksum_differs {
-            // Write the new checksum to the output directory
-            checksum_file.write_to(package_path, program_checksum)?;
+    // Write the instructions.
+    std::fs::File::create(&aleo_file_path)
+        .map_err(CliError::failed_to_load_instructions)?
+        .write_all(instructions.as_bytes())
+        .map_err(CliError::failed_to_load_instructions)?;
 
-            tracing::debug!("Checksum saved ({:?})", package_path);
-        }
+    // Prepare the path string.
+    let path_string = format!("(in \"{}\")", aleo_file_path.display());
 
-        checksum_differs
-    };
+    // Log the build as successful.
+    tracing::info!(
+        "✅ Compiled '{}' into Aleo instructions {}",
+        file_name,
+        path_string.dimmed()
+    );
+    // }
 
-    if checksum_differs {
-        // Compile the Leo program into Aleo instructions.
-        let (_, instructions) = program.compile_and_generate_instructions()?;
-
-        // Create the path to the Aleo file.
-        let mut aleo_file_path = build.to_path_buf();
-        aleo_file_path.push(format!("{}.aleo", program_name));
-
-        // Write the instructions.
-        std::fs::File::create(&aleo_file_path)
-            .map_err(CliError::failed_to_load_instructions)?
-            .write_all(instructions.as_bytes())
-            .map_err(CliError::failed_to_load_instructions)?;
-
-        // Prepare the path string.
-        let path_string = format!("(in \"{}\")", aleo_file_path.display());
-
-        // Log the build as successful.
-        tracing::info!(
-            "✅ Compiled '{}' into Aleo instructions {}",
-            file_name,
-            path_string.dimmed()
-        );
-    }
-
-    Ok(())
+    Ok(symbol_table.circuits)
 }

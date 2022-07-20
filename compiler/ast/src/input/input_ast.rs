@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{normalize_json_value, remove_key_from_json};
+use crate::{normalize_json_value, remove_key_from_json, Circuit, Expression, Type};
 
 use super::*;
 use leo_errors::{AstError, Result};
@@ -41,15 +41,41 @@ pub struct InputAst {
 
 impl InputAst {
     /// Returns all values of the input AST for execution with `leo run`.
-    pub fn program_inputs(&self, program_name: &str) -> Vec<String> {
+    pub fn program_inputs(&self, program_name: &str, circuits: IndexMap<Symbol, Circuit>) -> Vec<String> {
         self.sections
             .iter()
             .filter(|section| section.name() == program_name)
             .flat_map(|section| {
-                section
-                    .definitions
-                    .iter()
-                    .map(|definition| definition.value.to_string())
+                section.definitions.iter().map(|definition| match &definition.type_ {
+                    // Handle case where the input may be record.
+                    Type::Identifier(identifier) => {
+                        match circuits.get(&identifier.name) {
+                            // TODO: Better error handling.
+                            None => panic!(
+                                "Input error: A circuit or record declaration does not exist for {}.",
+                                identifier.name
+                            ),
+                            Some(circuit) => match circuit.is_record {
+                                false => definition.value.to_string(),
+                                true => match &definition.value {
+                                    Expression::Circuit(circuit_expression) => {
+                                        format!(
+                                            "{{{}}}",
+                                            circuit_expression
+                                                .members
+                                                .iter()
+                                                .map(|x| format!("{}.private", x))
+                                                .collect::<Vec<_>>()
+                                                .join(", ")
+                                        )
+                                    }
+                                    _ => panic!("Input error: Expected a circuit expression."),
+                                },
+                            },
+                        }
+                    }
+                    _ => definition.value.to_string(),
+                })
             })
             .collect::<Vec<_>>()
     }

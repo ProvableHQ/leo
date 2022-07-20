@@ -19,6 +19,8 @@ use leo_errors::{CliError, PackageError, Result};
 use snarkvm::file::Manifest;
 
 use leo_package::build::{BuildDirectory, BUILD_DIRECTORY_NAME};
+use std::fs::File;
+use std::io::Write;
 use std::{
     env::current_dir,
     path::{Path, PathBuf},
@@ -53,7 +55,7 @@ impl Context {
         let manifest = Manifest::<Network>::open(&path).map_err(PackageError::failed_to_open_manifest)?;
 
         // Lookup the program id.
-        let program_id = manifest.program_id();
+        // let program_id = manifest.program_id();
 
         // Create the Leo build/ directory if it doesn't exist.
         let build_path = path.join(Path::new(BUILD_DIRECTORY_NAME));
@@ -62,9 +64,19 @@ impl Context {
         }
 
         // Mirror the program.json file in the Leo build/ directory for Aleo SDK compilation.
-        if !Manifest::<Network>::exists_at(&build_path) {
-            Manifest::<Network>::create(&build_path, program_id).map_err(PackageError::failed_to_open_manifest)?;
-        }
+
+        // Read the manifest file to string.
+        let manifest_string =
+            std::fs::read_to_string(&manifest.path()).map_err(PackageError::failed_to_open_manifest)?;
+
+        // Construct the file path.
+        let build_manifest_path = build_path.join(Manifest::<Network>::file_name());
+
+        // Write the file.
+        File::create(&build_manifest_path)
+            .map_err(PackageError::failed_to_open_manifest)?
+            .write_all(manifest_string.as_bytes())
+            .map_err(PackageError::failed_to_open_manifest)?;
 
         // Get package name from program id.
         Ok(manifest)
