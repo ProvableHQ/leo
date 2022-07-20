@@ -274,6 +274,16 @@
 <span id="269">269</span>
 <span id="270">270</span>
 <span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -290,26 +300,28 @@
 <span class="comment">// You should have received a copy of the GNU General Public License</span>
 <span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::commands::ALEO_CLI_COMMAND</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">commands::Command</span>, <span class="ident">context::Context</span>};
+
+<span class="kw">use</span> <span class="ident">leo_ast::Circuit</span>;
 <span class="kw">use</span> <span class="ident">leo_compiler</span>::{<span class="ident">Compiler</span>, <span class="ident">InputAst</span>, <span class="ident">OutputOptions</span>};
 <span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">CliError</span>, <span class="ident">CompilerError</span>, <span class="ident">PackageError</span>, <span class="prelude-ty">Result</span>};
 <span class="kw">use</span> <span class="ident">leo_package::source</span>::{<span class="ident">SourceDirectory</span>, <span class="ident">MAIN_FILENAME</span>};
-<span class="kw">use</span> <span class="ident">leo_package</span>::{
-    <span class="ident">inputs::InputFile</span>,
-    <span class="ident">outputs</span>::{<span class="ident">ChecksumFile</span>, <span class="ident">OutputsDirectory</span>},
-};
+<span class="kw">use</span> <span class="ident">leo_package</span>::{<span class="ident">inputs::InputFile</span>, <span class="ident">outputs::OutputsDirectory</span>};
 <span class="kw">use</span> <span class="ident">leo_span::symbol::with_session_globals</span>;
 
 <span class="kw">use</span> <span class="ident">aleo::commands::Build</span> <span class="kw">as</span> <span class="ident">AleoBuild</span>;
 
 <span class="kw">use</span> <span class="ident">clap::StructOpt</span>;
 <span class="kw">use</span> <span class="ident">colored::Colorize</span>;
+<span class="kw">use</span> <span class="ident">indexmap::IndexMap</span>;
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 <span class="kw">use</span> <span class="ident">std::path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>};
 
 <span class="kw">use</span> <span class="ident">leo_errors::emitter::Handler</span>;
 <span class="kw">use</span> <span class="ident">leo_package::build::BuildDirectory</span>;
 <span class="kw">use</span> <span class="ident">leo_package::imports::ImportsDirectory</span>;
+<span class="kw">use</span> <span class="ident">leo_span::Symbol</span>;
 <span class="kw">use</span> <span class="ident">tracing::span::Span</span>;
 
 <span class="doccomment">/// Compiler Options wrapper for Build command. Also used by other commands which</span>
@@ -361,7 +373,7 @@
 
 <span class="kw">impl</span> <span class="ident">Command</span> <span class="kw">for</span> <span class="ident">Build</span> {
     <span class="kw">type</span> <span class="ident">Input</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InputAst</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InputAst</span><span class="op">&gt;</span>, <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Symbol</span>, <span class="ident">Circuit</span><span class="op">&gt;</span>);
 
     <span class="kw">fn</span> <span class="ident">log_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         <span class="macro">tracing::span!</span>(<span class="ident">tracing::Level::INFO</span>, <span class="string">&quot;Build&quot;</span>)
@@ -390,9 +402,12 @@
         <span class="comment">// Fetch paths to all .leo files in the source directory.</span>
         <span class="kw">let</span> <span class="ident">source_files</span> <span class="op">=</span> <span class="ident">SourceDirectory::files</span>(<span class="kw-2">&amp;</span><span class="ident">package_path</span>)<span class="question-mark">?</span>;
 
+        <span class="comment">// Store all circuits declarations made in the source files.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">circuits</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
+
         <span class="comment">// Compile all .leo files into .aleo files.</span>
         <span class="kw">for</span> <span class="ident">file_path</span> <span class="kw">in</span> <span class="ident">source_files</span>.<span class="ident">into_iter</span>() {
-            <span class="ident">compile_leo_file</span>(
+            <span class="ident">circuits</span>.<span class="ident">extend</span>(<span class="ident">compile_leo_file</span>(
                 <span class="ident">file_path</span>,
                 <span class="kw-2">&amp;</span><span class="ident">package_path</span>,
                 <span class="kw-2">&amp;</span><span class="ident">package_name</span>,
@@ -400,7 +415,7 @@
                 <span class="kw-2">&amp;</span><span class="ident">build_directory</span>,
                 <span class="kw-2">&amp;</span><span class="ident">handler</span>,
                 <span class="self">self</span>.<span class="ident">compiler_options</span>.<span class="ident">clone</span>(),
-            )<span class="question-mark">?</span>;
+            )<span class="question-mark">?</span>);
         }
 
         <span class="kw">if</span> <span class="op">!</span><span class="ident">ImportsDirectory::is_empty</span>(<span class="kw-2">&amp;</span><span class="ident">package_path</span>)<span class="question-mark">?</span> {
@@ -412,7 +427,7 @@
 
             <span class="comment">// Compile all .leo files into .aleo files.</span>
             <span class="kw">for</span> <span class="ident">file_path</span> <span class="kw">in</span> <span class="ident">import_files</span>.<span class="ident">into_iter</span>() {
-                <span class="ident">compile_leo_file</span>(
+                <span class="ident">circuits</span>.<span class="ident">extend</span>(<span class="ident">compile_leo_file</span>(
                     <span class="ident">file_path</span>,
                     <span class="kw-2">&amp;</span><span class="ident">package_path</span>,
                     <span class="kw-2">&amp;</span><span class="ident">package_name</span>,
@@ -420,7 +435,7 @@
                     <span class="kw-2">&amp;</span><span class="ident">build_imports_directory</span>,
                     <span class="kw-2">&amp;</span><span class="ident">handler</span>,
                     <span class="self">self</span>.<span class="ident">compiler_options</span>.<span class="ident">clone</span>(),
-                )<span class="question-mark">?</span>;
+                )<span class="question-mark">?</span>);
             }
         }
 
@@ -433,7 +448,10 @@
             <span class="kw">let</span> <span class="ident">input_sf</span> <span class="op">=</span> <span class="ident">with_session_globals</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">source_map</span>.<span class="ident">load_file</span>(<span class="kw-2">&amp;</span><span class="ident">input_file_path</span>))
                 .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">CompilerError::file_read_error</span>(<span class="kw-2">&amp;</span><span class="ident">input_file_path</span>, <span class="ident">e</span>))<span class="question-mark">?</span>;
 
-            <span class="ident">leo_parser::parse_input</span>(<span class="kw-2">&amp;</span><span class="ident">handler</span>, <span class="kw-2">&amp;</span><span class="ident">input_sf</span>.<span class="ident">src</span>, <span class="ident">input_sf</span>.<span class="ident">start_pos</span>).<span class="ident">ok</span>()
+            <span class="comment">// TODO: This is a hack to notify the user that something is wrong with the input file. Redesign.</span>
+            <span class="ident">leo_parser::parse_input</span>(<span class="kw-2">&amp;</span><span class="ident">handler</span>, <span class="kw-2">&amp;</span><span class="ident">input_sf</span>.<span class="ident">src</span>, <span class="ident">input_sf</span>.<span class="ident">start_pos</span>)
+                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_e</span><span class="op">|</span> <span class="macro">println!</span>(<span class="string">&quot;Warning: Failed to parse input file&quot;</span>))
+                .<span class="ident">ok</span>()
         } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         };
@@ -443,24 +461,25 @@
             .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">PackageError::failed_to_set_cwd</span>(<span class="ident">build_directory</span>.<span class="ident">display</span>(), <span class="ident">err</span>))<span class="question-mark">?</span>;
 
         <span class="comment">// Call the `aleo build` command from the Aleo SDK.</span>
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">AleoBuild</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_execute_aleo_build</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">command</span> <span class="op">=</span> <span class="ident">AleoBuild::try_parse_from</span>(<span class="kw-2">&amp;</span>[<span class="ident">ALEO_CLI_COMMAND</span>]).<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_execute_aleo_build</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">command</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_execute_aleo_build</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Log the result of the build</span>
         <span class="macro">tracing::info!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">result</span>);
 
-        <span class="prelude-val">Ok</span>(<span class="ident">input_ast</span>)
+        <span class="prelude-val">Ok</span>((<span class="ident">input_ast</span>, <span class="ident">circuits</span>))
     }
 }
 
 <span class="kw">fn</span> <span class="ident">compile_leo_file</span>(
     <span class="ident">file_path</span>: <span class="ident">PathBuf</span>,
-    <span class="ident">package_path</span>: <span class="kw-2">&amp;</span><span class="ident">PathBuf</span>,
+    <span class="ident">_package_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
     <span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">String</span>,
     <span class="ident">outputs</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
     <span class="ident">build</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
     <span class="ident">handler</span>: <span class="kw-2">&amp;</span><span class="ident">Handler</span>,
     <span class="ident">options</span>: <span class="ident">BuildOptions</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Symbol</span>, <span class="ident">Circuit</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="comment">// Construct the Leo file name with extension `foo.leo`.</span>
     <span class="kw">let</span> <span class="ident">file_name</span> <span class="op">=</span> <span class="ident">file_path</span>
         .<span class="ident">file_name</span>()
@@ -490,61 +509,62 @@
         <span class="prelude-val">Some</span>(<span class="ident">options</span>.<span class="ident">into</span>()),
     );
 
-    <span class="comment">// Check if we need to compile the Leo program.</span>
-    <span class="kw">let</span> <span class="ident">checksum_differs</span> <span class="op">=</span> {
-        <span class="comment">// Compute the current program checksum.</span>
-        <span class="kw">let</span> <span class="ident">program_checksum</span> <span class="op">=</span> <span class="ident">program</span>.<span class="ident">checksum</span>()<span class="question-mark">?</span>;
+    <span class="comment">// TODO: Temporarily removing checksum files. Need to redesign this scheme.</span>
+    <span class="comment">// // Check if we need to compile the Leo program.</span>
+    <span class="comment">// let checksum_differs = {</span>
+    <span class="comment">//     // Compute the current program checksum.</span>
+    <span class="comment">//     let program_checksum = program.checksum()?;</span>
+    <span class="comment">//</span>
+    <span class="comment">//     // Get the current program checksum.</span>
+    <span class="comment">//     let checksum_file = ChecksumFile::new(program_name);</span>
+    <span class="comment">//</span>
+    <span class="comment">//     // If a checksum file exists, check if it differs from the new checksum.</span>
+    <span class="comment">//     let checksum_differs = if checksum_file.exists_at(package_path) {</span>
+    <span class="comment">//         let previous_checksum = checksum_file.read_from(package_path)?;</span>
+    <span class="comment">//         program_checksum != previous_checksum</span>
+    <span class="comment">//     } else {</span>
+    <span class="comment">//         // By default, the checksum differs if there is no checksum to compare against.</span>
+    <span class="comment">//         true</span>
+    <span class="comment">//     };</span>
+    <span class="comment">//</span>
+    <span class="comment">//     // If checksum differs, compile the program</span>
+    <span class="comment">//     if checksum_differs {</span>
+    <span class="comment">//         // Write the new checksum to the output directory</span>
+    <span class="comment">//         checksum_file.write_to(package_path, program_checksum)?;</span>
+    <span class="comment">//</span>
+    <span class="comment">//         tracing::debug!(&quot;Checksum saved ({:?})&quot;, package_path);</span>
+    <span class="comment">//     }</span>
+    <span class="comment">//</span>
+    <span class="comment">//     checksum_differs</span>
+    <span class="comment">// };</span>
 
-        <span class="comment">// Get the current program checksum.</span>
-        <span class="kw">let</span> <span class="ident">checksum_file</span> <span class="op">=</span> <span class="ident">ChecksumFile::new</span>(<span class="ident">program_name</span>);
+    <span class="comment">// if checksum_differs {</span>
+    <span class="comment">// Compile the Leo program into Aleo instructions.</span>
+    <span class="kw">let</span> (<span class="ident">symbol_table</span>, <span class="ident">instructions</span>) <span class="op">=</span> <span class="ident">program</span>.<span class="ident">compile_and_generate_instructions</span>()<span class="question-mark">?</span>;
 
-        <span class="comment">// If a checksum file exists, check if it differs from the new checksum.</span>
-        <span class="kw">let</span> <span class="ident">checksum_differs</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">checksum_file</span>.<span class="ident">exists_at</span>(<span class="ident">package_path</span>) {
-            <span class="kw">let</span> <span class="ident">previous_checksum</span> <span class="op">=</span> <span class="ident">checksum_file</span>.<span class="ident">read_from</span>(<span class="ident">package_path</span>)<span class="question-mark">?</span>;
-            <span class="ident">program_checksum</span> <span class="op">!</span><span class="op">=</span> <span class="ident">previous_checksum</span>
-        } <span class="kw">else</span> {
-            <span class="comment">// By default, the checksum differs if there is no checksum to compare against.</span>
-            <span class="bool-val">true</span>
-        };
+    <span class="comment">// Create the path to the Aleo file.</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">aleo_file_path</span> <span class="op">=</span> <span class="ident">build</span>.<span class="ident">to_path_buf</span>();
+    <span class="ident">aleo_file_path</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;{}.aleo&quot;</span>, <span class="ident">program_name</span>));
 
-        <span class="comment">// If checksum differs, compile the program</span>
-        <span class="kw">if</span> <span class="ident">checksum_differs</span> {
-            <span class="comment">// Write the new checksum to the output directory</span>
-            <span class="ident">checksum_file</span>.<span class="ident">write_to</span>(<span class="ident">package_path</span>, <span class="ident">program_checksum</span>)<span class="question-mark">?</span>;
+    <span class="comment">// Write the instructions.</span>
+    <span class="ident">std::fs::File::create</span>(<span class="kw-2">&amp;</span><span class="ident">aleo_file_path</span>)
+        .<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_load_instructions</span>)<span class="question-mark">?</span>
+        .<span class="ident">write_all</span>(<span class="ident">instructions</span>.<span class="ident">as_bytes</span>())
+        .<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_load_instructions</span>)<span class="question-mark">?</span>;
 
-            <span class="macro">tracing::debug!</span>(<span class="string">&quot;Checksum saved ({:?})&quot;</span>, <span class="ident">package_path</span>);
-        }
+    <span class="comment">// Prepare the path string.</span>
+    <span class="kw">let</span> <span class="ident">path_string</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;(in \&quot;{}\&quot;)&quot;</span>, <span class="ident">aleo_file_path</span>.<span class="ident">display</span>());
 
-        <span class="ident">checksum_differs</span>
-    };
+    <span class="comment">// Log the build as successful.</span>
+    <span class="macro">tracing::info!</span>(
+        <span class="string">&quot;✅ Compiled &#39;{}&#39; into Aleo instructions {}&quot;</span>,
+        <span class="ident">file_name</span>,
+        <span class="ident">path_string</span>.<span class="ident">dimmed</span>()
+    );
+    <span class="comment">// }</span>
 
-    <span class="kw">if</span> <span class="ident">checksum_differs</span> {
-        <span class="comment">// Compile the Leo program into Aleo instructions.</span>
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">instructions</span>) <span class="op">=</span> <span class="ident">program</span>.<span class="ident">compile_and_generate_instructions</span>()<span class="question-mark">?</span>;
-
-        <span class="comment">// Create the path to the Aleo file.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">aleo_file_path</span> <span class="op">=</span> <span class="ident">build</span>.<span class="ident">to_path_buf</span>();
-        <span class="ident">aleo_file_path</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;{}.aleo&quot;</span>, <span class="ident">program_name</span>));
-
-        <span class="comment">// Write the instructions.</span>
-        <span class="ident">std::fs::File::create</span>(<span class="kw-2">&amp;</span><span class="ident">aleo_file_path</span>)
-            .<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_load_instructions</span>)<span class="question-mark">?</span>
-            .<span class="ident">write_all</span>(<span class="ident">instructions</span>.<span class="ident">as_bytes</span>())
-            .<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_load_instructions</span>)<span class="question-mark">?</span>;
-
-        <span class="comment">// Prepare the path string.</span>
-        <span class="kw">let</span> <span class="ident">path_string</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;(in \&quot;{}\&quot;)&quot;</span>, <span class="ident">aleo_file_path</span>.<span class="ident">display</span>());
-
-        <span class="comment">// Log the build as successful.</span>
-        <span class="macro">tracing::info!</span>(
-            <span class="string">&quot;✅ Compiled &#39;{}&#39; into Aleo instructions {}&quot;</span>,
-            <span class="ident">file_name</span>,
-            <span class="ident">path_string</span>.<span class="ident">dimmed</span>()
-        );
-    }
-
-    <span class="prelude-val">Ok</span>(())
+    <span class="prelude-val">Ok</span>(<span class="ident">symbol_table</span>.<span class="ident">circuits</span>)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>

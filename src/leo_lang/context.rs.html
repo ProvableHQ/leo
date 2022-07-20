@@ -75,6 +75,18 @@
 <span id="70">70</span>
 <span id="71">71</span>
 <span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -96,6 +108,8 @@
 <span class="kw">use</span> <span class="ident">snarkvm::file::Manifest</span>;
 
 <span class="kw">use</span> <span class="ident">leo_package::build</span>::{<span class="ident">BuildDirectory</span>, <span class="ident">BUILD_DIRECTORY_NAME</span>};
+<span class="kw">use</span> <span class="ident">std::fs::File</span>;
+<span class="kw">use</span> <span class="ident">std::io::Write</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">env::current_dir</span>,
     <span class="ident">path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>},
@@ -130,7 +144,7 @@
         <span class="kw">let</span> <span class="ident">manifest</span> <span class="op">=</span> <span class="ident">Manifest</span>::<span class="op">&lt;</span><span class="ident">Network</span><span class="op">&gt;</span><span class="ident">::open</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">map_err</span>(<span class="ident">PackageError::failed_to_open_manifest</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Lookup the program id.</span>
-        <span class="kw">let</span> <span class="ident">program_id</span> <span class="op">=</span> <span class="ident">manifest</span>.<span class="ident">program_id</span>();
+        <span class="comment">// let program_id = manifest.program_id();</span>
 
         <span class="comment">// Create the Leo build/ directory if it doesn&#39;t exist.</span>
         <span class="kw">let</span> <span class="ident">build_path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">join</span>(<span class="ident">Path::new</span>(<span class="ident">BUILD_DIRECTORY_NAME</span>));
@@ -139,14 +153,24 @@
         }
 
         <span class="comment">// Mirror the program.json file in the Leo build/ directory for Aleo SDK compilation.</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">Manifest</span>::<span class="op">&lt;</span><span class="ident">Network</span><span class="op">&gt;</span><span class="ident">::exists_at</span>(<span class="kw-2">&amp;</span><span class="ident">build_path</span>) {
-            <span class="ident">Manifest</span>::<span class="op">&lt;</span><span class="ident">Network</span><span class="op">&gt;</span><span class="ident">::create</span>(<span class="kw-2">&amp;</span><span class="ident">build_path</span>, <span class="ident">program_id</span>).<span class="ident">map_err</span>(<span class="ident">PackageError::failed_to_open_manifest</span>)<span class="question-mark">?</span>;
-        }
+
+        <span class="comment">// Read the manifest file to string.</span>
+        <span class="kw">let</span> <span class="ident">manifest_string</span> <span class="op">=</span>
+            <span class="ident">std::fs::read_to_string</span>(<span class="kw-2">&amp;</span><span class="ident">manifest</span>.<span class="ident">path</span>()).<span class="ident">map_err</span>(<span class="ident">PackageError::failed_to_open_manifest</span>)<span class="question-mark">?</span>;
+
+        <span class="comment">// Construct the file path.</span>
+        <span class="kw">let</span> <span class="ident">build_manifest_path</span> <span class="op">=</span> <span class="ident">build_path</span>.<span class="ident">join</span>(<span class="ident">Manifest</span>::<span class="op">&lt;</span><span class="ident">Network</span><span class="op">&gt;</span><span class="ident">::file_name</span>());
+
+        <span class="comment">// Write the file.</span>
+        <span class="ident">File::create</span>(<span class="kw-2">&amp;</span><span class="ident">build_manifest_path</span>)
+            .<span class="ident">map_err</span>(<span class="ident">PackageError::failed_to_open_manifest</span>)<span class="question-mark">?</span>
+            .<span class="ident">write_all</span>(<span class="ident">manifest_string</span>.<span class="ident">as_bytes</span>())
+            .<span class="ident">map_err</span>(<span class="ident">PackageError::failed_to_open_manifest</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Get package name from program id.</span>
         <span class="prelude-val">Ok</span>(<span class="ident">manifest</span>)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_lang" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_lang" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>
