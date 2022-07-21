@@ -399,9 +399,10 @@ function-parameters = function-parameter *( "," function-parameter ) [ "," ]
 function-parameter = [ %s"public" / %s"constant" / %s"const" ]
                      identifier ":" type
 
-circuit-declaration = %s"circuit" "{" circuit-component-declaration
-                                      *( "," circuit-component-declaration )
-                                      [ "," ] "}"
+circuit-declaration = %s"circuit" identifier
+                      "{" circuit-component-declaration
+                          *( "," circuit-component-declaration )
+                          [ "," ] "}"
 
 circuit-component-declaration = identifier ":" type
 
