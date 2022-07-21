@@ -67,8 +67,6 @@ impl Command for Run {
         let mut arguments = vec![ALEO_CLI_COMMAND.to_string(), self.name];
         arguments.append(&mut inputs);
 
-        println!("Arguments: {:?}", arguments);
-
         // Open the Leo build/ directory
         let path = context.dir()?;
         let build_directory = BuildDirectory::open(&path)?;
