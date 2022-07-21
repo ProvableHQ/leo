@@ -370,7 +370,7 @@ conditional-statement = branch
                       / branch %s"else" conditional-statement
 
 loop-statement = %s"for" identifier ":" type
-                 %s"in" expression ".." expression
+                 %s"in" expression ".." [ "=" ] expression
                  block
 
 assignment-operator = "="
