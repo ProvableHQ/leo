@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error [EPAR0370025]: Could not lex the following content: `$`.\n"
+  - "Error [EPAR0370017]: Could not lex the following content: `$`.\n"

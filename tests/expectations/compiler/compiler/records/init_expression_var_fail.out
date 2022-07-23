@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372019]: Circuit initialization expression for `Token` is missing member `owner`.\n    --> compiler-test:13:12\n     |\n  13 |     return Token {\n  14 |         sender: r0, // This variable should be named `owner`.\n  15 |         gates: 0u64,\n  16 |         amount: r1,\n  17 |     };\n     |      ^^^^^^\n"
+  - "Error [ETYC0372013]: Circuit initialization expression for `Token` is missing member `owner`.\n    --> compiler-test:13:12\n     |\n  13 |     return Token {\n  14 |         sender: r0, // This variable should be named `owner`.\n  15 |         gates: 0u64,\n  16 |         amount: r1,\n  17 |     };\n     |      ^^^^^^\n"

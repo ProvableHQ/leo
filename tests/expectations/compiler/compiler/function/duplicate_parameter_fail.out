@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372018]: variable `a` shadowed by\n    --> compiler-test:3:23\n     |\n   3 | function main(a: u32, a: u32) -> u32 {\n     |                       ^\n"
+  - "Error [EAST0372011]: variable `a` shadowed by\n    --> compiler-test:3:23\n     |\n   3 | function main(a: u32, a: u32) -> u32 {\n     |                       ^\n"

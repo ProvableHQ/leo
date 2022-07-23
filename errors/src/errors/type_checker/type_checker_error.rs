@@ -71,42 +71,12 @@ create_messages!(
         help: None,
     }
 
-    /// The method name is known but not supported for the given type.
-    @formatted
-    type_method_not_supported {
-        args: (type_: impl Display, method: impl Display),
-        msg: format!(
-            "Type `{type_}` does not support associated method `{method}`",
-        ),
-        help: None,
-    }
-
     /// For when the user tries to return a unknown variable.
     @formatted
     unknown_sym {
         args: (kind: impl Display, sym: impl Display),
         msg: format!(
             "Unknown {kind} `{sym}`",
-        ),
-        help: None,
-    }
-
-    /// For when the user tries to expect a non integer type .
-    @formatted
-    type_should_be_integer {
-        args: (op: impl Debug, type_: impl Display),
-        msg: format!(
-            "Binary statement has numeric operation `{op:?}` but has expected type `{type_}`",
-        ),
-        help: None,
-    }
-
-    /// For when the user tries to negate a non negatable type.
-    @formatted
-    type_is_not_negatable {
-        args: (type_: impl Display),
-        msg: format!(
-            "The type `{type_}` is not negatable",
         ),
         help: None,
     }
@@ -127,26 +97,6 @@ create_messages!(
         args: (expected: impl Display, received: impl Display),
         msg: format!(
             "Expected one type from `{expected}`, but got `{received}`",
-        ),
-        help: None,
-    }
-
-    /// For when the base of a power is not a valid type.
-    @formatted
-    incorrect_pow_base_type {
-        args: (type_: impl Display),
-        msg: format!(
-            "The first operand must be an integer or field but got type `{type_}`",
-        ),
-        help: None,
-    }
-
-    /// For when the exponent of a power is not a valid type.
-    @formatted
-    incorrect_pow_exponent_type {
-        args: (allowed: impl Display, type_: impl Display),
-        msg: format!(
-            "The second operand must be a {allowed} but got type `{type_}`",
         ),
         help: None,
     }
@@ -197,16 +147,6 @@ create_messages!(
         args: (expected: impl Display, received: impl Display),
         msg: format!(
             "Circuit expected `{expected}` members, but got `{received}`",
-        ),
-        help: None,
-    }
-
-    /// For when the user tries initialize a circuit with the incorrect number of args.
-    @formatted
-    incorrect_num_record_variables {
-        args: (expected: impl Display, received: impl Display),
-        msg: format!(
-            "Record expected `{expected}` variables, but got `{received}`",
         ),
         help: None,
     }

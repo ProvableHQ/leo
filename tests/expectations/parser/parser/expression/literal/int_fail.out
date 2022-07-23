@@ -2,6 +2,6 @@
 namespace: ParseExpression
 expectation: Fail
 outputs:
-  - "Error [EPAR0370031]: A hex number `0x..` was provided but hex is not allowed."
-  - "Error [EPAR0370031]: A hex number `0x..` was provided but hex is not allowed."
-  - "Error [EPAR0370031]: A hex number `0x..` was provided but hex is not allowed."
+  - "Error [EPAR0370019]: A hex number `0x..` was provided but hex is not allowed."
+  - "Error [EPAR0370019]: A hex number `0x..` was provided but hex is not allowed."
+  - "Error [EPAR0370019]: A hex number `0x..` was provided but hex is not allowed."

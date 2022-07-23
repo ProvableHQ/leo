@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372026]: The field `gates` in a `record` must have type `u64`.\n    --> compiler-test:4:1\n     |\n   4 | record Token {\n   5 |     gates: address,\n   6 |     owner: address,\n   7 | }\n     | ^\n"
+  - "Error [ETYC0372020]: The field `gates` in a `record` must have type `u64`.\n    --> compiler-test:4:1\n     |\n   4 | record Token {\n   5 |     gates: address,\n   6 |     owner: address,\n   7 | }\n     | ^\n"

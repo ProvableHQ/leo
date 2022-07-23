@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372006]: Unknown variable `b`\n    --> compiler-test:10:13\n     |\n  10 |     return (b.x == a.x) == y;\n     |             ^\nError [ETYC0372004]: Could not determine the type of `b`\n    --> compiler-test:10:13\n     |\n  10 |     return (b.x == a.x) == y;\n     |             ^\nError [ETYC0372003]: Expected type `u8` but type `no type` was found\n    --> compiler-test:10:13\n     |\n  10 |     return (b.x == a.x) == y;\n     |             ^^^^^^^^\n"
+  - "Error [ETYC0372005]: Unknown variable `b`\n    --> compiler-test:10:13\n     |\n  10 |     return (b.x == a.x) == y;\n     |             ^\nError [ETYC0372004]: Could not determine the type of `b`\n    --> compiler-test:10:13\n     |\n  10 |     return (b.x == a.x) == y;\n     |             ^\nError [ETYC0372003]: Expected type `u8` but type `no type` was found\n    --> compiler-test:10:13\n     |\n  10 |     return (b.x == a.x) == y;\n     |             ^^^^^^^^\n"

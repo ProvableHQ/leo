@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372013]: Tuples of zero elements are not allowed.\n    --> compiler-test:3:36\n     |\n   3 | function main(a: bool, b: bool) -> () {\n     |                                    ^^"
+  - "Error [EAST0372006]: Tuples of zero elements are not allowed.\n    --> compiler-test:3:36\n     |\n   3 | function main(a: bool, b: bool) -> () {\n     |                                    ^^"

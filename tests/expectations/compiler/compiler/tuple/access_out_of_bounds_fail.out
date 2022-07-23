@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372030]: Tuple index `2` out of range for a tuple with length `2`\n    --> compiler-test:6:20\n     |\n   6 |     return (t.0, t.2); // Index `t.2` is out of bounds.\n     |                    ^\nError [ETYC0372020]: t.2 is not a valid core circuit call.\n    --> compiler-test:6:20\n     |\n   6 |     return (t.0, t.2); // Index `t.2` is out of bounds.\n     |                    ^\n"
+  - "Error [ETYC0372024]: Tuple index `2` out of range for a tuple with length `2`\n    --> compiler-test:6:20\n     |\n   6 |     return (t.0, t.2); // Index `t.2` is out of bounds.\n     |                    ^\nError [ETYC0372014]: t.2 is not a valid core circuit call.\n    --> compiler-test:6:20\n     |\n   6 |     return (t.0, t.2); // Index `t.2` is out of bounds.\n     |                    ^\n"

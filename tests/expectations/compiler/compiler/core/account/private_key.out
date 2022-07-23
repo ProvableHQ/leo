@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372015]: The type PrivateKey is a reserved core type name.\n    --> compiler-test:4:35\n     |\n   4 | function main(public private_key: PrivateKey, a: bool) -> bool {\n     |                                   ^^^^^^^^^^\n"
+  - "Error [ETYC0372010]: The type PrivateKey is a reserved core type name.\n    --> compiler-test:4:35\n     |\n   4 | function main(public private_key: PrivateKey, a: bool) -> bool {\n     |                                   ^^^^^^^^^^\n"
