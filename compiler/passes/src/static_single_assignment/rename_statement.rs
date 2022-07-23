@@ -18,14 +18,49 @@ use crate::StaticSingleAssigner;
 
 use leo_ast::{
     AssignOperation, AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement,
-    DefinitionStatement, Expression, ExpressionReconstructor, Identifier, Node, Statement, StatementReconstructor,
-    TernaryExpression,
+    DefinitionStatement, Expression, ExpressionReconstructor, Identifier, Node, ReturnStatement, Statement,
+    StatementReconstructor, TernaryExpression, UnaryExpression, UnaryOperation,
 };
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexSet;
 
 impl StatementReconstructor for StaticSingleAssigner<'_> {
+    /// Transforms a `ReturnStatement` into an `AssignStatement`, storing the variable and the associated guard in `self.early_returns`.
+    /// Note that this pass assumes that there is at most one `ReturnStatement` in a block.
+    fn reconstruct_return(&mut self, input: ReturnStatement) -> Statement {
+        // Create a fresh name for the expression in the return statement.
+        let symbol = Symbol::intern(&format!("$return${}", self.unique_id()));
+        self.rename_table.update(symbol, symbol);
+
+        // Initialize a new `AssignStatement` for the return expression.
+        let place = Expression::Identifier(Identifier::new(symbol));
+
+        // Add the variable and associated guard.
+        let guard = match self.condition_stack.is_empty() {
+            true => None,
+            false => {
+                let (first, rest) = self.condition_stack.split_first().unwrap();
+                Some(rest.iter().cloned().fold(first.clone(), |acc, condition| {
+                    Expression::Binary(BinaryExpression {
+                        op: BinaryOperation::And,
+                        left: Box::new(acc),
+                        right: Box::new(condition),
+                        span: Default::default(),
+                    })
+                }))
+            }
+        };
+        self.early_returns.push((guard, place.clone()));
+
+        Statement::Assign(Box::new(AssignStatement {
+            operation: AssignOperation::Assign,
+            place,
+            value: self.reconstruct_expression(input.expression).0,
+            span: Span::default(),
+        }))
+    }
+
     /// Reconstructs the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
     fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> Statement {
         self.is_lhs = true;
@@ -96,8 +131,14 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
         // Instantiate a `RenameTable` for the if-block.
         self.push();
 
+        // Add condition to the condition stack.
+        self.condition_stack.push(condition.clone());
+
         // Reconstruct the if-block.
         let block = self.reconstruct_block(conditional.block);
+
+        // Remove condition from the condition stack.
+        self.condition_stack.pop();
 
         // Remove the `RenameTable` for the if-block.
         let if_table = self.pop();
@@ -107,7 +148,14 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
 
         // Reconstruct the else-block.
         let next = conditional.next.map(|statement| {
-            Box::new(match *statement {
+            // Add the negated condition to the condition stack.
+            self.condition_stack.push(Expression::Unary(UnaryExpression {
+                op: UnaryOperation::Not,
+                receiver: Box::new(condition.clone()),
+                span: Default::default(),
+            }));
+
+            let reconstructed_block = Box::new(match *statement {
                 // The `ConditionalStatement` must be reconstructed as a `Block` statement to ensure that appropriate statements are produced.
                 Statement::Conditional(stmt) => self.reconstruct_statement(Statement::Block(Block {
                     statements: vec![Statement::Conditional(stmt)],
@@ -117,7 +165,12 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
                 _ => unreachable!(
                     "`ConditionalStatement`s next statement must be a `ConditionalStatement` or a `Block`."
                 ),
-            })
+            });
+
+            // Remove the negated condition from the condition stack.
+            self.condition_stack.pop();
+
+            reconstructed_block
         });
 
         // Remove the `RenameTable` for the else-block.
@@ -181,14 +234,7 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
         })
     }
 
-    /// This function:
-    ///   - Converts all `DefinitionStatement`s to `AssignStatement`s.
-    ///   - Introduces a new `AssignStatement` for non-trivial expressions in the condition of `ConditionalStatement`s.
-    ///     For example,
-    ///       - `if x > 0 { x = x + 1 }` becomes `let cond$0 = x > 0; if cond$0 { x = x + 1; }`
-    ///       - `if true { x = x + 1 }` remains the same.
-    ///       - `if b { x = x + 1 }` remains the same.
-    ///   - Flattens reconstructed `ConditionalStatement`s.
+    /// Reconstructs a `Block`, flattening its constituent `ConditionalStatement`s.
     fn reconstruct_block(&mut self, block: Block) -> Block {
         let mut statements = Vec::with_capacity(block.statements.len());
 
@@ -196,64 +242,7 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
         for statement in block.statements.into_iter() {
             match statement {
                 Statement::Conditional(conditional_statement) => {
-                    // Reconstruct the `ConditionalStatement`.
-                    let reconstructed_statement = match conditional_statement.condition {
-                        Expression::Err(_) => {
-                            unreachable!("Err expressions should not exist in the AST at this stage of compilation.")
-                        }
-                        Expression::Call(..) => {
-                            todo!()
-                        }
-                        Expression::Identifier(..) | Expression::Literal(..) => {
-                            self.reconstruct_conditional(conditional_statement)
-                        }
-                        // If the condition is a complex expression, introduce a new `AssignStatement` for it.
-                        Expression::Access(..)
-                        | Expression::Circuit(..)
-                        | Expression::Tuple(..)
-                        | Expression::Binary(..)
-                        | Expression::Unary(..)
-                        | Expression::Ternary(..) => {
-                            // Create a fresh variable name for the condition.
-                            let symbol = Symbol::intern(&format!("cond${}", self.unique_id()));
-                            self.rename_table.update(symbol, symbol);
-
-                            // Initialize a new `AssignStatement` for the condition.
-                            let place = Expression::Identifier(Identifier::new(symbol));
-                            let assign_statement = Statement::Assign(Box::new(AssignStatement {
-                                operation: AssignOperation::Assign,
-                                place: place.clone(),
-                                value: self.reconstruct_expression(conditional_statement.condition).0,
-                                span: Span::default(),
-                            }));
-                            let rewritten_conditional_statement = ConditionalStatement {
-                                condition: place,
-                                block: conditional_statement.block,
-                                next: conditional_statement.next,
-                                span: conditional_statement.span,
-                            };
-                            statements.push(assign_statement);
-                            self.reconstruct_conditional(rewritten_conditional_statement)
-                        }
-                    };
-
-                    // Flatten the reconstructed `ConditionalStatement` by lifting the statements in the "if" and "else" block
-                    // into their parent block.
-                    let mut conditional_statement = match reconstructed_statement {
-                        Statement::Conditional(conditional_statement) => conditional_statement,
-                        _ => unreachable!("`reconstruct_conditional` will always produce a `ConditionalStatement`"),
-                    };
-                    statements.append(&mut conditional_statement.block.statements);
-                    if let Some(statement) = conditional_statement.next {
-                        match *statement {
-                            // If we encounter a `BlockStatement` we need to lift its constituent statements into the current `BlockStatement`.
-                            Statement::Block(mut block) => statements.append(&mut block.statements),
-                            _ => unreachable!("`self.reconstruct_conditional` will always produce a `BlockStatement` in the next block."),
-                        }
-                    }
-
-                    // Add all phi functions to the current block.
-                    statements.append(&mut self.clear_phi_functions());
+                    statements.extend(self.flatten_conditional_statement(conditional_statement))
                 }
                 _ => statements.push(self.reconstruct_statement(statement)),
             }

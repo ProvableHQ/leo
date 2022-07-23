@@ -16,7 +16,10 @@
 
 use crate::StaticSingleAssigner;
 
-use leo_ast::{Function, FunctionInput, ProgramReconstructor, StatementReconstructor};
+use leo_ast::{
+    Expression, Function, FunctionInput, ProgramReconstructor, ReturnStatement, Statement, StatementReconstructor,
+    TernaryExpression,
+};
 
 impl ProgramReconstructor for StaticSingleAssigner<'_> {
     /// Reconstructs the `Function`s in the `Program`, while allocating the appropriate `RenameTable`s.
@@ -37,8 +40,34 @@ impl ProgramReconstructor for StaticSingleAssigner<'_> {
             }
         }
 
-        // Rename the function's body.
-        let block = self.reconstruct_block(function.block);
+        let mut block = self.reconstruct_block(function.block);
+
+        // Add the `ReturnStatement` to the end of the block.
+        let mut returns = self.clear_early_returns();
+
+        // Type checking guarantees that there exists at least one return statement in the function body.
+        let (_, last_return_expression) = returns.pop().unwrap();
+
+        // Fold all return expressions into a single ternary expression.
+        let expression =
+            returns
+                .into_iter()
+                .rev()
+                .fold(last_return_expression, |acc, (guard, expression)| match guard {
+                    None => unreachable!("All return statements except for the last one must have a guard."),
+                    Some(guard) => Expression::Ternary(TernaryExpression {
+                        condition: Box::new(guard),
+                        if_true: Box::new(expression),
+                        if_false: Box::new(acc),
+                        span: Default::default(),
+                    }),
+                });
+
+        // Add the `ReturnStatement` to the end of the block.
+        block.statements.push(Statement::Return(ReturnStatement {
+            expression,
+            span: Default::default(),
+        }));
 
         // Remove the `RenameTable` for the function.
         self.pop();
