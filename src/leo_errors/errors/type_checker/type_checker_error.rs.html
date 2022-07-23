@@ -265,66 +265,6 @@
 <span id="260">260</span>
 <span id="261">261</span>
 <span id="262">262</span>
-<span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
-<span id="304">304</span>
-<span id="305">305</span>
-<span id="306">306</span>
-<span id="307">307</span>
-<span id="308">308</span>
-<span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -398,42 +338,12 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// The method name is known but not supported for the given type.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">type_method_not_supported</span> {
-        <span class="ident">args</span>: (<span class="ident">type_</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">method</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;Type `{type_}` does not support associated method `{method}`&quot;</span>,
-        ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
-    }
-
     <span class="doccomment">/// For when the user tries to return a unknown variable.</span>
     @<span class="ident">formatted</span>
     <span class="ident">unknown_sym</span> {
         <span class="ident">args</span>: (<span class="ident">kind</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">sym</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(
             <span class="string">&quot;Unknown {kind} `{sym}`&quot;</span>,
-        ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
-    }
-
-    <span class="doccomment">/// For when the user tries to expect a non integer type .</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">type_should_be_integer</span> {
-        <span class="ident">args</span>: (<span class="ident">op</span>: <span class="kw">impl</span> <span class="ident">Debug</span>, <span class="ident">type_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;Binary statement has numeric operation `{op:?}` but has expected type `{type_}`&quot;</span>,
-        ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
-    }
-
-    <span class="doccomment">/// For when the user tries to negate a non negatable type.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">type_is_not_negatable</span> {
-        <span class="ident">args</span>: (<span class="ident">type_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;The type `{type_}` is not negatable&quot;</span>,
         ),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
@@ -454,26 +364,6 @@
         <span class="ident">args</span>: (<span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">received</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(
             <span class="string">&quot;Expected one type from `{expected}`, but got `{received}`&quot;</span>,
-        ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
-    }
-
-    <span class="doccomment">/// For when the base of a power is not a valid type.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">incorrect_pow_base_type</span> {
-        <span class="ident">args</span>: (<span class="ident">type_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;The first operand must be an integer or field but got type `{type_}`&quot;</span>,
-        ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
-    }
-
-    <span class="doccomment">/// For when the exponent of a power is not a valid type.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">incorrect_pow_exponent_type</span> {
-        <span class="ident">args</span>: (<span class="ident">allowed</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">type_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;The second operand must be a {allowed} but got type `{type_}`&quot;</span>,
         ),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
@@ -524,16 +414,6 @@
         <span class="ident">args</span>: (<span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">received</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(
             <span class="string">&quot;Circuit expected `{expected}` members, but got `{received}`&quot;</span>,
-        ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
-    }
-
-    <span class="doccomment">/// For when the user tries initialize a circuit with the incorrect number of args.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">incorrect_num_record_variables</span> {
-        <span class="ident">args</span>: (<span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">received</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;Record expected `{expected}` variables, but got `{received}`&quot;</span>,
         ),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
