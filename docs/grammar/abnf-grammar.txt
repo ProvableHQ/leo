@@ -400,15 +400,16 @@ function-parameter = [ %s"public" / %s"constant" / %s"const" ]
                      identifier ":" type
 
 circuit-declaration = %s"circuit" identifier
-                      "{" circuit-component-declaration
-                          *( "," circuit-component-declaration )
-                          [ "," ] "}"
+                      "{" circuit-component-declarations "}"
+
+circuit-component-declarations = circuit-component-declaration
+                                 *( "," circuit-component-declaration )
+                                 [ "," ]
 
 circuit-component-declaration = identifier ":" type
 
-record-declaration = %s"record" "{" circuit-component-declaration
-                                    *( "," circuit-component-declaration )
-                                    [ "," ] "}"
+record-declaration = %s"record" identifier
+                     "{" circuit-component-declarations "}"
 
 declaration = function-declaration
             / circuit-declaration
