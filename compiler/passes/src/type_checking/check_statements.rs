@@ -31,7 +31,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             .borrow()
             .lookup_fn_symbol(parent)
             .map(|f| f.output.clone());
-        self.check_core_type_conflict(return_type);
 
         self.has_return = true;
 
@@ -44,8 +43,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         } else {
             VariableType::Mut
         };
-
-        self.check_core_type_conflict(&Some(input.type_.clone()));
 
         self.visit_expression(&input.value, &Some(input.type_.clone()));
 
@@ -87,7 +84,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         };
 
         if var_type.is_some() {
-            self.check_core_type_conflict(&var_type);
             self.visit_expression(&input.value, &var_type);
         }
     }
@@ -103,7 +99,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
         let iter_type = &Some(input.type_.clone());
         self.assert_int_type(iter_type, input.variable.span);
-        self.check_core_type_conflict(iter_type);
 
         // Create a new scope for the loop body.
         let scope_index = self.symbol_table.borrow_mut().insert_block();

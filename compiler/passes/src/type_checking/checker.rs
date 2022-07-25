@@ -21,7 +21,6 @@ use leo_core::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
 
-use indexmap::IndexSet;
 use itertools::Itertools;
 use std::cell::RefCell;
 
@@ -31,8 +30,6 @@ pub struct TypeChecker<'a> {
     pub(crate) parent: Option<Symbol>,
     pub(crate) has_return: bool,
     pub(crate) negate: bool,
-    pub(crate) account_types: IndexSet<Symbol>,
-    pub(crate) algorithms_types: IndexSet<Symbol>,
 }
 
 const BOOLEAN_TYPE: Type = Type::Boolean;
@@ -69,8 +66,6 @@ impl<'a> TypeChecker<'a> {
             parent: None,
             has_return: false,
             negate: false,
-            account_types: Account::types(),
-            algorithms_types: Algorithms::types(),
         }
     }
 
@@ -308,16 +303,6 @@ impl<'a> TypeChecker<'a> {
         }
 
         Type::Identifier(circuit)
-    }
-
-    /// Emits an error if the given type conflicts with a core library type.
-    pub(crate) fn check_core_type_conflict(&self, type_: &Option<Type>) {
-        // todo: deprecate this method.
-        if let Some(Type::Identifier(ident)) = type_ {
-            if self.account_types.contains(&ident.name) || self.algorithms_types.contains(&ident.name) {
-                self.emit_err(TypeCheckerError::core_type_name_conflict(&ident.name, ident.span()));
-            }
-        }
     }
 
     /// Emits an error if the type is a tuple.

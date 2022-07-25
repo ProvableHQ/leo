@@ -1182,7 +1182,6 @@ dependencies = [
 name = "leo-core"
 version = "1.5.3"
 dependencies = [
- "indexmap",
  "leo-ast",
  "leo-errors",
  "leo-span",

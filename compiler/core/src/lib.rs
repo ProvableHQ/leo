@@ -16,15 +16,5 @@
 
 #![doc = include_str!("../README.md")]
 
-use indexmap::IndexSet;
-use leo_span::Symbol;
-
-mod account;
-pub use account::*;
-
 mod algorithms;
 pub use algorithms::*;
-
-pub trait Types {
-    fn types() -> IndexSet<Symbol>;
-}
