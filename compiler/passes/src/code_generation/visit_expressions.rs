@@ -63,6 +63,7 @@ impl<'a> CodeGenerator<'a> {
             BinaryOperation::BitwiseAnd => String::from("and"),
             BinaryOperation::Div => String::from("div"),
             BinaryOperation::DivWrapped => String::from("div.w"),
+            BinaryOperation::Remainder => String::from("mod"), // todo: confirm this is the correct instruction call in AVM
             BinaryOperation::Eq => String::from("is.eq"),
             BinaryOperation::Gte => String::from("gte"),
             BinaryOperation::Gt => String::from("gt"),

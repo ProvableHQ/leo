@@ -129,6 +129,7 @@ symbols! {
     or,
     pow,
     pow_wrapped,
+    remainder: "mod",
     shl,
     shl_wrapped,
     shr,

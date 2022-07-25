@@ -389,7 +389,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     }
                 }
             }
-            BinaryOperation::Div => {
+            BinaryOperation::Div | BinaryOperation::Remainder => {
                 // Only field or integer types.
                 self.assert_field_int_type(destination, input.span());
 

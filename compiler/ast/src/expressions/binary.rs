@@ -62,6 +62,8 @@ pub enum BinaryOperation {
     Pow,
     /// Wrapping exponentiation, i.e. `.pow_wrapped()`.
     PowWrapped,
+    /// The remainder of a non-wrapping division, i.e. `%`, `mod()`.
+    Remainder,
     /// Shift left operation, i.e. `<<`, `.shl()`.
     Shl,
     /// Wrapping shift left operation, i.e. `.shl_wrapped()`.
@@ -104,6 +106,7 @@ impl fmt::Display for BinaryOperation {
                 Self::BitwiseOr => "|",
                 Self::Pow => "**",
                 Self::PowWrapped => "pow_wrapped",
+                Self::Remainder => "%",
                 Self::Shl => "<<",
                 Self::ShlWrapped => "shl_wrapped",
                 Self::Shr => ">>",
@@ -138,6 +141,7 @@ impl BinaryOperation {
             sym::or => Self::BitwiseOr,
             sym::pow => Self::Pow,
             sym::pow_wrapped => Self::PowWrapped,
+            sym::remainder => Self::Remainder,
             sym::shl => Self::Shl,
             sym::shl_wrapped => Self::ShlWrapped,
             sym::shr => Self::Shr,

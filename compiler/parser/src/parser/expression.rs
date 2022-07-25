@@ -130,6 +130,7 @@ impl ParserContext<'_> {
             Token::Minus => BinaryOperation::Sub,
             Token::Mul => BinaryOperation::Mul,
             Token::Div => BinaryOperation::Div,
+            Token::Remainder => BinaryOperation::Remainder,
             Token::Or => BinaryOperation::Or,
             Token::And => BinaryOperation::And,
             Token::BitwiseOr => BinaryOperation::BitwiseOr,
@@ -213,7 +214,10 @@ impl ParserContext<'_> {
     ///
     /// Otherwise, tries to parse the next token using [`parse_exponential_expression`].
     fn parse_multiplicative_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(&[Token::Mul, Token::Div], Self::parse_exponential_expression)
+        self.parse_bin_expr(
+            &[Token::Mul, Token::Div, Token::Remainder],
+            Self::parse_exponential_expression,
+        )
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
