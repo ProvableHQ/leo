@@ -441,7 +441,7 @@ format-string = *format-string-element
 ; Input Grammar
 ; -------------
 
-input-type = primitive-type
+input-type = type
 
 input-expression = expression
 
