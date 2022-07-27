@@ -130,8 +130,8 @@ impl<'a> StaticSingleAssigner<'a> {
             }
         };
 
-        // Flatten the reconstructed `ConditionalStatement` by lifting the statements in the "if" and "else" block
-        // into their parent block.
+        // Flatten the reconstructed `ConditionalStatement`
+        // by lifting the statements in the "if" and "else" block into their parent block.
         let mut conditional_statement = match reconstructed_statement {
             Statement::Conditional(conditional_statement) => conditional_statement,
             _ => unreachable!("`reconstruct_conditional` will always produce a `ConditionalStatement`"),
@@ -139,7 +139,8 @@ impl<'a> StaticSingleAssigner<'a> {
         statements.append(&mut conditional_statement.block.statements);
         if let Some(statement) = conditional_statement.next {
             match *statement {
-                // If we encounter a `BlockStatement` we need to lift its constituent statements into the current `BlockStatement`.
+                // If we encounter a `BlockStatement`,
+                // we need to lift its constituent statements into the current `BlockStatement`.
                 Statement::Block(mut block) => statements.append(&mut block.statements),
                 _ => unreachable!(
                     "`self.reconstruct_conditional` will always produce a `BlockStatement` in the next block."

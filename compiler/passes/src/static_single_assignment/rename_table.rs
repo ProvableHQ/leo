@@ -37,11 +37,12 @@ impl RenameTable {
     }
 
     /// Returns the symbols that were renamed in the current scope.
-    pub(crate) fn local_names(&self) -> Vec<&Symbol> {
-        self.mapping.keys().collect()
+    pub(crate) fn local_names(&self) -> impl Iterator<Item = &Symbol> {
+        self.mapping.keys()
     }
 
-    /// Updates `self.mapping` with the desired entry. Creates a new entry if `symbol` is not already in `self.mapping`.
+    /// Updates `self.mapping` with the desired entry.
+    /// Creates a new entry if `symbol` is not already in `self.mapping`.
     pub(crate) fn update(&mut self, symbol: Symbol, new_symbol: Symbol) {
         self.mapping.insert(symbol, new_symbol);
     }

@@ -26,7 +26,9 @@ use leo_span::{Span, Symbol};
 use indexmap::IndexSet;
 
 impl StatementReconstructor for StaticSingleAssigner<'_> {
-    /// Transforms a `ReturnStatement` into an `AssignStatement`, storing the variable and the associated guard in `self.early_returns`.
+    /// Transforms a `ReturnStatement` into an `AssignStatement`,
+    /// storing the variable and the associated guard in `self.early_returns`.
+    ///
     /// Note that this pass assumes that there is at most one `ReturnStatement` in a block.
     fn reconstruct_return(&mut self, input: ReturnStatement) -> Statement {
         // Create a fresh name for the expression in the return statement.
@@ -177,8 +179,8 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
         let else_table = self.pop();
 
         // Compute the write set for the variables written in the if-block or else-block.
-        let if_write_set: IndexSet<&Symbol> = IndexSet::from_iter(if_table.local_names().into_iter());
-        let else_write_set: IndexSet<&Symbol> = IndexSet::from_iter(else_table.local_names().into_iter());
+        let if_write_set: IndexSet<&Symbol> = IndexSet::from_iter(if_table.local_names());
+        let else_write_set: IndexSet<&Symbol> = IndexSet::from_iter(else_table.local_names());
         let write_set = if_write_set.union(&else_write_set);
 
         // For each variable in the write set, instantiate a phi function.
