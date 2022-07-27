@@ -14,12 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{
-    cell::RefCell,
-    fmt, fs,
-    path::{Path, PathBuf},
-    rc::Rc,
-};
 
 use crate::{Compiler, OutputOptions};
 
@@ -27,14 +21,27 @@ use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
     LeoError, LeoWarning,
 };
-use leo_passes::SymbolTable;
 use leo_span::{source_map::FileName, symbol::create_session_if_not_set_then};
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
     Test,
 };
+use snarkvm::prelude::*;
+use snarkvm::file::Manifest;
+use snarkvm::package::Package;
+
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
+use std::{
+    cell::RefCell,
+    fs,
+    path::{Path, PathBuf},
+    rc::Rc,
+};
+use std::{fs::File, io::Write};
+use leo_passes::{CodeGenerator, Pass};
+
+type CurrentNetwork = Testnet3;
 
 fn new_compiler(handler: &Handler, main_file_path: PathBuf) -> Compiler<'_> {
     let output_dir = PathBuf::from("/tmp/output/");
@@ -42,7 +49,7 @@ fn new_compiler(handler: &Handler, main_file_path: PathBuf) -> Compiler<'_> {
 
     Compiler::new(
         String::from("test"),
-        String::from("testnet3"),
+        String::from("aleo"),
         handler,
         main_file_path,
         output_dir,
@@ -135,24 +142,17 @@ fn collect_all_inputs(test: &Test) -> Result<Vec<PathBuf>, String> {
     Ok(list)
 }
 
-fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<SymbolTable, LeoError> {
-    let st = parsed.symbol_table_pass()?;
-    let st = parsed.type_checker_pass(st)?;
-    let st = parsed.loop_unrolling_pass(st)?;
-    Ok(st)
-}
-
 // Errors used in this module.
 enum LeoOrString {
     Leo(LeoError),
     String(String),
 }
 
-impl fmt::Display for LeoOrString {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for LeoOrString {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Leo(x) => x.fmt(f),
-            Self::String(x) => x.fmt(f),
+            Self::Leo(x) => std::fmt::Display::fmt(&x,f),
+            Self::String(x) => std::fmt::Display::fmt(&x, f),
         }
     }
 }
@@ -183,6 +183,20 @@ fn buffer_if_err<T>(buf: &BufferEmitter, res: Result<T, String>) -> Result<T, ()
     res.map_err(|err| buf.0.borrow_mut().push(LeoOrString::String(err)))
 }
 
+fn temp_dir() -> PathBuf {
+    tempfile::tempdir().expect("Failed to open temporary directory").into_path()
+}
+
+fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>, handler: &Handler) -> Result<String, LeoError> {
+    let st = parsed.symbol_table_pass()?;
+    let st = parsed.type_checker_pass(st)?;
+    let _st = parsed.loop_unrolling_pass(st)?;
+    // Compile Leo program to bytecode.
+    let bytecode = CodeGenerator::do_pass((&parsed.ast, handler))?;
+
+    Ok(bytecode)
+}
+
 fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Value, ()> {
     // Check for CWD option:
     // ``` cwd: import ```
@@ -202,19 +216,49 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     let mut output_items = Vec::with_capacity(inputs.len());
 
     if inputs.is_empty() {
-        handler.extend_if_error(compile_and_process(&mut parsed))?;
         output_items.push(OutputItem {
             initial_input_ast: "no input".to_string(),
         });
     } else {
+        // Parse one or more input files to execute the program with.
         for input in inputs {
             let mut parsed = parsed.clone();
             handler.extend_if_error(parsed.parse_input(input))?;
-            handler.extend_if_error(compile_and_process(&mut parsed))?;
             let initial_input_ast = hash_file("/tmp/output/initial_input_ast.json");
 
             output_items.push(OutputItem { initial_input_ast });
         }
+    };
+
+    // Compile the program to bytecode.
+    let program_name = format!("{}.aleo", parsed.program_name);
+    let bytecode = handler.extend_if_error(compile_and_process(&mut parsed, &handler))?;
+
+    // Run snarkvm package.
+    {
+        // Initialize a temporary directory.
+        let directory = temp_dir();
+
+        // Create the program id.
+        let program_id = ProgramID::<CurrentNetwork>::from_str(&program_name).unwrap();
+
+        // Write the program string to a file in the temporary directory.
+        let path = directory.join("main.aleo");
+        let mut file = File::create(&path).unwrap();
+        file.write_all(bytecode.as_bytes()).unwrap();
+
+        // Create the manifest file.
+        let _manifest_file = Manifest::create(&directory, &program_id).unwrap();
+
+        // Create the build directory.
+        let build_directory = directory.join("build");
+        std::fs::create_dir_all(&build_directory).unwrap();
+
+        // Open the package at the temporary directory.
+        let package = Package::<Testnet3>::open(&directory).unwrap();
+
+        // Get the program process and check all instructions.
+        package.get_process().unwrap();
     }
 
     let initial_ast = hash_file("/tmp/output/initial_ast.json");

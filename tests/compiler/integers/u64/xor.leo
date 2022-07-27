@@ -4,6 +4,6 @@ expectation: Pass
 input_file: inputs/add.in
 */
 
-function main(a: u64, b: u64, c: u64) -> bool {
-    return a ^ 2u8 == a ^ 2u16 && a ^ 2u32 == c;
+function main(a: u64, b: u64) -> u64 {
+    return a ^ b;
 }

@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372010]: The type ViewKey is a reserved core type name.\n    --> compiler-test:4:32\n     |\n   4 | function main(public view_key: ViewKey, a: bool) -> bool {\n     |                                ^^^^^^^\n"

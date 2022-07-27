@@ -4,5 +4,5 @@ expectation: Fail
 */
 
 function main() {
-    const a: i32 = -2147483649i32;
+    const a: i32 = -2147483648i32;
 }

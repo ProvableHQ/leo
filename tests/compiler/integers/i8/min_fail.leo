@@ -4,5 +4,5 @@ expectation: Fail
 */
 
 function main() {
-    const a: i8 = -129i8;
+    const a: i8 = -128i8;
 }

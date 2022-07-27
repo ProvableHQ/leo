@@ -45,12 +45,20 @@ version = "0.10"
 path = "../../tests/test-framework"
 version = "1.4.0"
 
+[dev-dependencies.snarkvm]
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "84c3e20"
+features = ["circuit", "console", "parallel"]
+
 [dev-dependencies.serde]
 version = "1.0.140"
 features = ["derive"]
 
 [dev-dependencies.serde_yaml]
 version = "0.8.25"
+
+[dev-dependencies.tempfile]
+version = "3.3"
 
 [features]
 default = []

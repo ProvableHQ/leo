@@ -103,7 +103,7 @@ impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Type::Address => write!(f, "address"),
-            Type::Boolean => write!(f, "bool"),
+            Type::Boolean => write!(f, "boolean"),
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
             Type::I8 => write!(f, "i8"),

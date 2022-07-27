@@ -34,6 +34,10 @@ version = "1.5.3"
 git = "https://github.com/AleoHQ/snarkVM.git"
 rev = "85b7a79"
 
+[dependencies.clap]
+version = "3.2"
+features = ["derive"]
+
 [dependencies.indexmap]
 version = "1.9"
 
@@ -60,10 +64,6 @@ features = [ "preserve_order" ]
 
 [dev-dependencies.serde_yaml]
 version = "0.8"
-
-[dependencies.clap]
-version = "3.2"
-features = ["derive"]
 
 [features]
 default = [ ]
