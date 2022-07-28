@@ -234,6 +234,8 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     let program_name = format!("{}.aleo", parsed.program_name);
     let bytecode = handler.extend_if_error(compile_and_process(&mut parsed, &handler))?;
 
+    println!("bytecode: \n{}", bytecode);
+
     // Run snarkvm package.
     {
         // Initialize a temporary directory.
