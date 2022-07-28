@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::StaticSingleAssigner;
+use crate::{RenameTable, StaticSingleAssigner};
 
 use leo_ast::{
     AssignOperation, AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement,
     DefinitionStatement, Expression, ExpressionReconstructor, Identifier, Node, ReturnStatement, Statement,
     StatementReconstructor, TernaryExpression, UnaryExpression, UnaryOperation,
 };
-use leo_span::{Span, Symbol};
+use leo_span::Symbol;
 
 use indexmap::IndexSet;
 
@@ -32,7 +32,7 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
     /// Note that this pass assumes that there is at most one `ReturnStatement` in a block.
     fn reconstruct_return(&mut self, input: ReturnStatement) -> Statement {
         // Create a fresh name for the expression in the return statement.
-        let symbol = Symbol::intern(&format!("$return${}", self.unique_id()));
+        let symbol = self.unique_symbol("$return");
         self.rename_table.update(symbol, symbol);
 
         // Initialize a new `AssignStatement` for the return expression.
@@ -55,12 +55,7 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
         };
         self.early_returns.push((guard, place.clone()));
 
-        Statement::Assign(Box::new(AssignStatement {
-            operation: AssignOperation::Assign,
-            place,
-            value: self.reconstruct_expression(input.expression).0,
-            span: Span::default(),
-        }))
+        Self::simple_assign_statement(place, self.reconstruct_expression(input.expression).0)
     }
 
     /// Reconstructs the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
@@ -72,12 +67,10 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
         };
         self.is_lhs = false;
 
-        Statement::Assign(Box::new(AssignStatement {
-            operation: AssignOperation::Assign,
-            place: Expression::Identifier(identifier),
-            value: self.reconstruct_expression(definition.value).0,
-            span: Default::default(),
-        }))
+        Self::simple_assign_statement(
+            Expression::Identifier(identifier),
+            self.reconstruct_expression(definition.value).0,
+        )
     }
 
     /// Transform all `AssignStatement`s to simple `AssignStatement`s.
@@ -90,71 +83,52 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
         let place = self.reconstruct_expression(assign.place).0;
         self.is_lhs = false;
 
-        // Helper function to construct a binary expression using `assignee` and `value` as operands.
-        let mut reconstruct_to_binary_operation =
-            |binary_operation: BinaryOperation, value: Expression| -> Expression {
-                let expression_span = value.span();
-                Expression::Binary(BinaryExpression {
-                    left: Box::new(place.clone()),
-                    right: Box::new(self.reconstruct_expression(value).0),
-                    op: binary_operation,
-                    span: expression_span,
-                })
-            };
-
         let value = match assign.operation {
             AssignOperation::Assign => self.reconstruct_expression(assign.value).0,
-            AssignOperation::Add => reconstruct_to_binary_operation(BinaryOperation::Add, assign.value),
-            AssignOperation::Sub => reconstruct_to_binary_operation(BinaryOperation::Sub, assign.value),
-            AssignOperation::Mul => reconstruct_to_binary_operation(BinaryOperation::Mul, assign.value),
-            AssignOperation::Div => reconstruct_to_binary_operation(BinaryOperation::Div, assign.value),
-            AssignOperation::Pow => reconstruct_to_binary_operation(BinaryOperation::Pow, assign.value),
-            AssignOperation::Or => reconstruct_to_binary_operation(BinaryOperation::Or, assign.value),
-            AssignOperation::And => reconstruct_to_binary_operation(BinaryOperation::And, assign.value),
-            AssignOperation::BitOr => reconstruct_to_binary_operation(BinaryOperation::BitwiseOr, assign.value),
-            AssignOperation::BitAnd => reconstruct_to_binary_operation(BinaryOperation::BitwiseAnd, assign.value),
-            AssignOperation::BitXor => reconstruct_to_binary_operation(BinaryOperation::Xor, assign.value),
-            AssignOperation::Shr => reconstruct_to_binary_operation(BinaryOperation::Shr, assign.value),
-            AssignOperation::Shl => reconstruct_to_binary_operation(BinaryOperation::Shl, assign.value),
+            _ => {
+                // Note that all `AssignOperation`s except for the `Assign` variant have an equivalent `BinaryOperation`.
+                let bin_op: Option<BinaryOperation> = assign.operation.into();
+                Expression::Binary(BinaryExpression {
+                    left: Box::new(place.clone()),
+                    right: Box::new(self.reconstruct_expression(assign.value).0),
+                    op: bin_op.unwrap(),
+                    span: assign.span,
+                })
+            }
         };
 
-        Statement::Assign(Box::new(AssignStatement {
-            operation: AssignOperation::Assign,
-            place,
-            value,
-            span: Default::default(),
-        }))
+        Self::simple_assign_statement(place, value)
     }
 
-    /// Reconstructs a `ConditionalStatement`, producing phi functions for variables written in the if and else-blocks.
+    /// Reconstructs a `ConditionalStatement`, producing phi functions for variables written in the then-block and otherwise-block.
     fn reconstruct_conditional(&mut self, conditional: ConditionalStatement) -> Statement {
         let condition = self.reconstruct_expression(conditional.condition).0;
 
-        // Instantiate a `RenameTable` for the if-block.
+        // Instantiate a `RenameTable` for the then-block.
         self.push();
 
         // Add condition to the condition stack.
         self.condition_stack.push(condition.clone());
 
-        // Reconstruct the if-block.
-        let block = self.reconstruct_block(conditional.block);
+        // Reconstruct the then-block.
+        let block = self.reconstruct_block(conditional.then);
 
         // Remove condition from the condition stack.
         self.condition_stack.pop();
 
-        // Remove the `RenameTable` for the if-block.
+        // Remove the `RenameTable` for the then-block.
         let if_table = self.pop();
 
-        // Instantiate a `RenameTable` for the else-block.
+        // Instantiate a `RenameTable` for the otherwise-block.
         self.push();
 
-        // Reconstruct the else-block.
-        let next = conditional.next.map(|statement| {
+        // Reconstruct the otherwise-block.
+        let next = conditional.otherwise.map(|statement| {
             // Add the negated condition to the condition stack.
             self.condition_stack.push(Expression::Unary(UnaryExpression {
                 op: UnaryOperation::Not,
                 receiver: Box::new(condition.clone()),
-                span: Default::default(),
+                span: condition.span(),
             }));
 
             let reconstructed_block = Box::new(match *statement {
@@ -175,10 +149,10 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
             reconstructed_block
         });
 
-        // Remove the `RenameTable` for the else-block.
+        // Remove the `RenameTable` for the otherwise-block.
         let else_table = self.pop();
 
-        // Compute the write set for the variables written in the if-block or else-block.
+        // Compute the write set for the variables written in the then-block or otherwise-block.
         let if_write_set: IndexSet<&Symbol> = IndexSet::from_iter(if_table.local_names());
         let else_write_set: IndexSet<&Symbol> = IndexSet::from_iter(else_table.local_names());
         let write_set = if_write_set.union(&else_write_set);
@@ -187,40 +161,36 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
         for symbol in write_set {
             // Note that phi functions only need to be instantiated if the variable exists before the `ConditionalStatement`.
             if self.rename_table.lookup(**symbol).is_some() {
-                let if_name = if_table
-                    .lookup(**symbol)
-                    .unwrap_or_else(|| panic!("Symbol {} should exist in the program.", symbol));
-                let else_name = else_table
-                    .lookup(**symbol)
-                    .unwrap_or_else(|| panic!("Symbol {} should exist in the program.", symbol));
-
-                let ternary = Expression::Ternary(TernaryExpression {
-                    condition: Box::new(condition.clone()),
-                    if_true: Box::new(Expression::Identifier(Identifier {
-                        name: *if_name,
+                // Helper to lookup a symbol and create an argument for the phi function.
+                let create_phi_argument = |table: &RenameTable, symbol: Symbol| {
+                    let name = *table
+                        .lookup(symbol)
+                        .unwrap_or_else(|| panic!("Symbol {} should exist in the program.", symbol));
+                    Box::new(Expression::Identifier(Identifier {
+                        name,
                         span: Default::default(),
-                    })),
-                    if_false: Box::new(Expression::Identifier(Identifier {
-                        name: *else_name,
-                        span: Default::default(),
-                    })),
-                    span: Default::default(),
-                });
+                    }))
+                };
 
                 // Create a new name for the variable written to in the `ConditionalStatement`.
-                let new_name = Symbol::intern(&format!("{}${}", symbol, self.unique_id()));
-                self.rename_table.update(*(*symbol), new_name);
+                let new_name = self.unique_symbol(symbol);
 
                 // Create a new `AssignStatement` for the phi function.
-                let assignment = Statement::Assign(Box::from(AssignStatement {
-                    operation: AssignOperation::Assign,
-                    place: Expression::Identifier(Identifier {
+                let assignment = Self::simple_assign_statement(
+                    Expression::Identifier(Identifier {
                         name: new_name,
                         span: Default::default(),
                     }),
-                    value: ternary,
-                    span: Default::default(),
-                }));
+                    Expression::Ternary(TernaryExpression {
+                        condition: Box::new(condition.clone()),
+                        if_true: create_phi_argument(&if_table, **symbol),
+                        if_false: create_phi_argument(&else_table, **symbol),
+                        span: Default::default(),
+                    }),
+                );
+
+                // Update the `RenameTable` with the new name of the variable.
+                self.rename_table.update(*(*symbol), new_name);
 
                 // Store the generate phi functions.
                 self.phi_functions.push(assignment);
@@ -230,8 +200,8 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
         // Note that we only produce
         Statement::Conditional(ConditionalStatement {
             condition,
-            block,
-            next,
+            then: block,
+            otherwise: next,
             span: conditional.span,
         })
     }

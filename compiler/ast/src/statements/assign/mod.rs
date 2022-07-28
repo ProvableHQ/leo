@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Node};
+use crate::{BinaryOperation, Expression, Node};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -73,6 +73,28 @@ impl AsRef<str> for AssignOperation {
             // AssignOperation::ShrSigned => ">>>=",
             AssignOperation::Shl => "<<=",
             // AssignOperation::Mod => "%=",
+        }
+    }
+}
+
+impl From<AssignOperation> for Option<BinaryOperation> {
+    fn from(assign_op: AssignOperation) -> Self {
+        match assign_op {
+            AssignOperation::Assign => None,
+            AssignOperation::Add => Some(BinaryOperation::Add),
+            AssignOperation::Sub => Some(BinaryOperation::Sub),
+            AssignOperation::Mul => Some(BinaryOperation::Mul),
+            AssignOperation::Div => Some(BinaryOperation::Div),
+            AssignOperation::Pow => Some(BinaryOperation::Pow),
+            AssignOperation::Or => Some(BinaryOperation::Or),
+            AssignOperation::And => Some(BinaryOperation::And),
+            AssignOperation::BitOr => Some(BinaryOperation::BitwiseOr),
+            AssignOperation::BitAnd => Some(BinaryOperation::BitwiseAnd),
+            AssignOperation::BitXor => Some(BinaryOperation::Xor),
+            AssignOperation::Shr => Some(BinaryOperation::Shr),
+            // AssignOperation::ShrSigned => Some(BinaryOperation::ShrSigned),
+            AssignOperation::Shl => Some(BinaryOperation::Shl),
+            // AssignOperation::Mod => Some(BinaryOperation::Mod),
         }
     }
 }

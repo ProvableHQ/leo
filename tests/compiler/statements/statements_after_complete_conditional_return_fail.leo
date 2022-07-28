@@ -11,6 +11,6 @@ function main(x: u32) -> bool {
     } else {
         return false;
     }
-    let double = x + x;
+    let double: u32 = x + x;
     return double;
 }

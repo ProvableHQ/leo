@@ -112,29 +112,29 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
         self.visit_expression(&input.condition, &Some(Type::Boolean));
 
-        let mut if_block_has_return = false;
-        let mut else_block_has_return = false;
+        let mut then_block_has_return = false;
+        let mut otherwise_block_has_return = false;
 
-        // Set the `has_return` flag for the if-block.
-        let previous_has_return = core::mem::replace(&mut self.has_return, if_block_has_return);
+        // Set the `has_return` flag for the then-block.
+        let previous_has_return = core::mem::replace(&mut self.has_return, then_block_has_return);
 
-        self.visit_block(&input.block);
+        self.visit_block(&input.then);
 
-        // Store the `has_return` flag for the if-block.
-        if_block_has_return = self.has_return;
+        // Store the `has_return` flag for the then-block.
+        then_block_has_return = self.has_return;
 
-        if let Some(s) = input.next.as_ref() {
-            // Set the `has_return` flag for the else-block.
-            self.has_return = else_block_has_return;
+        if let Some(s) = input.otherwise.as_ref() {
+            // Set the `has_return` flag for the otherwise-block.
+            self.has_return = otherwise_block_has_return;
 
             self.visit_statement(s);
 
-            // Store the `has_return` flag for the else-block.
-            else_block_has_return = self.has_return;
+            // Store the `has_return` flag for the otherwise-block.
+            otherwise_block_has_return = self.has_return;
         }
 
         // Restore the previous `has_return` flag.
-        self.has_return = previous_has_return || (if_block_has_return && else_block_has_return);
+        self.has_return = previous_has_return || (then_block_has_return && otherwise_block_has_return);
     }
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {

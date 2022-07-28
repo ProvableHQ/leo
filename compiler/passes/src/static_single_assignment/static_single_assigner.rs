@@ -15,13 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::RenameTable;
+use std::fmt::Display;
 
 use leo_ast::{
     AssignOperation, AssignStatement, ConditionalStatement, Expression, ExpressionReconstructor, Identifier, Statement,
     StatementReconstructor,
 };
 use leo_errors::emitter::Handler;
-use leo_span::{Span, Symbol};
+use leo_span::Symbol;
 
 pub struct StaticSingleAssigner<'a> {
     /// The `RenameTable` for the current basic block in the AST
@@ -53,10 +54,20 @@ impl<'a> StaticSingleAssigner<'a> {
         }
     }
 
-    /// Returns a unique value on each invocation.
-    pub(crate) fn unique_id(&mut self) -> usize {
+    /// Return a new unique `Symbol` from a `&str`.
+    pub(crate) fn unique_symbol(&mut self, arg: impl Display) -> Symbol {
         self.counter += 1;
-        self.counter - 1
+        Symbol::intern(&format!("{}${}", arg, self.counter - 1))
+    }
+
+    /// Constructs a simple `AssignStatement`.
+    pub(crate) fn simple_assign_statement(place: Expression, value: Expression) -> Statement {
+        Statement::Assign(Box::new(AssignStatement {
+            operation: AssignOperation::Assign,
+            place,
+            value,
+            span: Default::default(),
+        }))
     }
 
     /// Clears the `self.phi_functions`, returning the ones that were previously produced.
@@ -108,21 +119,19 @@ impl<'a> StaticSingleAssigner<'a> {
             | Expression::Unary(..)
             | Expression::Ternary(..) => {
                 // Create a fresh variable name for the condition.
-                let symbol = Symbol::intern(&format!("$cond${}", self.unique_id()));
+                let symbol = self.unique_symbol("$cond$");
                 self.rename_table.update(symbol, symbol);
 
                 // Initialize a new `AssignStatement` for the condition.
                 let place = Expression::Identifier(Identifier::new(symbol));
-                let assign_statement = Statement::Assign(Box::new(AssignStatement {
-                    operation: AssignOperation::Assign,
-                    place: place.clone(),
-                    value: self.reconstruct_expression(conditional_statement.condition).0,
-                    span: Span::default(),
-                }));
+                let assign_statement = Self::simple_assign_statement(
+                    place.clone(),
+                    self.reconstruct_expression(conditional_statement.condition).0,
+                );
                 let rewritten_conditional_statement = ConditionalStatement {
                     condition: place,
-                    block: conditional_statement.block,
-                    next: conditional_statement.next,
+                    then: conditional_statement.then,
+                    otherwise: conditional_statement.otherwise,
                     span: conditional_statement.span,
                 };
                 statements.push(assign_statement);
@@ -136,8 +145,8 @@ impl<'a> StaticSingleAssigner<'a> {
             Statement::Conditional(conditional_statement) => conditional_statement,
             _ => unreachable!("`reconstruct_conditional` will always produce a `ConditionalStatement`"),
         };
-        statements.append(&mut conditional_statement.block.statements);
-        if let Some(statement) = conditional_statement.next {
+        statements.append(&mut conditional_statement.then.statements);
+        if let Some(statement) = conditional_statement.otherwise {
             match *statement {
                 // If we encounter a `BlockStatement`,
                 // we need to lift its constituent statements into the current `BlockStatement`.

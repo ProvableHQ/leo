@@ -19,7 +19,6 @@ use crate::StaticSingleAssigner;
 use leo_ast::{
     CallExpression, CircuitExpression, CircuitVariableInitializer, Expression, ExpressionReconstructor, Identifier,
 };
-use leo_span::Symbol;
 
 impl ExpressionReconstructor for StaticSingleAssigner<'_> {
     type AdditionalOutput = ();
@@ -50,21 +49,15 @@ impl ExpressionReconstructor for StaticSingleAssigner<'_> {
                 members: input
                     .members
                     .into_iter()
-                    .map(|arg| match &arg.expression {
-                        // If the expression is None, then it is a `CircuitVariableInitializer` of the form `<id>,`.
-                        // In this case, we must reconstruct the identifier.
-                        None => match self.reconstruct_identifier(arg.identifier).0 {
-                            Expression::Identifier(identifier) => CircuitVariableInitializer {
-                                identifier,
-                                expression: None,
-                            },
-                            _ => unreachable!("`self.reconstruct_identifier` always returns a `Identifier`."),
-                        },
-                        // If expression is not `None`, then it is a `CircuitVariableInitializer` of the form `<id>: <expr>,`.
-                        // In this case, we must reconstruct the expression.
-                        Some(_) => CircuitVariableInitializer {
-                            identifier: arg.identifier,
-                            expression: Some(self.reconstruct_expression(arg.expression.unwrap()).0),
+                    .map(|arg| CircuitVariableInitializer {
+                        identifier: arg.identifier,
+                        expression: match &arg.expression.is_some() {
+                            // If the expression is None, then `arg` is a `CircuitVariableInitializer` of the form `<id>,`.
+                            // In this case, we must reconstruct the identifier and produce an initializer of the form `<id>: <renamed_id>`.
+                            false => Some(self.reconstruct_identifier(arg.identifier).0),
+                            // If expression is `Some(..)`, then `arg is a `CircuitVariableInitializer` of the form `<id>: <expr>,`.
+                            // In this case, we must reconstruct the expression.
+                            true => Some(self.reconstruct_expression(arg.expression.unwrap()).0),
                         },
                     })
                     .collect(),
@@ -78,7 +71,7 @@ impl ExpressionReconstructor for StaticSingleAssigner<'_> {
         let name = match self.is_lhs {
             // If reconstructing the left-hand side of a definition or assignment, a new unique name is introduced.
             true => {
-                let new_name = Symbol::intern(&format!("{}${}", identifier.name, self.unique_id()));
+                let new_name = self.unique_symbol(identifier.name);
                 self.rename_table.update(identifier.name, new_name);
                 new_name
             }
