@@ -259,4 +259,18 @@ create_messages!(
         msg: format!("Tuples are only allowed as function return types."),
         help: None,
     }
+
+    @formatted
+    unreachable_code_after_return {
+        args: (),
+        msg: format!("Cannot reach the following statement."),
+        help: Some("Remove the unreachable code.".to_string()),
+    }
+
+    @formatted
+    loop_body_contains_return {
+        args: (),
+        msg: format!("Loop body contains a return statement or always returns."),
+        help: Some("Remove the code in the loop body that always returns.".to_string()),
+    }
 );

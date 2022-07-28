@@ -140,8 +140,8 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
 
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
         self.visit_expression(&input.condition, &Default::default());
-        self.visit_block(&input.block);
-        if let Some(stmt) = input.next.as_ref() {
+        self.visit_block(&input.then);
+        if let Some(stmt) = input.otherwise.as_ref() {
             self.visit_statement(stmt);
         }
     }

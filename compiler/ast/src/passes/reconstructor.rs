@@ -194,8 +194,8 @@ pub trait StatementReconstructor: ExpressionReconstructor {
     fn reconstruct_conditional(&mut self, input: ConditionalStatement) -> Statement {
         Statement::Conditional(ConditionalStatement {
             condition: self.reconstruct_expression(input.condition).0,
-            block: self.reconstruct_block(input.block),
-            next: input.next.map(|n| Box::new(self.reconstruct_statement(*n))),
+            then: self.reconstruct_block(input.then),
+            otherwise: input.otherwise.map(|n| Box::new(self.reconstruct_statement(*n))),
             span: input.span,
         })
     }

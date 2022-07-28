@@ -17,8 +17,8 @@
 use crate::CodeGenerator;
 
 use leo_ast::{
-    AssignStatement, Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, IterationStatement,
-    ReturnStatement, Statement,
+    AssignStatement, Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression,
+    IterationStatement, ReturnStatement, Statement,
 };
 
 use itertools::Itertools;
@@ -61,21 +61,27 @@ impl<'a> CodeGenerator<'a> {
         expression_instructions
     }
 
-    fn visit_assign(&mut self, _input: &'a AssignStatement) -> String {
-        // Note: SSA form requires that a variable is assigned to only once.
-        // Since we do not have a compiler pass that transforms the AST into SSA form,
-        // we will disallow `AssignStatement`s. This will only be the case for this prototype.
-        unimplemented!("Code generation is not implemented for `AssignStatement`s.")
+    fn visit_assign(&mut self, input: &'a AssignStatement) -> String {
+        // TODO: Once SSA is made optional, this should be made optional.
+        match &input.place {
+            Expression::Identifier(identifier) => {
+                let (operand, expression_instructions) = self.visit_expression(&input.value);
+                self.variable_mapping.insert(&identifier.name, operand);
+                expression_instructions
+            }
+            _ => unimplemented!(
+                "Code generation for the left-hand side of an assignment is only implemented for `Identifier`s."
+            ),
+        }
     }
 
     fn visit_conditional(&mut self, _input: &'a ConditionalStatement) -> String {
-        // Note: This requires that the AST is in static-single assignment form.
-        // It is not possible to provide an input program with a conditional statement in SSA form as
-        // complete SSA has different semantics from source Leo programs.
-        unimplemented!("Code generation is not implemented for conditional statements.")
+        // TODO: Once SSA is made optional, create a Leo error informing the user to enable the SSA pass.
+        unreachable!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
     }
 
     fn visit_iteration(&mut self, _input: &'a IterationStatement) -> String {
+        // TODO: Once loop unrolling is made optional, create a Leo error informing the user to enable the loop unrolling pass..
         unreachable!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 
