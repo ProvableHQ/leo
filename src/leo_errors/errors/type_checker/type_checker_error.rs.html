@@ -265,6 +265,20 @@
 <span id="260">260</span>
 <span id="261">261</span>
 <span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -525,6 +539,20 @@
         <span class="ident">args</span>: (),
         <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Tuples are only allowed as function return types.&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    @<span class="ident">formatted</span>
+    <span class="ident">unreachable_code_after_return</span> {
+        <span class="ident">args</span>: (),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Cannot reach the following statement.&quot;</span>),
+        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Remove the unreachable code.&quot;</span>.<span class="ident">to_string</span>()),
+    }
+
+    @<span class="ident">formatted</span>
+    <span class="ident">loop_body_contains_return</span> {
+        <span class="ident">args</span>: (),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Loop body contains a return statement or always returns.&quot;</span>),
+        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Remove the code in the loop body that always returns.&quot;</span>.<span class="ident">to_string</span>()),
     }
 );
 </code></pre></div>

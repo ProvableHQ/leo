@@ -207,7 +207,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SymbolTable</span> {
     <span class="doccomment">/// The parent scope if it exists.</span>
-    <span class="doccomment">/// For example if we are in a if block inside a function.</span>
+    <span class="doccomment">/// For example, the parent scope of a then-block is the scope containing the associated ConditionalStatement.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">parent</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">SymbolTable</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Functions represents the name of each function mapped to the AST&#39;s function definition.</span>
     <span class="doccomment">/// This field is populated at a first pass.</span>

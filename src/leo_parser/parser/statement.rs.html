@@ -314,8 +314,8 @@
         <span class="prelude-val">Ok</span>(<span class="ident">ConditionalStatement</span> {
             <span class="ident">span</span>: <span class="ident">start</span> <span class="op">+</span> <span class="ident">next</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">span</span>()).<span class="ident">unwrap_or</span>(<span class="ident">body</span>.<span class="ident">span</span>),
             <span class="ident">condition</span>: <span class="ident">expr</span>,
-            <span class="ident">block</span>: <span class="ident">body</span>,
-            <span class="ident">next</span>,
+            <span class="ident">then</span>: <span class="ident">body</span>,
+            <span class="ident">otherwise</span>: <span class="ident">next</span>,
         })
     }
 

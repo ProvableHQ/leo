@@ -103,6 +103,28 @@
 <span id="98">98</span>
 <span id="99">99</span>
 <span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -119,7 +141,7 @@
 <span class="comment">// You should have received a copy of the GNU General Public License</span>
 <span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Expression</span>, <span class="ident">Node</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">BinaryOperation</span>, <span class="ident">Expression</span>, <span class="ident">Node</span>};
 <span class="kw">use</span> <span class="ident">leo_span::Span</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -152,12 +174,34 @@
     <span class="ident">BitXor</span>,
     <span class="doccomment">/// Shift right assignment.</span>
     <span class="ident">Shr</span>,
-    <span class="doccomment">/// Signed shift right assignment.</span>
-    <span class="ident">ShrSigned</span>,
+    <span class="comment">// /// Signed shift right assignment.</span>
+    <span class="comment">// ShrSigned,</span>
     <span class="doccomment">/// Shift left assignment.</span>
     <span class="ident">Shl</span>,
-    <span class="doccomment">/// Modulus / remainder assignment.</span>
-    <span class="ident">Mod</span>,
+    <span class="comment">// /// Modulus / remainder assignment.</span>
+    <span class="comment">// Mod,</span>
+}
+
+<span class="kw">impl</span> <span class="ident">AssignOperation</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_binary_operation</span>(<span class="ident">assign_op</span>: <span class="ident">AssignOperation</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BinaryOperation</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="ident">assign_op</span> {
+            <span class="ident">AssignOperation::Assign</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">AssignOperation::Add</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Add</span>),
+            <span class="ident">AssignOperation::Sub</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Sub</span>),
+            <span class="ident">AssignOperation::Mul</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Mul</span>),
+            <span class="ident">AssignOperation::Div</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Div</span>),
+            <span class="ident">AssignOperation::Pow</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Pow</span>),
+            <span class="ident">AssignOperation::Or</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Or</span>),
+            <span class="ident">AssignOperation::And</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::And</span>),
+            <span class="ident">AssignOperation::BitOr</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::BitwiseOr</span>),
+            <span class="ident">AssignOperation::BitAnd</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::BitwiseAnd</span>),
+            <span class="ident">AssignOperation::BitXor</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Xor</span>),
+            <span class="ident">AssignOperation::Shr</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Shr</span>),
+            <span class="comment">// AssignOperation::ShrSigned =&gt; Some(BinaryOperation::ShrSigned),</span>
+            <span class="ident">AssignOperation::Shl</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Shl</span>),
+            <span class="comment">// AssignOperation::Mod =&gt; Some(BinaryOperation::Mod),</span>
+        }
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AssignOperation</span> {
@@ -175,9 +219,9 @@
             <span class="ident">AssignOperation::BitAnd</span> =&gt; <span class="string">&quot;&amp;=&quot;</span>,
             <span class="ident">AssignOperation::BitXor</span> =&gt; <span class="string">&quot;^=&quot;</span>,
             <span class="ident">AssignOperation::Shr</span> =&gt; <span class="string">&quot;&gt;&gt;=&quot;</span>,
-            <span class="ident">AssignOperation::ShrSigned</span> =&gt; <span class="string">&quot;&gt;&gt;&gt;=&quot;</span>,
+            <span class="comment">// AssignOperation::ShrSigned =&gt; &quot;&gt;&gt;&gt;=&quot;,</span>
             <span class="ident">AssignOperation::Shl</span> =&gt; <span class="string">&quot;&lt;&lt;=&quot;</span>,
-            <span class="ident">AssignOperation::Mod</span> =&gt; <span class="string">&quot;%=&quot;</span>,
+            <span class="comment">// AssignOperation::Mod =&gt; &quot;%=&quot;,</span>
         }
     }
 }

@@ -343,8 +343,8 @@
 
     <span class="kw">fn</span> <span class="ident">visit_conditional</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ConditionalStatement</span>) {
         <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">condition</span>, <span class="kw-2">&amp;</span><span class="ident">Default::default</span>());
-        <span class="self">self</span>.<span class="ident">visit_block</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">block</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stmt</span>) <span class="op">=</span> <span class="ident">input</span>.<span class="ident">next</span>.<span class="ident">as_ref</span>() {
+        <span class="self">self</span>.<span class="ident">visit_block</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">then</span>);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stmt</span>) <span class="op">=</span> <span class="ident">input</span>.<span class="ident">otherwise</span>.<span class="ident">as_ref</span>() {
             <span class="self">self</span>.<span class="ident">visit_statement</span>(<span class="ident">stmt</span>);
         }
     }
