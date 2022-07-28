@@ -321,21 +321,6 @@
 <span id="316">316</span>
 <span id="317">317</span>
 <span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -359,7 +344,6 @@
 <span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">emitter::Handler</span>, <span class="ident">TypeCheckerError</span>};
 <span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">Span</span>, <span class="ident">Symbol</span>};
 
-<span class="kw">use</span> <span class="ident">indexmap::IndexSet</span>;
 <span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
@@ -369,8 +353,6 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">parent</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Symbol</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">has_return</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">negate</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">account_types</span>: <span class="ident">IndexSet</span><span class="op">&lt;</span><span class="ident">Symbol</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">algorithms_types</span>: <span class="ident">IndexSet</span><span class="op">&lt;</span><span class="ident">Symbol</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">const</span> <span class="ident">BOOLEAN_TYPE</span>: <span class="ident">Type</span> <span class="op">=</span> <span class="ident">Type::Boolean</span>;
@@ -407,8 +389,6 @@
             <span class="ident">parent</span>: <span class="prelude-val">None</span>,
             <span class="ident">has_return</span>: <span class="bool-val">false</span>,
             <span class="ident">negate</span>: <span class="bool-val">false</span>,
-            <span class="ident">account_types</span>: <span class="ident">Account::types</span>(),
-            <span class="ident">algorithms_types</span>: <span class="ident">Algorithms::types</span>(),
         }
     }
 
@@ -646,16 +626,6 @@
         }
 
         <span class="ident">Type::Identifier</span>(<span class="ident">circuit</span>)
-    }
-
-    <span class="doccomment">/// Emits an error if the given type conflicts with a core library type.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">check_core_type_conflict</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">type_</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>) {
-        <span class="comment">// todo: deprecate this method.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">Type::Identifier</span>(<span class="ident">ident</span>)) <span class="op">=</span> <span class="ident">type_</span> {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">account_types</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">ident</span>.<span class="ident">name</span>) <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">algorithms_types</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">ident</span>.<span class="ident">name</span>) {
-                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::core_type_name_conflict</span>(<span class="kw-2">&amp;</span><span class="ident">ident</span>.<span class="ident">name</span>, <span class="ident">ident</span>.<span class="ident">span</span>()));
-            }
-        }
     }
 
     <span class="doccomment">/// Emits an error if the type is a tuple.</span>

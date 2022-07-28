@@ -322,7 +322,6 @@
 <span id="317">317</span>
 <span id="318">318</span>
 <span id="319">319</span>
-<span id="320">320</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -481,12 +480,11 @@
         <span class="ident">output</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">load_expectations</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">expectation_category</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; (<span class="ident">PathBuf</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TestExpectation</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">load_expectations</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; (<span class="ident">PathBuf</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TestExpectation</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="ident">test_dir</span> <span class="op">=</span> [<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>), <span class="string">&quot;../../tests/&quot;</span>].<span class="ident">iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="ident">relative_path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">strip_prefix</span>(<span class="kw-2">&amp;</span><span class="ident">test_dir</span>).<span class="ident">expect</span>(<span class="string">&quot;path error for test&quot;</span>);
         <span class="kw">let</span> <span class="ident">expectation_path</span> <span class="op">=</span> <span class="ident">test_dir</span>
             .<span class="ident">join</span>(<span class="string">&quot;expectations&quot;</span>)
-            .<span class="ident">join</span>(<span class="ident">expectation_category</span>)
             .<span class="ident">join</span>(<span class="ident">relative_path</span>.<span class="ident">parent</span>().<span class="ident">expect</span>(<span class="string">&quot;no parent dir for test&quot;</span>))
             .<span class="ident">join</span>(<span class="ident">relative_path</span>.<span class="ident">file_name</span>().<span class="ident">expect</span>(<span class="string">&quot;no file name for test&quot;</span>))
             .<span class="ident">with_extension</span>(<span class="string">&quot;out&quot;</span>);
@@ -521,7 +519,7 @@
             <span class="prelude-val">None</span> =&gt; <span class="kw">return</span>,
         };
 
-        <span class="kw">let</span> (<span class="ident">expectation_path</span>, <span class="ident">expectations</span>) <span class="op">=</span> <span class="ident">cases</span>.<span class="ident">load_expectations</span>(<span class="ident">path</span>, <span class="ident">expectation_category</span>);
+        <span class="kw">let</span> (<span class="ident">expectation_path</span>, <span class="ident">expectations</span>) <span class="op">=</span> <span class="ident">cases</span>.<span class="ident">load_expectations</span>(<span class="ident">path</span>);
 
         <span class="kw">let</span> <span class="ident">tests</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">namespace</span>.<span class="ident">parse_type</span>() {
             <span class="ident">ParseType::Line</span> =&gt; <span class="ident"><span class="kw">crate</span>::fetch::split_tests_one_line</span>(<span class="ident">content</span>)
