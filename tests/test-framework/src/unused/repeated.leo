@@ -4,12 +4,12 @@ expectation: Pass
 input_file: inputs/dummy.in
 */
 
-function one() -> bool {
-    return true;
+function one(x: bool) -> bool {
+    return x && true;
 }
 
 function main(y: bool) -> bool {
-    const a: bool = one() && one();
+    let a: bool = one(y) && one(y);
 
     return (a == true) == y;
 }

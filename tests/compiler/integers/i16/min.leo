@@ -6,5 +6,5 @@ input_file: inputs/add.in
 
 function main(a: i16) -> i16 {
     let b: i16 = -32767i16;
-    return a + b;
+    return b - a; // -32768i16
 }

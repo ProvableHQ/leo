@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-
 use crate::{Compiler, OutputOptions};
 
 use leo_errors::{
@@ -26,10 +25,11 @@ use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
     Test,
 };
-use snarkvm::prelude::*;
 use snarkvm::file::Manifest;
 use snarkvm::package::Package;
+use snarkvm::prelude::*;
 
+use leo_passes::{CodeGenerator, Pass};
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use std::{
@@ -39,7 +39,6 @@ use std::{
     rc::Rc,
 };
 use std::{fs::File, io::Write};
-use leo_passes::{CodeGenerator, Pass};
 
 type CurrentNetwork = Testnet3;
 
@@ -153,7 +152,7 @@ enum LeoOrString {
 impl Display for LeoOrString {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Leo(x) => std::fmt::Display::fmt(&x,f),
+            Self::Leo(x) => std::fmt::Display::fmt(&x, f),
             Self::String(x) => std::fmt::Display::fmt(&x, f),
         }
     }
@@ -186,7 +185,9 @@ fn buffer_if_err<T>(buf: &BufferEmitter, res: Result<T, String>) -> Result<T, ()
 }
 
 fn temp_dir() -> PathBuf {
-    tempfile::tempdir().expect("Failed to open temporary directory").into_path()
+    tempfile::tempdir()
+        .expect("Failed to open temporary directory")
+        .into_path()
 }
 
 fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>, handler: &Handler) -> Result<String, LeoError> {
@@ -261,10 +262,10 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         std::fs::create_dir_all(&build_directory).unwrap();
 
         // Open the package at the temporary directory.
-        let package = Package::<Testnet3>::open(&directory).unwrap();
+        let package = handler.extend_if_error(Package::<Testnet3>::open(&directory).map_err(LeoError::Anyhow))?;
 
         // Get the program process and check all instructions.
-        package.get_process().unwrap();
+        handler.extend_if_error(package.get_process().map_err(LeoError::Anyhow))?;
     }
 
     let initial_ast = hash_file("/tmp/output/initial_ast.json");

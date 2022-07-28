@@ -1,9 +1,0 @@
-[main]
-y: bool = true;
-
-[constants]
-a: bool = true;
-b: bool = false;
-
-[registers]
-r0: bool = true;
