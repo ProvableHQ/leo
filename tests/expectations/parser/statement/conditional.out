@@ -5,7 +5,7 @@ outputs:
   - Conditional:
       condition:
         Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
-      block:
+      then:
         statements:
           - Return:
               expression:
@@ -21,14 +21,14 @@ outputs:
         span:
           lo: 5
           hi: 20
-      next: ~
+      otherwise: ~
       span:
         lo: 0
         hi: 20
   - Conditional:
       condition:
         Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      block:
+      then:
         statements:
           - Return:
               expression:
@@ -44,19 +44,19 @@ outputs:
         span:
           lo: 7
           hi: 22
-      next: ~
+      otherwise: ~
       span:
         lo: 0
         hi: 22
   - Conditional:
       condition:
         Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      block:
+      then:
         statements: []
         span:
           lo: 7
           hi: 9
-      next:
+      otherwise:
         Block:
           statements: []
           span:
@@ -76,12 +76,12 @@ outputs:
           span:
             lo: 3
             hi: 6
-      block:
+      then:
         statements: []
         span:
           lo: 7
           hi: 9
-      next:
+      otherwise:
         Conditional:
           condition:
             Binary:
@@ -93,12 +93,12 @@ outputs:
               span:
                 lo: 18
                 hi: 21
-          block:
+          then:
             statements: []
             span:
               lo: 22
               hi: 24
-          next:
+          otherwise:
             Block:
               statements: []
               span:
@@ -121,7 +121,7 @@ outputs:
           span:
             lo: 3
             hi: 6
-      block:
+      then:
         statements:
           - Return:
               expression:
@@ -137,7 +137,7 @@ outputs:
         span:
           lo: 7
           hi: 22
-      next: ~
+      otherwise: ~
       span:
         lo: 0
         hi: 22

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Node};
+use crate::{BinaryOperation, Expression, Node};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -47,12 +47,34 @@ pub enum AssignOperation {
     BitXor,
     /// Shift right assignment.
     Shr,
-    /// Signed shift right assignment.
-    ShrSigned,
+    // /// Signed shift right assignment.
+    // ShrSigned,
     /// Shift left assignment.
     Shl,
-    /// Modulus / remainder assignment.
-    Mod,
+    // /// Modulus / remainder assignment.
+    // Mod,
+}
+
+impl AssignOperation {
+    pub fn into_binary_operation(assign_op: AssignOperation) -> Option<BinaryOperation> {
+        match assign_op {
+            AssignOperation::Assign => None,
+            AssignOperation::Add => Some(BinaryOperation::Add),
+            AssignOperation::Sub => Some(BinaryOperation::Sub),
+            AssignOperation::Mul => Some(BinaryOperation::Mul),
+            AssignOperation::Div => Some(BinaryOperation::Div),
+            AssignOperation::Pow => Some(BinaryOperation::Pow),
+            AssignOperation::Or => Some(BinaryOperation::Or),
+            AssignOperation::And => Some(BinaryOperation::And),
+            AssignOperation::BitOr => Some(BinaryOperation::BitwiseOr),
+            AssignOperation::BitAnd => Some(BinaryOperation::BitwiseAnd),
+            AssignOperation::BitXor => Some(BinaryOperation::Xor),
+            AssignOperation::Shr => Some(BinaryOperation::Shr),
+            // AssignOperation::ShrSigned => Some(BinaryOperation::ShrSigned),
+            AssignOperation::Shl => Some(BinaryOperation::Shl),
+            // AssignOperation::Mod => Some(BinaryOperation::Mod),
+        }
+    }
 }
 
 impl AsRef<str> for AssignOperation {
@@ -70,9 +92,9 @@ impl AsRef<str> for AssignOperation {
             AssignOperation::BitAnd => "&=",
             AssignOperation::BitXor => "^=",
             AssignOperation::Shr => ">>=",
-            AssignOperation::ShrSigned => ">>>=",
+            // AssignOperation::ShrSigned => ">>>=",
             AssignOperation::Shl => "<<=",
-            AssignOperation::Mod => "%=",
+            // AssignOperation::Mod => "%=",
         }
     }
 }
