@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found 'record'\n    --> compiler-test:4:22\n     |\n   4 | function main(public record: Record, a: bool) -> bool {\n     |                      ^^^^^^"

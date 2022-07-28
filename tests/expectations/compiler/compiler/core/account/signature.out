@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372010]: The type Signature is a reserved core type name.\n    --> compiler-test:4:33\n     |\n   4 | function main(public signature: Signature, a: bool) -> bool {\n     |                                 ^^^^^^^^^\n"

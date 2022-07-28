@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> compiler-test:9:16\n     |\n   9 |     let double = x + x;\n     |                ^"
