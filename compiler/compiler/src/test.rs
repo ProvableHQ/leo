@@ -144,17 +144,6 @@ fn collect_all_inputs(test: &Test) -> Result<Vec<PathBuf>, String> {
     Ok(list)
 }
 
-<<<<<<< HEAD
-=======
-fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<SymbolTable, LeoError> {
-    let st = parsed.symbol_table_pass()?;
-    let st = parsed.type_checker_pass(st)?;
-    let st = parsed.loop_unrolling_pass(st)?;
-    parsed.static_single_assignment_pass()?;
-    Ok(st)
-}
-
->>>>>>> 8a0e9bc5ccb5cfbe642e51e8e81458e67c596c10
 // Errors used in this module.
 enum LeoOrString {
     Leo(LeoError),
@@ -204,6 +193,8 @@ fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>, handler: &Handler) -> R
     let st = parsed.symbol_table_pass()?;
     let st = parsed.type_checker_pass(st)?;
     let _st = parsed.loop_unrolling_pass(st)?;
+    parsed.static_single_assignment_pass()?;
+
     // Compile Leo program to bytecode.
     let bytecode = CodeGenerator::do_pass((&parsed.ast, handler))?;
 

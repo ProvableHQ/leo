@@ -27,27 +27,27 @@ impl CoreFunction for Pedersen64Hash {
     }
 
     fn return_type() -> Type {
-        Type::Group
+        Type::Field
     }
 }
 
-pub struct Pedersen64Commit;
-
-impl CoreFunction for Pedersen64Commit {
-    const NUM_ARGS: usize = 2;
-
-    fn first_arg_types() -> &'static [Type] {
-        &BOOL_INT64_STRING_TYPES
-    }
-
-    fn second_arg_types() -> &'static [Type] {
-        &[Type::Scalar]
-    }
-
-    fn return_type() -> Type {
-        Type::Group
-    }
-}
+// pub struct Pedersen64Commit;
+//
+// impl CoreFunction for Pedersen64Commit {
+//     const NUM_ARGS: usize = 2;
+//
+//     fn first_arg_types() -> &'static [Type] {
+//         &BOOL_INT64_STRING_TYPES
+//     }
+//
+//     fn second_arg_types() -> &'static [Type] {
+//         &[Type::Scalar]
+//     }
+//
+//     fn return_type() -> Type {
+//         Type::Field
+//     }
+// }
 
 pub struct Pedersen128Hash;
 
@@ -59,24 +59,24 @@ impl CoreFunction for Pedersen128Hash {
     }
 
     fn return_type() -> Type {
-        Type::Group
+        Type::Field
     }
 }
 
-pub struct Pedersen128Commit;
-
-impl CoreFunction for Pedersen128Commit {
-    const NUM_ARGS: usize = 2;
-
-    fn first_arg_types() -> &'static [Type] {
-        &BOOL_INT_STRING_TYPES
-    }
-
-    fn second_arg_types() -> &'static [Type] {
-        &[Type::Scalar]
-    }
-
-    fn return_type() -> Type {
-        Type::Group
-    }
-}
+// pub struct Pedersen128Commit;
+//
+// impl CoreFunction for Pedersen128Commit {
+//     const NUM_ARGS: usize = 2;
+//
+//     fn first_arg_types() -> &'static [Type] {
+//         &BOOL_INT_STRING_TYPES
+//     }
+//
+//     fn second_arg_types() -> &'static [Type] {
+//         &[Type::Scalar]
+//     }
+//
+//     fn return_type() -> Type {
+//         Type::Field
+//     }
+// }
