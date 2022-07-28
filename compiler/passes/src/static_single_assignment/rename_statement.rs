@@ -85,16 +85,13 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
 
         let value = match assign.operation {
             AssignOperation::Assign => self.reconstruct_expression(assign.value).0,
-            _ => {
-                // Note that all `AssignOperation`s except for the `Assign` variant have an equivalent `BinaryOperation`.
-                let bin_op: Option<BinaryOperation> = assign.operation.into();
-                Expression::Binary(BinaryExpression {
-                    left: Box::new(place.clone()),
-                    right: Box::new(self.reconstruct_expression(assign.value).0),
-                    op: bin_op.unwrap(),
-                    span: assign.span,
-                })
-            }
+            // Note that all `AssignOperation`s except for the `Assign` variant have an equivalent `BinaryOperation`.
+            _ => Expression::Binary(BinaryExpression {
+                left: Box::new(place.clone()),
+                right: Box::new(self.reconstruct_expression(assign.value).0),
+                op: AssignOperation::into_binary_operation(assign.operation).unwrap(),
+                span: assign.span,
+            }),
         };
 
         Self::simple_assign_statement(place, value)
@@ -111,7 +108,7 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
         self.condition_stack.push(condition.clone());
 
         // Reconstruct the then-block.
-        let block = self.reconstruct_block(conditional.then);
+        let then = self.reconstruct_block(conditional.then);
 
         // Remove condition from the condition stack.
         self.condition_stack.pop();
@@ -123,7 +120,7 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
         self.push();
 
         // Reconstruct the otherwise-block.
-        let next = conditional.otherwise.map(|statement| {
+        let otherwise = conditional.otherwise.map(|statement| {
             // Add the negated condition to the condition stack.
             self.condition_stack.push(Expression::Unary(UnaryExpression {
                 op: UnaryOperation::Not,
@@ -200,8 +197,8 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
         // Note that we only produce
         Statement::Conditional(ConditionalStatement {
             condition,
-            then: block,
-            otherwise: next,
+            then,
+            otherwise,
             span: conditional.span,
         })
     }

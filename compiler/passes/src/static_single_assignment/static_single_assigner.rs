@@ -60,7 +60,7 @@ impl<'a> StaticSingleAssigner<'a> {
         Symbol::intern(&format!("{}${}", arg, self.counter - 1))
     }
 
-    /// Constructs a simple `AssignStatement`.
+    /// Constructs the assignment statement `place = expr;`.
     pub(crate) fn simple_assign_statement(place: Expression, value: Expression) -> Statement {
         Statement::Assign(Box::new(AssignStatement {
             operation: AssignOperation::Assign,

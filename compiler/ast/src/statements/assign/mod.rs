@@ -55,6 +55,28 @@ pub enum AssignOperation {
     // Mod,
 }
 
+impl AssignOperation {
+    pub fn into_binary_operation(assign_op: AssignOperation) -> Option<BinaryOperation> {
+        match assign_op {
+            AssignOperation::Assign => None,
+            AssignOperation::Add => Some(BinaryOperation::Add),
+            AssignOperation::Sub => Some(BinaryOperation::Sub),
+            AssignOperation::Mul => Some(BinaryOperation::Mul),
+            AssignOperation::Div => Some(BinaryOperation::Div),
+            AssignOperation::Pow => Some(BinaryOperation::Pow),
+            AssignOperation::Or => Some(BinaryOperation::Or),
+            AssignOperation::And => Some(BinaryOperation::And),
+            AssignOperation::BitOr => Some(BinaryOperation::BitwiseOr),
+            AssignOperation::BitAnd => Some(BinaryOperation::BitwiseAnd),
+            AssignOperation::BitXor => Some(BinaryOperation::Xor),
+            AssignOperation::Shr => Some(BinaryOperation::Shr),
+            // AssignOperation::ShrSigned => Some(BinaryOperation::ShrSigned),
+            AssignOperation::Shl => Some(BinaryOperation::Shl),
+            // AssignOperation::Mod => Some(BinaryOperation::Mod),
+        }
+    }
+}
+
 impl AsRef<str> for AssignOperation {
     fn as_ref(&self) -> &'static str {
         match self {
@@ -73,28 +95,6 @@ impl AsRef<str> for AssignOperation {
             // AssignOperation::ShrSigned => ">>>=",
             AssignOperation::Shl => "<<=",
             // AssignOperation::Mod => "%=",
-        }
-    }
-}
-
-impl From<AssignOperation> for Option<BinaryOperation> {
-    fn from(assign_op: AssignOperation) -> Self {
-        match assign_op {
-            AssignOperation::Assign => None,
-            AssignOperation::Add => Some(BinaryOperation::Add),
-            AssignOperation::Sub => Some(BinaryOperation::Sub),
-            AssignOperation::Mul => Some(BinaryOperation::Mul),
-            AssignOperation::Div => Some(BinaryOperation::Div),
-            AssignOperation::Pow => Some(BinaryOperation::Pow),
-            AssignOperation::Or => Some(BinaryOperation::Or),
-            AssignOperation::And => Some(BinaryOperation::And),
-            AssignOperation::BitOr => Some(BinaryOperation::BitwiseOr),
-            AssignOperation::BitAnd => Some(BinaryOperation::BitwiseAnd),
-            AssignOperation::BitXor => Some(BinaryOperation::Xor),
-            AssignOperation::Shr => Some(BinaryOperation::Shr),
-            // AssignOperation::ShrSigned => Some(BinaryOperation::ShrSigned),
-            AssignOperation::Shl => Some(BinaryOperation::Shl),
-            // AssignOperation::Mod => Some(BinaryOperation::Mod),
         }
     }
 }

@@ -51,14 +51,14 @@ impl ExpressionReconstructor for StaticSingleAssigner<'_> {
                     .into_iter()
                     .map(|arg| CircuitVariableInitializer {
                         identifier: arg.identifier,
-                        expression: match &arg.expression.is_some() {
+                        expression: Some(match &arg.expression.is_some() {
                             // If the expression is None, then `arg` is a `CircuitVariableInitializer` of the form `<id>,`.
                             // In this case, we must reconstruct the identifier and produce an initializer of the form `<id>: <renamed_id>`.
-                            false => Some(self.reconstruct_identifier(arg.identifier).0),
+                            false => self.reconstruct_identifier(arg.identifier).0,
                             // If expression is `Some(..)`, then `arg is a `CircuitVariableInitializer` of the form `<id>: <expr>,`.
                             // In this case, we must reconstruct the expression.
-                            true => Some(self.reconstruct_expression(arg.expression.unwrap()).0),
-                        },
+                            true => self.reconstruct_expression(arg.expression.unwrap()).0,
+                        }),
                     })
                     .collect(),
             }),
