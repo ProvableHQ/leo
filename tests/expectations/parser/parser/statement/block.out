@@ -59,7 +59,7 @@ outputs:
         - Conditional:
             condition:
               Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
-            block:
+            then:
               statements:
                 - Return:
                     expression:
@@ -75,7 +75,7 @@ outputs:
               span:
                 lo: 7
                 hi: 22
-            next: ~
+            otherwise: ~
             span:
               lo: 2
               hi: 22
