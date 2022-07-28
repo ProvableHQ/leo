@@ -36,7 +36,7 @@ pub struct ConditionalStatement {
 impl fmt::Display for ConditionalStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "if ({}) {}", self.condition, self.then)?;
-        match self.otherwise.clone() {
+        match self.otherwise.as_ref() {
             Some(n_or_e) => write!(f, " else {}", n_or_e),
             None => write!(f, ""),
         }
