@@ -26,17 +26,17 @@ pub struct ConditionalStatement {
     /// The `bool`-typed condition deciding what to evaluate.
     pub condition: Expression,
     /// The block to evaluate in case `condition` yields `true`.
-    pub block: Block,
+    pub then: Block,
     /// The statement, if any, to evaluate when `condition` yields `false`.
-    pub next: Option<Box<Statement>>,
+    pub otherwise: Option<Box<Statement>>,
     /// The span from `if` to `next` or to `block`.
     pub span: Span,
 }
 
 impl fmt::Display for ConditionalStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "if ({}) {}", self.condition, self.block)?;
-        match self.next.clone() {
+        write!(f, "if ({}) {}", self.condition, self.then)?;
+        match self.otherwise.as_ref() {
             Some(n_or_e) => write!(f, " else {}", n_or_e),
             None => write!(f, ""),
         }

@@ -35,7 +35,6 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.parent = Some(input.name());
         input.input.iter().for_each(|i| {
             let input_var = i.get_variable();
-            self.check_core_type_conflict(&Some(input_var.type_.clone()));
             self.assert_not_tuple(input_var.span, &input_var.type_);
 
             // Check for conflicting variable names.

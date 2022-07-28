@@ -156,12 +156,11 @@ impl TestCases {
         output
     }
 
-    fn load_expectations(&self, path: &Path, expectation_category: &str) -> (PathBuf, Option<TestExpectation>) {
+    fn load_expectations(&self, path: &Path) -> (PathBuf, Option<TestExpectation>) {
         let test_dir = [env!("CARGO_MANIFEST_DIR"), "../../tests/"].iter().collect::<PathBuf>();
         let relative_path = path.strip_prefix(&test_dir).expect("path error for test");
         let expectation_path = test_dir
             .join("expectations")
-            .join(expectation_category)
             .join(relative_path.parent().expect("no parent dir for test"))
             .join(relative_path.file_name().expect("no file name for test"))
             .with_extension("out");
@@ -196,7 +195,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
             None => return,
         };
 
-        let (expectation_path, expectations) = cases.load_expectations(path, expectation_category);
+        let (expectation_path, expectations) = cases.load_expectations(path);
 
         let tests = match namespace.parse_type() {
             ParseType::Line => crate::fetch::split_tests_one_line(content)

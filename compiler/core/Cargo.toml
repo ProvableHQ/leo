@@ -31,6 +31,3 @@ version = "1.5.3"
 [dependencies.leo-span]
 path = "../span"
 version = "1.5.3"
-
-[dependencies.indexmap]
-version = "1.9"

@@ -215,13 +215,6 @@ symbols! {
     owner,
     gates,
 
-    // todo: remove these.
-    CONTAINER_PSEUDO_CIRCUIT: "$InputContainer",
-    REGISTERS_PSEUDO_CIRCUIT: "$InputRegister",
-    RECORD_PSEUDO_CIRCUIT: "$InputRecord",
-    STATE_PSEUDO_CIRCUIT: "$InputState",
-    STATE_LEAF_PSEUDO_CIRCUIT: "$InputStateLeaf",
-
     // input file
     registers,
     state,

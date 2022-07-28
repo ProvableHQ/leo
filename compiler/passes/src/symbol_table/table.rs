@@ -27,7 +27,7 @@ use crate::{FunctionSymbol, VariableSymbol};
 #[derive(Clone, Debug, Default)]
 pub struct SymbolTable {
     /// The parent scope if it exists.
-    /// For example if we are in a if block inside a function.
+    /// For example, the parent scope of a then-block is the scope containing the associated ConditionalStatement.
     pub(crate) parent: Option<Box<SymbolTable>>,
     /// Functions represents the name of each function mapped to the AST's function definition.
     /// This field is populated at a first pass.

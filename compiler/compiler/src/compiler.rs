@@ -95,20 +95,13 @@ impl<'a> Compiler<'a> {
         let prg_sf = with_session_globals(|s| s.source_map.new_source(program_string, name));
 
         // Use the parser to construct the abstract syntax tree (ast).
-        let mut ast: leo_ast::Ast = leo_parser::parse_ast(self.handler, &prg_sf.src, prg_sf.start_pos)?;
+        let mut ast: Ast = leo_parser::parse_ast(self.handler, &prg_sf.src, prg_sf.start_pos)?;
         ast = ast.set_program_name(self.program_name.clone());
-        ast = ast.set_network(self.network.clone());
+        self.ast = ast.set_network(self.network.clone());
 
         if self.output_options.initial_ast {
-            // Write the AST snapshot post parsing.
-            if self.output_options.spans_enabled {
-                ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
-            } else {
-                ast.to_json_file_without_keys(self.output_directory.clone(), "initial_ast.json", &["span"])?;
-            }
+            self.write_ast_to_json("initial_ast.json")?;
         }
-
-        self.ast = ast;
 
         Ok(())
     }
@@ -171,6 +164,17 @@ impl<'a> Compiler<'a> {
         Ok(symbol_table)
     }
 
+    /// Runs the static single assignment pass.
+    pub fn static_single_assignment_pass(&mut self) -> Result<()> {
+        self.ast = StaticSingleAssigner::do_pass((std::mem::take(&mut self.ast), self.handler))?;
+
+        if self.output_options.ssa_ast {
+            self.write_ast_to_json("ssa_ast.json")?;
+        }
+
+        Ok(())
+    }
+
     /// Runs the compiler stages.
     pub fn compiler_stages(&mut self) -> Result<SymbolTable> {
         let st = self.symbol_table_pass()?;
@@ -178,6 +182,10 @@ impl<'a> Compiler<'a> {
 
         // TODO: Make this pass optional.
         let st = self.loop_unrolling_pass(st)?;
+
+        // TODO: Make this pass optional.
+        self.static_single_assignment_pass()?;
+
         Ok(st)
     }
 

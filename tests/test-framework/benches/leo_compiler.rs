@@ -18,10 +18,7 @@
 
 use leo_compiler::Compiler;
 use leo_errors::emitter::{Emitter, Handler};
-use leo_span::{
-    source_map::FileName,
-    symbol::{SessionGlobals, SESSION_GLOBALS},
-};
+use leo_span::{source_map::FileName, symbol::SESSION_GLOBALS};
 use leo_test_framework::get_benches;
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
@@ -40,6 +37,8 @@ enum BenchMode {
     Type,
     /// Benchmarks loop unrolling.
     Unroll,
+    /// Benchmarks static single assignment.
+    Ssa,
     /// Benchmarks all the above stages.
     Full,
 }
@@ -103,140 +102,118 @@ impl Sample {
             BenchMode::Symbol => self.bench_symbol_table(c),
             BenchMode::Type => self.bench_type_checker(c),
             BenchMode::Unroll => self.bench_loop_unroller(c),
+            BenchMode::Ssa => self.bench_ssa(c),
             BenchMode::Full => self.bench_full(c),
         }
     }
 
-    fn bench_parse(&self, c: &mut Criterion) {
-        c.bench_function(&format!("parse {}", self.name), |b| {
+    /// Benchmarks `logic(compiler)` where `compiler` is provided.
+    fn bencher(&self, c: &mut Criterion, mode: &str, mut logic: impl FnMut(Compiler) -> Duration) {
+        c.bench_function(&format!("{} {}", mode, self.name), |b| {
             // Iter custom is used so we can use custom timings around the compiler stages.
             // This way we can only time the necessary stage.
             b.iter_custom(|iters| {
-                let mut time = Duration::default();
-                for _ in 0..iters {
-                    SESSION_GLOBALS.set(&SessionGlobals::default(), || {
-                        let handler = BufEmitter::new_handler();
-                        let mut compiler = new_compiler(&handler);
-                        let (input, name) = self.data();
-                        let start = Instant::now();
-                        let out = compiler.parse_program_from_string(input, name);
-                        time += start.elapsed();
-                        out.expect("Failed to parse program")
-                    });
-                }
-                time
-            })
+                (0..iters)
+                    .map(|_| SESSION_GLOBALS.set(&<_>::default(), || logic(new_compiler(&BufEmitter::new_handler()))))
+                    .sum()
+            });
         });
     }
 
+    /// Benchmarks `logic(compiler)` where `compiler` is provided.
+    /// Parsing has already been done.
+    fn bencher_after_parse(&self, c: &mut Criterion, mode: &str, mut logic: impl FnMut(Compiler) -> Duration) {
+        self.bencher(c, mode, |mut compiler| {
+            let (input, name) = self.data();
+            compiler
+                .parse_program_from_string(input, name)
+                .expect("Failed to parse program");
+            logic(compiler)
+        });
+    }
+
+    fn bench_parse(&self, c: &mut Criterion) {
+        self.bencher(c, "parse", |mut compiler| {
+            let (input, name) = self.data();
+            let start = Instant::now();
+            let out = compiler.parse_program_from_string(input, name);
+            let time = start.elapsed();
+            out.expect("Failed to parse program");
+            time
+        })
+    }
+
     fn bench_symbol_table(&self, c: &mut Criterion) {
-        c.bench_function(&format!("symbol table pass {}", self.name), |b| {
-            // Iter custom is used so we can use custom timings around the compiler stages.
-            // This way we can only time the necessary stage.
-            b.iter_custom(|iters| {
-                let mut time = Duration::default();
-                for _ in 0..iters {
-                    SESSION_GLOBALS.set(&SessionGlobals::default(), || {
-                        let handler = BufEmitter::new_handler();
-                        let mut compiler = new_compiler(&handler);
-                        let (input, name) = self.data();
-                        compiler
-                            .parse_program_from_string(input, name)
-                            .expect("Failed to parse program");
-                        let start = Instant::now();
-                        let out = compiler.symbol_table_pass();
-                        time += start.elapsed();
-                        out.expect("failed to generate symbol table");
-                    });
-                }
-                time
-            })
+        self.bencher_after_parse(c, "symbol table pass", |compiler| {
+            let start = Instant::now();
+            let out = compiler.symbol_table_pass();
+            let time = start.elapsed();
+            out.expect("failed to generate symbol table");
+            time
         });
     }
 
     fn bench_type_checker(&self, c: &mut Criterion) {
-        c.bench_function(&format!("type checker pass {}", self.name), |b| {
-            // Iter custom is used so we can use custom timings around the compiler stages.
-            // This way we can only time the necessary stage.
-            b.iter_custom(|iters| {
-                let mut time = Duration::default();
-                for _ in 0..iters {
-                    SESSION_GLOBALS.set(&SessionGlobals::default(), || {
-                        let handler = BufEmitter::new_handler();
-                        let mut compiler = new_compiler(&handler);
-                        let (input, name) = self.data();
-                        compiler
-                            .parse_program_from_string(input, name)
-                            .expect("Failed to parse program");
-                        let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
-                        let start = Instant::now();
-                        let out = compiler.type_checker_pass(symbol_table);
-                        time += start.elapsed();
-                        out.expect("failed to run type check pass")
-                    });
-                }
-                time
-            })
+        self.bencher_after_parse(c, "type checker pass", |compiler| {
+            let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
+            let start = Instant::now();
+            let out = compiler.type_checker_pass(symbol_table);
+            let time = start.elapsed();
+            out.expect("failed to run type check pass");
+            time
         });
     }
 
     fn bench_loop_unroller(&self, c: &mut Criterion) {
-        c.bench_function(&format!("loop unrolling pass{}", self.name), |b| {
-            // Iter custom is used so we can use custom timings around the compiler stages.
-            // This way we can only time the necessary stage.
-            b.iter_custom(|iters| {
-                let mut time = Duration::default();
-                for _ in 0..iters {
-                    SESSION_GLOBALS.set(&SessionGlobals::default(), || {
-                        let handler = BufEmitter::new_handler();
-                        let mut compiler = new_compiler(&handler);
-                        let (input, name) = self.data();
-                        compiler
-                            .parse_program_from_string(input, name)
-                            .expect("Failed to parse program");
-                        let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
-                        let symbol_table = compiler
-                            .type_checker_pass(symbol_table)
-                            .expect("failed to run type check pass");
-                        let start = Instant::now();
-                        let out = compiler.loop_unrolling_pass(symbol_table);
-                        time += start.elapsed();
-                        out.expect("failed to run loop unrolling pass")
-                    });
-                }
-                time
-            })
+        self.bencher_after_parse(c, "loop unrolling pass", |mut compiler| {
+            let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
+            let symbol_table = compiler
+                .type_checker_pass(symbol_table)
+                .expect("failed to run type check pass");
+            let start = Instant::now();
+            let out = compiler.loop_unrolling_pass(symbol_table);
+            let time = start.elapsed();
+            out.expect("failed to run loop unrolling pass");
+            time
         });
     }
 
+    fn bench_ssa(&self, c: &mut Criterion) {
+        self.bencher_after_parse(c, "full", |mut compiler| {
+            let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
+            let symbol_table = compiler
+                .type_checker_pass(symbol_table)
+                .expect("failed to run type check pass");
+            compiler
+                .loop_unrolling_pass(symbol_table)
+                .expect("failed to run loop unrolling pass");
+            let start = Instant::now();
+            let out = compiler.static_single_assignment_pass();
+            let time = start.elapsed();
+            out.expect("failed to run ssa pass");
+            time
+        })
+    }
+
     fn bench_full(&self, c: &mut Criterion) {
-        c.bench_function(&format!("full {}", self.name), |b| {
-            // Iter custom is used so we can use custom timings around the compiler stages.
-            // This way we can only time the necessary stages.
-            b.iter_custom(|iters| {
-                let mut time = Duration::default();
-                for _ in 0..iters {
-                    SESSION_GLOBALS.set(&SessionGlobals::default(), || {
-                        let handler = BufEmitter::new_handler();
-                        let mut compiler = new_compiler(&handler);
-                        let (input, name) = self.data();
-                        let start = Instant::now();
-                        compiler
-                            .parse_program_from_string(input, name)
-                            .expect("Failed to parse program");
-                        let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
-                        let symbol_table = compiler
-                            .type_checker_pass(symbol_table)
-                            .expect("failed to run type check pass");
-                        compiler
-                            .loop_unrolling_pass(symbol_table)
-                            .expect("failed to run loop unrolling pass");
-                        time += start.elapsed();
-                    });
-                }
-                time
-            })
-        });
+        self.bencher(c, "full", |mut compiler| {
+            let (input, name) = self.data();
+            let start = Instant::now();
+            compiler
+                .parse_program_from_string(input, name)
+                .expect("Failed to parse program");
+            let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
+            let symbol_table = compiler
+                .type_checker_pass(symbol_table)
+                .expect("failed to run type check pass");
+            compiler
+                .loop_unrolling_pass(symbol_table)
+                .expect("failed to run loop unrolling pass");
+            compiler
+                .static_single_assignment_pass()
+                .expect("failed to run ssa pass");
+            start.elapsed()
+        })
     }
 }
 
@@ -252,6 +229,7 @@ bench!(bench_parse, BenchMode::Parse);
 bench!(bench_symbol, BenchMode::Symbol);
 bench!(bench_type, BenchMode::Type);
 bench!(bench_unroll, BenchMode::Unroll);
+bench!(bench_ssa, BenchMode::Ssa);
 bench!(bench_full, BenchMode::Full);
 
 criterion_group!(
@@ -262,6 +240,7 @@ criterion_group!(
         bench_symbol,
         bench_type,
         bench_unroll,
+        bench_ssa,
         bench_full
 );
 criterion_main!(benches);

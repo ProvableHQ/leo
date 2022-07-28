@@ -22,12 +22,8 @@ pub use pedersen::*;
 mod poseidon;
 pub use poseidon::*;
 
-use crate::Types;
-
 use leo_ast::Type;
 use leo_span::{sym, Symbol};
-
-use indexmap::IndexSet;
 
 /// A core instruction that maps directly to an AVM bytecode instruction.
 #[derive(Clone, PartialEq, Eq)]
@@ -233,12 +229,3 @@ const BOOL_INT64_STRING_TYPES: [Type; 10] = [
     Type::U64,
     Type::String,
 ];
-
-// todo (collin): deprecate this code
-pub struct Algorithms;
-
-impl Types for Algorithms {
-    fn types() -> IndexSet<Symbol> {
-        IndexSet::from([Symbol::intern("Poseidon")])
-    }
-}

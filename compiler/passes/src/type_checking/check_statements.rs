@@ -22,6 +22,23 @@ use leo_errors::TypeCheckerError;
 use std::cell::RefCell;
 
 impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
+    fn visit_statement(&mut self, input: &'a Statement) {
+        if self.has_return {
+            self.emit_err(TypeCheckerError::unreachable_code_after_return(input.span()));
+            return;
+        }
+
+        match input {
+            Statement::Return(stmt) => self.visit_return(stmt),
+            Statement::Definition(stmt) => self.visit_definition(stmt),
+            Statement::Assign(stmt) => self.visit_assign(stmt),
+            Statement::Conditional(stmt) => self.visit_conditional(stmt),
+            Statement::Iteration(stmt) => self.visit_iteration(stmt),
+            Statement::Console(stmt) => self.visit_console(stmt),
+            Statement::Block(stmt) => self.visit_block(stmt),
+        }
+    }
+
     fn visit_return(&mut self, input: &'a ReturnStatement) {
         // we can safely unwrap all self.parent instances because
         // statements should always have some parent block
@@ -31,7 +48,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             .borrow()
             .lookup_fn_symbol(parent)
             .map(|f| f.output.clone());
-        self.check_core_type_conflict(return_type);
 
         self.has_return = true;
 
@@ -44,8 +60,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         } else {
             VariableType::Mut
         };
-
-        self.check_core_type_conflict(&Some(input.type_.clone()));
 
         self.visit_expression(&input.value, &Some(input.type_.clone()));
 
@@ -87,23 +101,41 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         };
 
         if var_type.is_some() {
-            self.check_core_type_conflict(&var_type);
             self.visit_expression(&input.value, &var_type);
         }
     }
 
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
         self.visit_expression(&input.condition, &Some(Type::Boolean));
-        self.visit_block(&input.block);
-        if let Some(s) = input.next.as_ref() {
-            self.visit_statement(s)
+
+        let mut then_block_has_return = false;
+        let mut otherwise_block_has_return = false;
+
+        // Set the `has_return` flag for the then-block.
+        let previous_has_return = core::mem::replace(&mut self.has_return, then_block_has_return);
+
+        self.visit_block(&input.then);
+
+        // Store the `has_return` flag for the then-block.
+        then_block_has_return = self.has_return;
+
+        if let Some(s) = input.otherwise.as_ref() {
+            // Set the `has_return` flag for the otherwise-block.
+            self.has_return = otherwise_block_has_return;
+
+            self.visit_statement(s);
+
+            // Store the `has_return` flag for the otherwise-block.
+            otherwise_block_has_return = self.has_return;
         }
+
+        // Restore the previous `has_return` flag.
+        self.has_return = previous_has_return || (then_block_has_return && otherwise_block_has_return);
     }
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
         let iter_type = &Some(input.type_.clone());
         self.assert_int_type(iter_type, input.variable.span);
-        self.check_core_type_conflict(iter_type);
 
         // Create a new scope for the loop body.
         let scope_index = self.symbol_table.borrow_mut().insert_block();
@@ -124,7 +156,15 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             self.handler.emit_err(err);
         }
 
+        let prior_has_return = core::mem::take(&mut self.has_return);
+
         input.block.statements.iter().for_each(|s| self.visit_statement(s));
+
+        if self.has_return {
+            self.emit_err(TypeCheckerError::loop_body_contains_return(input.span()));
+        }
+
+        self.has_return = prior_has_return;
 
         // Restore the previous scope.
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();

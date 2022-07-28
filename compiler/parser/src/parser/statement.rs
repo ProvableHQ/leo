@@ -93,8 +93,8 @@ impl ParserContext<'_> {
         Ok(ConditionalStatement {
             span: start + next.as_ref().map(|x| x.span()).unwrap_or(body.span),
             condition: expr,
-            block: body,
-            next,
+            then: body,
+            otherwise: next,
         })
     }
 

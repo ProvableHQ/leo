@@ -24,4 +24,6 @@ pub struct OutputOptions {
     pub initial_input_ast: bool,
     /// If enabled writes the AST after loop unrolling.
     pub unrolled_ast: bool,
+    /// If enabled writes the AST after static single assignment.
+    pub ssa_ast: bool,
 }
