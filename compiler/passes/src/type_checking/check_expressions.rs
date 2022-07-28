@@ -629,8 +629,8 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 self.visit_expression(&input.receiver, destination)
             }
             UnaryOperation::SquareRoot => {
-                // Only field or scalar type.
-                self.assert_field_scalar_type(destination, input.span());
+                // Only field type.
+                self.assert_field_type(destination, input.span());
                 self.visit_expression(&input.receiver, destination)
             }
         }

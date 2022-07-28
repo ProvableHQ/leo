@@ -5,6 +5,6 @@ input_file:
  - inputs/scalars.in
 */
 
-function main(a: scalar, b: scalar, c: scalar) -> bool {
+function main(a: scalar, b: group, c: scalar) -> bool {
    return a * b == c;
 }
