@@ -132,12 +132,12 @@ impl ParserContext<'_> {
             Token::Div => BinaryOperation::Div,
             Token::Or => BinaryOperation::Or,
             Token::And => BinaryOperation::And,
-            Token::BitwiseOr => BinaryOperation::BitwiseOr,
-            Token::BitwiseAnd => BinaryOperation::BitwiseAnd,
+            Token::BitOr => BinaryOperation::BitwiseOr,
+            Token::BitAnd => BinaryOperation::BitwiseAnd,
             Token::Pow => BinaryOperation::Pow,
             Token::Shl => BinaryOperation::Shl,
             Token::Shr => BinaryOperation::Shr,
-            Token::Xor => BinaryOperation::Xor,
+            Token::BitXor => BinaryOperation::Xor,
             _ => unreachable!("`eat_bin_op` shouldn't produce this"),
         })
     }
@@ -173,7 +173,7 @@ impl ParserContext<'_> {
     ///
     /// Otherwise, tries to parse the next token using [`parse_bitwise_inclusive_or_expression`].
     fn parse_bitwise_exclusive_or_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(&[Token::Xor], Self::parse_bitwise_inclusive_or_expression)
+        self.parse_bin_expr(&[Token::BitXor], Self::parse_bitwise_inclusive_or_expression)
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -181,7 +181,7 @@ impl ParserContext<'_> {
     ///
     /// Otherwise, tries to parse the next token using [`parse_bitwise_and_expression`].
     fn parse_bitwise_inclusive_or_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(&[Token::BitwiseOr], Self::parse_bitwise_and_expression)
+        self.parse_bin_expr(&[Token::BitOr], Self::parse_bitwise_and_expression)
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -189,7 +189,7 @@ impl ParserContext<'_> {
     ///
     /// Otherwise, tries to parse the next token using [`parse_shift_expression`].
     fn parse_bitwise_and_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(&[Token::BitwiseAnd], Self::parse_shift_expression)
+        self.parse_bin_expr(&[Token::BitAnd], Self::parse_shift_expression)
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a

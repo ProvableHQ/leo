@@ -26,6 +26,13 @@ const ASSIGN_TOKENS: &[Token] = &[
     Token::MulAssign,
     Token::DivAssign,
     Token::PowAssign,
+    Token::OrAssign,
+    Token::AndAssign,
+    Token::BitAndAssign,
+    Token::BitOrAssign,
+    Token::ShrAssign,
+    Token::ShlAssign,
+    Token::BitXorAssign,
 ];
 
 impl ParserContext<'_> {
@@ -54,6 +61,13 @@ impl ParserContext<'_> {
                 Token::MulAssign => AssignOperation::Mul,
                 Token::DivAssign => AssignOperation::Div,
                 Token::PowAssign => AssignOperation::Pow,
+                Token::OrAssign => AssignOperation::Or,
+                Token::AndAssign => AssignOperation::And,
+                Token::BitAndAssign => AssignOperation::BitAnd,
+                Token::BitOrAssign => AssignOperation::BitOr,
+                Token::BitXorAssign => AssignOperation::BitXor,
+                Token::ShrAssign => AssignOperation::Shr,
+                Token::ShlAssign => AssignOperation::Shl,
                 _ => unreachable!("`parse_assign_statement` shouldn't produce this"),
             };
 
