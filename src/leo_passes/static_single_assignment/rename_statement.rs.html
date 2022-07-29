@@ -228,6 +228,9 @@
 <span id="223">223</span>
 <span id="224">224</span>
 <span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -309,20 +312,23 @@
     <span class="doccomment">///   `x &amp;= y | 1` becomes `x = x &amp; (y | 1)`</span>
     <span class="doccomment">///   `x = y + 3` remains `x = y + 3`</span>
     <span class="kw">fn</span> <span class="ident">reconstruct_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">assign</span>: <span class="ident">AssignStatement</span>) -&gt; <span class="ident">Statement</span> {
-        <span class="self">self</span>.<span class="ident">is_lhs</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">let</span> <span class="ident">place</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">assign</span>.<span class="ident">place</span>).<span class="number">0</span>;
-        <span class="self">self</span>.<span class="ident">is_lhs</span> <span class="op">=</span> <span class="bool-val">false</span>;
-
+        <span class="comment">// First reconstruct the right-hand-side of the assignment.</span>
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">assign</span>.<span class="ident">operation</span> {
             <span class="ident">AssignOperation::Assign</span> =&gt; <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">assign</span>.<span class="ident">value</span>).<span class="number">0</span>,
             <span class="comment">// Note that all `AssignOperation`s except for the `Assign` variant have an equivalent `BinaryOperation`.</span>
             <span class="kw">_</span> =&gt; <span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
-                <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">place</span>.<span class="ident">clone</span>()),
+                <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">assign</span>.<span class="ident">place</span>.<span class="ident">clone</span>()).<span class="number">0</span>),
                 <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">assign</span>.<span class="ident">value</span>).<span class="number">0</span>),
                 <span class="ident">op</span>: <span class="ident">AssignOperation::into_binary_operation</span>(<span class="ident">assign</span>.<span class="ident">operation</span>).<span class="ident">unwrap</span>(),
                 <span class="ident">span</span>: <span class="ident">assign</span>.<span class="ident">span</span>,
             }),
         };
+
+        <span class="comment">// Then assign a new unique name to the left-hand-side of the assignment.</span>
+        <span class="comment">// Note that this order is necessary to ensure that the right-hand-side uses the correct name when reconstructing a complex assignment.</span>
+        <span class="self">self</span>.<span class="ident">is_lhs</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="kw">let</span> <span class="ident">place</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">assign</span>.<span class="ident">place</span>).<span class="number">0</span>;
+        <span class="self">self</span>.<span class="ident">is_lhs</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
         <span class="ident"><span class="self">Self</span>::simple_assign_statement</span>(<span class="ident">place</span>, <span class="ident">value</span>)
     }
