@@ -241,10 +241,25 @@ impl Token {
             '(' => return match_one(&mut input, Token::LeftParen),
             ')' => return match_one(&mut input, Token::RightParen),
             '_' => return match_one(&mut input, Token::Underscore),
-            '*' => return match_two(&mut input, Token::Mul, '*', Token::Exp),
+            '*' => {
+                input.next();
+                if input.next_if_eq(&'=').is_some() {
+                    // '*='
+                    return Ok((1, Token::MulAssign));
+                } else if input.next_if_eq(&'*').is_some() {
+                    if input.next_if_eq(&'=').is_some() {
+                        // '**='
+                        return Ok((1, Token::PowAssign));
+                    }
+                    // '**'
+                    return Ok((1, Token::Pow));
+                }
+                // '*'
+                return Ok((1, Token::Mul));
+            }
             '+' => return match_two(&mut input, Token::Add, '=', Token::AddAssign),
             ',' => return match_one(&mut input, Token::Comma),
-            '-' => return match_two(&mut input, Token::Minus, '>', Token::Arrow),
+            '-' => return match_three(&mut input, Token::Sub, '=', Token::SubAssign, '>', Token::Arrow),
             '.' => return match_two(&mut input, Token::Dot, '.', Token::DotDot),
             '/' => {
                 input.next();
@@ -280,7 +295,11 @@ impl Token {
                         return Err(ParserError::lexer_block_comment_does_not_close_before_eof(comment).into());
                     }
                     return Ok((comment.len(), Token::CommentBlock(comment)));
+                } else if input.next_if_eq(&'=').is_some() {
+                    // '/='
+                    return Ok((1, Token::DivAssign));
                 }
+                // '/'
                 return Ok((1, Token::Div));
             }
             ':' => return match_two(&mut input, Token::Colon, ':', Token::DoubleColon),

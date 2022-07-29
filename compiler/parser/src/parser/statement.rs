@@ -19,7 +19,14 @@ use super::*;
 use leo_errors::{ParserError, Result};
 use leo_span::sym;
 
-const ASSIGN_TOKENS: &[Token] = &[Token::Assign, Token::AddAssign];
+const ASSIGN_TOKENS: &[Token] = &[
+    Token::Assign,
+    Token::AddAssign,
+    Token::SubAssign,
+    Token::MulAssign,
+    Token::DivAssign,
+    Token::PowAssign,
+];
 
 impl ParserContext<'_> {
     /// Returns a [`Statement`] AST node if the next tokens represent a statement.
@@ -43,6 +50,10 @@ impl ParserContext<'_> {
             let operation = match &self.prev_token.token {
                 Token::Assign => AssignOperation::Assign,
                 Token::AddAssign => AssignOperation::Add,
+                Token::SubAssign => AssignOperation::Sub,
+                Token::MulAssign => AssignOperation::Mul,
+                Token::DivAssign => AssignOperation::Div,
+                Token::PowAssign => AssignOperation::Pow,
                 _ => unreachable!("`parse_assign_statement` shouldn't produce this"),
             };
 
