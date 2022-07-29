@@ -79,20 +79,23 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
     ///   `x &= y | 1` becomes `x = x & (y | 1)`
     ///   `x = y + 3` remains `x = y + 3`
     fn reconstruct_assign(&mut self, assign: AssignStatement) -> Statement {
-        self.is_lhs = true;
-        let place = self.reconstruct_expression(assign.place).0;
-        self.is_lhs = false;
-
+        // First reconstruct the right-hand-side of the assignment.
         let value = match assign.operation {
             AssignOperation::Assign => self.reconstruct_expression(assign.value).0,
             // Note that all `AssignOperation`s except for the `Assign` variant have an equivalent `BinaryOperation`.
             _ => Expression::Binary(BinaryExpression {
-                left: Box::new(place.clone()),
+                left: Box::new(self.reconstruct_expression(assign.place.clone()).0),
                 right: Box::new(self.reconstruct_expression(assign.value).0),
                 op: AssignOperation::into_binary_operation(assign.operation).unwrap(),
                 span: assign.span,
             }),
         };
+
+        // Then assign a new unique name to the left-hand-side of the assignment.
+        // Note that this order is necessary to ensure that the right-hand-side uses the correct name when reconstructing a complex assignment.
+        self.is_lhs = true;
+        let place = self.reconstruct_expression(assign.place).0;
+        self.is_lhs = false;
 
         Self::simple_assign_statement(place, value)
     }
