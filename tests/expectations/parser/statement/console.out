@@ -1,0 +1,83 @@
+---
+namespace: ParseStatement
+expectation: Pass
+outputs:
+  - Console:
+      function:
+        Assert:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+      span:
+        lo: 0
+        hi: 16
+  - Console:
+      function:
+        Error:
+          string: "{}"
+          parameters:
+            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
+          span:
+            lo: 13
+            hi: 22
+      span:
+        lo: 0
+        hi: 22
+  - Console:
+      function:
+        Error:
+          string: "{}{}"
+          parameters:
+            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":22,\\\"hi\\\":23}\"}"
+            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":25,\\\"hi\\\":26}\"}"
+          span:
+            lo: 13
+            hi: 27
+      span:
+        lo: 0
+        hi: 27
+  - Console:
+      function:
+        Error:
+          string: x
+          parameters: []
+          span:
+            lo: 13
+            hi: 18
+      span:
+        lo: 0
+        hi: 18
+  - Console:
+      function:
+        Log:
+          string: "{}"
+          parameters:
+            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
+          span:
+            lo: 11
+            hi: 20
+      span:
+        lo: 0
+        hi: 20
+  - Console:
+      function:
+        Log:
+          string: "{}{}"
+          parameters:
+            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
+            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":23,\\\"hi\\\":24}\"}"
+          span:
+            lo: 11
+            hi: 25
+      span:
+        lo: 0
+        hi: 25
+  - Console:
+      function:
+        Log:
+          string: x
+          parameters: []
+          span:
+            lo: 11
+            hi: 16
+      span:
+        lo: 0
+        hi: 16

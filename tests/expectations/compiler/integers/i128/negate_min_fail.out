@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Failed to parse string. Parsing Error: VerboseError { errors: [(\"neg 170141183460469231731687303715884105727i128 into r0;\\n    sub r0 1i128 into r1;\\n    neg r1 into r2;\\n    output r2 as i128.private;\\n\", Nom(Tag)), (\"\\n    neg 170141183460469231731687303715884105727i128 into r0;\\n    sub r0 1i128 into r1;\\n    neg r1 into r2;\\n    output r2 as i128.private;\\n\", Nom(Many1)), (\"function main:\\n    neg 170141183460469231731687303715884105727i128 into r0;\\n    sub r0 1i128 into r1;\\n    neg r1 into r2;\\n    output r2 as i128.private;\\n\", Nom(Alt)), (\"function main:\\n    neg 170141183460469231731687303715884105727i128 into r0;\\n    sub r0 1i128 into r1;\\n    neg r1 into r2;\\n    output r2 as i128.private;\\n\", Nom(Many1))] }"
