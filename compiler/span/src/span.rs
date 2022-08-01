@@ -71,6 +71,8 @@ impl std::ops::Add for &Span {
 impl std::ops::Add for Span {
     type Output = Self;
 
+    /// Add two spans together.
+    /// The resulting span is the smallest span that includes both.
     fn add(self, other: Self) -> Self {
         let lo = self.lo.min(other.lo);
         let hi = self.hi.max(other.hi);
