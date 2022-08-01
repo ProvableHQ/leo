@@ -267,11 +267,33 @@ impl Token {
             x if x.is_ascii_digit() => return Self::eat_integer(&mut input),
             '!' => return match_two(&mut input, Token::Not, '=', Token::NotEq),
             '?' => return match_one(&mut input, Token::Question),
-            '&' => return match_four(&mut input, Token::BitAnd, '=', Token::BitAndAssign, '&', Token::And, '=', Token::AndAssign),
+            '&' => {
+                return match_four(
+                    &mut input,
+                    Token::BitAnd,
+                    '=',
+                    Token::BitAndAssign,
+                    '&',
+                    Token::And,
+                    '=',
+                    Token::AndAssign,
+                )
+            }
             '(' => return match_one(&mut input, Token::LeftParen),
             ')' => return match_one(&mut input, Token::RightParen),
             '_' => return match_one(&mut input, Token::Underscore),
-            '*' => return match_four(&mut input, Token::Mul, '=', Token::MulAssign, '*', Token::Pow, '=', Token::PowAssign),
+            '*' => {
+                return match_four(
+                    &mut input,
+                    Token::Mul,
+                    '=',
+                    Token::MulAssign,
+                    '*',
+                    Token::Pow,
+                    '=',
+                    Token::PowAssign,
+                )
+            }
             '+' => return match_two(&mut input, Token::Add, '=', Token::AddAssign),
             ',' => return match_one(&mut input, Token::Comma),
             '-' => return match_three(&mut input, Token::Sub, '=', Token::SubAssign, '>', Token::Arrow),
@@ -319,14 +341,47 @@ impl Token {
             }
             ':' => return match_two(&mut input, Token::Colon, ':', Token::DoubleColon),
             ';' => return match_one(&mut input, Token::Semicolon),
-            '<' => return match_four(&mut input, Token::Lt, '=', Token::LtEq, '<', Token::Shl, '=', Token::ShlAssign),
-            '>' => return match_four(&mut input, Token::Gt, '=', Token::GtEq, '>', Token::Shr, '=', Token::ShrAssign),
+            '<' => {
+                return match_four(
+                    &mut input,
+                    Token::Lt,
+                    '=',
+                    Token::LtEq,
+                    '<',
+                    Token::Shl,
+                    '=',
+                    Token::ShlAssign,
+                )
+            }
+            '>' => {
+                return match_four(
+                    &mut input,
+                    Token::Gt,
+                    '=',
+                    Token::GtEq,
+                    '>',
+                    Token::Shr,
+                    '=',
+                    Token::ShrAssign,
+                )
+            }
             '=' => return match_two(&mut input, Token::Assign, '=', Token::Eq),
             '[' => return match_one(&mut input, Token::LeftSquare),
             ']' => return match_one(&mut input, Token::RightSquare),
             '{' => return match_one(&mut input, Token::LeftCurly),
             '}' => return match_one(&mut input, Token::RightCurly),
-            '|' => return match_four(&mut input, Token::BitOr, '=', Token::BitOrAssign, '|', Token::Or, '=', Token::OrAssign),
+            '|' => {
+                return match_four(
+                    &mut input,
+                    Token::BitOr,
+                    '=',
+                    Token::BitOrAssign,
+                    '|',
+                    Token::Or,
+                    '=',
+                    Token::OrAssign,
+                )
+            }
             '^' => return match_two(&mut input, Token::BitXor, '=', Token::BitXorAssign),
             _ => (),
         }
