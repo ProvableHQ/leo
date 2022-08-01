@@ -1,5 +1,4 @@
-# Leo message circuit
-A basic example showing how to declare a circuit in the Leo language.
+# bubblesort
 
 ## Build Guide
 

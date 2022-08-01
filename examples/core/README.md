@@ -1,6 +1,13 @@
-# core.aleo
+# Leo core functions
+
 ## Build Guide
-To compile this Aleo program, run:
+
+To compile this program, run:
 ```bash
-aleo build
+leo build
+```
+
+To run this program, run:
+```bash
+leo run
 ```

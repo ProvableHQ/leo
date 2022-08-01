@@ -1,5 +1,5 @@
-# Leo message circuit
-A basic example showing how to declare a circuit in the Leo language.
+# Leo import example
+An example showing how to import symbols from file `point.leo`.
 
 ## Build Guide
 
