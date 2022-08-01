@@ -1,6 +1,6 @@
 [main]
 a: scalar = 1scalar;
-b: group = 1group;
+b: group = 1817767092074430972953743941103352519057913259183777531581123188265134806220group;
 c: scalar = 2scalar;
 
 [registers]
