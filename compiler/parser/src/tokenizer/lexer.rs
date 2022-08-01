@@ -267,7 +267,7 @@ impl Token {
             x if x.is_ascii_digit() => return Self::eat_integer(&mut input),
             '!' => return match_two(&mut input, Token::Not, '=', Token::NotEq),
             '?' => return match_one(&mut input, Token::Question),
-            '&' => return match_four(&mut input, Token::BitAnd, '=', Token::BitAndAssign, '&', Token::And, '=', Token::AddAssign),
+            '&' => return match_four(&mut input, Token::BitAnd, '=', Token::BitAndAssign, '&', Token::And, '=', Token::AndAssign),
             '(' => return match_one(&mut input, Token::LeftParen),
             ')' => return match_one(&mut input, Token::RightParen),
             '_' => return match_one(&mut input, Token::Underscore),
@@ -312,7 +312,7 @@ impl Token {
                     return Ok((comment.len(), Token::CommentBlock(comment)));
                 } else if input.next_if_eq(&'=').is_some() {
                     // '/='
-                    return Ok((1, Token::DivAssign));
+                    return Ok((2, Token::DivAssign));
                 }
                 // '/'
                 return Ok((1, Token::Div));

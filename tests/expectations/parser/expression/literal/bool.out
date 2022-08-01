@@ -1,0 +1,12 @@
+---
+namespace: Token
+expectation: Pass
+outputs:
+  - "'true' @ 1:1-5"
+  - "'True' @ 1:1-5"
+  - "'TRUE' @ 1:1-5"
+  - "'truE' @ 1:1-5"
+  - "'false' @ 1:1-6"
+  - "'False' @ 1:1-6"
+  - "'FALSE' @ 1:1-6"
+  - "'falsE' @ 1:1-6"

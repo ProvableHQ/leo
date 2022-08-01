@@ -1,0 +1,5 @@
+---
+namespace: Input
+expectation: Fail
+outputs:
+  - "Error [EPAR0370000]: main\n    --> test:3:1\n     |\n   3 | main\n     | ^^^^"

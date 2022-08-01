@@ -1,0 +1,5 @@
+---
+namespace: Input
+expectation: Fail
+outputs:
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found 'public'\n    --> test:4:10\n     |\n   4 | constant public a: bool  = true;                 \n     |          ^^^^^^"
