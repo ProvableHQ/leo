@@ -1,6 +1,0 @@
-[main]
-y: bool = true;
-a: [char; 5] = "😭😂👍😁😘";
-
-[registers]
-r0: bool = true;

@@ -22,7 +22,7 @@ function mint(r0: address, r1: u64) -> Token {
 
 function main(x: address) -> u64 {
     const c: u64 = 1u64;
-    let t: Token = mint(x, c);
+    let t: Token = Token { owner: x, gates: 0u64, amount: c};
 
     return t.gates;
 }

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372003]: Expected type `u64` but type `bool` was found\n    --> compiler-test:3:24\n     |\n   3 | function main(a: bool, b: bool) -> (bool, bool) {\n     |                        ^\nError [ETYC0372003]: Expected type `bool` but type `u64` was found\n    --> compiler-test:6:20\n     |\n   6 |     return (t.0, t.1);\n     |                    ^\n"
+  - "Error [ETYC0372003]: Expected type `u64` but type `boolean` was found\n    --> compiler-test:3:24\n     |\n   3 | function main(a: bool, b: bool) -> (bool, bool) {\n     |                        ^\nError [ETYC0372003]: Expected type `boolean` but type `u64` was found\n    --> compiler-test:6:20\n     |\n   6 |     return (t.0, t.1);\n     |                    ^\n"

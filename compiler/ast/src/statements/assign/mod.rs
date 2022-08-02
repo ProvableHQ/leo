@@ -35,21 +35,21 @@ pub enum AssignOperation {
     Div,
     /// Exponentiating assignment `**=`.
     Pow,
-    /// Logical or assignment.
+    /// Logical or assignment `||=`.
     Or,
-    /// Logical and assignment.
+    /// Logical and assignment `&&=`.
     And,
-    /// Bitwise or assignment.
+    /// Bitwise or assignment `|=`.
     BitOr,
-    /// Bitwise and assignment.
+    /// Bitwise and assignment `&=`.
     BitAnd,
-    /// Bitwise xor assignment.
+    /// Bitwise xor assignment `^=`.
     BitXor,
-    /// Shift right assignment.
+    /// Shift right assignment `>>=`.
     Shr,
     // /// Signed shift right assignment.
     // ShrSigned,
-    /// Shift left assignment.
+    /// Shift left assignment `<<=`.
     Shl,
     // /// Modulus / remainder assignment.
     // Mod,

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372007]: Expected one type from `bool, i8, i16, i32, i64, u8, u16, u32, u64, string`, but got `u128`\n    --> compiler-test:4:20\n     |\n   4 |     let a: group = Pedersen64::hash(1u128);\n     |                    ^^^^^^^^^^^^^^^^^^^^^^^\n"
+  - "Error [ETYC0372007]: Expected one type from `boolean, i8, i16, i32, i64, u8, u16, u32, u64, string`, but got `u128`\n    --> compiler-test:4:20\n     |\n   4 |     let a: group = Pedersen64::hash(1u128);\n     |                    ^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372003]: Expected type `group` but type `field` was found\n    --> compiler-test:4:20\n     |\n   4 |     let a: group = Pedersen64::hash(1u128);\n     |                    ^^^^^^^^^^^^^^^^^^^^^^^\n"

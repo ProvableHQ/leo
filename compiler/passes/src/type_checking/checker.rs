@@ -216,16 +216,6 @@ impl<'a> TypeChecker<'a> {
         )
     }
 
-    /// Emits an error to the handler if the given type is not a field or scalar.
-    pub(crate) fn assert_field_scalar_type(&self, type_: &Option<Type>, span: Span) {
-        self.check_type(
-            |type_: &Type| FIELD_TYPE.eq(type_) | SCALAR_TYPE.eq(type_),
-            format!("{}, {}", FIELD_TYPE, SCALAR_TYPE),
-            type_,
-            span,
-        )
-    }
-
     /// Emits an error to the handler if the given type is not a field, group, or integer.
     pub(crate) fn assert_field_group_int_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(

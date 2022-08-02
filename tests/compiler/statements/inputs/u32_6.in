@@ -1,5 +1,2 @@
 [main]
 x: u32 = 6u32;
-
-[registers]
-a: bool = false;

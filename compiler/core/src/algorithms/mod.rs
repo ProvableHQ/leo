@@ -37,9 +37,9 @@ pub enum CoreInstruction {
     BHP1024Commit,
     BHP1024Hash,
 
-    Pedersen64Commit,
+    // Pedersen64Commit,
     Pedersen64Hash,
-    Pedersen128Commit,
+    // Pedersen128Commit,
     Pedersen128Hash,
 
     Poseidon2Hash,
@@ -60,9 +60,9 @@ impl CoreInstruction {
             (sym::BHP1024, sym::commit) => Self::BHP1024Commit,
             (sym::BHP1024, sym::hash) => Self::BHP1024Hash,
 
-            (sym::Pedersen64, sym::commit) => Self::Pedersen64Commit,
+            // (sym::Pedersen64, sym::commit) => Self::Pedersen64Commit,
             (sym::Pedersen64, sym::hash) => Self::Pedersen64Hash,
-            (sym::Pedersen128, sym::commit) => Self::Pedersen128Commit,
+            // (sym::Pedersen128, sym::commit) => Self::Pedersen128Commit,
             (sym::Pedersen128, sym::hash) => Self::Pedersen128Hash,
 
             (sym::Poseidon2, sym::hash) => Self::Poseidon2Hash,
@@ -84,9 +84,9 @@ impl CoreInstruction {
             Self::BHP1024Commit => BHP1024Commit::NUM_ARGS,
             Self::BHP1024Hash => BHP1024Hash::NUM_ARGS,
 
-            Self::Pedersen64Commit => Pedersen64Commit::NUM_ARGS,
+            // Self::Pedersen64Commit => Pedersen64Commit::NUM_ARGS,
             Self::Pedersen64Hash => Pedersen64Hash::NUM_ARGS,
-            Self::Pedersen128Commit => Pedersen128Commit::NUM_ARGS,
+            // Self::Pedersen128Commit => Pedersen128Commit::NUM_ARGS,
             Self::Pedersen128Hash => Pedersen128Hash::NUM_ARGS,
 
             Self::Poseidon2Hash => Poseidon2Hash::NUM_ARGS,
@@ -107,9 +107,9 @@ impl CoreInstruction {
             Self::BHP1024Commit => BHP1024Commit::first_arg_types(),
             Self::BHP1024Hash => BHP1024Hash::first_arg_types(),
 
-            Self::Pedersen64Commit => Pedersen64Commit::first_arg_types(),
+            // Self::Pedersen64Commit => Pedersen64Commit::first_arg_types(),
             Self::Pedersen64Hash => Pedersen64Hash::first_arg_types(),
-            Self::Pedersen128Commit => Pedersen128Commit::first_arg_types(),
+            // Self::Pedersen128Commit => Pedersen128Commit::first_arg_types(),
             Self::Pedersen128Hash => Pedersen128Hash::first_arg_types(),
 
             Self::Poseidon2Hash => Poseidon2Hash::first_arg_types(),
@@ -130,9 +130,9 @@ impl CoreInstruction {
             Self::BHP1024Commit => BHP1024Commit::second_arg_types(),
             Self::BHP1024Hash => BHP1024Hash::second_arg_types(),
 
-            Self::Pedersen64Commit => Pedersen64Commit::second_arg_types(),
+            // Self::Pedersen64Commit => Pedersen64Commit::second_arg_types(),
             Self::Pedersen64Hash => Pedersen64Hash::second_arg_types(),
-            Self::Pedersen128Commit => Pedersen128Commit::second_arg_types(),
+            // Self::Pedersen128Commit => Pedersen128Commit::second_arg_types(),
             Self::Pedersen128Hash => Pedersen128Hash::second_arg_types(),
 
             Self::Poseidon2Hash => Poseidon2Hash::second_arg_types(),
@@ -153,9 +153,9 @@ impl CoreInstruction {
             Self::BHP1024Commit => BHP1024Commit::return_type(),
             Self::BHP1024Hash => BHP1024Hash::return_type(),
 
-            Self::Pedersen64Commit => Pedersen64Commit::return_type(),
+            // Self::Pedersen64Commit => Pedersen64Commit::return_type(),
             Self::Pedersen64Hash => Pedersen64Hash::return_type(),
-            Self::Pedersen128Commit => Pedersen128Commit::return_type(),
+            // Self::Pedersen128Commit => Pedersen128Commit::return_type(),
             Self::Pedersen128Hash => Pedersen128Hash::return_type(),
 
             Self::Poseidon2Hash => Poseidon2Hash::return_type(),

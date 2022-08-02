@@ -19,7 +19,21 @@ use super::*;
 use leo_errors::{ParserError, Result};
 use leo_span::sym;
 
-const ASSIGN_TOKENS: &[Token] = &[Token::Assign];
+const ASSIGN_TOKENS: &[Token] = &[
+    Token::Assign,
+    Token::AddAssign,
+    Token::SubAssign,
+    Token::MulAssign,
+    Token::DivAssign,
+    Token::PowAssign,
+    Token::OrAssign,
+    Token::AndAssign,
+    Token::BitAndAssign,
+    Token::BitOrAssign,
+    Token::ShrAssign,
+    Token::ShlAssign,
+    Token::BitXorAssign,
+];
 
 impl ParserContext<'_> {
     /// Returns a [`Statement`] AST node if the next tokens represent a statement.
@@ -40,13 +54,29 @@ impl ParserContext<'_> {
         let place = self.parse_expression()?;
 
         if self.eat_any(ASSIGN_TOKENS) {
+            let operation = match &self.prev_token.token {
+                Token::Assign => AssignOperation::Assign,
+                Token::AddAssign => AssignOperation::Add,
+                Token::SubAssign => AssignOperation::Sub,
+                Token::MulAssign => AssignOperation::Mul,
+                Token::DivAssign => AssignOperation::Div,
+                Token::PowAssign => AssignOperation::Pow,
+                Token::OrAssign => AssignOperation::Or,
+                Token::AndAssign => AssignOperation::And,
+                Token::BitAndAssign => AssignOperation::BitAnd,
+                Token::BitOrAssign => AssignOperation::BitOr,
+                Token::BitXorAssign => AssignOperation::BitXor,
+                Token::ShrAssign => AssignOperation::Shr,
+                Token::ShlAssign => AssignOperation::Shl,
+                _ => unreachable!("`parse_assign_statement` shouldn't produce this"),
+            };
+
             let value = self.parse_expression()?;
             self.expect(&Token::Semicolon)?;
             Ok(Statement::Assign(Box::new(AssignStatement {
                 span: place.span() + value.span(),
                 place,
-                // Currently only `=` so this is alright.
-                operation: AssignOperation::Assign,
+                operation,
                 value,
             })))
         } else {

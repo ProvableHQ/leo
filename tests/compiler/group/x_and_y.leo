@@ -1,10 +1,11 @@
 /*
 namespace: Compile
 expectation: Pass
+input_file: inputs/scalar_group.in
 */
 
-function main() -> group {
-    const element: group = (0, 1)group;
+function main(a: scalar) -> group {
+    let b: group = (0, 1)group;
 
-    return element;
+    return a * b;
 }

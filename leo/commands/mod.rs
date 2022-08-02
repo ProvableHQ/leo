@@ -27,13 +27,9 @@ pub use new::New;
 pub mod run;
 pub use run::Run;
 
-// pub mod init;
-// pub use init::Init;
-
 use crate::context::*;
 use leo_errors::Result;
 
-use std::time::Instant;
 use tracing::span::Span;
 
 pub(crate) type Network = snarkvm::prelude::Testnet3;
@@ -83,15 +79,9 @@ pub trait Command {
         let span = span.enter();
 
         // Calculate the execution time for this command.
-        let timer = Instant::now();
         let out = self.apply(context, input);
 
         drop(span);
-
-        // Use the done context to print the execution time for this command.
-        tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
-            tracing::info!("Finished in {} milliseconds \n", timer.elapsed().as_millis());
-        });
 
         out
     }

@@ -1,0 +1,10 @@
+[main]
+i8_value: i8 = 1i8;
+i16_value: i16 = 1i16;
+i32_value: i32 = 1i32;
+i64_value: i64 = 1i64;
+u8_value: u8 = 1u8;
+u16_value: u16 = 1u16;
+u32_value: u32 = 1u32;
+u64_value: u64 = 1u64;
+

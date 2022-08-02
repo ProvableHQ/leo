@@ -1,7 +1,7 @@
 /*
 namespace: Compile
 expectation: Fail
-input_file: inputs/one.in
+input_file: inputs/point.in
 */
 
 function main(a: group) -> group {

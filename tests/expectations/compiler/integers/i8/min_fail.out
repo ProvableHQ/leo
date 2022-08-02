@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected -> -- found '{'\n    --> compiler-test:3:17\n     |\n   3 | function main() {\n     |                 ^"
+  - "Failed to parse string. Parsing Error: VerboseError { errors: [(\"neg 127i8 into r0;\\n    sub r0 2i8 into r1;\\n    output r1 as i8.private;\\n\", Nom(Tag)), (\"\\n    neg 127i8 into r0;\\n    sub r0 2i8 into r1;\\n    output r1 as i8.private;\\n\", Nom(Many1)), (\"function main:\\n    neg 127i8 into r0;\\n    sub r0 2i8 into r1;\\n    output r1 as i8.private;\\n\", Nom(Alt)), (\"function main:\\n    neg 127i8 into r0;\\n    sub r0 2i8 into r1;\\n    output r1 as i8.private;\\n\", Nom(Many1))] }"

@@ -1,6 +1,14 @@
-# message.aleo
+# Leo message circuit
+A basic example showing how to declare a circuit in the Leo language.
+
 ## Build Guide
-To compile this Aleo program, run:
+
+To compile this program, run:
 ```bash
-aleo build
+leo build
+```
+
+To run this program, run:
+```bash
+leo run
 ```

@@ -1175,6 +1175,8 @@ dependencies = [
  "serde",
  "serde_yaml",
  "sha2",
+ "snarkvm",
+ "tempfile",
 ]
 
 [[package]]

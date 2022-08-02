@@ -127,17 +127,17 @@ impl ParserContext<'_> {
             Token::Gt => BinaryOperation::Gt,
             Token::GtEq => BinaryOperation::Gte,
             Token::Add => BinaryOperation::Add,
-            Token::Minus => BinaryOperation::Sub,
+            Token::Sub => BinaryOperation::Sub,
             Token::Mul => BinaryOperation::Mul,
             Token::Div => BinaryOperation::Div,
             Token::Or => BinaryOperation::Or,
             Token::And => BinaryOperation::And,
-            Token::BitwiseOr => BinaryOperation::BitwiseOr,
-            Token::BitwiseAnd => BinaryOperation::BitwiseAnd,
-            Token::Exp => BinaryOperation::Pow,
+            Token::BitOr => BinaryOperation::BitwiseOr,
+            Token::BitAnd => BinaryOperation::BitwiseAnd,
+            Token::Pow => BinaryOperation::Pow,
             Token::Shl => BinaryOperation::Shl,
             Token::Shr => BinaryOperation::Shr,
-            Token::Xor => BinaryOperation::Xor,
+            Token::BitXor => BinaryOperation::Xor,
             _ => unreachable!("`eat_bin_op` shouldn't produce this"),
         })
     }
@@ -173,7 +173,7 @@ impl ParserContext<'_> {
     ///
     /// Otherwise, tries to parse the next token using [`parse_bitwise_inclusive_or_expression`].
     fn parse_bitwise_exclusive_or_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(&[Token::Xor], Self::parse_bitwise_inclusive_or_expression)
+        self.parse_bin_expr(&[Token::BitXor], Self::parse_bitwise_inclusive_or_expression)
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -181,7 +181,7 @@ impl ParserContext<'_> {
     ///
     /// Otherwise, tries to parse the next token using [`parse_bitwise_and_expression`].
     fn parse_bitwise_inclusive_or_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(&[Token::BitwiseOr], Self::parse_bitwise_and_expression)
+        self.parse_bin_expr(&[Token::BitOr], Self::parse_bitwise_and_expression)
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -189,7 +189,7 @@ impl ParserContext<'_> {
     ///
     /// Otherwise, tries to parse the next token using [`parse_shift_expression`].
     fn parse_bitwise_and_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(&[Token::BitwiseAnd], Self::parse_shift_expression)
+        self.parse_bin_expr(&[Token::BitAnd], Self::parse_shift_expression)
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -205,7 +205,7 @@ impl ParserContext<'_> {
     ///
     /// Otherwise, tries to parse the next token using [`parse_mul_div_pow_expression`].
     fn parse_additive_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(&[Token::Add, Token::Minus], Self::parse_multiplicative_expression)
+        self.parse_bin_expr(&[Token::Add, Token::Sub], Self::parse_multiplicative_expression)
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -223,7 +223,7 @@ impl ParserContext<'_> {
     fn parse_exponential_expression(&mut self) -> Result<Expression> {
         let mut expr = self.parse_unary_expression()?;
 
-        if let Some(op) = self.eat_bin_op(&[Token::Exp]) {
+        if let Some(op) = self.eat_bin_op(&[Token::Pow]) {
             let right = self.parse_exponential_expression()?;
             expr = Self::bin_expr(expr, right, op);
         }
@@ -237,10 +237,10 @@ impl ParserContext<'_> {
     /// Otherwise, tries to parse the next token using [`parse_postfix_expression`].
     pub(super) fn parse_unary_expression(&mut self) -> Result<Expression> {
         let mut ops = Vec::new();
-        while self.eat_any(&[Token::Not, Token::Minus]) {
+        while self.eat_any(&[Token::Not, Token::Sub]) {
             let operation = match self.prev_token.token {
                 Token::Not => UnaryOperation::Not,
-                Token::Minus => UnaryOperation::Negate,
+                Token::Sub => UnaryOperation::Negate,
                 _ => unreachable!("parse_unary_expression_ shouldn't produce this"),
             };
             ops.push((operation, self.prev_token.span));
@@ -401,7 +401,7 @@ impl ParserContext<'_> {
     fn peek_group_coordinate(&self, dist: &mut usize) -> Option<GroupCoordinate> {
         let (advanced, gc) = self.look_ahead(*dist, |t0| match &t0.token {
             Token::Add => Some((1, GroupCoordinate::SignHigh)),
-            Token::Minus => self.look_ahead(*dist + 1, |t1| match &t1.token {
+            Token::Sub => self.look_ahead(*dist + 1, |t1| match &t1.token {
                 Token::Integer(value) => Some((2, GroupCoordinate::Number(format!("-{}", value), t1.span))),
                 _ => Some((1, GroupCoordinate::SignLow)),
             }),

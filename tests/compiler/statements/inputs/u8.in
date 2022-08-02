@@ -1,5 +1,2 @@
 [main]
 a: u8 = 1u8;
-
-[registers]
-r0: bool = true;

@@ -49,7 +49,7 @@ impl fmt::Display for GroupLiteral {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::Single(string, _) => write!(f, "{}", string),
-            Self::Tuple(tuple) => write!(f, "{}", tuple),
+            Self::Tuple(tuple) => write!(f, "{}", tuple.x), // Temporarily emit x coordinate only.
         }
     }
 }
@@ -63,10 +63,4 @@ pub struct GroupTuple {
     pub y: GroupCoordinate,
     /// The span from `(` to `)`.
     pub span: Span,
-}
-
-impl fmt::Display for GroupTuple {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "({}, {})", self.x, self.y)
-    }
 }

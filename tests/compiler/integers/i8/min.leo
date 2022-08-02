@@ -1,12 +1,11 @@
 /*
 namespace: Compile
 expectation: Pass
-input_file: ../inputs/dummy.in
+input_file: inputs/add.in
 */
 
-function main(y: bool) -> bool {
-    const a: i8 = -128i8;
-    let z: bool = a == -128i8;
-    
-    return z == true;
+function main(a: i8) -> i8 {
+    let b: i8 = -127i8;
+
+    return b - a; // -128i8
 }

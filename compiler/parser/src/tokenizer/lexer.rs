@@ -185,34 +185,71 @@ impl Token {
         let input_str = input;
         let mut input = input.chars().peekable();
 
-        // Consumes a single character token.
-        let single = |input: &mut Peekable<_>, token| {
+        // Returns one token matching one character.
+        let match_one = |input: &mut Peekable<_>, token| {
             input.next();
             Ok((1, token))
         };
-        // Consumes a character followed by `on` with `then` if found or `els` otherwise.
-        let followed_by = |input: &mut Peekable<_>, on, then, els| {
+
+        // Returns one token matching one or two characters.
+        // If the `second` character matches, return the `second_token` that represents two characters.
+        // Otherwise, return the `first_token` that matches the one character.
+        let match_two = |input: &mut Peekable<_>, first_token, second_char, second_token| {
             input.next();
-            Ok(if input.next_if_eq(&on).is_some() {
-                (2, then)
+            Ok(if input.next_if_eq(&second_char).is_some() {
+                (2, second_token)
             } else {
-                (1, els)
+                (1, first_token)
             })
         };
-        // Consumes a character followed by `on_1`, `on_2` or none. Outputs case_1, case_2, or els.
-        let three_cases = |input: &mut Peekable<_>, on_1, case_1, on_2, case_2, els| {
+
+        // Returns one token matching one or two characters.
+        // If the `second_char` character matches, return the `second_token` that represents two characters.
+        // If the `third_char` character matches, return the `third_token` that represents two characters.
+        // Otherwise, return the `first_token` that matches the one character.
+        let match_three = |input: &mut Peekable<_>, first_token, second_char, second_token, third_char, third_token| {
             input.next();
-            Ok(if input.next_if_eq(&on_1).is_some() {
-                (2, case_1)
-            } else if input.next_if_eq(&on_2).is_some() {
-                (2, case_2)
+            Ok(if input.next_if_eq(&second_char).is_some() {
+                (2, second_token)
+            } else if input.next_if_eq(&third_char).is_some() {
+                (2, third_token)
             } else {
-                (1, els)
+                (1, first_token)
+            })
+        };
+
+        // Returns one token matching one, two, or three characters.
+        // The `fourth_token` expects both the `third_char` and `fourth_char` to be present.
+        // See the example with the different combinations for Mul, MulAssign, Pow, PowAssign below.
+        let match_four = |
+            input: &mut Peekable<_>,
+            first_token, // Mul '*'
+            second_char, // '='
+            second_token, // MulAssign '*='
+            third_char, // '*'
+            third_token, // Pow '**'
+            fourth_char, // '='
+            fourth_token // PowAssign '**='
+        | {
+            input.next();
+            Ok(if input.next_if_eq(&second_char).is_some() {
+                // '*='
+                (2, second_token)
+            } else if input.next_if_eq(&third_char).is_some() {
+                if input.next_if_eq(&fourth_char).is_some() {
+                    // '**='
+                    return Ok((3, fourth_token))
+                }
+                // '**'
+                (2, third_token)
+            } else {
+                // '*'
+                (1, first_token)
             })
         };
 
         match *input.peek().ok_or_else(ParserError::lexer_empty_input)? {
-            x if x.is_ascii_whitespace() => return single(&mut input, Token::WhiteSpace),
+            x if x.is_ascii_whitespace() => return match_one(&mut input, Token::WhiteSpace),
             '"' => {
                 // Find end string quotation mark.
                 // Instead of checking each `char` and pushing, we can avoid reallocations.
@@ -228,17 +265,39 @@ impl Token {
                 return Ok((string.len() + 2, Token::StaticString(string)));
             }
             x if x.is_ascii_digit() => return Self::eat_integer(&mut input),
-            '!' => return followed_by(&mut input, '=', Token::NotEq, Token::Not),
-            '?' => return single(&mut input, Token::Question),
-            '&' => return followed_by(&mut input, '&', Token::And, Token::BitwiseAnd),
-            '(' => return single(&mut input, Token::LeftParen),
-            ')' => return single(&mut input, Token::RightParen),
-            '_' => return single(&mut input, Token::Underscore),
-            '*' => return followed_by(&mut input, '*', Token::Exp, Token::Mul),
-            '+' => return single(&mut input, Token::Add),
-            ',' => return single(&mut input, Token::Comma),
-            '-' => return followed_by(&mut input, '>', Token::Arrow, Token::Minus),
-            '.' => return followed_by(&mut input, '.', Token::DotDot, Token::Dot),
+            '!' => return match_two(&mut input, Token::Not, '=', Token::NotEq),
+            '?' => return match_one(&mut input, Token::Question),
+            '&' => {
+                return match_four(
+                    &mut input,
+                    Token::BitAnd,
+                    '=',
+                    Token::BitAndAssign,
+                    '&',
+                    Token::And,
+                    '=',
+                    Token::AndAssign,
+                )
+            }
+            '(' => return match_one(&mut input, Token::LeftParen),
+            ')' => return match_one(&mut input, Token::RightParen),
+            '_' => return match_one(&mut input, Token::Underscore),
+            '*' => {
+                return match_four(
+                    &mut input,
+                    Token::Mul,
+                    '=',
+                    Token::MulAssign,
+                    '*',
+                    Token::Pow,
+                    '=',
+                    Token::PowAssign,
+                )
+            }
+            '+' => return match_two(&mut input, Token::Add, '=', Token::AddAssign),
+            ',' => return match_one(&mut input, Token::Comma),
+            '-' => return match_three(&mut input, Token::Sub, '=', Token::SubAssign, '>', Token::Arrow),
+            '.' => return match_two(&mut input, Token::Dot, '.', Token::DotDot),
             '/' => {
                 input.next();
                 if input.next_if_eq(&'/').is_some() {
@@ -273,20 +332,57 @@ impl Token {
                         return Err(ParserError::lexer_block_comment_does_not_close_before_eof(comment).into());
                     }
                     return Ok((comment.len(), Token::CommentBlock(comment)));
+                } else if input.next_if_eq(&'=').is_some() {
+                    // '/='
+                    return Ok((2, Token::DivAssign));
                 }
+                // '/'
                 return Ok((1, Token::Div));
             }
-            ':' => return followed_by(&mut input, ':', Token::DoubleColon, Token::Colon),
-            ';' => return single(&mut input, Token::Semicolon),
-            '<' => return three_cases(&mut input, '=', Token::LtEq, '<', Token::Shl, Token::Lt),
-            '>' => return three_cases(&mut input, '=', Token::GtEq, '>', Token::Shr, Token::Gt),
-            '=' => return followed_by(&mut input, '=', Token::Eq, Token::Assign),
-            '[' => return single(&mut input, Token::LeftSquare),
-            ']' => return single(&mut input, Token::RightSquare),
-            '{' => return single(&mut input, Token::LeftCurly),
-            '}' => return single(&mut input, Token::RightCurly),
-            '|' => return followed_by(&mut input, '|', Token::Or, Token::BitwiseOr),
-            '^' => return single(&mut input, Token::Xor),
+            ':' => return match_two(&mut input, Token::Colon, ':', Token::DoubleColon),
+            ';' => return match_one(&mut input, Token::Semicolon),
+            '<' => {
+                return match_four(
+                    &mut input,
+                    Token::Lt,
+                    '=',
+                    Token::LtEq,
+                    '<',
+                    Token::Shl,
+                    '=',
+                    Token::ShlAssign,
+                )
+            }
+            '>' => {
+                return match_four(
+                    &mut input,
+                    Token::Gt,
+                    '=',
+                    Token::GtEq,
+                    '>',
+                    Token::Shr,
+                    '=',
+                    Token::ShrAssign,
+                )
+            }
+            '=' => return match_two(&mut input, Token::Assign, '=', Token::Eq),
+            '[' => return match_one(&mut input, Token::LeftSquare),
+            ']' => return match_one(&mut input, Token::RightSquare),
+            '{' => return match_one(&mut input, Token::LeftCurly),
+            '}' => return match_one(&mut input, Token::RightCurly),
+            '|' => {
+                return match_four(
+                    &mut input,
+                    Token::BitOr,
+                    '=',
+                    Token::BitOrAssign,
+                    '|',
+                    Token::Or,
+                    '=',
+                    Token::OrAssign,
+                )
+            }
+            '^' => return match_two(&mut input, Token::BitXor, '=', Token::BitXorAssign),
             _ => (),
         }
         if let Some(ident) = eat_identifier(&mut input) {

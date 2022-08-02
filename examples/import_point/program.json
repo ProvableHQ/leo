@@ -1,0 +1,10 @@
+{
+    "program": "import_point.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkpBvXdKZKaXXcLUnwAVFCQNp41jrX6JqTuJo1JShfPoRfx",
+        "address": "aleo1mgfq6g40l6zkhsm063n3uhr43qk5e0zsua5aszeq5080dsvlcvxsn0rrau"
+    },
+    "license": "MIT"
+}

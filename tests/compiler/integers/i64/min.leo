@@ -1,10 +1,10 @@
 /*
 namespace: Compile
 expectation: Pass
-input_file: ../inputs/dummy.in
+input_file: inputs/add.in
 */
 
-function main(y: bool) -> bool {
-    const a: i64 = -9223372036854775808i64;
-    return y == true;
+function main(a: i64) -> i64 {
+    let b: i64 = -9223372036854775807i64;
+    return b - a; // -9223372036854775808i64
 }

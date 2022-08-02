@@ -1,6 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
+input_files: inputs/add.in
 */
 
 record Token {
@@ -12,6 +13,6 @@ record Token {
     amount: u64,
 }
 
-function main() -> bool {
-    return true;
+function main(a: u8, b:u8) -> u8 {
+    return a + b;
 }

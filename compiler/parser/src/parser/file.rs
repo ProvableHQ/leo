@@ -101,7 +101,7 @@ impl ParserContext<'_> {
 
         // Throw an error if the import file doesn't exist.
         if !import_file_path.exists() {
-            return Err(CompilerError::import_not_found(import_file_path.display(), self.token.span).into());
+            return Err(CompilerError::import_not_found(import_file_path.display(), self.prev_token.span).into());
         }
 
         // Read the import file into string.
