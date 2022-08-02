@@ -18,8 +18,8 @@ use crate::StaticSingleAssigner;
 use itertools::Itertools;
 
 use leo_ast::{
-    Expression, Function, ProgramReconstructor, ReturnStatement, Statement, StatementReconstructor, TernaryExpression,
-    TupleExpression,
+    Expression, ExpressionKind, Function, ProgramReconstructor, ReturnStatement, Statement, StatementReconstructor,
+    TernaryExpression, TupleExpression,
 };
 
 impl ProgramReconstructor for StaticSingleAssigner<'_> {
@@ -43,6 +43,16 @@ impl ProgramReconstructor for StaticSingleAssigner<'_> {
         // Type checking guarantees that there exists at least one return statement in the function body.
         let (_, last_return_expression) = returns.pop().unwrap();
 
+        let mk_ternary = |cond, then, els| {
+            let span = Default::default();
+            let kind = ExpressionKind::Ternary(TernaryExpression {
+                condition: Box::new(cond),
+                if_true: Box::new(then),
+                if_false: Box::new(els),
+            });
+            Expression { kind, span }
+        };
+
         // Fold all return expressions into a single ternary expression.
         let expression = returns
             .into_iter()
@@ -53,32 +63,29 @@ impl ProgramReconstructor for StaticSingleAssigner<'_> {
                 Some(guard) => match (expr, acc) {
                     // If the function returns tuples, fold the return expressions into a tuple of ternary expressions.
                     // Note that `expr` and `acc` are correspond to the `if` and `else` cases of the ternary expression respectively.
-                    (Expression::Tuple(expr_tuple), Expression::Tuple(acc_tuple)) => {
-                        Expression::Tuple(TupleExpression {
-                            elements: expr_tuple
-                                .elements
-                                .into_iter()
-                                .zip_eq(acc_tuple.elements.into_iter())
-                                .map(|(if_true, if_false)| {
-                                    Expression::Ternary(TernaryExpression {
-                                        condition: Box::new(guard.clone()),
-                                        if_true: Box::new(if_true),
-                                        if_false: Box::new(if_false),
-                                        span: Default::default(),
-                                    })
-                                })
-                                .collect(),
-                            span: Default::default(),
-                        })
+                    (
+                        Expression {
+                            kind: ExpressionKind::Tuple(expr_tuple),
+                            ..
+                        },
+                        Expression {
+                            kind: ExpressionKind::Tuple(acc_tuple),
+                            ..
+                        },
+                    ) => {
+                        let span = Default::default();
+                        let elements = expr_tuple
+                            .elements
+                            .into_iter()
+                            .zip_eq(acc_tuple.elements.into_iter())
+                            .map(|(if_true, if_false)| mk_ternary(guard.clone(), if_true, if_false))
+                            .collect();
+                        let kind = ExpressionKind::Tuple(TupleExpression { elements });
+                        Expression { kind, span }
                     }
                     // Otherwise, fold the return expressions into a single ternary expression.
                     // Note that `expr` and `acc` are correspond to the `if` and `else` cases of the ternary expression respectively.
-                    (expr, acc) => Expression::Ternary(TernaryExpression {
-                        condition: Box::new(guard),
-                        if_true: Box::new(expr),
-                        if_false: Box::new(acc),
-                        span: Default::default(),
-                    }),
+                    (expr, acc) => mk_ternary(guard, expr, acc),
                 },
             });
 

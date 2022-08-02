@@ -5,7 +5,11 @@ outputs:
   - Console:
       function:
         Assert:
-          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+          kind:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+          span:
+            lo: 15
+            hi: 16
       span:
         lo: 0
         hi: 16
@@ -14,7 +18,11 @@ outputs:
         Error:
           string: "{}"
           parameters:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
+            - kind:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
+              span:
+                lo: 20
+                hi: 21
           span:
             lo: 13
             hi: 22
@@ -26,8 +34,16 @@ outputs:
         Error:
           string: "{}{}"
           parameters:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":22,\\\"hi\\\":23}\"}"
-            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":25,\\\"hi\\\":26}\"}"
+            - kind:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":22,\\\"hi\\\":23}\"}"
+              span:
+                lo: 22
+                hi: 23
+            - kind:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":25,\\\"hi\\\":26}\"}"
+              span:
+                lo: 25
+                hi: 26
           span:
             lo: 13
             hi: 27
@@ -50,7 +66,11 @@ outputs:
         Log:
           string: "{}"
           parameters:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
+            - kind:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
+              span:
+                lo: 18
+                hi: 19
           span:
             lo: 11
             hi: 20
@@ -62,8 +82,16 @@ outputs:
         Log:
           string: "{}{}"
           parameters:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
-            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":23,\\\"hi\\\":24}\"}"
+            - kind:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
+              span:
+                lo: 20
+                hi: 21
+            - kind:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":23,\\\"hi\\\":24}\"}"
+              span:
+                lo: 23
+                hi: 24
           span:
             lo: 11
             hi: 25

@@ -84,12 +84,14 @@ impl ParserContext<'_> {
             // For example, `x += 1` becomes `x = x + 1`, while simple assignments like `x = y` remain unchanged.
             let value = match operation {
                 None => value,
-                Some(op) => Expression::Binary(BinaryExpression {
-                    left: Box::new(place.clone()),
-                    right: Box::new(value),
-                    op,
-                    span,
-                }),
+                Some(op) => {
+                    let kind = ExpressionKind::Binary(BinaryExpression {
+                        left: Box::new(place.clone()),
+                        right: Box::new(value),
+                        op,
+                    });
+                    Expression { kind, span }
+                }
             };
 
             Ok(Statement::Assign(Box::new(AssignStatement { span, place, value })))

@@ -18,15 +18,10 @@ use super::*;
 
 /// Represents a syntactically invalid expression.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ErrExpression {
-    /// The span of the invalid expression.
-    pub span: Span,
-}
+pub struct ErrExpression;
 
 impl fmt::Display for ErrExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.write_str("error")
     }
 }
-
-crate::simple_node_impl!(ErrExpression);

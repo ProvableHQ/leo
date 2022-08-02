@@ -17,79 +17,73 @@
 use crate::StaticSingleAssigner;
 
 use leo_ast::{
-    CallExpression, CircuitExpression, CircuitVariableInitializer, Expression, ExpressionReconstructor, Identifier,
+    CallExpression, CircuitExpression, CircuitVariableInitializer, Expression, ExpressionKind, ExpressionReconstructor,
+    Identifier,
 };
+use leo_span::Span;
 
 impl ExpressionReconstructor for StaticSingleAssigner<'_> {
     type AdditionalOutput = ();
 
     /// Reconstructs `CallExpression` without visiting the function name.
-    fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
-        (
-            Expression::Call(CallExpression {
-                // Note that we do not rename the function name.
-                function: input.function,
-                arguments: input
-                    .arguments
-                    .into_iter()
-                    .map(|arg| self.reconstruct_expression(arg).0)
-                    .collect(),
-                span: input.span,
-            }),
-            Default::default(),
-        )
+    fn reconstruct_call(&mut self, span: Span, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
+        let kind = ExpressionKind::Call(CallExpression {
+            // Note that we do not rename the function name.
+            function: input.function,
+            arguments: input
+                .arguments
+                .into_iter()
+                .map(|arg| self.reconstruct_expression(arg).0)
+                .collect(),
+        });
+        (Expression { span, kind }, Default::default())
     }
 
     /// Produces a new `CircuitExpression` with renamed variables.
-    fn reconstruct_circuit_init(&mut self, input: CircuitExpression) -> (Expression, Self::AdditionalOutput) {
-        (
-            Expression::Circuit(CircuitExpression {
-                name: input.name,
-                span: input.span,
-                members: input
-                    .members
-                    .into_iter()
-                    .map(|arg| CircuitVariableInitializer {
-                        identifier: arg.identifier,
-                        expression: Some(match &arg.expression.is_some() {
-                            // If the expression is None, then `arg` is a `CircuitVariableInitializer` of the form `<id>,`.
-                            // In this case, we must reconstruct the identifier and produce an initializer of the form `<id>: <renamed_id>`.
-                            false => self.reconstruct_identifier(arg.identifier).0,
-                            // If expression is `Some(..)`, then `arg is a `CircuitVariableInitializer` of the form `<id>: <expr>,`.
-                            // In this case, we must reconstruct the expression.
-                            true => self.reconstruct_expression(arg.expression.unwrap()).0,
-                        }),
-                    })
-                    .collect(),
-            }),
-            Default::default(),
-        )
+    fn reconstruct_circuit_init(
+        &mut self,
+        span: Span,
+        input: CircuitExpression,
+    ) -> (Expression, Self::AdditionalOutput) {
+        let kind = ExpressionKind::Circuit(CircuitExpression {
+            name: input.name,
+            members: input
+                .members
+                .into_iter()
+                .map(|arg| CircuitVariableInitializer {
+                    identifier: arg.identifier,
+                    expression: Some(match &arg.expression.is_some() {
+                        // If the expression is None, then `arg` is a `CircuitVariableInitializer` of the form `<id>,`.
+                        // In this case, we must reconstruct the identifier and produce an initializer of the form `<id>: <renamed_id>`.
+                        false => self.reconstruct_identifier(arg.identifier).0,
+                        // If expression is `Some(..)`, then `arg is a `CircuitVariableInitializer` of the form `<id>: <expr>,`.
+                        // In this case, we must reconstruct the expression.
+                        true => self.reconstruct_expression(arg.expression.unwrap()).0,
+                    }),
+                })
+                .collect(),
+        });
+        (Expression { span, kind }, Default::default())
     }
 
     /// Produces a new `Identifier` with a unique name.
-    fn reconstruct_identifier(&mut self, identifier: Identifier) -> (Expression, Self::AdditionalOutput) {
-        let name = match self.is_lhs {
+    fn reconstruct_identifier(&mut self, ident: Identifier) -> (Expression, Self::AdditionalOutput) {
+        let name = if self.is_lhs {
             // If reconstructing the left-hand side of a definition or assignment, a new unique name is introduced.
-            true => {
-                let new_name = self.unique_symbol(identifier.name);
-                self.rename_table.update(identifier.name, new_name);
-                new_name
-            }
+            let new_name = self.unique_symbol(ident.name);
+            self.rename_table.update(ident.name, new_name);
+            new_name
+        } else {
             // Otherwise, we look up the previous name in the `RenameTable`.
-            false => *self.rename_table.lookup(identifier.name).unwrap_or_else(|| {
+            *self.rename_table.lookup(ident.name).unwrap_or_else(|| {
                 panic!(
                     "SSA Error: An entry in the `RenameTable` for {} should exist.",
-                    identifier.name
+                    ident.name
                 )
-            }),
+            })
         };
-
-        (
-            Expression::Identifier(Identifier {
-                name,
-                span: identifier.span,
-            }),
-            Default::default(),
-        )
+        let span = ident.span;
+        let kind = ExpressionKind::Identifier(Identifier { name, span });
+        (Expression { kind, span }, Default::default())
     }
 }

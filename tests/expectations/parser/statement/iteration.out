@@ -6,19 +6,27 @@ outputs:
       variable: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       start:
-        Literal:
-          U8:
-            - "0"
-            - span:
-                lo: 13
-                hi: 16
+        kind:
+          Literal:
+            U8:
+              - "0"
+              - span:
+                  lo: 13
+                  hi: 16
+        span:
+          lo: 13
+          hi: 16
       stop:
-        Literal:
-          U8:
-            - "7"
-            - span:
-                lo: 18
-                hi: 21
+        kind:
+          Literal:
+            U8:
+              - "7"
+              - span:
+                  lo: 18
+                  hi: 21
+        span:
+          lo: 18
+          hi: 21
       inclusive: false
       block:
         statements: []
@@ -32,30 +40,42 @@ outputs:
       variable: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: I64
       start:
-        Literal:
-          I64:
-            - "0"
-            - span:
-                lo: 14
-                hi: 18
+        kind:
+          Literal:
+            I64:
+              - "0"
+              - span:
+                  lo: 14
+                  hi: 18
+        span:
+          lo: 14
+          hi: 18
       stop:
-        Literal:
-          I64:
-            - "7"
-            - span:
-                lo: 20
-                hi: 24
+        kind:
+          Literal:
+            I64:
+              - "7"
+              - span:
+                  lo: 20
+                  hi: 24
+        span:
+          lo: 20
+          hi: 24
       inclusive: false
       block:
         statements:
           - Return:
               expression:
-                Literal:
-                  U8:
-                    - "1"
-                    - span:
-                        lo: 34
-                        hi: 37
+                kind:
+                  Literal:
+                    U8:
+                      - "1"
+                      - span:
+                          lo: 34
+                          hi: 37
+                span:
+                  lo: 34
+                  hi: 37
               span:
                 lo: 27
                 hi: 37
@@ -69,30 +89,42 @@ outputs:
       variable: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: Field
       start:
-        Literal:
-          Field:
-            - "0"
-            - span:
-                lo: 16
-                hi: 22
+        kind:
+          Literal:
+            Field:
+              - "0"
+              - span:
+                  lo: 16
+                  hi: 22
+        span:
+          lo: 16
+          hi: 22
       stop:
-        Literal:
-          U8:
-            - "99"
-            - span:
-                lo: 24
-                hi: 28
+        kind:
+          Literal:
+            U8:
+              - "99"
+              - span:
+                  lo: 24
+                  hi: 28
+        span:
+          lo: 24
+          hi: 28
       inclusive: false
       block:
         statements:
           - Return:
               expression:
-                Literal:
-                  U8:
-                    - "1"
-                    - span:
-                        lo: 38
-                        hi: 41
+                kind:
+                  Literal:
+                    U8:
+                      - "1"
+                      - span:
+                          lo: 38
+                          hi: 41
+                span:
+                  lo: 38
+                  hi: 41
               span:
                 lo: 31
                 hi: 41
@@ -106,25 +138,37 @@ outputs:
       variable: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: Boolean
       start:
-        Literal:
-          U8:
-            - "0"
-            - span:
-                lo: 15
-                hi: 18
+        kind:
+          Literal:
+            U8:
+              - "0"
+              - span:
+                  lo: 15
+                  hi: 18
+        span:
+          lo: 15
+          hi: 18
       stop:
-        Identifier: "{\"name\":\"Self\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":24}\"}"
+        kind:
+          Identifier: "{\"name\":\"Self\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":24}\"}"
+        span:
+          lo: 20
+          hi: 24
       inclusive: false
       block:
         statements:
           - Return:
               expression:
-                Literal:
-                  U8:
-                    - "1"
-                    - span:
-                        lo: 34
-                        hi: 37
+                kind:
+                  Literal:
+                    U8:
+                      - "1"
+                      - span:
+                          lo: 34
+                          hi: 37
+                span:
+                  lo: 34
+                  hi: 37
               span:
                 lo: 27
                 hi: 37

@@ -173,8 +173,6 @@ pub struct BinaryExpression {
     pub right: Box<Expression>,
     /// The operand defining the meaning of the resulting binary expression.
     pub op: BinaryOperation,
-    /// The span from `left` to `right`.
-    pub span: Span,
 }
 
 impl fmt::Display for BinaryExpression {
@@ -182,5 +180,3 @@ impl fmt::Display for BinaryExpression {
         write!(f, "{} {} {}", self.left, self.op, self.right)
     }
 }
-
-crate::simple_node_impl!(BinaryExpression);

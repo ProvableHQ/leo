@@ -11,12 +11,16 @@ outputs:
       statements:
         - Return:
             expression:
-              Literal:
-                U8:
-                  - "0"
-                  - span:
-                      lo: 9
-                      hi: 12
+              kind:
+                Literal:
+                  U8:
+                    - "0"
+                    - span:
+                        lo: 9
+                        hi: 12
+              span:
+                lo: 9
+                hi: 12
             span:
               lo: 2
               hi: 12
@@ -39,12 +43,16 @@ outputs:
             statements:
               - Return:
                   expression:
-                    Literal:
-                      U8:
-                        - "0"
-                        - span:
-                            lo: 11
-                            hi: 14
+                    kind:
+                      Literal:
+                        U8:
+                          - "0"
+                          - span:
+                              lo: 11
+                              hi: 14
+                    span:
+                      lo: 11
+                      hi: 14
                   span:
                     lo: 4
                     hi: 14
@@ -58,17 +66,25 @@ outputs:
       statements:
         - Conditional:
             condition:
-              Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+              kind:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+              span:
+                lo: 5
+                hi: 6
             then:
               statements:
                 - Return:
                     expression:
-                      Literal:
-                        U8:
-                          - "0"
-                          - span:
-                              lo: 16
-                              hi: 19
+                      kind:
+                        Literal:
+                          U8:
+                            - "0"
+                            - span:
+                                lo: 16
+                                hi: 19
+                      span:
+                        lo: 16
+                        hi: 19
                     span:
                       lo: 9
                       hi: 19

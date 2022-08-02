@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, GroupLiteral, Literal, Node, Type, UnaryOperation};
+use crate::{Expression, ExpressionKind, GroupLiteral, Literal, Node, Type, UnaryOperation};
 use leo_errors::{InputError, LeoError, Result};
 
 use serde::{Deserialize, Serialize};
@@ -40,9 +40,9 @@ pub enum InputValue {
 
 impl TryFrom<(Type, Expression)> for InputValue {
     type Error = LeoError;
-    fn try_from(value: (Type, Expression)) -> Result<Self> {
-        Ok(match value {
-            (type_, Expression::Literal(lit)) => match (type_, lit) {
+    fn try_from((ty, expr): (Type, Expression)) -> Result<Self> {
+        Ok(match (ty, expr.kind) {
+            (type_, ExpressionKind::Literal(lit)) => match (type_, lit) {
                 (Type::Address, Literal::Address(value, _)) => Self::Address(value),
                 (Type::Boolean, Literal::Boolean(value, _)) => Self::Boolean(value),
                 (Type::Field, Literal::Field(value, _)) => Self::Field(value),
@@ -61,10 +61,13 @@ impl TryFrom<(Type, Expression)> for InputValue {
                     return Err(InputError::unexpected_type(x, &y, y.span()).into());
                 }
             },
-            (type_, Expression::Unary(unary)) if unary.op == UnaryOperation::Negate => {
+            (type_, ExpressionKind::Unary(unary)) if unary.op == UnaryOperation::Negate => {
                 InputValue::try_from((type_, *unary.receiver))?
             }
-            (_type_, expr) => return Err(InputError::illegal_expression(&expr, expr.span()).into()),
+            (_type_, kind) => {
+                let expr = Expression { kind, span: expr.span };
+                return Err(InputError::illegal_expression(&expr, expr.span()).into());
+            }
         })
     }
 }

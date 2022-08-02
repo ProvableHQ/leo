@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{access::*, Node};
-use leo_span::Span;
+use crate::{Expression, Identifier, PositiveNumber, Type};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -37,26 +36,6 @@ pub enum AccessExpression {
     Tuple(TupleAccess),
 }
 
-impl Node for AccessExpression {
-    fn span(&self) -> Span {
-        match self {
-            AccessExpression::AssociatedConstant(n) => n.span(),
-            AccessExpression::AssociatedFunction(n) => n.span(),
-            AccessExpression::Member(n) => n.span(),
-            AccessExpression::Tuple(n) => n.span(),
-        }
-    }
-
-    fn set_span(&mut self, span: Span) {
-        match self {
-            AccessExpression::AssociatedConstant(n) => n.set_span(span),
-            AccessExpression::AssociatedFunction(n) => n.set_span(span),
-            AccessExpression::Member(n) => n.set_span(span),
-            AccessExpression::Tuple(n) => n.set_span(span),
-        }
-    }
-}
-
 impl fmt::Display for AccessExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use AccessExpression::*;
@@ -67,5 +46,67 @@ impl fmt::Display for AccessExpression {
             Member(access) => access.fmt(f),
             Tuple(access) => access.fmt(f),
         }
+    }
+}
+
+/// An access expression to an circuit constant., e.g. `u8::MAX`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AssociatedConstant {
+    /// The inner circuit type.
+    pub ty: Type,
+    /// The circuit constant that is being accessed.
+    pub name: Identifier,
+}
+
+impl fmt::Display for AssociatedConstant {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}::{}", self.ty, self.name)
+    }
+}
+
+/// An access expression to an associated function in a circuit, e.g.`Pedersen64::hash()`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AssociatedFunction {
+    /// The inner circuit type.
+    pub ty: Type,
+    /// The static circuit member function that is being accessed.
+    pub name: Identifier,
+    /// The arguments passed to the function `name`.
+    pub args: Vec<Expression>,
+}
+
+impl fmt::Display for AssociatedFunction {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}::{}", self.ty, self.name)
+    }
+}
+
+/// A circuit member access expression `inner.name` to some structure with *named members*.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct MemberAccess {
+    /// The inner circuit that is being accessed.
+    pub inner: Box<Expression>,
+    /// The name of the circuit member to access.
+    pub name: Identifier,
+}
+
+impl fmt::Display for MemberAccess {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}.{}", self.inner, self.name)
+    }
+}
+
+/// A tuple access expression, e.g., `tuple.index`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TupleAccess {
+    /// An expression evaluating to some tuple type, e.g., `(5, 2)`.
+    pub tuple: Box<Expression>,
+    /// The index to access in the tuple expression. E.g., `0` for `(5, 2)` would yield `5`.
+    pub index: PositiveNumber,
+}
+
+impl fmt::Display for TupleAccess {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}.{}", self.tuple, self.index)
     }
 }

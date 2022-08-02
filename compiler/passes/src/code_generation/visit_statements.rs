@@ -17,7 +17,7 @@
 use crate::CodeGenerator;
 
 use leo_ast::{
-    AssignStatement, Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression,
+    AssignStatement, Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, ExpressionKind,
     IterationStatement, ParamMode, ReturnStatement, Statement,
 };
 
@@ -63,8 +63,8 @@ impl<'a> CodeGenerator<'a> {
 
     fn visit_assign(&mut self, input: &'a AssignStatement) -> String {
         // TODO: Once SSA is made optional, this should be made optional.
-        match &input.place {
-            Expression::Identifier(identifier) => {
+        match &input.place.kind {
+            ExpressionKind::Identifier(identifier) => {
                 let (operand, expression_instructions) = self.visit_expression(&input.value);
                 self.variable_mapping.insert(&identifier.name, operand);
                 expression_instructions

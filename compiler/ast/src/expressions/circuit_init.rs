@@ -48,8 +48,6 @@ pub struct CircuitExpression {
     /// N.B. Any functions or member constants in the circuit definition
     /// are excluded from this list.
     pub members: Vec<CircuitVariableInitializer>,
-    /// A span from `name` to `}`.
-    pub span: Span,
 }
 
 impl CircuitExpression {
@@ -93,5 +91,3 @@ impl fmt::Display for CircuitExpression {
         )
     }
 }
-
-crate::simple_node_impl!(CircuitExpression);

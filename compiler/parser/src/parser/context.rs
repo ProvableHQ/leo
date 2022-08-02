@@ -157,15 +157,12 @@ impl<'a> ParserContext<'a> {
             .ok_or_else(|| ParserError::unexpected_str(&self.token.token, "identifier", self.token.span).into())
     }
 
-    ///
-    /// Removes the next token if it is a [`Token::Integer(_)`] and returns it, or [None] if
-    /// the next token is not a [`Token::Integer(_)`] or if the next token does not exist.
-    ///
-    pub fn eat_integer(&mut self) -> Result<(PositiveNumber, Span)> {
+    /// Eats the next token and returns it if it is a [`Token::Integer(_)`].
+    pub fn eat_integer(&mut self) -> Result<PositiveNumber> {
         if let Token::Integer(value) = &self.token.token {
             let value = value.clone();
             self.bump();
-            Ok((PositiveNumber { value }, self.prev_token.span))
+            Ok(PositiveNumber { value })
         } else {
             Err(ParserError::unexpected(&self.token.token, "integer literal", self.token.span).into())
         }

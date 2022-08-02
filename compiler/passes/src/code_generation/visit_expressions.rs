@@ -17,8 +17,8 @@
 use crate::CodeGenerator;
 use leo_ast::{
     AccessExpression, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, CircuitExpression,
-    ErrExpression, Expression, Identifier, Literal, MemberAccess, TernaryExpression, TupleExpression, Type,
-    UnaryExpression, UnaryOperation,
+    ErrExpression, Expression, ExpressionKind, Identifier, Literal, MemberAccess, TernaryExpression, TupleExpression,
+    Type, UnaryExpression, UnaryOperation,
 };
 use leo_span::sym;
 
@@ -29,18 +29,18 @@ use std::fmt::Write as _;
 // a post-order traversal of the AST. This is sufficient since this implementation is intended to be
 // a prototype. The production implementation will require a redesign of `Director`.
 impl<'a> CodeGenerator<'a> {
-    pub(crate) fn visit_expression(&mut self, input: &'a Expression) -> (String, String) {
-        match input {
-            Expression::Access(expr) => self.visit_access(expr),
-            Expression::Binary(expr) => self.visit_binary(expr),
-            Expression::Call(expr) => self.visit_call(expr),
-            Expression::Circuit(expr) => self.visit_circuit_init(expr),
-            Expression::Err(expr) => self.visit_err(expr),
-            Expression::Identifier(expr) => self.visit_identifier(expr),
-            Expression::Literal(expr) => self.visit_value(expr),
-            Expression::Ternary(expr) => self.visit_ternary(expr),
-            Expression::Tuple(expr) => self.visit_tuple(expr),
-            Expression::Unary(expr) => self.visit_unary(expr),
+    pub(crate) fn visit_expression(&mut self, expr: &'a Expression) -> (String, String) {
+        match &expr.kind {
+            ExpressionKind::Access(expr) => self.visit_access(expr),
+            ExpressionKind::Binary(expr) => self.visit_binary(expr),
+            ExpressionKind::Call(expr) => self.visit_call(expr),
+            ExpressionKind::Circuit(expr) => self.visit_circuit_init(expr),
+            ExpressionKind::Err(expr) => self.visit_err(expr),
+            ExpressionKind::Identifier(expr) => self.visit_identifier(expr),
+            ExpressionKind::Literal(expr) => self.visit_value(expr),
+            ExpressionKind::Ternary(expr) => self.visit_ternary(expr),
+            ExpressionKind::Tuple(expr) => self.visit_tuple(expr),
+            ExpressionKind::Unary(expr) => self.visit_unary(expr),
         }
     }
 

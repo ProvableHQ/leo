@@ -4,39 +4,69 @@ expectation: Pass
 outputs:
   - Assign:
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+        kind:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+        span:
+          lo: 0
+          hi: 1
       value:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":8}\"}"
+        kind:
+          Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":8}\"}"
+        span:
+          lo: 4
+          hi: 8
       span:
         lo: 0
         hi: 8
   - Assign:
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+        kind:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+        span:
+          lo: 0
+          hi: 1
       value:
-        Binary:
-          left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-          right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
-          op: Add
-          span:
-            lo: 4
-            hi: 7
+        kind:
+          Binary:
+            left:
+              kind:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+              span:
+                lo: 4
+                hi: 5
+            right:
+              kind:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+              span:
+                lo: 6
+                hi: 7
+            op: Add
+        span:
+          lo: 4
+          hi: 7
       span:
         lo: 0
         hi: 7
   - Assign:
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+        kind:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+        span:
+          lo: 0
+          hi: 1
       value:
-        Call:
-          function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-          arguments: []
-          span:
-            lo: 4
-            hi: 7
+        kind:
+          Call:
+            function:
+              kind:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+              span:
+                lo: 4
+                hi: 5
+            arguments: []
+        span:
+          lo: 4
+          hi: 7
       span:
         lo: 0
         hi: 7

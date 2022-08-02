@@ -76,8 +76,6 @@ pub struct UnaryExpression {
     pub receiver: Box<Expression>,
     /// The unary operator to apply to `inner`.
     pub op: UnaryOperation,
-    /// The span covering `op inner`.
-    pub span: Span,
 }
 
 impl fmt::Display for UnaryExpression {
@@ -85,5 +83,3 @@ impl fmt::Display for UnaryExpression {
         write!(f, "{}{}", self.op.as_str(), self.receiver)
     }
 }
-
-crate::simple_node_impl!(UnaryExpression);

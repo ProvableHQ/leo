@@ -9,12 +9,16 @@ outputs:
             type_: Boolean
             name: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
             value:
-              Literal:
-                Boolean:
-                  - true
-                  - span:
-                      lo: 26
-                      hi: 30
+              kind:
+                Literal:
+                  Boolean:
+                    - true
+                    - span:
+                        lo: 26
+                        hi: 30
+              span:
+                lo: 26
+                hi: 30
             span:
               lo: 18
               hi: 22
@@ -22,12 +26,16 @@ outputs:
             type_: U8
             name: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":38,\\\"hi\\\":39}\"}"
             value:
-              Literal:
-                U8:
-                  - "2"
-                  - span:
-                      lo: 49
-                      hi: 52
+              kind:
+                Literal:
+                  U8:
+                    - "2"
+                    - span:
+                        lo: 49
+                        hi: 52
+              span:
+                lo: 49
+                hi: 52
             span:
               lo: 41
               hi: 43
@@ -35,12 +43,16 @@ outputs:
             type_: Field
             name: "{\"name\":\"c\",\"span\":\"{\\\"lo\\\":60,\\\"hi\\\":61}\"}"
             value:
-              Literal:
-                Field:
-                  - "0"
-                  - span:
-                      lo: 71
-                      hi: 77
+              kind:
+                Literal:
+                  Field:
+                    - "0"
+                    - span:
+                        lo: 71
+                        hi: 77
+              span:
+                lo: 71
+                hi: 77
             span:
               lo: 63
               hi: 68
@@ -48,24 +60,28 @@ outputs:
             type_: Group
             name: "{\"name\":\"d\",\"span\":\"{\\\"lo\\\":85,\\\"hi\\\":86}\"}"
             value:
-              Literal:
-                Group:
-                  Tuple:
-                    x:
-                      Number:
-                        - "0"
-                        - span:
-                            lo: 97
-                            hi: 98
-                    y:
-                      Number:
-                        - "1"
-                        - span:
-                            lo: 100
-                            hi: 101
-                    span:
-                      lo: 96
-                      hi: 107
+              kind:
+                Literal:
+                  Group:
+                    Tuple:
+                      x:
+                        Number:
+                          - "0"
+                          - span:
+                              lo: 97
+                              hi: 98
+                      y:
+                        Number:
+                          - "1"
+                          - span:
+                              lo: 100
+                              hi: 101
+                      span:
+                        lo: 96
+                        hi: 107
+              span:
+                lo: 96
+                hi: 107
             span:
               lo: 88
               hi: 93
@@ -73,12 +89,16 @@ outputs:
             type_: Address
             name: "{\"name\":\"e\",\"span\":\"{\\\"lo\\\":115,\\\"hi\\\":116}\"}"
             value:
-              Literal:
-                Address:
-                  - aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx
-                  - span:
-                      lo: 128
-                      hi: 191
+              kind:
+                Literal:
+                  Address:
+                    - aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx
+                    - span:
+                        lo: 128
+                        hi: 191
+              span:
+                lo: 128
+                hi: 191
             span:
               lo: 118
               hi: 125
@@ -86,18 +106,23 @@ outputs:
             type_: I8
             name: "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":199,\\\"hi\\\":200}\"}"
             value:
-              Unary:
-                receiver:
-                  Literal:
-                    I8:
-                      - "2"
-                      - span:
-                          lo: 211
-                          hi: 214
-                op: Negate
-                span:
-                  lo: 210
-                  hi: 214
+              kind:
+                Unary:
+                  receiver:
+                    kind:
+                      Literal:
+                        I8:
+                          - "2"
+                          - span:
+                              lo: 211
+                              hi: 214
+                    span:
+                      lo: 211
+                      hi: 214
+                  op: Negate
+              span:
+                lo: 210
+                hi: 214
             span:
               lo: 202
               hi: 204
@@ -110,12 +135,16 @@ outputs:
             type_: Boolean
             name: "{\"name\":\"r0\",\"span\":\"{\\\"lo\\\":229,\\\"hi\\\":231}\"}"
             value:
-              Literal:
-                Boolean:
-                  - true
-                  - span:
-                      lo: 241
-                      hi: 245
+              kind:
+                Literal:
+                  Boolean:
+                    - true
+                    - span:
+                        lo: 241
+                        hi: 245
+              span:
+                lo: 241
+                hi: 245
             span:
               lo: 233
               hi: 237
@@ -123,12 +152,16 @@ outputs:
             type_: U8
             name: "{\"name\":\"r1\",\"span\":\"{\\\"lo\\\":247,\\\"hi\\\":249}\"}"
             value:
-              Literal:
-                U8:
-                  - "2"
-                  - span:
-                      lo: 259
-                      hi: 262
+              kind:
+                Literal:
+                  U8:
+                    - "2"
+                    - span:
+                        lo: 259
+                        hi: 262
+              span:
+                lo: 259
+                hi: 262
             span:
               lo: 251
               hi: 253
@@ -136,12 +169,16 @@ outputs:
             type_: Field
             name: "{\"name\":\"r2\",\"span\":\"{\\\"lo\\\":264,\\\"hi\\\":266}\"}"
             value:
-              Literal:
-                Field:
-                  - "0"
-                  - span:
-                      lo: 276
-                      hi: 282
+              kind:
+                Literal:
+                  Field:
+                    - "0"
+                    - span:
+                        lo: 276
+                        hi: 282
+              span:
+                lo: 276
+                hi: 282
             span:
               lo: 268
               hi: 273
@@ -149,24 +186,28 @@ outputs:
             type_: Group
             name: "{\"name\":\"r3\",\"span\":\"{\\\"lo\\\":284,\\\"hi\\\":286}\"}"
             value:
-              Literal:
-                Group:
-                  Tuple:
-                    x:
-                      Number:
-                        - "0"
-                        - span:
-                            lo: 297
-                            hi: 298
-                    y:
-                      Number:
-                        - "1"
-                        - span:
-                            lo: 300
-                            hi: 301
-                    span:
-                      lo: 296
-                      hi: 307
+              kind:
+                Literal:
+                  Group:
+                    Tuple:
+                      x:
+                        Number:
+                          - "0"
+                          - span:
+                              lo: 297
+                              hi: 298
+                      y:
+                        Number:
+                          - "1"
+                          - span:
+                              lo: 300
+                              hi: 301
+                      span:
+                        lo: 296
+                        hi: 307
+              span:
+                lo: 296
+                hi: 307
             span:
               lo: 288
               hi: 293
@@ -174,12 +215,16 @@ outputs:
             type_: Address
             name: "{\"name\":\"r4\",\"span\":\"{\\\"lo\\\":309,\\\"hi\\\":311}\"}"
             value:
-              Literal:
-                Address:
-                  - aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx
-                  - span:
-                      lo: 323
-                      hi: 386
+              kind:
+                Literal:
+                  Address:
+                    - aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx
+                    - span:
+                        lo: 323
+                        hi: 386
+              span:
+                lo: 323
+                hi: 386
             span:
               lo: 313
               hi: 320
@@ -187,18 +232,23 @@ outputs:
             type_: I8
             name: "{\"name\":\"r4\",\"span\":\"{\\\"lo\\\":388,\\\"hi\\\":390}\"}"
             value:
-              Unary:
-                receiver:
-                  Literal:
-                    I8:
-                      - "1"
-                      - span:
-                          lo: 398
-                          hi: 401
-                op: Negate
-                span:
-                  lo: 397
-                  hi: 401
+              kind:
+                Unary:
+                  receiver:
+                    kind:
+                      Literal:
+                        I8:
+                          - "1"
+                          - span:
+                              lo: 398
+                              hi: 401
+                    span:
+                      lo: 398
+                      hi: 401
+                  op: Negate
+              span:
+                lo: 397
+                hi: 401
             span:
               lo: 392
               hi: 394

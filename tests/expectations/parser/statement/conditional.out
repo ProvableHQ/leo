@@ -4,17 +4,25 @@ expectation: Pass
 outputs:
   - Conditional:
       condition:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
+        kind:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
+        span:
+          lo: 3
+          hi: 4
       then:
         statements:
           - Return:
               expression:
-                Literal:
-                  U8:
-                    - "0"
-                    - span:
-                        lo: 14
-                        hi: 17
+                kind:
+                  Literal:
+                    U8:
+                      - "0"
+                      - span:
+                          lo: 14
+                          hi: 17
+                span:
+                  lo: 14
+                  hi: 17
               span:
                 lo: 7
                 hi: 17
@@ -27,17 +35,25 @@ outputs:
         hi: 20
   - Conditional:
       condition:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        kind:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        span:
+          lo: 4
+          hi: 5
       then:
         statements:
           - Return:
               expression:
-                Literal:
-                  U8:
-                    - "0"
-                    - span:
-                        lo: 16
-                        hi: 19
+                kind:
+                  Literal:
+                    U8:
+                      - "0"
+                      - span:
+                          lo: 16
+                          hi: 19
+                span:
+                  lo: 16
+                  hi: 19
               span:
                 lo: 9
                 hi: 19
@@ -50,7 +66,11 @@ outputs:
         hi: 22
   - Conditional:
       condition:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        kind:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        span:
+          lo: 4
+          hi: 5
       then:
         statements: []
         span:
@@ -67,15 +87,24 @@ outputs:
         hi: 17
   - Conditional:
       condition:
-        Binary:
-          left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
-          right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
-          op: Add
-          span:
-            lo: 3
-            hi: 6
+        kind:
+          Binary:
+            left:
+              kind:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
+              span:
+                lo: 3
+                hi: 4
+            right:
+              kind:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+              span:
+                lo: 5
+                hi: 6
+            op: Add
+        span:
+          lo: 3
+          hi: 6
       then:
         statements: []
         span:
@@ -84,15 +113,24 @@ outputs:
       otherwise:
         Conditional:
           condition:
-            Binary:
-              left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
-              right:
-                Identifier: "{\"name\":\"z\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
-              op: Add
-              span:
-                lo: 18
-                hi: 21
+            kind:
+              Binary:
+                left:
+                  kind:
+                    Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
+                  span:
+                    lo: 18
+                    hi: 19
+                right:
+                  kind:
+                    Identifier: "{\"name\":\"z\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
+                  span:
+                    lo: 20
+                    hi: 21
+                op: Add
+            span:
+              lo: 18
+              hi: 21
           then:
             statements: []
             span:
@@ -112,25 +150,38 @@ outputs:
         hi: 32
   - Conditional:
       condition:
-        Binary:
-          left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
-          right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
-          op: Add
-          span:
-            lo: 3
-            hi: 6
+        kind:
+          Binary:
+            left:
+              kind:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
+              span:
+                lo: 3
+                hi: 4
+            right:
+              kind:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+              span:
+                lo: 5
+                hi: 6
+            op: Add
+        span:
+          lo: 3
+          hi: 6
       then:
         statements:
           - Return:
               expression:
-                Literal:
-                  U8:
-                    - "0"
-                    - span:
-                        lo: 16
-                        hi: 19
+                kind:
+                  Literal:
+                    U8:
+                      - "0"
+                      - span:
+                          lo: 16
+                          hi: 19
+                span:
+                  lo: 16
+                  hi: 19
               span:
                 lo: 9
                 hi: 19

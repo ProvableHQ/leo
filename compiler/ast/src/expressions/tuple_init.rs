@@ -22,8 +22,6 @@ pub struct TupleExpression {
     /// The elements of the tuple.
     /// In the example above, it would be `foo`, `false`, and `42`.
     pub elements: Vec<Expression>,
-    /// The span from `(` to `)`.
-    pub span: Span,
 }
 
 impl fmt::Display for TupleExpression {
@@ -39,5 +37,3 @@ impl fmt::Display for TupleExpression {
         )
     }
 }
-
-crate::simple_node_impl!(TupleExpression);

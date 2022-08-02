@@ -2,157 +2,221 @@
 namespace: ParseExpression
 expectation: Pass
 outputs:
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
+  - kind:
+      Unary:
+        receiver:
+          kind:
             Unary:
               receiver:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              op: Square
-              span:
-                lo: 2
-                hi: 12
-          op: Negate
+                kind:
+                  Unary:
+                    receiver:
+                      kind:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                      span:
+                        lo: 2
+                        hi: 3
+                    op: Square
+                span:
+                  lo: 2
+                  hi: 12
+              op: Negate
           span:
             lo: 1
             hi: 12
-      op: Not
-      span:
-        lo: 0
-        hi: 12
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
+        op: Not
+    span:
+      lo: 0
+      hi: 12
+  - kind:
+      Unary:
+        receiver:
+          kind:
             Unary:
               receiver:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+                kind:
+                  Unary:
+                    receiver:
+                      kind:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+                      span:
+                        lo: 0
+                        hi: 1
+                    op: Square
+                span:
+                  lo: 0
+                  hi: 10
               op: Square
-              span:
-                lo: 0
-                hi: 10
-          op: Square
           span:
             lo: 0
             hi: 19
-      op: Square
-      span:
-        lo: 0
-        hi: 28
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          op: Square
+        op: Square
+    span:
+      lo: 0
+      hi: 28
+  - kind:
+      Unary:
+        receiver:
+          kind:
+            Unary:
+              receiver:
+                kind:
+                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+                span:
+                  lo: 1
+                  hi: 2
+              op: Square
           span:
             lo: 1
             hi: 11
-      op: Negate
-      span:
-        lo: 0
-        hi: 11
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Negate
+        op: Negate
+    span:
+      lo: 0
+      hi: 11
+  - kind:
+      Unary:
+        receiver:
+          kind:
+            Unary:
+              receiver:
+                kind:
+                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                span:
+                  lo: 2
+                  hi: 3
+              op: Negate
           span:
             lo: 1
             hi: 3
-      op: Square
-      span:
-        lo: 1
-        hi: 13
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Square
+        op: Square
+    span:
+      lo: 1
+      hi: 13
+  - kind:
+      Unary:
+        receiver:
+          kind:
+            Unary:
+              receiver:
+                kind:
+                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                span:
+                  lo: 2
+                  hi: 3
+              op: Square
           span:
             lo: 2
             hi: 12
-      op: Negate
-      span:
-        lo: 0
-        hi: 12
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
+        op: Negate
+    span:
+      lo: 0
+      hi: 12
+  - kind:
+      Unary:
+        receiver:
+          kind:
             Unary:
               receiver:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              op: Square
-              span:
-                lo: 2
-                hi: 12
-          op: Negate
+                kind:
+                  Unary:
+                    receiver:
+                      kind:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                      span:
+                        lo: 2
+                        hi: 3
+                    op: Square
+                span:
+                  lo: 2
+                  hi: 12
+              op: Negate
           span:
             lo: 1
             hi: 12
-      op: Square
-      span:
-        lo: 1
-        hi: 22
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          op: Square
+        op: Square
+    span:
+      lo: 1
+      hi: 22
+  - kind:
+      Unary:
+        receiver:
+          kind:
+            Unary:
+              receiver:
+                kind:
+                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+                span:
+                  lo: 1
+                  hi: 2
+              op: Square
           span:
             lo: 1
             hi: 11
-      op: Not
-      span:
-        lo: 0
-        hi: 11
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Not
+        op: Not
+    span:
+      lo: 0
+      hi: 11
+  - kind:
+      Unary:
+        receiver:
+          kind:
+            Unary:
+              receiver:
+                kind:
+                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                span:
+                  lo: 2
+                  hi: 3
+              op: Not
           span:
             lo: 1
             hi: 3
-      op: Square
-      span:
-        lo: 1
-        hi: 13
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Square
+        op: Square
+    span:
+      lo: 1
+      hi: 13
+  - kind:
+      Unary:
+        receiver:
+          kind:
+            Unary:
+              receiver:
+                kind:
+                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                span:
+                  lo: 2
+                  hi: 3
+              op: Square
           span:
             lo: 2
             hi: 12
-      op: Not
-      span:
-        lo: 0
-        hi: 12
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
+        op: Not
+    span:
+      lo: 0
+      hi: 12
+  - kind:
+      Unary:
+        receiver:
+          kind:
             Unary:
               receiver:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              op: Square
-              span:
-                lo: 2
-                hi: 12
-          op: Not
+                kind:
+                  Unary:
+                    receiver:
+                      kind:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                      span:
+                        lo: 2
+                        hi: 3
+                    op: Square
+                span:
+                  lo: 2
+                  hi: 12
+              op: Not
           span:
             lo: 1
             hi: 12
-      op: Square
-      span:
-        lo: 1
-        hi: 22
+        op: Square
+    span:
+      lo: 1
+      hi: 22

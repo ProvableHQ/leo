@@ -7,15 +7,24 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Binary:
-          left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
-          right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
-          op: Eq
-          span:
-            lo: 12
-            hi: 18
+        kind:
+          Binary:
+            left:
+              kind:
+                Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+              span:
+                lo: 12
+                hi: 13
+            right:
+              kind:
+                Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
+              span:
+                lo: 17
+                hi: 18
+            op: Eq
+        span:
+          lo: 12
+          hi: 18
       span:
         lo: 0
         hi: 18
@@ -24,15 +33,24 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Binary:
-          left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
-          right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
-          op: Neq
-          span:
-            lo: 12
-            hi: 18
+        kind:
+          Binary:
+            left:
+              kind:
+                Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+              span:
+                lo: 12
+                hi: 13
+            right:
+              kind:
+                Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
+              span:
+                lo: 17
+                hi: 18
+            op: Neq
+        span:
+          lo: 12
+          hi: 18
       span:
         lo: 0
         hi: 18
@@ -41,15 +59,24 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Binary:
-          left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
-          right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-          op: Gt
-          span:
-            lo: 12
-            hi: 17
+        kind:
+          Binary:
+            left:
+              kind:
+                Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+              span:
+                lo: 12
+                hi: 13
+            right:
+              kind:
+                Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+              span:
+                lo: 16
+                hi: 17
+            op: Gt
+        span:
+          lo: 12
+          hi: 17
       span:
         lo: 0
         hi: 17
@@ -58,15 +85,24 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Binary:
-          left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
-          right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
-          op: Gte
-          span:
-            lo: 12
-            hi: 18
+        kind:
+          Binary:
+            left:
+              kind:
+                Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+              span:
+                lo: 12
+                hi: 13
+            right:
+              kind:
+                Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
+              span:
+                lo: 17
+                hi: 18
+            op: Gte
+        span:
+          lo: 12
+          hi: 18
       span:
         lo: 0
         hi: 18
@@ -75,15 +111,24 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Binary:
-          left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
-          right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-          op: Lt
-          span:
-            lo: 12
-            hi: 17
+        kind:
+          Binary:
+            left:
+              kind:
+                Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+              span:
+                lo: 12
+                hi: 13
+            right:
+              kind:
+                Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+              span:
+                lo: 16
+                hi: 17
+            op: Lt
+        span:
+          lo: 12
+          hi: 17
       span:
         lo: 0
         hi: 17
@@ -92,15 +137,24 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Binary:
-          left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
-          right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
-          op: Lte
-          span:
-            lo: 12
-            hi: 18
+        kind:
+          Binary:
+            left:
+              kind:
+                Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+              span:
+                lo: 12
+                hi: 13
+            right:
+              kind:
+                Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
+              span:
+                lo: 17
+                hi: 18
+            op: Lte
+        span:
+          lo: 12
+          hi: 18
       span:
         lo: 0
         hi: 18
@@ -109,183 +163,360 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Binary:
-          left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
-          right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-          op: Gt
-          span:
-            lo: 12
-            hi: 17
+        kind:
+          Binary:
+            left:
+              kind:
+                Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+              span:
+                lo: 12
+                hi: 13
+            right:
+              kind:
+                Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+              span:
+                lo: 16
+                hi: 17
+            op: Gt
+        span:
+          lo: 12
+          hi: 17
       span:
         lo: 0
         hi: 17
   - Assign:
       place:
-        Identifier: "{\"name\":\"x_\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":2}\"}"
+        kind:
+          Identifier: "{\"name\":\"x_\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":2}\"}"
+        span:
+          lo: 0
+          hi: 2
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
+        span:
+          lo: 3
+          hi: 4
       span:
         lo: 0
         hi: 4
   - Assign:
       place:
-        Identifier: "{\"name\":\"xconsole\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":8}\"}"
+        kind:
+          Identifier: "{\"name\":\"xconsole\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":8}\"}"
+        span:
+          lo: 0
+          hi: 8
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
+        span:
+          lo: 9
+          hi: 10
       span:
         lo: 0
         hi: 10
   - Assign:
       place:
-        Identifier: "{\"name\":\"xconst\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":6}\"}"
+        kind:
+          Identifier: "{\"name\":\"xconst\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":6}\"}"
+        span:
+          lo: 0
+          hi: 6
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+        span:
+          lo: 7
+          hi: 8
       span:
         lo: 0
         hi: 8
   - Assign:
       place:
-        Identifier: "{\"name\":\"xlet\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        kind:
+          Identifier: "{\"name\":\"xlet\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        span:
+          lo: 0
+          hi: 4
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        span:
+          lo: 5
+          hi: 6
       span:
         lo: 0
         hi: 6
   - Assign:
       place:
-        Identifier: "{\"name\":\"xfor\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        kind:
+          Identifier: "{\"name\":\"xfor\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        span:
+          lo: 0
+          hi: 4
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        span:
+          lo: 5
+          hi: 6
       span:
         lo: 0
         hi: 6
   - Assign:
       place:
-        Identifier: "{\"name\":\"xif\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
+        kind:
+          Identifier: "{\"name\":\"xif\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
+        span:
+          lo: 0
+          hi: 3
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        span:
+          lo: 4
+          hi: 5
       span:
         lo: 0
         hi: 5
   - Assign:
       place:
-        Identifier: "{\"name\":\"xelse\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
+        kind:
+          Identifier: "{\"name\":\"xelse\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
+        span:
+          lo: 0
+          hi: 5
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+        span:
+          lo: 6
+          hi: 7
       span:
         lo: 0
         hi: 7
   - Assign:
       place:
-        Identifier: "{\"name\":\"xi8\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
+        kind:
+          Identifier: "{\"name\":\"xi8\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
+        span:
+          lo: 0
+          hi: 3
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        span:
+          lo: 4
+          hi: 5
       span:
         lo: 0
         hi: 5
   - Assign:
       place:
-        Identifier: "{\"name\":\"xi16\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        kind:
+          Identifier: "{\"name\":\"xi16\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        span:
+          lo: 0
+          hi: 4
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        span:
+          lo: 5
+          hi: 6
       span:
         lo: 0
         hi: 6
   - Assign:
       place:
-        Identifier: "{\"name\":\"xi32\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        kind:
+          Identifier: "{\"name\":\"xi32\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        span:
+          lo: 0
+          hi: 4
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        span:
+          lo: 5
+          hi: 6
       span:
         lo: 0
         hi: 6
   - Assign:
       place:
-        Identifier: "{\"name\":\"xi64\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        kind:
+          Identifier: "{\"name\":\"xi64\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        span:
+          lo: 0
+          hi: 4
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        span:
+          lo: 5
+          hi: 6
       span:
         lo: 0
         hi: 6
   - Assign:
       place:
-        Identifier: "{\"name\":\"xi128\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
+        kind:
+          Identifier: "{\"name\":\"xi128\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
+        span:
+          lo: 0
+          hi: 5
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+        span:
+          lo: 6
+          hi: 7
       span:
         lo: 0
         hi: 7
   - Assign:
       place:
-        Identifier: "{\"name\":\"xu8\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
+        kind:
+          Identifier: "{\"name\":\"xu8\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
+        span:
+          lo: 0
+          hi: 3
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        span:
+          lo: 4
+          hi: 5
       span:
         lo: 0
         hi: 5
   - Assign:
       place:
-        Identifier: "{\"name\":\"xu16\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        kind:
+          Identifier: "{\"name\":\"xu16\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        span:
+          lo: 0
+          hi: 4
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        span:
+          lo: 5
+          hi: 6
       span:
         lo: 0
         hi: 6
   - Assign:
       place:
-        Identifier: "{\"name\":\"xu32\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        kind:
+          Identifier: "{\"name\":\"xu32\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        span:
+          lo: 0
+          hi: 4
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        span:
+          lo: 5
+          hi: 6
       span:
         lo: 0
         hi: 6
   - Assign:
       place:
-        Identifier: "{\"name\":\"xu64\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        kind:
+          Identifier: "{\"name\":\"xu64\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        span:
+          lo: 0
+          hi: 4
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        span:
+          lo: 5
+          hi: 6
       span:
         lo: 0
         hi: 6
   - Assign:
       place:
-        Identifier: "{\"name\":\"xu128\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
+        kind:
+          Identifier: "{\"name\":\"xu128\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
+        span:
+          lo: 0
+          hi: 5
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+        span:
+          lo: 6
+          hi: 7
       span:
         lo: 0
         hi: 7
   - Assign:
       place:
-        Identifier: "{\"name\":\"xreturn\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":7}\"}"
+        kind:
+          Identifier: "{\"name\":\"xreturn\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":7}\"}"
+        span:
+          lo: 0
+          hi: 7
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+        span:
+          lo: 8
+          hi: 9
       span:
         lo: 0
         hi: 9
   - Assign:
       place:
-        Identifier: "{\"name\":\"xtrue\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
+        kind:
+          Identifier: "{\"name\":\"xtrue\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
+        span:
+          lo: 0
+          hi: 5
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+        span:
+          lo: 6
+          hi: 7
       span:
         lo: 0
         hi: 7
   - Assign:
       place:
-        Identifier: "{\"name\":\"xfalse\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":6}\"}"
+        kind:
+          Identifier: "{\"name\":\"xfalse\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":6}\"}"
+        span:
+          lo: 0
+          hi: 6
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+        span:
+          lo: 7
+          hi: 8
       span:
         lo: 0
         hi: 8
   - Assign:
       place:
-        Identifier: "{\"name\":\"x0\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":2}\"}"
+        kind:
+          Identifier: "{\"name\":\"x0\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":2}\"}"
+        span:
+          lo: 0
+          hi: 2
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
+        kind:
+          Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
+        span:
+          lo: 3
+          hi: 4
       span:
         lo: 0
         hi: 4

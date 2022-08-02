@@ -2,242 +2,401 @@
 namespace: ParseExpression
 expectation: Pass
 outputs:
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Binary:
-              left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-              op: ShrWrapped
-              span:
-                lo: 2
-                hi: 18
-          op: Negate
+  - kind:
+      Unary:
+        receiver:
+          kind:
+            Unary:
+              receiver:
+                kind:
+                  Binary:
+                    left:
+                      kind:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                      span:
+                        lo: 2
+                        hi: 3
+                    right:
+                      kind:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+                      span:
+                        lo: 16
+                        hi: 17
+                    op: ShrWrapped
+                span:
+                  lo: 2
+                  hi: 17
+              op: Negate
           span:
             lo: 1
-            hi: 18
-      op: Not
-      span:
-        lo: 0
-        hi: 18
-  - Binary:
-      left:
-        Binary:
-          left:
+            hi: 17
+        op: Not
+    span:
+      lo: 0
+      hi: 17
+  - kind:
+      Binary:
+        left:
+          kind:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+                kind:
+                  Binary:
+                    left:
+                      kind:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+                      span:
+                        lo: 0
+                        hi: 1
+                    right:
+                      kind:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
+                      span:
+                        lo: 14
+                        hi: 15
+                    op: ShrWrapped
+                span:
+                  lo: 0
+                  hi: 15
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
+                kind:
+                  Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":29,\\\"hi\\\":30}\"}"
+                span:
+                  lo: 29
+                  hi: 30
               op: ShrWrapped
-              span:
-                lo: 0
-                hi: 16
-          right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":29,\\\"hi\\\":30}\"}"
-          op: ShrWrapped
           span:
             lo: 0
-            hi: 31
-      right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":44,\\\"hi\\\":45}\"}"
-      op: ShrWrapped
-      span:
-        lo: 0
-        hi: 46
-  - Unary:
-      receiver:
-        Binary:
-          left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
-          op: ShrWrapped
+            hi: 30
+        right:
+          kind:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":44,\\\"hi\\\":45}\"}"
+          span:
+            lo: 44
+            hi: 45
+        op: ShrWrapped
+    span:
+      lo: 0
+      hi: 45
+  - kind:
+      Unary:
+        receiver:
+          kind:
+            Binary:
+              left:
+                kind:
+                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+                span:
+                  lo: 1
+                  hi: 2
+              right:
+                kind:
+                  Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+                span:
+                  lo: 15
+                  hi: 16
+              op: ShrWrapped
           span:
             lo: 1
-            hi: 17
-      op: Negate
-      span:
-        lo: 0
-        hi: 17
-  - Binary:
-      left:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Negate
+            hi: 16
+        op: Negate
+    span:
+      lo: 0
+      hi: 16
+  - kind:
+      Binary:
+        left:
+          kind:
+            Unary:
+              receiver:
+                kind:
+                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                span:
+                  lo: 2
+                  hi: 3
+              op: Negate
           span:
             lo: 1
             hi: 3
-      right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
-      op: ShrWrapped
-      span:
-        lo: 1
-        hi: 19
-  - Unary:
-      receiver:
-        Binary:
-          left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-          op: ShrWrapped
+        right:
+          kind:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
           span:
-            lo: 2
+            lo: 17
             hi: 18
-      op: Negate
-      span:
-        lo: 0
-        hi: 18
-  - Binary:
-      left:
-        Unary:
-          receiver:
+        op: ShrWrapped
+    span:
+      lo: 1
+      hi: 18
+  - kind:
+      Unary:
+        receiver:
+          kind:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                kind:
+                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                span:
+                  lo: 2
+                  hi: 3
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+                kind:
+                  Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+                span:
+                  lo: 16
+                  hi: 17
               op: ShrWrapped
-              span:
-                lo: 2
-                hi: 18
-          op: Negate
           span:
-            lo: 1
-            hi: 18
-      right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":32,\\\"hi\\\":33}\"}"
-      op: ShrWrapped
-      span:
-        lo: 1
-        hi: 34
-  - Unary:
-      receiver:
-        Binary:
-          left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
-          op: ShrWrapped
+            lo: 2
+            hi: 17
+        op: Negate
+    span:
+      lo: 0
+      hi: 17
+  - kind:
+      Binary:
+        left:
+          kind:
+            Unary:
+              receiver:
+                kind:
+                  Binary:
+                    left:
+                      kind:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                      span:
+                        lo: 2
+                        hi: 3
+                    right:
+                      kind:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+                      span:
+                        lo: 16
+                        hi: 17
+                    op: ShrWrapped
+                span:
+                  lo: 2
+                  hi: 17
+              op: Negate
           span:
             lo: 1
             hi: 17
-      op: Not
-      span:
-        lo: 0
-        hi: 17
-  - Binary:
-      left:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Not
+        right:
+          kind:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":32,\\\"hi\\\":33}\"}"
+          span:
+            lo: 32
+            hi: 33
+        op: ShrWrapped
+    span:
+      lo: 1
+      hi: 33
+  - kind:
+      Unary:
+        receiver:
+          kind:
+            Binary:
+              left:
+                kind:
+                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+                span:
+                  lo: 1
+                  hi: 2
+              right:
+                kind:
+                  Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+                span:
+                  lo: 15
+                  hi: 16
+              op: ShrWrapped
+          span:
+            lo: 1
+            hi: 16
+        op: Not
+    span:
+      lo: 0
+      hi: 16
+  - kind:
+      Binary:
+        left:
+          kind:
+            Unary:
+              receiver:
+                kind:
+                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                span:
+                  lo: 2
+                  hi: 3
+              op: Not
           span:
             lo: 1
             hi: 3
-      right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
-      op: ShrWrapped
-      span:
-        lo: 1
-        hi: 19
-  - Unary:
-      receiver:
-        Binary:
-          left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-          op: ShrWrapped
+        right:
+          kind:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
+          span:
+            lo: 17
+            hi: 18
+        op: ShrWrapped
+    span:
+      lo: 1
+      hi: 18
+  - kind:
+      Unary:
+        receiver:
+          kind:
+            Binary:
+              left:
+                kind:
+                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                span:
+                  lo: 2
+                  hi: 3
+              right:
+                kind:
+                  Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+                span:
+                  lo: 16
+                  hi: 17
+              op: ShrWrapped
           span:
             lo: 2
-            hi: 18
-      op: Not
-      span:
-        lo: 0
-        hi: 18
-  - Binary:
-      left:
-        Unary:
-          receiver:
-            Binary:
-              left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-              op: ShrWrapped
-              span:
-                lo: 2
-                hi: 18
-          op: Not
+            hi: 17
+        op: Not
+    span:
+      lo: 0
+      hi: 17
+  - kind:
+      Binary:
+        left:
+          kind:
+            Unary:
+              receiver:
+                kind:
+                  Binary:
+                    left:
+                      kind:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                      span:
+                        lo: 2
+                        hi: 3
+                    right:
+                      kind:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+                      span:
+                        lo: 16
+                        hi: 17
+                    op: ShrWrapped
+                span:
+                  lo: 2
+                  hi: 17
+              op: Not
           span:
             lo: 1
-            hi: 18
-      right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":32,\\\"hi\\\":33}\"}"
-      op: ShrWrapped
-      span:
-        lo: 1
-        hi: 34
-  - Binary:
-      left:
-        Binary:
-          left:
+            hi: 17
+        right:
+          kind:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":32,\\\"hi\\\":33}\"}"
+          span:
+            lo: 32
+            hi: 33
+        op: ShrWrapped
+    span:
+      lo: 1
+      hi: 33
+  - kind:
+      Binary:
+        left:
+          kind:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+                kind:
+                  Binary:
+                    left:
+                      kind:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+                      span:
+                        lo: 1
+                        hi: 2
+                    right:
+                      kind:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+                      span:
+                        lo: 15
+                        hi: 16
+                    op: ShrWrapped
+                span:
+                  lo: 1
+                  hi: 16
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
-              op: ShrWrapped
-              span:
-                lo: 1
-                hi: 17
-          right:
-            Binary:
-              left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":21,\\\"hi\\\":22}\"}"
-              right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":35,\\\"hi\\\":36}\"}"
-              op: ShrWrapped
-              span:
-                lo: 21
-                hi: 37
-          op: Shr
+                kind:
+                  Binary:
+                    left:
+                      kind:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":21,\\\"hi\\\":22}\"}"
+                      span:
+                        lo: 21
+                        hi: 22
+                    right:
+                      kind:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":35,\\\"hi\\\":36}\"}"
+                      span:
+                        lo: 35
+                        hi: 36
+                    op: ShrWrapped
+                span:
+                  lo: 21
+                  hi: 36
+              op: Shr
           span:
             lo: 1
-            hi: 37
-      right:
-        Binary:
-          left:
+            hi: 36
+        right:
+          kind:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":51,\\\"hi\\\":52}\"}"
+                kind:
+                  Binary:
+                    left:
+                      kind:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":51,\\\"hi\\\":52}\"}"
+                      span:
+                        lo: 51
+                        hi: 52
+                    right:
+                      kind:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":65,\\\"hi\\\":66}\"}"
+                      span:
+                        lo: 65
+                        hi: 66
+                    op: ShrWrapped
+                span:
+                  lo: 51
+                  hi: 66
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":65,\\\"hi\\\":66}\"}"
-              op: ShrWrapped
-              span:
-                lo: 51
-                hi: 67
-          right:
-            Binary:
-              left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":71,\\\"hi\\\":72}\"}"
-              right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":85,\\\"hi\\\":86}\"}"
-              op: ShrWrapped
-              span:
-                lo: 71
-                hi: 87
-          op: Shr
+                kind:
+                  Binary:
+                    left:
+                      kind:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":71,\\\"hi\\\":72}\"}"
+                      span:
+                        lo: 71
+                        hi: 72
+                    right:
+                      kind:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":85,\\\"hi\\\":86}\"}"
+                      span:
+                        lo: 85
+                        hi: 86
+                    op: ShrWrapped
+                span:
+                  lo: 71
+                  hi: 86
+              op: Shr
           span:
             lo: 51
-            hi: 87
-      op: ShrWrapped
-      span:
-        lo: 1
-        hi: 88
+            hi: 86
+        op: ShrWrapped
+    span:
+      lo: 1
+      hi: 86

@@ -20,134 +20,125 @@
 
 use crate::*;
 
+use leo_span::Span;
+
 /// A Reconstructor trait for expressions in the AST.
 pub trait ExpressionReconstructor {
     type AdditionalOutput: Default;
 
-    fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
-        match input {
-            Expression::Access(access) => self.reconstruct_access(access),
-            Expression::Binary(binary) => self.reconstruct_binary(binary),
-            Expression::Call(call) => self.reconstruct_call(call),
-            Expression::Circuit(circuit) => self.reconstruct_circuit_init(circuit),
-            Expression::Err(err) => self.reconstruct_err(err),
-            Expression::Identifier(identifier) => self.reconstruct_identifier(identifier),
-            Expression::Literal(value) => self.reconstruct_literal(value),
-            Expression::Ternary(ternary) => self.reconstruct_ternary(ternary),
-            Expression::Tuple(tuple) => self.reconstruct_tuple(tuple),
-            Expression::Unary(unary) => self.reconstruct_unary(unary),
+    fn reconstruct_expression(&mut self, expr: Expression) -> (Expression, Self::AdditionalOutput) {
+        match expr.kind {
+            ExpressionKind::Access(access) => self.reconstruct_access(expr.span, access),
+            ExpressionKind::Binary(binary) => self.reconstruct_binary(expr.span, binary),
+            ExpressionKind::Call(call) => self.reconstruct_call(expr.span, call),
+            ExpressionKind::Circuit(circuit) => self.reconstruct_circuit_init(expr.span, circuit),
+            ExpressionKind::Err(err) => self.reconstruct_err(expr.span, err),
+            ExpressionKind::Identifier(identifier) => self.reconstruct_identifier(identifier),
+            ExpressionKind::Literal(value) => self.reconstruct_literal(expr.span, value),
+            ExpressionKind::Ternary(ternary) => self.reconstruct_ternary(expr.span, ternary),
+            ExpressionKind::Tuple(tuple) => self.reconstruct_tuple(expr.span, tuple),
+            ExpressionKind::Unary(unary) => self.reconstruct_unary(expr.span, unary),
         }
     }
 
-    fn reconstruct_access(&mut self, input: AccessExpression) -> (Expression, Self::AdditionalOutput) {
-        (
-            Expression::Access(match input {
-                AccessExpression::AssociatedFunction(function) => {
-                    AccessExpression::AssociatedFunction(AssociatedFunction {
-                        ty: function.ty,
-                        name: function.name,
-                        args: function
-                            .args
-                            .into_iter()
-                            .map(|arg| self.reconstruct_expression(arg).0)
-                            .collect(),
-                        span: function.span,
-                    })
-                }
-                AccessExpression::Member(member) => AccessExpression::Member(MemberAccess {
-                    inner: Box::new(self.reconstruct_expression(*member.inner).0),
-                    name: member.name,
-                    span: member.span,
-                }),
-                AccessExpression::Tuple(tuple) => AccessExpression::Tuple(TupleAccess {
-                    tuple: Box::new(self.reconstruct_expression(*tuple.tuple).0),
-                    index: tuple.index,
-                    span: tuple.span,
-                }),
-                expr => expr,
+    fn reconstruct_access(&mut self, span: Span, input: AccessExpression) -> (Expression, Self::AdditionalOutput) {
+        let kind = ExpressionKind::Access(match input {
+            AccessExpression::AssociatedFunction(function) => {
+                AccessExpression::AssociatedFunction(AssociatedFunction {
+                    ty: function.ty,
+                    name: function.name,
+                    args: function
+                        .args
+                        .into_iter()
+                        .map(|arg| self.reconstruct_expression(arg).0)
+                        .collect(),
+                })
+            }
+            AccessExpression::Member(member) => AccessExpression::Member(MemberAccess {
+                inner: Box::new(self.reconstruct_expression(*member.inner).0),
+                name: member.name,
             }),
-            Default::default(),
-        )
-    }
-
-    fn reconstruct_binary(&mut self, input: BinaryExpression) -> (Expression, Self::AdditionalOutput) {
-        (
-            Expression::Binary(BinaryExpression {
-                left: Box::new(self.reconstruct_expression(*input.left).0),
-                right: Box::new(self.reconstruct_expression(*input.right).0),
-                op: input.op,
-                span: input.span,
+            AccessExpression::Tuple(tuple) => AccessExpression::Tuple(TupleAccess {
+                tuple: Box::new(self.reconstruct_expression(*tuple.tuple).0),
+                index: tuple.index,
             }),
-            Default::default(),
-        )
+            ae @ AccessExpression::AssociatedConstant(_) => ae,
+        });
+        (Expression { kind, span }, Default::default())
     }
 
-    fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
-        (
-            Expression::Call(CallExpression {
-                function: Box::new(self.reconstruct_expression(*input.function).0),
-                arguments: input
-                    .arguments
-                    .into_iter()
-                    .map(|arg| self.reconstruct_expression(arg).0)
-                    .collect(),
-                span: input.span,
-            }),
-            Default::default(),
-        )
+    fn reconstruct_binary(&mut self, span: Span, input: BinaryExpression) -> (Expression, Self::AdditionalOutput) {
+        let kind = ExpressionKind::Binary(BinaryExpression {
+            left: Box::new(self.reconstruct_expression(*input.left).0),
+            right: Box::new(self.reconstruct_expression(*input.right).0),
+            op: input.op,
+        });
+        (Expression { kind, span }, Default::default())
     }
 
-    fn reconstruct_circuit_init(&mut self, input: CircuitExpression) -> (Expression, Self::AdditionalOutput) {
-        (Expression::Circuit(input), Default::default())
+    fn reconstruct_call(&mut self, span: Span, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
+        let kind = ExpressionKind::Call(CallExpression {
+            function: Box::new(self.reconstruct_expression(*input.function).0),
+            arguments: input
+                .arguments
+                .into_iter()
+                .map(|arg| self.reconstruct_expression(arg).0)
+                .collect(),
+        });
+        (Expression { kind, span }, Default::default())
     }
 
-    fn reconstruct_err(&mut self, input: ErrExpression) -> (Expression, Self::AdditionalOutput) {
-        (Expression::Err(input), Default::default())
+    fn reconstruct_circuit_init(
+        &mut self,
+        span: Span,
+        input: CircuitExpression,
+    ) -> (Expression, Self::AdditionalOutput) {
+        let kind = ExpressionKind::Circuit(input);
+        (Expression { kind, span }, Default::default())
+    }
+
+    fn reconstruct_err(&mut self, span: Span, input: ErrExpression) -> (Expression, Self::AdditionalOutput) {
+        let kind = ExpressionKind::Err(input);
+        (Expression { kind, span }, Default::default())
     }
 
     fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
-        (Expression::Identifier(input), Default::default())
+        let span = input.span;
+        let kind = ExpressionKind::Identifier(input);
+        (Expression { kind, span }, Default::default())
     }
 
-    fn reconstruct_literal(&mut self, input: Literal) -> (Expression, Self::AdditionalOutput) {
-        (Expression::Literal(input), Default::default())
+    fn reconstruct_literal(&mut self, span: Span, input: Literal) -> (Expression, Self::AdditionalOutput) {
+        let kind = ExpressionKind::Literal(input);
+        (Expression { kind, span }, Default::default())
     }
 
-    fn reconstruct_ternary(&mut self, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
-        (
-            Expression::Ternary(TernaryExpression {
-                condition: Box::new(self.reconstruct_expression(*input.condition).0),
-                if_true: Box::new(self.reconstruct_expression(*input.if_true).0),
-                if_false: Box::new(self.reconstruct_expression(*input.if_false).0),
-                span: input.span,
-            }),
-            Default::default(),
-        )
+    fn reconstruct_ternary(&mut self, span: Span, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
+        let kind = ExpressionKind::Ternary(TernaryExpression {
+            condition: Box::new(self.reconstruct_expression(*input.condition).0),
+            if_true: Box::new(self.reconstruct_expression(*input.if_true).0),
+            if_false: Box::new(self.reconstruct_expression(*input.if_false).0),
+        });
+        (Expression { kind, span }, Default::default())
     }
 
-    fn reconstruct_tuple(&mut self, input: TupleExpression) -> (Expression, Self::AdditionalOutput) {
-        (
-            Expression::Tuple(TupleExpression {
-                elements: input
-                    .elements
-                    .into_iter()
-                    .map(|element| self.reconstruct_expression(element).0)
-                    .collect(),
-                span: input.span,
-            }),
-            Default::default(),
-        )
+    fn reconstruct_tuple(&mut self, span: Span, input: TupleExpression) -> (Expression, Self::AdditionalOutput) {
+        let kind = ExpressionKind::Tuple(TupleExpression {
+            elements: input
+                .elements
+                .into_iter()
+                .map(|element| self.reconstruct_expression(element).0)
+                .collect(),
+        });
+        (Expression { kind, span }, Default::default())
     }
 
-    fn reconstruct_unary(&mut self, input: UnaryExpression) -> (Expression, Self::AdditionalOutput) {
-        (
-            Expression::Unary(UnaryExpression {
-                receiver: Box::new(self.reconstruct_expression(*input.receiver).0),
-                op: input.op,
-                span: input.span,
-            }),
-            Default::default(),
-        )
+    fn reconstruct_unary(&mut self, span: Span, input: UnaryExpression) -> (Expression, Self::AdditionalOutput) {
+        let kind = ExpressionKind::Unary(UnaryExpression {
+            receiver: Box::new(self.reconstruct_expression(*input.receiver).0),
+            op: input.op,
+        });
+        (Expression { kind, span }, Default::default())
     }
 }
 

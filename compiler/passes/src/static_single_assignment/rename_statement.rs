@@ -19,7 +19,7 @@ use crate::{RenameTable, StaticSingleAssigner};
 use leo_ast::{
     AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, DefinitionStatement, Expression,
     ExpressionReconstructor, Identifier, Node, ReturnStatement, Statement, StatementReconstructor, TernaryExpression,
-    UnaryExpression, UnaryOperation,
+    UnaryExpression, UnaryOperation, ExpressionKind,
 };
 use leo_span::Symbol;
 
@@ -37,12 +37,13 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
             false => {
                 let (first, rest) = self.condition_stack.split_first().unwrap();
                 Some(rest.iter().cloned().fold(first.clone(), |acc, condition| {
-                    Expression::Binary(BinaryExpression {
+                    let span = acc.span + condition.span;
+                    let kind = ExpressionKind::Binary(BinaryExpression {
                         op: BinaryOperation::And,
                         left: Box::new(acc),
                         right: Box::new(condition),
-                        span: Default::default(),
-                    })
+                    });
+                    Expression { kind, span }
                 }))
             }
         };
@@ -58,14 +59,16 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
     /// Reconstructs the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
     fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> Statement {
         self.is_lhs = true;
-        let identifier = match self.reconstruct_identifier(definition.variable_name).0 {
-            Expression::Identifier(identifier) => identifier,
+        let identifier = match self.reconstruct_identifier(definition.variable_name).0.kind {
+            ExpressionKind::Identifier(identifier) => identifier,
             _ => unreachable!("`self.reconstruct_identifier` will always return an `Identifier`."),
         };
         self.is_lhs = false;
 
+        let kind = ExpressionKind::Identifier(identifier);
+        let span = identifier.span;
         Self::simple_assign_statement(
-            Expression::Identifier(identifier),
+            Expression { kind, span },
             self.reconstruct_expression(definition.value).0,
         )
     }
@@ -109,11 +112,12 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
         // Reconstruct the otherwise-block.
         let otherwise = conditional.otherwise.map(|statement| {
             // Add the negated condition to the condition stack.
-            self.condition_stack.push(Expression::Unary(UnaryExpression {
+            let span = condition.span();
+            let kind = ExpressionKind::Unary(UnaryExpression {
                 op: UnaryOperation::Not,
                 receiver: Box::new(condition.clone()),
-                span: condition.span(),
-            }));
+            });
+            self.condition_stack.push(Expression { kind, span });
 
             let reconstructed_block = Box::new(match *statement {
                 // The `ConditionalStatement` must be reconstructed as a `Block` statement to ensure that appropriate statements are produced.
@@ -145,15 +149,14 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
         for symbol in write_set {
             // Note that phi functions only need to be instantiated if the variable exists before the `ConditionalStatement`.
             if self.rename_table.lookup(**symbol).is_some() {
+                let span = <_>::default();
                 // Helper to lookup a symbol and create an argument for the phi function.
                 let create_phi_argument = |table: &RenameTable, symbol: Symbol| {
                     let name = *table
                         .lookup(symbol)
                         .unwrap_or_else(|| panic!("Symbol {} should exist in the program.", symbol));
-                    Box::new(Expression::Identifier(Identifier {
-                        name,
-                        span: Default::default(),
-                    }))
+                    let kind = ExpressionKind::Identifier(Identifier::new(name));
+                    Box::new(Expression { kind, span })
                 };
 
                 // Create a new name for the variable written to in the `ConditionalStatement`.
@@ -161,16 +164,18 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
 
                 // Create a new `AssignStatement` for the phi function.
                 let assignment = Self::simple_assign_statement(
-                    Expression::Identifier(Identifier {
-                        name: new_name,
-                        span: Default::default(),
-                    }),
-                    Expression::Ternary(TernaryExpression {
-                        condition: Box::new(condition.clone()),
-                        if_true: create_phi_argument(&if_table, **symbol),
-                        if_false: create_phi_argument(&else_table, **symbol),
-                        span: Default::default(),
-                    }),
+                    Expression {
+                        span,
+                        kind: ExpressionKind::Identifier(Identifier::new(new_name)),
+                    },
+                    Expression {
+                        span,
+                        kind: ExpressionKind::Ternary(TernaryExpression {
+                            condition: Box::new(condition.clone()),
+                            if_true: create_phi_argument(&if_table, **symbol),
+                            if_false: create_phi_argument(&else_table, **symbol),
+                        }),
+                    },
                 );
 
                 // Update the `RenameTable` with the new name of the variable.

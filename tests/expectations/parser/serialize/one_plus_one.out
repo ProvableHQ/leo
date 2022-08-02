@@ -17,12 +17,15 @@ outputs:
           statements:
             - Return:
                 expression:
-                  Binary:
-                    left:
-                      Literal:
-                        U8: "1"
-                    right:
-                      Literal:
-                        U8: "1"
-                    op: Add
+                  kind:
+                    Binary:
+                      left:
+                        kind:
+                          Literal:
+                            U8: "1"
+                      right:
+                        kind:
+                          Literal:
+                            U8: "1"
+                      op: Add
     circuits: {}

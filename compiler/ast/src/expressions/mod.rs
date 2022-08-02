@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node};
+use crate::{simple_node_impl, Identifier, Node};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -49,7 +49,16 @@ pub use literal::*;
 
 /// Expression that evaluates to a value.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum Expression {
+pub struct Expression {
+    /// What sort of expression is this?
+    pub kind: ExpressionKind,
+    /// The span for the entire expression.
+    pub span: Span,
+}
+
+/// Expression that evaluates to a value.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ExpressionKind {
     /// A circuit access expression, e.g., `Foo.bar`.
     Access(AccessExpression),
     /// A binary expression, e.g., `42 + 24`.
@@ -73,54 +82,21 @@ pub enum Expression {
     Unary(UnaryExpression),
 }
 
-impl Node for Expression {
-    fn span(&self) -> Span {
-        use Expression::*;
-        match self {
-            Access(n) => n.span(),
-            Binary(n) => n.span(),
-            Call(n) => n.span(),
-            Circuit(n) => n.span(),
-            Err(n) => n.span(),
-            Identifier(n) => n.span(),
-            Literal(n) => n.span(),
-            Ternary(n) => n.span(),
-            Tuple(n) => n.span(),
-            Unary(n) => n.span(),
-        }
-    }
-
-    fn set_span(&mut self, span: Span) {
-        use Expression::*;
-        match self {
-            Access(n) => n.set_span(span),
-            Binary(n) => n.set_span(span),
-            Call(n) => n.set_span(span),
-            Circuit(n) => n.set_span(span),
-            Identifier(n) => n.set_span(span),
-            Literal(n) => n.set_span(span),
-            Err(n) => n.set_span(span),
-            Ternary(n) => n.set_span(span),
-            Tuple(n) => n.set_span(span),
-            Unary(n) => n.set_span(span),
-        }
-    }
-}
+simple_node_impl!(Expression);
 
 impl fmt::Display for Expression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use Expression::*;
-        match &self {
-            Access(n) => n.fmt(f),
-            Binary(n) => n.fmt(f),
-            Call(n) => n.fmt(f),
-            Circuit(n) => n.fmt(f),
-            Err(n) => n.fmt(f),
-            Identifier(n) => n.fmt(f),
-            Literal(n) => n.fmt(f),
-            Ternary(n) => n.fmt(f),
-            Tuple(n) => n.fmt(f),
-            Unary(n) => n.fmt(f),
+        match &self.kind {
+            ExpressionKind::Access(n) => n.fmt(f),
+            ExpressionKind::Binary(n) => n.fmt(f),
+            ExpressionKind::Call(n) => n.fmt(f),
+            ExpressionKind::Circuit(n) => n.fmt(f),
+            ExpressionKind::Err(n) => n.fmt(f),
+            ExpressionKind::Identifier(n) => n.fmt(f),
+            ExpressionKind::Literal(n) => n.fmt(f),
+            ExpressionKind::Ternary(n) => n.fmt(f),
+            ExpressionKind::Tuple(n) => n.fmt(f),
+            ExpressionKind::Unary(n) => n.fmt(f),
         }
     }
 }

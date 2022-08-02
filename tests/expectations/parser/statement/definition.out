@@ -7,7 +7,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        kind:
+          Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        span:
+          lo: 12
+          hi: 16
       span:
         lo: 0
         hi: 16
@@ -16,15 +20,24 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U16
       value:
-        Binary:
-          left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-          right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
-          op: Add
-          span:
-            lo: 13
-            hi: 16
+        kind:
+          Binary:
+            left:
+              kind:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
+              span:
+                lo: 13
+                hi: 14
+            right:
+              kind:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+              span:
+                lo: 15
+                hi: 16
+            op: Add
+        span:
+          lo: 13
+          hi: 16
       span:
         lo: 0
         hi: 16
@@ -33,13 +46,18 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Call:
-          function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
-          arguments: []
-          span:
-            lo: 12
-            hi: 15
+        kind:
+          Call:
+            function:
+              kind:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+              span:
+                lo: 12
+                hi: 13
+            arguments: []
+        span:
+          lo: 12
+          hi: 15
       span:
         lo: 0
         hi: 15
@@ -48,7 +66,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: String
       value:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":20}\"}"
+        kind:
+          Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":20}\"}"
+        span:
+          lo: 16
+          hi: 20
       span:
         lo: 0
         hi: 20
@@ -57,7 +79,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       type_: I8
       value:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":18}\"}"
+        kind:
+          Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":18}\"}"
+        span:
+          lo: 14
+          hi: 18
       span:
         lo: 0
         hi: 18
@@ -66,15 +92,24 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       type_: I16
       value:
-        Binary:
-          left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
-          right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
-          op: Add
-          span:
-            lo: 15
-            hi: 18
+        kind:
+          Binary:
+            left:
+              kind:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+              span:
+                lo: 15
+                hi: 16
+            right:
+              kind:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
+              span:
+                lo: 17
+                hi: 18
+            op: Add
+        span:
+          lo: 15
+          hi: 18
       span:
         lo: 0
         hi: 18
@@ -83,13 +118,18 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       type_: I8
       value:
-        Call:
-          function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
-          arguments: []
-          span:
-            lo: 14
-            hi: 17
+        kind:
+          Call:
+            function:
+              kind:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
+              span:
+                lo: 14
+                hi: 15
+            arguments: []
+        span:
+          lo: 14
+          hi: 17
       span:
         lo: 0
         hi: 17
@@ -98,7 +138,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       type_: String
       value:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":22}\"}"
+        kind:
+          Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":22}\"}"
+        span:
+          lo: 18
+          hi: 22
       span:
         lo: 0
         hi: 22
@@ -107,7 +151,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U32
       value:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":17}\"}"
+        kind:
+          Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":17}\"}"
+        span:
+          lo: 13
+          hi: 17
       span:
         lo: 0
         hi: 17
@@ -116,15 +164,24 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U32
       value:
-        Binary:
-          left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-          right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
-          op: Add
-          span:
-            lo: 13
-            hi: 16
+        kind:
+          Binary:
+            left:
+              kind:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
+              span:
+                lo: 13
+                hi: 14
+            right:
+              kind:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+              span:
+                lo: 15
+                hi: 16
+            op: Add
+        span:
+          lo: 13
+          hi: 16
       span:
         lo: 0
         hi: 16
@@ -133,13 +190,18 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U32
       value:
-        Call:
-          function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-          arguments: []
-          span:
-            lo: 13
-            hi: 16
+        kind:
+          Call:
+            function:
+              kind:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
+              span:
+                lo: 13
+                hi: 14
+            arguments: []
+        span:
+          lo: 13
+          hi: 16
       span:
         lo: 0
         hi: 16
@@ -148,7 +210,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       type_: U32
       value:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":19}\"}"
+        kind:
+          Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":19}\"}"
+        span:
+          lo: 15
+          hi: 19
       span:
         lo: 0
         hi: 19
@@ -157,15 +223,24 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       type_: U32
       value:
-        Binary:
-          left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
-          right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
-          op: Add
-          span:
-            lo: 15
-            hi: 18
+        kind:
+          Binary:
+            left:
+              kind:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+              span:
+                lo: 15
+                hi: 16
+            right:
+              kind:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
+              span:
+                lo: 17
+                hi: 18
+            op: Add
+        span:
+          lo: 15
+          hi: 18
       span:
         lo: 0
         hi: 18
@@ -174,13 +249,18 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       type_: U32
       value:
-        Call:
-          function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
-          arguments: []
-          span:
-            lo: 15
-            hi: 18
+        kind:
+          Call:
+            function:
+              kind:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+              span:
+                lo: 15
+                hi: 16
+            arguments: []
+        span:
+          lo: 15
+          hi: 18
       span:
         lo: 0
         hi: 18
@@ -189,12 +269,16 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: Address
       value:
-        Literal:
-          Address:
-            - aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx
-            - span:
-                lo: 17
-                hi: 80
+        kind:
+          Literal:
+            Address:
+              - aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx
+              - span:
+                  lo: 17
+                  hi: 80
+        span:
+          lo: 17
+          hi: 80
       span:
         lo: 0
         hi: 80

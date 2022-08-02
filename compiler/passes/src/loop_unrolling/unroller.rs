@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{
-    Block, DeclarationType, DefinitionStatement, Expression, IterationStatement, Literal, Statement,
+    Block, DeclarationType, DefinitionStatement, Expression, ExpressionKind, IterationStatement, Literal, Statement,
     StatementReconstructor, Type, Value,
 };
 use std::cell::RefCell;
@@ -138,7 +138,7 @@ impl<'a> Unroller<'a> {
         iter_blocks
     }
 
-    /// A helper function to unroll a single iteration an IterationStatement.
+    /// Unrolls a single iteration of an `IterationStatement`.
     fn unroll_single_iteration<I: LoopBound>(&mut self, input: &IterationStatement, iteration_count: I) -> Statement {
         // Create a scope for a single unrolling of the `IterationStatement`.
         let scope_index = self.symbol_table.borrow_mut().insert_block();
@@ -148,17 +148,19 @@ impl<'a> Unroller<'a> {
         self.is_unrolling = true;
 
         // Reconstruct `iteration_count` as a `Literal`.
+        let span = input.span;
+        let ic_string = iteration_count.to_string();
         let value = match input.type_ {
-            Type::I8 => Literal::I8(iteration_count.to_string(), Default::default()),
-            Type::I16 => Literal::I16(iteration_count.to_string(), Default::default()),
-            Type::I32 => Literal::I32(iteration_count.to_string(), Default::default()),
-            Type::I64 => Literal::I64(iteration_count.to_string(), Default::default()),
-            Type::I128 => Literal::I128(iteration_count.to_string(), Default::default()),
-            Type::U8 => Literal::U8(iteration_count.to_string(), Default::default()),
-            Type::U16 => Literal::U16(iteration_count.to_string(), Default::default()),
-            Type::U32 => Literal::U32(iteration_count.to_string(), Default::default()),
-            Type::U64 => Literal::U64(iteration_count.to_string(), Default::default()),
-            Type::U128 => Literal::U128(iteration_count.to_string(), Default::default()),
+            Type::I8 => Literal::I8(ic_string, span),
+            Type::I16 => Literal::I16(ic_string, span),
+            Type::I32 => Literal::I32(ic_string, span),
+            Type::I64 => Literal::I64(ic_string, span),
+            Type::I128 => Literal::I128(ic_string, span),
+            Type::U8 => Literal::U8(ic_string, span),
+            Type::U16 => Literal::U16(ic_string, span),
+            Type::U32 => Literal::U32(ic_string, span),
+            Type::U64 => Literal::U64(ic_string, span),
+            Type::U128 => Literal::U128(ic_string, span),
             _ => unreachable!(
                 "The iteration variable must be an integer type. This should be enforced by type checking."
             ),
@@ -168,7 +170,10 @@ impl<'a> Unroller<'a> {
         let mut statements = vec![self.reconstruct_definition(DefinitionStatement {
             declaration_type: DeclarationType::Const,
             type_: input.type_.clone(),
-            value: Expression::Literal(value),
+            value: Expression {
+                span,
+                kind: ExpressionKind::Literal(value),
+            },
             span: Default::default(),
             variable_name: input.variable,
         })];

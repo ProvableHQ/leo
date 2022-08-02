@@ -24,8 +24,6 @@ pub struct CallExpression {
     pub function: Box<Expression>, // todo: make this identifier?
     /// Expressions for the arguments passed to the functions parameters.
     pub arguments: Vec<Expression>,
-    /// Span of the entire call `function(arguments)`.
-    pub span: Span,
 }
 
 impl fmt::Display for CallExpression {
@@ -40,5 +38,3 @@ impl fmt::Display for CallExpression {
         write!(f, ")")
     }
 }
-
-crate::simple_node_impl!(CallExpression);

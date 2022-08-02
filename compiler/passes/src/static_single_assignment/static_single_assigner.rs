@@ -19,7 +19,7 @@ use std::fmt::Display;
 
 use leo_ast::{
     AssignStatement, ConditionalStatement, Expression, ExpressionReconstructor, Identifier, Statement,
-    StatementReconstructor,
+    StatementReconstructor, ExpressionKind,
 };
 use leo_errors::emitter::Handler;
 use leo_span::Symbol;
@@ -105,25 +105,30 @@ impl<'a> StaticSingleAssigner<'a> {
         let mut statements = Vec::new();
 
         // Reconstruct the `ConditionalStatement`.
-        let reconstructed_statement = match conditional_statement.condition {
-            Expression::Err(_) => {
+        let reconstructed_statement = match conditional_statement.condition.kind {
+            ExpressionKind::Err(_) => {
                 unreachable!("Err expressions should not exist in the AST at this stage of compilation.")
             }
-            Expression::Identifier(..) | Expression::Literal(..) => self.reconstruct_conditional(conditional_statement),
+            ExpressionKind::Identifier(..) | ExpressionKind::Literal(..) => {
+                self.reconstruct_conditional(conditional_statement)
+            }
             // If the condition is a complex expression, introduce a new `AssignStatement` for it.
-            Expression::Access(..)
-            | Expression::Call(..)
-            | Expression::Circuit(..)
-            | Expression::Tuple(..)
-            | Expression::Binary(..)
-            | Expression::Unary(..)
-            | Expression::Ternary(..) => {
+            ExpressionKind::Access(..)
+            | ExpressionKind::Call(..)
+            | ExpressionKind::Circuit(..)
+            | ExpressionKind::Tuple(..)
+            | ExpressionKind::Binary(..)
+            | ExpressionKind::Unary(..)
+            | ExpressionKind::Ternary(..) => {
                 // Create a fresh variable name for the condition.
                 let symbol = self.unique_symbol("$cond$");
                 self.rename_table.update(symbol, symbol);
 
                 // Initialize a new `AssignStatement` for the condition.
-                let place = Expression::Identifier(Identifier::new(symbol));
+                let place = Expression {
+                    kind: ExpressionKind::Identifier(Identifier::new(symbol)),
+                    span: conditional_statement.span,
+                };
                 let assign_statement = Self::simple_assign_statement(
                     place.clone(),
                     self.reconstruct_expression(conditional_statement.condition).0,

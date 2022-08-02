@@ -2,51 +2,108 @@
 namespace: ParseExpression
 expectation: Pass
 outputs:
-  - Ternary:
-      condition:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-      if_true:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      if_false:
-        Identifier: "{\"name\":\"z\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-      span:
-        lo: 0
-        hi: 9
-  - Ternary:
-      condition:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-      if_true:
-        Ternary:
-          condition:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-          if_true:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-          if_false:
-            Identifier: "{\"name\":\"c\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+  - kind:
+      Ternary:
+        condition:
+          kind:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+          span:
+            lo: 0
+            hi: 1
+        if_true:
+          kind:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+          span:
+            lo: 4
+            hi: 5
+        if_false:
+          kind:
+            Identifier: "{\"name\":\"z\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+          span:
+            lo: 8
+            hi: 9
+    span:
+      lo: 0
+      hi: 9
+  - kind:
+      Ternary:
+        condition:
+          kind:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+          span:
+            lo: 0
+            hi: 1
+        if_true:
+          kind:
+            Ternary:
+              condition:
+                kind:
+                  Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+                span:
+                  lo: 4
+                  hi: 5
+              if_true:
+                kind:
+                  Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+                span:
+                  lo: 8
+                  hi: 9
+              if_false:
+                kind:
+                  Identifier: "{\"name\":\"c\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+                span:
+                  lo: 12
+                  hi: 13
           span:
             lo: 4
             hi: 13
-      if_false:
-        Identifier: "{\"name\":\"z\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-      span:
-        lo: 0
-        hi: 17
-  - Ternary:
-      condition:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-      if_true:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      if_false:
-        Ternary:
-          condition:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-          if_true:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
-          if_false:
-            Identifier: "{\"name\":\"c\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+        if_false:
+          kind:
+            Identifier: "{\"name\":\"z\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+          span:
+            lo: 16
+            hi: 17
+    span:
+      lo: 0
+      hi: 17
+  - kind:
+      Ternary:
+        condition:
+          kind:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+          span:
+            lo: 0
+            hi: 1
+        if_true:
+          kind:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+          span:
+            lo: 4
+            hi: 5
+        if_false:
+          kind:
+            Ternary:
+              condition:
+                kind:
+                  Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+                span:
+                  lo: 8
+                  hi: 9
+              if_true:
+                kind:
+                  Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+                span:
+                  lo: 12
+                  hi: 13
+              if_false:
+                kind:
+                  Identifier: "{\"name\":\"c\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+                span:
+                  lo: 16
+                  hi: 17
           span:
             lo: 8
             hi: 17
-      span:
-        lo: 0
-        hi: 17
+    span:
+      lo: 0
+      hi: 17

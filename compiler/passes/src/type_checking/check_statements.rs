@@ -76,8 +76,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_assign(&mut self, input: &'a AssignStatement) {
-        let var_name = match input.place {
-            Expression::Identifier(id) => id,
+        let var_name = match &input.place.kind {
+            ExpressionKind::Identifier(id) => *id,
             _ => {
                 self.emit_err(TypeCheckerError::invalid_assignment_target(input.place.span()));
                 return;
@@ -175,14 +175,14 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.visit_expression(&input.start, iter_type);
 
         // If `input.start` is a literal, instantiate it as a value.
-        if let Expression::Literal(literal) = &input.start {
+        if let ExpressionKind::Literal(literal) = &input.start.kind {
             input.start_value.replace(Some(Value::from(literal)));
         }
 
         self.visit_expression(&input.stop, iter_type);
 
         // If `input.stop` is a literal, instantiate it as a value.
-        if let Expression::Literal(literal) = &input.stop {
+        if let ExpressionKind::Literal(literal) = &input.stop.kind {
             input.stop_value.replace(Some(Value::from(literal)));
         }
     }

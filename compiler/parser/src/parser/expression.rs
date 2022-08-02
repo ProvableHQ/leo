@@ -61,31 +61,33 @@ impl ParserContext<'_> {
     /// Otherwise, tries to parse the next token using [`parse_boolean_or_expression`].
     pub(super) fn parse_conditional_expression(&mut self) -> Result<Expression> {
         // Try to parse the next expression. Try BinaryOperation::Or.
-        let mut expr = self.parse_boolean_or_expression()?;
+        let expr = self.parse_boolean_or_expression()?;
 
         // Parse the rest of the ternary expression.
         if self.eat(&Token::Question) {
             let if_true = self.parse_expression()?;
             self.expect(&Token::Colon)?;
             let if_false = self.parse_expression()?;
-            expr = Expression::Ternary(TernaryExpression {
-                span: expr.span() + if_false.span(),
+            let span = expr.span() + if_false.span();
+            let kind = ExpressionKind::Ternary(TernaryExpression {
                 condition: Box::new(expr),
                 if_true: Box::new(if_true),
                 if_false: Box::new(if_false),
             });
+            return Ok(Expression { kind, span });
         }
         Ok(expr)
     }
 
-    /// Constructs a binary expression `left op right`.
-    fn bin_expr(left: Expression, right: Expression, op: BinaryOperation) -> Expression {
-        Expression::Binary(BinaryExpression {
-            span: left.span() + right.span(),
+    /// Creates a binary expression for `left op right`.
+    fn mk_binary(left: Expression, right: Expression, op: BinaryOperation) -> Expression {
+        let span = left.span() + right.span();
+        let kind = ExpressionKind::Binary(BinaryExpression {
             op,
             left: Box::new(left),
             right: Box::new(right),
-        })
+        });
+        Expression { kind, span }
     }
 
     /// Parses a left-associative binary expression `<left> token <right>` using `f` for left/right.
@@ -97,7 +99,7 @@ impl ParserContext<'_> {
     ) -> Result<Expression> {
         let mut expr = f(self)?;
         while let Some(op) = self.eat_bin_op(tokens) {
-            expr = Self::bin_expr(expr, f(self)?, op);
+            expr = Self::mk_binary(expr, f(self)?, op);
         }
         Ok(expr)
     }
@@ -152,7 +154,7 @@ impl ParserContext<'_> {
         let mut expr = self.parse_bitwise_exclusive_or_expression()?;
         if let Some(op) = self.eat_bin_op(&[Token::Lt, Token::LtEq, Token::Gt, Token::GtEq]) {
             let right = self.parse_bitwise_exclusive_or_expression()?;
-            expr = Self::bin_expr(expr, right, op);
+            expr = Self::mk_binary(expr, right, op);
         }
         Ok(expr)
     }
@@ -165,7 +167,7 @@ impl ParserContext<'_> {
         let mut expr = self.parse_ordering_expression()?;
         if let Some(op) = self.eat_bin_op(&[Token::Eq, Token::NotEq]) {
             let right = self.parse_ordering_expression()?;
-            expr = Self::bin_expr(expr, right, op);
+            expr = Self::mk_binary(expr, right, op);
         }
         Ok(expr)
     }
@@ -230,10 +232,17 @@ impl ParserContext<'_> {
 
         if let Some(op) = self.eat_bin_op(&[Token::Pow]) {
             let right = self.parse_exponential_expression()?;
-            expr = Self::bin_expr(expr, right, op);
+            expr = Self::mk_binary(expr, right, op);
         }
 
         Ok(expr)
+    }
+
+    /// Creates an unary expression for `op arg`.
+    fn mk_unary(span: Span, op: UnaryOperation, receiver: Expression) -> Expression {
+        let receiver = Box::new(receiver);
+        let kind = ExpressionKind::Unary(UnaryExpression { op, receiver });
+        Expression { span, kind }
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -250,15 +259,13 @@ impl ParserContext<'_> {
             };
             ops.push((operation, self.prev_token.span));
         }
-        let mut inner = self.parse_postfix_expression()?;
-        for (op, op_span) in ops.into_iter().rev() {
-            inner = Expression::Unary(UnaryExpression {
-                span: op_span + inner.span(),
-                op,
-                receiver: Box::new(inner),
+        let expr = ops
+            .into_iter()
+            .rev()
+            .fold(self.parse_postfix_expression()?, |inner, (op, op_span)| {
+                Self::mk_unary(op_span + inner.span(), op, inner)
             });
-        }
-        Ok(inner)
+        Ok(expr)
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -270,23 +277,15 @@ impl ParserContext<'_> {
 
         if let (true, Some(op)) = (args.is_empty(), UnaryOperation::from_symbol(method.name)) {
             // Found an unary operator and the argument list is empty.
-            Ok(Expression::Unary(UnaryExpression {
-                span,
-                op,
-                receiver: Box::new(receiver),
-            }))
+            Ok(Self::mk_unary(span, op, receiver))
         } else if let (1, Some(op)) = (args.len(), BinaryOperation::from_symbol(method.name)) {
             // Found a binary operator and the argument list contains a single argument.
-            Ok(Expression::Binary(BinaryExpression {
-                span,
-                op,
-                left: Box::new(receiver),
-                right: Box::new(args.swap_remove(0)),
-            }))
+            Ok(Self::mk_binary(receiver, args.swap_remove(0), op))
         } else {
             // Either an invalid unary/binary operator, or more arguments given.
             self.emit_err(ParserError::invalid_method_call(receiver, method, span));
-            Ok(Expression::Err(ErrExpression { span }))
+            let kind = ExpressionKind::Err(ErrExpression);
+            Ok(Expression { span, kind })
         }
     }
 
@@ -294,7 +293,7 @@ impl ParserContext<'_> {
     /// static access expression.
     fn parse_associated_access_expression(&mut self, circuit_name: Expression) -> Result<Expression> {
         // Parse circuit name expression into circuit type.
-        let circuit_type = if let Expression::Identifier(ident) = circuit_name {
+        let circuit_type = if let ExpressionKind::Identifier(ident) = circuit_name.kind {
             Type::Identifier(ident)
         } else {
             return Err(ParserError::invalid_associated_access(&circuit_name, circuit_name.span()).into());
@@ -304,13 +303,12 @@ impl ParserContext<'_> {
         let member_name = self.expect_identifier()?;
 
         // Check if there are arguments.
-        Ok(Expression::Access(if self.check(&Token::LeftParen) {
+        let ae = if self.check(&Token::LeftParen) {
             // Parse the arguments
-            let (args, _, end) = self.parse_expr_tuple()?;
+            let (args, ..) = self.parse_expr_tuple()?;
 
             // Return the circuit function.
             AccessExpression::AssociatedFunction(AssociatedFunction {
-                span: circuit_name.span() + end,
                 ty: circuit_type,
                 name: member_name,
                 args,
@@ -318,11 +316,11 @@ impl ParserContext<'_> {
         } else {
             // Return the circuit constant.
             AccessExpression::AssociatedConstant(AssociatedConstant {
-                span: circuit_name.span() + member_name.span(),
                 ty: circuit_type,
                 name: member_name,
             })
-        }))
+        };
+        Ok(self.mk_access_expr(circuit_name.span(), ae))
     }
 
     /// Parses a tuple of `Expression` AST nodes.
@@ -343,14 +341,16 @@ impl ParserContext<'_> {
             if self.eat(&Token::Dot) {
                 if self.check_int() {
                     // Eat a tuple member access.
-                    let (index, span) = self.eat_integer()?;
-                    expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
-                        tuple: Box::new(expr),
-                        index,
-                        span,
-                    }))
+                    let index = self.eat_integer()?;
+                    expr = self.mk_access_expr(
+                        expr.span(),
+                        AccessExpression::Tuple(TupleAccess {
+                            tuple: Box::new(expr),
+                            index,
+                        }),
+                    );
                 } else {
-                    // Parse identifier name.
+                    // Parse accessed field name.
                     let name = self.expect_identifier()?;
 
                     if self.check(&Token::LeftParen) {
@@ -358,11 +358,13 @@ impl ParserContext<'_> {
                         expr = self.parse_method_call_expression(expr, name)?
                     } else {
                         // Eat a circuit member access.
-                        expr = Expression::Access(AccessExpression::Member(MemberAccess {
-                            span: expr.span(),
-                            inner: Box::new(expr),
-                            name,
-                        }))
+                        expr = self.mk_access_expr(
+                            expr.span(),
+                            AccessExpression::Member(MemberAccess {
+                                inner: Box::new(expr),
+                                name,
+                            }),
+                        );
                     }
                 }
             } else if self.eat(&Token::DoubleColon) {
@@ -371,11 +373,12 @@ impl ParserContext<'_> {
             } else if self.check(&Token::LeftParen) {
                 // Parse a function call that's by itself.
                 let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
-                expr = Expression::Call(CallExpression {
-                    span: expr.span() + span,
+                let span = expr.span() + span;
+                let kind = ExpressionKind::Call(CallExpression {
                     function: Box::new(expr),
                     arguments,
                 });
+                expr = Expression { kind, span };
             }
             // Check if next token is a dot to see if we are calling recursive method.
             if !self.check(&Token::Dot) {
@@ -385,19 +388,29 @@ impl ParserContext<'_> {
         Ok(expr)
     }
 
+    /// Creates an access expression.
+    fn mk_access_expr(&self, lo: Span, ae: AccessExpression) -> Expression {
+        let span = lo + self.prev_token.span;
+        let kind = ExpressionKind::Access(ae);
+        Expression { kind, span }
+    }
+
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// tuple initialization expression or an affine group literal.
     fn parse_tuple_expression(&mut self) -> Result<Expression> {
         if let Some(gt) = self.eat_group_partial().transpose()? {
-            return Ok(Expression::Literal(Literal::Group(Box::new(GroupLiteral::Tuple(gt)))));
+            let span = gt.span;
+            let kind = ExpressionKind::Literal(Literal::Group(Box::new(GroupLiteral::Tuple(gt))));
+            return Ok(Expression { kind, span });
         }
 
-        let (mut tuple, trailing, span) = self.parse_expr_tuple()?;
+        let (mut elements, trailing, span) = self.parse_expr_tuple()?;
 
-        if !trailing && tuple.len() == 1 {
-            Ok(tuple.swap_remove(0))
+        if !trailing && elements.len() == 1 {
+            Ok(elements.swap_remove(0))
         } else {
-            Ok(Expression::Tuple(TupleExpression { elements: tuple, span }))
+            let kind = ExpressionKind::Tuple(TupleExpression { elements });
+            Ok(Expression { kind, span })
         }
     }
 
@@ -490,11 +503,12 @@ impl ParserContext<'_> {
             p.parse_circuit_member().map(Some)
         })?;
 
-        Ok(Expression::Circuit(CircuitExpression {
-            span: identifier.span + end,
+        let span = identifier.span + end;
+        let kind = ExpressionKind::Circuit(CircuitExpression {
             name: identifier,
             members,
-        }))
+        });
+        Ok(Expression { kind, span })
     }
 
     /// Returns an [`Expression`] AST node if the next token is a primary expression:
@@ -517,51 +531,52 @@ impl ParserContext<'_> {
                 let suffix_span = self.token.span;
                 let full_span = span + suffix_span;
                 let assert_no_whitespace = |x| assert_no_whitespace(span, suffix_span, &value, x);
-                match self.eat_any(INT_TYPES).then(|| &self.prev_token.token) {
+                let lit = match self.eat_any(INT_TYPES).then(|| &self.prev_token.token) {
                     // Literal followed by `field`, e.g., `42field`.
                     Some(Token::Field) => {
                         assert_no_whitespace("field")?;
-                        Expression::Literal(Literal::Field(value, full_span))
+                        Literal::Field(value, full_span)
                     }
                     // Literal followed by `group`, e.g., `42group`.
                     Some(Token::Group) => {
                         assert_no_whitespace("group")?;
-                        Expression::Literal(Literal::Group(Box::new(GroupLiteral::Single(value, full_span))))
+                        Literal::Group(Box::new(GroupLiteral::Single(value, full_span)))
                     }
                     // Literal followed by `scalar` e.g., `42scalar`.
                     Some(Token::Scalar) => {
                         assert_no_whitespace("scalar")?;
-                        Expression::Literal(Literal::Scalar(value, full_span))
+                        Literal::Scalar(value, full_span)
                     }
                     // Literal followed by other type suffix, e.g., `42u8`.
                     Some(suffix) => {
                         assert_no_whitespace(&suffix.to_string())?;
                         match suffix {
-                            Token::I8 => Expression::Literal(Literal::I8(value, full_span)),
-                            Token::I16 => Expression::Literal(Literal::I16(value, full_span)),
-                            Token::I32 => Expression::Literal(Literal::I32(value, full_span)),
-                            Token::I64 => Expression::Literal(Literal::I64(value, full_span)),
-                            Token::I128 => Expression::Literal(Literal::I128(value, full_span)),
-                            Token::U8 => Expression::Literal(Literal::U8(value, full_span)),
-                            Token::U16 => Expression::Literal(Literal::U16(value, full_span)),
-                            Token::U32 => Expression::Literal(Literal::U32(value, full_span)),
-                            Token::U64 => Expression::Literal(Literal::U64(value, full_span)),
-                            Token::U128 => Expression::Literal(Literal::U128(value, full_span)),
+                            Token::I8 => Literal::I8(value, full_span),
+                            Token::I16 => Literal::I16(value, full_span),
+                            Token::I32 => Literal::I32(value, full_span),
+                            Token::I64 => Literal::I64(value, full_span),
+                            Token::I128 => Literal::I128(value, full_span),
+                            Token::U8 => Literal::U8(value, full_span),
+                            Token::U16 => Literal::U16(value, full_span),
+                            Token::U32 => Literal::U32(value, full_span),
+                            Token::U64 => Literal::U64(value, full_span),
+                            Token::U128 => Literal::U128(value, full_span),
                             _ => return Err(ParserError::unexpected_token("Expected integer type suffix", span).into()),
                         }
                     }
                     None => return Err(ParserError::implicit_values_not_allowed(value, span).into()),
-                }
+                };
+                Self::mk_lit_expr(full_span, lit)
             }
-            Token::True => Expression::Literal(Literal::Boolean(true, span)),
-            Token::False => Expression::Literal(Literal::Boolean(false, span)),
+            Token::True => Self::mk_lit_expr(span, Literal::Boolean(true, span)),
+            Token::False => Self::mk_lit_expr(span, Literal::Boolean(false, span)),
             Token::AddressLit(address_string) => {
                 if address_string.parse::<Address<Testnet3>>().is_err() {
                     self.emit_err(ParserError::invalid_address_lit(&address_string, span));
                 }
-                Expression::Literal(Literal::Address(address_string, span))
+                Self::mk_lit_expr(span, Literal::Address(address_string, span))
             }
-            Token::StaticString(value) => Expression::Literal(Literal::String(value, span)),
+            Token::StaticString(value) => Self::mk_lit_expr(span, Literal::String(value, span)),
             Token::Identifier(name) => {
                 let ident = Identifier { name, span };
                 if !self.disallow_circuit_construction && self.check(&Token::LeftCurly) {
@@ -569,10 +584,10 @@ impl ParserContext<'_> {
                     // Enforce circuit or record type later at type checking.
                     self.parse_circuit_init_expression(ident)?
                 } else {
-                    Expression::Identifier(ident)
+                    Self::mk_ident_expr(ident)
                 }
             }
-            t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
+            t if crate::type_::TYPE_TOKENS.contains(&t) => Self::mk_ident_expr(Identifier {
                 name: t.keyword_to_symbol().unwrap(),
                 span,
             }),
@@ -580,6 +595,20 @@ impl ParserContext<'_> {
                 return Err(ParserError::unexpected_str(token, "expression", span).into());
             }
         })
+    }
+
+    /// Creates an literal expression for `lit`.
+    fn mk_lit_expr(span: Span, lit: Literal) -> Expression {
+        let kind = ExpressionKind::Literal(lit);
+        Expression { span, kind }
+    }
+
+    /// Creates an identifier expression for `ident`.
+    fn mk_ident_expr(ident: Identifier) -> Expression {
+        Expression {
+            kind: ExpressionKind::Identifier(ident),
+            span: ident.span,
+        }
     }
 }
 

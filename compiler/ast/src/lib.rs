@@ -22,8 +22,6 @@
 
 #![forbid(unsafe_code)]
 #![doc = include_str!("../README.md")]
-pub mod access;
-pub use self::access::*;
 
 pub mod circuits;
 pub use self::circuits::*;

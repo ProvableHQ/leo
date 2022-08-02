@@ -16,6 +16,7 @@
 
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
+use leo_span::Span;
 
 use crate::TypeChecker;
 
@@ -41,22 +42,12 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     type AdditionalInput = Option<Type>;
     type Output = Option<Type>;
 
-    fn visit_expression(&mut self, input: &'a Expression, expected: &Self::AdditionalInput) -> Self::Output {
-        match input {
-            Expression::Access(access) => self.visit_access(access, expected),
-            Expression::Binary(binary) => self.visit_binary(binary, expected),
-            Expression::Call(call) => self.visit_call(call, expected),
-            Expression::Circuit(circuit) => self.visit_circuit_init(circuit, expected),
-            Expression::Identifier(identifier) => self.visit_identifier(identifier, expected),
-            Expression::Err(err) => self.visit_err(err, expected),
-            Expression::Literal(literal) => self.visit_literal(literal, expected),
-            Expression::Ternary(ternary) => self.visit_ternary(ternary, expected),
-            Expression::Tuple(tuple) => self.visit_tuple(tuple, expected),
-            Expression::Unary(expr) => self.visit_unary(expr, expected),
-        }
-    }
-
-    fn visit_access(&mut self, input: &'a AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
+    fn visit_access(
+        &mut self,
+        span: Span,
+        input: &'a AccessExpression,
+        expected: &Self::AdditionalInput,
+    ) -> Self::Output {
         match input {
             AccessExpression::AssociatedFunction(access) => {
                 // Check core circuit name and function.
@@ -66,26 +57,26 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
                             core_instruction.num_args(),
                             access.args.len(),
-                            input.span(),
+                            span,
                         ));
                     }
 
                     // Check first argument type.
                     if let Some(first_arg) = access.args.get(0usize) {
                         let first_arg_type = self.visit_expression(first_arg, &None);
-                        self.assert_one_of_types(&first_arg_type, core_instruction.first_arg_types(), access.span());
+                        self.assert_one_of_types(&first_arg_type, core_instruction.first_arg_types(), span);
                     }
 
                     // Check second argument type.
                     if let Some(second_arg) = access.args.get(1usize) {
                         let second_arg_type = self.visit_expression(second_arg, &None);
-                        self.assert_one_of_types(&second_arg_type, core_instruction.second_arg_types(), access.span());
+                        self.assert_one_of_types(&second_arg_type, core_instruction.second_arg_types(), span);
                     }
 
                     // Check return type.
-                    return Some(self.assert_and_return_type(core_instruction.return_type(), expected, access.span()));
+                    return Some(self.assert_and_return_type(core_instruction.return_type(), expected, span));
                 } else {
-                    self.emit_err(TypeCheckerError::invalid_core_circuit_call(access, access.span()));
+                    self.emit_err(TypeCheckerError::invalid_core_circuit_call(access, span));
                 }
             }
             AccessExpression::Tuple(access) => {
@@ -95,18 +86,14 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             // Check out of range access.
                             let index = access.index.to_usize();
                             if index > tuple.len() - 1 {
-                                self.emit_err(TypeCheckerError::tuple_out_of_range(index, tuple.len(), access.span()));
+                                self.emit_err(TypeCheckerError::tuple_out_of_range(index, tuple.len(), span));
                             } else {
                                 // Lookup type of tuple index.
                                 let actual = tuple.get(index).expect("failed to get tuple index").clone();
                                 if let Some(expected) = expected {
                                     // Emit error for mismatched types.
                                     if !actual.eq_flat(expected) {
-                                        self.emit_err(TypeCheckerError::type_should_be(
-                                            &actual,
-                                            expected,
-                                            access.span(),
-                                        ))
+                                        self.emit_err(TypeCheckerError::type_should_be(&actual, expected, span))
                                     }
                                 }
 
@@ -115,10 +102,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             }
                         }
                         type_ => {
-                            self.emit_err(TypeCheckerError::type_should_be(type_, "tuple", access.span()));
+                            self.emit_err(TypeCheckerError::type_should_be(type_, "tuple", span));
                         }
                     }
-                    self.emit_err(TypeCheckerError::invalid_core_circuit_call(access, access.span()));
+                    self.emit_err(TypeCheckerError::invalid_core_circuit_call(access, span));
                 }
             }
             AccessExpression::Member(access) => {
@@ -165,7 +152,12 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         None
     }
 
-    fn visit_circuit_init(&mut self, input: &'a CircuitExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_circuit_init(
+        &mut self,
+        span: Span,
+        input: &'a CircuitExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Self::Output {
         let circ = self.symbol_table.borrow().lookup_circuit(input.name.name).cloned();
         if let Some(circ) = circ {
             // Check circuit type name.
@@ -176,7 +168,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 self.emit_err(TypeCheckerError::incorrect_num_circuit_members(
                     circ.members.len(),
                     input.members.len(),
-                    input.span(),
+                    span,
                 ));
             }
 
@@ -190,11 +182,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             self.visit_expression(expr, &Some(ty.clone()));
                         }
                     } else {
-                        self.emit_err(TypeCheckerError::missing_circuit_member(
-                            circ.identifier,
-                            name,
-                            input.span(),
-                        ));
+                        self.emit_err(TypeCheckerError::missing_circuit_member(circ.identifier, name, span));
                     };
                 });
 
@@ -230,101 +218,59 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
         };
 
+        let assert_int_ok = |is_err, int: &_, ty, ty_str| {
+            if is_err {
+                self.handler
+                    .emit_err(TypeCheckerError::invalid_int_value(int, ty_str, input.span()));
+            }
+            self.assert_and_return_type(ty, expected, input.span())
+        };
+
         Some(match input {
             Literal::Address(_, _) => self.assert_and_return_type(Type::Address, expected, input.span()),
             Literal::Boolean(_, _) => self.assert_and_return_type(Type::Boolean, expected, input.span()),
             Literal::Field(_, _) => self.assert_and_return_type(Type::Field, expected, input.span()),
-            Literal::I8(str_content, _) => {
-                let int = negate_int(str_content);
-
-                if int.parse::<i8>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(int, "i8", input.span()));
-                }
-                self.assert_and_return_type(Type::I8, expected, input.span())
+            Literal::I8(int, _) => {
+                let int = negate_int(int);
+                assert_int_ok(int.parse::<i8>().is_err(), &int, Type::I8, "i8")
             }
-            Literal::I16(str_content, _) => {
-                let int = negate_int(str_content);
-
-                if int.parse::<i16>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(int, "i16", input.span()));
-                }
-                self.assert_and_return_type(Type::I16, expected, input.span())
+            Literal::I16(int, _) => {
+                let int = negate_int(int);
+                assert_int_ok(int.parse::<i16>().is_err(), &int, Type::I16, "i16")
             }
-            Literal::I32(str_content, _) => {
-                let int = negate_int(str_content);
-
-                if int.parse::<i32>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(int, "i32", input.span()));
-                }
-                self.assert_and_return_type(Type::I32, expected, input.span())
+            Literal::I32(int, _) => {
+                let int = negate_int(int);
+                assert_int_ok(int.parse::<i32>().is_err(), &int, Type::I32, "i32")
             }
-            Literal::I64(str_content, _) => {
-                let int = negate_int(str_content);
-
-                if int.parse::<i64>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(int, "i64", input.span()));
-                }
-                self.assert_and_return_type(Type::I64, expected, input.span())
+            Literal::I64(int, _) => {
+                let int = negate_int(int);
+                assert_int_ok(int.parse::<i64>().is_err(), &int, Type::I64, "i64")
             }
-            Literal::I128(str_content, _) => {
-                let int = negate_int(str_content);
-
-                if int.parse::<i128>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(int, "i128", input.span()));
-                }
-                self.assert_and_return_type(Type::I128, expected, input.span())
+            Literal::I128(int, _) => {
+                let int = negate_int(int);
+                assert_int_ok(int.parse::<i128>().is_err(), &int, Type::I128, "i128")
             }
-            Literal::U8(str_content, _) => {
-                if str_content.parse::<u8>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u8", input.span()));
-                }
-                self.assert_and_return_type(Type::U8, expected, input.span())
-            }
-            Literal::U16(str_content, _) => {
-                if str_content.parse::<u16>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u16", input.span()));
-                }
-                self.assert_and_return_type(Type::U16, expected, input.span())
-            }
-            Literal::U32(str_content, _) => {
-                if str_content.parse::<u32>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u32", input.span()));
-                }
-                self.assert_and_return_type(Type::U32, expected, input.span())
-            }
-            Literal::U64(str_content, _) => {
-                if str_content.parse::<u64>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u64", input.span()));
-                }
-                self.assert_and_return_type(Type::U64, expected, input.span())
-            }
-            Literal::U128(str_content, _) => {
-                if str_content.parse::<u128>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u128", input.span()));
-                }
-                self.assert_and_return_type(Type::U128, expected, input.span())
-            }
+            Literal::U8(int, _) => assert_int_ok(int.parse::<u8>().is_err(), int, Type::U8, "u8"),
+            Literal::U16(int, _) => assert_int_ok(int.parse::<u16>().is_err(), int, Type::U16, "u16"),
+            Literal::U32(int, _) => assert_int_ok(int.parse::<u32>().is_err(), int, Type::U32, "u32"),
+            Literal::U64(int, _) => assert_int_ok(int.parse::<u64>().is_err(), int, Type::U64, "u64"),
+            Literal::U128(int, _) => assert_int_ok(int.parse::<u128>().is_err(), int, Type::U128, "u128"),
             Literal::Group(_) => self.assert_and_return_type(Type::Group, expected, input.span()),
             Literal::Scalar(_, _) => self.assert_and_return_type(Type::Scalar, expected, input.span()),
             Literal::String(_, _) => self.assert_and_return_type(Type::String, expected, input.span()),
         })
     }
 
-    fn visit_binary(&mut self, input: &'a BinaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
+    fn visit_binary(
+        &mut self,
+        span: Span,
+        input: &'a BinaryExpression,
+        destination: &Self::AdditionalInput,
+    ) -> Self::Output {
         match input.op {
             BinaryOperation::And | BinaryOperation::Or | BinaryOperation::Nand | BinaryOperation::Nor => {
                 // Only boolean types.
-                self.assert_bool_type(destination, input.span());
+                self.assert_bool_type(destination, span);
                 let t1 = self.visit_expression(&input.left, destination);
                 let t2 = self.visit_expression(&input.right, destination);
 
@@ -332,7 +278,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
             BinaryOperation::BitwiseAnd | BinaryOperation::BitwiseOr | BinaryOperation::Xor => {
                 //  Only boolean or integer types.
-                self.assert_bool_int_type(destination, input.span());
+                self.assert_bool_int_type(destination, span);
                 let t1 = self.visit_expression(&input.left, destination);
                 let t2 = self.visit_expression(&input.right, destination);
 
@@ -340,7 +286,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
             BinaryOperation::Add => {
                 // Only field, group, scalar, or integer types.
-                self.assert_field_group_scalar_int_type(destination, input.span());
+                self.assert_field_group_scalar_int_type(destination, span);
                 let t1 = self.visit_expression(&input.left, destination);
                 let t2 = self.visit_expression(&input.right, destination);
 
@@ -348,7 +294,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
             BinaryOperation::Sub => {
                 // Only field, group, or integer types.
-                self.assert_field_group_int_type(destination, input.span());
+                self.assert_field_group_int_type(destination, span);
                 let t1 = self.visit_expression(&input.left, destination);
                 let t2 = self.visit_expression(&input.right, destination);
 
@@ -356,7 +302,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
             BinaryOperation::Mul => {
                 // Operation returns field, group or integer types.
-                self.assert_field_group_int_type(destination, input.span());
+                self.assert_field_group_int_type(destination, span);
 
                 let t1 = self.visit_expression(&input.left, &None);
                 let t2 = self.visit_expression(&input.right, &None);
@@ -368,7 +314,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         self.assert_scalar_type(&right, input.right.span());
 
                         // Operation returns group.
-                        self.assert_group_type(destination, input.span());
+                        self.assert_group_type(destination, span);
 
                         Some(Type::Group)
                     }
@@ -377,13 +323,13 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         self.assert_scalar_type(&left, input.left.span());
 
                         // Operation returns group.
-                        self.assert_group_type(destination, input.span());
+                        self.assert_group_type(destination, span);
 
                         Some(Type::Group)
                     }
                     (t1, t2) => {
                         // Otherwise, only field or integer types.
-                        self.assert_field_int_type(destination, input.span());
+                        self.assert_field_int_type(destination, span);
 
                         return_incorrect_type(t1, t2, destination)
                     }
@@ -391,7 +337,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
             BinaryOperation::Div => {
                 // Only field or integer types.
-                self.assert_field_int_type(destination, input.span());
+                self.assert_field_int_type(destination, span);
 
                 let t1 = self.visit_expression(&input.left, destination);
                 let t2 = self.visit_expression(&input.right, destination);
@@ -400,7 +346,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
             BinaryOperation::Rem | BinaryOperation::RemWrapped => {
                 // Only integer types.
-                self.assert_int_type(destination, input.span());
+                self.assert_int_type(destination, span);
 
                 let t1 = self.visit_expression(&input.left, destination);
                 let t2 = self.visit_expression(&input.right, destination);
@@ -409,7 +355,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
             BinaryOperation::Mod => {
                 // Only unsigned integer types.
-                self.assert_unsigned_int_type(destination, input.span());
+                self.assert_unsigned_int_type(destination, span);
 
                 let t1 = self.visit_expression(&input.left, destination);
                 let t2 = self.visit_expression(&input.right, destination);
@@ -418,7 +364,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
             BinaryOperation::Pow => {
                 // Operation returns field or integer types.
-                self.assert_field_int_type(destination, input.span());
+                self.assert_field_int_type(destination, span);
 
                 let t1 = self.visit_expression(&input.left, &None);
                 let t2 = self.visit_expression(&input.right, &None);
@@ -430,7 +376,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         self.assert_field_type(&right, input.right.span());
 
                         // Operation returns field.
-                        self.assert_field_type(destination, input.span());
+                        self.assert_field_type(destination, span);
 
                         Some(Type::Field)
                     }
@@ -439,7 +385,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         self.assert_field_type(&left, input.left.span());
 
                         // Operation returns field.
-                        self.assert_field_type(destination, input.span());
+                        self.assert_field_type(destination, span);
 
                         Some(Type::Field)
                     }
@@ -449,7 +395,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         self.assert_magnitude_type(&right, input.right.span());
 
                         // Operation returns left type.
-                        self.assert_type(destination, &left, input.span());
+                        self.assert_type(destination, &left, span);
 
                         Some(left)
                     }
@@ -467,10 +413,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 let t2 = self.visit_expression(&input.right, &None);
 
                 // Check that the types of the operands are equal.
-                self.check_eq_types(&t1, &t2, input.span());
+                self.check_eq_types(&t1, &t2, span);
 
                 // Operation returns a boolean.
-                self.assert_bool_type(destination, input.span());
+                self.assert_bool_type(destination, span);
 
                 Some(Type::Boolean)
             }
@@ -482,7 +428,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 match (&t1, &t2) {
                     (Some(Type::Address), _) | (_, Some(Type::Address)) => {
                         // Emit an error for address comparison.
-                        self.emit_err(TypeCheckerError::compare_address(input.op, input.span()));
+                        self.emit_err(TypeCheckerError::compare_address(input.op, span));
                     }
                     (t1, t2) => {
                         self.assert_field_scalar_int_type(t1, input.left.span());
@@ -491,10 +437,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 }
 
                 // Check that the types of the operands are equal.
-                self.check_eq_types(&t1, &t2, input.span());
+                self.check_eq_types(&t1, &t2, span);
 
                 // Operation returns a boolean.
-                self.assert_bool_type(destination, input.span());
+                self.assert_bool_type(destination, span);
 
                 Some(Type::Boolean)
             }
@@ -503,7 +449,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             | BinaryOperation::DivWrapped
             | BinaryOperation::MulWrapped => {
                 // Only integer types.
-                self.assert_int_type(destination, input.span);
+                self.assert_int_type(destination, span);
                 let t1 = self.visit_expression(&input.left, destination);
                 let t2 = self.visit_expression(&input.right, destination);
 
@@ -519,7 +465,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
                 // Assert left and destination are equal integer types.
                 self.assert_int_type(&t1, input.left.span());
-                self.assert_int_type(destination, input.span);
+                self.assert_int_type(destination, span);
 
                 // Assert right type is a magnitude (u8, u16, u32).
                 self.assert_magnitude_type(&t2, input.right.span());
@@ -529,9 +475,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        match &*input.function {
-            Expression::Identifier(ident) => {
+    fn visit_call(&mut self, span: Span, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
+        match &input.function.kind {
+            ExpressionKind::Identifier(ident) => {
                 // Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
                 // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table` alive for the entire block and will be very memory inefficient!
                 let func = self.symbol_table.borrow().lookup_fn_symbol(ident.name).cloned();
@@ -543,7 +489,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
                             func.input.len(),
                             input.arguments.len(),
-                            input.span(),
+                            span,
                         ));
                     }
 
@@ -562,11 +508,16 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 }
             }
             // TODO: Is this case sufficient?
-            expr => self.visit_expression(expr, expected),
+            _ => self.visit_expression(&input.function, expected),
         }
     }
 
-    fn visit_ternary(&mut self, input: &'a TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
+    fn visit_ternary(
+        &mut self,
+        _: Span,
+        input: &'a TernaryExpression,
+        expected: &Self::AdditionalInput,
+    ) -> Self::Output {
         self.visit_expression(&input.condition, &Some(Type::Boolean));
 
         let t1 = self.visit_expression(&input.if_true, expected);
@@ -575,7 +526,12 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         return_incorrect_type(t1, t2, expected)
     }
 
-    fn visit_tuple(&mut self, input: &'a TupleExpression, expected: &Self::AdditionalInput) -> Self::Output {
+    fn visit_tuple(
+        &mut self,
+        span: Span,
+        input: &'a TupleExpression,
+        expected: &Self::AdditionalInput,
+    ) -> Self::Output {
         // Check the expected tuple types if they are known.
         if let Some(Type::Tuple(expected_types)) = expected {
             // Check actual length is equal to expected length.
@@ -583,7 +539,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 self.emit_err(TypeCheckerError::incorrect_tuple_length(
                     expected_types.len(),
                     input.elements.len(),
-                    input.span(),
+                    span,
                 ));
             }
 
@@ -597,32 +553,37 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             Some(Type::Tuple(expected_types.clone()))
         } else {
             // Tuples must be explicitly typed in testnet3.
-            self.emit_err(TypeCheckerError::invalid_tuple(input.span()));
+            self.emit_err(TypeCheckerError::invalid_tuple(span));
 
             None
         }
     }
 
-    fn visit_unary(&mut self, input: &'a UnaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
+    fn visit_unary(
+        &mut self,
+        span: Span,
+        input: &'a UnaryExpression,
+        destination: &Self::AdditionalInput,
+    ) -> Self::Output {
         match input.op {
             UnaryOperation::Abs => {
                 // Only signed integer types.
-                self.assert_signed_int_type(destination, input.span());
+                self.assert_signed_int_type(destination, span);
                 self.visit_expression(&input.receiver, destination)
             }
             UnaryOperation::AbsWrapped => {
                 // Only signed integer types.
-                self.assert_signed_int_type(destination, input.span());
+                self.assert_signed_int_type(destination, span);
                 self.visit_expression(&input.receiver, destination)
             }
             UnaryOperation::Double => {
                 // Only field or group types.
-                self.assert_field_group_type(destination, input.span());
+                self.assert_field_group_type(destination, span);
                 self.visit_expression(&input.receiver, destination)
             }
             UnaryOperation::Inverse => {
                 // Only field types.
-                self.assert_field_type(destination, input.span());
+                self.assert_field_type(destination, span);
                 self.visit_expression(&input.receiver, destination)
             }
             UnaryOperation::Negate => {
@@ -638,17 +599,17 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
             UnaryOperation::Not => {
                 // Only boolean or integer types.
-                self.assert_bool_int_type(destination, input.span());
+                self.assert_bool_int_type(destination, span);
                 self.visit_expression(&input.receiver, destination)
             }
             UnaryOperation::Square => {
                 // Only field type.
-                self.assert_field_type(destination, input.span());
+                self.assert_field_type(destination, span);
                 self.visit_expression(&input.receiver, destination)
             }
             UnaryOperation::SquareRoot => {
                 // Only field type.
-                self.assert_field_type(destination, input.span());
+                self.assert_field_type(destination, span);
                 self.visit_expression(&input.receiver, destination)
             }
         }

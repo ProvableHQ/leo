@@ -25,8 +25,6 @@ pub struct TernaryExpression {
     pub if_true: Box<Expression>,
     /// The branch the expression evaluates to if `condition` evaluates to false.
     pub if_false: Box<Expression>,
-    /// The span from `condition` to `if_false`.
-    pub span: Span,
 }
 
 impl fmt::Display for TernaryExpression {
@@ -34,5 +32,3 @@ impl fmt::Display for TernaryExpression {
         write!(f, "({} ? {} : {})", self.condition, self.if_true, self.if_false)
     }
 }
-
-crate::simple_node_impl!(TernaryExpression);

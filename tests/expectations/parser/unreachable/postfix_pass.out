@@ -7,7 +7,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"aimport\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":19}\"}"
+        kind:
+          Identifier: "{\"name\":\"aimport\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":19}\"}"
+        span:
+          lo: 12
+          hi: 19
       span:
         lo: 0
         hi: 19
@@ -16,7 +20,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"a_\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":14}\"}"
+        kind:
+          Identifier: "{\"name\":\"a_\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":14}\"}"
+        span:
+          lo: 12
+          hi: 14
       span:
         lo: 0
         hi: 14
@@ -25,7 +33,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"aas\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":15}\"}"
+        kind:
+          Identifier: "{\"name\":\"aas\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":15}\"}"
+        span:
+          lo: 12
+          hi: 15
       span:
         lo: 0
         hi: 15
@@ -34,7 +46,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"aconsole\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":20}\"}"
+        kind:
+          Identifier: "{\"name\":\"aconsole\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":20}\"}"
+        span:
+          lo: 12
+          hi: 20
       span:
         lo: 0
         hi: 20
@@ -43,7 +59,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"aconst\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":18}\"}"
+        kind:
+          Identifier: "{\"name\":\"aconst\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":18}\"}"
+        span:
+          lo: 12
+          hi: 18
       span:
         lo: 0
         hi: 18
@@ -52,7 +72,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"alet\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        kind:
+          Identifier: "{\"name\":\"alet\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        span:
+          lo: 12
+          hi: 16
       span:
         lo: 0
         hi: 16
@@ -61,7 +85,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"afor\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        kind:
+          Identifier: "{\"name\":\"afor\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        span:
+          lo: 12
+          hi: 16
       span:
         lo: 0
         hi: 16
@@ -70,7 +98,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"aif\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":15}\"}"
+        kind:
+          Identifier: "{\"name\":\"aif\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":15}\"}"
+        span:
+          lo: 12
+          hi: 15
       span:
         lo: 0
         hi: 15
@@ -79,7 +111,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"aelse\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
+        kind:
+          Identifier: "{\"name\":\"aelse\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
+        span:
+          lo: 12
+          hi: 17
       span:
         lo: 0
         hi: 17
@@ -88,7 +124,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"ai8\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":15}\"}"
+        kind:
+          Identifier: "{\"name\":\"ai8\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":15}\"}"
+        span:
+          lo: 12
+          hi: 15
       span:
         lo: 0
         hi: 15
@@ -97,7 +137,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"ai16\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        kind:
+          Identifier: "{\"name\":\"ai16\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        span:
+          lo: 12
+          hi: 16
       span:
         lo: 0
         hi: 16
@@ -106,7 +150,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"ai32\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        kind:
+          Identifier: "{\"name\":\"ai32\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        span:
+          lo: 12
+          hi: 16
       span:
         lo: 0
         hi: 16
@@ -115,7 +163,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"ai64\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        kind:
+          Identifier: "{\"name\":\"ai64\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        span:
+          lo: 12
+          hi: 16
       span:
         lo: 0
         hi: 16
@@ -124,7 +176,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"ai128\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
+        kind:
+          Identifier: "{\"name\":\"ai128\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
+        span:
+          lo: 12
+          hi: 17
       span:
         lo: 0
         hi: 17
@@ -133,7 +189,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"au8\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":15}\"}"
+        kind:
+          Identifier: "{\"name\":\"au8\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":15}\"}"
+        span:
+          lo: 12
+          hi: 15
       span:
         lo: 0
         hi: 15
@@ -142,7 +202,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"au16\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        kind:
+          Identifier: "{\"name\":\"au16\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        span:
+          lo: 12
+          hi: 16
       span:
         lo: 0
         hi: 16
@@ -151,7 +215,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"au32\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        kind:
+          Identifier: "{\"name\":\"au32\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        span:
+          lo: 12
+          hi: 16
       span:
         lo: 0
         hi: 16
@@ -160,7 +228,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"au64\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        kind:
+          Identifier: "{\"name\":\"au64\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        span:
+          lo: 12
+          hi: 16
       span:
         lo: 0
         hi: 16
@@ -169,7 +241,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"au128\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
+        kind:
+          Identifier: "{\"name\":\"au128\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
+        span:
+          lo: 12
+          hi: 17
       span:
         lo: 0
         hi: 17
@@ -178,7 +254,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"areturn\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":19}\"}"
+        kind:
+          Identifier: "{\"name\":\"areturn\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":19}\"}"
+        span:
+          lo: 12
+          hi: 19
       span:
         lo: 0
         hi: 19
@@ -187,7 +267,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"aself\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
+        kind:
+          Identifier: "{\"name\":\"aself\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
+        span:
+          lo: 12
+          hi: 17
       span:
         lo: 0
         hi: 17
@@ -196,7 +280,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"aSelf\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
+        kind:
+          Identifier: "{\"name\":\"aSelf\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
+        span:
+          lo: 12
+          hi: 17
       span:
         lo: 0
         hi: 17
@@ -205,7 +293,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"atrue\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
+        kind:
+          Identifier: "{\"name\":\"atrue\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":17}\"}"
+        span:
+          lo: 12
+          hi: 17
       span:
         lo: 0
         hi: 17
@@ -214,7 +306,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"afalse\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":18}\"}"
+        kind:
+          Identifier: "{\"name\":\"afalse\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":18}\"}"
+        span:
+          lo: 12
+          hi: 18
       span:
         lo: 0
         hi: 18
@@ -223,7 +319,11 @@ outputs:
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: U8
       value:
-        Identifier: "{\"name\":\"a0\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":14}\"}"
+        kind:
+          Identifier: "{\"name\":\"a0\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":14}\"}"
+        span:
+          lo: 12
+          hi: 14
       span:
         lo: 0
         hi: 14

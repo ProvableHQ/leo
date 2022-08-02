@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{normalize_json_value, remove_key_from_json, Circuit, Expression, Type};
+use crate::{normalize_json_value, remove_key_from_json, Circuit, ExpressionKind, Type};
 
 use super::*;
 use leo_errors::{AstError, Result};
@@ -57,9 +57,11 @@ impl InputAst {
                             ),
                             Some(circuit) => match circuit.is_record {
                                 false => definition.value.to_string(),
-                                true => match &definition.value {
+                                true => match &definition.value.kind {
                                     // Print out the record interface with visibility.
-                                    Expression::Circuit(circuit_expression) => circuit_expression.to_record_string(),
+                                    ExpressionKind::Circuit(circuit_expression) => {
+                                        circuit_expression.to_record_string()
+                                    }
                                     _ => panic!("Input error: Expected a circuit expression."),
                                 },
                             },

@@ -29,12 +29,16 @@ outputs:
           statements:
             - Return:
                 expression:
-                  Literal:
-                    U8:
-                      - "0"
-                      - span:
-                          lo: 55
-                          hi: 58
+                  kind:
+                    Literal:
+                      U8:
+                        - "0"
+                        - span:
+                            lo: 55
+                            hi: 58
+                  span:
+                    lo: 55
+                    hi: 58
                 span:
                   lo: 48
                   hi: 58
@@ -66,12 +70,16 @@ outputs:
           statements:
             - Return:
                 expression:
-                  Literal:
-                    U8:
-                      - "0"
-                      - span:
-                          lo: 116
-                          hi: 119
+                  kind:
+                    Literal:
+                      U8:
+                        - "0"
+                        - span:
+                            lo: 116
+                            hi: 119
+                  span:
+                    lo: 116
+                    hi: 119
                 span:
                   lo: 109
                   hi: 119

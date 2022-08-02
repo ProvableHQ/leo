@@ -2,145 +2,207 @@
 namespace: ParseExpression
 expectation: Pass
 outputs:
-  - Unary:
-      receiver:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-      op: AbsWrapped
-      span:
-        lo: 0
-        hi: 15
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
+  - kind:
+      Unary:
+        receiver:
+          kind:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+          span:
+            lo: 0
+            hi: 1
+        op: AbsWrapped
+    span:
+      lo: 0
+      hi: 15
+  - kind:
+      Unary:
+        receiver:
+          kind:
             Unary:
               receiver:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+                kind:
+                  Unary:
+                    receiver:
+                      kind:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+                      span:
+                        lo: 0
+                        hi: 1
+                    op: AbsWrapped
+                span:
+                  lo: 0
+                  hi: 15
               op: AbsWrapped
-              span:
-                lo: 0
-                hi: 15
-          op: AbsWrapped
           span:
             lo: 0
             hi: 29
-      op: AbsWrapped
-      span:
-        lo: 0
-        hi: 43
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          op: AbsWrapped
+        op: AbsWrapped
+    span:
+      lo: 0
+      hi: 43
+  - kind:
+      Unary:
+        receiver:
+          kind:
+            Unary:
+              receiver:
+                kind:
+                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+                span:
+                  lo: 1
+                  hi: 2
+              op: AbsWrapped
           span:
             lo: 1
             hi: 16
-      op: Negate
-      span:
-        lo: 0
-        hi: 16
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Negate
+        op: Negate
+    span:
+      lo: 0
+      hi: 16
+  - kind:
+      Unary:
+        receiver:
+          kind:
+            Unary:
+              receiver:
+                kind:
+                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                span:
+                  lo: 2
+                  hi: 3
+              op: Negate
           span:
             lo: 1
             hi: 3
-      op: AbsWrapped
-      span:
-        lo: 1
-        hi: 18
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: AbsWrapped
+        op: AbsWrapped
+    span:
+      lo: 1
+      hi: 18
+  - kind:
+      Unary:
+        receiver:
+          kind:
+            Unary:
+              receiver:
+                kind:
+                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                span:
+                  lo: 2
+                  hi: 3
+              op: AbsWrapped
           span:
             lo: 2
             hi: 17
-      op: Negate
-      span:
-        lo: 0
-        hi: 17
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
+        op: Negate
+    span:
+      lo: 0
+      hi: 17
+  - kind:
+      Unary:
+        receiver:
+          kind:
             Unary:
               receiver:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              op: AbsWrapped
-              span:
-                lo: 2
-                hi: 17
-          op: Negate
+                kind:
+                  Unary:
+                    receiver:
+                      kind:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                      span:
+                        lo: 2
+                        hi: 3
+                    op: AbsWrapped
+                span:
+                  lo: 2
+                  hi: 17
+              op: Negate
           span:
             lo: 1
             hi: 17
-      op: AbsWrapped
-      span:
-        lo: 1
-        hi: 32
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          op: AbsWrapped
+        op: AbsWrapped
+    span:
+      lo: 1
+      hi: 32
+  - kind:
+      Unary:
+        receiver:
+          kind:
+            Unary:
+              receiver:
+                kind:
+                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+                span:
+                  lo: 1
+                  hi: 2
+              op: AbsWrapped
           span:
             lo: 1
             hi: 16
-      op: Not
-      span:
-        lo: 0
-        hi: 16
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Not
+        op: Not
+    span:
+      lo: 0
+      hi: 16
+  - kind:
+      Unary:
+        receiver:
+          kind:
+            Unary:
+              receiver:
+                kind:
+                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                span:
+                  lo: 2
+                  hi: 3
+              op: Not
           span:
             lo: 1
             hi: 3
-      op: AbsWrapped
-      span:
-        lo: 1
-        hi: 18
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: AbsWrapped
+        op: AbsWrapped
+    span:
+      lo: 1
+      hi: 18
+  - kind:
+      Unary:
+        receiver:
+          kind:
+            Unary:
+              receiver:
+                kind:
+                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                span:
+                  lo: 2
+                  hi: 3
+              op: AbsWrapped
           span:
             lo: 2
             hi: 17
-      op: Not
-      span:
-        lo: 0
-        hi: 17
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
+        op: Not
+    span:
+      lo: 0
+      hi: 17
+  - kind:
+      Unary:
+        receiver:
+          kind:
             Unary:
               receiver:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              op: AbsWrapped
-              span:
-                lo: 2
-                hi: 17
-          op: Not
+                kind:
+                  Unary:
+                    receiver:
+                      kind:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                      span:
+                        lo: 2
+                        hi: 3
+                    op: AbsWrapped
+                span:
+                  lo: 2
+                  hi: 17
+              op: Not
           span:
             lo: 1
             hi: 17
-      op: AbsWrapped
-      span:
-        lo: 1
-        hi: 32
+        op: AbsWrapped
+    span:
+      lo: 1
+      hi: 32

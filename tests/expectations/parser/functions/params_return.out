@@ -29,12 +29,16 @@ outputs:
           statements:
             - Return:
                 expression:
-                  Literal:
-                    U8:
-                      - "0"
-                      - span:
-                          lo: 49
-                          hi: 52
+                  kind:
+                    Literal:
+                      U8:
+                        - "0"
+                        - span:
+                            lo: 49
+                            hi: 52
+                  span:
+                    lo: 49
+                    hi: 52
                 span:
                   lo: 42
                   hi: 52
