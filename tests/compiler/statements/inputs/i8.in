@@ -1,5 +1,2 @@
 [main]
 a: i8 = 1i8;
-
-[registers]
-r0: bool = true;
