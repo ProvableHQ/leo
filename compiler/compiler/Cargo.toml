@@ -51,7 +51,7 @@ rev = "84c3e20"
 features = ["circuit", "console", "parallel"]
 
 [dev-dependencies.serde]
-version = "1.0.140"
+version = "1.0.141"
 features = ["derive"]
 
 [dev-dependencies.serde_yaml]
