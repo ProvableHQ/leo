@@ -315,6 +315,30 @@
 <span id="310">310</span>
 <span id="311">311</span>
 <span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -354,9 +378,13 @@
     <span class="comment">// Symbols</span>
     <span class="ident">Not</span>,
     <span class="ident">And</span>,
+    <span class="ident">AndAssign</span>,
     <span class="ident">Or</span>,
-    <span class="ident">BitwiseAnd</span>,
-    <span class="ident">BitwiseOr</span>,
+    <span class="ident">OrAssign</span>,
+    <span class="ident">BitAnd</span>,
+    <span class="ident">BitAndAssign</span>,
+    <span class="ident">BitOr</span>,
+    <span class="ident">BitOrAssign</span>,
     <span class="ident">Eq</span>,
     <span class="ident">NotEq</span>,
     <span class="ident">Lt</span>,
@@ -364,10 +392,15 @@
     <span class="ident">Gt</span>,
     <span class="ident">GtEq</span>,
     <span class="ident">Add</span>,
-    <span class="ident">Minus</span>,
+    <span class="ident">AddAssign</span>,
+    <span class="ident">Sub</span>,
+    <span class="ident">SubAssign</span>,
     <span class="ident">Mul</span>,
+    <span class="ident">MulAssign</span>,
     <span class="ident">Div</span>,
-    <span class="ident">Exp</span>,
+    <span class="ident">DivAssign</span>,
+    <span class="ident">Pow</span>,
+    <span class="ident">PowAssign</span>,
     <span class="ident">Assign</span>,
     <span class="ident">LeftParen</span>,
     <span class="ident">RightParen</span>,
@@ -384,9 +417,12 @@
     <span class="ident">Question</span>,
     <span class="ident">Arrow</span>,
     <span class="ident">Shl</span>,
+    <span class="ident">ShlAssign</span>,
     <span class="ident">Shr</span>,
+    <span class="ident">ShrAssign</span>,
     <span class="ident">Underscore</span>,
-    <span class="ident">Xor</span>,
+    <span class="ident">BitXor</span>,
+    <span class="ident">BitXorAssign</span>,
 
     <span class="comment">// Syntactic Grammar</span>
     <span class="comment">// Types</span>
@@ -537,9 +573,13 @@
 
             <span class="ident">Not</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;!&quot;</span>),
             <span class="ident">And</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&amp;&amp;&quot;</span>),
+            <span class="ident">AndAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&amp;&amp;=&quot;</span>),
             <span class="ident">Or</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;||&quot;</span>),
-            <span class="ident">BitwiseAnd</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&amp;&quot;</span>),
-            <span class="ident">BitwiseOr</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;|&quot;</span>),
+            <span class="ident">OrAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;||=&quot;</span>),
+            <span class="ident">BitAnd</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&amp;&quot;</span>),
+            <span class="ident">BitAndAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&amp;=&quot;</span>),
+            <span class="ident">BitOr</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;|&quot;</span>),
+            <span class="ident">BitOrAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;|=&quot;</span>),
             <span class="ident">Eq</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;==&quot;</span>),
             <span class="ident">NotEq</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;!=&quot;</span>),
             <span class="ident">Lt</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;&quot;</span>),
@@ -547,10 +587,15 @@
             <span class="ident">Gt</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&gt;&quot;</span>),
             <span class="ident">GtEq</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&gt;=&quot;</span>),
             <span class="ident">Add</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;+&quot;</span>),
-            <span class="ident">Minus</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;-&quot;</span>),
+            <span class="ident">AddAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;+=&quot;</span>),
+            <span class="ident">Sub</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;-&quot;</span>),
+            <span class="ident">SubAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;-=&quot;</span>),
             <span class="ident">Mul</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;*&quot;</span>),
+            <span class="ident">MulAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;*=&quot;</span>),
             <span class="ident">Div</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;/&quot;</span>),
-            <span class="ident">Exp</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;**&quot;</span>),
+            <span class="ident">DivAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;/=&quot;</span>),
+            <span class="ident">Pow</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;**&quot;</span>),
+            <span class="ident">PowAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;**=&quot;</span>),
             <span class="ident">Assign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;=&quot;</span>),
             <span class="ident">LeftParen</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;(&quot;</span>),
             <span class="ident">RightParen</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;)&quot;</span>),
@@ -567,9 +612,12 @@
             <span class="ident">Question</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;?&quot;</span>),
             <span class="ident">Arrow</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;-&gt;&quot;</span>),
             <span class="ident">Shl</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;&lt;&quot;</span>),
+            <span class="ident">ShlAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;&lt;=&quot;</span>),
             <span class="ident">Shr</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&gt;&gt;&quot;</span>),
+            <span class="ident">ShrAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&gt;&gt;=&quot;</span>),
             <span class="ident">Underscore</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;_&quot;</span>),
-            <span class="ident">Xor</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;^&quot;</span>),
+            <span class="ident">BitXor</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;^&quot;</span>),
+            <span class="ident">BitXorAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;^=&quot;</span>),
 
             <span class="ident">Address</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;address&quot;</span>),
             <span class="ident">Bool</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;bool&quot;</span>),

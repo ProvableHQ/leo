@@ -410,7 +410,7 @@
 
         <span class="comment">// Throw an error if the import file doesn&#39;t exist.</span>
         <span class="kw">if</span> <span class="op">!</span><span class="ident">import_file_path</span>.<span class="ident">exists</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::import_not_found</span>(<span class="ident">import_file_path</span>.<span class="ident">display</span>(), <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">span</span>).<span class="ident">into</span>());
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CompilerError::import_not_found</span>(<span class="ident">import_file_path</span>.<span class="ident">display</span>(), <span class="self">self</span>.<span class="ident">prev_token</span>.<span class="ident">span</span>).<span class="ident">into</span>());
         }
 
         <span class="comment">// Read the import file into string.</span>

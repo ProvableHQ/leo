@@ -273,9 +273,9 @@
     <span class="ident">BHP1024Commit</span>,
     <span class="ident">BHP1024Hash</span>,
 
-    <span class="ident">Pedersen64Commit</span>,
+    <span class="comment">// Pedersen64Commit,</span>
     <span class="ident">Pedersen64Hash</span>,
-    <span class="ident">Pedersen128Commit</span>,
+    <span class="comment">// Pedersen128Commit,</span>
     <span class="ident">Pedersen128Hash</span>,
 
     <span class="ident">Poseidon2Hash</span>,
@@ -296,9 +296,9 @@
             (<span class="ident">sym::BHP1024</span>, <span class="ident">sym::commit</span>) =&gt; <span class="ident"><span class="self">Self</span>::BHP1024Commit</span>,
             (<span class="ident">sym::BHP1024</span>, <span class="ident">sym::hash</span>) =&gt; <span class="ident"><span class="self">Self</span>::BHP1024Hash</span>,
 
-            (<span class="ident">sym::Pedersen64</span>, <span class="ident">sym::commit</span>) =&gt; <span class="ident"><span class="self">Self</span>::Pedersen64Commit</span>,
+            <span class="comment">// (sym::Pedersen64, sym::commit) =&gt; Self::Pedersen64Commit,</span>
             (<span class="ident">sym::Pedersen64</span>, <span class="ident">sym::hash</span>) =&gt; <span class="ident"><span class="self">Self</span>::Pedersen64Hash</span>,
-            (<span class="ident">sym::Pedersen128</span>, <span class="ident">sym::commit</span>) =&gt; <span class="ident"><span class="self">Self</span>::Pedersen128Commit</span>,
+            <span class="comment">// (sym::Pedersen128, sym::commit) =&gt; Self::Pedersen128Commit,</span>
             (<span class="ident">sym::Pedersen128</span>, <span class="ident">sym::hash</span>) =&gt; <span class="ident"><span class="self">Self</span>::Pedersen128Hash</span>,
 
             (<span class="ident">sym::Poseidon2</span>, <span class="ident">sym::hash</span>) =&gt; <span class="ident"><span class="self">Self</span>::Poseidon2Hash</span>,
@@ -320,9 +320,9 @@
             <span class="ident"><span class="self">Self</span>::BHP1024Commit</span> =&gt; <span class="ident">BHP1024Commit::NUM_ARGS</span>,
             <span class="ident"><span class="self">Self</span>::BHP1024Hash</span> =&gt; <span class="ident">BHP1024Hash::NUM_ARGS</span>,
 
-            <span class="ident"><span class="self">Self</span>::Pedersen64Commit</span> =&gt; <span class="ident">Pedersen64Commit::NUM_ARGS</span>,
+            <span class="comment">// Self::Pedersen64Commit =&gt; Pedersen64Commit::NUM_ARGS,</span>
             <span class="ident"><span class="self">Self</span>::Pedersen64Hash</span> =&gt; <span class="ident">Pedersen64Hash::NUM_ARGS</span>,
-            <span class="ident"><span class="self">Self</span>::Pedersen128Commit</span> =&gt; <span class="ident">Pedersen128Commit::NUM_ARGS</span>,
+            <span class="comment">// Self::Pedersen128Commit =&gt; Pedersen128Commit::NUM_ARGS,</span>
             <span class="ident"><span class="self">Self</span>::Pedersen128Hash</span> =&gt; <span class="ident">Pedersen128Hash::NUM_ARGS</span>,
 
             <span class="ident"><span class="self">Self</span>::Poseidon2Hash</span> =&gt; <span class="ident">Poseidon2Hash::NUM_ARGS</span>,
@@ -343,9 +343,9 @@
             <span class="ident"><span class="self">Self</span>::BHP1024Commit</span> =&gt; <span class="ident">BHP1024Commit::first_arg_types</span>(),
             <span class="ident"><span class="self">Self</span>::BHP1024Hash</span> =&gt; <span class="ident">BHP1024Hash::first_arg_types</span>(),
 
-            <span class="ident"><span class="self">Self</span>::Pedersen64Commit</span> =&gt; <span class="ident">Pedersen64Commit::first_arg_types</span>(),
+            <span class="comment">// Self::Pedersen64Commit =&gt; Pedersen64Commit::first_arg_types(),</span>
             <span class="ident"><span class="self">Self</span>::Pedersen64Hash</span> =&gt; <span class="ident">Pedersen64Hash::first_arg_types</span>(),
-            <span class="ident"><span class="self">Self</span>::Pedersen128Commit</span> =&gt; <span class="ident">Pedersen128Commit::first_arg_types</span>(),
+            <span class="comment">// Self::Pedersen128Commit =&gt; Pedersen128Commit::first_arg_types(),</span>
             <span class="ident"><span class="self">Self</span>::Pedersen128Hash</span> =&gt; <span class="ident">Pedersen128Hash::first_arg_types</span>(),
 
             <span class="ident"><span class="self">Self</span>::Poseidon2Hash</span> =&gt; <span class="ident">Poseidon2Hash::first_arg_types</span>(),
@@ -366,9 +366,9 @@
             <span class="ident"><span class="self">Self</span>::BHP1024Commit</span> =&gt; <span class="ident">BHP1024Commit::second_arg_types</span>(),
             <span class="ident"><span class="self">Self</span>::BHP1024Hash</span> =&gt; <span class="ident">BHP1024Hash::second_arg_types</span>(),
 
-            <span class="ident"><span class="self">Self</span>::Pedersen64Commit</span> =&gt; <span class="ident">Pedersen64Commit::second_arg_types</span>(),
+            <span class="comment">// Self::Pedersen64Commit =&gt; Pedersen64Commit::second_arg_types(),</span>
             <span class="ident"><span class="self">Self</span>::Pedersen64Hash</span> =&gt; <span class="ident">Pedersen64Hash::second_arg_types</span>(),
-            <span class="ident"><span class="self">Self</span>::Pedersen128Commit</span> =&gt; <span class="ident">Pedersen128Commit::second_arg_types</span>(),
+            <span class="comment">// Self::Pedersen128Commit =&gt; Pedersen128Commit::second_arg_types(),</span>
             <span class="ident"><span class="self">Self</span>::Pedersen128Hash</span> =&gt; <span class="ident">Pedersen128Hash::second_arg_types</span>(),
 
             <span class="ident"><span class="self">Self</span>::Poseidon2Hash</span> =&gt; <span class="ident">Poseidon2Hash::second_arg_types</span>(),
@@ -389,9 +389,9 @@
             <span class="ident"><span class="self">Self</span>::BHP1024Commit</span> =&gt; <span class="ident">BHP1024Commit::return_type</span>(),
             <span class="ident"><span class="self">Self</span>::BHP1024Hash</span> =&gt; <span class="ident">BHP1024Hash::return_type</span>(),
 
-            <span class="ident"><span class="self">Self</span>::Pedersen64Commit</span> =&gt; <span class="ident">Pedersen64Commit::return_type</span>(),
+            <span class="comment">// Self::Pedersen64Commit =&gt; Pedersen64Commit::return_type(),</span>
             <span class="ident"><span class="self">Self</span>::Pedersen64Hash</span> =&gt; <span class="ident">Pedersen64Hash::return_type</span>(),
-            <span class="ident"><span class="self">Self</span>::Pedersen128Commit</span> =&gt; <span class="ident">Pedersen128Commit::return_type</span>(),
+            <span class="comment">// Self::Pedersen128Commit =&gt; Pedersen128Commit::return_type(),</span>
             <span class="ident"><span class="self">Self</span>::Pedersen128Hash</span> =&gt; <span class="ident">Pedersen128Hash::return_type</span>(),
 
             <span class="ident"><span class="self">Self</span>::Poseidon2Hash</span> =&gt; <span class="ident">Poseidon2Hash::return_type</span>(),

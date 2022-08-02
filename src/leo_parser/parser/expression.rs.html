@@ -713,17 +713,17 @@
             <span class="ident">Token::Gt</span> =&gt; <span class="ident">BinaryOperation::Gt</span>,
             <span class="ident">Token::GtEq</span> =&gt; <span class="ident">BinaryOperation::Gte</span>,
             <span class="ident">Token::Add</span> =&gt; <span class="ident">BinaryOperation::Add</span>,
-            <span class="ident">Token::Minus</span> =&gt; <span class="ident">BinaryOperation::Sub</span>,
+            <span class="ident">Token::Sub</span> =&gt; <span class="ident">BinaryOperation::Sub</span>,
             <span class="ident">Token::Mul</span> =&gt; <span class="ident">BinaryOperation::Mul</span>,
             <span class="ident">Token::Div</span> =&gt; <span class="ident">BinaryOperation::Div</span>,
             <span class="ident">Token::Or</span> =&gt; <span class="ident">BinaryOperation::Or</span>,
             <span class="ident">Token::And</span> =&gt; <span class="ident">BinaryOperation::And</span>,
-            <span class="ident">Token::BitwiseOr</span> =&gt; <span class="ident">BinaryOperation::BitwiseOr</span>,
-            <span class="ident">Token::BitwiseAnd</span> =&gt; <span class="ident">BinaryOperation::BitwiseAnd</span>,
-            <span class="ident">Token::Exp</span> =&gt; <span class="ident">BinaryOperation::Pow</span>,
+            <span class="ident">Token::BitOr</span> =&gt; <span class="ident">BinaryOperation::BitwiseOr</span>,
+            <span class="ident">Token::BitAnd</span> =&gt; <span class="ident">BinaryOperation::BitwiseAnd</span>,
+            <span class="ident">Token::Pow</span> =&gt; <span class="ident">BinaryOperation::Pow</span>,
             <span class="ident">Token::Shl</span> =&gt; <span class="ident">BinaryOperation::Shl</span>,
             <span class="ident">Token::Shr</span> =&gt; <span class="ident">BinaryOperation::Shr</span>,
-            <span class="ident">Token::Xor</span> =&gt; <span class="ident">BinaryOperation::Xor</span>,
+            <span class="ident">Token::BitXor</span> =&gt; <span class="ident">BinaryOperation::Xor</span>,
             <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;`eat_bin_op` shouldn&#39;t produce this&quot;</span>),
         })
     }
@@ -759,7 +759,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_bitwise_inclusive_or_expression`].</span>
     <span class="kw">fn</span> <span class="ident">parse_bitwise_exclusive_or_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parse_bin_expr</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Xor</span>], <span class="ident"><span class="self">Self</span>::parse_bitwise_inclusive_or_expression</span>)
+        <span class="self">self</span>.<span class="ident">parse_bin_expr</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::BitXor</span>], <span class="ident"><span class="self">Self</span>::parse_bitwise_inclusive_or_expression</span>)
     }
 
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
@@ -767,7 +767,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_bitwise_and_expression`].</span>
     <span class="kw">fn</span> <span class="ident">parse_bitwise_inclusive_or_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parse_bin_expr</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::BitwiseOr</span>], <span class="ident"><span class="self">Self</span>::parse_bitwise_and_expression</span>)
+        <span class="self">self</span>.<span class="ident">parse_bin_expr</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::BitOr</span>], <span class="ident"><span class="self">Self</span>::parse_bitwise_and_expression</span>)
     }
 
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
@@ -775,7 +775,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_shift_expression`].</span>
     <span class="kw">fn</span> <span class="ident">parse_bitwise_and_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parse_bin_expr</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::BitwiseAnd</span>], <span class="ident"><span class="self">Self</span>::parse_shift_expression</span>)
+        <span class="self">self</span>.<span class="ident">parse_bin_expr</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::BitAnd</span>], <span class="ident"><span class="self">Self</span>::parse_shift_expression</span>)
     }
 
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
@@ -791,7 +791,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_mul_div_pow_expression`].</span>
     <span class="kw">fn</span> <span class="ident">parse_additive_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parse_bin_expr</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Add</span>, <span class="ident">Token::Minus</span>], <span class="ident"><span class="self">Self</span>::parse_multiplicative_expression</span>)
+        <span class="self">self</span>.<span class="ident">parse_bin_expr</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Add</span>, <span class="ident">Token::Sub</span>], <span class="ident"><span class="self">Self</span>::parse_multiplicative_expression</span>)
     }
 
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
@@ -809,7 +809,7 @@
     <span class="kw">fn</span> <span class="ident">parse_exponential_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_unary_expression</span>()<span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">op</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_bin_op</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Exp</span>]) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">op</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_bin_op</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Pow</span>]) {
             <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_exponential_expression</span>()<span class="question-mark">?</span>;
             <span class="ident">expr</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::bin_expr</span>(<span class="ident">expr</span>, <span class="ident">right</span>, <span class="ident">op</span>);
         }
@@ -823,10 +823,10 @@
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_postfix_expression`].</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_unary_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ops</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">while</span> <span class="self">self</span>.<span class="ident">eat_any</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Not</span>, <span class="ident">Token::Minus</span>]) {
+        <span class="kw">while</span> <span class="self">self</span>.<span class="ident">eat_any</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Not</span>, <span class="ident">Token::Sub</span>]) {
             <span class="kw">let</span> <span class="ident">operation</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">prev_token</span>.<span class="ident">token</span> {
                 <span class="ident">Token::Not</span> =&gt; <span class="ident">UnaryOperation::Not</span>,
-                <span class="ident">Token::Minus</span> =&gt; <span class="ident">UnaryOperation::Negate</span>,
+                <span class="ident">Token::Sub</span> =&gt; <span class="ident">UnaryOperation::Negate</span>,
                 <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;parse_unary_expression_ shouldn&#39;t produce this&quot;</span>),
             };
             <span class="ident">ops</span>.<span class="ident">push</span>((<span class="ident">operation</span>, <span class="self">self</span>.<span class="ident">prev_token</span>.<span class="ident">span</span>));
@@ -987,7 +987,7 @@
     <span class="kw">fn</span> <span class="ident">peek_group_coordinate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dist</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GroupCoordinate</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">advanced</span>, <span class="ident">gc</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">look_ahead</span>(<span class="kw-2">*</span><span class="ident">dist</span>, <span class="op">|</span><span class="ident">t0</span><span class="op">|</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">t0</span>.<span class="ident">token</span> {
             <span class="ident">Token::Add</span> =&gt; <span class="prelude-val">Some</span>((<span class="number">1</span>, <span class="ident">GroupCoordinate::SignHigh</span>)),
-            <span class="ident">Token::Minus</span> =&gt; <span class="self">self</span>.<span class="ident">look_ahead</span>(<span class="kw-2">*</span><span class="ident">dist</span> <span class="op">+</span> <span class="number">1</span>, <span class="op">|</span><span class="ident">t1</span><span class="op">|</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">t1</span>.<span class="ident">token</span> {
+            <span class="ident">Token::Sub</span> =&gt; <span class="self">self</span>.<span class="ident">look_ahead</span>(<span class="kw-2">*</span><span class="ident">dist</span> <span class="op">+</span> <span class="number">1</span>, <span class="op">|</span><span class="ident">t1</span><span class="op">|</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">t1</span>.<span class="ident">token</span> {
                 <span class="ident">Token::Integer</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Some</span>((<span class="number">2</span>, <span class="ident">GroupCoordinate::Number</span>(<span class="macro">format!</span>(<span class="string">&quot;-{}&quot;</span>, <span class="ident">value</span>), <span class="ident">t1</span>.<span class="ident">span</span>))),
                 <span class="kw">_</span> =&gt; <span class="prelude-val">Some</span>((<span class="number">1</span>, <span class="ident">GroupCoordinate::SignLow</span>)),
             }),

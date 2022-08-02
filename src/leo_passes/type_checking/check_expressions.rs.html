@@ -1272,8 +1272,8 @@
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">receiver</span>, <span class="ident">destination</span>)
             }
             <span class="ident">UnaryOperation::SquareRoot</span> =&gt; {
-                <span class="comment">// Only field or scalar type.</span>
-                <span class="self">self</span>.<span class="ident">assert_field_scalar_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+                <span class="comment">// Only field type.</span>
+                <span class="self">self</span>.<span class="ident">assert_field_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">receiver</span>, <span class="ident">destination</span>)
             }
         }
