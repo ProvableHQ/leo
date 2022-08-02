@@ -189,7 +189,7 @@ symbol = "!" / "&&" / "||"
        / "<" / "<=" / ">" / ">="
        / "&" / "|" / "^"
        / "<<" / ">>"
-       / "+" / "-" / "*" / "/" / "**"
+       / "+" / "-" / "*" / "/" / "%" / "**"
        / "="
        / "(" / ")"
        / "[" / "]"
@@ -301,6 +301,7 @@ exponential-expression = unary-expression
 multiplicative-expression = exponential-expression
                           / multiplicative-expression "*" exponential-expression
                           / multiplicative-expression "/" exponential-expression
+                          / multiplicative-expression "%" exponential-expression
 
 additive-expression = multiplicative-expression
                     / additive-expression "+" multiplicative-expression
