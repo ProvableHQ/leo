@@ -75,7 +75,7 @@ outputs:
             value:
               Literal:
                 Address:
-                  - aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8
+                  - aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx
                   - span:
                       lo: 200
                       hi: 263
@@ -176,7 +176,7 @@ outputs:
             value:
               Literal:
                 Address:
-                  - aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8
+                  - aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx
                   - span:
                       lo: 463
                       hi: 526
