@@ -1,0 +1,5 @@
+// The program input for interest2/src/main.leo
+[main]
+capital: u32 = 80u32;
+rate: u32 = 5u32; // 5%
+periods: u8 = 10u8;
