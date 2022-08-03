@@ -1,5 +1,0 @@
----
-namespace: Parse
-expectation: Fail
-outputs:
-  - "Error [EPAR0370014]: Expected a closed string but found ``."

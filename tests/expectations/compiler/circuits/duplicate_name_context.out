@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EAST0372009]: circuit `Bar` shadowed by\n    --> compiler-test:8:5\n     |\n   8 |     const Bar: u32 = 66u32;\n     |     ^^^^^^^^^^^^^^^^^^^^^^\n"

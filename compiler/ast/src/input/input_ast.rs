@@ -58,16 +58,9 @@ impl InputAst {
                             Some(circuit) => match circuit.is_record {
                                 false => definition.value.to_string(),
                                 true => match &definition.value {
+                                    // Print out the record interface with visibility.
                                     Expression::Circuit(circuit_expression) => {
-                                        format!(
-                                            "{{{}}}",
-                                            circuit_expression
-                                                .members
-                                                .iter()
-                                                .map(|x| format!("{}.private", x))
-                                                .collect::<Vec<_>>()
-                                                .join(", ")
-                                        )
+                                        circuit_expression.to_record_string()
                                     }
                                     _ => panic!("Input error: Expected a circuit expression."),
                                 },
