@@ -55,6 +55,8 @@ const INT_TYPES: [Type; 10] = [
 
 const SIGNED_INT_TYPES: [Type; 5] = [Type::I8, Type::I16, Type::I32, Type::I64, Type::I128];
 
+const UNSIGNED_INT_TYPES: [Type; 5] = [Type::U8, Type::U16, Type::U32, Type::U64, Type::U128];
+
 const MAGNITUDE_TYPES: [Type; 3] = [Type::U8, Type::U16, Type::U32];
 
 impl<'a> TypeChecker<'a> {
@@ -171,6 +173,16 @@ impl<'a> TypeChecker<'a> {
         self.check_type(
             |type_: &Type| SIGNED_INT_TYPES.contains(type_),
             types_to_string(&SIGNED_INT_TYPES),
+            type_,
+            span,
+        )
+    }
+
+    /// Emits an error to the handler if the given type is not an unsigned integer.
+    pub(crate) fn assert_unsigned_int_type(&self, type_: &Option<Type>, span: Span) {
+        self.check_type(
+            |type_: &Type| UNSIGNED_INT_TYPES.contains(type_),
+            types_to_string(&UNSIGNED_INT_TYPES),
             type_,
             span,
         )

@@ -398,6 +398,24 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
                 return_incorrect_type(t1, t2, destination)
             }
+            BinaryOperation::Rem | BinaryOperation::RemWrapped => {
+                // Only integer types.
+                self.assert_int_type(destination, input.span());
+
+                let t1 = self.visit_expression(&input.left, destination);
+                let t2 = self.visit_expression(&input.right, destination);
+
+                return_incorrect_type(t1, t2, destination)
+            }
+            BinaryOperation::Mod => {
+                // Only unsigned integer types.
+                self.assert_unsigned_int_type(destination, input.span());
+
+                let t1 = self.visit_expression(&input.left, destination);
+                let t2 = self.visit_expression(&input.right, destination);
+
+                return_incorrect_type(t1, t2, destination)
+            }
             BinaryOperation::Pow => {
                 // Operation returns field or integer types.
                 self.assert_field_int_type(destination, input.span());
