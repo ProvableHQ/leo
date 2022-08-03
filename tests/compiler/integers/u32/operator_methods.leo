@@ -48,6 +48,9 @@ function main(a: u32, b: u32) -> bool {
     let ap: u32 = a.shr_wrapped(2u16);
     let aq: u32 = a.shr_wrapped(b);
     let ar: u32 = a.xor(b);
+    let as: u32 = a.mod(b);
+    let at: u32 = a.rem(b);
+    let au: u32 = a.rem_wrapped(b);
 
     return a == b;
 }
