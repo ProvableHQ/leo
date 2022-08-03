@@ -228,9 +228,6 @@
 <span id="223">223</span>
 <span id="224">224</span>
 <span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -259,19 +256,12 @@
 <span class="kw">use</span> <span class="ident">indexmap::IndexSet</span>;
 
 <span class="kw">impl</span> <span class="ident">StatementReconstructor</span> <span class="kw">for</span> <span class="ident">StaticSingleAssigner</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Transforms a `ReturnStatement` into an `AssignStatement`,</span>
-    <span class="doccomment">/// storing the variable and the associated guard in `self.early_returns`.</span>
+    <span class="doccomment">/// Transforms a `ReturnStatement` into an empty `BlockStatement`,</span>
+    <span class="doccomment">/// storing the expression and the associated guard in `self.early_returns`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that this pass assumes that there is at most one `ReturnStatement` in a block.</span>
+    <span class="doccomment">/// Note that type checking guarantees that there is at most one `ReturnStatement` in a block.</span>
     <span class="kw">fn</span> <span class="ident">reconstruct_return</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ReturnStatement</span>) -&gt; <span class="ident">Statement</span> {
-        <span class="comment">// Create a fresh name for the expression in the return statement.</span>
-        <span class="kw">let</span> <span class="ident">symbol</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">unique_symbol</span>(<span class="string">&quot;$return&quot;</span>);
-        <span class="self">self</span>.<span class="ident">rename_table</span>.<span class="ident">update</span>(<span class="ident">symbol</span>, <span class="ident">symbol</span>);
-
-        <span class="comment">// Initialize a new `AssignStatement` for the return expression.</span>
-        <span class="kw">let</span> <span class="ident">place</span> <span class="op">=</span> <span class="ident">Expression::Identifier</span>(<span class="ident">Identifier::new</span>(<span class="ident">symbol</span>));
-
-        <span class="comment">// Add the variable and associated guard.</span>
+        <span class="comment">// Construct the associated guard.</span>
         <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">condition_stack</span>.<span class="ident">is_empty</span>() {
             <span class="bool-val">true</span> =&gt; <span class="prelude-val">None</span>,
             <span class="bool-val">false</span> =&gt; {
@@ -286,9 +276,13 @@
                 }))
             }
         };
-        <span class="self">self</span>.<span class="ident">early_returns</span>.<span class="ident">push</span>((<span class="ident">guard</span>, <span class="ident">place</span>.<span class="ident">clone</span>()));
 
-        <span class="ident"><span class="self">Self</span>::simple_assign_statement</span>(<span class="ident">place</span>, <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">expression</span>).<span class="number">0</span>)
+        <span class="comment">// Reconstruct the expression and add it to the early returns.</span>
+        <span class="kw">let</span> <span class="ident">expression</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">expression</span>).<span class="number">0</span>;
+        <span class="self">self</span>.<span class="ident">early_returns</span>.<span class="ident">push</span>((<span class="ident">guard</span>, <span class="ident">expression</span>));
+
+        <span class="comment">// Return an empty block.</span>
+        <span class="ident">Statement::dummy</span>(<span class="ident">input</span>.<span class="ident">span</span>)
     }
 
     <span class="doccomment">/// Reconstructs the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.</span>
