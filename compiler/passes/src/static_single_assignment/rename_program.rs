@@ -49,14 +49,15 @@ impl ProgramReconstructor for StaticSingleAssigner<'_> {
         // Type checking guarantees that there exists at least one return statement in the function body.
         let (_, last_return_expression) = returns.pop().unwrap();
 
-        // TODO: Document handling tuples
         // Fold all return expressions into a single ternary expression.
         let expression = returns
             .into_iter()
             .rev()
             .fold(last_return_expression, |acc, (guard, expr)| match guard {
                 None => unreachable!("All return statements except for the last one must have a guard."),
+                // Note that type checking guarantees that all expressions in return statements in the function body have the same type.
                 Some(guard) => match (acc, expr) {
+                    // If the function returns tuples, fold the return expressions into a tuple of ternary expressions.
                     (Expression::Tuple(acc_tuple), Expression::Tuple(expr_tuple)) => {
                         Expression::Tuple(TupleExpression {
                             elements: acc_tuple
@@ -75,6 +76,7 @@ impl ProgramReconstructor for StaticSingleAssigner<'_> {
                             span: Default::default(),
                         })
                     }
+                    // Otherwise, fold the return expressions into a single ternary expression.
                     (acc, expr) => Expression::Ternary(TernaryExpression {
                         condition: Box::new(guard),
                         if_true: Box::new(acc),
