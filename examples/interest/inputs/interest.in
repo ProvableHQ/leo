@@ -1,0 +1,4 @@
+// The program input for interest/src/main.leo
+[main]
+capital: u32 = 80u32;
+rate: u32 = 5u32; // 5%
