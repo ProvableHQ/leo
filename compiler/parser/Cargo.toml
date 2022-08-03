@@ -30,9 +30,10 @@ version = "1.5.3"
 path = "../span"
 version = "1.5.3"
 
-[dependencies.snarkvm-dpc]
+[dependencies.snarkvm-console]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "85b7a79"
+rev = "4576d44"
+features = ["account", "network"]
 
 [dependencies.clap]
 version = "3.2"
