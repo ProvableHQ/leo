@@ -1,86 +1,85 @@
----
 namespace: Parse
 expectation: Pass
 outputs:
-  - name: ""
-    network: ""
-    expected_input: []
-    imports: {}
-    functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
-        input:
-          - Variable:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-              mode: Private
-              type_: U32
-              span:
-                lo: 13
-                hi: 14
-          - Variable:
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":28,\\\"hi\\\":29}\"}"
-              mode: Public
-              type_: I32
-              span:
-                lo: 28
-                hi: 29
-        output: U8
-        core_mapping: ~
-        block:
-          statements:
-            - Return:
-                expression:
-                  Literal:
-                    U8:
-                      - "0"
-                      - span:
-                          lo: 55
-                          hi: 58
-                span:
-                  lo: 48
-                  hi: 58
+- name: ''
+  network: ''
+  expected_input: []
+  imports: {}
+  functions:
+    '{"name":"x","span":"{\"lo\":11,\"hi\":12}"}':
+      identifier: '{"name":"x","span":"{\"lo\":11,\"hi\":12}"}'
+      input:
+      - '!Variable':
+          identifier: '{"name":"x","span":"{\"lo\":13,\"hi\":14}"}'
+          mode: Private
+          type_: U32
           span:
-            lo: 42
-            hi: 61
+            lo: 13
+            hi: 14
+      - '!Variable':
+          identifier: '{"name":"y","span":"{\"lo\":28,\"hi\":29}"}'
+          mode: Public
+          type_: I32
+          span:
+            lo: 28
+            hi: 29
+      output: U8
+      core_mapping: null
+      block:
+        statements:
+        - '!Return':
+            expression:
+              '!Literal':
+                '!U8':
+                - '0'
+                - span:
+                    lo: 55
+                    hi: 58
+            span:
+              lo: 48
+              hi: 58
         span:
-          lo: 2
+          lo: 42
           hi: 61
-      "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":72,\\\"hi\\\":73}\"}":
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":72,\\\"hi\\\":73}\"}"
-        input:
-          - Variable:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":81,\\\"hi\\\":82}\"}"
-              mode: Public
-              type_: U32
-              span:
-                lo: 81
-                hi: 82
-          - Variable:
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":90}\"}"
-              mode: Private
-              type_: I32
-              span:
-                lo: 89
-                hi: 90
-        output: U8
-        core_mapping: ~
-        block:
-          statements:
-            - Return:
-                expression:
-                  Literal:
-                    U8:
-                      - "0"
-                      - span:
-                          lo: 116
-                          hi: 119
-                span:
-                  lo: 109
-                  hi: 119
+      span:
+        lo: 2
+        hi: 61
+    '{"name":"x","span":"{\"lo\":72,\"hi\":73}"}':
+      identifier: '{"name":"x","span":"{\"lo\":72,\"hi\":73}"}'
+      input:
+      - '!Variable':
+          identifier: '{"name":"x","span":"{\"lo\":81,\"hi\":82}"}'
+          mode: Public
+          type_: U32
           span:
-            lo: 103
-            hi: 122
+            lo: 81
+            hi: 82
+      - '!Variable':
+          identifier: '{"name":"y","span":"{\"lo\":89,\"hi\":90}"}'
+          mode: Private
+          type_: I32
+          span:
+            lo: 89
+            hi: 90
+      output: U8
+      core_mapping: null
+      block:
+        statements:
+        - '!Return':
+            expression:
+              '!Literal':
+                '!U8':
+                - '0'
+                - span:
+                    lo: 116
+                    hi: 119
+            span:
+              lo: 109
+              hi: 119
         span:
-          lo: 63
+          lo: 103
           hi: 122
-    circuits: {}
+      span:
+        lo: 63
+        hi: 122
+  circuits: {}

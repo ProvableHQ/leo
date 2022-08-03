@@ -1,48 +1,47 @@
----
 namespace: Parse
 expectation: Pass
 outputs:
-  - name: ""
-    network: ""
-    expected_input: []
-    imports: {}
-    functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
-        input:
-          - Variable:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-              mode: Private
-              type_: U32
-              span:
-                lo: 13
-                hi: 14
-          - Variable:
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":21,\\\"hi\\\":22}\"}"
-              mode: Private
-              type_: I32
-              span:
-                lo: 21
-                hi: 22
-        output: U8
-        core_mapping: ~
-        block:
-          statements:
-            - Return:
-                expression:
-                  Literal:
-                    U8:
-                      - "0"
-                      - span:
-                          lo: 48
-                          hi: 51
-                span:
-                  lo: 41
-                  hi: 51
+- name: ''
+  network: ''
+  expected_input: []
+  imports: {}
+  functions:
+    '{"name":"x","span":"{\"lo\":11,\"hi\":12}"}':
+      identifier: '{"name":"x","span":"{\"lo\":11,\"hi\":12}"}'
+      input:
+      - '!Variable':
+          identifier: '{"name":"x","span":"{\"lo\":13,\"hi\":14}"}'
+          mode: Private
+          type_: U32
           span:
-            lo: 35
-            hi: 54
+            lo: 13
+            hi: 14
+      - '!Variable':
+          identifier: '{"name":"y","span":"{\"lo\":21,\"hi\":22}"}'
+          mode: Private
+          type_: I32
+          span:
+            lo: 21
+            hi: 22
+      output: U8
+      core_mapping: null
+      block:
+        statements:
+        - '!Return':
+            expression:
+              '!Literal':
+                '!U8':
+                - '0'
+                - span:
+                    lo: 48
+                    hi: 51
+            span:
+              lo: 41
+              hi: 51
         span:
-          lo: 2
+          lo: 35
           hi: 54
-    circuits: {}
+      span:
+        lo: 2
+        hi: 54
+  circuits: {}

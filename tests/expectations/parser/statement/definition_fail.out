@@ -1,47 +1,256 @@
----
 namespace: ParseStatement
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:9\n     |\n   1 | let mut x = expr;\n     |         ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:9\n     |\n   1 | let mut x = ();\n     |         ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:9\n     |\n   1 | let mut x = x+y;\n     |         ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:9\n     |\n   1 | let mut x = (x,y);\n     |         ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:9\n     |\n   1 | let mut x = x();\n     |         ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:11\n     |\n   1 | const mut x = expr;\n     |           ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:11\n     |\n   1 | const mut x = ();\n     |           ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:11\n     |\n   1 | const mut x = x+y;\n     |           ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:11\n     |\n   1 | const mut x = (x,y);\n     |           ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:11\n     |\n   1 | const mut x = x();\n     |           ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:9\n     |\n   1 | let mut x: u32 = expr;\n     |         ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:9\n     |\n   1 | let mut x: u32 = ();\n     |         ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:9\n     |\n   1 | let mut x: u32 = x+y;\n     |         ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:9\n     |\n   1 | let mut x: u32 = (x,y);\n     |         ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:9\n     |\n   1 | let mut x: u32 = x();\n     |         ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:11\n     |\n   1 | const mut x: u32 = expr;\n     |           ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:11\n     |\n   1 | const mut x: u32 = ();\n     |           ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:11\n     |\n   1 | const mut x: u32 = x+y;\n     |           ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:11\n     |\n   1 | const mut x: u32 = (x,y);\n     |           ^"
-  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:1:11\n     |\n   1 | const mut x: u32 = x();\n     |           ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '('\n    --> test:1:5\n     |\n   1 | let (x,y,,) = ();\n     |     ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '('\n    --> test:1:5\n     |\n   1 | let (,x,y) = ();\n     |     ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '('\n    --> test:1:5\n     |\n   1 | let (x,,y) = ();\n     |     ^"
-  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '['\n    --> test:1:8\n     |\n   1 | let x: [u8; (2,,)] = [[0,0], [0,0]];\n     |        ^"
-  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found 'const'\n    --> test:1:8\n     |\n   1 | let x: const = expr;\n     |        ^^^^^"
-  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found 'let'\n    --> test:1:10\n     |\n   1 | const x: let = expr;\n     |          ^^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '<eof>'\n    --> test:1:1\n     |\n   1 | let\n     | ^^^"
-  - "Error [EPAR0370005]: expected : -- found '<eof>'\n    --> test:1:5\n     |\n   1 | let x\n     |     ^"
-  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '<eof>'\n    --> test:1:6\n     |\n   1 | let x:\n     |      ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = (a, y]);\n     |       ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '='\n    --> test:1:5\n     |\n   1 | let = 1u8;\n     |     ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found ';'\n    --> test:1:4\n     |\n   1 | let;\n     |    ^"
-  - "Error [EPAR0370005]: expected : -- found '1'\n    --> test:1:7\n     |\n   1 | let x 1u8;\n     |       ^"
-  - "Error [EPAR0370005]: expected = -- found ';'\n    --> test:1:10\n     |\n   1 | let x: u8;\n     |          ^"
-  - "Error [EPAR0370005]: expected = -- found '<eof>'\n    --> test:1:8\n     |\n   1 | let x: u8\n     |        ^^"
-  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '='\n    --> test:1:8\n     |\n   1 | let x: = 1;\n     |        ^"
-  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '['\n    --> test:1:8\n     |\n   1 | let x: [u8] = 1;\n     |        ^"
-  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '['\n    --> test:1:8\n     |\n   1 | let x: [u8;\n     |        ^"
-  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '['\n    --> test:1:8\n     |\n   1 | let x: [u8; 1u8] = [1,\n     |        ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found ']'\n    --> test:1:15\n     |\n   1 | let dbg: u8 = ];\n     |               ^"
-  - "Error [EPAR0370017]: Could not lex the following content: `🦀:`.\n"
-  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '('\n    --> test:1:5\n     |\n   1 | let (x) = ...;\n     |     ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '('\n    --> test:1:5\n     |\n   1 | let (x,) = ...;\n     |     ^"
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:9
+       |
+     1 | let mut x = expr;
+       |         ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:9
+       |
+     1 | let mut x = ();
+       |         ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:9
+       |
+     1 | let mut x = x+y;
+       |         ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:9
+       |
+     1 | let mut x = (x,y);
+       |         ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:9
+       |
+     1 | let mut x = x();
+       |         ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:11
+       |
+     1 | const mut x = expr;
+       |           ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:11
+       |
+     1 | const mut x = ();
+       |           ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:11
+       |
+     1 | const mut x = x+y;
+       |           ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:11
+       |
+     1 | const mut x = (x,y);
+       |           ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:11
+       |
+     1 | const mut x = x();
+       |           ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:9
+       |
+     1 | let mut x: u32 = expr;
+       |         ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:9
+       |
+     1 | let mut x: u32 = ();
+       |         ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:9
+       |
+     1 | let mut x: u32 = x+y;
+       |         ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:9
+       |
+     1 | let mut x: u32 = (x,y);
+       |         ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:9
+       |
+     1 | let mut x: u32 = x();
+       |         ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:11
+       |
+     1 | const mut x: u32 = expr;
+       |           ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:11
+       |
+     1 | const mut x: u32 = ();
+       |           ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:11
+       |
+     1 | const mut x: u32 = x+y;
+       |           ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:11
+       |
+     1 | const mut x: u32 = (x,y);
+       |           ^
+- |-
+  Error [EPAR0370005]: expected : -- found 'x'
+      --> test:1:11
+       |
+     1 | const mut x: u32 = x();
+       |           ^
+- |-
+  Error [EPAR0370009]: unexpected string: expected 'identifier', found '('
+      --> test:1:5
+       |
+     1 | let (x,y,,) = ();
+       |     ^
+- |-
+  Error [EPAR0370009]: unexpected string: expected 'identifier', found '('
+      --> test:1:5
+       |
+     1 | let (,x,y) = ();
+       |     ^
+- |-
+  Error [EPAR0370009]: unexpected string: expected 'identifier', found '('
+      --> test:1:5
+       |
+     1 | let (x,,y) = ();
+       |     ^
+- |-
+  Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '['
+      --> test:1:8
+       |
+     1 | let x: [u8; (2,,)] = [[0,0], [0,0]];
+       |        ^
+- |-
+  Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found 'const'
+      --> test:1:8
+       |
+     1 | let x: const = expr;
+       |        ^^^^^
+- |-
+  Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found 'let'
+      --> test:1:10
+       |
+     1 | const x: let = expr;
+       |          ^^^
+- |-
+  Error [EPAR0370009]: unexpected string: expected 'identifier', found '<eof>'
+      --> test:1:1
+       |
+     1 | let
+       | ^^^
+- |-
+  Error [EPAR0370005]: expected : -- found '<eof>'
+      --> test:1:5
+       |
+     1 | let x
+       |     ^
+- |-
+  Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '<eof>'
+      --> test:1:6
+       |
+     1 | let x:
+       |      ^
+- |-
+  Error [EPAR0370005]: expected : -- found '='
+      --> test:1:7
+       |
+     1 | let x = (a, y]);
+       |       ^
+- |-
+  Error [EPAR0370009]: unexpected string: expected 'identifier', found '='
+      --> test:1:5
+       |
+     1 | let = 1u8;
+       |     ^
+- |-
+  Error [EPAR0370009]: unexpected string: expected 'identifier', found ';'
+      --> test:1:4
+       |
+     1 | let;
+       |    ^
+- |-
+  Error [EPAR0370005]: expected : -- found '1'
+      --> test:1:7
+       |
+     1 | let x 1u8;
+       |       ^
+- |-
+  Error [EPAR0370005]: expected = -- found ';'
+      --> test:1:10
+       |
+     1 | let x: u8;
+       |          ^
+- |-
+  Error [EPAR0370005]: expected = -- found '<eof>'
+      --> test:1:8
+       |
+     1 | let x: u8
+       |        ^^
+- |-
+  Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '='
+      --> test:1:8
+       |
+     1 | let x: = 1;
+       |        ^
+- |-
+  Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '['
+      --> test:1:8
+       |
+     1 | let x: [u8] = 1;
+       |        ^
+- |-
+  Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '['
+      --> test:1:8
+       |
+     1 | let x: [u8;
+       |        ^
+- |-
+  Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '['
+      --> test:1:8
+       |
+     1 | let x: [u8; 1u8] = [1,
+       |        ^
+- |-
+  Error [EPAR0370009]: unexpected string: expected 'expression', found ']'
+      --> test:1:15
+       |
+     1 | let dbg: u8 = ];
+       |               ^
+- "Error [EPAR0370017]: Could not lex the following content: `\U0001F980:`.\n"
+- |-
+  Error [EPAR0370009]: unexpected string: expected 'identifier', found '('
+      --> test:1:5
+       |
+     1 | let (x) = ...;
+       |     ^
+- |-
+  Error [EPAR0370009]: unexpected string: expected 'identifier', found '('
+      --> test:1:5
+       |
+     1 | let (x,) = ...;
+       |     ^

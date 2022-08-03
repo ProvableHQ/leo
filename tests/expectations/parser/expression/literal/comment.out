@@ -1,10 +1,9 @@
----
 namespace: Parse
 expectation: Pass
 outputs:
-  - name: ""
-    network: ""
-    expected_input: []
-    imports: {}
-    functions: {}
-    circuits: {}
+- name: ''
+  network: ''
+  expected_input: []
+  imports: {}
+  functions: {}
+  circuits: {}

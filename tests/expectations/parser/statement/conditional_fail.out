@@ -1,5 +1,9 @@
----
 namespace: ParseStatement
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:23\n     |\n   1 | if true {} else let x = 2;\n     |                       ^"
+- |-
+  Error [EPAR0370005]: expected : -- found '='
+      --> test:1:23
+       |
+     1 | if true {} else let x = 2;
+       |                       ^

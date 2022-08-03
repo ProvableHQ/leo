@@ -1,164 +1,163 @@
----
 namespace: ParseExpression
 expectation: Pass
 outputs:
-  - Binary:
-      left:
-        Literal:
-          Boolean:
+- '!Binary':
+    left:
+      '!Literal':
+        '!Boolean':
+        - true
+        - span:
+            lo: 0
+            hi: 4
+    right:
+      '!Literal':
+        '!Boolean':
+        - true
+        - span:
+            lo: 8
+            hi: 12
+    op: Or
+    span:
+      lo: 0
+      hi: 12
+- '!Binary':
+    left:
+      '!Literal':
+        '!Boolean':
+        - false
+        - span:
+            lo: 0
+            hi: 5
+    right:
+      '!Literal':
+        '!Boolean':
+        - true
+        - span:
+            lo: 7
+            hi: 11
+    op: Or
+    span:
+      lo: 0
+      hi: 11
+- '!Binary':
+    left:
+      '!Binary':
+        left:
+          '!Literal':
+            '!Boolean':
             - true
             - span:
                 lo: 0
                 hi: 4
-      right:
-        Literal:
-          Boolean:
-            - true
-            - span:
-                lo: 8
-                hi: 12
-      op: Or
-      span:
-        lo: 0
-        hi: 12
-  - Binary:
-      left:
-        Literal:
-          Boolean:
+        right:
+          '!Literal':
+            '!Boolean':
             - false
             - span:
-                lo: 0
-                hi: 5
-      right:
-        Literal:
-          Boolean:
-            - true
-            - span:
-                lo: 7
+                lo: 6
                 hi: 11
-      op: Or
-      span:
-        lo: 0
-        hi: 11
-  - Binary:
-      left:
-        Binary:
-          left:
-            Literal:
-              Boolean:
+        op: Or
+        span:
+          lo: 0
+          hi: 11
+    right:
+      '!Literal':
+        '!Boolean':
+        - false
+        - span:
+            lo: 15
+            hi: 20
+    op: Or
+    span:
+      lo: 0
+      hi: 20
+- '!Binary':
+    left:
+      '!Binary':
+        left:
+          '!Binary':
+            left:
+              '!Literal':
+                '!Boolean':
                 - true
                 - span:
                     lo: 0
                     hi: 4
-          right:
-            Literal:
-              Boolean:
+            right:
+              '!Literal':
+                '!Boolean':
                 - false
                 - span:
-                    lo: 6
-                    hi: 11
-          op: Or
-          span:
-            lo: 0
-            hi: 11
-      right:
-        Literal:
-          Boolean:
-            - false
-            - span:
-                lo: 15
-                hi: 20
-      op: Or
-      span:
-        lo: 0
-        hi: 20
-  - Binary:
-      left:
-        Binary:
-          left:
-            Binary:
-              left:
-                Literal:
-                  Boolean:
-                    - true
-                    - span:
-                        lo: 0
-                        hi: 4
-              right:
-                Literal:
-                  Boolean:
-                    - false
-                    - span:
-                        lo: 8
-                        hi: 13
-              op: Or
-              span:
-                lo: 0
-                hi: 13
-          right:
-            Literal:
-              Boolean:
-                - true
-                - span:
-                    lo: 17
-                    hi: 21
-          op: Or
-          span:
-            lo: 0
-            hi: 21
-      right:
-        Literal:
-          Boolean:
-            - false
-            - span:
-                lo: 25
-                hi: 30
-      op: Or
-      span:
-        lo: 0
-        hi: 30
-  - Binary:
-      left:
-        Binary:
-          left:
-            Literal:
-              Boolean:
-                - true
-                - span:
-                    lo: 0
-                    hi: 4
-          right:
-            Binary:
-              left:
-                Literal:
-                  Boolean:
-                    - true
-                    - span:
-                        lo: 9
-                        hi: 13
-              right:
-                Literal:
-                  Boolean:
-                    - false
-                    - span:
-                        lo: 17
-                        hi: 22
-              op: Or
-              span:
-                lo: 9
-                hi: 22
-          op: Or
-          span:
-            lo: 0
-            hi: 22
-      right:
-        Literal:
-          Boolean:
+                    lo: 8
+                    hi: 13
+            op: Or
+            span:
+              lo: 0
+              hi: 13
+        right:
+          '!Literal':
+            '!Boolean':
             - true
             - span:
-                lo: 27
-                hi: 31
-      op: Or
-      span:
-        lo: 0
-        hi: 31
+                lo: 17
+                hi: 21
+        op: Or
+        span:
+          lo: 0
+          hi: 21
+    right:
+      '!Literal':
+        '!Boolean':
+        - false
+        - span:
+            lo: 25
+            hi: 30
+    op: Or
+    span:
+      lo: 0
+      hi: 30
+- '!Binary':
+    left:
+      '!Binary':
+        left:
+          '!Literal':
+            '!Boolean':
+            - true
+            - span:
+                lo: 0
+                hi: 4
+        right:
+          '!Binary':
+            left:
+              '!Literal':
+                '!Boolean':
+                - true
+                - span:
+                    lo: 9
+                    hi: 13
+            right:
+              '!Literal':
+                '!Boolean':
+                - false
+                - span:
+                    lo: 17
+                    hi: 22
+            op: Or
+            span:
+              lo: 9
+              hi: 22
+        op: Or
+        span:
+          lo: 0
+          hi: 22
+    right:
+      '!Literal':
+        '!Boolean':
+        - true
+        - span:
+            lo: 27
+            hi: 31
+    op: Or
+    span:
+      lo: 0
+      hi: 31

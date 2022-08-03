@@ -1,5 +1,9 @@
----
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> compiler-test:9:20\n     |\n   9 |     const myGlobal = 42field;\n     |                    ^"
+- |-
+  Error [EPAR0370005]: expected : -- found '='
+      --> compiler-test:9:20
+       |
+     9 |     const myGlobal = 42field;
+       |                    ^

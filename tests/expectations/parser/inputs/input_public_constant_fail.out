@@ -1,5 +1,9 @@
----
 namespace: Input
 expectation: Fail
 outputs:
-  - "Error [EPAR0370020]: A parameter cannot be both public and const.\n    --> test:4:1\n     |\n   4 | public constant a: bool  = true;\n     | ^^^^^^^^^^^^^^^"
+- |-
+  Error [EPAR0370020]: A parameter cannot be both public and const.
+      --> test:4:1
+       |
+     4 | public constant a: bool  = true;
+       | ^^^^^^^^^^^^^^^

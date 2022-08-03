@@ -1,146 +1,145 @@
----
 namespace: ParseExpression
 expectation: Pass
 outputs:
-  - Unary:
-      receiver:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-      op: Double
-      span:
-        lo: 0
-        hi: 10
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Unary:
-              receiver:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-              op: Double
-              span:
-                lo: 0
-                hi: 10
-          op: Double
-          span:
-            lo: 0
-            hi: 19
-      op: Double
-      span:
-        lo: 0
-        hi: 28
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          op: Double
-          span:
-            lo: 1
-            hi: 11
-      op: Negate
-      span:
-        lo: 0
-        hi: 11
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Negate
-          span:
-            lo: 1
-            hi: 3
-      op: Double
-      span:
-        lo: 1
-        hi: 13
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Double
-          span:
-            lo: 2
-            hi: 12
-      op: Negate
-      span:
-        lo: 0
-        hi: 12
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Unary:
-              receiver:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              op: Double
-              span:
-                lo: 2
-                hi: 12
-          op: Negate
-          span:
-            lo: 1
-            hi: 12
-      op: Double
-      span:
-        lo: 1
-        hi: 22
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          op: Double
-          span:
-            lo: 1
-            hi: 11
-      op: Not
-      span:
-        lo: 0
-        hi: 11
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Not
-          span:
-            lo: 1
-            hi: 3
-      op: Double
-      span:
-        lo: 1
-        hi: 13
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Double
-          span:
-            lo: 2
-            hi: 12
-      op: Not
-      span:
-        lo: 0
-        hi: 12
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Unary:
-              receiver:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              op: Double
-              span:
-                lo: 2
-                hi: 12
-          op: Not
-          span:
-            lo: 1
-            hi: 12
-      op: Double
-      span:
-        lo: 1
-        hi: 22
+- '!Unary':
+    receiver:
+      '!Identifier': '{"name":"x","span":"{\"lo\":0,\"hi\":1}"}'
+    op: Double
+    span:
+      lo: 0
+      hi: 10
+- '!Unary':
+    receiver:
+      '!Unary':
+        receiver:
+          '!Unary':
+            receiver:
+              '!Identifier': '{"name":"x","span":"{\"lo\":0,\"hi\":1}"}'
+            op: Double
+            span:
+              lo: 0
+              hi: 10
+        op: Double
+        span:
+          lo: 0
+          hi: 19
+    op: Double
+    span:
+      lo: 0
+      hi: 28
+- '!Unary':
+    receiver:
+      '!Unary':
+        receiver:
+          '!Identifier': '{"name":"x","span":"{\"lo\":1,\"hi\":2}"}'
+        op: Double
+        span:
+          lo: 1
+          hi: 11
+    op: Negate
+    span:
+      lo: 0
+      hi: 11
+- '!Unary':
+    receiver:
+      '!Unary':
+        receiver:
+          '!Identifier': '{"name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+        op: Negate
+        span:
+          lo: 1
+          hi: 3
+    op: Double
+    span:
+      lo: 1
+      hi: 13
+- '!Unary':
+    receiver:
+      '!Unary':
+        receiver:
+          '!Identifier': '{"name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+        op: Double
+        span:
+          lo: 2
+          hi: 12
+    op: Negate
+    span:
+      lo: 0
+      hi: 12
+- '!Unary':
+    receiver:
+      '!Unary':
+        receiver:
+          '!Unary':
+            receiver:
+              '!Identifier': '{"name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+            op: Double
+            span:
+              lo: 2
+              hi: 12
+        op: Negate
+        span:
+          lo: 1
+          hi: 12
+    op: Double
+    span:
+      lo: 1
+      hi: 22
+- '!Unary':
+    receiver:
+      '!Unary':
+        receiver:
+          '!Identifier': '{"name":"x","span":"{\"lo\":1,\"hi\":2}"}'
+        op: Double
+        span:
+          lo: 1
+          hi: 11
+    op: Not
+    span:
+      lo: 0
+      hi: 11
+- '!Unary':
+    receiver:
+      '!Unary':
+        receiver:
+          '!Identifier': '{"name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+        op: Not
+        span:
+          lo: 1
+          hi: 3
+    op: Double
+    span:
+      lo: 1
+      hi: 13
+- '!Unary':
+    receiver:
+      '!Unary':
+        receiver:
+          '!Identifier': '{"name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+        op: Double
+        span:
+          lo: 2
+          hi: 12
+    op: Not
+    span:
+      lo: 0
+      hi: 12
+- '!Unary':
+    receiver:
+      '!Unary':
+        receiver:
+          '!Unary':
+            receiver:
+              '!Identifier': '{"name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+            op: Double
+            span:
+              lo: 2
+              hi: 12
+        op: Not
+        span:
+          lo: 1
+          hi: 12
+    op: Double
+    span:
+      lo: 1
+      hi: 22

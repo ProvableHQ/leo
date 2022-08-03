@@ -1,23 +1,22 @@
----
 namespace: Parse
 expectation: Pass
 outputs:
-  - name: ""
-    network: ""
-    expected_input: []
-    imports: {}
-    functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
-        input: []
-        output: U8
-        core_mapping: ~
-        block:
-          statements: []
-          span:
-            lo: 21
-            hi: 23
+- name: ''
+  network: ''
+  expected_input: []
+  imports: {}
+  functions:
+    '{"name":"x","span":"{\"lo\":11,\"hi\":12}"}':
+      identifier: '{"name":"x","span":"{\"lo\":11,\"hi\":12}"}'
+      input: []
+      output: U8
+      core_mapping: null
+      block:
+        statements: []
         span:
-          lo: 2
+          lo: 21
           hi: 23
-    circuits: {}
+      span:
+        lo: 2
+        hi: 23
+  circuits: {}

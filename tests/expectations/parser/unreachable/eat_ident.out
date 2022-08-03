@@ -1,5 +1,9 @@
----
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found ';'\n    --> test:3:9\n     |\n   3 | circuit ;\n     |         ^"
+- |-
+  Error [EPAR0370009]: unexpected string: expected 'identifier', found ';'
+      --> test:3:9
+       |
+     3 | circuit ;
+       |         ^

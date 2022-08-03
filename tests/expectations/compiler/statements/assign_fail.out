@@ -1,5 +1,4 @@
----
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370017]: Could not lex the following content: `🦀`.\n"
+- "Error [EPAR0370017]: Could not lex the following content: `\U0001F980`.\n"
