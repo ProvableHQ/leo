@@ -339,6 +339,7 @@ impl Token {
                 // '/'
                 return Ok((1, Token::Div));
             }
+            '%' => return match_two(&mut input, Token::Rem, '=', Token::RemAssign),
             ':' => return match_two(&mut input, Token::Colon, ':', Token::DoubleColon),
             ';' => return match_one(&mut input, Token::Semicolon),
             '<' => {

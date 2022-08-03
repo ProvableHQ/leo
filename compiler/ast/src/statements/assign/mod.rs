@@ -33,6 +33,8 @@ pub enum AssignOperation {
     Mul,
     /// Dividing-assignment, `/=`.
     Div,
+    /// Remaindering-assignment, `%=`.
+    Rem,
     /// Exponentiating assignment `**=`.
     Pow,
     /// Logical or assignment `||=`.
@@ -51,8 +53,6 @@ pub enum AssignOperation {
     // ShrSigned,
     /// Shift left assignment `<<=`.
     Shl,
-    // /// Modulus / remainder assignment.
-    // Mod,
 }
 
 impl AssignOperation {
@@ -63,6 +63,7 @@ impl AssignOperation {
             AssignOperation::Sub => Some(BinaryOperation::Sub),
             AssignOperation::Mul => Some(BinaryOperation::Mul),
             AssignOperation::Div => Some(BinaryOperation::Div),
+            AssignOperation::Rem => Some(BinaryOperation::Rem),
             AssignOperation::Pow => Some(BinaryOperation::Pow),
             AssignOperation::Or => Some(BinaryOperation::Or),
             AssignOperation::And => Some(BinaryOperation::And),
@@ -72,7 +73,6 @@ impl AssignOperation {
             AssignOperation::Shr => Some(BinaryOperation::Shr),
             // AssignOperation::ShrSigned => Some(BinaryOperation::ShrSigned),
             AssignOperation::Shl => Some(BinaryOperation::Shl),
-            // AssignOperation::Mod => Some(BinaryOperation::Mod),
         }
     }
 }
@@ -85,6 +85,7 @@ impl AsRef<str> for AssignOperation {
             AssignOperation::Sub => "-=",
             AssignOperation::Mul => "*=",
             AssignOperation::Div => "/=",
+            AssignOperation::Rem => "%=",
             AssignOperation::Pow => "**=",
             AssignOperation::Or => "||=",
             AssignOperation::And => "&&=",
@@ -94,7 +95,6 @@ impl AsRef<str> for AssignOperation {
             AssignOperation::Shr => ">>=",
             // AssignOperation::ShrSigned => ">>>=",
             AssignOperation::Shl => "<<=",
-            // AssignOperation::Mod => "%=",
         }
     }
 }

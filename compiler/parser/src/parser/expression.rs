@@ -17,7 +17,7 @@
 use super::*;
 use leo_errors::{ParserError, Result};
 
-use snarkvm_dpc::{prelude::Address, testnet2::Testnet2};
+use snarkvm_console::{account::Address, network::Testnet3};
 
 const INT_TYPES: &[Token] = &[
     Token::I8,
@@ -130,6 +130,7 @@ impl ParserContext<'_> {
             Token::Sub => BinaryOperation::Sub,
             Token::Mul => BinaryOperation::Mul,
             Token::Div => BinaryOperation::Div,
+            Token::Rem => BinaryOperation::Rem,
             Token::Or => BinaryOperation::Or,
             Token::And => BinaryOperation::And,
             Token::BitOr => BinaryOperation::BitwiseOr,
@@ -209,11 +210,14 @@ impl ParserContext<'_> {
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
-    /// binary multiplication, division, or modulus expression.
+    /// binary multiplication, division, or a remainder expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_exponential_expression`].
     fn parse_multiplicative_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(&[Token::Mul, Token::Div], Self::parse_exponential_expression)
+        self.parse_bin_expr(
+            &[Token::Mul, Token::Div, Token::Rem],
+            Self::parse_exponential_expression,
+        )
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -544,7 +548,7 @@ impl ParserContext<'_> {
             Token::True => Expression::Literal(Literal::Boolean(true, span)),
             Token::False => Expression::Literal(Literal::Boolean(false, span)),
             Token::AddressLit(addr) => {
-                if addr.parse::<Address<Testnet2>>().is_err() {
+                if addr.parse::<Address<Testnet3>>().is_err() {
                     self.emit_err(ParserError::invalid_address_lit(&addr, span));
                 }
                 Expression::Literal(Literal::Address(addr, span))
