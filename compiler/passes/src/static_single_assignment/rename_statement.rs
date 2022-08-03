@@ -26,19 +26,12 @@ use leo_span::Symbol;
 use indexmap::IndexSet;
 
 impl StatementReconstructor for StaticSingleAssigner<'_> {
-    /// Transforms a `ReturnStatement` into an `AssignStatement`,
-    /// storing the variable and the associated guard in `self.early_returns`.
+    /// Transforms a `ReturnStatement` into an empty `BlockStatement`,
+    /// storing the expression and the associated guard in `self.early_returns`.
     ///
-    /// Note that this pass assumes that there is at most one `ReturnStatement` in a block.
+    /// Note that type checking guarantees that there is at most one `ReturnStatement` in a block.
     fn reconstruct_return(&mut self, input: ReturnStatement) -> Statement {
-        // Create a fresh name for the expression in the return statement.
-        let symbol = self.unique_symbol("$return");
-        self.rename_table.update(symbol, symbol);
-
-        // Initialize a new `AssignStatement` for the return expression.
-        let place = Expression::Identifier(Identifier::new(symbol));
-
-        // Add the variable and associated guard.
+        // Construct the associated guard.
         let guard = match self.condition_stack.is_empty() {
             true => None,
             false => {
@@ -53,9 +46,13 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
                 }))
             }
         };
-        self.early_returns.push((guard, place.clone()));
 
-        Self::simple_assign_statement(place, self.reconstruct_expression(input.expression).0)
+        // Reconstruct the expression and add it to the early returns.
+        let expression = self.reconstruct_expression(input.expression).0;
+        self.early_returns.push((guard, expression));
+
+        // Return an empty block.
+        Statement::dummy(input.span)
     }
 
     /// Reconstructs the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
