@@ -260,10 +260,11 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         std::fs::create_dir_all(&build_directory).unwrap();
 
         // Open the package at the temporary directory.
-        let package = handler.extend_if_error(Package::<Testnet3>::open(&directory).map_err(LeoError::Anyhow))?;
+        let _package = handler.extend_if_error(Package::<Testnet3>::open(&directory).map_err(LeoError::Anyhow))?;
 
-        // Get the program process and check all instructions.
-        handler.extend_if_error(package.get_process().map_err(LeoError::Anyhow))?;
+        // Commented out since it bottlenecks the test framework.
+        // // Get the program process and check all instructions.
+        // handler.extend_if_error(package.get_process().map_err(LeoError::Anyhow))?;
     }
 
     let initial_ast = hash_file("/tmp/output/initial_ast.json");
