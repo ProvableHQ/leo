@@ -34,4 +34,4 @@ const x: u32 = x+y;
 
 const x: u32 = x();
 
-let x: address = aleo15u4r0gzjtqzepkgurgn7p3u5kkhs9p74rx6aun3uh2s5std6759svgmg53;
+let x: address = aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx;

@@ -1,0 +1,143 @@
+---
+namespace: ParseStatement
+expectation: Pass
+outputs:
+  - Conditional:
+      condition:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
+      then:
+        statements:
+          - Return:
+              expression:
+                Literal:
+                  U8:
+                    - "0"
+                    - span:
+                        lo: 14
+                        hi: 17
+              span:
+                lo: 7
+                hi: 17
+        span:
+          lo: 5
+          hi: 20
+      otherwise: ~
+      span:
+        lo: 0
+        hi: 20
+  - Conditional:
+      condition:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      then:
+        statements:
+          - Return:
+              expression:
+                Literal:
+                  U8:
+                    - "0"
+                    - span:
+                        lo: 16
+                        hi: 19
+              span:
+                lo: 9
+                hi: 19
+        span:
+          lo: 7
+          hi: 22
+      otherwise: ~
+      span:
+        lo: 0
+        hi: 22
+  - Conditional:
+      condition:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      then:
+        statements: []
+        span:
+          lo: 7
+          hi: 9
+      otherwise:
+        Block:
+          statements: []
+          span:
+            lo: 15
+            hi: 17
+      span:
+        lo: 0
+        hi: 17
+  - Conditional:
+      condition:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+          op: Add
+          span:
+            lo: 3
+            hi: 6
+      then:
+        statements: []
+        span:
+          lo: 7
+          hi: 9
+      otherwise:
+        Conditional:
+          condition:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
+              right:
+                Identifier: "{\"name\":\"z\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
+              op: Add
+              span:
+                lo: 18
+                hi: 21
+          then:
+            statements: []
+            span:
+              lo: 22
+              hi: 24
+          otherwise:
+            Block:
+              statements: []
+              span:
+                lo: 30
+                hi: 32
+          span:
+            lo: 15
+            hi: 32
+      span:
+        lo: 0
+        hi: 32
+  - Conditional:
+      condition:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+          op: Add
+          span:
+            lo: 3
+            hi: 6
+      then:
+        statements:
+          - Return:
+              expression:
+                Literal:
+                  U8:
+                    - "0"
+                    - span:
+                        lo: 16
+                        hi: 19
+              span:
+                lo: 9
+                hi: 19
+        span:
+          lo: 7
+          hi: 22
+      otherwise: ~
+      span:
+        lo: 0
+        hi: 22

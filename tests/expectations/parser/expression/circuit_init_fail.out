@@ -1,0 +1,16 @@
+---
+namespace: ParseExpression
+expectation: Fail
+outputs:
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '<eof>'\n    --> test:1:3\n     |\n   1 | x {\n     |   ^"
+  - "did not consume all input: '}' @ 1:3-4\n"
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found ','\n    --> test:1:4\n     |\n   1 | x {,}\n     |    ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found ','\n    --> test:1:5\n     |\n   1 | x { , }\n     |     ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found ','\n    --> test:1:4\n     |\n   1 | x {,,,}\n     |    ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found ','\n    --> test:1:6\n     |\n   1 | x {x,,}\n     |      ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found ','\n    --> test:1:4\n     |\n   1 | x {,,x}\n     |    ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found ','\n    --> test:1:4\n     |\n   1 | x {,x}\n     |    ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found ','\n    --> test:1:8\n     |\n   1 | x {x:y,,}\n     |        ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found ','\n    --> test:1:4\n     |\n   1 | x {,,x:y}\n     |    ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found ','\n    --> test:1:4\n     |\n   1 | x {,x:y}\n     |    ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '}'\n    --> test:1:6\n     |\n   1 | x {x:}\n     |      ^"

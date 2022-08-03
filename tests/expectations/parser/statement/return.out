@@ -1,0 +1,21 @@
+---
+namespace: ParseStatement
+expectation: Pass
+outputs:
+  - Return:
+      expression:
+        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":11}\"}"
+      span:
+        lo: 0
+        hi: 11
+  - Return:
+      expression:
+        Literal:
+          U8:
+            - "5"
+            - span:
+                lo: 7
+                hi: 10
+      span:
+        lo: 0
+        hi: 10

@@ -1,0 +1,27 @@
+---
+namespace: Serialize
+expectation: Pass
+outputs:
+  - name: ""
+    network: ""
+    expected_input: []
+    imports: {}
+    functions:
+      "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":15}\"}":
+        identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":15}\"}"
+        input: []
+        output: U8
+        core_mapping: ~
+        block:
+          statements:
+            - Return:
+                expression:
+                  Binary:
+                    left:
+                      Literal:
+                        U8: "1"
+                    right:
+                      Literal:
+                        U8: "1"
+                    op: Add
+    circuits: {}
