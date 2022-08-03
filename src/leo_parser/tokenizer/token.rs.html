@@ -339,6 +339,10 @@
 <span id="334">334</span>
 <span id="335">335</span>
 <span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -401,6 +405,8 @@
     <span class="ident">DivAssign</span>,
     <span class="ident">Pow</span>,
     <span class="ident">PowAssign</span>,
+    <span class="ident">Rem</span>,
+    <span class="ident">RemAssign</span>,
     <span class="ident">Assign</span>,
     <span class="ident">LeftParen</span>,
     <span class="ident">RightParen</span>,
@@ -596,6 +602,8 @@
             <span class="ident">DivAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;/=&quot;</span>),
             <span class="ident">Pow</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;**&quot;</span>),
             <span class="ident">PowAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;**=&quot;</span>),
+            <span class="ident">Rem</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;%&quot;</span>),
+            <span class="ident">RemAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;%=&quot;</span>),
             <span class="ident">Assign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;=&quot;</span>),
             <span class="ident">LeftParen</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;(&quot;</span>),
             <span class="ident">RightParen</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;)&quot;</span>),

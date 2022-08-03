@@ -584,6 +584,10 @@
 <span id="579">579</span>
 <span id="580">580</span>
 <span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -603,7 +607,7 @@
 <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">ParserError</span>, <span class="prelude-ty">Result</span>};
 
-<span class="kw">use</span> <span class="ident">snarkvm_dpc</span>::{<span class="ident">prelude::Address</span>, <span class="ident">testnet2::Testnet2</span>};
+<span class="kw">use</span> <span class="ident">snarkvm_console</span>::{<span class="ident">account::Address</span>, <span class="ident">network::Testnet3</span>};
 
 <span class="kw">const</span> <span class="ident">INT_TYPES</span>: <span class="kw-2">&amp;</span>[<span class="ident">Token</span>] <span class="op">=</span> <span class="kw-2">&amp;</span>[
     <span class="ident">Token::I8</span>,
@@ -716,6 +720,7 @@
             <span class="ident">Token::Sub</span> =&gt; <span class="ident">BinaryOperation::Sub</span>,
             <span class="ident">Token::Mul</span> =&gt; <span class="ident">BinaryOperation::Mul</span>,
             <span class="ident">Token::Div</span> =&gt; <span class="ident">BinaryOperation::Div</span>,
+            <span class="ident">Token::Rem</span> =&gt; <span class="ident">BinaryOperation::Rem</span>,
             <span class="ident">Token::Or</span> =&gt; <span class="ident">BinaryOperation::Or</span>,
             <span class="ident">Token::And</span> =&gt; <span class="ident">BinaryOperation::And</span>,
             <span class="ident">Token::BitOr</span> =&gt; <span class="ident">BinaryOperation::BitwiseOr</span>,
@@ -795,11 +800,14 @@
     }
 
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
-    <span class="doccomment">/// binary multiplication, division, or modulus expression.</span>
+    <span class="doccomment">/// binary multiplication, division, or a remainder expression.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_exponential_expression`].</span>
     <span class="kw">fn</span> <span class="ident">parse_multiplicative_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parse_bin_expr</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Mul</span>, <span class="ident">Token::Div</span>], <span class="ident"><span class="self">Self</span>::parse_exponential_expression</span>)
+        <span class="self">self</span>.<span class="ident">parse_bin_expr</span>(
+            <span class="kw-2">&amp;</span>[<span class="ident">Token::Mul</span>, <span class="ident">Token::Div</span>, <span class="ident">Token::Rem</span>],
+            <span class="ident"><span class="self">Self</span>::parse_exponential_expression</span>,
+        )
     }
 
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
@@ -1130,7 +1138,7 @@
             <span class="ident">Token::True</span> =&gt; <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Boolean</span>(<span class="bool-val">true</span>, <span class="ident">span</span>)),
             <span class="ident">Token::False</span> =&gt; <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Boolean</span>(<span class="bool-val">false</span>, <span class="ident">span</span>)),
             <span class="ident">Token::AddressLit</span>(<span class="ident">addr</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">addr</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Address</span><span class="op">&lt;</span><span class="ident">Testnet2</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">is_err</span>() {
+                <span class="kw">if</span> <span class="ident">addr</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Address</span><span class="op">&lt;</span><span class="ident">Testnet3</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">is_err</span>() {
                     <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">ParserError::invalid_address_lit</span>(<span class="kw-2">&amp;</span><span class="ident">addr</span>, <span class="ident">span</span>));
                 }
                 <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Address</span>(<span class="ident">addr</span>, <span class="ident">span</span>))

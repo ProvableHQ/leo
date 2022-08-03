@@ -641,6 +641,24 @@
 <span id="636">636</span>
 <span id="637">637</span>
 <span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -1035,6 +1053,24 @@
             <span class="ident">BinaryOperation::Div</span> =&gt; {
                 <span class="comment">// Only field or integer types.</span>
                 <span class="self">self</span>.<span class="ident">assert_field_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+
+                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
+                <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);
+
+                <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
+            }
+            <span class="ident">BinaryOperation::Rem</span> <span class="op">|</span> <span class="ident">BinaryOperation::RemWrapped</span> =&gt; {
+                <span class="comment">// Only integer types.</span>
+                <span class="self">self</span>.<span class="ident">assert_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+
+                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
+                <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);
+
+                <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
+            }
+            <span class="ident">BinaryOperation::Mod</span> =&gt; {
+                <span class="comment">// Only unsigned integer types.</span>
+                <span class="self">self</span>.<span class="ident">assert_unsigned_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
 
                 <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
                 <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);

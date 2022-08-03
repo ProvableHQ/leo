@@ -470,6 +470,7 @@
 <span id="465">465</span>
 <span id="466">466</span>
 <span id="467">467</span>
+<span id="468">468</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -811,6 +812,7 @@
                 <span class="comment">// &#39;/&#39;</span>
                 <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="number">1</span>, <span class="ident">Token::Div</span>));
             }
+            <span class="string">&#39;%&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">match_two</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::Rem</span>, <span class="string">&#39;=&#39;</span>, <span class="ident">Token::RemAssign</span>),
             <span class="string">&#39;:&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">match_two</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::Colon</span>, <span class="string">&#39;:&#39;</span>, <span class="ident">Token::DoubleColon</span>),
             <span class="string">&#39;;&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">match_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::Semicolon</span>),
             <span class="string">&#39;&lt;&#39;</span> =&gt; {

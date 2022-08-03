@@ -160,6 +160,8 @@
     <span class="ident">Mul</span>,
     <span class="doccomment">/// Dividing-assignment, `/=`.</span>
     <span class="ident">Div</span>,
+    <span class="doccomment">/// Remaindering-assignment, `%=`.</span>
+    <span class="ident">Rem</span>,
     <span class="doccomment">/// Exponentiating assignment `**=`.</span>
     <span class="ident">Pow</span>,
     <span class="doccomment">/// Logical or assignment `||=`.</span>
@@ -178,8 +180,6 @@
     <span class="comment">// ShrSigned,</span>
     <span class="doccomment">/// Shift left assignment `&lt;&lt;=`.</span>
     <span class="ident">Shl</span>,
-    <span class="comment">// /// Modulus / remainder assignment.</span>
-    <span class="comment">// Mod,</span>
 }
 
 <span class="kw">impl</span> <span class="ident">AssignOperation</span> {
@@ -190,6 +190,7 @@
             <span class="ident">AssignOperation::Sub</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Sub</span>),
             <span class="ident">AssignOperation::Mul</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Mul</span>),
             <span class="ident">AssignOperation::Div</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Div</span>),
+            <span class="ident">AssignOperation::Rem</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Rem</span>),
             <span class="ident">AssignOperation::Pow</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Pow</span>),
             <span class="ident">AssignOperation::Or</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Or</span>),
             <span class="ident">AssignOperation::And</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::And</span>),
@@ -199,7 +200,6 @@
             <span class="ident">AssignOperation::Shr</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Shr</span>),
             <span class="comment">// AssignOperation::ShrSigned =&gt; Some(BinaryOperation::ShrSigned),</span>
             <span class="ident">AssignOperation::Shl</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Shl</span>),
-            <span class="comment">// AssignOperation::Mod =&gt; Some(BinaryOperation::Mod),</span>
         }
     }
 }
@@ -212,6 +212,7 @@
             <span class="ident">AssignOperation::Sub</span> =&gt; <span class="string">&quot;-=&quot;</span>,
             <span class="ident">AssignOperation::Mul</span> =&gt; <span class="string">&quot;*=&quot;</span>,
             <span class="ident">AssignOperation::Div</span> =&gt; <span class="string">&quot;/=&quot;</span>,
+            <span class="ident">AssignOperation::Rem</span> =&gt; <span class="string">&quot;%=&quot;</span>,
             <span class="ident">AssignOperation::Pow</span> =&gt; <span class="string">&quot;**=&quot;</span>,
             <span class="ident">AssignOperation::Or</span> =&gt; <span class="string">&quot;||=&quot;</span>,
             <span class="ident">AssignOperation::And</span> =&gt; <span class="string">&quot;&amp;&amp;=&quot;</span>,
@@ -221,7 +222,6 @@
             <span class="ident">AssignOperation::Shr</span> =&gt; <span class="string">&quot;&gt;&gt;=&quot;</span>,
             <span class="comment">// AssignOperation::ShrSigned =&gt; &quot;&gt;&gt;&gt;=&quot;,</span>
             <span class="ident">AssignOperation::Shl</span> =&gt; <span class="string">&quot;&lt;&lt;=&quot;</span>,
-            <span class="comment">// AssignOperation::Mod =&gt; &quot;%=&quot;,</span>
         }
     }
 }
