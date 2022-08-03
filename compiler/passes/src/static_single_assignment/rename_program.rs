@@ -15,10 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::StaticSingleAssigner;
+use itertools::Itertools;
 
 use leo_ast::{
     Expression, Function, FunctionInput, ProgramReconstructor, ReturnStatement, Statement, StatementReconstructor,
-    TernaryExpression,
+    TernaryExpression, TupleExpression,
 };
 
 impl ProgramReconstructor for StaticSingleAssigner<'_> {
@@ -48,20 +49,40 @@ impl ProgramReconstructor for StaticSingleAssigner<'_> {
         // Type checking guarantees that there exists at least one return statement in the function body.
         let (_, last_return_expression) = returns.pop().unwrap();
 
+        // TODO: Document handling tuples
         // Fold all return expressions into a single ternary expression.
-        let expression =
-            returns
-                .into_iter()
-                .rev()
-                .fold(last_return_expression, |acc, (guard, expression)| match guard {
-                    None => unreachable!("All return statements except for the last one must have a guard."),
-                    Some(guard) => Expression::Ternary(TernaryExpression {
+        let expression = returns
+            .into_iter()
+            .rev()
+            .fold(last_return_expression, |acc, (guard, expr)| match guard {
+                None => unreachable!("All return statements except for the last one must have a guard."),
+                Some(guard) => match (acc, expr) {
+                    (Expression::Tuple(acc_tuple), Expression::Tuple(expr_tuple)) => {
+                        Expression::Tuple(TupleExpression {
+                            elements: acc_tuple
+                                .elements
+                                .into_iter()
+                                .zip_eq(expr_tuple.elements.into_iter())
+                                .map(|(if_true, if_false)| {
+                                    Expression::Ternary(TernaryExpression {
+                                        condition: Box::new(guard.clone()),
+                                        if_true: Box::new(if_true),
+                                        if_false: Box::new(if_false),
+                                        span: Default::default(),
+                                    })
+                                })
+                                .collect(),
+                            span: Default::default(),
+                        })
+                    }
+                    (acc, expr) => Expression::Ternary(TernaryExpression {
                         condition: Box::new(guard),
-                        if_true: Box::new(expression),
-                        if_false: Box::new(acc),
+                        if_true: Box::new(acc),
+                        if_false: Box::new(expr),
                         span: Default::default(),
                     }),
-                });
+                },
+            });
 
         // Add the `ReturnStatement` to the end of the block.
         block.statements.push(Statement::Return(ReturnStatement {
