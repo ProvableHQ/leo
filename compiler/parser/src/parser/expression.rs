@@ -17,8 +17,8 @@
 use super::*;
 use leo_errors::{ParserError, Result};
 
-use snarkvm_console::{account::Address, network::Testnet3};
 use leo_span::Symbol;
+use snarkvm_console::{account::Address, network::Testnet3};
 
 const INT_TYPES: &[Token] = &[
     Token::I8,

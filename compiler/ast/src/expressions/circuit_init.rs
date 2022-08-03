@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_span::sym;
 use super::*;
+use leo_span::sym;
 
 /// An initializer for a single field / variable of a circuit initializer expression.
 /// That is, in `Foo { bar: 42, baz }`, this is either `bar: 42`, or `baz`.
@@ -55,14 +55,9 @@ pub struct CircuitExpression {
 impl CircuitExpression {
     /// Returns true if the record has all required fields and visibility.
     pub fn check_record(&self) -> bool {
-        let has_member = |symbol| self
-            .members
-            .iter()
-            .any(|variable| variable.identifier.name == symbol);
+        let has_member = |symbol| self.members.iter().any(|variable| variable.identifier.name == symbol);
 
-        has_member(sym::owner)
-        && has_member(sym::gates)
-        && has_member(sym::_nonce)
+        has_member(sym::owner) && has_member(sym::gates) && has_member(sym::_nonce)
     }
 
     /// Returns the circuit as a record interface with visibility.
@@ -80,7 +75,8 @@ impl CircuitExpression {
                     }
                 })
                 .collect::<Vec<_>>()
-                .join(", "))
+                .join(", ")
+        )
     }
 }
 
