@@ -270,9 +270,29 @@ impl ParserContext<'_> {
         )
     }
 
+    /// Returns an [`Annotation`] AST node if the next tokens represent an annotation.
+    fn parse_annotation(&mut self) -> Result<Annotation> {
+        // Parse the `@` symbol and identifier.
+        let start = self.expect(&Token::At)?;
+        let name = self.expect_identifier()?;
+        let span = start + name.span;
+
+        // TODO: Verify that this check is sound.
+        // Check that there is no whitespace in between the `@` symbol and identifier.
+        match name.span.hi.0 - start.lo.0 > 1 + name.name.as_str().len() as u32 {
+            true => Err(ParserError::space_in_annotation(span).into()),
+            false => Ok(Annotation { name, span }),
+        }
+    }
+
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
     fn parse_function(&mut self) -> Result<(Identifier, Function)> {
+        // Parse annotations, if they exist.
+        let mut annotations = Vec::new();
+        while self.look_ahead(0, |t| &t.token) == &Token::At {
+            annotations.push(self.parse_annotation()?)
+        }
         // Parse `function IDENT`.
         let start = self.expect(&Token::Function)?;
         let name = self.expect_identifier()?;
@@ -292,6 +312,7 @@ impl ParserContext<'_> {
         Ok((
             name,
             Function {
+                annotations,
                 identifier: name,
                 input: inputs,
                 output,

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, FunctionInput, Identifier, Node, Type};
+use crate::{Annotation, Block, FunctionInput, Identifier, Node, Type};
 use leo_span::{sym, Span, Symbol};
 
 use serde::{Deserialize, Serialize};
@@ -24,6 +24,8 @@ use std::fmt;
 /// A function definition.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Function {
+    /// Annotations on the function.
+    pub annotations: Vec<Annotation>,
     /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
     pub identifier: Identifier,
     /// The function's parameters.

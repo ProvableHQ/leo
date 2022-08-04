@@ -14,11 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod annotation;
-pub use annotation::*;
+use crate::Identifier;
 
-pub mod function;
-pub use function::*;
+use leo_span::Span;
+use serde::{Deserialize, Serialize};
 
-pub mod input;
-pub use input::*;
+/// An annotation, e.g. @program.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub struct Annotation {
+    /// The name of the annotation.
+    pub name: Identifier,
+    /// The span associated with the annotation.
+    pub span: Span,
+}

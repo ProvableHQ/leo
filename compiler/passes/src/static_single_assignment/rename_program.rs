@@ -96,6 +96,7 @@ impl ProgramReconstructor for StaticSingleAssigner<'_> {
         self.pop();
 
         Function {
+            annotations: function.annotations,
             identifier: function.identifier,
             input: function.input,
             output: function.output,
