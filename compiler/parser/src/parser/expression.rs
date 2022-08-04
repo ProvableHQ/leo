@@ -131,6 +131,7 @@ impl ParserContext<'_> {
             Token::Sub => BinaryOperation::Sub,
             Token::Mul => BinaryOperation::Mul,
             Token::Div => BinaryOperation::Div,
+            Token::Rem => BinaryOperation::Rem,
             Token::Or => BinaryOperation::Or,
             Token::And => BinaryOperation::And,
             Token::BitOr => BinaryOperation::BitwiseOr,
@@ -210,11 +211,14 @@ impl ParserContext<'_> {
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
-    /// binary multiplication, division, or modulus expression.
+    /// binary multiplication, division, or a remainder expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_exponential_expression`].
     fn parse_multiplicative_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(&[Token::Mul, Token::Div], Self::parse_exponential_expression)
+        self.parse_bin_expr(
+            &[Token::Mul, Token::Div, Token::Rem],
+            Self::parse_exponential_expression,
+        )
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a

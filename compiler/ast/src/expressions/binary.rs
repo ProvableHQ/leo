@@ -44,6 +44,8 @@ pub enum BinaryOperation {
     Lte,
     /// Lesser-than relation, i.e. `<`, `.lt()`.
     Lt,
+    /// Arithmetic modulo, i.e. `.mod()`
+    Mod,
     /// Multiplication, i.e. `*`, `.mul()`.
     Mul,
     /// Wrapping multiplication, i.e. `.mul_wrapped()`.
@@ -62,6 +64,10 @@ pub enum BinaryOperation {
     Pow,
     /// Wrapping exponentiation, i.e. `.pow_wrapped()`.
     PowWrapped,
+    /// Remainder, i.e. `%`, `.rem()`.
+    Rem,
+    /// Wrapping remainder, i.e. `.rem_wrapped()`.
+    RemWrapped,
     /// Shift left operation, i.e. `<<`, `.shl()`.
     Shl,
     /// Wrapping shift left operation, i.e. `.shl_wrapped()`.
@@ -95,6 +101,7 @@ impl fmt::Display for BinaryOperation {
                 Self::Gt => ">",
                 Self::Lte => "<=",
                 Self::Lt => "<",
+                Self::Mod => "mod",
                 Self::Mul => "*",
                 Self::MulWrapped => "mul_wrapped",
                 Self::Nand => "NAND",
@@ -104,6 +111,8 @@ impl fmt::Display for BinaryOperation {
                 Self::BitwiseOr => "|",
                 Self::Pow => "**",
                 Self::PowWrapped => "pow_wrapped",
+                Self::Rem => "%",
+                Self::RemWrapped => "rem_wrapped",
                 Self::Shl => "<<",
                 Self::ShlWrapped => "shl_wrapped",
                 Self::Shr => ">>",
@@ -118,6 +127,7 @@ impl fmt::Display for BinaryOperation {
 
 impl BinaryOperation {
     /// Returns a `BinaryOperation` from the given `Symbol`.
+    /// This is used to resolve native operators invoked as method calls, e.g. `a.add_wrapped(b)`.
     pub fn from_symbol(symbol: Symbol) -> Option<Self> {
         Some(match symbol {
             sym::add => Self::Add,
@@ -130,6 +140,7 @@ impl BinaryOperation {
             sym::gt => Self::Gt,
             sym::lte => Self::Lte,
             sym::lt => Self::Lt,
+            sym::Mod => Self::Mod,
             sym::mul => Self::Mul,
             sym::mul_wrapped => Self::MulWrapped,
             sym::nand => Self::Nand,
@@ -138,6 +149,8 @@ impl BinaryOperation {
             sym::or => Self::BitwiseOr,
             sym::pow => Self::Pow,
             sym::pow_wrapped => Self::PowWrapped,
+            sym::rem => Self::Rem,
+            sym::rem_wrapped => Self::RemWrapped,
             sym::shl => Self::Shl,
             sym::shl_wrapped => Self::ShlWrapped,
             sym::shr => Self::Shr,
