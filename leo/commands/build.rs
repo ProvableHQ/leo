@@ -182,7 +182,9 @@ impl Command for Build {
 
         // Call the `aleo build` command with the appropriate from the Aleo SDK.
         let mut args = vec![ALEO_CLI_COMMAND];
-        if self.compiler_options.offline { args.push("--offline"); }
+        if self.compiler_options.offline {
+            args.push("--offline");
+        }
         let command = AleoBuild::try_parse_from(&args).map_err(CliError::failed_to_execute_aleo_build)?;
         let result = command.parse().map_err(CliError::failed_to_execute_aleo_build)?;
 
