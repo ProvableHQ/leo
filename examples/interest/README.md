@@ -1,13 +1,22 @@
-# interest.aleo
+# Calculating Interest
 
-This program calculates interest over a fixed number of periods.
+This program provides utilities for calculating interest over a fixed or bounded number of periods.
 
-We note that the Leo code is much more readable and writable than the
-corresponding Aleo code, which can be seen in `build/main.aleo` after building.
+## Building the Program
 
-## Build Guide
-
-To compile this Aleo program, run:
+To compile this program, run:
 ```bash
-aleo build
+leo build
 ```
+
+## Running the Program
+
+To run this program, run:
+```bash
+leo run <function_name>
+```
+where `<function_name>` is one of the following:
+* `fixed_period_interest`
+* `bounded_period_interest`
+
+Be sure to update `inputs/interest.in` with the desired inputs.
