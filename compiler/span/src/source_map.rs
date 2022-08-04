@@ -368,12 +368,16 @@ fn normalize_newlines(src: &mut String) {
     }
 
     // Account for removed `\r`.
-    // After `set_len`, `buf` is guaranteed to contain utf-8 again.
+    // After `buf.truncate(..)`, `buf` is guaranteed to contain utf-8 again.
+    // N.B., this is the safe version of the below.
     let new_len = buf.len() - gap_len;
-    unsafe {
-        buf.set_len(new_len);
-        *src = String::from_utf8_unchecked(buf);
-    }
+    buf.truncate(new_len);
+    *src = String::from_utf8(buf).unwrap();
+    // // After `set_len`, `buf` is guaranteed to contain utf-8 again.
+    // unsafe {
+    //     buf.set_len(new_len);
+    //     *src = String::from_utf8_unchecked(buf);
+    // }
 
     fn find_crlf(src: &[u8]) -> Option<usize> {
         let mut search_idx = 0;
@@ -414,9 +418,10 @@ fn analyze_source_file(src: &str, source_file_start_pos: BytePos) -> (Vec<BytePo
     let src_bytes = src.as_bytes();
 
     while i < src.len() {
-        // SAFETY: We verified that i < src.len().
         let i_usize = i as usize;
-        let byte = unsafe { *src_bytes.get_unchecked(i_usize) };
+        let byte = src_bytes[i_usize];
+        // SAFETY: We verified that i < src.len().
+        // let byte = unsafe { *src_bytes.get_unchecked(i_usize) };
 
         // How much to advance to get to the next UTF-8 char in the string.
         let mut char_len = 1;
