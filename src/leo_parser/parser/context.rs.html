@@ -251,6 +251,9 @@
 <span id="246">246</span>
 <span id="247">247</span>
 <span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -292,6 +295,8 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">prev_token</span>: <span class="ident">SpannedToken</span>,
     <span class="doccomment">/// true if parsing an expression for if and loop statements -- means circuit inits are not legal</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">disallow_circuit_construction</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// true if parsing an identifier inside an input file.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">allow_identifier_underscores</span>: <span class="ident">bool</span>,
 }
 
 <span class="doccomment">/// Dummy span used to appease borrow checker.</span>
@@ -312,6 +317,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="self">Self</span> {
             <span class="ident">handler</span>,
             <span class="ident">disallow_circuit_construction</span>: <span class="bool-val">false</span>,
+            <span class="ident">allow_identifier_underscores</span>: <span class="bool-val">false</span>,
             <span class="ident">prev_token</span>: <span class="ident">token</span>.<span class="ident">clone</span>(),
             <span class="ident">token</span>,
             <span class="ident">tokens</span>,
