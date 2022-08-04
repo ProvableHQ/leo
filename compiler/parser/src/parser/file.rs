@@ -30,6 +30,7 @@ impl ParserContext<'_> {
         let mut functions = IndexMap::new();
         let mut circuits = IndexMap::new();
 
+        // TODO: Condense logic
         while self.has_next() {
             match &self.token.token {
                 Token::Import => {
@@ -39,6 +40,10 @@ impl ParserContext<'_> {
                 Token::Circuit | Token::Record => {
                     let (id, circuit) = self.parse_circuit()?;
                     circuits.insert(id, circuit);
+                }
+                Token::At => {
+                    let (id, function) = self.parse_function()?;
+                    functions.insert(id, function);
                 }
                 Token::Const if self.peek_is_function() => {
                     let (id, function) = self.parse_function()?;
@@ -288,6 +293,7 @@ impl ParserContext<'_> {
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
     fn parse_function(&mut self) -> Result<(Identifier, Function)> {
+        // TODO: Handle dangling annotations.
         // Parse annotations, if they exist.
         let mut annotations = Vec::new();
         while self.look_ahead(0, |t| &t.token) == &Token::At {

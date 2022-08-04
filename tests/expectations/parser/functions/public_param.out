@@ -8,6 +8,7 @@ outputs:
     imports: {}
     functions:
       "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
+        annotations: []
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
         input:
           - Variable:
@@ -46,6 +47,7 @@ outputs:
           lo: 2
           hi: 61
       "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":72,\\\"hi\\\":73}\"}":
+        annotations: []
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":72,\\\"hi\\\":73}\"}"
         input:
           - Variable:
