@@ -1,4 +1,10 @@
 // The program input for auction/src/main.leo
 [main]
-public a: u32 = 1u32;
-b: u32 = 2u32;
+current: Auction = Auction {
+    owner: aleo1ht2a9q0gsd38j0se4t9lsfulxgqrens2vgzgry3pkvs93xrrzu8s892zn7,
+    gates: 0u64,
+    winning_bidder: aleo1ht2a9q0gsd38j0se4t9lsfulxgqrens2vgzgry3pkvs93xrrzu8s892zn7,
+    winning_bid: 50u64
+};
+bidder: address = aleo1ht2a9q0gsd38j0se4t9lsfulxgqrens2vgzgry3pkvs93xrrzu8s892zn7;
+bid: u64 = 100u64;
