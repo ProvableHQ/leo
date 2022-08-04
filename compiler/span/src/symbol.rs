@@ -339,7 +339,7 @@ impl Deref for InternedStr {
     fn deref(&self) -> &Self::Target {
         match self {
             Self::Static(s) => s,
-            Self::Owned(s) => &s,
+            Self::Owned(s) => s,
         }
     }
 }
