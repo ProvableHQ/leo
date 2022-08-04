@@ -14,16 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Identifier;
+use crate::{simple_node_impl, Identifier, Node};
 
 use leo_span::Span;
+
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 /// An annotation, e.g. @program.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Annotation {
+    // TODO: Consider using a symbol instead of an identifier.
     /// The name of the annotation.
-    pub name: Identifier,
-    /// The span associated with the annotation.
+    pub identifier: Identifier,
+    /// A span locating where the annotation occurred in the source.
     pub span: Span,
+}
+
+simple_node_impl!(Annotation);
+
+impl fmt::Display for Annotation {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "@{}", self.identifier)
+    }
 }
