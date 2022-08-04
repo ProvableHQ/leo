@@ -203,7 +203,6 @@ fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>, handler: &Handler) -> R
 }
 
 fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Value, ()> {
-    println!("here");
     // Check for CWD option:
     // ``` cwd: import ```
     // When set, uses different working directory for current file.
