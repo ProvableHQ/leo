@@ -242,8 +242,6 @@ impl Symbol {
             None => unreachable!(),
             Some(x) => x,
         })
-        // // SAFETY: per above addition, we know `index > 0` always applies.
-        // Self(unsafe { NonZeroU32::new_unchecked(index) })
     }
 
     /// Maps a string to its interned representation.
@@ -397,18 +395,6 @@ impl Interner {
             // Already interned, return that symbol.
             return Symbol::new(sym as u32);
         }
-
-        // // SAFETY: `from_utf8_unchecked` is safe since we just allocated a `&str`,
-        // // which is known to be UTF-8.
-        // let bytes = arena.alloc_slice(string.as_bytes());
-        // let string: &str = unsafe { str::from_utf8_unchecked(bytes) };
-        //
-        // unsafe fn transmute_lt<'a, 'b, T: ?Sized>(x: &'a T) -> &'b T {
-        //     transmute(x)
-        // }
-        //
-        // // SAFETY: Extending to `'static` is fine. Accesses only happen while the arena is alive.
-        // let string: &'static _ = unsafe { transmute_lt(string) };
 
         Symbol::new(set.insert_full(InternedStr::Owned(string.into())).0 as u32)
     }
