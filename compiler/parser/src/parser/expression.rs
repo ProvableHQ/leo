@@ -17,6 +17,7 @@
 use super::*;
 use leo_errors::{ParserError, Result};
 
+use leo_span::Symbol;
 use snarkvm_console::{account::Address, network::Testnet3};
 
 const INT_TYPES: &[Token] = &[
@@ -463,7 +464,14 @@ impl ParserContext<'_> {
     }
 
     fn parse_circuit_member(&mut self) -> Result<CircuitVariableInitializer> {
-        let identifier = self.expect_identifier()?;
+        let identifier = if self.allow_identifier_underscores && self.eat(&Token::Underscore) {
+            // Allow `_nonce` for circuit records.
+            let identifier_without_underscore = self.expect_identifier()?;
+            Identifier::new(Symbol::intern(&format!("_{}", identifier_without_underscore.name)))
+        } else {
+            self.expect_identifier()?
+        };
+
         let expression = if self.eat(&Token::Colon) {
             // Parse individual circuit variable declarations.
             Some(self.parse_expression()?)
@@ -547,11 +555,11 @@ impl ParserContext<'_> {
             }
             Token::True => Expression::Literal(Literal::Boolean(true, span)),
             Token::False => Expression::Literal(Literal::Boolean(false, span)),
-            Token::AddressLit(addr) => {
-                if addr.parse::<Address<Testnet3>>().is_err() {
-                    self.emit_err(ParserError::invalid_address_lit(&addr, span));
+            Token::AddressLit(address_string) => {
+                if address_string.parse::<Address<Testnet3>>().is_err() {
+                    self.emit_err(ParserError::invalid_address_lit(&address_string, span));
                 }
-                Expression::Literal(Literal::Address(addr, span))
+                Expression::Literal(Literal::Address(address_string, span))
             }
             Token::StaticString(value) => Expression::Literal(Literal::String(value, span)),
             Token::Identifier(name) => {
