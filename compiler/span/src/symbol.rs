@@ -217,6 +217,7 @@ symbols! {
     private,
     owner,
     gates,
+    _nonce,
 
     // input file
     registers,

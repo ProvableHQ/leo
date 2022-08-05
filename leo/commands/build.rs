@@ -42,6 +42,8 @@ use tracing::span::Span;
 /// require Build command output as their input.
 #[derive(StructOpt, Clone, Debug, Default)]
 pub struct BuildOptions {
+    #[structopt(long, help = "Enables offline mode.")]
+    pub offline: bool,
     #[structopt(long, help = "Enable spans in AST snapshots.")]
     pub enable_spans: bool,
     #[structopt(long, help = "Writes all AST snapshots for the different compiler phases.")]
@@ -115,7 +117,7 @@ impl Command for Build {
         let build_directory = BuildDirectory::open(&package_path)?;
 
         // Initialize error handler
-        let handler = leo_errors::emitter::Handler::default();
+        let handler = Handler::default();
 
         // Fetch paths to all .leo files in the source directory.
         let source_files = SourceDirectory::files(&package_path)?;
@@ -178,8 +180,12 @@ impl Command for Build {
         std::env::set_current_dir(&build_directory)
             .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
 
-        // Call the `aleo build` command from the Aleo SDK.
-        let command = AleoBuild::try_parse_from(&[ALEO_CLI_COMMAND]).map_err(CliError::failed_to_execute_aleo_build)?;
+        // Call the `aleo build` command with the appropriate from the Aleo SDK.
+        let mut args = vec![ALEO_CLI_COMMAND];
+        if self.compiler_options.offline {
+            args.push("--offline");
+        }
+        let command = AleoBuild::try_parse_from(&args).map_err(CliError::failed_to_execute_aleo_build)?;
         let result = command.parse().map_err(CliError::failed_to_execute_aleo_build)?;
 
         // Log the result of the build

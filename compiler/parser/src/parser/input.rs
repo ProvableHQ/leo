@@ -21,6 +21,8 @@ use leo_errors::{ParserError, Result};
 impl ParserContext<'_> {
     /// Returns a [`ParsedInputFile`] struct filled with the data acquired in the file.
     pub(crate) fn parse_input(&mut self) -> Result<InputAst> {
+        // Allow underscores in identifiers for input record declarations.
+        self.allow_identifier_underscores = true;
         let mut sections = Vec::new();
 
         while self.has_next() {
@@ -30,6 +32,9 @@ impl ParserContext<'_> {
                 return Err(ParserError::unexpected_token(self.token.token.clone(), self.token.span).into());
             }
         }
+
+        // Do not allow underscores in identifiers outside of input files.
+        self.allow_identifier_underscores = false;
 
         Ok(InputAst { sections })
     }

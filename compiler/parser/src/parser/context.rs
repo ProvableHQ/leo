@@ -39,6 +39,8 @@ pub(crate) struct ParserContext<'a> {
     pub(crate) prev_token: SpannedToken,
     /// true if parsing an expression for if and loop statements -- means circuit inits are not legal
     pub(crate) disallow_circuit_construction: bool,
+    /// true if parsing an identifier inside an input file.
+    pub(crate) allow_identifier_underscores: bool,
 }
 
 /// Dummy span used to appease borrow checker.
@@ -59,6 +61,7 @@ impl<'a> ParserContext<'a> {
         let mut p = Self {
             handler,
             disallow_circuit_construction: false,
+            allow_identifier_underscores: false,
             prev_token: token.clone(),
             token,
             tokens,

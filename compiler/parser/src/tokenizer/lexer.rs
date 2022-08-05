@@ -386,12 +386,12 @@ impl Token {
             '^' => return match_two(&mut input, Token::BitXor, '=', Token::BitXorAssign),
             _ => (),
         }
-        if let Some(ident) = eat_identifier(&mut input) {
+        if let Some(identifier) = eat_identifier(&mut input) {
             return Ok((
-                ident.len(),
+                identifier.len(),
                 // todo: match on symbols instead of hard-coded &str's
-                match &*ident {
-                    x if x.starts_with("aleo1") => Token::AddressLit(ident),
+                match &*identifier {
+                    x if x.starts_with("aleo1") => Token::AddressLit(identifier),
                     "address" => Token::Address,
                     "bool" => Token::Bool,
                     "circuit" => Token::Circuit,
@@ -424,7 +424,7 @@ impl Token {
                     "u32" => Token::U32,
                     "u64" => Token::U64,
                     "u128" => Token::U128,
-                    _ => Token::Identifier(Symbol::intern(&ident)),
+                    _ => Token::Identifier(Symbol::intern(&identifier)),
                 },
             ));
         }
