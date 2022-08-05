@@ -77,16 +77,16 @@ impl<'a> CodeGenerator<'a> {
             let function_string = self.visit_function(function);
 
             if self.is_program_function {
-                closures.push_str(&function_string);
-                closures.push('\n');
-            } else {
                 functions.push_str(&function_string);
                 functions.push('\n');
+            } else {
+                closures.push_str(&function_string);
+                closures.push('\n');
             }
-
-            // Unset the `is_program_function` flag.
-            self.is_program_function = false;
         });
+
+        // Unset the `is_program_function` flag.
+        self.is_program_function = false;
 
         // Closures must precede functions in the Aleo program.
         program_string.push_str(&closures);
@@ -164,7 +164,11 @@ impl<'a> CodeGenerator<'a> {
         self.current_function = Some(function);
 
         // Construct the header of the function.
-        let mut function_string = format!("function {}:\n", function.identifier);
+        // If a function is a program function, generate an Aleo `function`, otherwise generate an Aleo `closure`.
+        let mut function_string = match self.is_program_function {
+            true => format!("function {}:\n", function.identifier),
+            false => format!("closure {}:\n", function.identifier),
+        };
 
         // Construct and append the input declarations of the function.
         for input in function.input.iter() {
