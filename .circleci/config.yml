@@ -136,124 +136,32 @@ jobs:
           paths: project/
       - clear_environment:
           cache_key: leo-executable-cache
-#
-#  leo-new:
-#    docker:
-#      - image: cimg/rust:1.62
-#    resource_class: xlarge
-#    steps:
-#      - attach_workspace:
-#          at: /home/circleci/project/
-#      - run:
-#          name: leo new
-#          command: |
-#            export LEO=/home/circleci/project/project/bin/leo
-#            ./project/.circleci/leo-new.sh
-#
-#  leo-init:
-#    docker:
-#      - image: cimg/rust:1.62
-#    resource_class: xlarge
-#    steps:
-#      - attach_workspace:
-#          at: /home/circleci/project/
-#      - run:
-#          name: leo init
-#          command: |
-#            export LEO=/home/circleci/project/project/bin/leo
-#            ./project/.circleci/leo-init.sh
-#
-#  leo-clean:
-#    docker:
-#      - image: cimg/rust:1.62
-#    resource_class: xlarge
-#    steps:
-#      - attach_workspace:
-#          at: /home/circleci/project/
-#      - run:
-#          name: leo clean
-#          command: |
-#            export LEO=/home/circleci/project/project/bin/leo
-#            ./project/.circleci/leo-clean.sh
-#
-#  leo-setup:
-#    docker:
-#      - image: cimg/rust:1.62
-#    resource_class: xlarge
-#    steps:
-#      - attach_workspace:
-#          at: /home/circleci/project/
-#      - run:
-#          name: leo setup
-#          command: |
-#            export LEO=/home/circleci/project/project/bin/leo
-#            ./project/.circleci/leo-setup.sh
 
-  # leo-add-remove:
-  #   docker:
-  #     - image: cimg/rust:1.62
-  #   resource_class: xlarge
-  #   steps:
-  #     - attach_workspace:
-  #         at: /home/circleci/project/
-  #     - run:
-  #         name: leo add & remove
-  #         command: |
-  #           export LEO=/home/circleci/project/project/bin/leo
-  #           ./project/.circleci/leo-add-remove.sh
+  leo-new:
+    docker:
+      - image: cimg/rust:1.62
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo new
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-new.sh
 
-# todo (collin): uncomment after compiler refactor
-#  leo-check-constraints:
-#    docker:
-#       - image: cimg/rust:1.62
-#    resource_class: xlarge
-#    steps:
-#      - attach_workspace:
-#          at: /home/circleci/project/
-#      - run:
-#          name: leo check constraints for Pedersen Hash
-#          command: |
-#            export LEO=/home/circleci/project/project/bin/leo
-#            ./project/.circleci/leo-check-constraints.sh
-#
-#  leo-login-logout:
-#    docker:
-#      - image: cimg/rust:1.62
-#    resource_class: xlarge
-#    steps:
-#      - attach_workspace:
-#          at: /home/circleci/project/
-#      - run:
-#          name: leo login & logout
-#          command: |
-#            export LEO=/home/circleci/project/project/bin/leo
-#            ./project/.circleci/leo-login-logout.sh
-#
-#  leo-clone:
-#    docker:
-#      - image: cimg/rust:1.62
-#    resource_class: xlarge
-#    steps:
-#      - attach_workspace:
-#          at: /home/circleci/project/
-#      - run:
-#          name: leo clone
-#          command: |
-#            export LEO=/home/circleci/project/project/bin/leo
-#            ./project/.circleci/leo-clone.sh
-#
-#  leo-publish:
-#    docker:
-#      - image: cimg/rust:1.62
-#    resource_class: xlarge
-#    steps:
-#      - attach_workspace:
-#          at: /home/circleci/project/
-#      - run:
-#          name: leo publish
-#          command: |
-#            export LEO=/home/circleci/project/project/bin/leo
-#            ./project/.circleci/leo-publish.sh
+  leo-clean:
+    docker:
+      - image: cimg/rust:1.62
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo clean
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-clean.sh
 
 workflows:
   version: 2
@@ -262,30 +170,9 @@ workflows:
       - check-style
       - clippy
       - leo-executable
-#      - leo-new:
-#          requires:
-#            - leo-executable
-#      - leo-init:
-#          requires:
-#            - leo-executable
-#      - leo-clean:
-#          requires:
-#            - leo-executable
-#      - leo-setup:
-#          requires:
-#            - leo-executable
-#       - leo-add-remove:
-#           requires:
-#             - leo-executable
-#      - leo-check-constraints:
-#          requires:
-#            - leo-executable
-#      - leo-login-logout:
-#          requires:
-#            - leo-executable
-#      - leo-clone:
-#          requires:
-#            - leo-executable
-#      - leo-publish:
-#          requires:
-#            - leo-executable
+      - leo-new:
+          requires:
+            - leo-executable
+      - leo-clean:
+          requires:
+            - leo-executable

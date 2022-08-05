@@ -1,7 +1,7 @@
-# Create a new foo project.
+# Create a new Leo program named `foo`.
 $LEO new foo
 ls -la
 cd foo && ls -la
 
-# Try to compile and run the template project.
+# Try to run `leo build`.
 $LEO run
