@@ -26,6 +26,14 @@ use std::collections::HashSet;
 
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_function(&mut self, input: &'a Function) {
+        // Check that the function's annotations are valid.
+        for annotation in input.annotations.iter() {
+            match annotation.identifier.name {
+                sym::program => self.is_program_function = true,
+                _ => self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span)),
+            }
+        }
+
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
             .swap(prev_st.borrow().lookup_fn_scope(input.name()).unwrap());
@@ -33,8 +41,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         self.has_return = false;
         self.parent = Some(input.name());
-        input.input.iter().for_each(|i| {
-            let input_var = i.get_variable();
+        input.input.iter().for_each(|input_var| {
             self.assert_not_tuple(input_var.span, &input_var.type_);
 
             // Check for conflicting variable names.

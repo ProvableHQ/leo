@@ -148,10 +148,9 @@ impl<'a> CodeGenerator<'a> {
             self.next_register += 1;
 
             self.variable_mapping
-                .insert(&input.get_variable().identifier.name, register_string.clone());
+                .insert(&input.identifier.name, register_string.clone());
 
-            let type_string =
-                self.visit_type_with_visibility(&input.get_variable().type_, Some(input.get_variable().mode()));
+            let type_string = self.visit_type_with_visibility(&input.type_, Some(input.mode()));
             writeln!(function_string, "    input {} as {};", register_string, type_string,)
                 .expect("failed to write to string");
         }

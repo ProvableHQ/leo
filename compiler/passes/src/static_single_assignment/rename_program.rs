@@ -18,8 +18,8 @@ use crate::StaticSingleAssigner;
 use itertools::Itertools;
 
 use leo_ast::{
-    Expression, Function, FunctionInput, ProgramReconstructor, ReturnStatement, Statement, StatementReconstructor,
-    TernaryExpression, TupleExpression,
+    Expression, Function, ProgramReconstructor, ReturnStatement, Statement, StatementReconstructor, TernaryExpression,
+    TupleExpression,
 };
 
 impl ProgramReconstructor for StaticSingleAssigner<'_> {
@@ -30,15 +30,9 @@ impl ProgramReconstructor for StaticSingleAssigner<'_> {
 
         // There is no need to reconstruct `function.inputs`.
         // However, for each input, we must add each symbol to the rename table.
-        for input in function.input.iter() {
-            match input {
-                FunctionInput::Variable(function_input_variable) => {
-                    self.rename_table.update(
-                        function_input_variable.identifier.name,
-                        function_input_variable.identifier.name,
-                    );
-                }
-            }
+        for input_variable in function.input.iter() {
+            self.rename_table
+                .update(input_variable.identifier.name, input_variable.identifier.name);
         }
 
         let mut block = self.reconstruct_block(function.block);

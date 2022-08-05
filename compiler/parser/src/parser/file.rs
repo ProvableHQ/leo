@@ -261,9 +261,7 @@ impl ParserContext<'_> {
     fn parse_function_parameter(&mut self) -> Result<FunctionInput> {
         let mode = self.parse_function_parameter_mode()?;
         let (name, type_) = self.parse_typed_ident()?;
-        Ok(FunctionInput::Variable(FunctionInputVariable::new(
-            name, mode, type_, name.span,
-        )))
+        Ok(FunctionInput::new(name, mode, type_, name.span))
     }
 
     /// Returns `true` if the next token is Function or if it is a Const followed by Function.
@@ -279,14 +277,14 @@ impl ParserContext<'_> {
     fn parse_annotation(&mut self) -> Result<Annotation> {
         // Parse the `@` symbol and identifier.
         let start = self.expect(&Token::At)?;
-        let name = self.expect_identifier()?;
-        let span = start + name.span;
+        let identifier = self.expect_identifier()?;
+        let span = start + identifier.span;
 
         // TODO: Verify that this check is sound.
         // Check that there is no whitespace in between the `@` symbol and identifier.
-        match name.span.hi.0 - start.lo.0 > 1 + name.name.as_str().len() as u32 {
+        match identifier.span.hi.0 - start.lo.0 > 1 + identifier.name.as_str().len() as u32 {
             true => Err(ParserError::space_in_annotation(span).into()),
-            false => Ok(Annotation { name, span }),
+            false => Ok(Annotation { identifier, span }),
         }
     }
 

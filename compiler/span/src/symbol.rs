@@ -218,6 +218,7 @@ symbols! {
     owner,
     gates,
     _nonce,
+    program,
 
     // input file
     registers,

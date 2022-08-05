@@ -273,4 +273,12 @@ create_messages!(
         msg: format!("Loop body contains a return statement or always returns."),
         help: Some("Remove the code in the loop body that always returns.".to_string()),
     }
+
+    // TODO: Consider emitting a warning instead of an error.
+    @formatted
+    unknown_annotation {
+        args: (annotation: impl Display),
+        msg: format!("Unknown annotation: `{annotation}`."),
+        help: Some("Use a valid annotation. The Leo compiler supports: `@program`".to_string()),
+    }
 );
