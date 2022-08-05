@@ -106,7 +106,7 @@ outputs:
           hi: 7
       - name: registers
         definitions:
-          - mode: Private
+          - mode: None
             type_: Boolean
             name: "{\"name\":\"r0\",\"span\":\"{\\\"lo\\\":302,\\\"hi\\\":304}\"}"
             value:
@@ -119,7 +119,7 @@ outputs:
             span:
               lo: 306
               hi: 310
-          - mode: Private
+          - mode: None
             type_: U8
             name: "{\"name\":\"r1\",\"span\":\"{\\\"lo\\\":337,\\\"hi\\\":339}\"}"
             value:
@@ -132,7 +132,7 @@ outputs:
             span:
               lo: 341
               hi: 343
-          - mode: Private
+          - mode: None
             type_: Field
             name: "{\"name\":\"r2\",\"span\":\"{\\\"lo\\\":374,\\\"hi\\\":376}\"}"
             value:
@@ -145,7 +145,7 @@ outputs:
             span:
               lo: 378
               hi: 383
-          - mode: Private
+          - mode: None
             type_: Group
             name: "{\"name\":\"r3\",\"span\":\"{\\\"lo\\\":414,\\\"hi\\\":416}\"}"
             value:
@@ -170,7 +170,7 @@ outputs:
             span:
               lo: 418
               hi: 423
-          - mode: Private
+          - mode: None
             type_: Address
             name: "{\"name\":\"r4\",\"span\":\"{\\\"lo\\\":449,\\\"hi\\\":451}\"}"
             value:
@@ -183,7 +183,7 @@ outputs:
             span:
               lo: 453
               hi: 460
-          - mode: Private
+          - mode: None
             type_: I8
             name: "{\"name\":\"r4\",\"span\":\"{\\\"lo\\\":528,\\\"hi\\\":530}\"}"
             value:

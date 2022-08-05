@@ -6,6 +6,7 @@ input_file:
  - inputs/ne.in
 */
 
+@program
 function main(a: i128, b: i128, c: bool) -> bool{
     return (a != b) == c;
 }

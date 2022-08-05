@@ -5,6 +5,7 @@ input_file: inputs/branch.in
 */
 
 
+@program
 function main (x: address, y: bool) -> bool {
     let z: address = aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx;
     if y {

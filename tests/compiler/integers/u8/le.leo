@@ -6,6 +6,7 @@ input_file:
  - inputs/le.in
 */
 
+@program
 function main(a: u8, b: u8, c: bool) -> bool {
     return a <= b == c;
 }

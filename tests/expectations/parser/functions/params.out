@@ -12,13 +12,13 @@ outputs:
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
         input:
           - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-            mode: Private
+            mode: None
             type_: U32
             span:
               lo: 13
               hi: 14
           - identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":21,\\\"hi\\\":22}\"}"
-            mode: Private
+            mode: None
             type_: I32
             span:
               lo: 21

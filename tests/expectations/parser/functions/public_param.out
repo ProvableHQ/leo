@@ -12,7 +12,7 @@ outputs:
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
         input:
           - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-            mode: Private
+            mode: None
             type_: U32
             span:
               lo: 13
@@ -55,7 +55,7 @@ outputs:
               lo: 81
               hi: 82
           - identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":90}\"}"
-            mode: Private
+            mode: None
             type_: I32
             span:
               lo: 89
