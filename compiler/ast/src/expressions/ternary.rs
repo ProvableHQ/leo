@@ -31,7 +31,7 @@ pub struct TernaryExpression {
 
 impl fmt::Display for TernaryExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "if {} ? {} : {}", self.condition, self.if_true, self.if_false)
+        write!(f, "({} ? {} : {})", self.condition, self.if_true, self.if_false)
     }
 }
 
