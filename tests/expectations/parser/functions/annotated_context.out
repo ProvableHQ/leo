@@ -9,7 +9,7 @@ outputs:
     functions:
       "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}":
         annotations:
-          - name: "{\"name\":\"context\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":10}\"}"
+          - identifier: "{\"name\":\"context\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":10}\"}"
             span:
               lo: 2
               hi: 10
@@ -38,7 +38,7 @@ outputs:
           hi: 49
       "{\"name\":\"g\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":90}\"}":
         annotations:
-          - name: "{\"name\":\"context\",\"span\":\"{\\\"lo\\\":52,\\\"hi\\\":59}\"}"
+          - identifier: "{\"name\":\"context\",\"span\":\"{\\\"lo\\\":52,\\\"hi\\\":59}\"}"
             span:
               lo: 51
               hi: 59

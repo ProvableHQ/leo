@@ -9,7 +9,7 @@ outputs:
     functions:
       "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":94,\\\"hi\\\":98}\"}":
         annotations:
-          - name: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":79,\\\"hi\\\":83}\"}"
+          - identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":79,\\\"hi\\\":83}\"}"
             span:
               lo: 78
               hi: 83

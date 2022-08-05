@@ -9,15 +9,15 @@ outputs:
     functions:
       "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":29}\"}":
         annotations:
-          - name: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":6}\"}"
+          - identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":6}\"}"
             span:
               lo: 2
               hi: 6
-          - name: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":11}\"}"
+          - identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":11}\"}"
             span:
               lo: 7
               hi: 11
-          - name: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":16}\"}"
+          - identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":16}\"}"
             span:
               lo: 12
               hi: 16
@@ -35,7 +35,7 @@ outputs:
           hi: 40
       "{\"name\":\"mint\",\"span\":\"{\\\"lo\\\":60,\\\"hi\\\":64}\"}":
         annotations:
-          - name: "{\"name\":\"program\",\"span\":\"{\\\"lo\\\":43,\\\"hi\\\":50}\"}"
+          - identifier: "{\"name\":\"program\",\"span\":\"{\\\"lo\\\":43,\\\"hi\\\":50}\"}"
             span:
               lo: 42
               hi: 50
@@ -53,7 +53,7 @@ outputs:
           hi: 75
       "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}":
         annotations:
-          - name: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":78,\\\"hi\\\":82}\"}"
+          - identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":78,\\\"hi\\\":82}\"}"
             span:
               lo: 77
               hi: 82
