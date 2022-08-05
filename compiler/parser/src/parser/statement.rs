@@ -92,11 +92,7 @@ impl ParserContext<'_> {
                 }),
             };
 
-            Ok(Statement::Assign(Box::new(AssignStatement {
-                span: place.span() + value.span(),
-                place,
-                value,
-            })))
+            Ok(Statement::Assign(Box::new(AssignStatement { span, place, value })))
         } else {
             // Error on `expr;` but recover as an empty block `{}`.
             self.expect(&Token::Semicolon)?;
