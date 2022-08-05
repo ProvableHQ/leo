@@ -184,13 +184,18 @@ atomic-literal = numeric-literal
                / address-literal
                / string-literal
 
-symbol = "!" / "&&" / "||"
+symbol = "!"
+       / "&&" / "||"
        / "==" / "!="
        / "<" / "<=" / ">" / ">="
        / "&" / "|" / "^"
        / "<<" / ">>"
        / "+" / "-" / "*" / "/" / "%" / "**"
        / "="
+       / "+=" / "-=" / "*=" / "/=" / "%=" / "**="
+       / "<<=" / ">>="
+       / "&=" / "|=" / "^="
+       / "&&=" / "||="
        / "(" / ")"
        / "[" / "]"
        / "{" / "}"
@@ -375,6 +380,19 @@ loop-statement = %s"for" identifier ":" type
                  block
 
 assignment-operator = "="
+                    / "+="
+                    / "-="
+                    / "*="
+                    / "/="
+                    / "%="
+                    / "**="
+                    / "<<="
+                    / ">>="
+                    / "&="
+                    / "|="
+                    / "^="
+                    / "&&="
+                    / "||="
 
 assignment-statement = expression assignment-operator expression ";"
 

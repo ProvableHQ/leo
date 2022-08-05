@@ -76,6 +76,9 @@ impl Command for Run {
             .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
 
         // Call the `aleo run` command from the Aleo SDK.
+        if self.compiler_options.offline {
+            arguments.push(String::from("--offline"));
+        }
         let command = AleoRun::try_parse_from(&arguments).map_err(CliError::failed_to_parse_aleo_run)?;
         let res = command.parse().map_err(CliError::failed_to_execute_aleo_run)?;
 

@@ -1,38 +1,23 @@
-# leo new hello-world
-
-$LEO new hello-world
+# Create a new Leo program named `foo`.
+$LEO new foo
 ls -la
-cd hello-world && ls -la
+cd foo && ls -la
+
+# Run `leo build`.
 $LEO build
 
-# Assert that the 'outputs' folder is not empty
-
-cd outputs || exit 1
-if [ "$(ls -A $DIR)" ]; then
-  echo "$DIR is not empty"
+# Assert that the 'build' folder exists.
+if [ "$(ls -A build)" ]; then
+  echo "build is not empty"
 else
-  echo "$DIR is empty"
+  echo "build is empty"
   exit 1
 fi
-cd ..
 
-# leo clean
-
+# Run `leo clean`
 $LEO clean
-cd outputs && ls -la
-cd ..
 
-# Assert that the 'outputs' folder is empty
-
-if [ "$(ls -A outputs)" ]; then
-  echo "outputs is not empty"
-  exit 1
-else
-  echo "outputs is empty"
-fi
-
-# Assert that the 'build' folder is empty
-
+# Assert that the 'build' folder is empty.
 if [ "$(ls -A build)" ]; then
   echo "build is not empty"
   exit 1
