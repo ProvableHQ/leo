@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["dropless",""],["source_map",""],["span","Defines the `Span` type used to track where code comes from."],["span_json","Provides custom serialize/deserialize implementations for `Span`."],["symbol",""]]});
+initSidebarItems({"mod":[["source_map",""],["span","Defines the `Span` type used to track where code comes from."],["span_json","Provides custom serialize/deserialize implementations for `Span`."],["symbol",""]]});
