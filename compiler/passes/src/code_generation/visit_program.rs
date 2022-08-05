@@ -61,14 +61,37 @@ impl<'a> CodeGenerator<'a> {
         // Newline separator.
         program_string.push('\n');
 
-        // Visit each `Function` in the Leo AST and produce a Aleo function instruction.
-        program_string.push_str(
-            &input
-                .functions
-                .values()
-                .map(|function| self.visit_function(function))
-                .join("\n"),
-        );
+        // Store closures and functions in separate strings.
+        let mut closures = String::new();
+        let mut functions = String::new();
+
+        // Visit each `Function` in the Leo AST and produce Aleo instructions.
+        input.functions.values().for_each(|function| {
+            // If the function is annotated with `@program`, then it is a program function.
+            for annotation in function.annotations.iter() {
+                if annotation.identifier.name == sym::program {
+                    self.is_program_function = true;
+                }
+            }
+
+            let function_string = self.visit_function(function);
+
+            if self.is_program_function {
+                closures.push_str(&function_string);
+                closures.push('\n');
+            } else {
+                functions.push_str(&function_string);
+                functions.push('\n');
+            }
+
+            // Unset the `is_program_function` flag.
+            self.is_program_function = false;
+        });
+
+        // Closures must precede functions in the Aleo program.
+        program_string.push_str(&closures);
+        program_string.push('\n');
+        program_string.push_str(&functions);
 
         program_string
     }
@@ -135,13 +158,6 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_function(&mut self, function: &'a Function) -> String {
-        // If the function is annotated with `@program`, then it is a program function.
-        for annotation in function.annotations.iter() {
-            if annotation.identifier.name == sym::program {
-                self.is_program_function = true;
-            }
-        }
-
         // Initialize the state of `self` with the appropriate values before visiting `function`.
         self.next_register = 0;
         self.variable_mapping = IndexMap::new();
