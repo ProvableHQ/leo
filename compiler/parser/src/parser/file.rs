@@ -235,6 +235,7 @@ impl ParserContext<'_> {
 
     /// Returns a [`ParamMode`] AST node if the next tokens represent a function parameter mode.
     pub(super) fn parse_function_parameter_mode(&mut self) -> Result<ParamMode> {
+        // TODO: Allow explicit "private" mode.
         let public = self.eat(&Token::Public).then(|| self.prev_token.span);
         let constant = self.eat(&Token::Constant).then(|| self.prev_token.span);
         let const_ = self.eat(&Token::Const).then(|| self.prev_token.span);
@@ -246,7 +247,7 @@ impl ParserContext<'_> {
         match (public, constant, const_) {
             (None, Some(_), None) => Ok(ParamMode::Const),
             (None, None, Some(_)) => Ok(ParamMode::Const),
-            (None, None, None) => Ok(ParamMode::Private),
+            (None, None, None) => Ok(ParamMode::None),
             (Some(_), None, None) => Ok(ParamMode::Public),
             (Some(m1), Some(m2), None) | (Some(m1), None, Some(m2)) | (None, Some(m1), Some(m2)) => {
                 Err(ParserError::inputs_multiple_variable_types_specified(m1 + m2).into())
@@ -292,6 +293,7 @@ impl ParserContext<'_> {
     /// and function definition.
     fn parse_function(&mut self) -> Result<(Identifier, Function)> {
         // TODO: Handle dangling annotations.
+        // TODO: Handle duplicate annotations.
         // Parse annotations, if they exist.
         let mut annotations = Vec::new();
         while self.look_ahead(0, |t| &t.token) == &Token::At {

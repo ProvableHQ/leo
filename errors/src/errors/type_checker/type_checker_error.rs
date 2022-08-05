@@ -281,4 +281,11 @@ create_messages!(
         msg: format!("Unknown annotation: `{annotation}`."),
         help: Some("Use a valid annotation. The Leo compiler supports: `@program`".to_string()),
     }
+
+    @formatted
+    helper_function_inputs_cannot_have_modes {
+        args: (),
+        msg: format!("Helper functions cannot have modes associated with their inputs."),
+        help: Some("Consider removing the mode or adding a `@program` annotation to the function.".to_string()),
+    }
 );

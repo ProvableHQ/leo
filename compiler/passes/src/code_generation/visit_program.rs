@@ -20,6 +20,7 @@ use leo_ast::{Circuit, CircuitMember, Function, Identifier, Program};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
+use leo_span::sym;
 use std::fmt::Write as _;
 
 impl<'a> CodeGenerator<'a> {
@@ -134,6 +135,13 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_function(&mut self, function: &'a Function) -> String {
+        // If the function is annotated with `@program`, then it is a program function.
+        for annotation in function.annotations.iter() {
+            if annotation.identifier.name == sym::program {
+                self.is_program_function = true;
+            }
+        }
+
         // Initialize the state of `self` with the appropriate values before visiting `function`.
         self.next_register = 0;
         self.variable_mapping = IndexMap::new();
@@ -150,7 +158,7 @@ impl<'a> CodeGenerator<'a> {
             self.variable_mapping
                 .insert(&input.identifier.name, register_string.clone());
 
-            let type_string = self.visit_type_with_visibility(&input.type_, Some(input.mode()));
+            let type_string = self.visit_type_with_visibility(&input.type_, input.mode());
             writeln!(function_string, "    input {} as {};", register_string, type_string,)
                 .expect("failed to write to string");
         }
@@ -158,6 +166,9 @@ impl<'a> CodeGenerator<'a> {
         //  Construct and append the function body.
         let block_string = self.visit_block(&function.block);
         function_string.push_str(&block_string);
+
+        // Unset `is_program_function` after visiting `function`.
+        self.is_program_function = false;
 
         function_string
     }
