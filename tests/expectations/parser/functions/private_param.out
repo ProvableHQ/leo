@@ -1,0 +1,84 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - name: ""
+    network: ""
+    expected_input: []
+    imports: {}
+    functions:
+      "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
+        annotations: []
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
+        input:
+          - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
+            mode: None
+            type_: U32
+            span:
+              lo: 13
+              hi: 14
+          - identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":29,\\\"hi\\\":30}\"}"
+            mode: Private
+            type_: I32
+            span:
+              lo: 29
+              hi: 30
+        output: U8
+        core_mapping: ~
+        block:
+          statements:
+            - Return:
+                expression:
+                  Literal:
+                    U8:
+                      - "0"
+                      - span:
+                          lo: 56
+                          hi: 59
+                span:
+                  lo: 49
+                  hi: 59
+          span:
+            lo: 43
+            hi: 62
+        span:
+          lo: 2
+          hi: 62
+      "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":73,\\\"hi\\\":74}\"}":
+        annotations: []
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":73,\\\"hi\\\":74}\"}"
+        input:
+          - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":83,\\\"hi\\\":84}\"}"
+            mode: Private
+            type_: U32
+            span:
+              lo: 83
+              hi: 84
+          - identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":91,\\\"hi\\\":92}\"}"
+            mode: None
+            type_: I32
+            span:
+              lo: 91
+              hi: 92
+        output: U8
+        core_mapping: ~
+        block:
+          statements:
+            - Return:
+                expression:
+                  Literal:
+                    U8:
+                      - "0"
+                      - span:
+                          lo: 118
+                          hi: 121
+                span:
+                  lo: 111
+                  hi: 121
+          span:
+            lo: 105
+            hi: 124
+        span:
+          lo: 64
+          hi: 124
+    circuits: {}

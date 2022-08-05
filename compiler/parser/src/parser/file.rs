@@ -258,7 +258,7 @@ impl ParserContext<'_> {
                 // Sum the spans.
                 let summed_span = spans.fold(starting_span, |span, next| span + next);
                 // Emit an error.
-                Err(ParserError::inputs_multiple_variable_types_specified(summed_span).into())
+                Err(ParserError::inputs_multiple_variable_modes_specified(summed_span).into())
             }
         }
     }

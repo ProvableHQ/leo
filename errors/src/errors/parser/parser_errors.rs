@@ -192,12 +192,12 @@ create_messages!(
         help: None,
     }
 
-    /// For when a user specified more than a type on a parameter.
+    /// For when a user specified more than one mode on a parameter.
     @formatted
-    inputs_multiple_variable_types_specified {
+    inputs_multiple_variable_modes_specified {
         args: (),
-        msg: "A parameter cannot be both public and const.",
-        help: None,
+        msg: "A parameter cannot have multiple modes.",
+        help: Some("Consider using either `constant`, `public`, `private`, or none at all.".to_string()),
     }
 
     /// For when the lexer encountered a bidi override character
