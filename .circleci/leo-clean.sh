@@ -1,8 +1,8 @@
-# leo new hello-world
+# Create a new Leo program named `foo` and run `leo build`.
 
-$LEO new hello-world
+$LEO new foo
 ls -la
-cd hello-world && ls -la
+cd foo && ls -la
 $LEO build
 
 # Assert that the 'outputs' folder is not empty
