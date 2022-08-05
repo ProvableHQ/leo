@@ -20,9 +20,6 @@ pub use annotation::*;
 pub mod function_input;
 pub use function_input::*;
 
-pub mod input_variable;
-pub use input_variable::*;
-
 use crate::{Block, Identifier, Node, Type};
 use leo_span::{sym, Span, Symbol};
 
