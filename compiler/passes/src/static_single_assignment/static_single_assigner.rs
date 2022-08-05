@@ -38,6 +38,7 @@ pub struct StaticSingleAssigner<'a> {
     /// A stack of condition `Expression`s visited up to the current point in the AST.
     pub(crate) condition_stack: Vec<Expression>,
     /// A list containing tuples of guards and expressions associated with early `ReturnStatement`s.
+    /// Note that early returns are inserted in the order they are encountered during a pre-order traversal of the AST.
     pub(crate) early_returns: Vec<(Option<Expression>, Expression)>,
 }
 

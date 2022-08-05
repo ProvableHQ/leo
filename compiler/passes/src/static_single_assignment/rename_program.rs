@@ -50,14 +50,15 @@ impl ProgramReconstructor for StaticSingleAssigner<'_> {
             .fold(last_return_expression, |acc, (guard, expr)| match guard {
                 None => unreachable!("All return statements except for the last one must have a guard."),
                 // Note that type checking guarantees that all expressions in return statements in the function body have the same type.
-                Some(guard) => match (acc, expr) {
+                Some(guard) => match (expr, acc) {
                     // If the function returns tuples, fold the return expressions into a tuple of ternary expressions.
-                    (Expression::Tuple(acc_tuple), Expression::Tuple(expr_tuple)) => {
+                    // Note that `expr` and `acc` are correspond to the `if` and `else` cases of the ternary expression respectively.
+                    (Expression::Tuple(expr_tuple), Expression::Tuple(acc_tuple)) => {
                         Expression::Tuple(TupleExpression {
-                            elements: acc_tuple
+                            elements: expr_tuple
                                 .elements
                                 .into_iter()
-                                .zip_eq(expr_tuple.elements.into_iter())
+                                .zip_eq(acc_tuple.elements.into_iter())
                                 .map(|(if_true, if_false)| {
                                     Expression::Ternary(TernaryExpression {
                                         condition: Box::new(guard.clone()),
@@ -71,10 +72,11 @@ impl ProgramReconstructor for StaticSingleAssigner<'_> {
                         })
                     }
                     // Otherwise, fold the return expressions into a single ternary expression.
-                    (acc, expr) => Expression::Ternary(TernaryExpression {
+                    // Note that `expr` and `acc` are correspond to the `if` and `else` cases of the ternary expression respectively.
+                    (expr, acc) => Expression::Ternary(TernaryExpression {
                         condition: Box::new(guard),
-                        if_true: Box::new(acc),
-                        if_false: Box::new(expr),
+                        if_true: Box::new(expr),
+                        if_false: Box::new(acc),
                         span: Default::default(),
                     }),
                 },
