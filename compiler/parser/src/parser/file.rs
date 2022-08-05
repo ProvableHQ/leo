@@ -235,7 +235,7 @@ impl ParserContext<'_> {
 
     /// Returns a [`ParamMode`] AST node if the next tokens represent a function parameter mode.
     pub(super) fn parse_function_parameter_mode(&mut self) -> Result<ParamMode> {
-        // TODO: Allow explicit "private" mode.
+        let private = self.eat(&Token::Private).then(|| self.prev_token.span);
         let public = self.eat(&Token::Public).then(|| self.prev_token.span);
         let constant = self.eat(&Token::Constant).then(|| self.prev_token.span);
         let const_ = self.eat(&Token::Const).then(|| self.prev_token.span);
@@ -244,16 +244,21 @@ impl ParserContext<'_> {
             self.emit_warning(ParserWarning::const_parameter_or_input(span));
         }
 
-        match (public, constant, const_) {
-            (None, Some(_), None) => Ok(ParamMode::Const),
-            (None, None, Some(_)) => Ok(ParamMode::Const),
-            (None, None, None) => Ok(ParamMode::None),
-            (Some(_), None, None) => Ok(ParamMode::Public),
-            (Some(m1), Some(m2), None) | (Some(m1), None, Some(m2)) | (None, Some(m1), Some(m2)) => {
-                Err(ParserError::inputs_multiple_variable_types_specified(m1 + m2).into())
-            }
-            (Some(m1), Some(m2), Some(m3)) => {
-                Err(ParserError::inputs_multiple_variable_types_specified(m1 + m2 + m3).into())
+        match (private, public, constant, const_) {
+            (None, None, None, None) => Ok(ParamMode::None),
+            (Some(_), None, None, None) => Ok(ParamMode::Private),
+            (None, Some(_), None, None) => Ok(ParamMode::Public),
+            (None, None, Some(_), None) => Ok(ParamMode::Const),
+            (None, None, None, Some(_)) => Ok(ParamMode::Const),
+            _ => {
+                let mut spans = [private, public, constant, const_].into_iter().flatten();
+
+                // There must exist at least one mode, since the none case is handled above.
+                let starting_span = spans.next().unwrap();
+                // Sum the spans.
+                let summed_span = spans.fold(starting_span, |span, next| span + next);
+                // Emit an error.
+                Err(ParserError::inputs_multiple_variable_types_specified(summed_span).into())
             }
         }
     }

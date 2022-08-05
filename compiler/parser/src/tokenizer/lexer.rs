@@ -414,6 +414,7 @@ impl Token {
                     "in" => Token::In,
                     "import" => Token::Import,
                     "let" => Token::Let,
+                    "private" => Token::Private,
                     "public" => Token::Public,
                     "record" => Token::Record,
                     "return" => Token::Return,
