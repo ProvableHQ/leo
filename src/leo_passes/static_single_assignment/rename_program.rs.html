@@ -110,6 +110,8 @@
 <span id="105">105</span>
 <span id="106">106</span>
 <span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -168,14 +170,15 @@
             .<span class="ident">fold</span>(<span class="ident">last_return_expression</span>, <span class="op">|</span><span class="ident">acc</span>, (<span class="ident">guard</span>, <span class="ident">expr</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">guard</span> {
                 <span class="prelude-val">None</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;All return statements except for the last one must have a guard.&quot;</span>),
                 <span class="comment">// Note that type checking guarantees that all expressions in return statements in the function body have the same type.</span>
-                <span class="prelude-val">Some</span>(<span class="ident">guard</span>) =&gt; <span class="kw">match</span> (<span class="ident">acc</span>, <span class="ident">expr</span>) {
+                <span class="prelude-val">Some</span>(<span class="ident">guard</span>) =&gt; <span class="kw">match</span> (<span class="ident">expr</span>, <span class="ident">acc</span>) {
                     <span class="comment">// If the function returns tuples, fold the return expressions into a tuple of ternary expressions.</span>
-                    (<span class="ident">Expression::Tuple</span>(<span class="ident">acc_tuple</span>), <span class="ident">Expression::Tuple</span>(<span class="ident">expr_tuple</span>)) =&gt; {
+                    <span class="comment">// Note that `expr` and `acc` are correspond to the `if` and `else` cases of the ternary expression respectively.</span>
+                    (<span class="ident">Expression::Tuple</span>(<span class="ident">expr_tuple</span>), <span class="ident">Expression::Tuple</span>(<span class="ident">acc_tuple</span>)) =&gt; {
                         <span class="ident">Expression::Tuple</span>(<span class="ident">TupleExpression</span> {
-                            <span class="ident">elements</span>: <span class="ident">acc_tuple</span>
+                            <span class="ident">elements</span>: <span class="ident">expr_tuple</span>
                                 .<span class="ident">elements</span>
                                 .<span class="ident">into_iter</span>()
-                                .<span class="ident">zip_eq</span>(<span class="ident">expr_tuple</span>.<span class="ident">elements</span>.<span class="ident">into_iter</span>())
+                                .<span class="ident">zip_eq</span>(<span class="ident">acc_tuple</span>.<span class="ident">elements</span>.<span class="ident">into_iter</span>())
                                 .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">if_true</span>, <span class="ident">if_false</span>)<span class="op">|</span> {
                                     <span class="ident">Expression::Ternary</span>(<span class="ident">TernaryExpression</span> {
                                         <span class="ident">condition</span>: <span class="ident">Box::new</span>(<span class="ident">guard</span>.<span class="ident">clone</span>()),
@@ -189,10 +192,11 @@
                         })
                     }
                     <span class="comment">// Otherwise, fold the return expressions into a single ternary expression.</span>
-                    (<span class="ident">acc</span>, <span class="ident">expr</span>) =&gt; <span class="ident">Expression::Ternary</span>(<span class="ident">TernaryExpression</span> {
+                    <span class="comment">// Note that `expr` and `acc` are correspond to the `if` and `else` cases of the ternary expression respectively.</span>
+                    (<span class="ident">expr</span>, <span class="ident">acc</span>) =&gt; <span class="ident">Expression::Ternary</span>(<span class="ident">TernaryExpression</span> {
                         <span class="ident">condition</span>: <span class="ident">Box::new</span>(<span class="ident">guard</span>),
-                        <span class="ident">if_true</span>: <span class="ident">Box::new</span>(<span class="ident">acc</span>),
-                        <span class="ident">if_false</span>: <span class="ident">Box::new</span>(<span class="ident">expr</span>),
+                        <span class="ident">if_true</span>: <span class="ident">Box::new</span>(<span class="ident">expr</span>),
+                        <span class="ident">if_false</span>: <span class="ident">Box::new</span>(<span class="ident">acc</span>),
                         <span class="ident">span</span>: <span class="ident">Default::default</span>(),
                     }),
                 },
