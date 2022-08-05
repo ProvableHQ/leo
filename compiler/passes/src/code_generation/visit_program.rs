@@ -83,10 +83,10 @@ impl<'a> CodeGenerator<'a> {
                 closures.push_str(&function_string);
                 closures.push('\n');
             }
-        });
 
-        // Unset the `is_program_function` flag.
-        self.is_program_function = false;
+            // Unset the `is_program_function` flag.
+            self.is_program_function = false;
+        });
 
         // Closures must precede functions in the Aleo program.
         program_string.push_str(&closures);
@@ -186,9 +186,6 @@ impl<'a> CodeGenerator<'a> {
         //  Construct and append the function body.
         let block_string = self.visit_block(&function.block);
         function_string.push_str(&block_string);
-
-        // Unset `is_program_function` after visiting `function`.
-        self.is_program_function = false;
 
         function_string
     }
