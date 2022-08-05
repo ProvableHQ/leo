@@ -69,6 +69,7 @@ impl MainFile {
     fn template(&self) -> String {
         format!(
             r#"// The '{}' main function.
+@program
 function main(public a: u32, b: u32) -> u32 {{
     let c: u32 = a + b;
     return c;
