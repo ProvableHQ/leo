@@ -27,6 +27,7 @@ function win(b: Board, p: u8) -> bool {
 // This carries out a single move: a player (1 for X, 2 for O) marking a cell.
 // The cell must be empty (i.e. contain 0), otherwise this is a no-op.
 // The u8 result is the winning player, of 0 if there is no winner (yet).
+@program
 function main(public player: u8, row: u8, col: u8, board: Board) -> (Board, u8) {
     console.assert(player == 1u8 || player == 2u8); // 1 for X, 2 for O
     console.assert(1u8 <= row && row <= 3u8);
