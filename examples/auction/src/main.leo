@@ -5,6 +5,7 @@ record Auction {
     winning_bid: u64
 }
 
+@program
 function main(current: Auction, bidder: address, bid: u64) -> Auction {
     let winning_bidder: address = current.winning_bidder;
     let winning_bid: u64 = current.winning_bid;
