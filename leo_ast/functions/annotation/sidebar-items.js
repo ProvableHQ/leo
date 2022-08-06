@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Annotation","An annotation, e.g. @program."]]});

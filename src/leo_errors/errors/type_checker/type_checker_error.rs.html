@@ -279,6 +279,21 @@
 <span id="274">274</span>
 <span id="275">275</span>
 <span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -553,6 +568,21 @@
         <span class="ident">args</span>: (),
         <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Loop body contains a return statement or always returns.&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Remove the code in the loop body that always returns.&quot;</span>.<span class="ident">to_string</span>()),
+    }
+
+    <span class="comment">// TODO: Consider emitting a warning instead of an error.</span>
+    @<span class="ident">formatted</span>
+    <span class="ident">unknown_annotation</span> {
+        <span class="ident">args</span>: (<span class="ident">annotation</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Unknown annotation: `{annotation}`.&quot;</span>),
+        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Use a valid annotation. The Leo compiler supports: `@program`&quot;</span>.<span class="ident">to_string</span>()),
+    }
+
+    @<span class="ident">formatted</span>
+    <span class="ident">helper_function_inputs_cannot_have_modes</span> {
+        <span class="ident">args</span>: (),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Helper functions cannot have modes associated with their inputs.&quot;</span>),
+        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Consider removing the mode or adding a `@program` annotation to the function.&quot;</span>.<span class="ident">to_string</span>()),
     }
 );
 </code></pre></div>

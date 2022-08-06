@@ -343,6 +343,8 @@
 <span id="338">338</span>
 <span id="339">339</span>
 <span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -429,6 +431,7 @@
     <span class="ident">Underscore</span>,
     <span class="ident">BitXor</span>,
     <span class="ident">BitXorAssign</span>,
+    <span class="ident">At</span>,
 
     <span class="comment">// Syntactic Grammar</span>
     <span class="comment">// Types</span>
@@ -626,6 +629,7 @@
             <span class="ident">Underscore</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;_&quot;</span>),
             <span class="ident">BitXor</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;^&quot;</span>),
             <span class="ident">BitXorAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;^=&quot;</span>),
+            <span class="ident">At</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;@&quot;</span>),
 
             <span class="ident">Address</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;address&quot;</span>),
             <span class="ident">Bool</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;bool&quot;</span>),

@@ -84,6 +84,13 @@
 <span id="79">79</span>
 <span id="80">80</span>
 <span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -138,22 +145,29 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">visit_type_with_visibility</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Type</span>, <span class="ident">visibility</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParamMode</span><span class="op">&gt;</span>) -&gt; <span class="ident">String</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">visit_type_with_visibility</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Type</span>, <span class="ident">visibility</span>: <span class="ident">ParamMode</span>) -&gt; <span class="ident">String</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">type_string</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_type</span>(<span class="ident">input</span>);
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Type::Identifier</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">input</span> {
             <span class="comment">// Do not append anything for record and circuit types.</span>
         } <span class="kw">else</span> {
-            <span class="comment">// Append `.private` to return type.</span>
             <span class="comment">// todo: CAUTION private by default.</span>
-            <span class="macro">write!</span>(<span class="ident">type_string</span>, <span class="string">&quot;.{}&quot;</span>, <span class="ident">visibility</span>.<span class="ident">unwrap_or</span>(<span class="ident">ParamMode::Private</span>)).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
+            <span class="comment">// Only program functions need a visibility associated with the input type.</span>
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_program_function</span> {
+                <span class="comment">// If a visibility is not provided in a program function, then it is private by default.</span>
+                <span class="kw">let</span> <span class="ident">visibility</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">visibility</span> {
+                    <span class="ident">ParamMode::None</span> =&gt; <span class="ident">ParamMode::Private</span>,
+                    <span class="kw">_</span> =&gt; <span class="ident">visibility</span>,
+                };
+                <span class="macro">write!</span>(<span class="ident">type_string</span>, <span class="string">&quot;.{}&quot;</span>, <span class="ident">visibility</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
+            }
         }
 
         <span class="ident">type_string</span>
     }
 
     <span class="doccomment">/// Returns one or more types equal to the number of return tuple members.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">visit_return_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Type</span>, <span class="ident">visibility</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParamMode</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">visit_return_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Type</span>, <span class="ident">visibility</span>: <span class="ident">ParamMode</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="comment">// Handle return tuples.</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Type::Tuple</span>(<span class="ident">types</span>) <span class="op">=</span> <span class="ident">input</span> {
             <span class="ident">types</span>

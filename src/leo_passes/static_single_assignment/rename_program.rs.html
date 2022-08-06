@@ -107,11 +107,6 @@
 <span id="102">102</span>
 <span id="103">103</span>
 <span id="104">104</span>
-<span id="105">105</span>
-<span id="106">106</span>
-<span id="107">107</span>
-<span id="108">108</span>
-<span id="109">109</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -132,8 +127,8 @@
 <span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
 
 <span class="kw">use</span> <span class="ident">leo_ast</span>::{
-    <span class="ident">Expression</span>, <span class="ident">Function</span>, <span class="ident">FunctionInput</span>, <span class="ident">ProgramReconstructor</span>, <span class="ident">ReturnStatement</span>, <span class="ident">Statement</span>, <span class="ident">StatementReconstructor</span>,
-    <span class="ident">TernaryExpression</span>, <span class="ident">TupleExpression</span>,
+    <span class="ident">Expression</span>, <span class="ident">Function</span>, <span class="ident">ProgramReconstructor</span>, <span class="ident">ReturnStatement</span>, <span class="ident">Statement</span>, <span class="ident">StatementReconstructor</span>, <span class="ident">TernaryExpression</span>,
+    <span class="ident">TupleExpression</span>,
 };
 
 <span class="kw">impl</span> <span class="ident">ProgramReconstructor</span> <span class="kw">for</span> <span class="ident">StaticSingleAssigner</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
@@ -144,15 +139,9 @@
 
         <span class="comment">// There is no need to reconstruct `function.inputs`.</span>
         <span class="comment">// However, for each input, we must add each symbol to the rename table.</span>
-        <span class="kw">for</span> <span class="ident">input</span> <span class="kw">in</span> <span class="ident">function</span>.<span class="ident">input</span>.<span class="ident">iter</span>() {
-            <span class="kw">match</span> <span class="ident">input</span> {
-                <span class="ident">FunctionInput::Variable</span>(<span class="ident">function_input_variable</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">rename_table</span>.<span class="ident">update</span>(
-                        <span class="ident">function_input_variable</span>.<span class="ident">identifier</span>.<span class="ident">name</span>,
-                        <span class="ident">function_input_variable</span>.<span class="ident">identifier</span>.<span class="ident">name</span>,
-                    );
-                }
-            }
+        <span class="kw">for</span> <span class="ident">input_variable</span> <span class="kw">in</span> <span class="ident">function</span>.<span class="ident">input</span>.<span class="ident">iter</span>() {
+            <span class="self">self</span>.<span class="ident">rename_table</span>
+                .<span class="ident">update</span>(<span class="ident">input_variable</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">input_variable</span>.<span class="ident">identifier</span>.<span class="ident">name</span>);
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">function</span>.<span class="ident">block</span>);
@@ -212,6 +201,7 @@
         <span class="self">self</span>.<span class="ident">pop</span>();
 
         <span class="ident">Function</span> {
+            <span class="ident">annotations</span>: <span class="ident">function</span>.<span class="ident">annotations</span>,
             <span class="ident">identifier</span>: <span class="ident">function</span>.<span class="ident">identifier</span>,
             <span class="ident">input</span>: <span class="ident">function</span>.<span class="ident">input</span>,
             <span class="ident">output</span>: <span class="ident">function</span>.<span class="ident">output</span>,

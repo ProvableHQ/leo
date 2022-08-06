@@ -168,6 +168,33 @@
 <span id="163">163</span>
 <span id="164">164</span>
 <span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -190,6 +217,7 @@
 
 <span class="kw">use</span> <span class="ident">indexmap::IndexMap</span>;
 <span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
+<span class="kw">use</span> <span class="ident">leo_span::sym</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Write</span> <span class="kw">as</span> <span class="kw">_</span>;
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CodeGenerator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
@@ -230,14 +258,37 @@
         <span class="comment">// Newline separator.</span>
         <span class="ident">program_string</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>);
 
-        <span class="comment">// Visit each `Function` in the Leo AST and produce a Aleo function instruction.</span>
-        <span class="ident">program_string</span>.<span class="ident">push_str</span>(
-            <span class="kw-2">&amp;</span><span class="ident">input</span>
-                .<span class="ident">functions</span>
-                .<span class="ident">values</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">function</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_function</span>(<span class="ident">function</span>))
-                .<span class="ident">join</span>(<span class="string">&quot;\n&quot;</span>),
-        );
+        <span class="comment">// Store closures and functions in separate strings.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closures</span> <span class="op">=</span> <span class="ident">String::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">functions</span> <span class="op">=</span> <span class="ident">String::new</span>();
+
+        <span class="comment">// Visit each `Function` in the Leo AST and produce Aleo instructions.</span>
+        <span class="ident">input</span>.<span class="ident">functions</span>.<span class="ident">values</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">function</span><span class="op">|</span> {
+            <span class="comment">// If the function is annotated with `@program`, then it is a program function.</span>
+            <span class="kw">for</span> <span class="ident">annotation</span> <span class="kw">in</span> <span class="ident">function</span>.<span class="ident">annotations</span>.<span class="ident">iter</span>() {
+                <span class="kw">if</span> <span class="ident">annotation</span>.<span class="ident">identifier</span>.<span class="ident">name</span> <span class="op">==</span> <span class="ident">sym::program</span> {
+                    <span class="self">self</span>.<span class="ident">is_program_function</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                }
+            }
+
+            <span class="kw">let</span> <span class="ident">function_string</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_function</span>(<span class="ident">function</span>);
+
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_program_function</span> {
+                <span class="ident">functions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">function_string</span>);
+                <span class="ident">functions</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>);
+            } <span class="kw">else</span> {
+                <span class="ident">closures</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">function_string</span>);
+                <span class="ident">closures</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>);
+            }
+
+            <span class="comment">// Unset the `is_program_function` flag.</span>
+            <span class="self">self</span>.<span class="ident">is_program_function</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        });
+
+        <span class="comment">// Closures must precede functions in the Aleo program.</span>
+        <span class="ident">program_string</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">closures</span>);
+        <span class="ident">program_string</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>);
+        <span class="ident">program_string</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">functions</span>);
 
         <span class="ident">program_string</span>
     }
@@ -310,7 +361,11 @@
         <span class="self">self</span>.<span class="ident">current_function</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">function</span>);
 
         <span class="comment">// Construct the header of the function.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">function_string</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;function {}:\n&quot;</span>, <span class="ident">function</span>.<span class="ident">identifier</span>);
+        <span class="comment">// If a function is a program function, generate an Aleo `function`, otherwise generate an Aleo `closure`.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">function_string</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">is_program_function</span> {
+            <span class="bool-val">true</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;function {}:\n&quot;</span>, <span class="ident">function</span>.<span class="ident">identifier</span>),
+            <span class="bool-val">false</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;closure {}:\n&quot;</span>, <span class="ident">function</span>.<span class="ident">identifier</span>),
+        };
 
         <span class="comment">// Construct and append the input declarations of the function.</span>
         <span class="kw">for</span> <span class="ident">input</span> <span class="kw">in</span> <span class="ident">function</span>.<span class="ident">input</span>.<span class="ident">iter</span>() {
@@ -318,10 +373,9 @@
             <span class="self">self</span>.<span class="ident">next_register</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
 
             <span class="self">self</span>.<span class="ident">variable_mapping</span>
-                .<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">get_variable</span>().<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">register_string</span>.<span class="ident">clone</span>());
+                .<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">register_string</span>.<span class="ident">clone</span>());
 
-            <span class="kw">let</span> <span class="ident">type_string</span> <span class="op">=</span>
-                <span class="self">self</span>.<span class="ident">visit_type_with_visibility</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">get_variable</span>().<span class="ident">type_</span>, <span class="prelude-val">Some</span>(<span class="ident">input</span>.<span class="ident">get_variable</span>().<span class="ident">mode</span>()));
+            <span class="kw">let</span> <span class="ident">type_string</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_type_with_visibility</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">type_</span>, <span class="ident">input</span>.<span class="ident">mode</span>());
             <span class="macro">writeln!</span>(<span class="ident">function_string</span>, <span class="string">&quot;    input {} as {};&quot;</span>, <span class="ident">register_string</span>, <span class="ident">type_string</span>,)
                 .<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
         }

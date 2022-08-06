@@ -302,6 +302,7 @@
 <span id="297">297</span>
 <span id="298">298</span>
 <span id="299">299</span>
+<span id="300">300</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -584,6 +585,7 @@
 
     <span class="kw">fn</span> <span class="ident">reconstruct_function</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Function</span>) -&gt; <span class="ident">Function</span> {
         <span class="ident">Function</span> {
+            <span class="ident">annotations</span>: <span class="ident">input</span>.<span class="ident">annotations</span>,
             <span class="ident">identifier</span>: <span class="ident">input</span>.<span class="ident">identifier</span>,
             <span class="ident">input</span>: <span class="ident">input</span>.<span class="ident">input</span>,
             <span class="ident">output</span>: <span class="ident">input</span>.<span class="ident">output</span>,

@@ -51,6 +51,10 @@
 <span id="46">46</span>
 <span id="47">47</span>
 <span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -85,6 +89,9 @@
     <span class="doccomment">/// The first element of the tuple indicate whether the composite is a record or not.</span>
     <span class="doccomment">/// The second element of the tuple is a string modifier used for code generation.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">composite_mapping</span>: <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Symbol</span>, (<span class="ident">bool</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
+    <span class="doccomment">/// Are we traversing a program function?</span>
+    <span class="doccomment">/// A &quot;program function&quot; is a function that can be invoked by a user or another program.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">is_program_function</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CodeGenerator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
@@ -96,6 +103,7 @@
             <span class="ident">current_function</span>: <span class="prelude-val">None</span>,
             <span class="ident">variable_mapping</span>: <span class="ident">IndexMap::new</span>(),
             <span class="ident">composite_mapping</span>: <span class="ident">IndexMap::new</span>(),
+            <span class="ident">is_program_function</span>: <span class="bool-val">false</span>,
         }
     }
 }

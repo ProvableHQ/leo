@@ -323,6 +323,10 @@
 <span id="318">318</span>
 <span id="319">319</span>
 <span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -355,6 +359,9 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">parent</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Symbol</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">has_return</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">negate</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Are we traversing a program function?</span>
+    <span class="doccomment">/// A &quot;program function&quot; is a function that can be invoked by a user or another program.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">is_program_function</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">const</span> <span class="ident">BOOLEAN_TYPE</span>: <span class="ident">Type</span> <span class="op">=</span> <span class="ident">Type::Boolean</span>;
@@ -388,6 +395,7 @@
     <span class="doccomment">/// Returns a new type checker given a symbol table and error handler.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">symbol_table</span>: <span class="ident">SymbolTable</span>, <span class="ident">handler</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Handler</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
+            <span class="ident">is_program_function</span>: <span class="bool-val">false</span>,
             <span class="ident">symbol_table</span>: <span class="ident">RefCell::new</span>(<span class="ident">symbol_table</span>),
             <span class="ident">handler</span>,
             <span class="ident">parent</span>: <span class="prelude-val">None</span>,

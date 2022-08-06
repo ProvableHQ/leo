@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["function",""],["input",""]]});
+initSidebarItems({"mod":[["annotation",""],["function_input",""]],"struct":[["Function","A function definition."]]});

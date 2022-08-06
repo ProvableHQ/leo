@@ -594,7 +594,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">visit_call</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">CallExpression</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">call_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    {} &quot;</span>, <span class="ident">input</span>.<span class="ident">function</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">call_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    call {} &quot;</span>, <span class="ident">input</span>.<span class="ident">function</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">String::new</span>();
 
         <span class="kw">for</span> <span class="ident">argument</span> <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">arguments</span>.<span class="ident">iter</span>() {
