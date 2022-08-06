@@ -18,7 +18,6 @@ use crate::{CallType, TypeChecker, VariableSymbol, VariableType};
 
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
-
 use leo_span::sym;
 
 use std::cell::RefCell;
@@ -45,19 +44,36 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.has_return = false;
         self.parent = Some(input.name());
 
-        // Get the function symbol from the symbol table.
+        // Program and helper functions must have input parameters.
+        // Note that the unwrap is safe since we set the call type above.
+        if self.call_type.unwrap() != CallType::Inlined && input.input.is_empty() {
+            self.emit_err(TypeCheckerError::function_must_have_inputs(
+                self.call_type.unwrap(),
+                input.span(),
+            ));
+        }
 
         input.input.iter().for_each(|input_var| {
             // Check that the type of input parameter is valid.
             self.assert_type_is_valid(input_var.span, &input_var.type_);
             self.assert_not_tuple(input_var.span, &input_var.type_);
 
-            // If the function is not a program function, then check that the parameters do not have an associated mode.
             // Note that the unwrap is safe since we set the call type above.
-            if self.call_type.unwrap() != CallType::Program && input_var.mode() != ParamMode::None {
-                self.emit_err(TypeCheckerError::helper_function_inputs_cannot_have_modes(
-                    input_var.span,
-                ));
+            match self.call_type.unwrap() {
+                // Program functions cannot have constant input parameters.
+                CallType::Program if input_var.mode() == ParamMode::Const => {
+                    self.emit_err(TypeCheckerError::program_functions_cannot_have_const_inputs(
+                        input_var.span(),
+                    ));
+                }
+                // If the function is not a program function, then check that the parameters do not have an associated mode.
+                _ if input_var.mode() != ParamMode::None => {
+                    self.emit_err(TypeCheckerError::helper_function_inputs_cannot_have_modes(
+                        input_var.span,
+                    ));
+                }
+                // Do nothing.
+                _ => {}
             }
 
             // Check for conflicting variable names.

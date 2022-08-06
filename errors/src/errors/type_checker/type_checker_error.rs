@@ -309,4 +309,18 @@ create_messages!(
         msg: format!("A {caller_type} function cannot call a {callee_type} function."),
         help: Some("Consider modifying the function annotations such that the call is valid.".to_string()),
     }
+
+    @formatted
+    function_must_have_inputs {
+        args: (func_type: impl Display),
+        msg: format!("A {func_type} function must have inputs."),
+        help: Some("Consider adding inputs to the function or using an inlined function.".to_string()),
+    }
+
+    @formatted
+    program_functions_cannot_have_const_inputs {
+        args: (),
+        msg: format!("Program functions cannot have constant inputs."),
+        help: Some("Consider removing the `const[ant]` parameters or declaring the constants in the function body.".to_string()),
+    }
 );
