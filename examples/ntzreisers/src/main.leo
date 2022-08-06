@@ -1,8 +1,10 @@
 // The 'ntzreisers' main function.
 // From Hacker's Delight 2nd ed. figure 5-27
+@program
 function main(public x: u32) -> u8 {
     x = (x & 0u32.sub_wrapped(x)).rem_wrapped(37u32);
-    let i: u32 = x;
+    return reisersTableLookup(x);
+}
 
 // There are 37 entries here
 // {32, 0, 1, 26, 2, 23, 27,
@@ -10,8 +12,7 @@ function main(public x: u32) -> u8 {
 //   7, 17, u, 25, 22, 31, 15, 29, 10, 12,
 //   6, u, 21, 14, 9, 5, 20, 8, 19, 18};
 
-// Function call codegen doesn't work yet so inline it.
-// function reisersTableLookup(i: u32) -> u8 {
+function reisersTableLookup(i: u32) -> u8 {
 
     if i == 0u32 {return 32u8;} else
     if i == 1u32 {return 0u8;} else

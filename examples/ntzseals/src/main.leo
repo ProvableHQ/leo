@@ -1,12 +1,11 @@
 // The 'nztseals' main function.
 // From Hacker's Delight 2nd ed. figure 5-25
+@program
 function main(public x: u32) -> u8 {
   // 0x0450FBAF = 72416175
   x = (x & 0u32.sub_wrapped(x)).mul_wrapped(72416175u32);
-
-//  return sealsTableLookup(x >> 26u8);
-// inlining function call:
-  let i: u32 = x >> 26u8;
+  return sealsTableLookup(x >> 26u8);
+}
 
 // Right now we do not have any structure that allows
 // computable indexing, so simulate that with a function.
@@ -15,8 +14,7 @@ function main(public x: u32) -> u8 {
 //  31,11, 5, u, u, u, u, u,   9, u, u,24, u, u,20,26,
 //  30, u, u, u, u,23, u,19,  29, u,22,18,28,17,16, u};
 
-// But function call codegen doesn't work yet so inline it.
-// function sealsTableLookup(i: u32) -> u8 {
+function sealsTableLookup(i: u32) -> u8 {
 
   if i == 0u32 {return 32u8;} else
   if i == 1u32 {return 0u8;} else

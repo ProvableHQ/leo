@@ -1,5 +1,6 @@
 // The 'ntzmasks' main function.
 // From Hacker's Delight 2nd ed. figure 5-20
+@program
 function main(public x: u32) -> u8 {
     if (x == 0u32) {return 32u8;}
     let n: u8 = 1u8;

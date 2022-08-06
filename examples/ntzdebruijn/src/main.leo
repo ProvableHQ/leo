@@ -1,16 +1,18 @@
 // The 'ntzdebruijn' main function.
 // From Hacker's Delight 2nd ed. figure 5-26
+@program
 function main(public x: u32) -> u8 {
     if x == 0u32 {return 32u8;}
     // 0x04D7651F = 81224991
     x = (x & 0u32.sub_wrapped(x)).mul_wrapped(81224991u32);
     let i: u32 = x >> 27u8;
+    return deBruijnTableLookup(i);
+}
 
 //     { 0, 1, 2,24, 3,19, 6,25,   22, 4,20,10,16, 7,12,26,
 //      31,23,18, 5,21, 9,15,11,   30,17, 8,14,29,13,28,27};
 
-// Function call codegen doesn't work yet so inline it.
-// function deBruijnTableLookup(i: u32) -> u8 {
+function deBruijnTableLookup(i: u32) -> u8 {
 
     if i == 0u32 {return 0u8;} else
     if i == 1u32 {return 1u8;} else
