@@ -86,18 +86,12 @@ outputs:
             type_: I8
             name: "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":199,\\\"hi\\\":200}\"}"
             value:
-              Unary:
-                receiver:
-                  Literal:
-                    I8:
-                      - "2"
-                      - span:
-                          lo: 211
-                          hi: 214
-                op: Negate
-                span:
-                  lo: 210
-                  hi: 214
+              Literal:
+                I8:
+                  - "-2"
+                  - span:
+                      lo: 210
+                      hi: 214
             span:
               lo: 202
               hi: 204
@@ -187,18 +181,12 @@ outputs:
             type_: I8
             name: "{\"name\":\"r4\",\"span\":\"{\\\"lo\\\":388,\\\"hi\\\":390}\"}"
             value:
-              Unary:
-                receiver:
-                  Literal:
-                    I8:
-                      - "1"
-                      - span:
-                          lo: 398
-                          hi: 401
-                op: Negate
-                span:
-                  lo: 397
-                  hi: 401
+              Literal:
+                I8:
+                  - "-1"
+                  - span:
+                      lo: 397
+                      hi: 401
             span:
               lo: 392
               hi: 394

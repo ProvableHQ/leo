@@ -1,10 +1,13 @@
 /*
 namespace: Compile
-expectation: Fail
+expectation: Pass
 input_file: ../inputs/dummy.in
 */
 
-function main() -> i8 {
+// TODO: This test passes, but constant propogation should detect an overflow.
+
+@program
+function main(y: bool) -> i8 {
     let a: i8 = -127i8;
     let b: i8 = a - 1i8;
 

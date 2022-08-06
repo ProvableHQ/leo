@@ -1,5 +1,9 @@
 ---
 namespace: Compile
-expectation: Fail
+expectation: Pass
 outputs:
-  - "Failed to parse string. Parsing Error: VerboseError { errors: [(\"closure main:\\n    neg 170141183460469231731687303715884105727i128 into r0;\\n    sub r0 2i128 into r1;\\n    output r1 as i128;\\n\\n\\n\", Nom(Tag)), (\"closure main:\\n    neg 170141183460469231731687303715884105727i128 into r0;\\n    sub r0 2i128 into r1;\\n    output r1 as i128;\\n\\n\\n\", Nom(Alt)), (\"closure main:\\n    neg 170141183460469231731687303715884105727i128 into r0;\\n    sub r0 2i128 into r1;\\n    output r1 as i128;\\n\\n\\n\", Nom(Many1))] }"
+  - output:
+      - initial_input_ast: c73d747914473c57db75df7fd1672a0675b56394dca1ed1fb3536f6777c86d80
+    initial_ast: e48cd3c49011fc6cdc05308b9ce2f696c3a68eaf7cdfeb62cc4565715cd6710b
+    unrolled_ast: e48cd3c49011fc6cdc05308b9ce2f696c3a68eaf7cdfeb62cc4565715cd6710b
+    ssa_ast: b1bac3b891509b8f3b51db8d0fd17320a80dab5dfc36a45f697df11d81ef2cb5

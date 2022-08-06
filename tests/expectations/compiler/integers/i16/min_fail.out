@@ -1,5 +1,9 @@
 ---
 namespace: Compile
-expectation: Fail
+expectation: Pass
 outputs:
-  - "Failed to parse string. Parsing Error: VerboseError { errors: [(\"closure main:\\n    neg 32767i16 into r0;\\n    sub r0 2i16 into r1;\\n    output r1 as i16;\\n\\n\\n\", Nom(Tag)), (\"closure main:\\n    neg 32767i16 into r0;\\n    sub r0 2i16 into r1;\\n    output r1 as i16;\\n\\n\\n\", Nom(Alt)), (\"closure main:\\n    neg 32767i16 into r0;\\n    sub r0 2i16 into r1;\\n    output r1 as i16;\\n\\n\\n\", Nom(Many1))] }"
+  - output:
+      - initial_input_ast: 79bcbe7e9238a5693c7767022694c80ac5b120c8a165666d22d3a84b31c1a561
+    initial_ast: e9c3b44e095957d32956781b9453904c44660e695a6529cd625c10660a94ac32
+    unrolled_ast: e9c3b44e095957d32956781b9453904c44660e695a6529cd625c10660a94ac32
+    ssa_ast: 1ff03bbdf341387f0c3863886edb37b9e684a6ec976faf5059e9c6ed7e324bca

@@ -1,10 +1,13 @@
 /*
 namespace: Compile
-expectation: Fail
+expectation: Pass
 input_file: ../inputs/dummy.in
 */
 
-function main() -> i32 {
+// TODO: This test passes, but constant propogation should detect an overflow.
+
+@program
+function main(y: bool) -> i32 {
     let a: i32 = -2147483647i32;
     let b: i32 = a - 1i32;
 

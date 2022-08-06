@@ -48,18 +48,12 @@ outputs:
       span:
         lo: 0
         hi: 3
-  - Unary:
-      receiver:
-        Literal:
-          I8:
-            - "5"
-            - span:
-                lo: 1
-                hi: 4
-      op: Negate
-      span:
-        lo: 0
-        hi: 4
+  - Literal:
+      I8:
+        - "-5"
+        - span:
+            lo: 0
+            hi: 4
   - Unary:
       receiver:
         Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
