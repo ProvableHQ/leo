@@ -552,7 +552,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         .iter()
                         .zip(input.arguments.iter())
                         .for_each(|(expected, argument)| {
-                            self.visit_expression(argument, &Some(expected.get_variable().type_.clone()));
+                            self.visit_expression(argument, &Some(expected.type_.clone()));
                         });
 
                     Some(ret)

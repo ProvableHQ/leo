@@ -8,22 +8,21 @@ outputs:
     imports: {}
     functions:
       "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
+        annotations: []
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
         input:
-          - Variable:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-              mode: Private
-              type_: U32
-              span:
-                lo: 13
-                hi: 14
-          - Variable:
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":28,\\\"hi\\\":29}\"}"
-              mode: Public
-              type_: I32
-              span:
-                lo: 28
-                hi: 29
+          - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
+            mode: None
+            type_: U32
+            span:
+              lo: 13
+              hi: 14
+          - identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":28,\\\"hi\\\":29}\"}"
+            mode: Public
+            type_: I32
+            span:
+              lo: 28
+              hi: 29
         output: U8
         core_mapping: ~
         block:
@@ -46,22 +45,21 @@ outputs:
           lo: 2
           hi: 61
       "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":72,\\\"hi\\\":73}\"}":
+        annotations: []
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":72,\\\"hi\\\":73}\"}"
         input:
-          - Variable:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":81,\\\"hi\\\":82}\"}"
-              mode: Public
-              type_: U32
-              span:
-                lo: 81
-                hi: 82
-          - Variable:
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":90}\"}"
-              mode: Private
-              type_: I32
-              span:
-                lo: 89
-                hi: 90
+          - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":81,\\\"hi\\\":82}\"}"
+            mode: Public
+            type_: U32
+            span:
+              lo: 81
+              hi: 82
+          - identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":90}\"}"
+            mode: None
+            type_: I32
+            span:
+              lo: 89
+              hi: 90
         output: U8
         core_mapping: ~
         block:

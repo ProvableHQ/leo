@@ -84,6 +84,7 @@ pub enum Token {
     Underscore,
     BitXor,
     BitXorAssign,
+    At,
 
     // Syntactic Grammar
     // Types
@@ -281,6 +282,7 @@ impl fmt::Display for Token {
             Underscore => write!(f, "_"),
             BitXor => write!(f, "^"),
             BitXorAssign => write!(f, "^="),
+            At => write!(f, "@"),
 
             Address => write!(f, "address"),
             Bool => write!(f, "bool"),

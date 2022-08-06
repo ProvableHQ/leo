@@ -4,6 +4,7 @@ expectation: Pass
 input_file: inputs/int64.in
 */
 
+@program
 function main(
     i8_value: i8,
     i16_value: i16,

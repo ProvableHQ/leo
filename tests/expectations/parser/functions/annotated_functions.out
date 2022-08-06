@@ -1,0 +1,72 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - name: ""
+    network: ""
+    expected_input: []
+    imports: {}
+    functions:
+      "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":29}\"}":
+        annotations:
+          - identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":6}\"}"
+            span:
+              lo: 2
+              hi: 6
+          - identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":11}\"}"
+            span:
+              lo: 7
+              hi: 11
+          - identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":16}\"}"
+            span:
+              lo: 12
+              hi: 16
+        identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":29}\"}"
+        input: []
+        output: U8
+        core_mapping: ~
+        block:
+          statements: []
+          span:
+            lo: 38
+            hi: 40
+        span:
+          lo: 17
+          hi: 40
+      "{\"name\":\"mint\",\"span\":\"{\\\"lo\\\":60,\\\"hi\\\":64}\"}":
+        annotations:
+          - identifier: "{\"name\":\"program\",\"span\":\"{\\\"lo\\\":43,\\\"hi\\\":50}\"}"
+            span:
+              lo: 42
+              hi: 50
+        identifier: "{\"name\":\"mint\",\"span\":\"{\\\"lo\\\":60,\\\"hi\\\":64}\"}"
+        input: []
+        output: U8
+        core_mapping: ~
+        block:
+          statements: []
+          span:
+            lo: 73
+            hi: 75
+        span:
+          lo: 51
+          hi: 75
+      "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}":
+        annotations:
+          - identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":78,\\\"hi\\\":82}\"}"
+            span:
+              lo: 77
+              hi: 82
+        identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}"
+        input: []
+        output: U8
+        core_mapping: ~
+        block:
+          statements: []
+          span:
+            lo: 105
+            hi: 107
+        span:
+          lo: 83
+          hi: 107
+    circuits: {}

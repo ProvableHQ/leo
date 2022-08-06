@@ -12,6 +12,7 @@ record Token {
     amount: u64,
 }
 
+@program
 function mint(owner: address, amount: u64) -> Token {
     return Token {
         owner,
@@ -20,6 +21,7 @@ function mint(owner: address, amount: u64) -> Token {
     };
 }
 
+@program
 function main(x: address) -> u64 {
     const c: u64 = 1u64;
     let t: Token = Token { owner: x, gates: 0u64, amount: c};

@@ -18,8 +18,8 @@ use crate::StaticSingleAssigner;
 use itertools::Itertools;
 
 use leo_ast::{
-    Expression, Function, FunctionInput, ProgramReconstructor, ReturnStatement, Statement, StatementReconstructor,
-    TernaryExpression, TupleExpression,
+    Expression, Function, ProgramReconstructor, ReturnStatement, Statement, StatementReconstructor, TernaryExpression,
+    TupleExpression,
 };
 
 impl ProgramReconstructor for StaticSingleAssigner<'_> {
@@ -30,15 +30,9 @@ impl ProgramReconstructor for StaticSingleAssigner<'_> {
 
         // There is no need to reconstruct `function.inputs`.
         // However, for each input, we must add each symbol to the rename table.
-        for input in function.input.iter() {
-            match input {
-                FunctionInput::Variable(function_input_variable) => {
-                    self.rename_table.update(
-                        function_input_variable.identifier.name,
-                        function_input_variable.identifier.name,
-                    );
-                }
-            }
+        for input_variable in function.input.iter() {
+            self.rename_table
+                .update(input_variable.identifier.name, input_variable.identifier.name);
         }
 
         let mut block = self.reconstruct_block(function.block);
@@ -56,14 +50,15 @@ impl ProgramReconstructor for StaticSingleAssigner<'_> {
             .fold(last_return_expression, |acc, (guard, expr)| match guard {
                 None => unreachable!("All return statements except for the last one must have a guard."),
                 // Note that type checking guarantees that all expressions in return statements in the function body have the same type.
-                Some(guard) => match (acc, expr) {
+                Some(guard) => match (expr, acc) {
                     // If the function returns tuples, fold the return expressions into a tuple of ternary expressions.
-                    (Expression::Tuple(acc_tuple), Expression::Tuple(expr_tuple)) => {
+                    // Note that `expr` and `acc` are correspond to the `if` and `else` cases of the ternary expression respectively.
+                    (Expression::Tuple(expr_tuple), Expression::Tuple(acc_tuple)) => {
                         Expression::Tuple(TupleExpression {
-                            elements: acc_tuple
+                            elements: expr_tuple
                                 .elements
                                 .into_iter()
-                                .zip_eq(expr_tuple.elements.into_iter())
+                                .zip_eq(acc_tuple.elements.into_iter())
                                 .map(|(if_true, if_false)| {
                                     Expression::Ternary(TernaryExpression {
                                         condition: Box::new(guard.clone()),
@@ -77,10 +72,11 @@ impl ProgramReconstructor for StaticSingleAssigner<'_> {
                         })
                     }
                     // Otherwise, fold the return expressions into a single ternary expression.
-                    (acc, expr) => Expression::Ternary(TernaryExpression {
+                    // Note that `expr` and `acc` are correspond to the `if` and `else` cases of the ternary expression respectively.
+                    (expr, acc) => Expression::Ternary(TernaryExpression {
                         condition: Box::new(guard),
-                        if_true: Box::new(acc),
-                        if_false: Box::new(expr),
+                        if_true: Box::new(expr),
+                        if_false: Box::new(acc),
                         span: Default::default(),
                     }),
                 },
@@ -96,6 +92,7 @@ impl ProgramReconstructor for StaticSingleAssigner<'_> {
         self.pop();
 
         Function {
+            annotations: function.annotations,
             identifier: function.identifier,
             input: function.input,
             output: function.output,

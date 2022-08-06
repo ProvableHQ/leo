@@ -384,6 +384,7 @@ impl Token {
                 )
             }
             '^' => return match_two(&mut input, Token::BitXor, '=', Token::BitXorAssign),
+            '@' => return Ok((1, Token::At)),
             _ => (),
         }
         if let Some(identifier) = eat_identifier(&mut input) {

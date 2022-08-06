@@ -5,6 +5,7 @@ input_file:
  - ../inputs/dummy.in
 */
 
+@program
 function main(y: bool) -> bool {
     const a: i64 = 0i64;
 

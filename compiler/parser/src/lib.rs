@@ -19,6 +19,7 @@
 //! This module contains the [`parse_ast()`] method which calls the underlying [`parse()`]
 //! method to create a new program ast.
 
+#![forbid(unsafe_code)]
 #![allow(clippy::vec_init_then_push)]
 #![doc = include_str!("../README.md")]
 
