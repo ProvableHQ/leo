@@ -29,7 +29,6 @@ pub struct TypeChecker<'a> {
     pub(crate) handler: &'a Handler,
     pub(crate) parent: Option<Symbol>,
     pub(crate) has_return: bool,
-    pub(crate) negate: bool,
     /// Are we traversing a program function?
     /// A "program function" is a function that can be invoked by a user or another program.
     pub(crate) is_program_function: bool,
@@ -71,7 +70,6 @@ impl<'a> TypeChecker<'a> {
             handler,
             parent: None,
             has_return: false,
-            negate: false,
         }
     }
 
