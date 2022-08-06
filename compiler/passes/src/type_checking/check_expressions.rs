@@ -20,7 +20,7 @@ use leo_errors::TypeCheckerError;
 use leo_span::Span;
 use std::str::FromStr;
 
-use crate::TypeChecker;
+use crate::{CallType, TypeChecker};
 
 fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: &Option<Type>) -> Option<Type> {
     match (t1, t2) {
@@ -384,6 +384,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table` alive for the entire block and will be very memory inefficient!
                 let func = self.symbol_table.borrow().lookup_fn_symbol(ident.name).cloned();
                 if let Some(func) = func {
+                    // Check that the return type of the function matches the expected type of the expression.
                     let ret = self.assert_and_return_type(func.output, expected, func.span);
 
                     // Check number of function arguments.
@@ -402,6 +403,24 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         .for_each(|(expected, argument)| {
                             self.visit_expression(argument, &Some(expected.type_.clone()));
                         });
+
+                    // Check that the call is valid. The rules are as follows:
+                    // - A "program function" can only call "helper functions" and "inlined functions".
+                    // - A "helper function" can only call "inlined functions".
+                    // - An "inlined function" can only call "inlined functions".
+                    // Note that the unwrap is safe since a call expression must be within a function body.
+                    match (self.call_type.unwrap(), func.call_type) {
+                        // Valid function calls.
+                        (CallType::Program, CallType::Helper)
+                        | (CallType::Program, CallType::Inlined)
+                        | (CallType::Helper, CallType::Inlined)
+                        | (CallType::Inlined, CallType::Inlined) => {}
+                        (caller_type, callee_type) => self.emit_err(TypeCheckerError::invalid_function_call(
+                            caller_type,
+                            callee_type,
+                            input.span(),
+                        )),
+                    }
 
                     Some(ret)
                 } else {

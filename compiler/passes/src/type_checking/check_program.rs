@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{TypeChecker, VariableSymbol, VariableType};
+use crate::{CallType, TypeChecker, VariableSymbol, VariableType};
 
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
@@ -28,39 +28,33 @@ use std::collections::HashSet;
 
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_function(&mut self, input: &'a Function) {
-        // Check that the function's annotations are valid.
-        for annotation in input.annotations.iter() {
-            match annotation.identifier.name {
-                // Set `is_program_function` to true if the corresponding annotation is found.
-                sym::program => self.is_program_function = true,
-                sym::inline => self.is_inlined = true,
-                _ => self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span)),
-            }
-        }
-        if self.is_program_function && self.is_inlined {
-            let mut spans = input.annotations.iter().map(|annotation| annotation.span);
-            // This is safe, since if either `is_program_function` or `is_inlined` is true, then the function must have at least one annotation.
-            let first_span = spans.next().unwrap();
-
-            // Sum up the spans of all the annotations.
-            let span = spans.fold(first_span, |acc, span| acc + span);
-            self.emit_err(TypeCheckerError::program_and_inline_annotation(span));
-        }
-
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
             .swap(prev_st.borrow().lookup_fn_scope(input.name()).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
 
+        // Lookup the function's call type.
+        self.call_type = Some(
+            self.symbol_table
+                .borrow_mut()
+                .lookup_fn_symbol(input.name())
+                .unwrap()
+                .call_type,
+        );
+
         self.has_return = false;
         self.parent = Some(input.name());
+
+        // Get the function symbol from the symbol table.
+
         input.input.iter().for_each(|input_var| {
             // Check that the type of input parameter is valid.
             self.assert_type_is_valid(input_var.span, &input_var.type_);
             self.assert_not_tuple(input_var.span, &input_var.type_);
 
             // If the function is not a program function, then check that the parameters do not have an associated mode.
-            if !self.is_program_function && input_var.mode() != ParamMode::None {
+            // Note that the unwrap is safe since we set the call type above.
+            if self.call_type.unwrap() != CallType::Program && input_var.mode() != ParamMode::None {
                 self.emit_err(TypeCheckerError::helper_function_inputs_cannot_have_modes(
                     input_var.span,
                 ));
@@ -99,9 +93,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.symbol_table.swap(prev_st.lookup_fn_scope(input.name()).unwrap());
         self.symbol_table = RefCell::new(prev_st);
 
-        // Unset the flags associated with annotations.
-        self.is_program_function = false;
-        self.is_inlined = false;
+        // Unset the call type.
+        self.call_type = None;
     }
 
     fn visit_circuit(&mut self, input: &'a Circuit) {

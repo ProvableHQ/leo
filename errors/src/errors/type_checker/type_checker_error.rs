@@ -302,4 +302,11 @@ create_messages!(
         msg: format!("A function cannot have both `@program` and `@inline` annotations."),
         help: Some("Remove one of the annotations.".to_string()),
     }
+
+    @formatted
+    invalid_function_call {
+        args: (caller_type: impl Display, callee_type: impl Display),
+        msg: format!("A {caller_type} function cannot call a {callee_type} function."),
+        help: Some("Consider modifying the function annotations such that the call is valid.".to_string()),
+    }
 );

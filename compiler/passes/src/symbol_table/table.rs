@@ -76,7 +76,7 @@ impl SymbolTable {
     pub fn insert_fn(&mut self, symbol: Symbol, insert: &Function) -> Result<()> {
         self.check_shadowing(symbol, insert.span)?;
         let id = self.scope_index();
-        self.functions.insert(symbol, Self::new_function_symbol(id, insert));
+        self.functions.insert(symbol, Self::new_function_symbol(id, insert)?);
         self.scopes.push(Default::default());
         Ok(())
     }
