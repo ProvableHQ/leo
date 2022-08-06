@@ -252,11 +252,33 @@ impl ParserContext<'_> {
         }
         let mut inner = self.parse_postfix_expression()?;
         for (op, op_span) in ops.into_iter().rev() {
-            inner = Expression::Unary(UnaryExpression {
-                span: op_span + inner.span(),
-                op,
-                receiver: Box::new(inner),
-            });
+            inner = match inner {
+                // If the unary operation is a negate, and the inner expression is a signed integer literal,
+                // then produce a negative integer literal.
+                // This helps handle a special case where -128i8, treated as a unary expression, overflows, but -128i8, treated as an integer literal doesn't.
+                // TODO: the parser produces a negative integer literal for both -(128i8) and -128i8. Is this an issue?
+                Expression::Literal(Literal::I8(string, span)) if op == UnaryOperation::Negate => {
+                    Expression::Literal(Literal::I8(format!("-{}", string), op_span + span))
+                }
+                Expression::Literal(Literal::I16(string, span)) if op == UnaryOperation::Negate => {
+                    Expression::Literal(Literal::I16(format!("-{}", string), op_span + span))
+                }
+                Expression::Literal(Literal::I32(string, span)) if op == UnaryOperation::Negate => {
+                    Expression::Literal(Literal::I32(format!("-{}", string), op_span + span))
+                }
+                Expression::Literal(Literal::I64(string, span)) if op == UnaryOperation::Negate => {
+                    Expression::Literal(Literal::I64(format!("-{}", string), op_span + span))
+                }
+                Expression::Literal(Literal::I128(string, span)) if op == UnaryOperation::Negate => {
+                    Expression::Literal(Literal::I128(format!("-{}", string), op_span + span))
+                }
+                // Otherwise, produce a unary expression.
+                _ => Expression::Unary(UnaryExpression {
+                    span: op_span + inner.span(),
+                    op,
+                    receiver: Box::new(inner),
+                }),
+            };
         }
         Ok(inner)
     }
