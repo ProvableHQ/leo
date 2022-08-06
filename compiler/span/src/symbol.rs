@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::dropless::DroplessArena;
 use crate::source_map::SourceMap;
 
+use core::borrow::Borrow;
 use core::cmp::PartialEq;
-use core::convert::AsRef;
+use core::hash::{Hash, Hasher};
 use core::num::NonZeroU32;
 use core::ops::Deref;
 use core::{fmt, str};
@@ -26,8 +26,6 @@ use fxhash::FxBuildHasher;
 use indexmap::IndexSet;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::cell::RefCell;
-use std::intrinsics::transmute;
-use std::marker::PhantomData;
 
 /// A helper for `symbols` defined below.
 /// The macro's job is to bind conveniently  usable `const` items to the symbol names provided.
@@ -218,6 +216,7 @@ symbols! {
     owner,
     gates,
     _nonce,
+    program,
 
     // input file
     registers,
@@ -240,8 +239,10 @@ impl Symbol {
     /// Returns the corresponding `Symbol` for the given `index`.
     pub const fn new(index: u32) -> Self {
         let index = index.saturating_add(1);
-        // SAFETY: per above addition, we know `index > 0` always applies.
-        Self(unsafe { NonZeroU32::new_unchecked(index) })
+        Self(match NonZeroU32::new(index) {
+            None => unreachable!(),
+            Some(x) => x,
+        })
     }
 
     /// Maps a string to its interned representation.
@@ -249,13 +250,9 @@ impl Symbol {
         with_session_globals(|session_globals| session_globals.symbol_interner.intern(string))
     }
 
-    /// Convert to effectively a `&'static str`.
-    /// This is a slowish operation because it requires locking the symbol interner.
-    pub fn as_str(self) -> SymbolStr {
-        with_session_globals(|session_globals| {
-            let symbol_str = session_globals.symbol_interner.get(self);
-            SymbolStr::new(unsafe { std::mem::transmute::<&str, &str>(symbol_str) })
-        })
+    /// Convert to effectively a `&'static str` given the `SessionGlobals`.
+    pub fn as_str<R>(self, s: &SessionGlobals, with: impl FnOnce(&str) -> R) -> R {
+        s.symbol_interner.get(self, with)
     }
 
     /// Converts this symbol to the raw index.
@@ -268,82 +265,19 @@ impl Symbol {
     }
 
     fn serde_from_symbol<S: Serializer>(index: &NonZeroU32, ser: S) -> Result<S::Ok, S::Error> {
-        ser.serialize_str(&Self(*index).as_str())
+        with_session_globals(|sg| Self(*index).as_str(sg, |s| ser.serialize_str(s)))
     }
 }
 
 impl fmt::Debug for Symbol {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt::Debug::fmt(&self.as_str(), f)
+        with_session_globals(|s| self.as_str(s, |s| fmt::Debug::fmt(s, f)))
     }
 }
 
 impl fmt::Display for Symbol {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt::Display::fmt(&self.as_str(), f)
-    }
-}
-
-/// An alternative to [`Symbol`], useful when the chars within the symbol need to
-/// be accessed. It deliberately has limited functionality and should only be
-/// used for temporary values.
-///
-/// Because the interner outlives any thread which uses this type, we can
-/// safely treat `string` which points to interner data, as an immortal string,
-/// as long as this type never crosses between threads.
-#[derive(Clone, Eq, PartialOrd, Ord)]
-pub struct SymbolStr {
-    string: &'static str,
-    /// Ensures the type is neither `Sync` nor `Send`,
-    /// so that we satisfy "never crosses between threads" per above.
-    not_sync_send: PhantomData<*mut ()>,
-}
-
-impl SymbolStr {
-    /// Create a `SymbolStr` from a `&'static str`.
-    pub fn new(string: &'static str) -> Self {
-        Self {
-            string,
-            not_sync_send: PhantomData,
-        }
-    }
-}
-
-// This impl allows a `SymbolStr` to be directly equated with a `String` or `&str`.
-impl<T: Deref<Target = str>> PartialEq<T> for SymbolStr {
-    fn eq(&self, other: &T) -> bool {
-        self.string == other.deref()
-    }
-}
-
-/// This impl means that if `ss` is a `SymbolStr`:
-/// - `*ss` is a `str`;
-/// - `&*ss` is a `&str` (and `match &*ss { ... }` is a common pattern).
-/// - `&ss as &str` is a `&str`, which means that `&ss` can be passed to a
-///   function expecting a `&str`.
-impl Deref for SymbolStr {
-    type Target = str;
-    #[inline]
-    fn deref(&self) -> &str {
-        self.string
-    }
-}
-
-impl AsRef<str> for SymbolStr {
-    fn as_ref(&self) -> &str {
-        self.string
-    }
-}
-
-impl fmt::Debug for SymbolStr {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt::Debug::fmt(self.string, f)
-    }
-}
-
-impl fmt::Display for SymbolStr {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt::Display::fmt(self.string, f)
+        with_session_globals(|s| self.as_str(s, |s| fmt::Display::fmt(s, f)))
     }
 }
 
@@ -383,13 +317,53 @@ pub fn with_session_globals<R>(f: impl FnOnce(&SessionGlobals) -> R) -> R {
     SESSION_GLOBALS.with(f)
 }
 
+/// An interned string,
+/// either prefilled "at compile time" (`Static`),
+/// or created at runtime (`Owned`).
+#[derive(Eq)]
+enum InternedStr {
+    /// String is stored "at compile time", i.e. prefilled.
+    Static(&'static str),
+    /// String is constructed and stored during runtime.
+    Owned(Box<str>),
+}
+
+impl Borrow<str> for InternedStr {
+    fn borrow(&self) -> &str {
+        self.deref()
+    }
+}
+
+impl Deref for InternedStr {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        match self {
+            Self::Static(s) => s,
+            Self::Owned(s) => s,
+        }
+    }
+}
+
+impl PartialEq for InternedStr {
+    fn eq(&self, other: &InternedStr) -> bool {
+        self.deref() == other.deref()
+    }
+}
+
+impl Hash for InternedStr {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.deref().hash(state);
+    }
+}
+
 /// The inner interner.
 /// This construction is used to get interior mutability in `Interner`.
 struct InnerInterner {
-    /// Arena used to allocate the strings, giving us `&'static str`s from it.
-    arena: DroplessArena,
+    // /// Arena used to allocate the strings, giving us `&'static str`s from it.
+    // arena: DroplessArena,
     /// Registration of strings and symbol index allocation is done in this set.
-    set: IndexSet<&'static str, FxBuildHasher>,
+    set: IndexSet<InternedStr, FxBuildHasher>,
 }
 
 /// A symbol-to-string interner.
@@ -406,8 +380,8 @@ impl Interner {
     /// Returns an interner prefilled with `init`.
     fn prefill(init: &[&'static str]) -> Self {
         let inner = InnerInterner {
-            arena: <_>::default(),
-            set: init.iter().copied().collect(),
+            // arena: <_>::default(),
+            set: init.iter().copied().map(InternedStr::Static).collect(),
         };
         Self {
             inner: RefCell::new(inner),
@@ -416,30 +390,19 @@ impl Interner {
 
     /// Interns `string`, returning a `Symbol` corresponding to it.
     fn intern(&self, string: &str) -> Symbol {
-        let InnerInterner { arena, set } = &mut *self.inner.borrow_mut();
+        let InnerInterner { set } = &mut *self.inner.borrow_mut();
 
         if let Some(sym) = set.get_index_of(string) {
-            // Already internet, return that symbol.
+            // Already interned, return that symbol.
             return Symbol::new(sym as u32);
         }
 
-        // SAFETY: `from_utf8_unchecked` is safe since we just allocated a `&str`,
-        // which is known to be UTF-8.
-        let bytes = arena.alloc_slice(string.as_bytes());
-        let string: &str = unsafe { str::from_utf8_unchecked(bytes) };
-
-        unsafe fn transmute_lt<'a, 'b, T: ?Sized>(x: &'a T) -> &'b T {
-            transmute(x)
-        }
-
-        // SAFETY: Extending to `'static` is fine. Accesses only happen while the arena is alive.
-        let string: &'static _ = unsafe { transmute_lt(string) };
-
-        Symbol::new(set.insert_full(string).0 as u32)
+        Symbol::new(set.insert_full(InternedStr::Owned(string.into())).0 as u32)
     }
 
     /// Returns the corresponding string for the given symbol.
-    fn get(&self, symbol: Symbol) -> &str {
-        self.inner.borrow().set.get_index(symbol.as_u32() as usize).unwrap()
+    fn get<R>(&self, symbol: Symbol, with: impl FnOnce(&str) -> R) -> R {
+        let set = &self.inner.borrow().set;
+        with(set.get_index(symbol.as_u32() as usize).unwrap())
     }
 }

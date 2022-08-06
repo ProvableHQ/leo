@@ -6,6 +6,7 @@ input_file:
  - inputs/lt.in
 */
 
+@program
 function main(a: u32, b: u32, c: bool) -> bool{
     return a < b == c;
 }

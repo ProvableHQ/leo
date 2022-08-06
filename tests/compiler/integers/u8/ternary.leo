@@ -6,6 +6,7 @@ input_file:
  - inputs/tern_rev.in
 */
 
+@program
 function main(s: bool, a: u8, b: u8, c: u8) -> bool {
     let r: u8 = s ? a : b;
 

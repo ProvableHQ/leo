@@ -8,15 +8,15 @@ outputs:
     imports: {}
     functions:
       "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
+        annotations: []
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
         input:
-          - Variable:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":19,\\\"hi\\\":20}\"}"
-              mode: Const
-              type_: U8
-              span:
-                lo: 19
-                hi: 20
+          - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":19,\\\"hi\\\":20}\"}"
+            mode: Const
+            type_: U8
+            span:
+              lo: 19
+              hi: 20
         output: U8
         core_mapping: ~
         block:
@@ -28,15 +28,15 @@ outputs:
           lo: 2
           hi: 34
       "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":45,\\\"hi\\\":46}\"}":
+        annotations: []
         identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":45,\\\"hi\\\":46}\"}"
         input:
-          - Variable:
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":56,\\\"hi\\\":57}\"}"
-              mode: Const
-              type_: U64
-              span:
-                lo: 56
-                hi: 57
+          - identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":56,\\\"hi\\\":57}\"}"
+            mode: Const
+            type_: U64
+            span:
+              lo: 56
+              hi: 57
         output: U8
         core_mapping: ~
         block:

@@ -39,6 +39,8 @@
 // ```
 //
 
+#![forbid(unsafe_code)]
+
 use abnf::types::{Node, Rule};
 use anyhow::{anyhow, Result};
 use std::collections::{HashMap, HashSet};

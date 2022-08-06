@@ -30,6 +30,9 @@ pub struct TypeChecker<'a> {
     pub(crate) parent: Option<Symbol>,
     pub(crate) has_return: bool,
     pub(crate) negate: bool,
+    /// Are we traversing a program function?
+    /// A "program function" is a function that can be invoked by a user or another program.
+    pub(crate) is_program_function: bool,
 }
 
 const BOOLEAN_TYPE: Type = Type::Boolean;
@@ -63,6 +66,7 @@ impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
     pub fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
         Self {
+            is_program_function: false,
             symbol_table: RefCell::new(symbol_table),
             handler,
             parent: None,

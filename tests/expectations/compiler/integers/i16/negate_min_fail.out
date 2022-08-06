@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Failed to parse string. Parsing Error: VerboseError { errors: [(\"neg 32767i16 into r0;\\n    sub r0 1i16 into r1;\\n    neg r1 into r2;\\n    output r2 as i16.private;\\n\", Nom(Tag)), (\"\\n    neg 32767i16 into r0;\\n    sub r0 1i16 into r1;\\n    neg r1 into r2;\\n    output r2 as i16.private;\\n\", Nom(Many1)), (\"function main:\\n    neg 32767i16 into r0;\\n    sub r0 1i16 into r1;\\n    neg r1 into r2;\\n    output r2 as i16.private;\\n\", Nom(Alt)), (\"function main:\\n    neg 32767i16 into r0;\\n    sub r0 1i16 into r1;\\n    neg r1 into r2;\\n    output r2 as i16.private;\\n\", Nom(Many1))] }"
+  - "Failed to parse string. Parsing Error: VerboseError { errors: [(\"closure main:\\n    neg 32767i16 into r0;\\n    sub r0 1i16 into r1;\\n    neg r1 into r2;\\n    output r2 as i16;\\n\\n\\n\", Nom(Tag)), (\"closure main:\\n    neg 32767i16 into r0;\\n    sub r0 1i16 into r1;\\n    neg r1 into r2;\\n    output r2 as i16;\\n\\n\\n\", Nom(Alt)), (\"closure main:\\n    neg 32767i16 into r0;\\n    sub r0 1i16 into r1;\\n    neg r1 into r2;\\n    output r2 as i16;\\n\\n\\n\", Nom(Many1))] }"

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+#![forbid(unsafe_code)]
+
 use leo_ast::Ast;
 use leo_errors::emitter::Handler;
 use leo_span::symbol::create_session_if_not_set_then;

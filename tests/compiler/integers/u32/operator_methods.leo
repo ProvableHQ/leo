@@ -10,6 +10,7 @@ expectation: Pass
 input_file: inputs/add.in
 */
 
+@program
 function main(a: u32, b: u32) -> bool {
     // unary
     let h: u32 = a.not();

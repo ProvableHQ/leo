@@ -1,3 +1,6 @@
+// This example demonstrates an example of a minting and transferring a token in Leo.
+
+// The `Token` record datatype.
 record Token {
     // The token owner.
     owner: address,
@@ -9,6 +12,7 @@ record Token {
 
 // The `mint` function initializes a new record with the
 // to the receiver of tokens in `r1` for the receiver in `r0`.
+@program
 function mint(owner: address, amount: u64) -> Token {
     return Token {
         owner: owner,
@@ -19,6 +23,7 @@ function mint(owner: address, amount: u64) -> Token {
 
 // The `transfer` function sends the specified number of tokens
 // to the receiver from the provided token record.
+@program
 function transfer(token: Token, to: address, amount: u64) -> (Token, Token) {
 
     // Checks the given token record has sufficient balance.
