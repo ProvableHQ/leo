@@ -4,7 +4,8 @@ current: Auction = Auction {
     owner: aleo1mgfq6g40l6zkhsm063n3uhr43qk5e0zsua5aszeq5080dsvlcvxsn0rrau,
     gates: 0u64,
     winning_bidder: aleo1mgfq6g40l6zkhsm063n3uhr43qk5e0zsua5aszeq5080dsvlcvxsn0rrau,
-    winning_bid: 50u64
+    winning_bid: 50u64,
+    _nonce: 0group
 };
 bidder: address = aleo1mgfq6g40l6zkhsm063n3uhr43qk5e0zsua5aszeq5080dsvlcvxsn0rrau;
 bid: u64 = 100u64;
