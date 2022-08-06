@@ -52,22 +52,29 @@ impl<'a> CodeGenerator<'a> {
         }
     }
 
-    pub(crate) fn visit_type_with_visibility(&mut self, input: &'a Type, visibility: Option<ParamMode>) -> String {
+    pub(crate) fn visit_type_with_visibility(&mut self, input: &'a Type, visibility: ParamMode) -> String {
         let mut type_string = self.visit_type(input);
 
         if let Type::Identifier(_) = input {
             // Do not append anything for record and circuit types.
         } else {
-            // Append `.private` to return type.
             // todo: CAUTION private by default.
-            write!(type_string, ".{}", visibility.unwrap_or(ParamMode::Private)).expect("failed to write to string");
+            // Only program functions need a visibility associated with the input type.
+            if self.is_program_function {
+                // If a visibility is not provided in a program function, then it is private by default.
+                let visibility = match visibility {
+                    ParamMode::None => ParamMode::Private,
+                    _ => visibility,
+                };
+                write!(type_string, ".{}", visibility).expect("failed to write to string");
+            }
         }
 
         type_string
     }
 
     /// Returns one or more types equal to the number of return tuple members.
-    pub(crate) fn visit_return_type(&mut self, input: &'a Type, visibility: Option<ParamMode>) -> Vec<String> {
+    pub(crate) fn visit_return_type(&mut self, input: &'a Type, visibility: ParamMode) -> Vec<String> {
         // Handle return tuples.
         if let Type::Tuple(types) = input {
             types

@@ -9,7 +9,7 @@ outputs:
   - "Error [EPAR0370017]: Could not lex the following content: `~`.\n"
   - "Error [EPAR0370017]: Could not lex the following content: `~`.\n"
   - "Error [EPAR0370017]: Could not lex the following content: `'h'`.\n"
-  - "Error [EPAR0370017]: Could not lex the following content: `@test`.\n"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '@'\n    --> test:1:1\n     |\n   1 | @test\n     | ^"
   - "Error [EPAR0370017]: Could not lex the following content: `~`.\n"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', found '&&'\n    --> test:1:1\n     |\n   1 | &&\n     | ^^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', found '||'\n    --> test:1:1\n     |\n   1 | ||\n     | ^^"

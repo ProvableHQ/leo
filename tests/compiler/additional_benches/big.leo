@@ -3,6 +3,7 @@ namespace: Bench
 expectation: Pass
 */
 
+@program
 function hAgrPJzARlhWKDGNpe () -> i128 {
     const NtoD9dCOP8: bool = false;
     if 60367u16 < 59376u16 && 291621465261548374864687596926221274642u128 <= 158647603833518715931164380862541000072u128 - 92087114510286551502623665863269979099u128 - 6505284705764791705801152244952567434u128 + 141283471013642106073249086828215491558u128 / 178739495978647499334333189200118397544u128 * 0u128 / 69358574294733597814948265413698301968u128 || 32532971286371518024146524900992744351u128 / 73930302096579937058701857000560614114u128 * 0u128 + 219449183973603283961254860147322285177u128 > 72259425234692696526333349807208361947u128 || 94519913150306783765596349821018468848i128 == -145523637561949662187440225436346186585i128 {
@@ -158,6 +159,7 @@ function hAgrPJzARlhWKDGNpe () -> i128 {
     return ILtBGr5IWbok66cGZo;
 }
 
+@program
 function kIebmldut (
     constant dS71uQ: i64,
     constant Dj87fM: i8,
@@ -181,6 +183,7 @@ function kIebmldut (
     return dS71uQ;
 }
 
+@program
 function zfUb (n1uGb8qYUbxVeMc: u8) -> field {
     const KGVaawVj_y8MuU: u32 = 3924454878u32;
     let Rdg5wrR4uJy2GqrYJL: u64 = 11167188615068932487u64;
@@ -228,6 +231,7 @@ function zfUb (n1uGb8qYUbxVeMc: u8) -> field {
     return WIRhzmLSHlgn;
 }
 
+@program
 function ey1Y83xwKF4m (
     constant WQQo: i64,
     constant JzJ3bWUp5V5umYC8mLb: u16
@@ -9118,6 +9122,7 @@ function ey1Y83xwKF4m (
     } 
 }
 
+@program
 function WNIRQ5XU (
     Sao22ploN2: u16,
     UAiLILX: u16,
@@ -13276,6 +13281,7 @@ function WNIRQ5XU (
     } 
 }
 
+@program
 function yKAI11uAlhAC0MKuVaQH (
     constant m3q_thgJckCDtZw5: bool,
     constant dtIzYvZXAHLLq10L: u16,
@@ -13310,6 +13316,7 @@ function yKAI11uAlhAC0MKuVaQH (
     return mO8ojODfy3e;
 }
 
+@program
 function EFXa_yV (
     constant lKpXyYB: i16,
     vekEtDz_FKl4w: field,
@@ -15001,6 +15008,7 @@ function EFXa_yV (
     } 
 }
 
+@program
 function nxMY18LG (
     constant rv4FX2AtXtt: i128,
     constant MyEqz3: u128,
@@ -29496,6 +29504,7 @@ function nxMY18LG (
     } 
 }
 
+@program
 function ujkWfQ5r_1Yi (
     XcnTSn5: bool,
     UIgsv89hNR83neLpzYD: i128,
@@ -29530,6 +29539,7 @@ function ujkWfQ5r_1Yi (
     return iVzW;
 }
 
+@program
 function mRhFZzGYWFW3 () -> u16 {
     let It967SlNwbUzoY3v4iTL: u8 = 217u8;
     It967SlNwbUzoY3v4iTL = It967SlNwbUzoY3v4iTL;
@@ -29603,6 +29613,7 @@ function mRhFZzGYWFW3 () -> u16 {
     return ooC9znSzVmwewD2KL;
 }
 
+@program
 function ys4SGkFTY8T8t (
     constant VdZ1o3oai2nDE8: field,
     constant fCskhvo4Zl155ClaZ: u64,
@@ -29623,6 +29634,7 @@ function ys4SGkFTY8T8t (
     return fCskhvo4Zl155ClaZ;
 }
 
+@program
 function h0Eadw (
     constant IkNFf7x4G3: u32,
     sygZ: u128,
@@ -34176,6 +34188,7 @@ function h0Eadw (
     return sygZ;
 }
 
+@program
 function dz88xZBpyG7y9Q9yZS (
     constant QDWdZ1P6Uxy: u8,
     TxLtm4JHFtIxvMQqdXp: i64,
@@ -35481,6 +35494,7 @@ function dz88xZBpyG7y9Q9yZS (
     } 
 }
 
+@program
 function WAqDjVpXCNT8mVu () -> u64 {
     const g96iIWKOcZyNfysxQae: u16 = 45302u16;
     let uayEuyji0EjFEjvUSFY: i128 = hAgrPJzARlhWKDGNpe();
@@ -35622,6 +35636,7 @@ function WAqDjVpXCNT8mVu () -> u64 {
     return IbtV5ITueWPb6mx9PG;
 }
 
+@program
 function ed_5yepk9ZH7ESz4EfU (
     c7iEW8nfI4pcpTUIkmn: field,
     m9g1DEE853bNFWWvV: u32,
@@ -44516,6 +44531,7 @@ function ed_5yepk9ZH7ESz4EfU (
     } 
 }
 
+@program
 function main (constant QZe9: i128) -> i64 {
     if 18788u16 != 61211u16 && 33352u16 >= ujkWfQ5r_1Yi(false, QZe9, 14152i16, QZe9) {
         let MYnKyRAZnaEo0Ngls7: u128 = 196095035652207868244240086789795221266u128;

@@ -8,6 +8,7 @@ circuit Foo {
     x: u32,
 }
 
+@program
 function main(y: bool) -> bool {
     const a: Foo = Foo { x: 1u32 };
 

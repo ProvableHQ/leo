@@ -4,6 +4,7 @@ expectation: Pass
 input_file: inputs/pow.in
 */
 
+@program
 function main(a: i32, b: i32, c: i32) -> bool {
     return a ** 2u8 == a ** 2u16 && a ** 2u32 == c;
 }

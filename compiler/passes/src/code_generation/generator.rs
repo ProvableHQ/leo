@@ -32,6 +32,9 @@ pub struct CodeGenerator<'a> {
     /// The first element of the tuple indicate whether the composite is a record or not.
     /// The second element of the tuple is a string modifier used for code generation.
     pub(crate) composite_mapping: IndexMap<&'a Symbol, (bool, String)>,
+    /// Are we traversing a program function?
+    /// A "program function" is a function that can be invoked by a user or another program.
+    pub(crate) is_program_function: bool,
 }
 
 impl<'a> CodeGenerator<'a> {
@@ -43,6 +46,7 @@ impl<'a> CodeGenerator<'a> {
             current_function: None,
             variable_mapping: IndexMap::new(),
             composite_mapping: IndexMap::new(),
+            is_program_function: false,
         }
     }
 }

@@ -5,6 +5,7 @@ input_file:
  - inputs/scalars.in
 */
 
+@program
 function main(a: scalar, b: scalar) -> bool {
    // binary
    let j: scalar = a.add(b);

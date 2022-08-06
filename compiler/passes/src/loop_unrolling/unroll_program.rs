@@ -34,6 +34,7 @@ impl ProgramReconstructor for Unroller<'_> {
 
         // Reconstruct the function block.
         let reconstructed_function = Function {
+            annotations: function.annotations,
             identifier: function.identifier,
             input: function.input,
             output: function.output,

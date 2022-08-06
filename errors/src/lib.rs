@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+#![forbid(unsafe_code)]
 #![deny(clippy::all, clippy::missing_docs_in_private_items)]
 #![doc = include_str!("../README.md")]
 

@@ -20,6 +20,7 @@ use leo_ast::{Circuit, CircuitMember, Function, Identifier, Program};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
+use leo_span::sym;
 use std::fmt::Write as _;
 
 impl<'a> CodeGenerator<'a> {
@@ -60,14 +61,37 @@ impl<'a> CodeGenerator<'a> {
         // Newline separator.
         program_string.push('\n');
 
-        // Visit each `Function` in the Leo AST and produce a Aleo function instruction.
-        program_string.push_str(
-            &input
-                .functions
-                .values()
-                .map(|function| self.visit_function(function))
-                .join("\n"),
-        );
+        // Store closures and functions in separate strings.
+        let mut closures = String::new();
+        let mut functions = String::new();
+
+        // Visit each `Function` in the Leo AST and produce Aleo instructions.
+        input.functions.values().for_each(|function| {
+            // If the function is annotated with `@program`, then it is a program function.
+            for annotation in function.annotations.iter() {
+                if annotation.identifier.name == sym::program {
+                    self.is_program_function = true;
+                }
+            }
+
+            let function_string = self.visit_function(function);
+
+            if self.is_program_function {
+                functions.push_str(&function_string);
+                functions.push('\n');
+            } else {
+                closures.push_str(&function_string);
+                closures.push('\n');
+            }
+
+            // Unset the `is_program_function` flag.
+            self.is_program_function = false;
+        });
+
+        // Closures must precede functions in the Aleo program.
+        program_string.push_str(&closures);
+        program_string.push('\n');
+        program_string.push_str(&functions);
 
         program_string
     }
@@ -140,7 +164,11 @@ impl<'a> CodeGenerator<'a> {
         self.current_function = Some(function);
 
         // Construct the header of the function.
-        let mut function_string = format!("function {}:\n", function.identifier);
+        // If a function is a program function, generate an Aleo `function`, otherwise generate an Aleo `closure`.
+        let mut function_string = match self.is_program_function {
+            true => format!("function {}:\n", function.identifier),
+            false => format!("closure {}:\n", function.identifier),
+        };
 
         // Construct and append the input declarations of the function.
         for input in function.input.iter() {
@@ -148,10 +176,9 @@ impl<'a> CodeGenerator<'a> {
             self.next_register += 1;
 
             self.variable_mapping
-                .insert(&input.get_variable().identifier.name, register_string.clone());
+                .insert(&input.identifier.name, register_string.clone());
 
-            let type_string =
-                self.visit_type_with_visibility(&input.get_variable().type_, Some(input.get_variable().mode()));
+            let type_string = self.visit_type_with_visibility(&input.type_, input.mode());
             writeln!(function_string, "    input {} as {};", register_string, type_string,)
                 .expect("failed to write to string");
         }
