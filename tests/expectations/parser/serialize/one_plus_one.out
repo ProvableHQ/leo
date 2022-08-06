@@ -8,6 +8,7 @@ outputs:
     imports: {}
     functions:
       "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":15}\"}":
+        annotations: []
         identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":15}\"}"
         input: []
         output: U8

@@ -5,6 +5,7 @@ input_file:
  - inputs/fields.in
 */
 
+@program
 function main(a: field, b: field) -> bool {
    // unary
    let f: field = a.inv();

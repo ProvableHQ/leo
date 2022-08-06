@@ -30,6 +30,7 @@ impl ParserContext<'_> {
         let mut functions = IndexMap::new();
         let mut circuits = IndexMap::new();
 
+        // TODO: Condense logic
         while self.has_next() {
             match &self.token.token {
                 Token::Import => {
@@ -39,6 +40,10 @@ impl ParserContext<'_> {
                 Token::Circuit | Token::Record => {
                     let (id, circuit) = self.parse_circuit()?;
                     circuits.insert(id, circuit);
+                }
+                Token::At => {
+                    let (id, function) = self.parse_function()?;
+                    functions.insert(id, function);
                 }
                 Token::Const if self.peek_is_function() => {
                     let (id, function) = self.parse_function()?;
@@ -230,6 +235,7 @@ impl ParserContext<'_> {
 
     /// Returns a [`ParamMode`] AST node if the next tokens represent a function parameter mode.
     pub(super) fn parse_function_parameter_mode(&mut self) -> Result<ParamMode> {
+        // TODO: Allow explicit "private" mode.
         let public = self.eat(&Token::Public).then(|| self.prev_token.span);
         let constant = self.eat(&Token::Constant).then(|| self.prev_token.span);
         let const_ = self.eat(&Token::Const).then(|| self.prev_token.span);
@@ -241,7 +247,7 @@ impl ParserContext<'_> {
         match (public, constant, const_) {
             (None, Some(_), None) => Ok(ParamMode::Const),
             (None, None, Some(_)) => Ok(ParamMode::Const),
-            (None, None, None) => Ok(ParamMode::Private),
+            (None, None, None) => Ok(ParamMode::None),
             (Some(_), None, None) => Ok(ParamMode::Public),
             (Some(m1), Some(m2), None) | (Some(m1), None, Some(m2)) | (None, Some(m1), Some(m2)) => {
                 Err(ParserError::inputs_multiple_variable_types_specified(m1 + m2).into())
@@ -256,9 +262,7 @@ impl ParserContext<'_> {
     fn parse_function_parameter(&mut self) -> Result<FunctionInput> {
         let mode = self.parse_function_parameter_mode()?;
         let (name, type_) = self.parse_typed_ident()?;
-        Ok(FunctionInput::Variable(FunctionInputVariable::new(
-            name, mode, type_, name.span,
-        )))
+        Ok(FunctionInput::new(name, mode, type_, name.span))
     }
 
     /// Returns `true` if the next token is Function or if it is a Const followed by Function.
@@ -270,9 +274,31 @@ impl ParserContext<'_> {
         )
     }
 
+    /// Returns an [`Annotation`] AST node if the next tokens represent an annotation.
+    fn parse_annotation(&mut self) -> Result<Annotation> {
+        // Parse the `@` symbol and identifier.
+        let start = self.expect(&Token::At)?;
+        let identifier = self.expect_identifier()?;
+        let span = start + identifier.span;
+
+        // TODO: Verify that this check is sound.
+        // Check that there is no whitespace in between the `@` symbol and identifier.
+        match identifier.span.hi.0 - start.lo.0 > 1 + identifier.name.to_string().len() as u32 {
+            true => Err(ParserError::space_in_annotation(span).into()),
+            false => Ok(Annotation { identifier, span }),
+        }
+    }
+
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
     fn parse_function(&mut self) -> Result<(Identifier, Function)> {
+        // TODO: Handle dangling annotations.
+        // TODO: Handle duplicate annotations.
+        // Parse annotations, if they exist.
+        let mut annotations = Vec::new();
+        while self.look_ahead(0, |t| &t.token) == &Token::At {
+            annotations.push(self.parse_annotation()?)
+        }
         // Parse `function IDENT`.
         let start = self.expect(&Token::Function)?;
         let name = self.expect_identifier()?;
@@ -292,6 +318,7 @@ impl ParserContext<'_> {
         Ok((
             name,
             Function {
+                annotations,
                 identifier: name,
                 input: inputs,
                 output,

@@ -22,6 +22,7 @@ use std::fmt;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ParamMode {
+    None,
     Const,
     Private,
     Public,
@@ -32,6 +33,7 @@ impl fmt::Display for ParamMode {
         use ParamMode::*;
 
         match self {
+            None => write!(f, ""),
             Const => write!(f, "const"),
             Private => write!(f, "private"),
             Public => write!(f, "public"),
@@ -41,7 +43,7 @@ impl fmt::Display for ParamMode {
 
 /// A function parameter.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct FunctionInputVariable {
+pub struct FunctionInput {
     /// The name the parameter is accessible as in the function's body.
     pub identifier: Identifier,
     /// The mode of the function parameter.
@@ -52,7 +54,7 @@ pub struct FunctionInputVariable {
     pub span: Span,
 }
 
-impl FunctionInputVariable {
+impl FunctionInput {
     pub fn new(identifier: Identifier, mode: ParamMode, type_: Type, span: Span) -> Self {
         Self {
             identifier,
@@ -67,7 +69,7 @@ impl FunctionInputVariable {
     }
 }
 
-impl FunctionInputVariable {
+impl FunctionInput {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} ", self.mode)?;
         write!(f, "{}: ", self.identifier)?;
@@ -75,16 +77,16 @@ impl FunctionInputVariable {
     }
 }
 
-impl fmt::Display for FunctionInputVariable {
+impl fmt::Display for FunctionInput {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
 }
 
-impl fmt::Debug for FunctionInputVariable {
+impl fmt::Debug for FunctionInput {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
 }
 
-crate::simple_node_impl!(FunctionInputVariable);
+crate::simple_node_impl!(FunctionInput);

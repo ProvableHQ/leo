@@ -4,17 +4,17 @@ expectation: Fail
 */
 
 @foo(?, bar, ?)
-function x() {
-    return ();
+function x() -> u8 {
+    return 1u8;
 }
 
 @bar(123) // ints not vali
-function x() {
-    return ();
+function x() -> u8 {
+    return 2u8;
 }
 
 
 @context // recovery witness
-function x() {
-    return ();
+function x() -> u8 {
+    return 3u8;
 }

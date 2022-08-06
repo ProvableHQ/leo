@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370028]: Illegal spacing in the annotation declaration.\n    --> test:3:1\n     |\n   3 | @ test\n     | ^^^^^^\n     |\n     = Remove whitespace between the `@` symbol and the identifier."
