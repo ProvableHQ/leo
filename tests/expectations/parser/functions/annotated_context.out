@@ -1,0 +1,68 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - name: ""
+    network: ""
+    expected_input: []
+    imports: {}
+    functions:
+      "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}":
+        annotations:
+          - identifier: "{\"name\":\"context\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":10}\"}"
+            span:
+              lo: 2
+              hi: 10
+        identifier: "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
+        input: []
+        output: U8
+        core_mapping: ~
+        block:
+          statements:
+            - Return:
+                expression:
+                  Literal:
+                    U8:
+                      - "1"
+                      - span:
+                          lo: 43
+                          hi: 46
+                span:
+                  lo: 36
+                  hi: 46
+          span:
+            lo: 30
+            hi: 49
+        span:
+          lo: 11
+          hi: 49
+      "{\"name\":\"g\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":90}\"}":
+        annotations:
+          - identifier: "{\"name\":\"context\",\"span\":\"{\\\"lo\\\":52,\\\"hi\\\":59}\"}"
+            span:
+              lo: 51
+              hi: 59
+        identifier: "{\"name\":\"g\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":90}\"}"
+        input: []
+        output: U8
+        core_mapping: ~
+        block:
+          statements:
+            - Return:
+                expression:
+                  Literal:
+                    U8:
+                      - "2"
+                      - span:
+                          lo: 112
+                          hi: 115
+                span:
+                  lo: 105
+                  hi: 115
+          span:
+            lo: 99
+            hi: 118
+        span:
+          lo: 80
+          hi: 118
+    circuits: {}

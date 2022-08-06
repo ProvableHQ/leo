@@ -2,6 +2,3 @@
 [main]
 public a: u32 = 1u32;
 b: u32 = 2u32; // Input variable `b` is private by default.
-
-[foo]
-x: u64 = 5u64;

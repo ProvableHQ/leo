@@ -4,6 +4,7 @@ expectation: Pass
 input_file: inputs/div.in
 */
 
+@program
 function main(a: i64, b: i64, c: i64) -> bool {
     return a % b == c;
 }

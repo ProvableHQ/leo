@@ -7,6 +7,7 @@ input_file:
 */
 
 // Conditionally add two u32 integers and log the result to the console.
+@program
 function main(a: u32, b: u32) -> bool {
     if a == b {
         console.log("{}=={}", a, b); // This line should not fail.

@@ -6,6 +6,7 @@ input_file:
  - inputs/u32_5.in
 */
 
+@program
 function main(x: u32) -> bool {
     let b: u32 = 5u32;
 

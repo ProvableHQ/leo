@@ -11,6 +11,7 @@ circuit Message {
 
 // The "main" function of this Leo program takes a "Message" circuit type as input.
 // To see how to input variable "m" is passed in open up `inputs/message.in`.
+@program
 function main(m: Message) -> field {
 
     // 1. Define the "Message" type.

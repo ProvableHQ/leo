@@ -253,4 +253,11 @@ create_messages!(
         msg: format!("Invalid import call to non-leo file `{name}`."),
         help: Some("Only imports of Leo `.leo` files are currently supported.".to_string()),
     }
+
+    @formatted
+    space_in_annotation {
+        args: (),
+        msg: "Illegal spacing in the annotation declaration.",
+        help: Some("Remove whitespace between the `@` symbol and the identifier.".to_string()),
+    }
 );

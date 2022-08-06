@@ -33,13 +33,13 @@ Contains the Circuit's name, as well as its members.
 The members are a function, or a variable, or a constant.
 For all of them the Circuit preserves their names.
 
-#### [Decorators](./src/annotation.rs)
+#### [Annotations](./src/functions/annotation.rs)
 
 An annotation node is a decorator that can be applied to a function.
 Stored on the function themselves despite being a top-level node.
 The node stores the name of the annotation, as well as any args passed to it.
 
-#### [Functions](./src/functions/function.rs)
+#### [Functions](./src/functions/mod.rs)
 
 A function node represents a defined function in a Leo Program.
 An order-preserving map of these are stored on the Program.
