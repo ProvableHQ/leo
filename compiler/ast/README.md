@@ -33,7 +33,7 @@ Contains the Circuit's name, as well as its members.
 The members are a function, or a variable, or a constant.
 For all of them the Circuit preserves their names.
 
-#### [Decorators](./src/functions/annotation.rs)
+#### [Annotations](./src/functions/annotation.rs)
 
 An annotation node is a decorator that can be applied to a function.
 Stored on the function themselves despite being a top-level node.
