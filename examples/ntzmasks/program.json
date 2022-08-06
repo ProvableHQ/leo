@@ -1,0 +1,10 @@
+{
+    "program": "ntzmasks.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkpJXjqFZijBq4tUsdtrqi5tQeUSfoXbw6JddCYE4mKnCsz",
+        "address": "aleo1qx4g8w2ju9mpr4hpvavh0gah556q7sxw6xltf98w9e9gjq5f6yysrya2xx"
+    },
+    "license": "MIT"
+}

@@ -1,0 +1,3 @@
+// The program input for ntzmasks/src/main.leo
+[main]
+public x: u32 = 1073741824u32;
