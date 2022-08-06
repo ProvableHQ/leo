@@ -216,6 +216,7 @@ symbols! {
     gates,
     _nonce,
     program,
+    inline,
 
     // input file
     registers,

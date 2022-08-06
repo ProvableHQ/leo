@@ -13,24 +13,28 @@ outputs:
         input:
           - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
             mode: None
-            type_: U32
+            type_:
+              Integer: U32
             span:
               lo: 13
               hi: 14
           - identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":29,\\\"hi\\\":30}\"}"
             mode: Private
-            type_: I32
+            type_:
+              Integer: I32
             span:
               lo: 29
               hi: 30
-        output: U8
+        output:
+          Integer: U8
         core_mapping: ~
         block:
           statements:
             - Return:
                 expression:
                   Literal:
-                    U8:
+                    Integer:
+                      - U8
                       - "0"
                       - span:
                           lo: 56
@@ -50,24 +54,28 @@ outputs:
         input:
           - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":83,\\\"hi\\\":84}\"}"
             mode: Private
-            type_: U32
+            type_:
+              Integer: U32
             span:
               lo: 83
               hi: 84
           - identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":91,\\\"hi\\\":92}\"}"
             mode: None
-            type_: I32
+            type_:
+              Integer: I32
             span:
               lo: 91
               hi: 92
-        output: U8
+        output:
+          Integer: U8
         core_mapping: ~
         block:
           statements:
             - Return:
                 expression:
                   Literal:
-                    U8:
+                    Integer:
+                      - U8
                       - "0"
                       - span:
                           lo: 118

@@ -33,8 +33,18 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             match annotation.identifier.name {
                 // Set `is_program_function` to true if the corresponding annotation is found.
                 sym::program => self.is_program_function = true,
+                sym::inline => self.is_inlined = true,
                 _ => self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span)),
             }
+        }
+        if self.is_program_function && self.is_inlined {
+            let mut spans = input.annotations.iter().map(|annotation| annotation.span);
+            // This is safe, since if either `is_program_function` or `is_inlined` is true, then the function must have at least one annotation.
+            let first_span = spans.next().unwrap();
+
+            // Sum up the spans of all the annotations.
+            let span = spans.fold(first_span, |acc, span| acc + span);
+            self.emit_err(TypeCheckerError::program_and_inline_annotation(span));
         }
 
         let prev_st = std::mem::take(&mut self.symbol_table);
@@ -89,8 +99,9 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.symbol_table.swap(prev_st.lookup_fn_scope(input.name()).unwrap());
         self.symbol_table = RefCell::new(prev_st);
 
-        // Unset `is_program_function` flag.
+        // Unset the flags associated with annotations.
         self.is_program_function = false;
+        self.is_inlined = false;
     }
 
     fn visit_circuit(&mut self, input: &'a Circuit) {

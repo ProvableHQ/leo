@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Failed to parse string. Parsing Error: VerboseError { errors: [(\"closure three:\\n    output 3u32 as u32;\\n\\nclosure four:\\n    output 4u32 as u32;\\n\\n\\nfunction main:\\n    input r0 as u32.private;\\n    is.eq r0 2u32 into r1;\\n    call three into r2;\\n    call four into r3;\\n    ternary r1 r2 r3 into r4;\\n    output r4 as u32.private;\\n\\n\", Nom(Tag)), (\"closure three:\\n    output 3u32 as u32;\\n\\nclosure four:\\n    output 4u32 as u32;\\n\\n\\nfunction main:\\n    input r0 as u32.private;\\n    is.eq r0 2u32 into r1;\\n    call three into r2;\\n    call four into r3;\\n    ternary r1 r2 r3 into r4;\\n    output r4 as u32.private;\\n\\n\", Nom(Alt)), (\"closure three:\\n    output 3u32 as u32;\\n\\nclosure four:\\n    output 4u32 as u32;\\n\\n\\nfunction main:\\n    input r0 as u32.private;\\n    is.eq r0 2u32 into r1;\\n    call three into r2;\\n    call four into r3;\\n    ternary r1 r2 r3 into r4;\\n    output r4 as u32.private;\\n\\n\", Nom(Many1))] }"

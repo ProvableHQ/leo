@@ -295,4 +295,11 @@ create_messages!(
         msg: format!("A circuit or record cannot contain another record."),
         help: Some(format!("Remove the record `{child}` from `{parent}`.")),
     }
+
+    @formatted
+    program_and_inline_annotation {
+        args: (),
+        msg: format!("A function cannot have both `@program` and `@inline` annotations."),
+        help: Some("Remove one of the annotations.".to_string()),
+    }
 );

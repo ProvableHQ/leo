@@ -9,6 +9,7 @@ expectation: Pass
 function foo() -> u8 {}
 
 @program
+@inline
 function mint() -> u8 {}
 
 @test
