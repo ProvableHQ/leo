@@ -1,8 +1,13 @@
-# auction.aleo
+# Auction Record Example
 
 ## Build Guide
 
-To compile this Aleo program, run:
+To compile this program:
 ```bash
-aleo build
+leo build
+```
+
+To run this program:
+```bash
+leo run
 ```
