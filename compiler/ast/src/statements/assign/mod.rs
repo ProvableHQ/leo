@@ -14,97 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{BinaryOperation, Expression, Node};
+use crate::{Expression, Node};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// The assignment operator.
-#[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug)]
-pub enum AssignOperation {
-    /// Plain assignment, `=`.
-    Assign,
-    /// Adding assignment, `+=`.
-    Add,
-    /// Subtracting assignment, `-=`.
-    Sub,
-    /// Multiplying assignment, `*=`.
-    Mul,
-    /// Dividing-assignment, `/=`.
-    Div,
-    /// Remaindering-assignment, `%=`.
-    Rem,
-    /// Exponentiating assignment `**=`.
-    Pow,
-    /// Logical or assignment `||=`.
-    Or,
-    /// Logical and assignment `&&=`.
-    And,
-    /// Bitwise or assignment `|=`.
-    BitOr,
-    /// Bitwise and assignment `&=`.
-    BitAnd,
-    /// Bitwise xor assignment `^=`.
-    BitXor,
-    /// Shift right assignment `>>=`.
-    Shr,
-    // /// Signed shift right assignment.
-    // ShrSigned,
-    /// Shift left assignment `<<=`.
-    Shl,
-}
-
-impl AssignOperation {
-    pub fn into_binary_operation(assign_op: AssignOperation) -> Option<BinaryOperation> {
-        match assign_op {
-            AssignOperation::Assign => None,
-            AssignOperation::Add => Some(BinaryOperation::Add),
-            AssignOperation::Sub => Some(BinaryOperation::Sub),
-            AssignOperation::Mul => Some(BinaryOperation::Mul),
-            AssignOperation::Div => Some(BinaryOperation::Div),
-            AssignOperation::Rem => Some(BinaryOperation::Rem),
-            AssignOperation::Pow => Some(BinaryOperation::Pow),
-            AssignOperation::Or => Some(BinaryOperation::Or),
-            AssignOperation::And => Some(BinaryOperation::And),
-            AssignOperation::BitOr => Some(BinaryOperation::BitwiseOr),
-            AssignOperation::BitAnd => Some(BinaryOperation::BitwiseAnd),
-            AssignOperation::BitXor => Some(BinaryOperation::Xor),
-            AssignOperation::Shr => Some(BinaryOperation::Shr),
-            // AssignOperation::ShrSigned => Some(BinaryOperation::ShrSigned),
-            AssignOperation::Shl => Some(BinaryOperation::Shl),
-        }
-    }
-}
-
-impl AsRef<str> for AssignOperation {
-    fn as_ref(&self) -> &'static str {
-        match self {
-            AssignOperation::Assign => "=",
-            AssignOperation::Add => "+=",
-            AssignOperation::Sub => "-=",
-            AssignOperation::Mul => "*=",
-            AssignOperation::Div => "/=",
-            AssignOperation::Rem => "%=",
-            AssignOperation::Pow => "**=",
-            AssignOperation::Or => "||=",
-            AssignOperation::And => "&&=",
-            AssignOperation::BitOr => "|=",
-            AssignOperation::BitAnd => "&=",
-            AssignOperation::BitXor => "^=",
-            AssignOperation::Shr => ">>=",
-            // AssignOperation::ShrSigned => ">>>=",
-            AssignOperation::Shl => "<<=",
-        }
-    }
-}
-
-/// An assignment statement, `assignee operation? = value`.
+/// An assignment statement, `assignee = value`.
+/// Note that there is no operation associated with the assignment.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct AssignStatement {
-    /// The assignment operation.
-    /// For plain assignment, use `AssignOperation::Assign`.
-    pub operation: AssignOperation,
     /// The place to assign to.
     pub place: Expression,
     /// The value to assign to the `assignee`.
@@ -115,7 +34,7 @@ pub struct AssignStatement {
 
 impl fmt::Display for AssignStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} {} {};", self.place, self.operation.as_ref(), self.value)
+        write!(f, "{} = {};", self.place, self.value)
     }
 }
 
