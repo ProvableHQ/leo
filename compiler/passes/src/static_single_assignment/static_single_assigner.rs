@@ -18,7 +18,7 @@ use crate::RenameTable;
 use std::fmt::Display;
 
 use leo_ast::{
-    AssignOperation, AssignStatement, ConditionalStatement, Expression, ExpressionReconstructor, Identifier, Statement,
+    AssignStatement, ConditionalStatement, Expression, ExpressionReconstructor, Identifier, Statement,
     StatementReconstructor,
 };
 use leo_errors::emitter::Handler;
@@ -64,7 +64,6 @@ impl<'a> StaticSingleAssigner<'a> {
     /// Constructs the assignment statement `place = expr;`.
     pub(crate) fn simple_assign_statement(place: Expression, value: Expression) -> Statement {
         Statement::Assign(Box::new(AssignStatement {
-            operation: AssignOperation::Assign,
             place,
             value,
             span: Default::default(),
