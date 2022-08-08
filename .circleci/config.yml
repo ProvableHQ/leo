@@ -120,7 +120,7 @@ jobs:
             export LEO=/home/circleci/project/project/bin/leo
             ./project/.circleci/leo-clean.sh
 
-  test-helloworld:
+  test-examples:
     docker:
       - image: cimg/rust:1.62
     resource_class: xlarge
@@ -128,49 +128,11 @@ jobs:
       - attach_workspace:
           at: /home/circleci/project/
       - run:
-          name: test helloworld example
+          name: test examples example
           command: |
             export LEO=/home/circleci/project/project/bin/leo
-            ./project/.circleci/test-helloworld.sh
+            ./project/.circleci/test-examples.sh
 
-  test-bubblesort:
-    docker:
-      - image: cimg/rust:1.62
-    resource_class: xlarge
-    steps:
-      - attach_workspace:
-          at: /home/circleci/project/
-      - run:
-          name: test bubblesort example
-          command: |
-            export LEO=/home/circleci/project/project/bin/leo
-            ./project/.circleci/test-bubblesort.sh
-
-  test-core:
-    docker:
-      - image: cimg/rust:1.62
-    resource_class: xlarge
-    steps:
-      - attach_workspace:
-          at: /home/circleci/project/
-      - run:
-          name: test core example
-          command: |
-            export LEO=/home/circleci/project/project/bin/leo
-            ./project/.circleci/test-core.sh
-
-  test-groups:
-    docker:
-      - image: cimg/rust:1.62
-    resource_class: xlarge
-    steps:
-      - attach_workspace:
-          at: /home/circleci/project/
-      - run:
-          name: test groups example
-          command: |
-            export LEO=/home/circleci/project/project/bin/leo
-            ./project/.circleci/test-groups.sh
 workflows:
   version: 2
   main-workflow:
@@ -184,15 +146,6 @@ workflows:
       - leo-clean:
           requires:
             - leo-executable
-      - test-helloworld:
-          requires:
-            - leo-executable
-      - test-bubblesort:
-          requires:
-            - leo-executable
-      - test-core:
-          requires:
-            - leo-executable
-      - test-groups:
+      - test-examples:
           requires:
             - leo-executable
