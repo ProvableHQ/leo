@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["AssignOperation","The assignment operator."]],"struct":[["AssignStatement","An assignment statement, `assignee operation? = value`."]]});
+initSidebarItems({"struct":[["AssignStatement","An assignment statement, `assignee = value`. Note that there is no operation associated with the assignment."]]});

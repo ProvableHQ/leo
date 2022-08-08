@@ -302,7 +302,6 @@
 <span id="297">297</span>
 <span id="298">298</span>
 <span id="299">299</span>
-<span id="300">300</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -489,7 +488,6 @@
 
     <span class="kw">fn</span> <span class="ident">reconstruct_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">AssignStatement</span>) -&gt; <span class="ident">Statement</span> {
         <span class="ident">Statement::Assign</span>(<span class="ident">Box::new</span>(<span class="ident">AssignStatement</span> {
-            <span class="ident">operation</span>: <span class="ident">input</span>.<span class="ident">operation</span>,
             <span class="ident">place</span>: <span class="ident">input</span>.<span class="ident">place</span>,
             <span class="ident">value</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">value</span>).<span class="number">0</span>,
             <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,

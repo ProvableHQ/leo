@@ -44,87 +44,6 @@
 <span id="39">39</span>
 <span id="40">40</span>
 <span id="41">41</span>
-<span id="42">42</span>
-<span id="43">43</span>
-<span id="44">44</span>
-<span id="45">45</span>
-<span id="46">46</span>
-<span id="47">47</span>
-<span id="48">48</span>
-<span id="49">49</span>
-<span id="50">50</span>
-<span id="51">51</span>
-<span id="52">52</span>
-<span id="53">53</span>
-<span id="54">54</span>
-<span id="55">55</span>
-<span id="56">56</span>
-<span id="57">57</span>
-<span id="58">58</span>
-<span id="59">59</span>
-<span id="60">60</span>
-<span id="61">61</span>
-<span id="62">62</span>
-<span id="63">63</span>
-<span id="64">64</span>
-<span id="65">65</span>
-<span id="66">66</span>
-<span id="67">67</span>
-<span id="68">68</span>
-<span id="69">69</span>
-<span id="70">70</span>
-<span id="71">71</span>
-<span id="72">72</span>
-<span id="73">73</span>
-<span id="74">74</span>
-<span id="75">75</span>
-<span id="76">76</span>
-<span id="77">77</span>
-<span id="78">78</span>
-<span id="79">79</span>
-<span id="80">80</span>
-<span id="81">81</span>
-<span id="82">82</span>
-<span id="83">83</span>
-<span id="84">84</span>
-<span id="85">85</span>
-<span id="86">86</span>
-<span id="87">87</span>
-<span id="88">88</span>
-<span id="89">89</span>
-<span id="90">90</span>
-<span id="91">91</span>
-<span id="92">92</span>
-<span id="93">93</span>
-<span id="94">94</span>
-<span id="95">95</span>
-<span id="96">96</span>
-<span id="97">97</span>
-<span id="98">98</span>
-<span id="99">99</span>
-<span id="100">100</span>
-<span id="101">101</span>
-<span id="102">102</span>
-<span id="103">103</span>
-<span id="104">104</span>
-<span id="105">105</span>
-<span id="106">106</span>
-<span id="107">107</span>
-<span id="108">108</span>
-<span id="109">109</span>
-<span id="110">110</span>
-<span id="111">111</span>
-<span id="112">112</span>
-<span id="113">113</span>
-<span id="114">114</span>
-<span id="115">115</span>
-<span id="116">116</span>
-<span id="117">117</span>
-<span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
-<span id="122">122</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -141,97 +60,16 @@
 <span class="comment">// You should have received a copy of the GNU General Public License</span>
 <span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">BinaryOperation</span>, <span class="ident">Expression</span>, <span class="ident">Node</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Expression</span>, <span class="ident">Node</span>};
 <span class="kw">use</span> <span class="ident">leo_span::Span</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
-<span class="doccomment">/// The assignment operator.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">AssignOperation</span> {
-    <span class="doccomment">/// Plain assignment, `=`.</span>
-    <span class="ident">Assign</span>,
-    <span class="doccomment">/// Adding assignment, `+=`.</span>
-    <span class="ident">Add</span>,
-    <span class="doccomment">/// Subtracting assignment, `-=`.</span>
-    <span class="ident">Sub</span>,
-    <span class="doccomment">/// Multiplying assignment, `*=`.</span>
-    <span class="ident">Mul</span>,
-    <span class="doccomment">/// Dividing-assignment, `/=`.</span>
-    <span class="ident">Div</span>,
-    <span class="doccomment">/// Remaindering-assignment, `%=`.</span>
-    <span class="ident">Rem</span>,
-    <span class="doccomment">/// Exponentiating assignment `**=`.</span>
-    <span class="ident">Pow</span>,
-    <span class="doccomment">/// Logical or assignment `||=`.</span>
-    <span class="ident">Or</span>,
-    <span class="doccomment">/// Logical and assignment `&amp;&amp;=`.</span>
-    <span class="ident">And</span>,
-    <span class="doccomment">/// Bitwise or assignment `|=`.</span>
-    <span class="ident">BitOr</span>,
-    <span class="doccomment">/// Bitwise and assignment `&amp;=`.</span>
-    <span class="ident">BitAnd</span>,
-    <span class="doccomment">/// Bitwise xor assignment `^=`.</span>
-    <span class="ident">BitXor</span>,
-    <span class="doccomment">/// Shift right assignment `&gt;&gt;=`.</span>
-    <span class="ident">Shr</span>,
-    <span class="comment">// /// Signed shift right assignment.</span>
-    <span class="comment">// ShrSigned,</span>
-    <span class="doccomment">/// Shift left assignment `&lt;&lt;=`.</span>
-    <span class="ident">Shl</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">AssignOperation</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_binary_operation</span>(<span class="ident">assign_op</span>: <span class="ident">AssignOperation</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BinaryOperation</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">assign_op</span> {
-            <span class="ident">AssignOperation::Assign</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">AssignOperation::Add</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Add</span>),
-            <span class="ident">AssignOperation::Sub</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Sub</span>),
-            <span class="ident">AssignOperation::Mul</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Mul</span>),
-            <span class="ident">AssignOperation::Div</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Div</span>),
-            <span class="ident">AssignOperation::Rem</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Rem</span>),
-            <span class="ident">AssignOperation::Pow</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Pow</span>),
-            <span class="ident">AssignOperation::Or</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Or</span>),
-            <span class="ident">AssignOperation::And</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::And</span>),
-            <span class="ident">AssignOperation::BitOr</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::BitwiseOr</span>),
-            <span class="ident">AssignOperation::BitAnd</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::BitwiseAnd</span>),
-            <span class="ident">AssignOperation::BitXor</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Xor</span>),
-            <span class="ident">AssignOperation::Shr</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Shr</span>),
-            <span class="comment">// AssignOperation::ShrSigned =&gt; Some(BinaryOperation::ShrSigned),</span>
-            <span class="ident">AssignOperation::Shl</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Shl</span>),
-        }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AssignOperation</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">AssignOperation::Assign</span> =&gt; <span class="string">&quot;=&quot;</span>,
-            <span class="ident">AssignOperation::Add</span> =&gt; <span class="string">&quot;+=&quot;</span>,
-            <span class="ident">AssignOperation::Sub</span> =&gt; <span class="string">&quot;-=&quot;</span>,
-            <span class="ident">AssignOperation::Mul</span> =&gt; <span class="string">&quot;*=&quot;</span>,
-            <span class="ident">AssignOperation::Div</span> =&gt; <span class="string">&quot;/=&quot;</span>,
-            <span class="ident">AssignOperation::Rem</span> =&gt; <span class="string">&quot;%=&quot;</span>,
-            <span class="ident">AssignOperation::Pow</span> =&gt; <span class="string">&quot;**=&quot;</span>,
-            <span class="ident">AssignOperation::Or</span> =&gt; <span class="string">&quot;||=&quot;</span>,
-            <span class="ident">AssignOperation::And</span> =&gt; <span class="string">&quot;&amp;&amp;=&quot;</span>,
-            <span class="ident">AssignOperation::BitOr</span> =&gt; <span class="string">&quot;|=&quot;</span>,
-            <span class="ident">AssignOperation::BitAnd</span> =&gt; <span class="string">&quot;&amp;=&quot;</span>,
-            <span class="ident">AssignOperation::BitXor</span> =&gt; <span class="string">&quot;^=&quot;</span>,
-            <span class="ident">AssignOperation::Shr</span> =&gt; <span class="string">&quot;&gt;&gt;=&quot;</span>,
-            <span class="comment">// AssignOperation::ShrSigned =&gt; &quot;&gt;&gt;&gt;=&quot;,</span>
-            <span class="ident">AssignOperation::Shl</span> =&gt; <span class="string">&quot;&lt;&lt;=&quot;</span>,
-        }
-    }
-}
-
-<span class="doccomment">/// An assignment statement, `assignee operation? = value`.</span>
+<span class="doccomment">/// An assignment statement, `assignee = value`.</span>
+<span class="doccomment">/// Note that there is no operation associated with the assignment.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AssignStatement</span> {
-    <span class="doccomment">/// The assignment operation.</span>
-    <span class="doccomment">/// For plain assignment, use `AssignOperation::Assign`.</span>
-    <span class="kw">pub</span> <span class="ident">operation</span>: <span class="ident">AssignOperation</span>,
     <span class="doccomment">/// The place to assign to.</span>
     <span class="kw">pub</span> <span class="ident">place</span>: <span class="ident">Expression</span>,
     <span class="doccomment">/// The value to assign to the `assignee`.</span>
@@ -242,7 +80,7 @@
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">AssignStatement</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{} {} {};&quot;</span>, <span class="self">self</span>.<span class="ident">place</span>, <span class="self">self</span>.<span class="ident">operation</span>.<span class="ident">as_ref</span>(), <span class="self">self</span>.<span class="ident">value</span>)
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{} = {};&quot;</span>, <span class="self">self</span>.<span class="ident">place</span>, <span class="self">self</span>.<span class="ident">value</span>)
     }
 }
 

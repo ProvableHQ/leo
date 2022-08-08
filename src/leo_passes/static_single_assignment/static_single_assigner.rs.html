@@ -168,7 +168,6 @@
 <span id="163">163</span>
 <span id="164">164</span>
 <span id="165">165</span>
-<span id="166">166</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -189,7 +188,7 @@
 <span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
 
 <span class="kw">use</span> <span class="ident">leo_ast</span>::{
-    <span class="ident">AssignOperation</span>, <span class="ident">AssignStatement</span>, <span class="ident">ConditionalStatement</span>, <span class="ident">Expression</span>, <span class="ident">ExpressionReconstructor</span>, <span class="ident">Identifier</span>, <span class="ident">Statement</span>,
+    <span class="ident">AssignStatement</span>, <span class="ident">ConditionalStatement</span>, <span class="ident">Expression</span>, <span class="ident">ExpressionReconstructor</span>, <span class="ident">Identifier</span>, <span class="ident">Statement</span>,
     <span class="ident">StatementReconstructor</span>,
 };
 <span class="kw">use</span> <span class="ident">leo_errors::emitter::Handler</span>;
@@ -235,7 +234,6 @@
     <span class="doccomment">/// Constructs the assignment statement `place = expr;`.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">simple_assign_statement</span>(<span class="ident">place</span>: <span class="ident">Expression</span>, <span class="ident">value</span>: <span class="ident">Expression</span>) -&gt; <span class="ident">Statement</span> {
         <span class="ident">Statement::Assign</span>(<span class="ident">Box::new</span>(<span class="ident">AssignStatement</span> {
-            <span class="ident">operation</span>: <span class="ident">AssignOperation::Assign</span>,
             <span class="ident">place</span>,
             <span class="ident">value</span>,
             <span class="ident">span</span>: <span class="ident">Default::default</span>(),
