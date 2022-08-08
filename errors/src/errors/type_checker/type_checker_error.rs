@@ -323,4 +323,12 @@ create_messages!(
         msg: format!("Program functions cannot have constant inputs."),
         help: Some("Consider removing the `const[ant]` parameters or declaring the constants in the function body.".to_string()),
     }
+
+    // TODO: Improve this error message.
+    @backtraced
+    recursive_function {
+        args: (),
+        msg: format!("Recursive function calls are not allowed."),
+        help: Some("Remove the recursive call.".to_string()),
+    }
 );

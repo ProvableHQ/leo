@@ -26,29 +26,51 @@ use std::collections::HashSet;
 // TODO: Generally, cleanup tyc logic.
 
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
+    fn visit_program(&mut self, input: &'a Program) {
+        input.imports.values().for_each(|import| self.visit_import(import));
+
+        input
+            .functions
+            .values()
+            .for_each(|function| self.visit_function(function));
+
+        input
+            .circuits
+            .values()
+            .for_each(|function| self.visit_circuit(function));
+
+        // TODO: Improve error message to provide a path associated with the cycle.
+        // Check that the call graph does not contain any cycle.
+        if self.call_graph.contains_cycle() {
+            self.emit_err(TypeCheckerError::recursive_function())
+        }
+    }
+
     fn visit_function(&mut self, input: &'a Function) {
         let prev_st = std::mem::take(&mut self.symbol_table);
         self.symbol_table
             .swap(prev_st.borrow().lookup_fn_scope(input.name()).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
 
+        // TODO: Cleanup. Too many unwraps
         // Lookup the function's call type.
-        self.call_type = Some(
+        self.function = Some((
+            input.name(),
             self.symbol_table
-                .borrow_mut()
+                .borrow()
                 .lookup_fn_symbol(input.name())
                 .unwrap()
                 .call_type,
-        );
+        ));
 
         self.has_return = false;
         self.parent = Some(input.name());
 
         // Program and helper functions must have input parameters.
         // Note that the unwrap is safe since we set the call type above.
-        if self.call_type.unwrap() != CallType::Inlined && input.input.is_empty() {
+        if self.function.unwrap().1 != CallType::Inlined && input.input.is_empty() {
             self.emit_err(TypeCheckerError::function_must_have_inputs(
-                self.call_type.unwrap(),
+                self.function.unwrap().1,
                 input.span(),
             ));
         }
@@ -59,7 +81,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.assert_not_tuple(input_var.span, &input_var.type_);
 
             // Note that the unwrap is safe since we set the call type above.
-            match self.call_type.unwrap() {
+            match self.function.unwrap().1 {
                 // Program functions cannot have constant input parameters.
                 CallType::Program if input_var.mode() == ParamMode::Const => {
                     self.emit_err(TypeCheckerError::program_functions_cannot_have_const_inputs(
@@ -110,7 +132,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.symbol_table = RefCell::new(prev_st);
 
         // Unset the call type.
-        self.call_type = None;
+        self.function = None;
     }
 
     fn visit_circuit(&mut self, input: &'a Circuit) {

@@ -409,7 +409,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     // - A "helper function" can only call "inlined functions".
                     // - An "inlined function" can only call "inlined functions".
                     // Note that the unwrap is safe since a call expression must be within a function body.
-                    match (self.call_type.unwrap(), func.call_type) {
+                    match (self.function.unwrap().1, func.call_type) {
                         // Valid function calls.
                         (CallType::Program, CallType::Helper)
                         | (CallType::Program, CallType::Inlined)
@@ -421,6 +421,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             input.span(),
                         )),
                     }
+
+                    // Add the function call to the call graph.
+                    self.call_graph.add_edge(self.function.unwrap().0, ident.name);
 
                     Some(ret)
                 } else {

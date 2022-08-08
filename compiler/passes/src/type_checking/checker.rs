@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CallType, SymbolTable};
+use crate::{CallGraph, CallType, FunctionSymbol, SymbolTable};
 
 use leo_ast::{Identifier, IntegerType, Node, Type};
 use leo_core::*;
@@ -34,9 +34,11 @@ pub struct TypeChecker<'a> {
     pub(crate) is_program_function: bool,
     /// Does this function need to be inlined?
     pub(crate) is_inlined: bool,
-    /// If we are traversing a function, what is its call type?
+    /// Are we traversing a function, if so, what is its call type?
     /// Is it a program function, helper function, or inlined function?
-    pub(crate) call_type: Option<CallType>,
+    pub(crate) function: Option<(Symbol, CallType)>,
+    /// The call graph of the program.
+    pub(crate) call_graph: CallGraph,
 }
 
 const BOOLEAN_TYPE: Type = Type::Boolean;
@@ -85,6 +87,17 @@ const MAGNITUDE_TYPES: [Type; 3] = [
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
     pub fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
+        let source_nodes = symbol_table
+            .functions
+            .iter()
+            .filter_map(
+                |(name, function_symbol): (&Symbol, &FunctionSymbol)| match function_symbol.call_type {
+                    CallType::Program => Some(*name),
+                    _ => None,
+                },
+            )
+            .collect();
+
         Self {
             symbol_table: RefCell::new(symbol_table),
             handler,
@@ -92,7 +105,8 @@ impl<'a> TypeChecker<'a> {
             has_return: false,
             is_program_function: false,
             is_inlined: false,
-            call_type: None,
+            function: None,
+            call_graph: CallGraph::new(source_nodes),
         }
     }
 
