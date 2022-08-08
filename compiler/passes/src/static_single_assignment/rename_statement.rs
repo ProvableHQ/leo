@@ -17,9 +17,9 @@
 use crate::{RenameTable, StaticSingleAssigner};
 
 use leo_ast::{
-    AssignOperation, AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement,
-    DefinitionStatement, Expression, ExpressionReconstructor, Identifier, Node, ReturnStatement, Statement,
-    StatementReconstructor, TernaryExpression, UnaryExpression, UnaryOperation,
+    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, DefinitionStatement, Expression,
+    ExpressionReconstructor, Identifier, Node, ReturnStatement, Statement, StatementReconstructor, TernaryExpression,
+    UnaryExpression, UnaryOperation,
 };
 use leo_span::Symbol;
 
@@ -70,23 +70,10 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
         )
     }
 
-    /// Transform all `AssignStatement`s to simple `AssignStatement`s.
-    /// For example,
-    ///   `x += y * 3` becomes `x = x + (y * 3)`
-    ///   `x &= y | 1` becomes `x = x & (y | 1)`
-    ///   `x = y + 3` remains `x = y + 3`
+    /// Reconstruct all `AssignStatement`s, renaming as necessary.
     fn reconstruct_assign(&mut self, assign: AssignStatement) -> Statement {
         // First reconstruct the right-hand-side of the assignment.
-        let value = match assign.operation {
-            AssignOperation::Assign => self.reconstruct_expression(assign.value).0,
-            // Note that all `AssignOperation`s except for the `Assign` variant have an equivalent `BinaryOperation`.
-            _ => Expression::Binary(BinaryExpression {
-                left: Box::new(self.reconstruct_expression(assign.place.clone()).0),
-                right: Box::new(self.reconstruct_expression(assign.value).0),
-                op: AssignOperation::into_binary_operation(assign.operation).unwrap(),
-                span: assign.span,
-            }),
-        };
+        let value = self.reconstruct_expression(assign.value).0;
 
         // Then assign a new unique name to the left-hand-side of the assignment.
         // Note that this order is necessary to ensure that the right-hand-side uses the correct name when reconstructing a complex assignment.
