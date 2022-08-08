@@ -133,7 +133,8 @@ jobs:
           command: cargo install --path . --root . --locked
       - persist_to_workspace:
           root: ~/
-          paths: project/
+          paths:
+            - project/
       - clear_environment:
           cache_key: leo-executable-cache
 
@@ -169,7 +170,7 @@ jobs:
     resource_class: xlarge
     steps:
       - attach_workspace:
-        at: /home/circleci/project/
+          at: /home/circleci/project/
       - run:
           name: test helloworld
           command: |
