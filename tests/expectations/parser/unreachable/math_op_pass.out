@@ -122,7 +122,6 @@ outputs:
         lo: 0
         hi: 17
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"x_\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":2}\"}"
       value:
@@ -131,7 +130,6 @@ outputs:
         lo: 0
         hi: 4
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xconsole\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":8}\"}"
       value:
@@ -140,7 +138,6 @@ outputs:
         lo: 0
         hi: 10
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xconst\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":6}\"}"
       value:
@@ -149,7 +146,6 @@ outputs:
         lo: 0
         hi: 8
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xlet\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
@@ -158,7 +154,6 @@ outputs:
         lo: 0
         hi: 6
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xfor\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
@@ -167,7 +162,6 @@ outputs:
         lo: 0
         hi: 6
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xif\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
       value:
@@ -176,7 +170,6 @@ outputs:
         lo: 0
         hi: 5
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xelse\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
       value:
@@ -185,7 +178,6 @@ outputs:
         lo: 0
         hi: 7
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xi8\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
       value:
@@ -194,7 +186,6 @@ outputs:
         lo: 0
         hi: 5
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xi16\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
@@ -203,7 +194,6 @@ outputs:
         lo: 0
         hi: 6
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xi32\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
@@ -212,7 +202,6 @@ outputs:
         lo: 0
         hi: 6
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xi64\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
@@ -221,7 +210,6 @@ outputs:
         lo: 0
         hi: 6
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xi128\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
       value:
@@ -230,7 +218,6 @@ outputs:
         lo: 0
         hi: 7
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xu8\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
       value:
@@ -239,7 +226,6 @@ outputs:
         lo: 0
         hi: 5
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xu16\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
@@ -248,7 +234,6 @@ outputs:
         lo: 0
         hi: 6
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xu32\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
@@ -257,7 +242,6 @@ outputs:
         lo: 0
         hi: 6
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xu64\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
@@ -266,7 +250,6 @@ outputs:
         lo: 0
         hi: 6
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xu128\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
       value:
@@ -275,7 +258,6 @@ outputs:
         lo: 0
         hi: 7
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xreturn\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":7}\"}"
       value:
@@ -284,7 +266,6 @@ outputs:
         lo: 0
         hi: 9
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xtrue\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
       value:
@@ -293,7 +274,6 @@ outputs:
         lo: 0
         hi: 7
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"xfalse\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":6}\"}"
       value:
@@ -302,7 +282,6 @@ outputs:
         lo: 0
         hi: 8
   - Assign:
-      operation: Assign
       place:
         Identifier: "{\"name\":\"x0\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":2}\"}"
       value:

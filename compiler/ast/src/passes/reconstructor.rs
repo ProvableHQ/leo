@@ -184,7 +184,6 @@ pub trait StatementReconstructor: ExpressionReconstructor {
 
     fn reconstruct_assign(&mut self, input: AssignStatement) -> Statement {
         Statement::Assign(Box::new(AssignStatement {
-            operation: input.operation,
             place: input.place,
             value: self.reconstruct_expression(input.value).0,
             span: input.span,

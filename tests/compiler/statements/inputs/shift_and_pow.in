@@ -1,0 +1,11 @@
+[unsigned]
+a: u8 = 1u8;
+b: u8 = 2u8;
+c: u8 = 3u8;
+d: u8 = 4u8;
+
+[signed]
+a: i8 = 1i8;
+b: u8 = 2u8;
+c: u8 = 3u8;
+d: u8 = 4u8;
