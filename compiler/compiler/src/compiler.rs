@@ -144,7 +144,7 @@ impl<'a> Compiler<'a> {
 
     /// Runs the symbol table pass.
     pub fn symbol_table_pass(&self) -> Result<SymbolTable> {
-        CreateSymbolTable::do_pass((&self.ast, self.handler))
+        SymbolTableCreator::do_pass((&self.ast, self.handler))
     }
 
     /// Runs the type checker pass.

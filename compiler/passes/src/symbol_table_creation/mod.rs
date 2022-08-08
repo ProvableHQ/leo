@@ -14,26 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![forbid(unsafe_code)]
-#![doc = include_str!("../README.md")]
+pub mod creator;
+pub use creator::*;
 
-pub mod common;
-pub use common::*;
+use crate::{Pass, SymbolTable};
 
-pub mod code_generation;
-pub use code_generation::*;
+use leo_ast::{Ast, ProgramVisitor};
+use leo_errors::{emitter::Handler, Result};
 
-pub mod pass;
-pub use self::pass::*;
+impl<'a> Pass for SymbolTableCreator<'a> {
+    type Input = (&'a Ast, &'a Handler);
+    type Output = Result<SymbolTable>;
 
-pub mod loop_unrolling;
-pub use self::loop_unrolling::*;
+    /// Runs the compiler pass.
+    fn do_pass((ast, handler): Self::Input) -> Self::Output {
+        let mut visitor = SymbolTableCreator::new(handler);
+        visitor.visit_program(ast.as_repr());
+        handler.last_err()?;
 
-pub mod static_single_assignment;
-pub use static_single_assignment::*;
-
-pub mod symbol_table_creation;
-pub use symbol_table_creation::*;
-
-pub mod type_checking;
-pub use type_checking::*;
+        Ok(visitor.symbol_table)
+    }
+}

@@ -14,15 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::cell::RefCell;
+pub mod function_symbol;
+pub use function_symbol::*;
+
+pub mod variable_symbol;
+pub use variable_symbol::*;
 
 use leo_ast::{Circuit, Function};
 use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
-
-use crate::{FunctionSymbol, VariableSymbol};
+use std::cell::RefCell;
 
 #[derive(Clone, Debug, Default)]
 pub struct SymbolTable {
