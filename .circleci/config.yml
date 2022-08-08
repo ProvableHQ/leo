@@ -145,6 +145,19 @@ jobs:
           command: |
             export LEO=/home/circleci/project/project/bin/leo
             ./project/.circleci/test-bubblesort.sh
+
+  test-core:
+    docker:
+      - image: cimg/rust:1.62
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: test core
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/test-core.sh
 workflows:
   version: 2
   main-workflow:
@@ -162,5 +175,8 @@ workflows:
           requires:
             - leo-executable
       - test-bubblesort:
+          requires:
+            - leo-executable
+      - test-core:
           requires:
             - leo-executable
