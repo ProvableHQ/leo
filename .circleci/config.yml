@@ -163,6 +163,19 @@ jobs:
             export LEO=/home/circleci/project/project/bin/leo
             ./project/.circleci/leo-clean.sh
 
+  test-helloworld:
+    docker:
+      - image: cimg/rust:1.62
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+        at: /home/circleci/project/
+      - run:
+          name: test helloworld
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/test-helloworld.sh
+
 workflows:
   version: 2
   main-workflow:
