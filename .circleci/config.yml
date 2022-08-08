@@ -189,3 +189,6 @@ workflows:
       - leo-clean:
           requires:
             - leo-executable
+      - test-helloworld:
+          requires:
+            - leo-executable
