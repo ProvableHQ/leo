@@ -55,32 +55,44 @@ impl ParserContext<'_> {
         let place = self.parse_expression()?;
 
         if self.eat_any(ASSIGN_TOKENS) {
+            // Determine the corresponding binary operation for each token, if it exists.
             let operation = match &self.prev_token.token {
-                Token::Assign => AssignOperation::Assign,
-                Token::AddAssign => AssignOperation::Add,
-                Token::SubAssign => AssignOperation::Sub,
-                Token::MulAssign => AssignOperation::Mul,
-                Token::DivAssign => AssignOperation::Div,
-                Token::RemAssign => AssignOperation::Rem,
-                Token::PowAssign => AssignOperation::Pow,
-                Token::OrAssign => AssignOperation::Or,
-                Token::AndAssign => AssignOperation::And,
-                Token::BitAndAssign => AssignOperation::BitAnd,
-                Token::BitOrAssign => AssignOperation::BitOr,
-                Token::BitXorAssign => AssignOperation::BitXor,
-                Token::ShrAssign => AssignOperation::Shr,
-                Token::ShlAssign => AssignOperation::Shl,
+                Token::Assign => None,
+                Token::AddAssign => Some(BinaryOperation::Add),
+                Token::SubAssign => Some(BinaryOperation::Sub),
+                Token::MulAssign => Some(BinaryOperation::Mul),
+                Token::DivAssign => Some(BinaryOperation::Div),
+                Token::RemAssign => Some(BinaryOperation::Rem),
+                Token::PowAssign => Some(BinaryOperation::Pow),
+                Token::OrAssign => Some(BinaryOperation::Or),
+                Token::AndAssign => Some(BinaryOperation::And),
+                Token::BitAndAssign => Some(BinaryOperation::BitwiseAnd),
+                Token::BitOrAssign => Some(BinaryOperation::BitwiseOr),
+                Token::BitXorAssign => Some(BinaryOperation::Xor),
+                Token::ShrAssign => Some(BinaryOperation::Shr),
+                Token::ShlAssign => Some(BinaryOperation::Shl),
                 _ => unreachable!("`parse_assign_statement` shouldn't produce this"),
             };
 
             let value = self.parse_expression()?;
             self.expect(&Token::Semicolon)?;
-            Ok(Statement::Assign(Box::new(AssignStatement {
-                span: place.span() + value.span(),
-                place,
-                operation,
-                value,
-            })))
+
+            // Construct the span for the statement.
+            let span = place.span() + value.span();
+
+            // Simplify complex assignments into simple assignments.
+            // For example, `x += 1` becomes `x = x + 1`, while simple assignments like `x = y` remain unchanged.
+            let value = match operation {
+                None => value,
+                Some(op) => Expression::Binary(BinaryExpression {
+                    left: Box::new(place.clone()),
+                    right: Box::new(value),
+                    op,
+                    span,
+                }),
+            };
+
+            Ok(Statement::Assign(Box::new(AssignStatement { span, place, value })))
         } else {
             // Error on `expr;` but recover as an empty block `{}`.
             self.expect(&Token::Semicolon)?;

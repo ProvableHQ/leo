@@ -1,13 +1,22 @@
 /*
 namespace: Compile
 expectation: Pass
-input_files: ../inputs/u8.in
+input_files: ../inputs/shift_and_pow.in
 */
 
 @program
-function main(a: u8) -> u8 {
-    let b: u8 = 1u8;
-    b **= a;
+function unsigned(a: u8, b: u8, c: u16, d: u32) -> u8 {
+    a **= b;
+    a **= c;
+    a **= d;
 
-    return b;
+    return a;
+}
+
+function signed(a: i8, b: u8, c: u16, d: u32) -> i8 {
+    a **= b;
+    a **= c;
+    a **= d;
+
+    return a;
 }

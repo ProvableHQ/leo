@@ -3,5 +3,5 @@ $LEO new foo
 ls -la
 cd foo && ls -la
 
-# Try to run `leo build`.
+# Try to run `leo run`.
 $LEO run
