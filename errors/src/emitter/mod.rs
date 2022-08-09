@@ -209,9 +209,9 @@ impl Handler {
         self.inner.borrow_mut().emit_err(err.into());
     }
 
-    /// Emit the error `err`.
-    pub fn emit_warning(&self, warning: LeoWarning) {
-        self.inner.borrow_mut().emit_warning(warning);
+    /// Emit the warning `warning`.
+    pub fn emit_warning<W: Into<LeoWarning>>(&self, warning: W) {
+        self.inner.borrow_mut().emit_warning(warning.into());
     }
 
     /// Emits the error `err`.

@@ -14,10 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::SymbolTable;
+use crate::{CallType, SymbolTable};
 
 use leo_ast::*;
 use leo_errors::emitter::Handler;
+use leo_errors::{TypeCheckerError, TypeCheckerWarning};
+use leo_span::sym;
 
 /// A compiler pass during which the `SymbolTable` is created.
 /// Note that this pass only creates the initial entries for functions and circuits.
@@ -36,6 +38,16 @@ impl<'a> SymbolTableCreator<'a> {
             handler,
         }
     }
+
+    /// Emits a type checker error.
+    pub(crate) fn emit_err(&self, err: TypeCheckerError) {
+        self.handler.emit_err(err);
+    }
+
+    /// Emits a type checker warning.
+    pub(crate) fn emit_warning(&self, warning: TypeCheckerWarning) {
+        self.handler.emit_warning(warning);
+    }
 }
 
 impl<'a> ExpressionVisitor<'a> for SymbolTableCreator<'a> {
@@ -46,8 +58,43 @@ impl<'a> ExpressionVisitor<'a> for SymbolTableCreator<'a> {
 impl<'a> StatementVisitor<'a> for SymbolTableCreator<'a> {}
 
 impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
-    fn visit_function(&mut self, input: &'a Function) {
-        if let Err(err) = self.symbol_table.insert_fn(input.name(), input) {
+    fn visit_function(&mut self, func: &'a Function) {
+        // Is the function a program function?
+        let mut is_program_function = false;
+        // Is the function inlined?
+        let mut is_inlined = false;
+
+        // Check that the function's annotations are valid.
+        for annotation in func.annotations.iter() {
+            match annotation.identifier.name {
+                // Set `is_program_function` to true if the corresponding annotation is found.
+                sym::program => is_program_function = true,
+                sym::inline => is_inlined = true,
+                _ => self.emit_warning(TypeCheckerWarning::unknown_annotation(annotation, annotation.span)),
+            }
+        }
+
+        // Determine the call type of the function.
+        let call_type = match (is_program_function, is_inlined) {
+            (false, false) => CallType::Helper,
+            (false, true) => CallType::Inlined,
+            (true, false) => CallType::Program,
+            // If the function is annotated with both `@program` and `@inline`, emit an error.
+            (true, true) => {
+                let mut spans = func.annotations.iter().map(|annotation| annotation.span);
+                // This is safe, since if either `is_program_function` or `is_inlined` is true, then the function must have at least one annotation.
+                let first_span = spans.next().unwrap();
+
+                // Sum up the spans of all the annotations.
+                let span = spans.fold(first_span, |acc, span| acc + span);
+                self.emit_err(TypeCheckerError::program_and_inline_annotation(span));
+
+                // Return a dummy call type.
+                CallType::Inlined
+            }
+        };
+
+        if let Err(err) = self.symbol_table.insert_fn(func.name(), func, call_type) {
             self.handler.emit_err(err);
         }
     }

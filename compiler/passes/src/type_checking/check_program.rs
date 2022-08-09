@@ -20,6 +20,7 @@ use leo_ast::*;
 use leo_errors::TypeCheckerError;
 use leo_span::sym;
 
+use leo_errors::warnings::type_checker::TypeCheckerWarning;
 use std::cell::RefCell;
 use std::collections::HashSet;
 
@@ -44,6 +45,17 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         if self.call_graph.contains_cycle() {
             self.emit_err(TypeCheckerError::recursive_function())
         }
+
+        // Check that all "helper functions" and "inlined functions" are called at least once.
+        self.symbol_table
+            .borrow()
+            .functions
+            .iter()
+            .filter_map(|(name, function_symbol)| match self.call_graph.contains_node(*name) {
+                true => None,
+                false => Some(TypeCheckerWarning::function_is_never_called(name, function_symbol.span)),
+            })
+            .for_each(|warning| self.emit_warning(warning));
     }
 
     fn visit_function(&mut self, input: &'a Function) {

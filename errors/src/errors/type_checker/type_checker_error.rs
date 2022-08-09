@@ -274,14 +274,6 @@ create_messages!(
         help: Some("Remove the code in the loop body that always returns.".to_string()),
     }
 
-    // TODO: Consider emitting a warning instead of an error.
-    @formatted
-    unknown_annotation {
-        args: (annotation: impl Display),
-        msg: format!("Unknown annotation: `{annotation}`."),
-        help: Some("Use a valid annotation. The Leo compiler supports: `@program`".to_string()),
-    }
-
     @formatted
     helper_function_inputs_cannot_have_modes {
         args: (),
@@ -324,11 +316,12 @@ create_messages!(
         help: Some("Consider removing the `const[ant]` parameters or declaring the constants in the function body.".to_string()),
     }
 
-    // TODO: Improve this error message.
+    // TODO: Improve this error message, with the cycle.
     @backtraced
     recursive_function {
         args: (),
         msg: format!("Recursive function calls are not allowed."),
         help: Some("Remove the recursive call.".to_string()),
     }
+
 );

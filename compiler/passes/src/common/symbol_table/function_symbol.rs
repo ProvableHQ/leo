@@ -15,8 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{Function, FunctionInput, Type};
-use leo_errors::{Result, TypeCheckerError};
-use leo_span::{sym, Span};
+use leo_span::Span;
 use std::fmt::Display;
 
 use crate::SymbolTable;
@@ -59,44 +58,13 @@ pub struct FunctionSymbol {
 }
 
 impl SymbolTable {
-    pub(crate) fn new_function_symbol(id: usize, func: &Function) -> Result<FunctionSymbol> {
-        // Is the function a program function?
-        let mut is_program_function = false;
-        // Is the function inlined?
-        let mut is_inlined = false;
-
-        // Check that the function's annotations are valid.
-        for annotation in func.annotations.iter() {
-            match annotation.identifier.name {
-                // Set `is_program_function` to true if the corresponding annotation is found.
-                sym::program => is_program_function = true,
-                sym::inline => is_inlined = true,
-                _ => return Err(TypeCheckerError::unknown_annotation(annotation, annotation.span).into()),
-            }
-        }
-
-        // Determine the call type of the function.
-        let call_type = match (is_program_function, is_inlined) {
-            (false, false) => CallType::Helper,
-            (false, true) => CallType::Inlined,
-            (true, false) => CallType::Program,
-            (true, true) => {
-                let mut spans = func.annotations.iter().map(|annotation| annotation.span);
-                // This is safe, since if either `is_program_function` or `is_inlined` is true, then the function must have at least one annotation.
-                let first_span = spans.next().unwrap();
-
-                // Sum up the spans of all the annotations.
-                let span = spans.fold(first_span, |acc, span| acc + span);
-                return Err(TypeCheckerError::program_and_inline_annotation(span).into());
-            }
-        };
-
-        Ok(FunctionSymbol {
+    pub(crate) fn new_function_symbol(id: usize, func: &Function, call_type: CallType) -> FunctionSymbol {
+        FunctionSymbol {
             id,
             output: func.output.clone(),
             span: func.span,
             input: func.input.clone(),
             call_type,
-        })
+        }
     }
 }

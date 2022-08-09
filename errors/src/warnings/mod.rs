@@ -14,21 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-/// The LeoError type that contains all sub error types.
-/// This allows a unified error type throughout the Leo crates.
-use crate::LeoMessageCode;
-
 /// Contains the Parser warning definitions.
 pub mod parser;
 pub use self::parser::*;
 
-/// The LeoWarning type that contains all sub error types.
+/// Contains the Type Checker warning definitions.
+pub mod type_checker;
+pub use self::type_checker::*;
+
+/// The LeoError type that contains all sub error types.
 /// This allows a unified error type throughout the Leo crates.
+use crate::LeoMessageCode;
+
+/// The LeoWarning type that contains all sub warning types.
+/// This allows a unified warning type throughout the Leo crates.
 #[derive(Debug, Error)]
 pub enum LeoWarning {
-    /// Represents an Parser Error in a Leo Error.
+    /// Represents a Parser Warning in a Leo Warning.
     #[error(transparent)]
     ParserWarning(#[from] ParserWarning),
+
+    /// Represent a Type Checker Warning in a Leo Warning.
+    #[error(transparent)]
+    TypeCheckerWarning(#[from] TypeCheckerWarning),
 }
 
 impl LeoWarning {
@@ -38,6 +46,7 @@ impl LeoWarning {
 
         match self {
             ParserWarning(warning) => warning.warning_code(),
+            TypeCheckerWarning(warning) => warning.warning_code(),
         }
     }
 }

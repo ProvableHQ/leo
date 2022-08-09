@@ -22,26 +22,36 @@ use indexmap::{IndexMap, IndexSet};
 /// A node corresponds to a function.
 /// A directed edge of the form `a --> b` corresponds to an invocation of function `b` in the body of `a`.
 pub struct CallGraph {
-    /// The source nodes in the call graph. These correspond to "program functions".
-    sources: Vec<Symbol>,
+    /// The set of nodes in the call graph.
+    nodes: IndexSet<Symbol>,
     // TODO: Better name.
     /// The directed edges in the call graph.
-    edges: IndexMap<Symbol, Vec<Symbol>>,
+    edges: IndexMap<Symbol, IndexSet<Symbol>>,
 }
 
 impl CallGraph {
     /// Initializes a new `CallGraph` from a vector of source nodes.
-    pub fn new(sources: Vec<Symbol>) -> Self {
+    pub fn new(nodes: IndexSet<Symbol>) -> Self {
         Self {
-            sources,
+            nodes,
             edges: IndexMap::new(),
         }
     }
 
     /// Adds an edge to the call graph.
     pub fn add_edge(&mut self, from: Symbol, to: Symbol) {
+        // Add `from` and `to` to the set of nodes if they are not already in the set.
+        self.nodes.insert(from);
+        self.nodes.insert(to);
+
+        // Add the edge to the adjacency list.
         let entry = self.edges.entry(from).or_default();
-        entry.push(to)
+        entry.insert(to);
+    }
+
+    /// Returns `true` if the call graph contains the given node.
+    pub fn contains_node(&self, node: Symbol) -> bool {
+        self.nodes.contains(&node)
     }
 
     /// Detects if there is a cycle in the call graph.
@@ -50,7 +60,7 @@ impl CallGraph {
         let mut seen: IndexSet<Symbol> = IndexSet::new();
 
         // Add all the source nodes the`fringe`.
-        let mut fringe = self.sources.clone();
+        let mut fringe = self.nodes.clone();
 
         while !fringe.is_empty() {
             // Note that this unwrap is safe since `fringe` is not empty.
@@ -65,7 +75,7 @@ impl CallGraph {
 
             // Add the children of `node` to the `fringe`.
             if let Some(children) = self.edges.get(&node) {
-                fringe.extend_from_slice(children)
+                fringe.union(children);
             }
         }
 

@@ -128,7 +128,7 @@ impl<'a> ParserContext<'a> {
 
     /// Emit the error `err`.
     pub(super) fn emit_warning(&self, warning: ParserWarning) {
-        self.handler.emit_warning(warning.into());
+        self.handler.emit_warning(warning);
     }
 
     /// Returns true if the next token exists.

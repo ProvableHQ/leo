@@ -18,7 +18,7 @@ use crate::{CallGraph, CallType, FunctionSymbol, SymbolTable};
 
 use leo_ast::{Identifier, IntegerType, Node, Type};
 use leo_core::*;
-use leo_errors::{emitter::Handler, TypeCheckerError};
+use leo_errors::{emitter::Handler, TypeCheckerError, TypeCheckerWarning};
 use leo_span::{Span, Symbol};
 
 use itertools::Itertools;
@@ -113,6 +113,11 @@ impl<'a> TypeChecker<'a> {
     /// Emits a type checker error.
     pub(crate) fn emit_err(&self, err: TypeCheckerError) {
         self.handler.emit_err(err);
+    }
+
+    /// Emits a type checker warning.
+    pub(crate) fn emit_warning(&self, warning: TypeCheckerWarning) {
+        self.handler.emit_warning(warning);
     }
 
     /// Emits an error to the handler if the given type is invalid.

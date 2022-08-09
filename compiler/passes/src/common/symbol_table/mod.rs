@@ -76,10 +76,11 @@ impl SymbolTable {
     }
 
     /// Inserts a function into the symbol table.
-    pub fn insert_fn(&mut self, symbol: Symbol, insert: &Function) -> Result<()> {
+    pub fn insert_fn(&mut self, symbol: Symbol, insert: &Function, call_type: CallType) -> Result<()> {
         self.check_shadowing(symbol, insert.span)?;
         let id = self.scope_index();
-        self.functions.insert(symbol, Self::new_function_symbol(id, insert)?);
+        self.functions
+            .insert(symbol, Self::new_function_symbol(id, insert, call_type));
         self.scopes.push(Default::default());
         Ok(())
     }
