@@ -99,7 +99,9 @@ impl Namespace for CompileNamespace {
         let buf = BufferEmitter(Rc::default(), Rc::default());
         let handler = Handler::new(Box::new(buf.clone()));
 
-        create_session_if_not_set_then(|_| run_test(test, &handler, &buf).map_err(|()| buf.0.take().to_string()))
+        create_session_if_not_set_then(|_| {
+            run_test(test, &handler, &buf).map_err(|()| buf.0.take().to_string() + &buf.1.take().to_string())
+        })
     }
 }
 
@@ -110,6 +112,7 @@ struct OutputItem {
 
 #[derive(Deserialize, PartialEq, Eq, Serialize)]
 struct CompileOutput {
+    pub warnings: String,
     pub output: Vec<OutputItem>,
     pub initial_ast: String,
     pub unrolled_ast: String,
@@ -145,14 +148,14 @@ fn collect_all_inputs(test: &Test) -> Result<Vec<PathBuf>, String> {
 
 // Errors used in this module.
 enum LeoOrString {
-    Leo(LeoError),
+    LeoError(LeoError),
     String(String),
 }
 
 impl Display for LeoOrString {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Leo(x) => std::fmt::Display::fmt(&x, f),
+            Self::LeoError(x) => std::fmt::Display::fmt(&x, f),
             Self::String(x) => std::fmt::Display::fmt(&x, f),
         }
     }
@@ -164,18 +167,18 @@ struct BufferEmitter(Rc<RefCell<Buffer<LeoOrString>>>, Rc<RefCell<Buffer<LeoWarn
 
 impl Emitter for BufferEmitter {
     fn emit_err(&mut self, err: LeoError) {
-        self.0.borrow_mut().push(LeoOrString::Leo(err));
+        self.0.borrow_mut().push(LeoOrString::LeoError(err));
     }
 
     fn last_emitted_err_code(&self) -> Option<i32> {
         let temp = &*self.0.borrow();
         temp.last_entry().map(|entry| match entry {
-            LeoOrString::Leo(err) => err.exit_code(),
+            LeoOrString::LeoError(err) => err.exit_code(),
             _ => 0,
         })
     }
 
-    fn emit_warning(&mut self, warning: leo_errors::LeoWarning) {
+    fn emit_warning(&mut self, warning: LeoWarning) {
         self.1.borrow_mut().push(warning);
     }
 }
@@ -276,6 +279,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     }
 
     let final_output = CompileOutput {
+        warnings: err_buf.1.take().to_string(),
         output: output_items,
         initial_ast,
         unrolled_ast,

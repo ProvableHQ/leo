@@ -19,10 +19,10 @@ use crate::create_messages;
 use std::fmt::Display;
 
 create_messages!(
-    /// TypeCheckerWarning enum that represents all the warnings for the `leo-parser` crate.
+    /// TypeCheckerWarning enum that represents all the warnings produce during type-checking and validation.
     TypeCheckerWarning,
-    code_mask: 0000i32,
-    code_prefix: "PAR",
+    code_mask: 2000i32,
+    code_prefix: "TYC",
 
     @formatted
     unknown_annotation {
@@ -38,5 +38,4 @@ create_messages!(
         help: None,
 
     }
-
 );

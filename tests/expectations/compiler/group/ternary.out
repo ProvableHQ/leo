@@ -2,7 +2,8 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - output:
+  - warnings: ""
+    output:
       - initial_input_ast: 336580f3b1cd3da7ee881c492da25d869813eeaf9391a97b828ebdc259dca85d
     initial_ast: 052a82045ab5471f2f5bd6e1d881de7072a37c220b305e4f5a997b1a20945faa
     unrolled_ast: 052a82045ab5471f2f5bd6e1d881de7072a37c220b305e4f5a997b1a20945faa

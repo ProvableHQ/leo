@@ -2,7 +2,8 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - output:
+  - warnings: "Warning [WTYC0372001]: The function `signed` is never called.\n    --> compiler-test:12:1\n     |\n  12 | function signed(a: i8, b: u8, c: u16, d: u32) -> i8 {\n  13 |     a >>= b;\n  14 |     a >>= c;\n  15 |     a >>= d;\n  16 | \n  17 |     return a;\n  18 | }\n     | ^"
+    output:
       - initial_input_ast: no input
     initial_ast: 2ee595dfca2b696f7462fa1b00851f9178fcf08d72362303bb7e11a2bfa56b53
     unrolled_ast: 2ee595dfca2b696f7462fa1b00851f9178fcf08d72362303bb7e11a2bfa56b53
