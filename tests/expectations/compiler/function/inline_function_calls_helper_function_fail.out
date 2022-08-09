@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372031]: A inlined function cannot call a helper function.\n    --> compiler-test:6:15\n     |\n   6 |        return adder(a, b);\n     |               ^^^^^^^^^^^\n     |\n     = Consider modifying the function annotations such that the call is valid.\nError [ETYC0372031]: A inlined function cannot call a helper function.\n    --> compiler-test:8:16\n     |\n   8 |         return subber(a, b);\n     |                ^^^^^^^^^^^^\n     |\n     = Consider modifying the function annotations such that the call is valid.\n"

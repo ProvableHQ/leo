@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372034]: Recursive function calls are not allowed.\n     |\n     = Remove the recursive call.\n"

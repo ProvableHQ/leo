@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372031]: A function cannot have both `@program` and `@inline` annotations.\n    --> compiler-test:3:1\n     |\n   3 | @inline\n   4 | @program\n     | ^^^^^^^^\n     |\n     = Remove one of the annotations.\n"
+  - "Error [ETYC0372030]: A function cannot have both `@program` and `@inline` annotations.\n    --> compiler-test:3:1\n     |\n   3 | @inline\n   4 | @program\n     | ^^^^^^^^\n     |\n     = Remove one of the annotations.\n"

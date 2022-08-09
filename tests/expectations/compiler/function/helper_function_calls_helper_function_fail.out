@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372031]: A helper function cannot call a helper function.\n    --> compiler-test:5:15\n     |\n   5 |        return adder(a, b);\n     |               ^^^^^^^^^^^\n     |\n     = Consider modifying the function annotations such that the call is valid.\nError [ETYC0372031]: A helper function cannot call a helper function.\n    --> compiler-test:7:16\n     |\n   7 |         return subber(a, b);\n     |                ^^^^^^^^^^^^\n     |\n     = Consider modifying the function annotations such that the call is valid.\n"

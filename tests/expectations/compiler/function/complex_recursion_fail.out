@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected function -- found 'three'\n    --> compiler-test:13:9\n     |\n  13 | @inline three(n: u8) -> u8 {\n     |         ^^^^^"
