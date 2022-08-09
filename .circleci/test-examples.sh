@@ -1,6 +1,6 @@
-# Build and run the helloworld Leo program.
+# Build and run the auction Leo program.
 (
-  cd ./project/examples/helloworld || exit
+  cd ./project/examples/auction || exit
   $LEO run main
 )
 
@@ -19,6 +19,12 @@
 # Build and run the groups example Leo program.
 (
   cd ./project/examples/groups || exit
+  $LEO run main
+)
+
+# Build and run the helloworld Leo program.
+(
+  cd ./project/examples/helloworld || exit
   $LEO run main
 )
 
