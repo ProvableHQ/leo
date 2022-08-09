@@ -56,30 +56,42 @@ impl CallGraph {
 
     /// Detects if there is a cycle in the call graph.
     pub fn contains_cycle(&self) -> bool {
-        // TODO: Init with capacity
-        let mut seen: IndexSet<Symbol> = IndexSet::new();
+        let mut discovered: IndexSet<Symbol> = IndexSet::with_capacity(self.nodes.len());
+        let mut finished: IndexSet<Symbol> = IndexSet::with_capacity(self.nodes.len());
 
-        // Add all the source nodes the`fringe`.
-        let mut fringe = self.nodes.clone();
-
-        while !fringe.is_empty() {
-            // Note that this unwrap is safe since `fringe` is not empty.
-            let node = fringe.pop().unwrap();
-
-            // If `seen` contains `node`, then a cycle exists.
-            if seen.contains(&node) {
+        for node in self.nodes.iter() {
+            if !discovered.contains(node)
+                && !finished.contains(node)
+                && self.contains_cycle_from(*node, &mut discovered, &mut finished)
+            {
                 return true;
-            } else {
-                seen.insert(node);
             }
+        }
+        false
+    }
 
-            // Add the children of `node` to the `fringe`.
-            if let Some(children) = self.edges.get(&node) {
-                fringe.union(children);
+    fn contains_cycle_from(
+        &self,
+        node: Symbol,
+        discovered: &mut IndexSet<Symbol>,
+        finished: &mut IndexSet<Symbol>,
+    ) -> bool {
+        discovered.insert(node);
+
+        if let Some(children) = self.edges.get(&node) {
+            for child in children.iter() {
+                if discovered.contains(child) {
+                    return true;
+                }
+                if !finished.contains(child) && self.contains_cycle_from(*child, discovered, finished) {
+                    return true;
+                }
             }
         }
 
-        // No cycle was detected.
+        discovered.remove(&node);
+        finished.insert(node);
+
         false
     }
 }
