@@ -28,6 +28,17 @@
   $LEO run main
 )
 
+# Build and run the interest example Leo programs.
+(
+  cd ./project/examples/import_point || exit
+
+  # Run the fixed period interest program.
+  $LEO run fixed_period_interest
+
+  # Run the bounded period interest program.
+  $LEO run bounded_period_interest
+)
+
 # Build and run the message example Leo program.
 (
   cd ./project/examples/message || exit

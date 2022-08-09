@@ -1,0 +1,10 @@
+{
+    "program": "interest.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkp6QSDYHfL4Tr54dKXXxSwZWVpm1Ro3feYgpvAampgNmKu",
+        "address": "aleo1lwxu6nluvjt6hu0gurjsph23wlvyxkut59r757szma2s9mrljggsvue3n4"
+    },
+    "license": "MIT"
+}
