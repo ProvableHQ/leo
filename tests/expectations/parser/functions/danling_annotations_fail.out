@@ -15,7 +15,8 @@ outputs:
               hi: 83
         identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":94,\\\"hi\\\":98}\"}"
         input: []
-        output: U8
+        output:
+          Integer: U8
         core_mapping: ~
         block:
           statements: []

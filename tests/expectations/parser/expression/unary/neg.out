@@ -49,13 +49,15 @@ outputs:
         lo: 0
         hi: 3
   - Literal:
-      I8:
+      Integer:
+        - I8
         - "-5"
         - span:
             lo: 0
             hi: 4
   - Literal:
-      I8:
+      Integer:
+        - I8
         - "-128"
         - span:
             lo: 0
@@ -63,7 +65,8 @@ outputs:
   - Unary:
       receiver:
         Literal:
-          I8:
+          Integer:
+            - I8
             - "128"
             - span:
                 lo: 2

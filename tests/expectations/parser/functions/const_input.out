@@ -13,11 +13,13 @@ outputs:
         input:
           - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":19,\\\"hi\\\":20}\"}"
             mode: Const
-            type_: U8
+            type_:
+              Integer: U8
             span:
               lo: 19
               hi: 20
-        output: U8
+        output:
+          Integer: U8
         core_mapping: ~
         block:
           statements: []
@@ -33,11 +35,13 @@ outputs:
         input:
           - identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":56,\\\"hi\\\":57}\"}"
             mode: Const
-            type_: U64
+            type_:
+              Integer: U64
             span:
               lo: 56
               hi: 57
-        output: U8
+        output:
+          Integer: U8
         core_mapping: ~
         block:
           statements: []

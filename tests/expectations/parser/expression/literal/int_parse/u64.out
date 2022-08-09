@@ -3,631 +3,736 @@ namespace: ParseExpression
 expectation: Pass
 outputs:
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "123"
         - span:
             lo: 0
             hi: 6
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "123"
         - span:
             lo: 0
             hi: 6
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "456"
         - span:
             lo: 0
             hi: 6
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "87377802873778028737780287377802873778028737780287377802873778028737780287377802"
         - span:
             lo: 0
             hi: 83
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "8737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802"
         - span:
             lo: 0
             hi: 403
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "340130024"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "158951116"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "155529659"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "642023166"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "228481736"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "469712960"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "929437719"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "721072814"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "363254789"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "906732565"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "288246391"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "724940549"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "487101620"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "261373583"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "891163927"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "743967544"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "8372586"
         - span:
             lo: 0
             hi: 10
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "461793278"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "806307045"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "122764546"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "356336181"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "158370903"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "774460877"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "557174131"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "492401267"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "893445620"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "957757048"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "721540649"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "390746493"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "211251725"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "938266114"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "156985870"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "703831126"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "729964155"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "988151305"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "320872435"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "719287167"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "152289486"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "740067975"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "728627816"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "385008978"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "553967635"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "71980713"
         - span:
             lo: 0
             hi: 11
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "519444716"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "116499965"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "717422268"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "18966279"
         - span:
             lo: 0
             hi: 11
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "22458638"
         - span:
             lo: 0
             hi: 11
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "857282620"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "920675898"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "762235516"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "469018377"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "199986521"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "536679358"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "591399452"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "83083158"
         - span:
             lo: 0
             hi: 11
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "599449051"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "445442318"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "585486590"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "209278800"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "873568117"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "664470940"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "465262783"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "605652874"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "376803940"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "965247040"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "598474509"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "845119918"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "648159133"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "669051032"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "800600261"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "434689764"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "520060080"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "804659385"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "537828058"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "716600292"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "387020273"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "199375617"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "680337189"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "818479931"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "893693281"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "87377802"
         - span:
             lo: 0
             hi: 11
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "84699261"
         - span:
             lo: 0
             hi: 11
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "292826090"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "569171405"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "387436237"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "150682190"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "888770419"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "824696431"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "765659803"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "270163693"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "427940240"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "504997332"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "337808338"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "907200008"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "757177889"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "696697188"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "41376051"
         - span:
             lo: 0
             hi: 11
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "496293518"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U64:
+      Integer:
+        - U64
         - "251218820"
         - span:
             lo: 0
