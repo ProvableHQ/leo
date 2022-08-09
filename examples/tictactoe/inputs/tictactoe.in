@@ -1,0 +1,16 @@
+// The program input for tictactoe/src/main.leo
+[main]
+public player: u8 = 1u8;
+row: u8 = 1u8;
+col: u8 = 1u8;
+board = Board {
+    c11: 0u8,
+    c12: 0u8,
+    c13: 0u8,
+    c21: 0u8,
+    c22: 0u8,
+    c23: 0u8,
+    c31: 0u8,
+    c32: 0u8,
+    c33: 0u8
+}
