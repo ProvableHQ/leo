@@ -1,4 +1,9 @@
+// This is suggestive of a tic-tac-toe game.
+// There are two players: 1, who uses X; and 2, who uses O.
+
+// The state of the board is captured by a value of this circuit type.
 // This will work better with arrays, but for now we just expand the 9 cells.
+
 circuit Board {
     // c(ell){row}{column} (0 for empty, 1 for X, 2 for O):
     c11: u8,
@@ -11,6 +16,10 @@ circuit Board {
     c32: u8,
     c33: u8
 }
+
+// This function checks whether a player is a winner on a board.
+// It checks if there are three marks for the player
+// in any row, column, or diagonal.
 
 function win(b: Board, p: u8) -> bool {
     return
@@ -27,6 +36,7 @@ function win(b: Board, p: u8) -> bool {
 // This carries out a single move: a player (1 for X, 2 for O) marking a cell.
 // The cell must be empty (i.e. contain 0), otherwise this is a no-op.
 // The u8 result is the winning player, of 0 if there is no winner (yet).
+
 @program
 function main(public player: u8, row: u8, col: u8, board: Board) -> (Board, u8) {
     console.assert(player == 1u8 || player == 2u8); // 1 for X, 2 for O
