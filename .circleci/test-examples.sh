@@ -34,6 +34,12 @@
   $LEO run main
 )
 
+# Build and run the tic tac toe example Leo program.
+(
+  cd ./project/examples/tictactoe || exit
+  $LEO run main
+)
+
 # Build and run the token example programs.
 (
   cd ./project/examples/token || exit
