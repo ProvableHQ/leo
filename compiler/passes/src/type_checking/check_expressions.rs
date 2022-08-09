@@ -480,46 +480,48 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             Literal::Address(_, _) => self.assert_and_return_type(Type::Address, expected, input.span()),
             Literal::Boolean(_, _) => self.assert_and_return_type(Type::Boolean, expected, input.span()),
             Literal::Field(_, _) => self.assert_and_return_type(Type::Field, expected, input.span()),
-            Literal::I8(string, _) => {
-                parse_integer_literal::<i8>(self.handler, string, input.span(), "i8");
-                self.assert_and_return_type(Type::I8, expected, input.span())
-            }
-            Literal::I16(string, _) => {
-                parse_integer_literal::<i16>(self.handler, string, input.span(), "i16");
-                self.assert_and_return_type(Type::I16, expected, input.span())
-            }
-            Literal::I32(string, _) => {
-                parse_integer_literal::<i32>(self.handler, string, input.span(), "i32");
-                self.assert_and_return_type(Type::I32, expected, input.span())
-            }
-            Literal::I64(string, _) => {
-                parse_integer_literal::<i64>(self.handler, string, input.span(), "i64");
-                self.assert_and_return_type(Type::I64, expected, input.span())
-            }
-            Literal::I128(string, _) => {
-                parse_integer_literal::<i128>(self.handler, string, input.span(), "i128");
-                self.assert_and_return_type(Type::I128, expected, input.span())
-            }
-            Literal::U8(string, _) => {
-                parse_integer_literal::<u8>(self.handler, string, input.span(), "u8");
-                self.assert_and_return_type(Type::U8, expected, input.span())
-            }
-            Literal::U16(string, _) => {
-                parse_integer_literal::<u16>(self.handler, string, input.span(), "u16");
-                self.assert_and_return_type(Type::U16, expected, input.span())
-            }
-            Literal::U32(string, _) => {
-                parse_integer_literal::<u32>(self.handler, string, input.span(), "u32");
-                self.assert_and_return_type(Type::U32, expected, input.span())
-            }
-            Literal::U64(string, _) => {
-                parse_integer_literal::<u64>(self.handler, string, input.span(), "u64");
-                self.assert_and_return_type(Type::U64, expected, input.span())
-            }
-            Literal::U128(string, _) => {
-                parse_integer_literal::<u128>(self.handler, string, input.span(), "u128");
-                self.assert_and_return_type(Type::U128, expected, input.span())
-            }
+            Literal::Integer(integer_type, string, _) => match integer_type {
+                IntegerType::U8 => {
+                    parse_integer_literal::<u8>(self.handler, string, input.span(), "u8");
+                    self.assert_and_return_type(Type::Integer(IntegerType::U8), expected, input.span())
+                }
+                IntegerType::U16 => {
+                    parse_integer_literal::<u16>(self.handler, string, input.span(), "u16");
+                    self.assert_and_return_type(Type::Integer(IntegerType::U16), expected, input.span())
+                }
+                IntegerType::U32 => {
+                    parse_integer_literal::<u32>(self.handler, string, input.span(), "u32");
+                    self.assert_and_return_type(Type::Integer(IntegerType::U32), expected, input.span())
+                }
+                IntegerType::U64 => {
+                    parse_integer_literal::<u64>(self.handler, string, input.span(), "u64");
+                    self.assert_and_return_type(Type::Integer(IntegerType::U64), expected, input.span())
+                }
+                IntegerType::U128 => {
+                    parse_integer_literal::<u128>(self.handler, string, input.span(), "u128");
+                    self.assert_and_return_type(Type::Integer(IntegerType::U128), expected, input.span())
+                }
+                IntegerType::I8 => {
+                    parse_integer_literal::<i8>(self.handler, string, input.span(), "i8");
+                    self.assert_and_return_type(Type::Integer(IntegerType::I8), expected, input.span())
+                }
+                IntegerType::I16 => {
+                    parse_integer_literal::<i16>(self.handler, string, input.span(), "i16");
+                    self.assert_and_return_type(Type::Integer(IntegerType::I16), expected, input.span())
+                }
+                IntegerType::I32 => {
+                    parse_integer_literal::<i32>(self.handler, string, input.span(), "i32");
+                    self.assert_and_return_type(Type::Integer(IntegerType::I32), expected, input.span())
+                }
+                IntegerType::I64 => {
+                    parse_integer_literal::<i64>(self.handler, string, input.span(), "i64");
+                    self.assert_and_return_type(Type::Integer(IntegerType::I64), expected, input.span())
+                }
+                IntegerType::I128 => {
+                    parse_integer_literal::<i128>(self.handler, string, input.span(), "i128");
+                    self.assert_and_return_type(Type::Integer(IntegerType::I128), expected, input.span())
+                }
+            },
             Literal::Group(_) => self.assert_and_return_type(Type::Group, expected, input.span()),
             Literal::Scalar(_, _) => self.assert_and_return_type(Type::Scalar, expected, input.span()),
             Literal::String(_, _) => self.assert_and_return_type(Type::String, expected, input.span()),

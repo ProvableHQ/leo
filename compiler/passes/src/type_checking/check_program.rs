@@ -120,7 +120,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 }
             };
             check_has_field(sym::owner, Type::Address);
-            check_has_field(sym::gates, Type::U64);
+            check_has_field(sym::gates, Type::Integer(IntegerType::U64));
         }
 
         // Ensure there are no tuple typed members.

@@ -22,7 +22,7 @@ pub use pedersen::*;
 mod poseidon;
 pub use poseidon::*;
 
-use leo_ast::Type;
+use leo_ast::{IntegerType, Type};
 use leo_span::{sym, Symbol};
 
 /// A core instruction that maps directly to an AVM bytecode instruction.
@@ -188,44 +188,44 @@ const ALL_TYPES: [Type; 16] = [
     Type::Boolean,
     Type::Field,
     Type::Group,
-    Type::I8,
-    Type::I16,
-    Type::I32,
-    Type::I64,
-    Type::I128,
-    Type::U8,
-    Type::U16,
-    Type::U32,
-    Type::U64,
-    Type::U128,
+    Type::Integer(IntegerType::I8),
+    Type::Integer(IntegerType::I16),
+    Type::Integer(IntegerType::I32),
+    Type::Integer(IntegerType::I64),
+    Type::Integer(IntegerType::I128),
+    Type::Integer(IntegerType::U8),
+    Type::Integer(IntegerType::U16),
+    Type::Integer(IntegerType::U32),
+    Type::Integer(IntegerType::U64),
+    Type::Integer(IntegerType::U128),
     Type::Scalar,
     Type::String,
 ];
 
 const BOOL_INT_STRING_TYPES: [Type; 12] = [
     Type::Boolean,
-    Type::I8,
-    Type::I16,
-    Type::I32,
-    Type::I64,
-    Type::I128,
-    Type::U8,
-    Type::U16,
-    Type::U32,
-    Type::U64,
-    Type::U128,
+    Type::Integer(IntegerType::I8),
+    Type::Integer(IntegerType::I16),
+    Type::Integer(IntegerType::I32),
+    Type::Integer(IntegerType::I64),
+    Type::Integer(IntegerType::I128),
+    Type::Integer(IntegerType::U8),
+    Type::Integer(IntegerType::U16),
+    Type::Integer(IntegerType::U32),
+    Type::Integer(IntegerType::U64),
+    Type::Integer(IntegerType::U128),
     Type::String,
 ];
 
 const BOOL_INT64_STRING_TYPES: [Type; 10] = [
     Type::Boolean,
-    Type::I8,
-    Type::I16,
-    Type::I32,
-    Type::I64,
-    Type::U8,
-    Type::U16,
-    Type::U32,
-    Type::U64,
+    Type::Integer(IntegerType::I8),
+    Type::Integer(IntegerType::I16),
+    Type::Integer(IntegerType::I32),
+    Type::Integer(IntegerType::I64),
+    Type::Integer(IntegerType::U8),
+    Type::Integer(IntegerType::U16),
+    Type::Integer(IntegerType::U32),
+    Type::Integer(IntegerType::U64),
     Type::String,
 ];
