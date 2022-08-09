@@ -18,6 +18,7 @@ use crate::GroupLiteral;
 
 use super::*;
 
+// TODO: Refactor integer literals to use `IntegerType`.
 /// A literal.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Literal {

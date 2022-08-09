@@ -250,26 +250,31 @@ impl ParserContext<'_> {
             };
             ops.push((operation, self.prev_token.span));
         }
+
+        // This is needed to ensure that only the token sequence `-`, `Token::Integer(..)` is parsed as a negative integer literal.
+        let inner_is_integer = matches!(self.token.token, Token::Integer(..));
+
         let mut inner = self.parse_postfix_expression()?;
         for (op, op_span) in ops.into_iter().rev() {
             inner = match inner {
                 // If the unary operation is a negate, and the inner expression is a signed integer literal,
                 // then produce a negative integer literal.
                 // This helps handle a special case where -128i8, treated as a unary expression, overflows, but -128i8, treated as an integer literal doesn't.
-                // TODO: the parser produces a negative integer literal for both -(128i8) and -128i8. Is this an issue?
-                Expression::Literal(Literal::I8(string, span)) if op == UnaryOperation::Negate => {
+                Expression::Literal(Literal::I8(string, span)) if op == UnaryOperation::Negate && inner_is_integer => {
                     Expression::Literal(Literal::I8(format!("-{}", string), op_span + span))
                 }
-                Expression::Literal(Literal::I16(string, span)) if op == UnaryOperation::Negate => {
+                Expression::Literal(Literal::I16(string, span)) if op == UnaryOperation::Negate && inner_is_integer => {
                     Expression::Literal(Literal::I16(format!("-{}", string), op_span + span))
                 }
-                Expression::Literal(Literal::I32(string, span)) if op == UnaryOperation::Negate => {
+                Expression::Literal(Literal::I32(string, span)) if op == UnaryOperation::Negate && inner_is_integer => {
                     Expression::Literal(Literal::I32(format!("-{}", string), op_span + span))
                 }
-                Expression::Literal(Literal::I64(string, span)) if op == UnaryOperation::Negate => {
+                Expression::Literal(Literal::I64(string, span)) if op == UnaryOperation::Negate && inner_is_integer => {
                     Expression::Literal(Literal::I64(format!("-{}", string), op_span + span))
                 }
-                Expression::Literal(Literal::I128(string, span)) if op == UnaryOperation::Negate => {
+                Expression::Literal(Literal::I128(string, span))
+                    if op == UnaryOperation::Negate && inner_is_integer =>
+                {
                     Expression::Literal(Literal::I128(format!("-{}", string), op_span + span))
                 }
                 // Otherwise, produce a unary expression.
