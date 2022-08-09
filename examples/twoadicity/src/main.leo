@@ -14,8 +14,7 @@ function main(public n: field) -> u8 {
   return powers_of_two;
 }
 
-/* We don't yet have shifts or bitmasks or % for fields,
-   but we can define evenp as in the definition below.
+/* We define the is_even predicate on fields as follows.
    If n is even and nonzero, clearly n/2 < n.
    If n is odd, n-p is a field-equivalent negative number that is even,
    and (n-p)/2 is a field-equivalent negative number closer to 0, greater than n-p.
