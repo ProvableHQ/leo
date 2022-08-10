@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CallGraph, CallType, FunctionSymbol, SymbolTable};
+use crate::{DiGraph, CallType, FunctionSymbol, SymbolTable, CallGraph};
 
 use leo_ast::{Identifier, IntegerType, Node, Type};
 use leo_core::*;
@@ -106,7 +106,7 @@ impl<'a> TypeChecker<'a> {
             is_program_function: false,
             is_inlined: false,
             function: None,
-            call_graph: CallGraph::new(source_nodes),
+            call_graph: DiGraph::new(source_nodes),
         }
     }
 

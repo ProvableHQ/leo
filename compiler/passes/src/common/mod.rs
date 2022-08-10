@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod call_graph;
-pub use call_graph::*;
+pub mod graph;
+pub use graph::*;
 
 pub mod symbol_table;
 pub use symbol_table::*;
