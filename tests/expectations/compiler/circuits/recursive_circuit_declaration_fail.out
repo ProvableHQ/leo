@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372034]: Recursive types are not allowed.\n     |\n     = Remove the recursive type.\n"

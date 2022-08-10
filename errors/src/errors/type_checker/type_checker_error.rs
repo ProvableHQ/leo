@@ -324,4 +324,12 @@ create_messages!(
         help: Some("Remove the recursive call.".to_string()),
     }
 
+    // TODO: Improve this error message, with the cycle.
+    @backtraced
+    recursive_type {
+        args: (),
+        msg: format!("Recursive types are not allowed."),
+        help: Some("Remove the recursive type.".to_string()),
+    }
+
 );

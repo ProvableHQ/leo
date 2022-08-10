@@ -44,7 +44,7 @@ pub struct TypeChecker<'a> {
     /// A directed graph describing the composite type dependencies of the program.
     /// A node corresponds to named composite type, either a circuit or record.
     /// A directed edge of the form `a --> b` corresponds to a dependency of composite type `b` on composite type `a`.
-    pub(crate) _type_graph: DiGraph<Symbol>,
+    pub(crate) type_graph: DiGraph<Symbol>,
 }
 
 const BOOLEAN_TYPE: Type = Type::Boolean;
@@ -116,7 +116,7 @@ impl<'a> TypeChecker<'a> {
             function: None,
             call_graph: DiGraph::new(function_names),
             // TODO: Fix
-            _type_graph: DiGraph::new(circuit_names),
+            type_graph: DiGraph::new(circuit_names),
         }
     }
 
