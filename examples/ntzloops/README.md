@@ -24,7 +24,8 @@ expressed in Leo as `!x & x.sub_wrapped(1u32);`.
 Then we simply count the 1-bits by right shifting until `x` is zero and
 counting the number of shifts using the variable `n`.
 
-To get the effect of a while loop in Leo, one must use a `for` loop with the maximum
-possible number of iterations, and then check the while-analogous condition within
-the for loop.  Once the condition is false, the loop completes but the `if` statement
-inside the loop prevents any further operations.
+To get the effect of a while loop in Leo, one must use a `for` loop with the
+enough iterations to accommodate all possible inputs, and then check the
+while condition within the for loop.  Once the condition is false, the
+loop continues until finished but the `if` statement inside the loop prevents
+any further operations.

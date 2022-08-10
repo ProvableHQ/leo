@@ -21,7 +21,7 @@ divide the 33 arguments 0, 1, 2, ..., 2**31, the remainder is different for
 each argument. This constant is 37.
 
 In the algorithm, the remainder is used as an index into a table of size 37,
-with 4 entries unused.  The table's values were chosen so that they gave the
+with 4 entries unused.  The table's values were chosen so that they give the
 correct number of trailing zeros for the inputs.
 
 This algorithm was proposed by John Reiser in the comp.arch.arithmetic newsgroup
