@@ -184,6 +184,8 @@ atomic-literal = numeric-literal
                / address-literal
                / string-literal
 
+annotation = "@" identifier
+
 symbol = "!"
        / "&&" / "||"
        / "==" / "!="
@@ -207,6 +209,7 @@ token = keyword
       / identifier
       / atomic-literal
       / numeral
+      / annotation
       / symbol
 
 lexeme = token / comment / whitespace
@@ -409,7 +412,7 @@ print-arguments = "(" string-literal  *( "," expression ) [ "," ] ")"
 
 print-call = print-function print-arguments
 
-function-declaration = %s"function" identifier
+function-declaration = *annotation %s"function" identifier
                        "(" [ function-parameters ] ")" "->" type
                        block
 
