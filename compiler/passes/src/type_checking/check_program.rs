@@ -95,19 +95,21 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             // Note that the unwrap is safe since we set the call type above.
             match self.function.unwrap().1 {
                 // Program functions cannot have constant input parameters.
-                CallType::Program if input_var.mode() == ParamMode::Const => {
-                    self.emit_err(TypeCheckerError::program_functions_cannot_have_const_inputs(
-                        input_var.span(),
-                    ));
+                CallType::Program => {
+                    if input_var.mode() == ParamMode::Const {
+                        self.emit_err(TypeCheckerError::program_functions_cannot_have_const_inputs(
+                            input_var.span(),
+                        ));
+                    }
                 }
                 // If the function is not a program function, then check that the parameters do not have an associated mode.
-                _ if input_var.mode() != ParamMode::None => {
-                    self.emit_err(TypeCheckerError::helper_function_inputs_cannot_have_modes(
-                        input_var.span,
-                    ));
+                _ => {
+                    if input_var.mode() != ParamMode::None {
+                        self.emit_err(TypeCheckerError::helper_function_inputs_cannot_have_modes(
+                            input_var.span,
+                        ));
+                    }
                 }
-                // Do nothing.
-                _ => {}
             }
 
             // Check for conflicting variable names.
