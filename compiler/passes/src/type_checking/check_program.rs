@@ -121,6 +121,21 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             };
             check_has_field(sym::owner, Type::Address);
             check_has_field(sym::gates, Type::U64);
+
+            // Check that the record does not contain another record.
+            for member in input.members.iter() {
+                if let CircuitMember::CircuitVariable(_, Type::Identifier(identifier)) = member {
+                    if let Some(circuit) = self.symbol_table.borrow().lookup_circuit(identifier.name) {
+                        if circuit.is_record {
+                            self.emit_err(TypeCheckerError::record_cannot_contain_record(
+                                input.identifier.name,
+                                identifier.name,
+                                input.span(),
+                            ));
+                        }
+                    }
+                }
+            }
         }
 
         // Ensure there are no tuple typed members.

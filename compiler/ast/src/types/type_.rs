@@ -111,7 +111,7 @@ impl fmt::Display for Type {
             Type::I32 => write!(f, "i32"),
             Type::I64 => write!(f, "i64"),
             Type::I128 => write!(f, "i128"),
-            Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
+            Type::Identifier(ref variable) => write!(f, "{}", variable),
             Type::Scalar => write!(f, "scalar"),
             Type::String => write!(f, "string"),
             Type::U8 => write!(f, "u8"),

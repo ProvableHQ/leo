@@ -288,4 +288,11 @@ create_messages!(
         msg: format!("Helper functions cannot have modes associated with their inputs."),
         help: Some("Consider removing the mode or adding a `@program` annotation to the function.".to_string()),
     }
+
+    @formatted
+    record_cannot_contain_record {
+        args: (parent_record: impl Display, child_record: impl Display),
+        msg: format!("A record cannot contain another record."),
+        help: Some(format!("Remove the record `{child_record} from `{parent_record}`.")),
+    }
 );
