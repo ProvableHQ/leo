@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-
 use leo_span::Symbol;
 
 use indexmap::{IndexMap, IndexSet};
@@ -26,12 +25,8 @@ pub trait Node: Copy + 'static + Eq + PartialEq + Debug + Hash {}
 
 impl Node for Symbol {}
 
-/// A directed graph describing the caller-callee relationships of the program.
-/// A node corresponds to a function.
-/// A directed edge of the form `a --> b` corresponds to an invocation of function `b` in the body of `a`.
-pub type CallGraph = DiGraph<Symbol>;
-
 /// A directed graph.
+#[derive(Debug)]
 pub struct DiGraph<N: Node> {
     /// The set of nodes in the graph.
     nodes: IndexSet<N>,
@@ -88,12 +83,7 @@ impl<N: Node> DiGraph<N> {
     }
 
     // Detects if there is a cycle in the graph starting from the given node, via a recursive depth-first search.
-    fn contains_cycle_from(
-        &self,
-        node: N,
-        discovered: &mut IndexSet<N>,
-        finished: &mut IndexSet<N>,
-    ) -> bool {
+    fn contains_cycle_from(&self, node: N, discovered: &mut IndexSet<N>, finished: &mut IndexSet<N>) -> bool {
         // Add the node to the set of discovered nodes.
         discovered.insert(node);
 

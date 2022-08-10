@@ -6,6 +6,7 @@ outputs:
     network: ""
     expected_input: []
     imports: {}
+    circuits: {}
     functions:
       "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":94,\\\"hi\\\":98}\"}":
         annotations:
@@ -26,4 +27,3 @@ outputs:
         span:
           lo: 85
           hi: 109
-    circuits: {}

@@ -35,10 +35,10 @@ pub struct Program {
     pub expected_input: Vec<FunctionInput>,
     /// A map from import names to import definitions.
     pub imports: IndexMap<Identifier, Program>,
-    /// A map from function names to function definitions.
-    pub functions: IndexMap<Identifier, Function>,
     /// A map from circuit names to circuit definitions.
     pub circuits: IndexMap<Identifier, Circuit>,
+    /// A map from function names to function definitions.
+    pub functions: IndexMap<Identifier, Function>,
 }
 
 impl fmt::Display for Program {

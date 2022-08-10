@@ -30,15 +30,17 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_program(&mut self, input: &'a Program) {
         input.imports.values().for_each(|import| self.visit_import(import));
 
-        input
-            .functions
-            .values()
-            .for_each(|function| self.visit_function(function));
-
+        // Visit the circuits in the program.
         input
             .circuits
             .values()
             .for_each(|function| self.visit_circuit(function));
+
+        // Visit the functions in the program.
+        input
+            .functions
+            .values()
+            .for_each(|function| self.visit_function(function));
 
         // TODO: Improve error message to provide a path associated with the cycle.
         // Check that the call graph does not contain any cycle.

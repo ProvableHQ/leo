@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{DiGraph, CallType, FunctionSymbol, SymbolTable, CallGraph};
+use crate::{CallType, DiGraph, FunctionSymbol, SymbolTable};
 
 use leo_ast::{Identifier, IntegerType, Node, Type};
 use leo_core::*;
@@ -37,8 +37,14 @@ pub struct TypeChecker<'a> {
     /// Are we traversing a function, if so, what is its call type?
     /// Is it a program function, helper function, or inlined function?
     pub(crate) function: Option<(Symbol, CallType)>,
-    /// The call graph of the program.
-    pub(crate) call_graph: CallGraph,
+    /// A directed graph describing the caller-callee relationships of the program.
+    /// A node corresponds to a function.
+    /// A directed edge of the form `a --> b` corresponds to an invocation of function `b` in the body of `a`.
+    pub(crate) call_graph: DiGraph<Symbol>,
+    /// A directed graph describing the composite type dependencies of the program.
+    /// A node corresponds to named composite type, either a circuit or record.
+    /// A directed edge of the form `a --> b` corresponds to a dependency of composite type `b` on composite type `a`.
+    pub(crate) _type_graph: DiGraph<Symbol>,
 }
 
 const BOOLEAN_TYPE: Type = Type::Boolean;
@@ -87,7 +93,9 @@ const MAGNITUDE_TYPES: [Type; 3] = [
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
     pub fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
-        let source_nodes = symbol_table
+        let circuit_names = symbol_table.circuits.keys().copied().collect();
+
+        let function_names = symbol_table
             .functions
             .iter()
             .filter_map(
@@ -106,7 +114,9 @@ impl<'a> TypeChecker<'a> {
             is_program_function: false,
             is_inlined: false,
             function: None,
-            call_graph: DiGraph::new(source_nodes),
+            call_graph: DiGraph::new(function_names),
+            // TODO: Fix
+            _type_graph: DiGraph::new(circuit_names),
         }
     }
 

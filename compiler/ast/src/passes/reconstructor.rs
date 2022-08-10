@@ -254,15 +254,15 @@ pub trait ProgramReconstructor: StatementReconstructor {
                 .into_iter()
                 .map(|(id, import)| (id, self.reconstruct_import(import)))
                 .collect(),
-            functions: input
-                .functions
-                .into_iter()
-                .map(|(i, f)| (i, self.reconstruct_function(f)))
-                .collect(),
             circuits: input
                 .circuits
                 .into_iter()
                 .map(|(i, c)| (i, self.reconstruct_circuit(c)))
+                .collect(),
+            functions: input
+                .functions
+                .into_iter()
+                .map(|(i, f)| (i, self.reconstruct_function(f)))
                 .collect(),
         }
     }
