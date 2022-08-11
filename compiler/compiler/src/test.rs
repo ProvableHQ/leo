@@ -56,6 +56,7 @@ fn new_compiler(handler: &Handler, main_file_path: PathBuf) -> Compiler<'_> {
             spans_enabled: false,
             initial_input_ast: true,
             initial_ast: true,
+            inlined_ast: true,
             unrolled_ast: true,
             ssa_ast: true,
         }),
@@ -116,6 +117,7 @@ struct CompileOutput {
     pub warnings: String,
     pub output: Vec<OutputItem>,
     pub initial_ast: String,
+    pub inlined_ast: String,
     pub unrolled_ast: String,
     pub ssa_ast: String,
 }
@@ -197,6 +199,7 @@ fn temp_dir() -> PathBuf {
 fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>, handler: &Handler) -> Result<String, LeoError> {
     let st = parsed.symbol_table_pass()?;
     let st = parsed.type_checker_pass(st)?;
+    let st = parsed.function_inlining_pass(st)?;
     let _st = parsed.loop_unrolling_pass(st)?;
     parsed.static_single_assignment_pass()?;
 
@@ -272,6 +275,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     }
 
     let initial_ast = hash_file("/tmp/output/initial_ast.json");
+    let inlined_ast = hash_file("/tmp/output/inlined_ast.json");
     let unrolled_ast = hash_file("/tmp/output/unrolled_ast.json");
     let ssa_ast = hash_file("/tmp/output/ssa_ast.json");
 
@@ -283,6 +287,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         warnings: err_buf.1.take().to_string(),
         output: output_items,
         initial_ast,
+        inlined_ast,
         unrolled_ast,
         ssa_ast,
     };

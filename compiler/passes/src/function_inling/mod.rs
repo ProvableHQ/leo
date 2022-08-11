@@ -14,29 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![forbid(unsafe_code)]
-#![doc = include_str!("../README.md")]
+use crate::{Pass, SymbolTable};
 
-pub mod common;
-pub use common::*;
+use leo_ast::{Ast, ProgramReconstructor};
+use leo_errors::emitter::Handler;
+use leo_errors::Result;
 
-pub mod code_generation;
-pub use code_generation::*;
+pub mod inliner;
+pub use inliner::*;
 
-pub mod function_inling;
-pub use function_inling::*;
+impl<'a> Pass for Inliner<'a> {
+    type Input = (Ast, &'a Handler, SymbolTable);
+    type Output = Result<(Ast, SymbolTable)>;
 
-pub mod pass;
-pub use self::pass::*;
+    fn do_pass((ast, handler, st): Self::Input) -> Self::Output {
+        let mut reconstructor = Self::new(st, handler);
+        let program = reconstructor.reconstruct_program(ast.into_repr());
+        handler.last_err()?;
 
-pub mod loop_unrolling;
-pub use self::loop_unrolling::*;
-
-pub mod static_single_assignment;
-pub use static_single_assignment::*;
-
-pub mod symbol_table_creation;
-pub use symbol_table_creation::*;
-
-pub mod type_checking;
-pub use type_checking::*;
+        Ok((Ast::new(program), reconstructor.symbol_table.take()))
+    }
+}

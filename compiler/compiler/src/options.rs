@@ -22,6 +22,8 @@ pub struct OutputOptions {
     pub initial_ast: bool,
     /// If enabled writes the input AST after parsing.
     pub initial_input_ast: bool,
+    /// If enabled writes the AST after function inlining.
+    pub inlined_ast: bool,
     /// If enabled writes the AST after loop unrolling.
     pub unrolled_ast: bool,
     /// If enabled writes the AST after static single assignment.

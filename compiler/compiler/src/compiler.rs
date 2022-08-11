@@ -152,6 +152,18 @@ impl<'a> Compiler<'a> {
         TypeChecker::do_pass((&self.ast, self.handler, symbol_table))
     }
 
+    /// Runs the function inlining pass.
+    pub fn function_inlining_pass(&mut self, symbol_table: SymbolTable) -> Result<SymbolTable> {
+        let (ast, symbol_table) = Inliner::do_pass((std::mem::take(&mut self.ast), self.handler, symbol_table))?;
+        self.ast = ast;
+
+        if self.output_options.inlined_ast {
+            self.write_ast_to_json("inlined_ast.json")?;
+        }
+
+        Ok(symbol_table)
+    }
+
     /// Runs the loop unrolling pass.
     pub fn loop_unrolling_pass(&mut self, symbol_table: SymbolTable) -> Result<SymbolTable> {
         let (ast, symbol_table) = Unroller::do_pass((std::mem::take(&mut self.ast), self.handler, symbol_table))?;
@@ -179,6 +191,9 @@ impl<'a> Compiler<'a> {
     pub fn compiler_stages(&mut self) -> Result<SymbolTable> {
         let st = self.symbol_table_pass()?;
         let st = self.type_checker_pass(st)?;
+
+        // TODO: Make this pass optional.
+        let st = self.function_inlining_pass(st)?;
 
         // TODO: Make this pass optional.
         let st = self.loop_unrolling_pass(st)?;
