@@ -290,9 +290,9 @@ create_messages!(
     }
 
     @formatted
-    record_cannot_contain_record {
-        args: (parent_record: impl Display, child_record: impl Display),
-        msg: format!("A record cannot contain another record."),
-        help: Some(format!("Remove the record `{child_record} from `{parent_record}`.")),
+    circuit_or_record_cannot_contain_record {
+        args: (parent: impl Display, child: impl Display),
+        msg: format!("A circuit or record cannot contain another record."),
+        help: Some(format!("Remove the record `{child}` from `{parent}`.")),
     }
 );

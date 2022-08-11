@@ -317,6 +317,31 @@ impl<'a> TypeChecker<'a> {
             self.emit_err(TypeCheckerError::tuple_not_allowed(span))
         }
     }
+
+    /// Emits an error if the circuit member is a record type.
+    pub(crate) fn assert_member_is_not_record(&self, span: Span, parent: Symbol, type_: &Type) {
+        match type_ {
+            Type::Identifier(identifier)
+                if self
+                    .symbol_table
+                    .borrow()
+                    .lookup_circuit(identifier.name)
+                    .map_or(false, |circuit| circuit.is_record) =>
+            {
+                self.emit_err(TypeCheckerError::circuit_or_record_cannot_contain_record(
+                    parent,
+                    identifier.name,
+                    span,
+                ))
+            }
+            Type::Tuple(tuple_type) => {
+                for type_ in tuple_type.iter() {
+                    self.assert_member_is_not_record(span, parent, type_)
+                }
+            }
+            _ => {} // Do nothing.
+        }
+    }
 }
 
 fn types_to_string(types: &[Type]) -> String {

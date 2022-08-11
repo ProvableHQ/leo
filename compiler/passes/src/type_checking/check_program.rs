@@ -24,6 +24,8 @@ use leo_span::sym;
 use std::cell::RefCell;
 use std::collections::HashSet;
 
+// TODO: Generally, cleanup tyc logic.
+
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_function(&mut self, input: &'a Function) {
         // Check that the function's annotations are valid.
@@ -121,26 +123,13 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             };
             check_has_field(sym::owner, Type::Address);
             check_has_field(sym::gates, Type::U64);
-
-            // Check that the record does not contain another record.
-            for member in input.members.iter() {
-                if let CircuitMember::CircuitVariable(_, Type::Identifier(identifier)) = member {
-                    if let Some(circuit) = self.symbol_table.borrow().lookup_circuit(identifier.name) {
-                        if circuit.is_record {
-                            self.emit_err(TypeCheckerError::record_cannot_contain_record(
-                                input.identifier.name,
-                                identifier.name,
-                                input.span(),
-                            ));
-                        }
-                    }
-                }
-            }
         }
 
-        // Ensure there are no tuple typed members.
         for CircuitMember::CircuitVariable(v, type_) in input.members.iter() {
+            // Ensure there are no tuple typed members.
             self.assert_not_tuple(v.span, type_);
+            // Ensure that there are no record members.
+            self.assert_member_is_not_record(v.span, input.identifier.name, type_);
         }
     }
 }
