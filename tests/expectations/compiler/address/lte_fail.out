@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372021]: Comparison `<=` is not supported for the address type.\n    --> compiler-test:6:12\n     |\n   6 |     return x <= sender;\n     |            ^^^^^^^^^^^\nWarning [WTYC0372001]: The function `main` is never called.\n    --> compiler-test:3:1\n     |\n   3 | function main(x: address) -> bool {\n   4 |     const sender: address = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;\n   5 | \n   6 |     return x <= sender;\n   7 | }\n     | ^"
+  - "Error [ETYC0372021]: Comparison `<=` is not supported for the address type.\n    --> compiler-test:6:12\n     |\n   6 |     return x <= sender;\n     |            ^^^^^^^^^^^\nWarning [WTYC0372001]: The function `main` is never called by a program function.\n    --> compiler-test:3:1\n     |\n   3 | function main(x: address) -> bool {\n   4 |     const sender: address = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;\n   5 | \n   6 |     return x <= sender;\n   7 | }\n     | ^"

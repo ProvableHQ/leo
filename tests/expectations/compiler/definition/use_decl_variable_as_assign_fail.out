@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372005]: Unknown variable `b`\n    --> compiler-test:4:14\n     |\n   4 | \tlet b: u8 = b;\n     |              ^\nWarning [WTYC0372001]: The function `main` is never called.\n    --> compiler-test:3:1\n     |\n   3 | function main(y: bool) -> bool {\n   4 | \tlet b: u8 = b;\n   5 |     return y == true;\n   6 | }\n     | ^"
+  - "Error [ETYC0372005]: Unknown variable `b`\n    --> compiler-test:4:14\n     |\n   4 | \tlet b: u8 = b;\n     |              ^\nWarning [WTYC0372001]: The function `main` is never called by a program function.\n    --> compiler-test:3:1\n     |\n   3 | function main(y: bool) -> bool {\n   4 | \tlet b: u8 = b;\n   5 |     return y == true;\n   6 | }\n     | ^"

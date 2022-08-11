@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372020]: The field `gates` in a `record` must have type `u64`.\n    --> compiler-test:4:1\n     |\n   4 | record Token {\n   5 |     gates: address,\n   6 |     owner: address,\n   7 | }\n     | ^\nWarning [WTYC0372001]: The function `main` is never called.\n    --> compiler-test:9:1\n     |\n   9 | function main(a: u8, b:u8) -> u8 {\n  10 |     return a + b;\n  11 | }\n     | ^"
+  - "Error [ETYC0372020]: The field `gates` in a `record` must have type `u64`.\n    --> compiler-test:4:1\n     |\n   4 | record Token {\n   5 |     gates: address,\n   6 |     owner: address,\n   7 | }\n     | ^\nWarning [WTYC0372001]: The function `main` is never called by a program function.\n    --> compiler-test:9:1\n     |\n   9 | function main(a: u8, b:u8) -> u8 {\n  10 |     return a + b;\n  11 | }\n     | ^"

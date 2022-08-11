@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372011]: variable `x` shadowed by\n    --> compiler-test:5:4\n     |\n   5 |   \tlet x: bool = true;\n     |    ^^^^^^^^^^^^^^^^^^\nWarning [WTYC0372001]: The function `main` is never called.\n    --> compiler-test:3:1\n     |\n   3 | function main(k: bool) -> bool {\n   4 | \tlet x: u8 = 1u8;\n   5 |   \tlet x: bool = true;\n   6 | \t\n   7 | \treturn k == true;\n   8 | }\n     | ^"
+  - "Error [EAST0372011]: variable `x` shadowed by\n    --> compiler-test:5:4\n     |\n   5 |   \tlet x: bool = true;\n     |    ^^^^^^^^^^^^^^^^^^\nWarning [WTYC0372001]: The function `main` is never called by a program function.\n    --> compiler-test:3:1\n     |\n   3 | function main(k: bool) -> bool {\n   4 | \tlet x: u8 = 1u8;\n   5 |   \tlet x: bool = true;\n   6 | \t\n   7 | \treturn k == true;\n   8 | }\n     | ^"

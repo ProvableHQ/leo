@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372007]: Expected one type from `field, i8, i16, i32, i64, i128, u8, u16, u32, u64, u128`, but got `scalar`\n    --> compiler-test:4:12\n     |\n   4 |     return a / b; // division not supported for scalar types.\n     |            ^^^^^\nWarning [WTYC0372001]: The function `main` is never called.\n    --> compiler-test:3:1\n     |\n   3 | function main(a: scalar, b: scalar) -> scalar {\n   4 |     return a / b; // division not supported for scalar types.\n   5 | }\n     | ^"
+  - "Error [ETYC0372007]: Expected one type from `field, i8, i16, i32, i64, i128, u8, u16, u32, u64, u128`, but got `scalar`\n    --> compiler-test:4:12\n     |\n   4 |     return a / b; // division not supported for scalar types.\n     |            ^^^^^\nWarning [WTYC0372001]: The function `main` is never called by a program function.\n    --> compiler-test:3:1\n     |\n   3 | function main(a: scalar, b: scalar) -> scalar {\n   4 |     return a / b; // division not supported for scalar types.\n   5 | }\n     | ^"

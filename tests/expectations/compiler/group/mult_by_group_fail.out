@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372007]: Expected one type from `scalar`, but got `group`\n    --> compiler-test:4:26\n     |\n   4 |     return (_, _)group * a;\n     |                          ^\nWarning [WTYC0372001]: The function `main` is never called.\n    --> compiler-test:3:1\n     |\n   3 | function main(a: group) -> group {\n   4 |     return (_, _)group * a;\n   5 | }\n     | ^"
+  - "Error [ETYC0372007]: Expected one type from `scalar`, but got `group`\n    --> compiler-test:4:26\n     |\n   4 |     return (_, _)group * a;\n     |                          ^\nWarning [WTYC0372001]: The function `main` is never called by a program function.\n    --> compiler-test:3:1\n     |\n   3 | function main(a: group) -> group {\n   4 |     return (_, _)group * a;\n   5 | }\n     | ^"

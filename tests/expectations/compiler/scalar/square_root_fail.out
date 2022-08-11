@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372007]: Expected one type from `field`, but got `scalar`\n    --> compiler-test:4:12\n     |\n   4 |     return a.square_root(); // square root not supported for scalar types.\n     |            ^^^^^^^^^^^^^^^\nWarning [WTYC0372001]: The function `main` is never called.\n    --> compiler-test:3:1\n     |\n   3 | function main(a: scalar) -> scalar {\n   4 |     return a.square_root(); // square root not supported for scalar types.\n   5 | }\n     | ^"
+  - "Error [ETYC0372007]: Expected one type from `field`, but got `scalar`\n    --> compiler-test:4:12\n     |\n   4 |     return a.square_root(); // square root not supported for scalar types.\n     |            ^^^^^^^^^^^^^^^\nWarning [WTYC0372001]: The function `main` is never called by a program function.\n    --> compiler-test:3:1\n     |\n   3 | function main(a: scalar) -> scalar {\n   4 |     return a.square_root(); // square root not supported for scalar types.\n   5 | }\n     | ^"

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372009]: circuit `Bar` shadowed by\n    --> compiler-test:8:5\n     |\n   8 |     const Bar: u32 = 66u32;\n     |     ^^^^^^^^^^^^^^^^^^^^^^\nWarning [WTYC0372001]: The function `main` is never called.\n    --> compiler-test:7:1\n     |\n   7 | function main(y: bool) -> bool {\n   8 |     const Bar: u32 = 66u32;\n   9 |     const k1: Bar = Bar { b2: 30u32 };\n  10 | \n  11 |     return y == true;\n  12 | }\n     | ^"
+  - "Error [EAST0372009]: circuit `Bar` shadowed by\n    --> compiler-test:8:5\n     |\n   8 |     const Bar: u32 = 66u32;\n     |     ^^^^^^^^^^^^^^^^^^^^^^\nWarning [WTYC0372001]: The function `main` is never called by a program function.\n    --> compiler-test:7:1\n     |\n   7 | function main(y: bool) -> bool {\n   8 |     const Bar: u32 = 66u32;\n   9 |     const k1: Bar = Bar { b2: 30u32 };\n  10 | \n  11 |     return y == true;\n  12 | }\n     | ^"
