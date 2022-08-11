@@ -115,7 +115,6 @@ impl<'a> TypeChecker<'a> {
             is_inlined: false,
             function: None,
             call_graph: DiGraph::new(function_names),
-            // TODO: Fix
             type_graph: DiGraph::new(circuit_names),
         }
     }

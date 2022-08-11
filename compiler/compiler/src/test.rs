@@ -100,6 +100,7 @@ impl Namespace for CompileNamespace {
         let handler = Handler::new(Box::new(buf.clone()));
 
         create_session_if_not_set_then(|_| {
+            // If an error occurs, concatenate the emitter errors and warnings into a single string.
             run_test(test, &handler, &buf).map_err(|()| buf.0.take().to_string() + &buf.1.take().to_string())
         })
     }
@@ -147,12 +148,12 @@ fn collect_all_inputs(test: &Test) -> Result<Vec<PathBuf>, String> {
 }
 
 // Errors used in this module.
-enum LeoOrString {
+enum LeoErrorOrString {
     LeoError(LeoError),
     String(String),
 }
 
-impl Display for LeoOrString {
+impl Display for LeoErrorOrString {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             Self::LeoError(x) => std::fmt::Display::fmt(&x, f),
@@ -163,17 +164,17 @@ impl Display for LeoOrString {
 
 /// A buffer used to emit errors into.
 #[derive(Clone)]
-struct BufferEmitter(Rc<RefCell<Buffer<LeoOrString>>>, Rc<RefCell<Buffer<LeoWarning>>>);
+struct BufferEmitter(Rc<RefCell<Buffer<LeoErrorOrString>>>, Rc<RefCell<Buffer<LeoWarning>>>);
 
 impl Emitter for BufferEmitter {
     fn emit_err(&mut self, err: LeoError) {
-        self.0.borrow_mut().push(LeoOrString::LeoError(err));
+        self.0.borrow_mut().push(LeoErrorOrString::LeoError(err));
     }
 
     fn last_emitted_err_code(&self) -> Option<i32> {
         let temp = &*self.0.borrow();
         temp.last_entry().map(|entry| match entry {
-            LeoOrString::LeoError(err) => err.exit_code(),
+            LeoErrorOrString::LeoError(err) => err.exit_code(),
             _ => 0,
         })
     }
@@ -184,7 +185,7 @@ impl Emitter for BufferEmitter {
 }
 
 fn buffer_if_err<T>(buf: &BufferEmitter, res: Result<T, String>) -> Result<T, ()> {
-    res.map_err(|err| buf.0.borrow_mut().push(LeoOrString::String(err)))
+    res.map_err(|err| buf.0.borrow_mut().push(LeoErrorOrString::String(err)))
 }
 
 fn temp_dir() -> PathBuf {

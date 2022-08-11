@@ -65,12 +65,12 @@ impl<N: Node> DiGraph<N> {
         // The set of nodes that do not need to be visited again.
         let mut finished: IndexSet<N> = IndexSet::with_capacity(self.nodes.len());
         // The set of nodes that are on the path to the current node in the search.
-        let mut discovered: IndexSet<N> = IndexSet::with_capacity(self.nodes.len());
+        let mut discovered: IndexSet<N> = IndexSet::new();
 
         // Perform a depth-first search of the graph, starting from `node`, for each node in the graph.
         for node in self.nodes.iter() {
             // If the node has not been explored, explore it.
-            if !discovered.contains(node)
+            if !discovered.contains(node) //TODO: Can we remove this check? Any nodes added to discovered in `contains_cycle_from` are removed.
                 && !finished.contains(node)
                 && self.contains_cycle_from(*node, &mut discovered, &mut finished)
             {

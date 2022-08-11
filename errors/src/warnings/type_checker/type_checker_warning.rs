@@ -34,8 +34,7 @@ create_messages!(
     @formatted
     function_is_never_called {
         args: (func: impl Display),
-        msg: format!("The function `{func}` is never called."),
+        msg: format!("The function `{func}` is never called by a program function."),
         help: None,
-
     }
 );

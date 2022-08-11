@@ -31,10 +31,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         input.imports.values().for_each(|import| self.visit_import(import));
 
         // Visit the circuits in the program.
-        input
-            .circuits
-            .values()
-            .for_each(|circuit| self.visit_circuit(circuit));
+        input.circuits.values().for_each(|circuit| self.visit_circuit(circuit));
 
         // TODO: Improve error message to provide a path associated with the cycle.
         // Check that the type dependency graph does not contain any cycle.
@@ -72,23 +69,20 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             .swap(prev_st.borrow().lookup_fn_scope(input.name()).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
 
-        // TODO: Cleanup. Too many unwraps
         // Lookup the function's call type.
-        self.function = Some((
-            input.name(),
-            self.symbol_table
-                .borrow()
-                .lookup_fn_symbol(input.name())
-                .unwrap()
-                .call_type,
-        ));
+        let call_type = self
+            .symbol_table
+            .borrow()
+            .lookup_fn_symbol(input.name())
+            .unwrap()
+            .call_type;
+        self.function = Some((input.name(), call_type));
 
         self.has_return = false;
         self.parent = Some(input.name());
 
         // Program and helper functions must have input parameters.
-        // Note that the unwrap is safe since we set the call type above.
-        if self.function.unwrap().1 != CallType::Inlined && input.input.is_empty() {
+        if call_type != CallType::Inlined && input.input.is_empty() {
             self.emit_err(TypeCheckerError::function_must_have_inputs(
                 self.function.unwrap().1,
                 input.span(),
@@ -100,8 +94,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.assert_type_is_valid(input_var.span, &input_var.type_);
             self.assert_not_tuple(input_var.span, &input_var.type_);
 
-            // Note that the unwrap is safe since we set the call type above.
-            match self.function.unwrap().1 {
+            match call_type {
                 // Program functions cannot have constant input parameters.
                 CallType::Program => {
                     if input_var.mode() == ParamMode::Const {
