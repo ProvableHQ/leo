@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372030]: A circuit or record cannot contain another record.\n    --> compiler-test:12:5\n     |\n  12 |     foo: Foo,\n     |     ^^^\n     |\n     = Remove the record `Foo` from `Token`.\n"

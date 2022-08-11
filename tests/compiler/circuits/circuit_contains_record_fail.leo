@@ -3,13 +3,9 @@ namespace: Compile
 expectation: Fail
 */
 
-record Foo {
-    // The token owner.
-    owner: address,
-    // The Aleo balance (in gates).
-    gates: u64,
+circuit Foo {
     // The token amount.
-    amount: u64,
+    token: Token,
 }
 
 record Token {

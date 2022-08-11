@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372030]: A record cannot contain another record.\n    --> compiler-test:12:1\n     |\n  12 | record Token {\n  13 |     // The token owner.\n  14 |     owner: address,\n  15 |     // The Aleo balance (in gates).\n  16 |     gates: u64,\n  17 |     // The token amount.\n  18 |     foo: Foo,\n  19 | }\n     | ^\n     |\n     = Remove the record `Foo from `Token`.\n"
+  - "Error [EPAR0370005]: expected 'function', 'circuit', 'test' -- found 'interface'\n    --> compiler-test:21:1\n     |\n  21 | interface Bar {\n     | ^^^^^^^^^"
