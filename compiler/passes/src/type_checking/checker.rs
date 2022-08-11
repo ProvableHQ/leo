@@ -317,6 +317,25 @@ impl<'a> TypeChecker<'a> {
             self.emit_err(TypeCheckerError::tuple_not_allowed(span))
         }
     }
+
+    /// Emits an error if the type is not valid.
+    pub(crate) fn assert_type_is_valid(&self, span: Span, type_: &Type) {
+        match type_ {
+            // Check that the named composite type has been defined.
+            Type::Identifier(identifier) => {
+                if self.symbol_table.borrow().lookup_circuit(identifier.name).is_none() {
+                    self.emit_err(TypeCheckerError::undefined_type(identifier.name, span));
+                }
+            }
+            // Check that the constituent types are valid.
+            Type::Tuple(tuple_type) => {
+                for type_ in tuple_type.iter() {
+                    self.assert_type_is_valid(span, type_)
+                }
+            }
+            _ => {} // Do nothing.
+        }
+    }
 }
 
 fn types_to_string(types: &[Type]) -> String {
