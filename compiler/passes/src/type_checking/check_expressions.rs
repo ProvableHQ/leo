@@ -149,7 +149,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                 }
                             }
                         } else {
-                            self.emit_err(TypeCheckerError::invalid_circuit(&access.inner, access.inner.span()));
+                            self.emit_err(TypeCheckerError::undefined_type(&access.inner, access.inner.span()));
                         }
                     }
                     Some(type_) => {

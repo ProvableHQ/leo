@@ -43,6 +43,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.has_return = false;
         self.parent = Some(input.name());
         input.input.iter().for_each(|input_var| {
+            // Check that the type of input parameter is valid.
+            self.assert_type_is_valid(input_var.span, &input_var.type_);
             self.assert_not_tuple(input_var.span, &input_var.type_);
 
             // If the function is not a program function, then check that the parameters do not have an associated mode.
@@ -68,6 +70,10 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         if !self.has_return {
             self.emit_err(TypeCheckerError::function_has_no_return(input.name(), input.span()));
+        } else {
+            // Check that the return type is valid.
+            // TODO: Span should be just for the return type.
+            self.assert_type_is_valid(input.span, &input.output);
         }
 
         // Ensure there are no nested tuples in the return type.
@@ -88,7 +94,16 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_circuit(&mut self, input: &'a Circuit) {
         // Check for conflicting circuit/record member names.
         let mut used = HashSet::new();
-        if !input.members.iter().all(|member| used.insert(member.name())) {
+        if !input
+            .members
+            .iter()
+            .all(|CircuitMember::CircuitVariable(ident, type_)| {
+                // TODO: Better spans.
+                // Check that the member types are valid.
+                self.assert_type_is_valid(input.span, type_);
+                used.insert(ident.name)
+            })
+        {
             self.emit_err(if input.is_record {
                 TypeCheckerError::duplicate_record_variable(input.name(), input.span())
             } else {

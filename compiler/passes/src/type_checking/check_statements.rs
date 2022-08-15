@@ -61,6 +61,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             VariableType::Mut
         };
 
+        // Check that the type of the definition is valid.
+        self.assert_type_is_valid(input.span, &input.type_);
+
         self.visit_expression(&input.value, &Some(input.type_.clone()));
 
         if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
