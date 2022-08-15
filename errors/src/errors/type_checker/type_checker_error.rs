@@ -303,13 +303,6 @@ create_messages!(
     }
 
     @formatted
-    function_must_have_inputs {
-        args: (func_type: impl Display),
-        msg: format!("A {func_type} function must have inputs."),
-        help: Some("Consider adding inputs to the function or using an inlined function.".to_string()),
-    }
-
-    @formatted
     program_functions_cannot_have_const_inputs {
         args: (),
         msg: format!("Program functions cannot have constant inputs."),

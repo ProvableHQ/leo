@@ -81,14 +81,6 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.has_return = false;
         self.parent = Some(input.name());
 
-        // Program and helper functions must have input parameters.
-        if call_type != CallType::Inlined && input.input.is_empty() {
-            self.emit_err(TypeCheckerError::function_must_have_inputs(
-                self.function.unwrap().1,
-                input.span(),
-            ));
-        }
-
         input.input.iter().for_each(|input_var| {
             // Check that the type of input parameter is valid.
             self.assert_type_is_valid(input_var.span, &input_var.type_);
