@@ -74,7 +74,7 @@ version = "0.2.0"
 source = "git+https://github.com/AleoHQ/aleo.git?rev=4064f1c#4064f1cfbc612cdea8f5bcb8781453b3697abd27"
 dependencies = [
  "anyhow",
- "clap 3.2.16",
+ "clap 3.2.17",
  "colored",
  "rand",
  "rand_chacha",
@@ -390,9 +390,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.2.16"
+version = "3.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3dbbb6653e7c55cc8595ad3e1f7be8f32aba4eb7ff7f0fd1163d4f3d137c0a9"
+checksum = "29e724a68d9319343bb3328c9cc2dfde263f4b3142ee1059a9980580171c954b"
 dependencies = [
  "atty",
  "bitflags",
@@ -407,9 +407,9 @@ dependencies = [
 
 [[package]]
 name = "clap_derive"
-version = "3.2.15"
+version = "3.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ba52acd3b0a5c33aeada5cdaa3267cdc7c594a98731d4268cdc1532f4264cb4"
+checksum = "13547f7012c01ab4a0e8f8967730ada8f9fdf419e8b6c792788f39cf4e46eefa"
 dependencies = [
  "heck",
  "proc-macro-error",
@@ -1195,7 +1195,7 @@ dependencies = [
  "ansi_term",
  "assert_cmd",
  "backtrace",
- "clap 3.2.16",
+ "clap 3.2.17",
  "color-backtrace",
  "colored",
  "console",
@@ -1241,7 +1241,7 @@ dependencies = [
 name = "leo-parser"
 version = "1.5.3"
 dependencies = [
- "clap 3.2.16",
+ "clap 3.2.17",
  "indexmap",
  "lazy_static",
  "leo-ast",
@@ -1285,7 +1285,7 @@ name = "leo-test-framework"
 version = "1.5.3"
 dependencies = [
  "backtrace",
- "clap 3.2.16",
+ "clap 3.2.17",
  "criterion",
  "leo-compiler",
  "leo-errors",
@@ -2281,7 +2281,7 @@ version = "0.7.5"
 source = "git+https://github.com/AleoHQ/snarkVM.git?rev=22f3aa8#22f3aa8f566e1dfe80070ec4d78a1e55c72427dc"
 dependencies = [
  "anyhow",
- "clap 3.2.16",
+ "clap 3.2.17",
  "colored",
  "indexmap",
  "once_cell",
