@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::GroupLiteral;
+use crate::{GroupLiteral, IntegerType};
 
 use super::*;
 
+// TODO: Refactor integer literals to use `IntegerType`.
 /// A literal.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Literal {
@@ -32,31 +33,13 @@ pub enum Literal {
     /// A group literal, either product or affine.
     /// For example, `42group` or `(12, 52)group`.
     Group(Box<GroupLiteral>),
+    /// An integer literal, e.g., `42`.
+    Integer(IntegerType, String, #[serde(with = "leo_span::span_json")] Span),
     /// A scalar literal, e.g. `1scalar`.
     /// An unsigned number followed by the keyword `scalar`.
     Scalar(String, #[serde(with = "leo_span::span_json")] Span),
     /// A string literal, e.g., `"foobar"`.
     String(String, #[serde(with = "leo_span::span_json")] Span),
-    /// An 8-bit signed integer literal, e.g., `42i8`.
-    I8(String, #[serde(with = "leo_span::span_json")] Span),
-    /// A 16-bit signed integer literal, e.g., `42i16`.
-    I16(String, #[serde(with = "leo_span::span_json")] Span),
-    /// A 32-bit signed integer literal, e.g., `42i32`.
-    I32(String, #[serde(with = "leo_span::span_json")] Span),
-    /// A 64-bit signed integer literal, e.g., `42i64`.
-    I64(String, #[serde(with = "leo_span::span_json")] Span),
-    /// A 128-bit signed integer literal, e.g., `42i128`.
-    I128(String, #[serde(with = "leo_span::span_json")] Span),
-    /// A 8-bit unsigned integer literal, e.g., `42u8`.
-    U8(String, #[serde(with = "leo_span::span_json")] Span),
-    /// A 16-bit unsigned integer literal, e.g., `42u16`.
-    U16(String, #[serde(with = "leo_span::span_json")] Span),
-    /// A 32-bit unsigned integer literal, e.g., `42u32`.
-    U32(String, #[serde(with = "leo_span::span_json")] Span),
-    /// A 64-bit unsigned integer literal, e.g., `42u64`.
-    U64(String, #[serde(with = "leo_span::span_json")] Span),
-    /// A 128-bit unsigned integer literal, e.g., `42u128`.
-    U128(String, #[serde(with = "leo_span::span_json")] Span),
 }
 
 impl fmt::Display for Literal {
@@ -64,20 +47,11 @@ impl fmt::Display for Literal {
         match &self {
             Self::Address(address, _) => write!(f, "{}", address),
             Self::Boolean(boolean, _) => write!(f, "{}", boolean),
-            Self::I8(integer, _) => write!(f, "{}i8", integer),
-            Self::I16(integer, _) => write!(f, "{}i16", integer),
-            Self::I32(integer, _) => write!(f, "{}i32", integer),
-            Self::I64(integer, _) => write!(f, "{}i64", integer),
-            Self::I128(integer, _) => write!(f, "{}i128", integer),
             Self::Field(field, _) => write!(f, "{}field", field),
             Self::Group(group) => write!(f, "{}group", group),
+            Self::Integer(type_, value, _) => write!(f, "{}{}", value, type_),
             Self::Scalar(scalar, _) => write!(f, "{}scalar", scalar),
             Self::String(string, _) => write!(f, "{}", string),
-            Self::U8(integer, _) => write!(f, "{}u8", integer),
-            Self::U16(integer, _) => write!(f, "{}u16", integer),
-            Self::U32(integer, _) => write!(f, "{}u32", integer),
-            Self::U64(integer, _) => write!(f, "{}u64", integer),
-            Self::U128(integer, _) => write!(f, "{}u128", integer),
         }
     }
 }
@@ -88,18 +62,9 @@ impl Node for Literal {
             Self::Address(_, span)
             | Self::Boolean(_, span)
             | Self::Field(_, span)
-            | Self::I8(_, span)
-            | Self::I16(_, span)
-            | Self::I32(_, span)
-            | Self::I64(_, span)
-            | Self::I128(_, span)
+            | Self::Integer(_, _, span)
             | Self::Scalar(_, span)
-            | Self::String(_, span)
-            | Self::U8(_, span)
-            | Self::U16(_, span)
-            | Self::U32(_, span)
-            | Self::U64(_, span)
-            | Self::U128(_, span) => *span,
+            | Self::String(_, span) => *span,
             Self::Group(group) => match &**group {
                 GroupLiteral::Single(_, span) => *span,
                 GroupLiteral::Tuple(tuple) => tuple.span,
@@ -112,18 +77,9 @@ impl Node for Literal {
             Self::Address(_, span)
             | Self::Boolean(_, span)
             | Self::Field(_, span)
-            | Self::I8(_, span)
-            | Self::I16(_, span)
-            | Self::I32(_, span)
-            | Self::I64(_, span)
-            | Self::I128(_, span)
+            | Self::Integer(_, _, span)
             | Self::Scalar(_, span)
-            | Self::String(_, span)
-            | Self::U8(_, span)
-            | Self::U16(_, span)
-            | Self::U32(_, span)
-            | Self::U64(_, span)
-            | Self::U128(_, span) => *span = new_span,
+            | Self::String(_, span) => *span = new_span,
             Self::Group(group) => match &mut **group {
                 GroupLiteral::Single(_, span) => *span = new_span,
                 GroupLiteral::Tuple(tuple) => tuple.span = new_span,

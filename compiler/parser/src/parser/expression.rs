@@ -250,13 +250,28 @@ impl ParserContext<'_> {
             };
             ops.push((operation, self.prev_token.span));
         }
+
+        // This is needed to ensure that only the token sequence `-`, `Token::Integer(..)` is parsed as a negative integer literal.
+        let inner_is_integer = matches!(self.token.token, Token::Integer(..));
+
         let mut inner = self.parse_postfix_expression()?;
         for (op, op_span) in ops.into_iter().rev() {
-            inner = Expression::Unary(UnaryExpression {
-                span: op_span + inner.span(),
-                op,
-                receiver: Box::new(inner),
-            });
+            inner = match inner {
+                // If the unary operation is a negate, and the inner expression is a signed integer literal,
+                // then produce a negative integer literal.
+                // This helps handle a special case where -128i8, treated as a unary expression, overflows, but -128i8, treated as an integer literal doesn't.
+                Expression::Literal(Literal::Integer(integer_type, string, span))
+                    if op == UnaryOperation::Negate && inner_is_integer =>
+                {
+                    Expression::Literal(Literal::Integer(integer_type, format!("-{}", string), op_span + span))
+                }
+                // Otherwise, produce a unary expression.
+                _ => Expression::Unary(UnaryExpression {
+                    span: op_span + inner.span(),
+                    op,
+                    receiver: Box::new(inner),
+                }),
+            };
         }
         Ok(inner)
     }
@@ -536,19 +551,8 @@ impl ParserContext<'_> {
                     // Literal followed by other type suffix, e.g., `42u8`.
                     Some(suffix) => {
                         assert_no_whitespace(&suffix.to_string())?;
-                        match suffix {
-                            Token::I8 => Expression::Literal(Literal::I8(value, full_span)),
-                            Token::I16 => Expression::Literal(Literal::I16(value, full_span)),
-                            Token::I32 => Expression::Literal(Literal::I32(value, full_span)),
-                            Token::I64 => Expression::Literal(Literal::I64(value, full_span)),
-                            Token::I128 => Expression::Literal(Literal::I128(value, full_span)),
-                            Token::U8 => Expression::Literal(Literal::U8(value, full_span)),
-                            Token::U16 => Expression::Literal(Literal::U16(value, full_span)),
-                            Token::U32 => Expression::Literal(Literal::U32(value, full_span)),
-                            Token::U64 => Expression::Literal(Literal::U64(value, full_span)),
-                            Token::U128 => Expression::Literal(Literal::U128(value, full_span)),
-                            _ => return Err(ParserError::unexpected_token("Expected integer type suffix", span).into()),
-                        }
+                        let int_ty = Self::token_to_int_type(suffix).expect("unknown int type token");
+                        Expression::Literal(Literal::Integer(int_ty, value, full_span))
                     }
                     None => return Err(ParserError::implicit_values_not_allowed(value, span).into()),
                 }

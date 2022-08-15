@@ -19,11 +19,13 @@ outputs:
               lo: 18
               hi: 22
           - mode: Const
-            type_: U8
+            type_:
+              Integer: U8
             name: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":38,\\\"hi\\\":39}\"}"
             value:
               Literal:
-                U8:
+                Integer:
+                  - U8
                   - "2"
                   - span:
                       lo: 49
@@ -83,21 +85,17 @@ outputs:
               lo: 118
               hi: 125
           - mode: Const
-            type_: I8
+            type_:
+              Integer: I8
             name: "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":199,\\\"hi\\\":200}\"}"
             value:
-              Unary:
-                receiver:
-                  Literal:
-                    I8:
-                      - "2"
-                      - span:
-                          lo: 211
-                          hi: 214
-                op: Negate
-                span:
-                  lo: 210
-                  hi: 214
+              Literal:
+                Integer:
+                  - I8
+                  - "-2"
+                  - span:
+                      lo: 210
+                      hi: 214
             span:
               lo: 202
               hi: 204
@@ -120,11 +118,13 @@ outputs:
               lo: 233
               hi: 237
           - mode: None
-            type_: U8
+            type_:
+              Integer: U8
             name: "{\"name\":\"r1\",\"span\":\"{\\\"lo\\\":247,\\\"hi\\\":249}\"}"
             value:
               Literal:
-                U8:
+                Integer:
+                  - U8
                   - "2"
                   - span:
                       lo: 259
@@ -184,21 +184,17 @@ outputs:
               lo: 313
               hi: 320
           - mode: None
-            type_: I8
+            type_:
+              Integer: I8
             name: "{\"name\":\"r4\",\"span\":\"{\\\"lo\\\":388,\\\"hi\\\":390}\"}"
             value:
-              Unary:
-                receiver:
-                  Literal:
-                    I8:
-                      - "1"
-                      - span:
-                          lo: 398
-                          hi: 401
-                op: Negate
-                span:
-                  lo: 397
-                  hi: 401
+              Literal:
+                Integer:
+                  - I8
+                  - "-1"
+                  - span:
+                      lo: 397
+                      hi: 401
             span:
               lo: 392
               hi: 394

@@ -11,7 +11,8 @@ outputs:
   - Return:
       expression:
         Literal:
-          U8:
+          Integer:
+            - U8
             - "5"
             - span:
                 lo: 7

@@ -11,7 +11,8 @@ outputs:
         annotations: []
         identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":15}\"}"
         input: []
-        output: U8
+        output:
+          Integer: U8
         core_mapping: ~
         block:
           statements:
@@ -20,9 +21,13 @@ outputs:
                   Binary:
                     left:
                       Literal:
-                        U8: "1"
+                        Integer:
+                          - U8
+                          - "1"
                     right:
                       Literal:
-                        U8: "1"
+                        Integer:
+                          - U8
+                          - "1"
                     op: Add
     circuits: {}

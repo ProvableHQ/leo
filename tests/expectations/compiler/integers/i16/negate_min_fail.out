@@ -1,5 +1,9 @@
 ---
 namespace: Compile
-expectation: Fail
+expectation: Pass
 outputs:
-  - "Failed to parse string. Parsing Error: VerboseError { errors: [(\"\", Nom(MapRes))] }"
+  - output:
+      - initial_input_ast: 7d7d24b1f2f5007157bd3955352c5c5a27447c23c7c5c9d0760aaddec8de6c6b
+    initial_ast: 3dfddcf4607fa1b360809fc8a8ad1e20903f5d22fe4c74d89abfa25a949ffd33
+    unrolled_ast: 3dfddcf4607fa1b360809fc8a8ad1e20903f5d22fe4c74d89abfa25a949ffd33
+    ssa_ast: ab32ff2e18e2eeb5274738fad98678896bd5a6d152868a5e9cf805bb51a16b34

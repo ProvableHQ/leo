@@ -15,7 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::*;
+use leo_errors::emitter::Handler;
 use leo_errors::TypeCheckerError;
+use leo_span::Span;
+use std::str::FromStr;
 
 use crate::TypeChecker;
 
@@ -146,7 +149,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                 }
                             }
                         } else {
-                            self.emit_err(TypeCheckerError::invalid_circuit(&access.inner, access.inner.span()));
+                            self.emit_err(TypeCheckerError::undefined_type(&access.inner, access.inner.span()));
                         }
                     }
                     Some(type_) => {
@@ -163,161 +166,6 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             AccessExpression::AssociatedConstant(..) => {} // todo: Add support for associated constants (u8::MAX).
         }
         None
-    }
-
-    fn visit_circuit_init(&mut self, input: &'a CircuitExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        let circ = self.symbol_table.borrow().lookup_circuit(input.name.name).cloned();
-        if let Some(circ) = circ {
-            // Check circuit type name.
-            let ret = self.check_expected_circuit(circ.identifier, additional, input.name.span());
-
-            // Check number of circuit members.
-            if circ.members.len() != input.members.len() {
-                self.emit_err(TypeCheckerError::incorrect_num_circuit_members(
-                    circ.members.len(),
-                    input.members.len(),
-                    input.span(),
-                ));
-            }
-
-            // Check circuit member types.
-            circ.members
-                .iter()
-                .for_each(|CircuitMember::CircuitVariable(name, ty)| {
-                    // Lookup circuit variable name.
-                    if let Some(actual) = input.members.iter().find(|member| member.identifier.name == name.name) {
-                        if let Some(expr) = &actual.expression {
-                            self.visit_expression(expr, &Some(ty.clone()));
-                        }
-                    } else {
-                        self.emit_err(TypeCheckerError::missing_circuit_member(
-                            circ.identifier,
-                            name,
-                            input.span(),
-                        ));
-                    };
-                });
-
-            Some(ret)
-        } else {
-            self.emit_err(TypeCheckerError::unknown_sym(
-                "circuit",
-                &input.name.name,
-                input.name.span(),
-            ));
-            None
-        }
-    }
-
-    fn visit_identifier(&mut self, var: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
-        if let Some(circuit) = self.symbol_table.borrow().lookup_circuit(var.name) {
-            Some(self.assert_and_return_type(Type::Identifier(circuit.identifier), expected, var.span))
-        } else if let Some(var) = self.symbol_table.borrow().lookup_variable(var.name) {
-            Some(self.assert_and_return_type(var.type_.clone(), expected, var.span))
-        } else {
-            self.emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()));
-            None
-        }
-    }
-
-    fn visit_literal(&mut self, input: &'a Literal, expected: &Self::AdditionalInput) -> Self::Output {
-        // Closure to produce a negated integer as a string.
-        let negate_int = |str_content: &String| {
-            if self.negate {
-                format!("-{str_content}")
-            } else {
-                str_content.clone()
-            }
-        };
-
-        Some(match input {
-            Literal::Address(_, _) => self.assert_and_return_type(Type::Address, expected, input.span()),
-            Literal::Boolean(_, _) => self.assert_and_return_type(Type::Boolean, expected, input.span()),
-            Literal::Field(_, _) => self.assert_and_return_type(Type::Field, expected, input.span()),
-            Literal::I8(str_content, _) => {
-                let int = negate_int(str_content);
-
-                if int.parse::<i8>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(int, "i8", input.span()));
-                }
-                self.assert_and_return_type(Type::I8, expected, input.span())
-            }
-            Literal::I16(str_content, _) => {
-                let int = negate_int(str_content);
-
-                if int.parse::<i16>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(int, "i16", input.span()));
-                }
-                self.assert_and_return_type(Type::I16, expected, input.span())
-            }
-            Literal::I32(str_content, _) => {
-                let int = negate_int(str_content);
-
-                if int.parse::<i32>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(int, "i32", input.span()));
-                }
-                self.assert_and_return_type(Type::I32, expected, input.span())
-            }
-            Literal::I64(str_content, _) => {
-                let int = negate_int(str_content);
-
-                if int.parse::<i64>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(int, "i64", input.span()));
-                }
-                self.assert_and_return_type(Type::I64, expected, input.span())
-            }
-            Literal::I128(str_content, _) => {
-                let int = negate_int(str_content);
-
-                if int.parse::<i128>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(int, "i128", input.span()));
-                }
-                self.assert_and_return_type(Type::I128, expected, input.span())
-            }
-            Literal::U8(str_content, _) => {
-                if str_content.parse::<u8>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u8", input.span()));
-                }
-                self.assert_and_return_type(Type::U8, expected, input.span())
-            }
-            Literal::U16(str_content, _) => {
-                if str_content.parse::<u16>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u16", input.span()));
-                }
-                self.assert_and_return_type(Type::U16, expected, input.span())
-            }
-            Literal::U32(str_content, _) => {
-                if str_content.parse::<u32>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u32", input.span()));
-                }
-                self.assert_and_return_type(Type::U32, expected, input.span())
-            }
-            Literal::U64(str_content, _) => {
-                if str_content.parse::<u64>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u64", input.span()));
-                }
-                self.assert_and_return_type(Type::U64, expected, input.span())
-            }
-            Literal::U128(str_content, _) => {
-                if str_content.parse::<u128>().is_err() {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_int_value(str_content, "u128", input.span()));
-                }
-                self.assert_and_return_type(Type::U128, expected, input.span())
-            }
-            Literal::Group(_) => self.assert_and_return_type(Type::Group, expected, input.span()),
-            Literal::Scalar(_, _) => self.assert_and_return_type(Type::Scalar, expected, input.span()),
-            Literal::String(_, _) => self.assert_and_return_type(Type::String, expected, input.span()),
-        })
     }
 
     fn visit_binary(&mut self, input: &'a BinaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
@@ -566,6 +414,120 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
+    fn visit_circuit_init(&mut self, input: &'a CircuitExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        let circ = self.symbol_table.borrow().lookup_circuit(input.name.name).cloned();
+        if let Some(circ) = circ {
+            // Check circuit type name.
+            let ret = self.check_expected_circuit(circ.identifier, additional, input.name.span());
+
+            // Check number of circuit members.
+            if circ.members.len() != input.members.len() {
+                self.emit_err(TypeCheckerError::incorrect_num_circuit_members(
+                    circ.members.len(),
+                    input.members.len(),
+                    input.span(),
+                ));
+            }
+
+            // Check circuit member types.
+            circ.members
+                .iter()
+                .for_each(|CircuitMember::CircuitVariable(name, ty)| {
+                    // Lookup circuit variable name.
+                    if let Some(actual) = input.members.iter().find(|member| member.identifier.name == name.name) {
+                        if let Some(expr) = &actual.expression {
+                            self.visit_expression(expr, &Some(ty.clone()));
+                        }
+                    } else {
+                        self.emit_err(TypeCheckerError::missing_circuit_member(
+                            circ.identifier,
+                            name,
+                            input.span(),
+                        ));
+                    };
+                });
+
+            Some(ret)
+        } else {
+            self.emit_err(TypeCheckerError::unknown_sym(
+                "circuit",
+                &input.name.name,
+                input.name.span(),
+            ));
+            None
+        }
+    }
+
+    fn visit_identifier(&mut self, var: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
+        if let Some(circuit) = self.symbol_table.borrow().lookup_circuit(var.name) {
+            Some(self.assert_and_return_type(Type::Identifier(circuit.identifier), expected, var.span))
+        } else if let Some(var) = self.symbol_table.borrow().lookup_variable(var.name) {
+            Some(self.assert_and_return_type(var.type_.clone(), expected, var.span))
+        } else {
+            self.emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()));
+            None
+        }
+    }
+
+    fn visit_literal(&mut self, input: &'a Literal, expected: &Self::AdditionalInput) -> Self::Output {
+        fn parse_integer_literal<I: FromStr>(handler: &Handler, string: &String, span: Span, type_string: &str) {
+            if string.parse::<I>().is_err() {
+                handler.emit_err(TypeCheckerError::invalid_int_value(string, type_string, span));
+            }
+        }
+
+        Some(match input {
+            Literal::Address(_, _) => self.assert_and_return_type(Type::Address, expected, input.span()),
+            Literal::Boolean(_, _) => self.assert_and_return_type(Type::Boolean, expected, input.span()),
+            Literal::Field(_, _) => self.assert_and_return_type(Type::Field, expected, input.span()),
+            Literal::Integer(integer_type, string, _) => match integer_type {
+                IntegerType::U8 => {
+                    parse_integer_literal::<u8>(self.handler, string, input.span(), "u8");
+                    self.assert_and_return_type(Type::Integer(IntegerType::U8), expected, input.span())
+                }
+                IntegerType::U16 => {
+                    parse_integer_literal::<u16>(self.handler, string, input.span(), "u16");
+                    self.assert_and_return_type(Type::Integer(IntegerType::U16), expected, input.span())
+                }
+                IntegerType::U32 => {
+                    parse_integer_literal::<u32>(self.handler, string, input.span(), "u32");
+                    self.assert_and_return_type(Type::Integer(IntegerType::U32), expected, input.span())
+                }
+                IntegerType::U64 => {
+                    parse_integer_literal::<u64>(self.handler, string, input.span(), "u64");
+                    self.assert_and_return_type(Type::Integer(IntegerType::U64), expected, input.span())
+                }
+                IntegerType::U128 => {
+                    parse_integer_literal::<u128>(self.handler, string, input.span(), "u128");
+                    self.assert_and_return_type(Type::Integer(IntegerType::U128), expected, input.span())
+                }
+                IntegerType::I8 => {
+                    parse_integer_literal::<i8>(self.handler, string, input.span(), "i8");
+                    self.assert_and_return_type(Type::Integer(IntegerType::I8), expected, input.span())
+                }
+                IntegerType::I16 => {
+                    parse_integer_literal::<i16>(self.handler, string, input.span(), "i16");
+                    self.assert_and_return_type(Type::Integer(IntegerType::I16), expected, input.span())
+                }
+                IntegerType::I32 => {
+                    parse_integer_literal::<i32>(self.handler, string, input.span(), "i32");
+                    self.assert_and_return_type(Type::Integer(IntegerType::I32), expected, input.span())
+                }
+                IntegerType::I64 => {
+                    parse_integer_literal::<i64>(self.handler, string, input.span(), "i64");
+                    self.assert_and_return_type(Type::Integer(IntegerType::I64), expected, input.span())
+                }
+                IntegerType::I128 => {
+                    parse_integer_literal::<i128>(self.handler, string, input.span(), "i128");
+                    self.assert_and_return_type(Type::Integer(IntegerType::I128), expected, input.span())
+                }
+            },
+            Literal::Group(_) => self.assert_and_return_type(Type::Group, expected, input.span()),
+            Literal::Scalar(_, _) => self.assert_and_return_type(Type::Scalar, expected, input.span()),
+            Literal::String(_, _) => self.assert_and_return_type(Type::String, expected, input.span()),
+        })
+    }
+
     fn visit_ternary(&mut self, input: &'a TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.condition, &Some(Type::Boolean));
 
@@ -626,11 +588,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 self.visit_expression(&input.receiver, destination)
             }
             UnaryOperation::Negate => {
-                let prior_negate_state = self.negate;
-                self.negate = true;
-
                 let type_ = self.visit_expression(&input.receiver, destination);
-                self.negate = prior_negate_state;
 
                 // Only field, group, or signed integer types.
                 self.assert_field_group_signed_int_type(&type_, input.receiver.span());

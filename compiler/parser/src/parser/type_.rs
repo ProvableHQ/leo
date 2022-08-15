@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_errors::{ParserError, Result};
+use leo_errors::Result;
 
 pub(super) const TYPE_TOKENS: &[Token] = &[
     Token::Address,
@@ -38,29 +38,39 @@ pub(super) const TYPE_TOKENS: &[Token] = &[
 ];
 
 impl ParserContext<'_> {
+    /// Returns a [`IntegerType`] AST node if the given token is a supported integer type, or [`None`].
+    pub(super) fn token_to_int_type(token: &Token) -> Option<IntegerType> {
+        Some(match token {
+            Token::I8 => IntegerType::I8,
+            Token::I16 => IntegerType::I16,
+            Token::I32 => IntegerType::I32,
+            Token::I64 => IntegerType::I64,
+            Token::I128 => IntegerType::I128,
+            Token::U8 => IntegerType::U8,
+            Token::U16 => IntegerType::U16,
+            Token::U32 => IntegerType::U32,
+            Token::U64 => IntegerType::U64,
+            Token::U128 => IntegerType::U128,
+            _ => return None,
+        })
+    }
+
     /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a primitive type.
     /// Also returns the span of the parsed token.
     pub fn parse_primitive_type(&mut self) -> Result<(Type, Span)> {
         let span = self.expect_any(TYPE_TOKENS)?;
-        match &self.prev_token.token {
-            Token::Address => Ok((Type::Address, span)),
-            Token::Bool => Ok((Type::Boolean, span)),
-            Token::Field => Ok((Type::Field, span)),
-            Token::Group => Ok((Type::Group, span)),
-            Token::I8 => Ok((Type::I8, span)),
-            Token::I16 => Ok((Type::I16, span)),
-            Token::I32 => Ok((Type::I32, span)),
-            Token::I64 => Ok((Type::I64, span)),
-            Token::I128 => Ok((Type::I128, span)),
-            Token::Scalar => Ok((Type::Scalar, span)),
-            Token::String => Ok((Type::String, span)),
-            Token::U8 => Ok((Type::U8, span)),
-            Token::U16 => Ok((Type::U16, span)),
-            Token::U32 => Ok((Type::U32, span)),
-            Token::U64 => Ok((Type::U64, span)),
-            Token::U128 => Ok((Type::U128, span)),
-            _ => Err(ParserError::unexpected_token("Expected a primitive type.", span).into()),
-        }
+        Ok((
+            match &self.prev_token.token {
+                Token::Address => Type::Address,
+                Token::Bool => Type::Boolean,
+                Token::Field => Type::Field,
+                Token::Group => Type::Group,
+                Token::Scalar => Type::Scalar,
+                Token::String => Type::String,
+                x => Type::Integer(Self::token_to_int_type(x).expect("invalid int type")),
+            },
+            span,
+        ))
     }
 
     /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a type.
