@@ -45,7 +45,7 @@ impl CoreFunction for Pedersen64Commit {
     }
 
     fn return_type() -> Type {
-        Type::Field
+        Type::Group
     }
 }
 
@@ -77,6 +77,6 @@ impl CoreFunction for Pedersen128Commit {
     }
 
     fn return_type() -> Type {
-        Type::Field
+        Type::Group
     }
 }
