@@ -11,7 +11,8 @@ outputs:
         annotations: []
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
         input: []
-        output: U8
+        output:
+          Integer: U8
         core_mapping: ~
         block:
           statements: []

@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+pub mod integer_type;
+pub use integer_type::*;
+
 pub mod tuple;
 pub use tuple::*;
 

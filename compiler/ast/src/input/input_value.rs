@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, GroupLiteral, Literal, Node, Type, UnaryOperation};
+use crate::{Expression, GroupLiteral, IntegerType, Literal, Node, Type, UnaryOperation};
 use leo_errors::{InputError, LeoError, Result};
 
 use serde::{Deserialize, Serialize};
@@ -26,16 +26,7 @@ pub enum InputValue {
     Boolean(bool),
     Field(String),
     Group(GroupLiteral),
-    I8(String),
-    I16(String),
-    I32(String),
-    I64(String),
-    I128(String),
-    U8(String),
-    U16(String),
-    U32(String),
-    U64(String),
-    U128(String),
+    Integer(IntegerType, String),
 }
 
 impl TryFrom<(Type, Expression)> for InputValue {
@@ -47,16 +38,13 @@ impl TryFrom<(Type, Expression)> for InputValue {
                 (Type::Boolean, Literal::Boolean(value, _)) => Self::Boolean(value),
                 (Type::Field, Literal::Field(value, _)) => Self::Field(value),
                 (Type::Group, Literal::Group(value)) => Self::Group(*value),
-                (Type::I8, Literal::I8(value, _)) => Self::I8(value),
-                (Type::I16, Literal::I16(value, _)) => Self::I16(value),
-                (Type::I32, Literal::I32(value, _)) => Self::I32(value),
-                (Type::I64, Literal::I64(value, _)) => Self::I64(value),
-                (Type::I128, Literal::I128(value, _)) => Self::I128(value),
-                (Type::U8, Literal::U8(value, _)) => Self::U8(value),
-                (Type::U16, Literal::U16(value, _)) => Self::U16(value),
-                (Type::U32, Literal::U32(value, _)) => Self::U32(value),
-                (Type::U64, Literal::U64(value, _)) => Self::U64(value),
-                (Type::U128, Literal::U128(value, _)) => Self::U128(value),
+                (Type::Integer(expected), Literal::Integer(actual, value, span)) => {
+                    if expected == actual {
+                        Self::Integer(expected, value)
+                    } else {
+                        return Err(InputError::unexpected_type(expected.to_string(), actual, span).into());
+                    }
+                }
                 (x, y) => {
                     return Err(InputError::unexpected_type(x, &y, y.span()).into());
                 }
@@ -76,16 +64,7 @@ impl fmt::Display for InputValue {
             InputValue::Boolean(ref boolean) => write!(f, "{}", boolean),
             InputValue::Group(ref group) => write!(f, "{}", group),
             InputValue::Field(ref field) => write!(f, "{}", field),
-            InputValue::I8(ref integer) => write!(f, "{}", integer),
-            InputValue::I16(ref integer) => write!(f, "{}", integer),
-            InputValue::I32(ref integer) => write!(f, "{}", integer),
-            InputValue::I64(ref integer) => write!(f, "{}", integer),
-            InputValue::I128(ref integer) => write!(f, "{}", integer),
-            InputValue::U8(ref integer) => write!(f, "{}", integer),
-            InputValue::U16(ref integer) => write!(f, "{}", integer),
-            InputValue::U32(ref integer) => write!(f, "{}", integer),
-            InputValue::U64(ref integer) => write!(f, "{}", integer),
-            InputValue::U128(ref integer) => write!(f, "{}", integer),
+            InputValue::Integer(ref type_, ref number) => write!(f, "{}{:?}", number, type_),
         }
     }
 }

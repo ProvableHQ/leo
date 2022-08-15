@@ -16,7 +16,7 @@
 
 use crate::SymbolTable;
 
-use leo_ast::{Identifier, Node, Type};
+use leo_ast::{Identifier, IntegerType, Node, Type};
 use leo_core::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
@@ -29,7 +29,6 @@ pub struct TypeChecker<'a> {
     pub(crate) handler: &'a Handler,
     pub(crate) parent: Option<Symbol>,
     pub(crate) has_return: bool,
-    pub(crate) negate: bool,
     /// Are we traversing a program function?
     /// A "program function" is a function that can be invoked by a user or another program.
     pub(crate) is_program_function: bool,
@@ -44,23 +43,39 @@ const GROUP_TYPE: Type = Type::Group;
 const SCALAR_TYPE: Type = Type::Scalar;
 
 const INT_TYPES: [Type; 10] = [
-    Type::I8,
-    Type::I16,
-    Type::I32,
-    Type::I64,
-    Type::I128,
-    Type::U8,
-    Type::U16,
-    Type::U32,
-    Type::U64,
-    Type::U128,
+    Type::Integer(IntegerType::I8),
+    Type::Integer(IntegerType::I16),
+    Type::Integer(IntegerType::I32),
+    Type::Integer(IntegerType::I64),
+    Type::Integer(IntegerType::I128),
+    Type::Integer(IntegerType::U8),
+    Type::Integer(IntegerType::U16),
+    Type::Integer(IntegerType::U32),
+    Type::Integer(IntegerType::U64),
+    Type::Integer(IntegerType::U128),
 ];
 
-const SIGNED_INT_TYPES: [Type; 5] = [Type::I8, Type::I16, Type::I32, Type::I64, Type::I128];
+const SIGNED_INT_TYPES: [Type; 5] = [
+    Type::Integer(IntegerType::I8),
+    Type::Integer(IntegerType::I16),
+    Type::Integer(IntegerType::I32),
+    Type::Integer(IntegerType::I64),
+    Type::Integer(IntegerType::I128),
+];
 
-const UNSIGNED_INT_TYPES: [Type; 5] = [Type::U8, Type::U16, Type::U32, Type::U64, Type::U128];
+const UNSIGNED_INT_TYPES: [Type; 5] = [
+    Type::Integer(IntegerType::U8),
+    Type::Integer(IntegerType::U16),
+    Type::Integer(IntegerType::U32),
+    Type::Integer(IntegerType::U64),
+    Type::Integer(IntegerType::U128),
+];
 
-const MAGNITUDE_TYPES: [Type; 3] = [Type::U8, Type::U16, Type::U32];
+const MAGNITUDE_TYPES: [Type; 3] = [
+    Type::Integer(IntegerType::U8),
+    Type::Integer(IntegerType::U16),
+    Type::Integer(IntegerType::U32),
+];
 
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
@@ -71,7 +86,6 @@ impl<'a> TypeChecker<'a> {
             handler,
             parent: None,
             has_return: false,
-            negate: false,
         }
     }
 
