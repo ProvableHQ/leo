@@ -259,7 +259,7 @@
 <span class="kw">mod</span> <span class="ident">poseidon</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">poseidon</span>::<span class="kw-2">*</span>;
 
-<span class="kw">use</span> <span class="ident">leo_ast::Type</span>;
+<span class="kw">use</span> <span class="ident">leo_ast</span>::{<span class="ident">IntegerType</span>, <span class="ident">Type</span>};
 <span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">sym</span>, <span class="ident">Symbol</span>};
 
 <span class="doccomment">/// A core instruction that maps directly to an AVM bytecode instruction.</span>
@@ -425,45 +425,45 @@
     <span class="ident">Type::Boolean</span>,
     <span class="ident">Type::Field</span>,
     <span class="ident">Type::Group</span>,
-    <span class="ident">Type::I8</span>,
-    <span class="ident">Type::I16</span>,
-    <span class="ident">Type::I32</span>,
-    <span class="ident">Type::I64</span>,
-    <span class="ident">Type::I128</span>,
-    <span class="ident">Type::U8</span>,
-    <span class="ident">Type::U16</span>,
-    <span class="ident">Type::U32</span>,
-    <span class="ident">Type::U64</span>,
-    <span class="ident">Type::U128</span>,
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I8</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I16</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I32</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I64</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I128</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U8</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U16</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U32</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U64</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U128</span>),
     <span class="ident">Type::Scalar</span>,
     <span class="ident">Type::String</span>,
 ];
 
 <span class="kw">const</span> <span class="ident">BOOL_INT_STRING_TYPES</span>: [<span class="ident">Type</span>; <span class="number">12</span>] <span class="op">=</span> [
     <span class="ident">Type::Boolean</span>,
-    <span class="ident">Type::I8</span>,
-    <span class="ident">Type::I16</span>,
-    <span class="ident">Type::I32</span>,
-    <span class="ident">Type::I64</span>,
-    <span class="ident">Type::I128</span>,
-    <span class="ident">Type::U8</span>,
-    <span class="ident">Type::U16</span>,
-    <span class="ident">Type::U32</span>,
-    <span class="ident">Type::U64</span>,
-    <span class="ident">Type::U128</span>,
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I8</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I16</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I32</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I64</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I128</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U8</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U16</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U32</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U64</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U128</span>),
     <span class="ident">Type::String</span>,
 ];
 
 <span class="kw">const</span> <span class="ident">BOOL_INT64_STRING_TYPES</span>: [<span class="ident">Type</span>; <span class="number">10</span>] <span class="op">=</span> [
     <span class="ident">Type::Boolean</span>,
-    <span class="ident">Type::I8</span>,
-    <span class="ident">Type::I16</span>,
-    <span class="ident">Type::I32</span>,
-    <span class="ident">Type::I64</span>,
-    <span class="ident">Type::U8</span>,
-    <span class="ident">Type::U16</span>,
-    <span class="ident">Type::U32</span>,
-    <span class="ident">Type::U64</span>,
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I8</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I16</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I32</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I64</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U8</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U16</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U32</span>),
+    <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U64</span>),
     <span class="ident">Type::String</span>,
 ];
 </code></pre></div>

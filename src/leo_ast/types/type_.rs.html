@@ -93,43 +93,6 @@
 <span id="87">87</span>
 <span id="88">88</span>
 <span id="89">89</span>
-<span id="90">90</span>
-<span id="91">91</span>
-<span id="92">92</span>
-<span id="93">93</span>
-<span id="94">94</span>
-<span id="95">95</span>
-<span id="96">96</span>
-<span id="97">97</span>
-<span id="98">98</span>
-<span id="99">99</span>
-<span id="100">100</span>
-<span id="101">101</span>
-<span id="102">102</span>
-<span id="103">103</span>
-<span id="104">104</span>
-<span id="105">105</span>
-<span id="106">106</span>
-<span id="107">107</span>
-<span id="108">108</span>
-<span id="109">109</span>
-<span id="110">110</span>
-<span id="111">111</span>
-<span id="112">112</span>
-<span id="113">113</span>
-<span id="114">114</span>
-<span id="115">115</span>
-<span id="116">116</span>
-<span id="117">117</span>
-<span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
-<span id="122">122</span>
-<span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -146,7 +109,7 @@
 <span class="comment">// You should have received a copy of the GNU General Public License</span>
 <span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Identifier</span>, <span class="ident">Tuple</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Identifier</span>, <span class="ident">IntegerType</span>, <span class="ident">Tuple</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -163,35 +126,16 @@
     <span class="ident">Field</span>,
     <span class="doccomment">/// The `group` type.</span>
     <span class="ident">Group</span>,
-    <span class="doccomment">/// The 8-bit signed integer type.</span>
-    <span class="ident">I8</span>,
-    <span class="doccomment">/// The 16-bit signed integer type.</span>
-    <span class="ident">I16</span>,
-    <span class="doccomment">/// The 32-bit signed integer type.</span>
-    <span class="ident">I32</span>,
-    <span class="doccomment">/// The 64-bit signed integer type.</span>
-    <span class="ident">I64</span>,
-    <span class="doccomment">/// The 128-bit signed integer type.</span>
-    <span class="ident">I128</span>,
     <span class="doccomment">/// A reference to a built in type.</span>
     <span class="ident">Identifier</span>(<span class="ident">Identifier</span>),
+    <span class="doccomment">/// An integer type.</span>
+    <span class="ident">Integer</span>(<span class="ident">IntegerType</span>),
     <span class="doccomment">/// The `scalar` type.</span>
     <span class="ident">Scalar</span>,
     <span class="doccomment">/// The `string` type.</span>
     <span class="ident">String</span>,
-    <span class="doccomment">/// The 8-bit unsigned integer type.</span>
-    <span class="ident">U8</span>,
-    <span class="doccomment">/// The 16-bit unsigned integer type.</span>
-    <span class="ident">U16</span>,
-    <span class="doccomment">/// The 32-bit unsigned integer type.</span>
-    <span class="ident">U32</span>,
-    <span class="doccomment">/// The 64-bit unsigned integer type.</span>
-    <span class="ident">U64</span>,
-    <span class="doccomment">/// The 128-bit unsigned integer type.</span>
-    <span class="ident">U128</span>,
     <span class="doccomment">/// A static tuple of at least one type.</span>
     <span class="ident">Tuple</span>(<span class="ident">Tuple</span>),
-
     <span class="doccomment">/// Placeholder for a type that could not be resolved or was not well-formed.</span>
     <span class="doccomment">/// Will eventually lead to a compile error.</span>
     <span class="prelude-val">Err</span>,
@@ -209,18 +153,9 @@
             <span class="op">|</span> (<span class="ident">Type::Boolean</span>, <span class="ident">Type::Boolean</span>)
             <span class="op">|</span> (<span class="ident">Type::Field</span>, <span class="ident">Type::Field</span>)
             <span class="op">|</span> (<span class="ident">Type::Group</span>, <span class="ident">Type::Group</span>)
-            <span class="op">|</span> (<span class="ident">Type::I8</span>, <span class="ident">Type::I8</span>)
-            <span class="op">|</span> (<span class="ident">Type::I16</span>, <span class="ident">Type::I16</span>)
-            <span class="op">|</span> (<span class="ident">Type::I32</span>, <span class="ident">Type::I32</span>)
-            <span class="op">|</span> (<span class="ident">Type::I64</span>, <span class="ident">Type::I64</span>)
-            <span class="op">|</span> (<span class="ident">Type::I128</span>, <span class="ident">Type::I128</span>)
             <span class="op">|</span> (<span class="ident">Type::Scalar</span>, <span class="ident">Type::Scalar</span>)
-            <span class="op">|</span> (<span class="ident">Type::String</span>, <span class="ident">Type::String</span>)
-            <span class="op">|</span> (<span class="ident">Type::U8</span>, <span class="ident">Type::U8</span>)
-            <span class="op">|</span> (<span class="ident">Type::U16</span>, <span class="ident">Type::U16</span>)
-            <span class="op">|</span> (<span class="ident">Type::U32</span>, <span class="ident">Type::U32</span>)
-            <span class="op">|</span> (<span class="ident">Type::U64</span>, <span class="ident">Type::U64</span>)
-            <span class="op">|</span> (<span class="ident">Type::U128</span>, <span class="ident">Type::U128</span>) =&gt; <span class="bool-val">true</span>,
+            <span class="op">|</span> (<span class="ident">Type::String</span>, <span class="ident">Type::String</span>) =&gt; <span class="bool-val">true</span>,
+            (<span class="ident">Type::Integer</span>(<span class="ident">left</span>), <span class="ident">Type::Integer</span>(<span class="ident">right</span>)) =&gt; <span class="ident">left</span>.<span class="ident">eq</span>(<span class="ident">right</span>),
             (<span class="ident">Type::Tuple</span>(<span class="ident">left</span>), <span class="ident">Type::Tuple</span>(<span class="ident">right</span>)) =&gt; <span class="ident">left</span>
                 .<span class="ident">iter</span>()
                 .<span class="ident">zip</span>(<span class="ident">right</span>.<span class="ident">iter</span>())
@@ -238,19 +173,10 @@
             <span class="ident">Type::Boolean</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;boolean&quot;</span>),
             <span class="ident">Type::Field</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;field&quot;</span>),
             <span class="ident">Type::Group</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;group&quot;</span>),
-            <span class="ident">Type::I8</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i8&quot;</span>),
-            <span class="ident">Type::I16</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i16&quot;</span>),
-            <span class="ident">Type::I32</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i32&quot;</span>),
-            <span class="ident">Type::I64</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i64&quot;</span>),
-            <span class="ident">Type::I128</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i128&quot;</span>),
             <span class="ident">Type::Identifier</span>(<span class="kw-2">ref</span> <span class="ident">variable</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;circuit {}&quot;</span>, <span class="ident">variable</span>),
+            <span class="ident">Type::Integer</span>(<span class="kw-2">ref</span> <span class="ident">integer_type</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">integer_type</span>),
             <span class="ident">Type::Scalar</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;scalar&quot;</span>),
             <span class="ident">Type::String</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;string&quot;</span>),
-            <span class="ident">Type::U8</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u8&quot;</span>),
-            <span class="ident">Type::U16</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u16&quot;</span>),
-            <span class="ident">Type::U32</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u32&quot;</span>),
-            <span class="ident">Type::U64</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u64&quot;</span>),
-            <span class="ident">Type::U128</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u128&quot;</span>),
             <span class="ident">Type::Tuple</span>(<span class="kw-2">ref</span> <span class="ident">tuple</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">tuple</span>),
             <span class="ident">Type::Err</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;error&quot;</span>),
         }

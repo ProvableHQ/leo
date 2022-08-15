@@ -83,15 +83,6 @@
 <span id="77">77</span>
 <span id="78">78</span>
 <span id="79">79</span>
-<span id="80">80</span>
-<span id="81">81</span>
-<span id="82">82</span>
-<span id="83">83</span>
-<span id="84">84</span>
-<span id="85">85</span>
-<span id="86">86</span>
-<span id="87">87</span>
-<span id="88">88</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -122,16 +113,7 @@
             <span class="op">|</span> <span class="ident">Type::Group</span>
             <span class="op">|</span> <span class="ident">Type::Scalar</span>
             <span class="op">|</span> <span class="ident">Type::String</span>
-            <span class="op">|</span> <span class="ident">Type::I8</span>
-            <span class="op">|</span> <span class="ident">Type::I16</span>
-            <span class="op">|</span> <span class="ident">Type::I32</span>
-            <span class="op">|</span> <span class="ident">Type::I64</span>
-            <span class="op">|</span> <span class="ident">Type::I128</span>
-            <span class="op">|</span> <span class="ident">Type::U8</span>
-            <span class="op">|</span> <span class="ident">Type::U16</span>
-            <span class="op">|</span> <span class="ident">Type::U32</span>
-            <span class="op">|</span> <span class="ident">Type::U64</span>
-            <span class="op">|</span> <span class="ident">Type::U128</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">input</span>),
+            <span class="op">|</span> <span class="ident">Type::Integer</span>(..) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">input</span>),
             <span class="ident">Type::Identifier</span>(<span class="ident">ident</span>) =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">type_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">composite_mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">ident</span>.<span class="ident">name</span>) {
                     <span class="macro">format!</span>(<span class="string">&quot;{}.{}&quot;</span>, <span class="ident">ident</span>.<span class="ident">to_string</span>().<span class="ident">to_lowercase</span>(), <span class="ident">type_</span>)

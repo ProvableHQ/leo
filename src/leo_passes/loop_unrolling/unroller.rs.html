@@ -197,6 +197,26 @@
 <span id="191">191</span>
 <span id="192">192</span>
 <span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -214,7 +234,7 @@
 <span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 
 <span class="kw">use</span> <span class="ident">leo_ast</span>::{
-    <span class="ident">Block</span>, <span class="ident">DeclarationType</span>, <span class="ident">DefinitionStatement</span>, <span class="ident">Expression</span>, <span class="ident">IterationStatement</span>, <span class="ident">Literal</span>, <span class="ident">Statement</span>,
+    <span class="ident">Block</span>, <span class="ident">DeclarationType</span>, <span class="ident">DefinitionStatement</span>, <span class="ident">Expression</span>, <span class="ident">IntegerType</span>, <span class="ident">IterationStatement</span>, <span class="ident">Literal</span>, <span class="ident">Statement</span>,
     <span class="ident">StatementReconstructor</span>, <span class="ident">Type</span>, <span class="ident">Value</span>,
 };
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
@@ -348,16 +368,36 @@
 
         <span class="comment">// Reconstruct `iteration_count` as a `Literal`.</span>
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">type_</span> {
-            <span class="ident">Type::I8</span> =&gt; <span class="ident">Literal::I8</span>(<span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>()),
-            <span class="ident">Type::I16</span> =&gt; <span class="ident">Literal::I16</span>(<span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>()),
-            <span class="ident">Type::I32</span> =&gt; <span class="ident">Literal::I32</span>(<span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>()),
-            <span class="ident">Type::I64</span> =&gt; <span class="ident">Literal::I64</span>(<span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>()),
-            <span class="ident">Type::I128</span> =&gt; <span class="ident">Literal::I128</span>(<span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>()),
-            <span class="ident">Type::U8</span> =&gt; <span class="ident">Literal::U8</span>(<span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>()),
-            <span class="ident">Type::U16</span> =&gt; <span class="ident">Literal::U16</span>(<span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>()),
-            <span class="ident">Type::U32</span> =&gt; <span class="ident">Literal::U32</span>(<span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>()),
-            <span class="ident">Type::U64</span> =&gt; <span class="ident">Literal::U64</span>(<span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>()),
-            <span class="ident">Type::U128</span> =&gt; <span class="ident">Literal::U128</span>(<span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>()),
+            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I8</span>) =&gt; {
+                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::I8</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            }
+            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I16</span>) =&gt; {
+                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::I16</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            }
+            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I32</span>) =&gt; {
+                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::I32</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            }
+            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I64</span>) =&gt; {
+                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::I64</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            }
+            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I128</span>) =&gt; {
+                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::I128</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            }
+            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U8</span>) =&gt; {
+                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::U8</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            }
+            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U16</span>) =&gt; {
+                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::U16</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            }
+            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U32</span>) =&gt; {
+                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::U32</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            }
+            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U64</span>) =&gt; {
+                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::U64</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            }
+            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U128</span>) =&gt; {
+                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::U128</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            }
             <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(
                 <span class="string">&quot;The iteration variable must be an integer type. This should be enforced by type checking.&quot;</span>
             ),

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["IntegerType","Explicit integer type."]]};
