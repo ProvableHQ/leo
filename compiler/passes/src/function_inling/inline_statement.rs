@@ -14,27 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::SymbolTable;
+use crate::Inliner;
 
-use leo_errors::emitter::Handler;
+use leo_ast::StatementReconstructor;
 
-use std::cell::RefCell;
-
-pub struct Inliner<'a> {
-    /// The symbol table for the function being processed.
-    pub(crate) symbol_table: RefCell<SymbolTable>,
-    /// The index of the current block scope.
-    pub(crate) block_index: usize,
-    /// An error handler used for any errors found during unrolling.
-    pub(crate) _handler: &'a Handler,
-}
-
-impl<'a> Inliner<'a> {
-    pub(crate) fn new(symbol_table: SymbolTable, _handler: &'a Handler) -> Self {
-        Self {
-            symbol_table: RefCell::new(symbol_table),
-            block_index: 0,
-            _handler,
-        }
-    }
-}
+impl StatementReconstructor for Inliner<'_> {}

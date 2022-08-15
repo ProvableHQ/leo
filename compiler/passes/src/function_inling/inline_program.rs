@@ -14,13 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::Inliner;
 use std::cell::RefCell;
 
-use leo_ast::*;
+use leo_ast::{Function, ProgramReconstructor, StatementReconstructor};
 
-use crate::Unroller;
-
-impl ProgramReconstructor for Unroller<'_> {
+impl ProgramReconstructor for Inliner<'_> {
     fn reconstruct_function(&mut self, function: Function) -> Function {
         let function_name = function.name();
 

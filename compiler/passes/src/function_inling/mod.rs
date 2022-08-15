@@ -23,6 +23,15 @@ use leo_errors::Result;
 pub mod inliner;
 pub use inliner::*;
 
+pub mod inline_expression;
+pub use inline_expression::*;
+
+pub mod inline_program;
+pub use inline_program::*;
+
+pub mod inline_statement;
+pub use inline_statement::*;
+
 impl<'a> Pass for Inliner<'a> {
     type Input = (Ast, &'a Handler, SymbolTable);
     type Output = Result<(Ast, SymbolTable)>;
