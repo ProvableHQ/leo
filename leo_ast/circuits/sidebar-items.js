@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["circuit",""],["circuit_member",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["circuit",""],["circuit_member",""]]};

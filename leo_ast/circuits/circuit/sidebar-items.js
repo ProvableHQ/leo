@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Circuit","A circuit type definition, e.g., `circuit Foo { my_field: Bar }`. In some languages these are called `struct`s."]]});
+window.SIDEBAR_ITEMS = {"struct":[["Circuit","A circuit type definition, e.g., `circuit Foo { my_field: Bar }`. In some languages these are called `struct`s."]]};

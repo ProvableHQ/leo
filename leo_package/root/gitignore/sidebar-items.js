@@ -1,1 +1,1 @@
-initSidebarItems({"static":[["GITIGNORE_FILENAME",""]],"struct":[["Gitignore",""]]});
+window.SIDEBAR_ITEMS = {"static":[["GITIGNORE_FILENAME",""]],"struct":[["Gitignore",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["tuple",""],["type_",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["tuple",""],["type_",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["input_errors","This module contains the Input error definitions."]]});
+window.SIDEBAR_ITEMS = {"mod":[["input_errors","This module contains the Input error definitions."]]};

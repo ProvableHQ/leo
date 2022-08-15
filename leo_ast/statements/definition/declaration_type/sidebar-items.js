@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["DeclarationType","The sort of bindings to introduce, either `let` or `const`."]]});
+window.SIDEBAR_ITEMS = {"enum":[["DeclarationType","The sort of bindings to introduce, either `let` or `const`."]]};

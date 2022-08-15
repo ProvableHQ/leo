@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ConsoleArgs","The arguments `args` passed to `console.log(args)` or `console.error(args)`."]]});
+window.SIDEBAR_ITEMS = {"struct":[["ConsoleArgs","The arguments `args` passed to `console.log(args)` or `console.error(args)`."]]};

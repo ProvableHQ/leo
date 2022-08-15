@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Poseidon2Hash",""],["Poseidon4Hash",""],["Poseidon8Hash",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["Poseidon2Hash",""],["Poseidon4Hash",""],["Poseidon8Hash",""]]};

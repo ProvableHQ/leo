@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["Pass","A compiler pass consuming `Self::Input` and returning `Self::Output`."]]});
+window.SIDEBAR_ITEMS = {"trait":[["Pass","A compiler pass consuming `Self::Input` and returning `Self::Output`."]]};

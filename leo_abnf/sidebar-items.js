@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Scope","Processor’s scope. Used when code block or definition starts or ends."]],"fn":[["main",""],["parse_abnf_node","Recursively parse ABNF Node and fill sum vec with found rule names."]],"struct":[["Processor","Transforms abnf file into Markdown."]]});
+window.SIDEBAR_ITEMS = {"enum":[["Scope","Processor’s scope. Used when code block or definition starts or ends."]],"fn":[["main",""],["parse_abnf_node","Recursively parse ABNF Node and fill sum vec with found rule names."]],"struct":[["Processor","Transforms abnf file into Markdown."]]};

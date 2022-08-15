@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["ALEO_CLI_COMMAND",""]],"mod":[["build",""],["clean",""],["new",""],["run",""]],"trait":[["Command","Base trait for the Leo CLI, see methods and their documentation for details."]],"type":[["Network",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["ALEO_CLI_COMMAND",""]],"mod":[["build",""],["clean",""],["new",""],["run",""]],"trait":[["Command","Base trait for the Leo CLI, see methods and their documentation for details."]],"type":[["Network",""]]};

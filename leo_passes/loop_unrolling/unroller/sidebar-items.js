@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Unroller",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["Unroller",""]]};

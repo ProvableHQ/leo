@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["flattener_errors","This module contains the Flattener error definitions."]]});
+window.SIDEBAR_ITEMS = {"mod":[["flattener_errors","This module contains the Flattener error definitions."]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["CreateSymbolTable","A compiler pass during which the `SymbolTable` is created. Note that this pass only creates the initial entries for functions and circuits. The table is populated further during the type checking pass."]]});
+window.SIDEBAR_ITEMS = {"struct":[["CreateSymbolTable","A compiler pass during which the `SymbolTable` is created. Note that this pass only creates the initial entries for functions and circuits. The table is populated further during the type checking pass."]]};

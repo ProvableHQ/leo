@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["create",""],["function_symbol",""],["table",""],["variable_symbol",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["create",""],["function_symbol",""],["table",""],["variable_symbol",""]]};

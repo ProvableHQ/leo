@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["ParserWarning","ParserWarning enum that represents all the warnings for the `leo-parser` crate."]]});
+window.SIDEBAR_ITEMS = {"enum":[["ParserWarning","ParserWarning enum that represents all the warnings for the `leo-parser` crate."]]};

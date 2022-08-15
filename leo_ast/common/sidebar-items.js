@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["global_consts_json",""],["identifier",""],["imported_modules",""],["positive_number",""],["static_string",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["global_consts_json",""],["identifier",""],["imported_modules",""],["positive_number",""],["static_string",""]]};

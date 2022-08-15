@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["CallExpression","A function call expression, e.g., `foo(args)` or `Foo::bar(args)`."]]});
+window.SIDEBAR_ITEMS = {"struct":[["CallExpression","A function call expression, e.g., `foo(args)` or `Foo::bar(args)`."]]};

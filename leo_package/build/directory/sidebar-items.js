@@ -1,1 +1,1 @@
-initSidebarItems({"static":[["BUILD_DIRECTORY_NAME",""]],"struct":[["BuildDirectory",""]]});
+window.SIDEBAR_ITEMS = {"static":[["BUILD_DIRECTORY_NAME",""]],"struct":[["BuildDirectory",""]]};

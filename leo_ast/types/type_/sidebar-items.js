@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Type","Explicit type used for defining a variable or expression type"]]});
+window.SIDEBAR_ITEMS = {"enum":[["Type","Explicit type used for defining a variable or expression type"]]};

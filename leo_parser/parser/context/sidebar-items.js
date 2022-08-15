@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["DUMMY_EOF","Dummy span used to appease borrow checker."]],"struct":[["ParserContext","Stores a program in tokenized format plus additional context. May be converted into a [`Program`] AST by parsing all tokens."]]});
+window.SIDEBAR_ITEMS = {"constant":[["DUMMY_EOF","Dummy span used to appease borrow checker."]],"struct":[["ParserContext","Stores a program in tokenized format plus additional context. May be converted into a [`Program`] AST by parsing all tokens."]]};

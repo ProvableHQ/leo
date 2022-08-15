@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["SymbolTable",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["SymbolTable",""]]};

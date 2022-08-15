@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["TernaryExpression","A ternary conditional expression, that is, `condition ? if_true : if_false`."]]});
+window.SIDEBAR_ITEMS = {"struct":[["TernaryExpression","A ternary conditional expression, that is, `condition ? if_true : if_false`."]]};

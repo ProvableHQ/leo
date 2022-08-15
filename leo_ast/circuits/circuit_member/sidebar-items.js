@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["CircuitMember","A member of a circuit definition."]]});
+window.SIDEBAR_ITEMS = {"enum":[["CircuitMember","A member of a circuit definition."]]};

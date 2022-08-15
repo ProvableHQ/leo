@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["AssociatedFunction","An access expression to an associated function in a circuit, e.g.`Pedersen64::hash()`."]]});
+window.SIDEBAR_ITEMS = {"struct":[["AssociatedFunction","An access expression to an associated function in a circuit, e.g.`Pedersen64::hash()`."]]};

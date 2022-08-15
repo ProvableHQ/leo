@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["CodeGenerator",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["CodeGenerator",""]]};

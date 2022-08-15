@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["OutputOptions",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["OutputOptions",""]]};

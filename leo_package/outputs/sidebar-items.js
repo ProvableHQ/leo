@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["ast_snapshot","The serialized circuit output file."],["checksum","The build checksum file."],["circuit","The serialized circuit output file."],["directory",""]],"static":[["MAIN_ALEO_FILE_NAME",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["ast_snapshot","The serialized circuit output file."],["checksum","The build checksum file."],["circuit","The serialized circuit output file."],["directory",""]],"static":[["MAIN_ALEO_FILE_NAME",""]]};

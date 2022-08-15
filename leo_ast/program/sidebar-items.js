@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Program","Stores the Leo program abstract syntax tree."]]});
+window.SIDEBAR_ITEMS = {"struct":[["Program","Stores the Leo program abstract syntax tree."]]};

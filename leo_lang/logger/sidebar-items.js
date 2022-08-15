@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["init_logger","Initialize logger with custom format and verbosity."]],"static":[["START",""]],"struct":[["Format",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["init_logger","Initialize logger with custom format and verbosity."]],"static":[["START",""]],"struct":[["Format",""]]};

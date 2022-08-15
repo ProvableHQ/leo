@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Pedersen128Hash",""],["Pedersen64Hash",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["Pedersen128Hash",""],["Pedersen64Hash",""]]};

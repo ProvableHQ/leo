@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["cli_errors","This module contains the CLI error definitions."]]});
+window.SIDEBAR_ITEMS = {"mod":[["cli_errors","This module contains the CLI error definitions."]]};

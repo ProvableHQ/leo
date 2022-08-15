@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["annotation",""],["function_input",""]],"struct":[["Function","A function definition."]]});
+window.SIDEBAR_ITEMS = {"mod":[["annotation",""],["function_input",""]],"struct":[["Function","A function definition."]]};

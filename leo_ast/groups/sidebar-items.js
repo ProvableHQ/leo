@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["group_coordinate",""],["group_literal",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["group_coordinate",""],["group_literal",""]]};

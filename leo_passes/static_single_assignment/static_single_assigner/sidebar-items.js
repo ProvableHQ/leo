@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["StaticSingleAssigner",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["StaticSingleAssigner",""]]};

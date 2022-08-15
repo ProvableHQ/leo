@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["IterationStatement","A bounded `for` loop statement `for variable in start .. =? stop block`."]]});
+window.SIDEBAR_ITEMS = {"struct":[["IterationStatement","A bounded `for` loop statement `for variable in start .. =? stop block`."]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["error",""],["fetch",""],["output",""],["runner",""],["test",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["error",""],["fetch",""],["output",""],["runner",""],["test",""]]};

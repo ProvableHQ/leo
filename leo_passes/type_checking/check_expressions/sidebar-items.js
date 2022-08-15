@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["return_incorrect_type",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["return_incorrect_type",""]]};

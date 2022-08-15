@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["New","Create new Leo project"]]});
+window.SIDEBAR_ITEMS = {"struct":[["New","Create new Leo project"]]};

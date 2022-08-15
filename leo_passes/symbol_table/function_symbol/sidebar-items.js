@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["FunctionSymbol","An entry for a function in the symbol table."]]});
+window.SIDEBAR_ITEMS = {"struct":[["FunctionSymbol","An entry for a function in the symbol table."]]};

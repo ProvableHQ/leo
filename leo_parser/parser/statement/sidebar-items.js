@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["ASSIGN_TOKENS",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["ASSIGN_TOKENS",""]]};

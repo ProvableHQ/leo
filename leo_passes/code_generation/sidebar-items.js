@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["generator",""],["visit_expressions",""],["visit_program",""],["visit_statements",""],["visit_type",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["generator",""],["visit_expressions",""],["visit_program",""],["visit_statements",""],["visit_type",""]]};

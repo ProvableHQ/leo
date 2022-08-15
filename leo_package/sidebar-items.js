@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["parse_file_paths",""]],"mod":[["build",""],["imports",""],["inputs",""],["outputs",""],["package",""],["root",""],["source",""]],"static":[["LEO_FILE_EXTENSION",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["parse_file_paths",""]],"mod":[["build",""],["imports",""],["inputs",""],["outputs",""],["package",""],["root",""],["source",""]],"static":[["LEO_FILE_EXTENSION",""]]};

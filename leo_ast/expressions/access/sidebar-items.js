@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["AccessExpression","An access expressions, extracting a smaller part out of a whole."]]});
+window.SIDEBAR_ITEMS = {"enum":[["AccessExpression","An access expressions, extracting a smaller part out of a whole."]]};

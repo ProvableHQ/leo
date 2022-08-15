@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["TestExpectationMode",""]],"fn":[["extract_test_config",""]],"struct":[["TestConfig",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["TestExpectationMode",""]],"fn":[["extract_test_config",""]],"struct":[["TestConfig",""]]};
