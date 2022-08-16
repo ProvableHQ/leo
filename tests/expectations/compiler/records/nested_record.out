@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Failed to parse string. Remaining invalid string is: \"amount as circuit amount.private;\n\n\nfunction mint:\n    input r0 as address.private;\n    input r1 as u64.private;\n    cast r1 r1 into r2 as amount;\n    cast r0 0u64 r2 into r3 as token.record;\n    output r3 as token.record;\n\nfunction main:\n    input r0 as address.private;\n    cast 1u64 1u64 into r1 as amount;\n    cast r0 0u64 r1 into r2 as token.record;\n    output r2.gates as u64.private;\n\n\""

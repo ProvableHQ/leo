@@ -149,7 +149,8 @@ impl<'a> CodeGenerator<'a> {
             writeln!(
                 output_string,
                 "    {} as {}.private;", // todo: CAUTION private record variables only.
-                name, type_,
+                name,
+                type_.to_string().to_lowercase(),
             )
             .expect("failed to write to string");
         }

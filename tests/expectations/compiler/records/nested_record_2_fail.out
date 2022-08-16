@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372025]: Tuples are only allowed as function return types.\n    --> compiler-test:7:5\n     |\n   7 |     foo: (Foo, Foo),\n     |     ^^^\nError [ETYC0372030]: A circuit or record cannot contain another record.\n    --> compiler-test:7:5\n     |\n   7 |     foo: (Foo, Foo),\n     |     ^^^\n     |\n     = Remove the record `Foo` from `Token2`.\nError [ETYC0372030]: A circuit or record cannot contain another record.\n    --> compiler-test:7:5\n     |\n   7 |     foo: (Foo, Foo),\n     |     ^^^\n     |\n     = Remove the record `Foo` from `Token2`.\n"
