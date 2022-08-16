@@ -17,10 +17,7 @@
 use crate::StaticSingleAssigner;
 use itertools::Itertools;
 
-use leo_ast::{
-    Block, Expression, ExpressionConsumer, Function, FunctionConsumer, Program, ProgramConsumer, ReturnStatement,
-    Statement, StatementConsumer, TernaryExpression, TupleExpression,
-};
+use leo_ast::{Block, Expression, ExpressionConsumer, Function, FunctionConsumer, Identifier, Program, ProgramConsumer, ReturnStatement, Statement, StatementConsumer, TernaryExpression, TupleExpression};
 
 impl FunctionConsumer for StaticSingleAssigner<'_> {
     type Output = Function;
@@ -45,8 +42,9 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
         // Type checking guarantees that there exists at least one return statement in the function body.
         let (_, last_return_expression) = returns.pop().unwrap();
 
-        // Fold all return expressions into a single ternary expression.
+        // Produce a chain of ternary expressions and assignments for the set of early returns.
         // TODO: Can this be simplified?
+        let mut stmts = Vec::with_capacity(returns.len());
         let expression = returns
             .into_iter()
             .rev()
@@ -63,12 +61,20 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
                                 .into_iter()
                                 .zip_eq(acc_tuple.elements.into_iter())
                                 .map(|(if_true, if_false)| {
-                                    Expression::Ternary(TernaryExpression {
+                                    // Create an assignment statement for the element expression in the tuple.
+                                    let place = Expression::Identifier(Identifier {
+                                        name: self.unique_symbol("$ret"),
+                                        span: Default::default()
+                                    });
+                                    let value = Expression::Ternary(TernaryExpression {
                                         condition: Box::new(guard.clone()),
                                         if_true: Box::new(if_true),
                                         if_false: Box::new(if_false),
                                         span: Default::default(),
-                                    })
+                                    });
+                                    stmts.push(Self::simple_assign_statement(place.clone(), value));
+                                    place
+
                                 })
                                 .collect(),
                             span: Default::default(),
@@ -76,17 +82,26 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
                     }
                     // Otherwise, fold the return expressions into a single ternary expression.
                     // Note that `expr` and `acc` are correspond to the `if` and `else` cases of the ternary expression respectively.
-                    (expr, acc) => Expression::Ternary(TernaryExpression {
-                        condition: Box::new(guard),
-                        if_true: Box::new(expr),
-                        if_false: Box::new(acc),
-                        span: Default::default(),
-                    }),
+                    (expr, acc) => {
+                        let place = Expression::Identifier(Identifier {
+                            name: self.unique_symbol("$ret"),
+                            span: Default::default()
+                        });
+                        let value = Expression::Ternary(TernaryExpression {
+                            condition: Box::new(guard.clone()),
+                            if_true: Box::new(expr),
+                            if_false: Box::new(acc),
+                            span: Default::default(),
+                        });
+                        stmts.push(Self::simple_assign_statement(place.clone(), value));
+                        place
+                    },
                 },
             });
-        // Consume and add the statements produced by the ternary expression to the block.
-        let (expression, stmts) = self.consume_expression(expression);
+
+        println!("1");
         statements.extend(stmts);
+        println!("2");
 
         // Add the `ReturnStatement` to the end of the block.
         statements.push(Statement::Return(ReturnStatement {

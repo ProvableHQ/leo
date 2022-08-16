@@ -71,6 +71,8 @@ impl<'a> Pass for StaticSingleAssigner<'a> {
         let program = consumer.consume_program(ast.into_repr());
         handler.last_err()?;
 
+        println!("AST AFTER SSA:\n{}", program);
+
         Ok(Ast::new(program))
     }
 }

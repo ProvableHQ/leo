@@ -16,11 +16,7 @@
 
 use crate::{RenameTable, StaticSingleAssigner};
 
-use leo_ast::{
-    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleStatement,
-    DefinitionStatement, Expression, ExpressionConsumer, Identifier, IterationStatement, Node, ReturnStatement,
-    Statement, StatementConsumer, TernaryExpression, UnaryExpression, UnaryOperation,
-};
+use leo_ast::{AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression, ExpressionConsumer, Identifier, IterationStatement, Node, ReturnStatement, Statement, StatementConsumer, TernaryExpression, TupleExpression, UnaryExpression, UnaryOperation};
 use leo_span::Symbol;
 
 use indexmap::IndexSet;
@@ -48,8 +44,10 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
             }
         };
 
-        // Consume the expression and add it to the early returns.
+        // Consume the expression and add it to `early_returns`.
         let (expression, statements) = self.consume_expression(input.expression);
+        // Note that this is the only place where `self.early_returns` is mutated.
+        // Furthermore, `expression` will always be an identifier or tuple expression.
         self.early_returns.push((guard, expression));
 
         statements
@@ -60,7 +58,6 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         let (value, mut statements) = self.consume_expression(definition.value);
 
         self.is_lhs = true;
-        // TODO: Can lhs have complex expressions?
         let identifier = match self.consume_identifier(definition.variable_name).0 {
             Expression::Identifier(identifier) => identifier,
             _ => unreachable!("`self.consume_identifier` will always return an `Identifier`."),
@@ -99,6 +96,9 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         // Simplify the condition and add it into the rename table.
         let (condition, mut statements) = self.consume_expression(conditional.condition);
         // TODO: Is this needed?
+        println!("Condition:\n{:?}\n", condition);
+        println!("Statements:\n{:?}\n", statements);
+        println!("Rename Table:\n{:?}\n", self.rename_table);
         // self.rename_table.update(symbol, symbol);
 
         // Instantiate a `RenameTable` for the then-block.

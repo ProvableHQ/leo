@@ -68,10 +68,14 @@ impl<'a> StaticSingleAssigner<'a> {
     /// For example, `expr` is transformed into `$var$0 = expr;`.
     pub(crate) fn unique_simple_assign_statement(&mut self, expr: Expression) -> (Expression, Statement) {
         // Create a new variable for the expression.
+        let name = self.unique_symbol("$var");
         let place = Expression::Identifier(Identifier {
-            name: self.unique_symbol("$var"),
+            name,
             span: Default::default(),
         });
+        // Update the rename table.
+        self.rename_table.update(name, name);
+
         (place.clone(), Self::simple_assign_statement(place, expr))
     }
 

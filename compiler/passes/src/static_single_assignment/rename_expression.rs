@@ -244,14 +244,12 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             })
             .collect();
 
-        // Construct and accumulate a new assignment statement for the tuple expression.
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Tuple(TupleExpression {
+        // Note that we do not construct new assignment statement for the tuple expression, since tuple expressions are not supported.
+        // TODO: Fix when tuple expressions are supported.
+        (Expression::Tuple(TupleExpression {
             elements,
             span: input.span,
-        }));
-        statements.push(statement);
-
-        (place, statements)
+        }), statements)
     }
 
     /// Consumes a unary expression, accumulating any statements that are generated.
