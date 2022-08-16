@@ -1,0 +1,11 @@
+// The program input for twoadicity/src/main.leo
+[main]
+// Here is a made-up example.
+// public a: field = 391995973843653359517682711560178397928211734490775552field;
+// (comes from: 2field.pow(41) * 178259130663561045147472537592047227885001field)
+
+// This example is (maxfield - 1).
+// The output for this can be seen in the Pratt certificate
+// for bls12-377-scalar-field-prime
+// as the number of factors of 2 in (bls12-377-scalar-field-prime - 1).
+public a: field = 8444461749428370424248824938781546531375899335154063827935233455917409239040field;

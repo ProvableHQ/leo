@@ -5,7 +5,8 @@ outputs:
   - Definition:
       declaration_type: Let
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_: U8
+      type_:
+        Integer: U8
       value:
         Binary:
           left:
@@ -22,7 +23,8 @@ outputs:
   - Definition:
       declaration_type: Let
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_: U8
+      type_:
+        Integer: U8
       value:
         Binary:
           left:
@@ -39,7 +41,8 @@ outputs:
   - Definition:
       declaration_type: Let
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_: U8
+      type_:
+        Integer: U8
       value:
         Binary:
           left:
@@ -56,7 +59,8 @@ outputs:
   - Definition:
       declaration_type: Let
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_: U8
+      type_:
+        Integer: U8
       value:
         Binary:
           left:
@@ -73,7 +77,8 @@ outputs:
   - Definition:
       declaration_type: Let
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_: U8
+      type_:
+        Integer: U8
       value:
         Binary:
           left:
@@ -90,7 +95,8 @@ outputs:
   - Definition:
       declaration_type: Let
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_: U8
+      type_:
+        Integer: U8
       value:
         Binary:
           left:
@@ -107,7 +113,8 @@ outputs:
   - Definition:
       declaration_type: Let
       variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_: U8
+      type_:
+        Integer: U8
       value:
         Binary:
           left:

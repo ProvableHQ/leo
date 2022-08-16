@@ -51,16 +51,20 @@ impl StatementReconstructor for Unroller<'_> {
             input.stop_value.clone().into_inner(),
         ) {
             (Some(start), Some(stop)) => match (Type::from(&start), Type::from(&stop)) {
-                (Type::I8, Type::I8)
-                | (Type::I16, Type::I16)
-                | (Type::I32, Type::I32)
-                | (Type::I64, Type::I64)
-                | (Type::I128, Type::I128) => self.unroll_iteration_statement::<i128>(input, start, stop),
-                (Type::U8, Type::U8)
-                | (Type::U16, Type::U16)
-                | (Type::U32, Type::U32)
-                | (Type::U64, Type::U64)
-                | (Type::U128, Type::U128) => self.unroll_iteration_statement::<u128>(input, start, stop),
+                (Type::Integer(IntegerType::I8), Type::Integer(IntegerType::I8))
+                | (Type::Integer(IntegerType::I16), Type::Integer(IntegerType::I16))
+                | (Type::Integer(IntegerType::I32), Type::Integer(IntegerType::I32))
+                | (Type::Integer(IntegerType::I64), Type::Integer(IntegerType::I64))
+                | (Type::Integer(IntegerType::I128), Type::Integer(IntegerType::I128)) => {
+                    self.unroll_iteration_statement::<i128>(input, start, stop)
+                }
+                (Type::Integer(IntegerType::U8), Type::Integer(IntegerType::U8))
+                | (Type::Integer(IntegerType::U16), Type::Integer(IntegerType::U16))
+                | (Type::Integer(IntegerType::U32), Type::Integer(IntegerType::U32))
+                | (Type::Integer(IntegerType::U64), Type::Integer(IntegerType::U64))
+                | (Type::Integer(IntegerType::U128), Type::Integer(IntegerType::U128)) => {
+                    self.unroll_iteration_statement::<u128>(input, start, stop)
+                }
                 _ => unreachable!("Type checking ensures that `start` and `stop` have the same type."),
             },
             // If both loop bounds are not constant, then the loop is not unrolled.

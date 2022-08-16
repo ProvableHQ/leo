@@ -10,7 +10,8 @@ outputs:
           - Return:
               expression:
                 Literal:
-                  U8:
+                  Integer:
+                    - U8
                     - "0"
                     - span:
                         lo: 14
@@ -33,7 +34,8 @@ outputs:
           - Return:
               expression:
                 Literal:
-                  U8:
+                  Integer:
+                    - U8
                     - "0"
                     - span:
                         lo: 16
@@ -126,7 +128,8 @@ outputs:
           - Return:
               expression:
                 Literal:
-                  U8:
+                  Integer:
+                    - U8
                     - "0"
                     - span:
                         lo: 16

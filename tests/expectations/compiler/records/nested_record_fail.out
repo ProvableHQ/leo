@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EPAR0370005]: expected 'function', 'circuit', 'test' -- found 'interface'\n    --> compiler-test:21:1\n     |\n  21 | interface Bar {\n     | ^^^^^^^^^"

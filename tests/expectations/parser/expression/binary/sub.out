@@ -5,14 +5,16 @@ outputs:
   - Binary:
       left:
         Literal:
-          U8:
+          Integer:
+            - U8
             - "1"
             - span:
                 lo: 0
                 hi: 3
       right:
         Literal:
-          U8:
+          Integer:
+            - U8
             - "1"
             - span:
                 lo: 6
@@ -24,14 +26,16 @@ outputs:
   - Binary:
       left:
         Literal:
-          U16:
+          Integer:
+            - U16
             - "2"
             - span:
                 lo: 0
                 hi: 4
       right:
         Literal:
-          U64:
+          Integer:
+            - U64
             - "3"
             - span:
                 lo: 5
@@ -45,14 +49,16 @@ outputs:
         Binary:
           left:
             Literal:
-              U32:
+              Integer:
+                - U32
                 - "1"
                 - span:
                     lo: 0
                     hi: 4
           right:
             Literal:
-              U32:
+              Integer:
+                - U32
                 - "2"
                 - span:
                     lo: 7
@@ -63,7 +69,8 @@ outputs:
             hi: 11
       right:
         Literal:
-          U32:
+          Integer:
+            - U32
             - "3"
             - span:
                 lo: 14
@@ -77,14 +84,16 @@ outputs:
         Binary:
           left:
             Literal:
-              U8:
+              Integer:
+                - U8
                 - "1"
                 - span:
                     lo: 0
                     hi: 3
           right:
             Literal:
-              U16:
+              Integer:
+                - U16
                 - "2"
                 - span:
                     lo: 6
@@ -97,14 +106,16 @@ outputs:
         Binary:
           left:
             Literal:
-              U32:
+              Integer:
+                - U32
                 - "3"
                 - span:
                     lo: 13
                     hi: 17
           right:
             Literal:
-              I64:
+              Integer:
+                - I64
                 - "4"
                 - span:
                     lo: 20

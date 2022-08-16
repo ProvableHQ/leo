@@ -1,0 +1,10 @@
+{
+    "program": "twoadicity.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkp3JKK9YGWZYbPUVShFurexLMqRp1JHuvub9fnZwNW7XsW",
+        "address": "aleo1cagy225kufzj3fs2jvf8mk84dvx7umq53u4rana2ukp5d68kjy8s0t24sh"
+    },
+    "license": "MIT"
+}

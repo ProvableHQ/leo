@@ -10,6 +10,10 @@ expectation: Pass
 
 -5i8
 
+-128i8
+
+-(128i8)
+
 x.neg()
 x.neg().neg().neg()
 -x.neg()

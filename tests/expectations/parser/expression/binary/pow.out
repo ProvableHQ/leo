@@ -5,14 +5,16 @@ outputs:
   - Binary:
       left:
         Literal:
-          U8:
+          Integer:
+            - U8
             - "1"
             - span:
                 lo: 0
                 hi: 3
       right:
         Literal:
-          U8:
+          Integer:
+            - U8
             - "1"
             - span:
                 lo: 7
@@ -24,14 +26,16 @@ outputs:
   - Binary:
       left:
         Literal:
-          U8:
+          Integer:
+            - U8
             - "2"
             - span:
                 lo: 0
                 hi: 3
       right:
         Literal:
-          U8:
+          Integer:
+            - U8
             - "3"
             - span:
                 lo: 5
@@ -43,7 +47,8 @@ outputs:
   - Binary:
       left:
         Literal:
-          U8:
+          Integer:
+            - U8
             - "1"
             - span:
                 lo: 0
@@ -52,14 +57,16 @@ outputs:
         Binary:
           left:
             Literal:
-              U8:
+              Integer:
+                - U8
                 - "2"
                 - span:
                     lo: 7
                     hi: 10
           right:
             Literal:
-              U8:
+              Integer:
+                - U8
                 - "3"
                 - span:
                     lo: 14

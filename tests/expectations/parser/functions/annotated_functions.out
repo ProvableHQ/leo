@@ -23,7 +23,8 @@ outputs:
               hi: 16
         identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":29}\"}"
         input: []
-        output: U8
+        output:
+          Integer: U8
         core_mapping: ~
         block:
           statements: []
@@ -41,7 +42,8 @@ outputs:
               hi: 50
         identifier: "{\"name\":\"mint\",\"span\":\"{\\\"lo\\\":60,\\\"hi\\\":64}\"}"
         input: []
-        output: U8
+        output:
+          Integer: U8
         core_mapping: ~
         block:
           statements: []
@@ -59,7 +61,8 @@ outputs:
               hi: 82
         identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}"
         input: []
-        output: U8
+        output:
+          Integer: U8
         core_mapping: ~
         block:
           statements: []

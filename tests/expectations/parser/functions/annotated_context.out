@@ -15,14 +15,16 @@ outputs:
               hi: 10
         identifier: "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
         input: []
-        output: U8
+        output:
+          Integer: U8
         core_mapping: ~
         block:
           statements:
             - Return:
                 expression:
                   Literal:
-                    U8:
+                    Integer:
+                      - U8
                       - "1"
                       - span:
                           lo: 43
@@ -44,14 +46,16 @@ outputs:
               hi: 59
         identifier: "{\"name\":\"g\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":90}\"}"
         input: []
-        output: U8
+        output:
+          Integer: U8
         core_mapping: ~
         block:
           statements:
             - Return:
                 expression:
                   Literal:
-                    U8:
+                    Integer:
+                      - U8
                       - "2"
                       - span:
                           lo: 112

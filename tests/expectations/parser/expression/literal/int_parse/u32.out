@@ -3,631 +3,736 @@ namespace: ParseExpression
 expectation: Pass
 outputs:
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "123"
         - span:
             lo: 0
             hi: 6
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "123"
         - span:
             lo: 0
             hi: 6
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "456"
         - span:
             lo: 0
             hi: 6
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "87377802873778028737780287377802873778028737780287377802873778028737780287377802"
         - span:
             lo: 0
             hi: 83
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "8737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802"
         - span:
             lo: 0
             hi: 403
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "340130024"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "158951116"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "155529659"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "642023166"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "228481736"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "469712960"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "929437719"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "721072814"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "363254789"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "906732565"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "288246391"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "724940549"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "487101620"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "261373583"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "891163927"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "743967544"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "8372586"
         - span:
             lo: 0
             hi: 10
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "461793278"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "806307045"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "122764546"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "356336181"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "158370903"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "774460877"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "557174131"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "492401267"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "893445620"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "957757048"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "721540649"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "390746493"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "211251725"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "938266114"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "156985870"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "703831126"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "729964155"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "988151305"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "320872435"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "719287167"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "152289486"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "740067975"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "728627816"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "385008978"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "553967635"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "71980713"
         - span:
             lo: 0
             hi: 11
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "519444716"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "116499965"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "717422268"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "18966279"
         - span:
             lo: 0
             hi: 11
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "22458638"
         - span:
             lo: 0
             hi: 11
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "857282620"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "920675898"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "762235516"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "469018377"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "199986521"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "536679358"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "591399452"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "83083158"
         - span:
             lo: 0
             hi: 11
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "599449051"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "445442318"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "585486590"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "209278800"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "873568117"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "664470940"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "465262783"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "605652874"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "376803940"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "965247040"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "598474509"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "845119918"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "648159133"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "669051032"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "800600261"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "434689764"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "520060080"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "804659385"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "537828058"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "716600292"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "387020273"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "199375617"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "680337189"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "818479931"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "893693281"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "87377802"
         - span:
             lo: 0
             hi: 11
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "84699261"
         - span:
             lo: 0
             hi: 11
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "292826090"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "569171405"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "387436237"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "150682190"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "888770419"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "824696431"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "765659803"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "270163693"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "427940240"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "504997332"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "337808338"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "907200008"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "757177889"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "696697188"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "41376051"
         - span:
             lo: 0
             hi: 11
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "496293518"
         - span:
             lo: 0
             hi: 12
   - Literal:
-      U32:
+      Integer:
+        - U32
         - "251218820"
         - span:
             lo: 0

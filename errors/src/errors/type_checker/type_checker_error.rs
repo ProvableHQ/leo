@@ -193,10 +193,10 @@ create_messages!(
 
     /// Attempted to access an invalid circuit.
     @formatted
-    invalid_circuit {
-        args: (circuit: impl Display),
+    undefined_type {
+        args: (type_: impl Display),
         msg: format!(
-            "Circuit {circuit} is not found in the current scope."
+            "The type `{type_}` is not found in the current scope."
         ),
         help: None,
     }

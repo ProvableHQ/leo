@@ -67,3 +67,9 @@
   # Run the transfer program.
   $LEO run transfer
 )
+
+# Build and run the two-adicity program.
+(
+  cd ./project/examples/twoadicity || exit
+  $LEO run main
+)
