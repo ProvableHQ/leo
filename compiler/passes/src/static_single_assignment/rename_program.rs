@@ -18,13 +18,15 @@ use crate::StaticSingleAssigner;
 use itertools::Itertools;
 
 use leo_ast::{
-    Expression, Function, ProgramReconstructor, ReturnStatement, Statement, StatementReconstructor, TernaryExpression,
-    TupleExpression,
+    Block, Expression, ExpressionConsumer, Function, FunctionConsumer, Program, ProgramConsumer, ReturnStatement,
+    Statement, StatementConsumer, TernaryExpression, TupleExpression,
 };
 
-impl ProgramReconstructor for StaticSingleAssigner<'_> {
+impl FunctionConsumer for StaticSingleAssigner<'_> {
+    type Output = Function;
+
     /// Reconstructs the `Function`s in the `Program`, while allocating the appropriate `RenameTable`s.
-    fn reconstruct_function(&mut self, function: Function) -> Function {
+    fn consume_function(&mut self, function: Function) -> Self::Output {
         // Allocate a `RenameTable` for the function.
         self.push();
 
@@ -35,7 +37,7 @@ impl ProgramReconstructor for StaticSingleAssigner<'_> {
                 .update(input_variable.identifier.name, input_variable.identifier.name);
         }
 
-        let mut block = self.reconstruct_block(function.block);
+        let mut statements = self.consume_block(function.block);
 
         // Add the `ReturnStatement` to the end of the block.
         let mut returns = self.clear_early_returns();
@@ -44,6 +46,7 @@ impl ProgramReconstructor for StaticSingleAssigner<'_> {
         let (_, last_return_expression) = returns.pop().unwrap();
 
         // Fold all return expressions into a single ternary expression.
+        // TODO: Can this be simplified?
         let expression = returns
             .into_iter()
             .rev()
@@ -81,9 +84,12 @@ impl ProgramReconstructor for StaticSingleAssigner<'_> {
                     }),
                 },
             });
+        // Consume and add the statements produced by the ternary expression to the block.
+        let (expression, stmts) = self.consume_expression(expression);
+        statements.extend(stmts);
 
         // Add the `ReturnStatement` to the end of the block.
-        block.statements.push(Statement::Return(ReturnStatement {
+        statements.push(Statement::Return(ReturnStatement {
             expression,
             span: Default::default(),
         }));
@@ -97,8 +103,31 @@ impl ProgramReconstructor for StaticSingleAssigner<'_> {
             input: function.input,
             output: function.output,
             core_mapping: function.core_mapping,
-            block,
+            block: Block {
+                span: Default::default(),
+                statements,
+            },
             span: function.span,
+        }
+    }
+}
+
+impl ProgramConsumer for StaticSingleAssigner<'_> {
+    type Output = Program;
+
+    fn consume_program(&mut self, input: Program) -> Self::Output {
+        Program {
+            name: input.name,
+            network: input.network,
+            expected_input: input.expected_input,
+            // TODO: Do inputs need to be processed?
+            imports: input.imports,
+            functions: input
+                .functions
+                .into_iter()
+                .map(|(i, f)| (i, self.consume_function(f)))
+                .collect(),
+            circuits: input.circuits,
         }
     }
 }
