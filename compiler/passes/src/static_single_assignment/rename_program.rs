@@ -17,7 +17,10 @@
 use crate::StaticSingleAssigner;
 use itertools::Itertools;
 
-use leo_ast::{Block, Expression, ExpressionConsumer, Function, FunctionConsumer, Identifier, Program, ProgramConsumer, ReturnStatement, Statement, StatementConsumer, TernaryExpression, TupleExpression};
+use leo_ast::{
+    Block, Expression, Function, FunctionConsumer, Identifier, Program, ProgramConsumer, ReturnStatement, Statement,
+    StatementConsumer, TernaryExpression, TupleExpression,
+};
 
 impl FunctionConsumer for StaticSingleAssigner<'_> {
     type Output = Function;
@@ -64,7 +67,7 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
                                     // Create an assignment statement for the element expression in the tuple.
                                     let place = Expression::Identifier(Identifier {
                                         name: self.unique_symbol("$ret"),
-                                        span: Default::default()
+                                        span: Default::default(),
                                     });
                                     let value = Expression::Ternary(TernaryExpression {
                                         condition: Box::new(guard.clone()),
@@ -74,7 +77,6 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
                                     });
                                     stmts.push(Self::simple_assign_statement(place.clone(), value));
                                     place
-
                                 })
                                 .collect(),
                             span: Default::default(),
@@ -85,17 +87,17 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
                     (expr, acc) => {
                         let place = Expression::Identifier(Identifier {
                             name: self.unique_symbol("$ret"),
-                            span: Default::default()
+                            span: Default::default(),
                         });
                         let value = Expression::Ternary(TernaryExpression {
-                            condition: Box::new(guard.clone()),
+                            condition: Box::new(guard),
                             if_true: Box::new(expr),
                             if_false: Box::new(acc),
                             span: Default::default(),
                         });
                         stmts.push(Self::simple_assign_statement(place.clone(), value));
                         place
-                    },
+                    }
                 },
             });
 

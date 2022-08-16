@@ -16,7 +16,11 @@
 
 use crate::{RenameTable, StaticSingleAssigner};
 
-use leo_ast::{AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression, ExpressionConsumer, Identifier, IterationStatement, Node, ReturnStatement, Statement, StatementConsumer, TernaryExpression, TupleExpression, UnaryExpression, UnaryOperation};
+use leo_ast::{
+    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleStatement,
+    DefinitionStatement, Expression, ExpressionConsumer, Identifier, IterationStatement, Node, ReturnStatement,
+    Statement, StatementConsumer, TernaryExpression, UnaryExpression, UnaryOperation,
+};
 use leo_span::Symbol;
 
 use indexmap::IndexSet;

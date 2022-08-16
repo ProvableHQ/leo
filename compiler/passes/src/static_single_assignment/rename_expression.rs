@@ -246,10 +246,13 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
 
         // Note that we do not construct new assignment statement for the tuple expression, since tuple expressions are not supported.
         // TODO: Fix when tuple expressions are supported.
-        (Expression::Tuple(TupleExpression {
-            elements,
-            span: input.span,
-        }), statements)
+        (
+            Expression::Tuple(TupleExpression {
+                elements,
+                span: input.span,
+            }),
+            statements,
+        )
     }
 
     /// Consumes a unary expression, accumulating any statements that are generated.
