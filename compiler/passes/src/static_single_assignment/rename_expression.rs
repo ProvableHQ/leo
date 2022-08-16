@@ -27,147 +27,155 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
 
     /// Consumes an access expression, accumulating any statements that are generated.
     fn consume_access(&mut self, input: AccessExpression) -> Self::Output {
-        let mut additional_output = Vec::new();
-
-        let expr = Expression::Access(match input {
+        let (expr, mut statements) = match input {
             AccessExpression::AssociatedFunction(function) => {
-                AccessExpression::AssociatedFunction(AssociatedFunction {
-                    ty: function.ty,
-                    name: function.name,
-                    args: function
-                        .args
-                        .into_iter()
-                        .map(|arg| {
-                            let (place, statement) = self.consume_expression(arg);
-                            additional_output.extend(statement);
-                            place
-                        })
-                        .collect(),
-                    span: function.span,
-                })
+                let mut statements = Vec::new();
+                (
+                    AccessExpression::AssociatedFunction(AssociatedFunction {
+                        ty: function.ty,
+                        name: function.name,
+                        args: function
+                            .args
+                            .into_iter()
+                            .map(|arg| {
+                                let (arg, mut stmts) = self.consume_expression(arg);
+                                statements.append(&mut stmts);
+                                arg
+                            })
+                            .collect(),
+                        span: function.span,
+                    }),
+                    statements,
+                )
             }
-            AccessExpression::Member(member) => AccessExpression::Member(MemberAccess {
-                inner: {
-                    let (place, statement) = self.consume_expression(*member.inner);
-                    additional_output.extend(statement);
-                    Box::new(place)
-                },
-                name: member.name,
-                span: member.span,
-            }),
-            AccessExpression::Tuple(tuple) => AccessExpression::Tuple(TupleAccess {
-                tuple: {
-                    let (place, statement) = self.consume_expression(*tuple.tuple);
-                    additional_output.extend(statement);
-                    Box::new(place)
-                },
-                index: tuple.index,
-                span: tuple.span,
-            }),
-            expr => expr,
-        });
-        let (place, statement) = self.simple_expr_assign_statement(expr);
-        additional_output.push(statement);
+            AccessExpression::Member(member) => {
+                let (expr, statements) = self.consume_expression(*member.inner);
+                (
+                    AccessExpression::Member(MemberAccess {
+                        inner: Box::new(expr),
+                        name: member.name,
+                        span: member.span,
+                    }),
+                    statements,
+                )
+            }
+            AccessExpression::Tuple(tuple) => {
+                let (expr, statements) = self.consume_expression(*tuple.tuple);
+                (
+                    AccessExpression::Tuple(TupleAccess {
+                        tuple: Box::new(expr),
+                        index: tuple.index,
+                        span: tuple.span,
+                    }),
+                    statements,
+                )
+            }
+            expr => (expr, Vec::new()),
+        };
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Access(expr));
+        statements.push(statement);
 
-        (place, additional_output)
+        (place, statements)
     }
 
     /// Consumes a binary expression, accumulating any statements that are generated.
     fn consume_binary(&mut self, input: BinaryExpression) -> Self::Output {
-        let mut additional_output = Vec::new();
+        // Reconstruct the lhs of the binary expression.
+        let (left_expression, mut statements) = self.consume_expression(*input.left);
+        // Reconstruct the rhs of the binary expression.
+        let (right_expression, mut right_statements) = self.consume_expression(*input.right);
+        // Accumulate any statements produced.
+        statements.append(&mut right_statements);
 
-        let expr = Expression::Binary(BinaryExpression {
-            left: {
-                let (expression, statement) = self.consume_expression(*input.left);
-                additional_output.extend(statement);
-                Box::new(expression)
-            },
-            right: {
-                let (expression, statement) = self.consume_expression(*input.right);
-                additional_output.extend(statement);
-                Box::new(expression)
-            },
+        // Construct and accumulate a unique assignment statement storing the result of the binary expression.
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Binary(BinaryExpression {
+            left: Box::new(left_expression),
+            right: Box::new(right_expression),
             op: input.op,
             span: input.span,
-        });
-        let (place, statement) = self.simple_expr_assign_statement(expr);
-        additional_output.push(statement);
+        }));
+        statements.push(statement);
 
-        (place, additional_output)
+        (place, statements)
     }
 
     /// Consumes a call expression without visiting the function name, accumulating any statements that are generated.
     fn consume_call(&mut self, input: CallExpression) -> Self::Output {
-        let mut additional_output = Vec::new();
+        let mut statements = Vec::new();
 
-        // Create a new assignment statement for the call expression.
-        let expr = Expression::Call(CallExpression {
+        // Process the arguments, accumulating any statements produced.
+        let arguments = input
+            .arguments
+            .into_iter()
+            .map(|argument| {
+                let (argument, mut stmts) = self.consume_expression(argument);
+                statements.append(&mut stmts);
+                argument
+            })
+            .collect();
+
+        // Construct and accumulate a new assignment statement for the call expression.
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Call(CallExpression {
             // Note that we do not rename the function name.
             function: input.function,
             // Consume the arguments.
-            arguments: input
-                .arguments
-                .into_iter()
-                .map(|argument| {
-                    let (argument, output) = self.consume_expression(argument);
-                    additional_output.extend(output);
-                    argument
-                })
-                .collect(),
+            arguments,
             span: input.span,
-        });
-        let (place, statement) = self.simple_expr_assign_statement(expr);
-        additional_output.push(statement);
+        }));
+        statements.push(statement);
 
-        (place, additional_output)
+        (place, statements)
     }
 
     /// Consumes a circuit initialization expression with renamed variables, accumulating any statements that are generated.
     fn consume_circuit_init(&mut self, input: CircuitExpression) -> Self::Output {
-        let mut additional_output = Vec::new();
+        let mut statements = Vec::new();
 
-        // Create a new assignment statement for the circuit init expression.
-        let expr = Expression::Circuit(CircuitExpression {
+        // Process the members, accumulating any statements produced.
+        let members = input
+            .members
+            .into_iter()
+            .map(|arg| {
+                let (expression, mut stmts) = match &arg.expression.is_some() {
+                    // If the expression is None, then `arg` is a `CircuitVariableInitializer` of the form `<id>,`.
+                    // In this case, we must consume the identifier and produce an initializer of the form `<id>: <renamed_id>`.
+                    false => self.consume_identifier(arg.identifier),
+                    // If expression is `Some(..)`, then `arg is a `CircuitVariableInitializer` of the form `<id>: <expr>,`.
+                    // In this case, we must consume the expression.
+                    true => self.consume_expression(arg.expression.unwrap()),
+                };
+                // Add the output to the additional output.
+                statements.append(&mut stmts);
+
+                // Return the new member.
+                CircuitVariableInitializer {
+                    identifier: arg.identifier,
+                    expression: Some(expression),
+                }
+            })
+            .collect();
+
+        // Construct and accumulate a new assignment statement for the circuit init expression.
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Circuit(CircuitExpression {
             name: input.name,
             span: input.span,
             // Consume the circuit members.
-            members: input
-                .members
-                .into_iter()
-                .map(|arg| {
-                    let (expression, output) = match &arg.expression.is_some() {
-                        // If the expression is None, then `arg` is a `CircuitVariableInitializer` of the form `<id>,`.
-                        // In this case, we must consume the identifier and produce an initializer of the form `<id>: <renamed_id>`.
-                        false => self.consume_identifier(arg.identifier),
-                        // If expression is `Some(..)`, then `arg is a `CircuitVariableInitializer` of the form `<id>: <expr>,`.
-                        // In this case, we must consume the expression.
-                        true => self.consume_expression(arg.expression.unwrap()),
-                    };
-                    // Add the output to the additional output.
-                    additional_output.extend(output);
+            members,
+        }));
+        statements.push(statement);
 
-                    // Return the new member.
-                    CircuitVariableInitializer {
-                        identifier: arg.identifier,
-                        expression: Some(expression),
-                    }
-                })
-                .collect(),
-        });
-        let (place, statement) = self.simple_expr_assign_statement(expr);
-        additional_output.push(statement);
-
-        (place, additional_output)
+        (place, statements)
     }
 
-    fn consume_err(&mut self, input: ErrExpression) -> Self::Output {
-        (Expression::Err(input), Default::default())
+    /// `ErrExpressions` should not exist and thus do not need to be handled.
+    fn consume_err(&mut self, _input: ErrExpression) -> Self::Output {
+        unreachable!("`ErrExpression`s should not be in the AST at this phase of compilation.")
     }
 
     /// Produces a new `Identifier` with a unique name.
     fn consume_identifier(&mut self, identifier: Identifier) -> Self::Output {
         let name = match self.is_lhs {
-            // If consumeing the left-hand side of a definition or assignment, a new unique name is introduced.
+            // If consuming the left-hand side of a definition or assignment, a new unique name is introduced.
             true => {
                 let new_name = self.unique_symbol(identifier.name);
                 self.rename_table.update(identifier.name, new_name);
@@ -191,64 +199,74 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         )
     }
 
+    /// Consumes and returns the literal without making any modifications.
     fn consume_literal(&mut self, input: Literal) -> Self::Output {
         (Expression::Literal(input), Default::default())
     }
 
     /// Consumes a ternary expression, accumulating any statements that are generated.
     fn consume_ternary(&mut self, input: TernaryExpression) -> Self::Output {
-        let mut additional_output = Vec::new();
+        // Reconstruct the condition of the ternary expression.
+        let (cond_expr, mut statements) = self.consume_expression(*input.condition);
+        // Reconstruct the if-true case of the ternary expression.
+        let (if_true_expr, mut if_true_statements) = self.consume_expression(*input.if_true);
+        // Reconstruct the if-false case of the ternary expression.
+        let (if_false_expr, mut if_false_statements) = self.consume_expression(*input.if_false);
 
-        let expr = Expression::Ternary(TernaryExpression {
-            condition: Box::new(self.consume_expression(*input.condition).0),
-            if_true: Box::new(self.consume_expression(*input.if_true).0),
-            if_false: Box::new(self.consume_expression(*input.if_false).0),
+        // Accumulate any statements produced.
+        statements.append(&mut if_true_statements);
+        statements.append(&mut if_false_statements);
+
+        // Construct and accumulate a unique assignment statement storing the result of the ternary expression.
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
+            condition: Box::new(cond_expr),
+            if_true: Box::new(if_true_expr),
+            if_false: Box::new(if_false_expr),
             span: input.span,
-        });
-        let (place, statement) = self.simple_expr_assign_statement(expr);
-        additional_output.push(statement);
+        }));
+        statements.push(statement);
 
-        (place, additional_output)
+        (place, statements)
     }
 
     /// Consumes a tuple expression, accumulating any statements that are generated
     fn consume_tuple(&mut self, input: TupleExpression) -> Self::Output {
-        let mut additional_output = Vec::new();
+        let mut statements = Vec::new();
 
-        let expr = Expression::Tuple(TupleExpression {
-            elements: input
-                .elements
-                .into_iter()
-                .map(|element| {
-                    let (element, statements) = self.consume_expression(element);
-                    additional_output.extend(statements);
-                    element
-                })
-                .collect(),
+        // Process the elements, accumulating any statements produced.
+        let elements = input
+            .elements
+            .into_iter()
+            .map(|element| {
+                let (element, mut stmts) = self.consume_expression(element);
+                statements.append(&mut stmts);
+                element
+            })
+            .collect();
+
+        // Construct and accumulate a new assignment statement for the tuple expression.
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Tuple(TupleExpression {
+            elements,
             span: input.span,
-        });
-        let (place, statement) = self.simple_expr_assign_statement(expr);
-        additional_output.push(statement);
+        }));
+        statements.push(statement);
 
-        (place, additional_output)
+        (place, statements)
     }
 
     /// Consumes a unary expression, accumulating any statements that are generated.
     fn consume_unary(&mut self, input: UnaryExpression) -> Self::Output {
-        let mut additional_output = Vec::new();
+        // Reconstruct the operand of the unary expression.
+        let (receiver, mut statements) = self.consume_expression(*input.receiver);
 
-        let expr = Expression::Unary(UnaryExpression {
-            receiver: {
-                let (expression, statement) = self.consume_expression(*input.receiver);
-                additional_output.extend(statement);
-                Box::new(expression)
-            },
+        // Construct and accumulate a new assignment statement for the unary expression.
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Unary(UnaryExpression {
             op: input.op,
+            receiver: Box::new(receiver),
             span: input.span,
-        });
-        let (place, statement) = self.simple_expr_assign_statement(expr);
-        additional_output.push(statement);
+        }));
+        statements.push(statement);
 
-        (place, additional_output)
+        (place, statements)
     }
 }

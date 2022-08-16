@@ -30,7 +30,6 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
 
     /// Transforms a `ReturnStatement` into an empty `BlockStatement`,
     /// storing the expression and the associated guard in `self.early_returns`.
-    ///
     /// Note that type checking guarantees that there is at most one `ReturnStatement` in a block.
     fn consume_return(&mut self, input: ReturnStatement) -> Self::Output {
         // Construct the associated guard.

@@ -66,7 +66,7 @@ impl<'a> StaticSingleAssigner<'a> {
 
     /// Constructs a simple assign statement for `expr` with a unique name.
     /// For example, `expr` is transformed into `$var$0 = expr;`.
-    pub(crate) fn simple_expr_assign_statement(&mut self, expr: Expression) -> (Expression, Statement) {
+    pub(crate) fn unique_simple_assign_statement(&mut self, expr: Expression) -> (Expression, Statement) {
         // Create a new variable for the expression.
         let place = Expression::Identifier(Identifier {
             name: self.unique_symbol("$var"),
