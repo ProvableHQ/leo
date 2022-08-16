@@ -150,6 +150,10 @@
 <span id="144">144</span>
 <span id="145">145</span>
 <span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -175,6 +179,8 @@
 
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+
+<span class="comment">// TODO: Generally, cleanup tyc logic.</span>
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ProgramVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TypeChecker</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">visit_function</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Function</span>) {
@@ -290,9 +296,11 @@
             <span class="ident">check_has_field</span>(<span class="ident">sym::gates</span>, <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U64</span>));
         }
 
-        <span class="comment">// Ensure there are no tuple typed members.</span>
         <span class="kw">for</span> <span class="ident">CircuitMember::CircuitVariable</span>(<span class="ident">v</span>, <span class="ident">type_</span>) <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">members</span>.<span class="ident">iter</span>() {
+            <span class="comment">// Ensure there are no tuple typed members.</span>
             <span class="self">self</span>.<span class="ident">assert_not_tuple</span>(<span class="ident">v</span>.<span class="ident">span</span>, <span class="ident">type_</span>);
+            <span class="comment">// Ensure that there are no record members.</span>
+            <span class="self">self</span>.<span class="ident">assert_member_is_not_record</span>(<span class="ident">v</span>.<span class="ident">span</span>, <span class="ident">input</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">type_</span>);
         }
     }
 }
