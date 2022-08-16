@@ -46,8 +46,26 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
         let (_, last_return_expression) = returns.pop().unwrap();
 
         // Produce a chain of ternary expressions and assignments for the set of early returns.
-        // TODO: Can this be simplified?
         let mut stmts = Vec::with_capacity(returns.len());
+
+        // Helper to construct and store ternary assignments. e.g `$ret$0 = $var$0 ? $var$1 : $var$2`
+        let mut construct_ternary_assignment = |guard: Expression, if_true: Expression, if_false: Expression| {
+            let place = Expression::Identifier(Identifier {
+                name: self.unique_symbol("$ret"),
+                span: Default::default(),
+            });
+            stmts.push(Self::simple_assign_statement(
+                place.clone(),
+                Expression::Ternary(TernaryExpression {
+                    condition: Box::new(guard),
+                    if_true: Box::new(if_true),
+                    if_false: Box::new(if_false),
+                    span: Default::default(),
+                }),
+            ));
+            place
+        };
+
         let expression = returns
             .into_iter()
             .rev()
@@ -64,19 +82,7 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
                                 .into_iter()
                                 .zip_eq(acc_tuple.elements.into_iter())
                                 .map(|(if_true, if_false)| {
-                                    // Create an assignment statement for the element expression in the tuple.
-                                    let place = Expression::Identifier(Identifier {
-                                        name: self.unique_symbol("$ret"),
-                                        span: Default::default(),
-                                    });
-                                    let value = Expression::Ternary(TernaryExpression {
-                                        condition: Box::new(guard.clone()),
-                                        if_true: Box::new(if_true),
-                                        if_false: Box::new(if_false),
-                                        span: Default::default(),
-                                    });
-                                    stmts.push(Self::simple_assign_statement(place.clone(), value));
-                                    place
+                                    construct_ternary_assignment(guard.clone(), if_true, if_false)
                                 })
                                 .collect(),
                             span: Default::default(),
@@ -84,26 +90,12 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
                     }
                     // Otherwise, fold the return expressions into a single ternary expression.
                     // Note that `expr` and `acc` are correspond to the `if` and `else` cases of the ternary expression respectively.
-                    (expr, acc) => {
-                        let place = Expression::Identifier(Identifier {
-                            name: self.unique_symbol("$ret"),
-                            span: Default::default(),
-                        });
-                        let value = Expression::Ternary(TernaryExpression {
-                            condition: Box::new(guard),
-                            if_true: Box::new(expr),
-                            if_false: Box::new(acc),
-                            span: Default::default(),
-                        });
-                        stmts.push(Self::simple_assign_statement(place.clone(), value));
-                        place
-                    }
+                    (expr, acc) => construct_ternary_assignment(guard, expr, acc),
                 },
             });
 
-        println!("1");
+        // Add all of the accumulated statements to the end of the block.
         statements.extend(stmts);
-        println!("2");
 
         // Add the `ReturnStatement` to the end of the block.
         statements.push(Statement::Return(ReturnStatement {
@@ -137,7 +129,7 @@ impl ProgramConsumer for StaticSingleAssigner<'_> {
             name: input.name,
             network: input.network,
             expected_input: input.expected_input,
-            // TODO: Do inputs need to be processed?
+            // TODO: Do inputs need to be processed? They are not processed in the existing compiler.
             imports: input.imports,
             functions: input
                 .functions

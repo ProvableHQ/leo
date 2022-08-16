@@ -18,7 +18,7 @@
 //! See https://en.wikipedia.org/wiki/Static_single-assignment_form for more information.
 //! The pass also flattens `ConditionalStatement`s into a sequence of `AssignStatement`s.
 //! The pass also rewrites `ReturnStatement`s into `AssignStatement`s and consolidates the returned values as a single `ReturnStatement` at the end of the function.
-//! The pass also simplifies complex expressions into a sequence of `AssignStatement`s. For example, `(a + b) * c` is rewritten into `expr$1 = a + b; expr$2 = expr$1 * c`.
+//! The pass also simplifies complex expressions into a sequence of `AssignStatement`s. For example, `(a + b) * c` is rewritten into `$var$1 = a + b; $var$2 = $var$1 * c`.
 //!
 //! Consider the following Leo code.
 //! ```leo
@@ -70,8 +70,6 @@ impl<'a> Pass for StaticSingleAssigner<'a> {
         let mut consumer = StaticSingleAssigner::new(handler);
         let program = consumer.consume_program(ast.into_repr());
         handler.last_err()?;
-
-        println!("AST AFTER SSA:\n{}", program);
 
         Ok(Ast::new(program))
     }

@@ -144,7 +144,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
                     // In this case, we must consume the expression.
                     true => self.consume_expression(arg.expression.unwrap()),
                 };
-                // Add the output to the additional output.
+                // Accumulate any statements produced.
                 statements.append(&mut stmts);
 
                 // Return the new member.
@@ -244,8 +244,8 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             })
             .collect();
 
-        // Note that we do not construct new assignment statement for the tuple expression, since tuple expressions are not supported.
         // TODO: Fix when tuple expressions are supported.
+        // Note that we do not construct new assignment statement for the tuple expression, since tuple expressions are not supported.
         (
             Expression::Tuple(TupleExpression {
                 elements,

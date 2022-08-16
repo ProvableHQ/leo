@@ -59,8 +59,11 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
 
     /// Consumes the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
     fn consume_definition(&mut self, definition: DefinitionStatement) -> Self::Output {
+        // First consume the right-hand-side of the definition.
         let (value, mut statements) = self.consume_expression(definition.value);
 
+        // Then assign a new unique name to the left-hand-side of the definition.
+        // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
         self.is_lhs = true;
         let identifier = match self.consume_identifier(definition.variable_name).0 {
             Expression::Identifier(identifier) => identifier,
@@ -99,11 +102,6 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
     fn consume_conditional(&mut self, conditional: ConditionalStatement) -> Self::Output {
         // Simplify the condition and add it into the rename table.
         let (condition, mut statements) = self.consume_expression(conditional.condition);
-        // TODO: Is this needed?
-        println!("Condition:\n{:?}\n", condition);
-        println!("Statements:\n{:?}\n", statements);
-        println!("Rename Table:\n{:?}\n", self.rename_table);
-        // self.rename_table.update(symbol, symbol);
 
         // Instantiate a `RenameTable` for the then-block.
         self.push();
@@ -132,18 +130,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 span: condition.span(),
             }));
 
-            statements.extend(match *statement {
-                // TODO: Check that the statement below still holds.
-                // The `ConditionalStatement` must be consumed as a `Block` statement to ensure that appropriate statements are produced.
-                Statement::Conditional(stmt) => self.consume_block(Block {
-                    statements: vec![Statement::Conditional(stmt)],
-                    span: Default::default(),
-                }),
-                Statement::Block(stmt) => self.consume_block(stmt),
-                _ => unreachable!(
-                    "`ConditionalStatement`s next statement must be a `ConditionalStatement` or a `Block`."
-                ),
-            });
+            statements.extend(self.consume_statement(*statement));
 
             // Remove the negated condition from the condition stack.
             self.condition_stack.pop();
@@ -192,7 +179,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 // Update the `RenameTable` with the new name of the variable.
                 self.rename_table.update(*(*symbol), new_name);
 
-                // Store the generate phi functions.
+                // Store the generated phi function.
                 statements.push(assignment);
             }
         }
@@ -200,10 +187,12 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         statements
     }
 
+    // TODO: Error message
     fn consume_iteration(&mut self, _input: IterationStatement) -> Self::Output {
         unreachable!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 
+    // TODO: Where do we handle console statements.
     fn consume_console(&mut self, input: ConsoleStatement) -> Self::Output {
         vec![Statement::Console(input)]
     }

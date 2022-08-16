@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 //! This module contains a Consumer trait for the AST.
-//! Consumers are used to completely transform the AST without any opinion on the output.
+//! Consumers are used to completely transform the AST without any restrictions on the output.
 
 use crate::*;
 
