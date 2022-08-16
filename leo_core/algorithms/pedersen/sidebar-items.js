@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Pedersen128Hash",""],["Pedersen64Hash",""]]};
+window.SIDEBAR_ITEMS = {"struct":[["Pedersen128Commit",""],["Pedersen128Hash",""],["Pedersen64Commit",""],["Pedersen64Hash",""]]};
