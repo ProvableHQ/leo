@@ -332,6 +332,31 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
+    /// Emits an error if the circuit member is a record type.
+    pub(crate) fn assert_member_is_not_record(&self, span: Span, parent: Symbol, type_: &Type) {
+        match type_ {
+            Type::Identifier(identifier)
+                if self
+                    .symbol_table
+                    .borrow()
+                    .lookup_circuit(identifier.name)
+                    .map_or(false, |circuit| circuit.is_record) =>
+            {
+                self.emit_err(TypeCheckerError::circuit_or_record_cannot_contain_record(
+                    parent,
+                    identifier.name,
+                    span,
+                ))
+            }
+            Type::Tuple(tuple_type) => {
+                for type_ in tuple_type.iter() {
+                    self.assert_member_is_not_record(span, parent, type_)
+                }
+            }
+            _ => {} // Do nothing.
+        }
+    }
+
     /// Emits an error if the type is not valid.
     pub(crate) fn assert_type_is_valid(&self, span: Span, type_: &Type) {
         match type_ {
