@@ -216,25 +216,15 @@ pub trait StatementReconstructor: ExpressionReconstructor {
     fn reconstruct_console(&mut self, input: ConsoleStatement) -> Statement {
         Statement::Console(ConsoleStatement {
             function: match input.function {
-                ConsoleFunction::Assert(expr) => ConsoleFunction::Assert(self.reconstruct_expression(expr).0),
-                ConsoleFunction::Error(fmt) => ConsoleFunction::Error(ConsoleArgs {
-                    string: fmt.string,
-                    parameters: fmt
-                        .parameters
-                        .into_iter()
-                        .map(|p| self.reconstruct_expression(p).0)
-                        .collect(),
-                    span: fmt.span,
-                }),
-                ConsoleFunction::Log(fmt) => ConsoleFunction::Log(ConsoleArgs {
-                    string: fmt.string,
-                    parameters: fmt
-                        .parameters
-                        .into_iter()
-                        .map(|p| self.reconstruct_expression(p).0)
-                        .collect(),
-                    span: fmt.span,
-                }),
+                ConsoleFunction::AssertEq(left, right) => ConsoleFunction::AssertEq(
+                    self.reconstruct_expression(left).0,
+                    self.reconstruct_expression(right).0,
+                ),
+                ConsoleFunction::AssertNeq(left, right) => ConsoleFunction::AssertNeq(
+                    self.reconstruct_expression(left).0,
+                    self.reconstruct_expression(right).0,
+                ),
+                ConsoleFunction::Dummy => ConsoleFunction::Dummy,
             },
             span: input.span,
         })
