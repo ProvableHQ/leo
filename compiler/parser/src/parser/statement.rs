@@ -172,62 +172,34 @@ impl ParserContext<'_> {
         })
     }
 
-    /// Returns a [`ConsoleArgs`] AST node if the next tokens represent a formatted string.
-    fn parse_console_args(&mut self) -> Result<ConsoleArgs> {
-        let mut static_string = None;
-        let (parameters, _, span) = self.parse_paren_comma_list(|p| {
-            if static_string.is_none() {
-                p.bump();
-                let SpannedToken { token, span } = p.prev_token.clone();
-                match token {
-                    Token::StaticString(string) => {
-                        static_string = Some(StaticString::new(string));
-                    }
-                    _ => {
-                        p.emit_err(ParserError::unexpected_str(token, "formatted static_string", span));
-                    }
-                };
-                Ok(None)
-            } else {
-                p.parse_expression().map(Some)
-            }
-        })?;
-
-        Ok(ConsoleArgs {
-            string: static_string.unwrap_or_default(),
-            span,
-            parameters,
-        })
-    }
-
     /// Returns a [`ConsoleStatement`] AST node if the next tokens represent a console statement.
     fn parse_console_statement(&mut self) -> Result<ConsoleStatement> {
         let keyword = self.expect(&Token::Console)?;
         self.expect(&Token::Dot)?;
-        let function = self.expect_identifier()?;
-        let function = match function.name {
-            sym::assert => {
+        let identifier = self.expect_identifier()?;
+        let (span, function) = match identifier.name {
+            sym::assert_eq => {
                 self.expect(&Token::LeftParen)?;
-                let expr = self.parse_expression()?;
+                let left = self.parse_expression()?;
+                self.expect(&Token::Comma)?;
+                let right = self.parse_expression()?;
                 self.expect(&Token::RightParen)?;
-                ConsoleFunction::Assert(expr)
+                (left.span() + right.span(), ConsoleFunction::AssertEq(left, right))
             }
-            sym::error => ConsoleFunction::Error(self.parse_console_args()?),
-            sym::log => ConsoleFunction::Log(self.parse_console_args()?),
-            x => {
-                // Not sure what it is, assume it's `log`.
-                self.emit_err(ParserError::unexpected_ident(
-                    x,
-                    &["assert", "error", "log"],
-                    function.span,
-                ));
-                ConsoleFunction::Log(self.parse_console_args()?)
+            sym::assert_neq => {
+                self.expect(&Token::LeftParen)?;
+                let left = self.parse_expression()?;
+                self.expect(&Token::Comma)?;
+                let right = self.parse_expression()?;
+                self.expect(&Token::RightParen)?;
+                (left.span() + right.span(), ConsoleFunction::AssertNeq(left, right))
             }
+            _ => (Default::default(), ConsoleFunction::Dummy),
         };
         self.expect(&Token::Semicolon)?;
 
         Ok(ConsoleStatement {
-            span: keyword + function.span(),
+            span: keyword + span,
             function,
         })
     }
