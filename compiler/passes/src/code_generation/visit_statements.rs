@@ -108,7 +108,6 @@ impl<'a> CodeGenerator<'a> {
             }
             ConsoleFunction::AssertEq(left, right) => generate_assert_instruction("assert.eq", left, right),
             ConsoleFunction::AssertNeq(left, right) => generate_assert_instruction("assert.neq", left, right),
-            ConsoleFunction::Dummy => String::new(),
         }
     }
 

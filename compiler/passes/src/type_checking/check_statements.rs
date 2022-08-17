@@ -203,7 +203,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 // Check that the types are equal.
                 self.check_eq_types(&t1, &t2, input.span());
             }
-            ConsoleFunction::Dummy => {}
         }
     }
 

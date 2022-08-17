@@ -225,7 +225,6 @@ pub trait StatementReconstructor: ExpressionReconstructor {
                     self.reconstruct_expression(left).0,
                     self.reconstruct_expression(right).0,
                 ),
-                ConsoleFunction::Dummy => ConsoleFunction::Dummy,
             },
             span: input.span,
         })

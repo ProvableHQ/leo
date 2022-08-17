@@ -200,7 +200,15 @@ impl ParserContext<'_> {
                 self.expect(&Token::RightParen)?;
                 (left.span() + right.span(), ConsoleFunction::AssertNeq(left, right))
             }
-            _ => (Default::default(), ConsoleFunction::Dummy),
+            symbol => {
+                // Not sure what it is, assume it's `log`.
+                self.emit_err(ParserError::unexpected_ident(
+                    symbol,
+                    &["assert", "assert_eq", "assert_neq"],
+                    identifier.span,
+                ));
+                (Default::default(), ConsoleFunction::Assert(Expression::Err(ErrExpression { span: Default::default() })))
+            },
         };
         self.expect(&Token::Semicolon)?;
 

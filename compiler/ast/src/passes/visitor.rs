@@ -165,7 +165,6 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
                 self.visit_expression(left, &Default::default());
                 self.visit_expression(right, &Default::default());
             }
-            ConsoleFunction::Dummy => (),
         };
     }
 

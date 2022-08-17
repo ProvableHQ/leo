@@ -28,8 +28,6 @@ pub enum ConsoleFunction {
     AssertEq(Expression, Expression),
     /// A `console.assert_neq(expr1, expr2)` call to invoke, asserting that the operands are not equal.
     AssertNeq(Expression, Expression),
-    /// Dummy statement for the parser.
-    Dummy,
 }
 
 impl fmt::Display for ConsoleFunction {
@@ -38,7 +36,6 @@ impl fmt::Display for ConsoleFunction {
             ConsoleFunction::Assert(expr) => write!(f, "assert({})", expr),
             ConsoleFunction::AssertEq(expr1, expr2) => write!(f, "assert_eq({}, {})", expr1, expr2),
             ConsoleFunction::AssertNeq(expr1, expr2) => write!(f, "assert_neq({}, {})", expr1, expr2),
-            ConsoleFunction::Dummy => write!(f, "dummy"),
         }
     }
 }
