@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["console_args",""],["console_function",""],["console_statement",""]]};
+window.SIDEBAR_ITEMS = {"mod":[["console_function",""],["console_statement",""]]};

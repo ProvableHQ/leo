@@ -45,26 +45,6 @@
 <span id="39">39</span>
 <span id="40">40</span>
 <span id="41">41</span>
-<span id="42">42</span>
-<span id="43">43</span>
-<span id="44">44</span>
-<span id="45">45</span>
-<span id="46">46</span>
-<span id="47">47</span>
-<span id="48">48</span>
-<span id="49">49</span>
-<span id="50">50</span>
-<span id="51">51</span>
-<span id="52">52</span>
-<span id="53">53</span>
-<span id="54">54</span>
-<span id="55">55</span>
-<span id="56">56</span>
-<span id="57">57</span>
-<span id="58">58</span>
-<span id="59">59</span>
-<span id="60">60</span>
-<span id="61">61</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -81,8 +61,7 @@
 <span class="comment">// You should have received a copy of the GNU General Public License</span>
 <span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ConsoleArgs</span>, <span class="ident">Expression</span>, <span class="ident">Node</span>};
-<span class="kw">use</span> <span class="ident">leo_span::Span</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Expression</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -90,39 +69,20 @@
 <span class="doccomment">/// A console logging function to invoke.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ConsoleFunction</span> {
-    <span class="doccomment">/// A `console.assert(expr)` call to invoke,</span>
-    <span class="doccomment">/// asserting that the expression evaluates to `true`.</span>
+    <span class="doccomment">/// A `console.assert(expr)` call to invoke, asserting that the expression evaluates to true.</span>
     <span class="ident">Assert</span>(<span class="ident">Expression</span>),
-    <span class="doccomment">/// A `console.error(args)` call to invoke,</span>
-    <span class="doccomment">/// resulting in an error at runtime.</span>
-    <span class="ident">Error</span>(<span class="ident">ConsoleArgs</span>),
-    <span class="doccomment">/// A `console.log(args)` call to invoke,</span>
-    <span class="doccomment">/// resulting in a log message at runtime.</span>
-    <span class="ident">Log</span>(<span class="ident">ConsoleArgs</span>),
+    <span class="doccomment">/// A `console.assert_eq(expr1, expr2)` call to invoke, asserting that the operands are equal.</span>
+    <span class="ident">AssertEq</span>(<span class="ident">Expression</span>, <span class="ident">Expression</span>),
+    <span class="doccomment">/// A `console.assert_neq(expr1, expr2)` call to invoke, asserting that the operands are not equal.</span>
+    <span class="ident">AssertNeq</span>(<span class="ident">Expression</span>, <span class="ident">Expression</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">ConsoleFunction</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">assert</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;assert({})&quot;</span>, <span class="ident">assert</span>),
-            <span class="ident">ConsoleFunction::Error</span>(<span class="ident">error</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;error{})&quot;</span>, <span class="ident">error</span>),
-            <span class="ident">ConsoleFunction::Log</span>(<span class="ident">log</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;log({})&quot;</span>, <span class="ident">log</span>),
-        }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Node</span> <span class="kw">for</span> <span class="ident">ConsoleFunction</span> {
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">assert</span>) =&gt; <span class="ident">assert</span>.<span class="ident">span</span>(),
-            <span class="ident">ConsoleFunction::Error</span>(<span class="ident">formatted</span>) <span class="op">|</span> <span class="ident">ConsoleFunction::Log</span>(<span class="ident">formatted</span>) =&gt; <span class="ident">formatted</span>.<span class="ident">span</span>,
-        }
-    }
-
-    <span class="kw">fn</span> <span class="ident">set_span</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">span</span>: <span class="ident">Span</span>) {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">assert</span>) =&gt; <span class="ident">assert</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
-            <span class="ident">ConsoleFunction::Error</span>(<span class="ident">formatted</span>) <span class="op">|</span> <span class="ident">ConsoleFunction::Log</span>(<span class="ident">formatted</span>) =&gt; <span class="ident">formatted</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
+            <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;assert({})&quot;</span>, <span class="ident">expr</span>),
+            <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">expr1</span>, <span class="ident">expr2</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;assert_eq({}, {})&quot;</span>, <span class="ident">expr1</span>, <span class="ident">expr2</span>),
+            <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">expr1</span>, <span class="ident">expr2</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;assert_neq({}, {})&quot;</span>, <span class="ident">expr1</span>, <span class="ident">expr2</span>),
         }
     }
 }

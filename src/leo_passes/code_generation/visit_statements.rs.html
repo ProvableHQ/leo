@@ -101,6 +101,27 @@
 <span id="95">95</span>
 <span id="96">96</span>
 <span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -120,7 +141,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::CodeGenerator</span>;
 
 <span class="kw">use</span> <span class="ident">leo_ast</span>::{
-    <span class="ident">AssignStatement</span>, <span class="ident">Block</span>, <span class="ident">ConditionalStatement</span>, <span class="ident">ConsoleStatement</span>, <span class="ident">DefinitionStatement</span>, <span class="ident">Expression</span>,
+    <span class="ident">AssignStatement</span>, <span class="ident">Block</span>, <span class="ident">ConditionalStatement</span>, <span class="ident">ConsoleFunction</span>, <span class="ident">ConsoleStatement</span>, <span class="ident">DefinitionStatement</span>, <span class="ident">Expression</span>,
     <span class="ident">IterationStatement</span>, <span class="ident">ParamMode</span>, <span class="ident">ReturnStatement</span>, <span class="ident">Statement</span>,
 };
 
@@ -188,9 +209,30 @@
         <span class="macro">unreachable!</span>(<span class="string">&quot;`IterationStatement`s should not be in the AST at this phase of compilation.&quot;</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_console</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ConsoleStatement</span>) -&gt; <span class="ident">String</span> {
-        <span class="comment">// `ConsoleStatement`s do not need to be included in the bytecode.</span>
-        <span class="ident">String::new</span>()
+    <span class="kw">fn</span> <span class="ident">visit_console</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ConsoleStatement</span>) -&gt; <span class="ident">String</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">generate_assert_instruction</span> <span class="op">=</span> <span class="op">|</span><span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">left</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span>, <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span><span class="op">|</span> {
+            <span class="kw">let</span> (<span class="ident">left_operand</span>, <span class="ident">left_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>);
+            <span class="kw">let</span> (<span class="ident">right_operand</span>, <span class="ident">right_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">right</span>);
+            <span class="kw">let</span> <span class="ident">assert_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    {} {} {};&quot;</span>, <span class="ident">name</span>, <span class="ident">left_operand</span>, <span class="ident">right_operand</span>);
+
+            <span class="comment">// Concatenate the instructions.</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">left_instructions</span>;
+            <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">right_instructions</span>);
+            <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">assert_instruction</span>);
+
+            <span class="ident">instructions</span>
+        };
+        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">function</span> {
+            <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>) =&gt; {
+                <span class="kw">let</span> (<span class="ident">operand</span>, <span class="kw-2">mut</span> <span class="ident">instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">expr</span>);
+                <span class="kw">let</span> <span class="ident">assert_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    assert.eq {} true;&quot;</span>, <span class="ident">operand</span>);
+
+                <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">assert_instruction</span>);
+                <span class="ident">instructions</span>
+            }
+            <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; <span class="ident">generate_assert_instruction</span>(<span class="string">&quot;assert.eq&quot;</span>, <span class="ident">left</span>, <span class="ident">right</span>),
+            <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; <span class="ident">generate_assert_instruction</span>(<span class="string">&quot;assert.neq&quot;</span>, <span class="ident">left</span>, <span class="ident">right</span>),
+        }
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">visit_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Block</span>) -&gt; <span class="ident">String</span> {

@@ -384,6 +384,8 @@
 <span id="378">378</span>
 <span id="379">379</span>
 <span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -492,7 +494,9 @@
     <span class="doccomment">/// Emits an error if the two given types are not equal.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">t1</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>, <span class="ident">t2</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>, <span class="ident">span</span>: <span class="ident">Span</span>) {
         <span class="kw">match</span> (<span class="ident">t1</span>, <span class="ident">t2</span>) {
-            (<span class="prelude-val">Some</span>(<span class="ident">t1</span>), <span class="prelude-val">Some</span>(<span class="ident">t2</span>)) <span class="kw">if</span> <span class="ident">t1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">t2</span> =&gt; <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::type_should_be</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">span</span>)),
+            (<span class="prelude-val">Some</span>(<span class="ident">t1</span>), <span class="prelude-val">Some</span>(<span class="ident">t2</span>)) <span class="kw">if</span> <span class="op">!</span><span class="ident">Type::eq_flat</span>(<span class="ident">t1</span>, <span class="ident">t2</span>) =&gt; {
+                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::type_should_be</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">span</span>))
+            }
             (<span class="prelude-val">Some</span>(<span class="ident">type_</span>), <span class="prelude-val">None</span>) <span class="op">|</span> (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">type_</span>)) =&gt; {
                 <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::type_should_be</span>(<span class="string">&quot;no type&quot;</span>, <span class="ident">type_</span>, <span class="ident">span</span>))
             }
