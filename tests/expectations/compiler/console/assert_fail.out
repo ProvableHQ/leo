@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected , -- found ')'\n    --> compiler-test:6:31\n     |\n   6 |     console.assert_eq(a == 1u8);\n     |                               ^"
