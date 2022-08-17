@@ -22,7 +22,7 @@ use std::fmt;
 /// A console logging function to invoke.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum ConsoleFunction {
-    /// A `console.assert(expr)` call to invoke, asserting that the operands are equal
+    /// A `console.assert(expr)` call to invoke, asserting that the expression evaluates to true.
     Assert(Expression),
     /// A `console.assert_eq(expr1, expr2)` call to invoke, asserting that the operands are equal.
     AssertEq(Expression, Expression),
