@@ -89,7 +89,7 @@ impl<'a> CodeGenerator<'a> {
         let mut generate_assert_instruction = |name: &str, left: &'a Expression, right: &'a Expression| {
             let (left_operand, left_instructions) = self.visit_expression(left);
             let (right_operand, right_instructions) = self.visit_expression(right);
-            let assert_instruction = format!("    {} {}, {});", name, left_operand, right_operand);
+            let assert_instruction = format!("    {} {} {};", name, left_operand, right_operand);
 
             // Concatenate the instructions.
             let mut instructions = left_instructions;
@@ -99,6 +99,13 @@ impl<'a> CodeGenerator<'a> {
             instructions
         };
         match &input.function {
+            ConsoleFunction::Assert(expr) => {
+                let (operand, mut instructions) = self.visit_expression(expr);
+                let assert_instruction = format!("    assert.eq {} true;", operand);
+
+                instructions.push_str(&assert_instruction);
+                instructions
+            }
             ConsoleFunction::AssertEq(left, right) => generate_assert_instruction("assert.eq", left, right),
             ConsoleFunction::AssertNeq(left, right) => generate_assert_instruction("assert.neq", left, right),
             ConsoleFunction::Dummy => String::new(),

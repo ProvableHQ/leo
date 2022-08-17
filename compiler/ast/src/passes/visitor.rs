@@ -154,6 +154,9 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
 
     fn visit_console(&mut self, input: &'a ConsoleStatement) {
         match &input.function {
+            ConsoleFunction::Assert(expr) => {
+                self.visit_expression(expr, &Default::default());
+            }
             ConsoleFunction::AssertEq(left, right) => {
                 self.visit_expression(left, &Default::default());
                 self.visit_expression(right, &Default::default());

@@ -22,11 +22,11 @@ use std::fmt;
 /// A console logging function to invoke.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum ConsoleFunction {
-    /// A `console.assert_eq(expr1, expr2)` call to invoke,
-    /// asserting that the operands are equal.
+    /// A `console.assert(expr)` call to invoke, asserting that the operands are equal
+    Assert(Expression),
+    /// A `console.assert_eq(expr1, expr2)` call to invoke, asserting that the operands are equal.
     AssertEq(Expression, Expression),
-    /// A `console.assert_neq(expr1, expr2)` call to invoke,
-    /// asserting that the operands are not equal.
+    /// A `console.assert_neq(expr1, expr2)` call to invoke, asserting that the operands are not equal.
     AssertNeq(Expression, Expression),
     /// Dummy statement for the parser.
     Dummy,
@@ -35,6 +35,7 @@ pub enum ConsoleFunction {
 impl fmt::Display for ConsoleFunction {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            ConsoleFunction::Assert(expr) => write!(f, "assert({})", expr),
             ConsoleFunction::AssertEq(expr1, expr2) => write!(f, "assert_eq({}, {})", expr1, expr2),
             ConsoleFunction::AssertNeq(expr1, expr2) => write!(f, "assert_neq({}, {})", expr1, expr2),
             ConsoleFunction::Dummy => write!(f, "dummy"),

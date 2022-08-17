@@ -216,6 +216,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
     fn reconstruct_console(&mut self, input: ConsoleStatement) -> Statement {
         Statement::Console(ConsoleStatement {
             function: match input.function {
+                ConsoleFunction::Assert(expr) => ConsoleFunction::Assert(self.reconstruct_expression(expr).0),
                 ConsoleFunction::AssertEq(left, right) => ConsoleFunction::AssertEq(
                     self.reconstruct_expression(left).0,
                     self.reconstruct_expression(right).0,

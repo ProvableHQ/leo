@@ -178,6 +178,12 @@ impl ParserContext<'_> {
         self.expect(&Token::Dot)?;
         let identifier = self.expect_identifier()?;
         let (span, function) = match identifier.name {
+            sym::assert => {
+                self.expect(&Token::LeftParen)?;
+                let expr = self.parse_expression()?;
+                self.expect(&Token::RightParen)?;
+                (keyword + expr.span(), ConsoleFunction::Assert(expr))
+            }
             sym::assert_eq => {
                 self.expect(&Token::LeftParen)?;
                 let left = self.parse_expression()?;

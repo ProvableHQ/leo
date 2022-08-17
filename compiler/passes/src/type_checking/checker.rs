@@ -106,7 +106,9 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error if the two given types are not equal.
     pub(crate) fn check_eq_types(&self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
         match (t1, t2) {
-            (Some(t1), Some(t2)) if t1 != t2 => self.emit_err(TypeCheckerError::type_should_be(t1, t2, span)),
+            (Some(t1), Some(t2)) if !Type::eq_flat(t1, t2) => {
+                self.emit_err(TypeCheckerError::type_should_be(t1, t2, span))
+            }
             (Some(type_), None) | (None, Some(type_)) => {
                 self.emit_err(TypeCheckerError::type_should_be("no type", type_, span))
             }
