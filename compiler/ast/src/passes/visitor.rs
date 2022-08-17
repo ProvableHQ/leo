@@ -157,10 +157,13 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
             ConsoleFunction::Assert(expr) => {
                 self.visit_expression(expr, &Default::default());
             }
-            ConsoleFunction::Error(fmt) | ConsoleFunction::Log(fmt) => {
-                fmt.parameters.iter().for_each(|expr| {
-                    self.visit_expression(expr, &Default::default());
-                });
+            ConsoleFunction::AssertEq(left, right) => {
+                self.visit_expression(left, &Default::default());
+                self.visit_expression(right, &Default::default());
+            }
+            ConsoleFunction::AssertNeq(left, right) => {
+                self.visit_expression(left, &Default::default());
+                self.visit_expression(right, &Default::default());
             }
         };
     }

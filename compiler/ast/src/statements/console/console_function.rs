@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConsoleArgs, Expression, Node};
-use leo_span::Span;
+use crate::Expression;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -23,39 +22,20 @@ use std::fmt;
 /// A console logging function to invoke.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum ConsoleFunction {
-    /// A `console.assert(expr)` call to invoke,
-    /// asserting that the expression evaluates to `true`.
+    /// A `console.assert(expr)` call to invoke, asserting that the expression evaluates to true.
     Assert(Expression),
-    /// A `console.error(args)` call to invoke,
-    /// resulting in an error at runtime.
-    Error(ConsoleArgs),
-    /// A `console.log(args)` call to invoke,
-    /// resulting in a log message at runtime.
-    Log(ConsoleArgs),
+    /// A `console.assert_eq(expr1, expr2)` call to invoke, asserting that the operands are equal.
+    AssertEq(Expression, Expression),
+    /// A `console.assert_neq(expr1, expr2)` call to invoke, asserting that the operands are not equal.
+    AssertNeq(Expression, Expression),
 }
 
 impl fmt::Display for ConsoleFunction {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ConsoleFunction::Assert(assert) => write!(f, "assert({})", assert),
-            ConsoleFunction::Error(error) => write!(f, "error{})", error),
-            ConsoleFunction::Log(log) => write!(f, "log({})", log),
-        }
-    }
-}
-
-impl Node for ConsoleFunction {
-    fn span(&self) -> Span {
-        match self {
-            ConsoleFunction::Assert(assert) => assert.span(),
-            ConsoleFunction::Error(formatted) | ConsoleFunction::Log(formatted) => formatted.span,
-        }
-    }
-
-    fn set_span(&mut self, span: Span) {
-        match self {
-            ConsoleFunction::Assert(assert) => assert.set_span(span),
-            ConsoleFunction::Error(formatted) | ConsoleFunction::Log(formatted) => formatted.set_span(span),
+            ConsoleFunction::Assert(expr) => write!(f, "assert({})", expr),
+            ConsoleFunction::AssertEq(expr1, expr2) => write!(f, "assert_eq({}, {})", expr1, expr2),
+            ConsoleFunction::AssertNeq(expr1, expr2) => write!(f, "assert_neq({}, {})", expr1, expr2),
         }
     }
 }

@@ -3,18 +3,10 @@ namespace: ParseStatement
 expectation: Pass
 */
 
-console.assert(x);
+console.assert_eq(x, y);
 
+console.assert_eq(Foo { x: x }, Foo { x: y });
 
-console.error("{}", x);
+console.assert_neq(x, y);
 
-console.error("{}{}", x, y);
-
-console.error("x");
-
-
-console.log("{}", x);
-
-console.log("{}{}", x, y);
-
-console.log("x");
+console.assert(false);

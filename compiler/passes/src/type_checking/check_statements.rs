@@ -193,10 +193,15 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_console(&mut self, input: &'a ConsoleStatement) {
         match &input.function {
             ConsoleFunction::Assert(expr) => {
-                self.visit_expression(expr, &Some(Type::Boolean));
+                let type_ = self.visit_expression(expr, &Some(Type::Boolean));
+                self.assert_bool_type(&type_, expr.span());
             }
-            ConsoleFunction::Error(_) | ConsoleFunction::Log(_) => {
-                // TODO: undetermined
+            ConsoleFunction::AssertEq(left, right) | ConsoleFunction::AssertNeq(left, right) => {
+                let t1 = self.visit_expression(left, &None);
+                let t2 = self.visit_expression(right, &None);
+
+                // Check that the types are equal.
+                self.check_eq_types(&t1, &t2, input.span());
             }
         }
     }

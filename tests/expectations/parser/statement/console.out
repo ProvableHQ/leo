@@ -4,80 +4,53 @@ expectation: Pass
 outputs:
   - Console:
       function:
-        Assert:
-          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
-      span:
-        lo: 0
-        hi: 16
-  - Console:
-      function:
-        Error:
-          string: "{}"
-          parameters:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
-          span:
-            lo: 13
-            hi: 22
+        AssertEq:
+          - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
+          - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":21,\\\"hi\\\":22}\"}"
       span:
         lo: 0
         hi: 22
   - Console:
       function:
-        Error:
-          string: "{}{}"
-          parameters:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":22,\\\"hi\\\":23}\"}"
-            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":25,\\\"hi\\\":26}\"}"
-          span:
-            lo: 13
-            hi: 27
+        AssertEq:
+          - Circuit:
+              name: "{\"name\":\"Foo\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":21}\"}"
+              members:
+                - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":24,\\\"hi\\\":25}\"}"
+                  expression:
+                    Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":27,\\\"hi\\\":28}\"}"
+              span:
+                lo: 18
+                hi: 30
+          - Circuit:
+              name: "{\"name\":\"Foo\",\"span\":\"{\\\"lo\\\":32,\\\"hi\\\":35}\"}"
+              members:
+                - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":38,\\\"hi\\\":39}\"}"
+                  expression:
+                    Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":41,\\\"hi\\\":42}\"}"
+              span:
+                lo: 32
+                hi: 44
       span:
         lo: 0
-        hi: 27
+        hi: 44
   - Console:
       function:
-        Error:
-          string: x
-          parameters: []
-          span:
-            lo: 13
-            hi: 18
+        AssertNeq:
+          - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":19,\\\"hi\\\":20}\"}"
+          - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":22,\\\"hi\\\":23}\"}"
       span:
         lo: 0
-        hi: 18
+        hi: 23
   - Console:
       function:
-        Log:
-          string: "{}"
-          parameters:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
-          span:
-            lo: 11
-            hi: 20
+        Assert:
+          Literal:
+            Boolean:
+              - false
+              - span:
+                  lo: 15
+                  hi: 20
       span:
         lo: 0
         hi: 20
-  - Console:
-      function:
-        Log:
-          string: "{}{}"
-          parameters:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
-            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":23,\\\"hi\\\":24}\"}"
-          span:
-            lo: 11
-            hi: 25
-      span:
-        lo: 0
-        hi: 25
-  - Console:
-      function:
-        Log:
-          string: x
-          parameters: []
-          span:
-            lo: 11
-            hi: 16
-      span:
-        lo: 0
-        hi: 16

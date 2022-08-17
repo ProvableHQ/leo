@@ -17,7 +17,7 @@
 use crate::CodeGenerator;
 
 use leo_ast::{
-    AssignStatement, Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression,
+    AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DefinitionStatement, Expression,
     IterationStatement, ParamMode, ReturnStatement, Statement,
 };
 
@@ -85,9 +85,30 @@ impl<'a> CodeGenerator<'a> {
         unreachable!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 
-    fn visit_console(&mut self, _input: &'a ConsoleStatement) -> String {
-        // `ConsoleStatement`s do not need to be included in the bytecode.
-        String::new()
+    fn visit_console(&mut self, input: &'a ConsoleStatement) -> String {
+        let mut generate_assert_instruction = |name: &str, left: &'a Expression, right: &'a Expression| {
+            let (left_operand, left_instructions) = self.visit_expression(left);
+            let (right_operand, right_instructions) = self.visit_expression(right);
+            let assert_instruction = format!("    {} {} {};", name, left_operand, right_operand);
+
+            // Concatenate the instructions.
+            let mut instructions = left_instructions;
+            instructions.push_str(&right_instructions);
+            instructions.push_str(&assert_instruction);
+
+            instructions
+        };
+        match &input.function {
+            ConsoleFunction::Assert(expr) => {
+                let (operand, mut instructions) = self.visit_expression(expr);
+                let assert_instruction = format!("    assert.eq {} true;", operand);
+
+                instructions.push_str(&assert_instruction);
+                instructions
+            }
+            ConsoleFunction::AssertEq(left, right) => generate_assert_instruction("assert.eq", left, right),
+            ConsoleFunction::AssertNeq(left, right) => generate_assert_instruction("assert.neq", left, right),
+        }
     }
 
     pub(crate) fn visit_block(&mut self, input: &'a Block) -> String {

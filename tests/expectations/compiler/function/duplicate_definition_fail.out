@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372008]: function `main` shadowed by\n    --> compiler-test:8:1\n     |\n   8 | function main(y: bool) -> bool {\n   9 |     console.log(\"{}\", 2u8);\n  10 |     return y; \n  11 | }\n     | ^\n"
+  - "Error [EPAR0370007]: unexpected identifier: expected 'assert', 'assert_eq', 'assert_neq' -- found 'log'\n    --> compiler-test:4:13\n     |\n   4 |     console.log(\"{}\", 1u8);\n     |             ^^^\nError [EPAR0370005]: expected ; -- found '('\n    --> compiler-test:4:16\n     |\n   4 |     console.log(\"{}\", 1u8);\n     |                ^"

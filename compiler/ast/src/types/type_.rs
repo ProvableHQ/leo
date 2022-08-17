@@ -78,7 +78,7 @@ impl fmt::Display for Type {
             Type::Boolean => write!(f, "boolean"),
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
-            Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
+            Type::Identifier(ref variable) => write!(f, "{}", variable),
             Type::Integer(ref integer_type) => write!(f, "{}", integer_type),
             Type::Scalar => write!(f, "scalar"),
             Type::String => write!(f, "string"),
