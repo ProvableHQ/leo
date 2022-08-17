@@ -207,8 +207,13 @@ impl ParserContext<'_> {
                     &["assert", "assert_eq", "assert_neq"],
                     identifier.span,
                 ));
-                (Default::default(), ConsoleFunction::Assert(Expression::Err(ErrExpression { span: Default::default() })))
-            },
+                (
+                    Default::default(),
+                    ConsoleFunction::Assert(Expression::Err(ErrExpression {
+                        span: Default::default(),
+                    })),
+                )
+            }
         };
         self.expect(&Token::Semicolon)?;
 
