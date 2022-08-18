@@ -18,6 +18,7 @@
 //! See https://en.wikipedia.org/wiki/Static_single-assignment_form for more information.
 //! The pass also flattens `ConditionalStatement`s into a sequence of `AssignStatement`s.
 //! The pass also rewrites `ReturnStatement`s into `AssignStatement`s and consolidates the returned values as a single `ReturnStatement` at the end of the function.
+//! The pass also simplifies complex expressions into a sequence of `AssignStatement`s. For example, `(a + b) * c` is rewritten into `$var$1 = a + b; $var$2 = $var$1 * c`.
 //!
 //! Consider the following Leo code.
 //! ```leo
@@ -58,7 +59,7 @@ pub use static_single_assigner::*;
 
 use crate::Pass;
 
-use leo_ast::{Ast, ProgramReconstructor};
+use leo_ast::{Ast, ProgramConsumer};
 use leo_errors::{emitter::Handler, Result};
 
 impl<'a> Pass for StaticSingleAssigner<'a> {
@@ -66,8 +67,8 @@ impl<'a> Pass for StaticSingleAssigner<'a> {
     type Output = Result<Ast>;
 
     fn do_pass((ast, handler): Self::Input) -> Self::Output {
-        let mut reconstructor = StaticSingleAssigner::new(handler);
-        let program = reconstructor.reconstruct_program(ast.into_repr());
+        let mut consumer = StaticSingleAssigner::new(handler);
+        let program = consumer.consume_program(ast.into_repr());
         handler.last_err()?;
 
         Ok(Ast::new(program))

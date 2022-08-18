@@ -17,10 +17,7 @@
 use crate::RenameTable;
 use std::fmt::Display;
 
-use leo_ast::{
-    AssignStatement, ConditionalStatement, Expression, ExpressionReconstructor, Identifier, Statement,
-    StatementReconstructor,
-};
+use leo_ast::{AssignStatement, Expression, Identifier, Statement};
 use leo_errors::emitter::Handler;
 use leo_span::Symbol;
 
@@ -33,8 +30,6 @@ pub struct StaticSingleAssigner<'a> {
     pub(crate) counter: usize,
     /// A flag to determine whether or not the traversal is on the left-hand side of a definition or an assignment.
     pub(crate) is_lhs: bool,
-    /// Phi functions produced by static single assignment.
-    pub(crate) phi_functions: Vec<Statement>,
     /// A stack of condition `Expression`s visited up to the current point in the AST.
     pub(crate) condition_stack: Vec<Expression>,
     /// A list containing tuples of guards and expressions associated with early `ReturnStatement`s.
@@ -49,7 +44,6 @@ impl<'a> StaticSingleAssigner<'a> {
             _handler: handler,
             counter: 0,
             is_lhs: false,
-            phi_functions: Vec::new(),
             condition_stack: Vec::new(),
             early_returns: Vec::new(),
         }
@@ -70,9 +64,19 @@ impl<'a> StaticSingleAssigner<'a> {
         }))
     }
 
-    /// Clears the `self.phi_functions`, returning the ones that were previously produced.
-    pub(crate) fn clear_phi_functions(&mut self) -> Vec<Statement> {
-        core::mem::take(&mut self.phi_functions)
+    /// Constructs a simple assign statement for `expr` with a unique name.
+    /// For example, `expr` is transformed into `$var$0 = expr;`.
+    pub(crate) fn unique_simple_assign_statement(&mut self, expr: Expression) -> (Expression, Statement) {
+        // Create a new variable for the expression.
+        let name = self.unique_symbol("$var");
+        let place = Expression::Identifier(Identifier {
+            name,
+            span: Default::default(),
+        });
+        // Update the rename table.
+        self.rename_table.update(name, name);
+
+        (place.clone(), Self::simple_assign_statement(place, expr))
     }
 
     /// Clears the state associated with `ReturnStatements`, returning the ones that were previously produced.
@@ -90,76 +94,5 @@ impl<'a> StaticSingleAssigner<'a> {
     pub(crate) fn pop(&mut self) -> RenameTable {
         let parent = self.rename_table.parent.clone().unwrap_or_default();
         core::mem::replace(&mut self.rename_table, *parent)
-    }
-
-    /// Introduces a new `AssignStatement` for non-trivial expressions in the condition of `ConditionalStatement`s.
-    /// For example,
-    ///   - `if x > 0 { x = x + 1 }` becomes `let $cond$0 = x > 0; if $cond$0 { x = x + 1; }`
-    ///   - `if true { x = x + 1 }` remains the same.
-    ///   - `if b { x = x + 1 }` remains the same.
-    /// And then reconstructs and flattens `ConditionalStatement`.
-    pub(crate) fn flatten_conditional_statement(
-        &mut self,
-        conditional_statement: ConditionalStatement,
-    ) -> Vec<Statement> {
-        let mut statements = Vec::new();
-
-        // Reconstruct the `ConditionalStatement`.
-        let reconstructed_statement = match conditional_statement.condition {
-            Expression::Err(_) => {
-                unreachable!("Err expressions should not exist in the AST at this stage of compilation.")
-            }
-            Expression::Identifier(..) | Expression::Literal(..) => self.reconstruct_conditional(conditional_statement),
-            // If the condition is a complex expression, introduce a new `AssignStatement` for it.
-            Expression::Access(..)
-            | Expression::Call(..)
-            | Expression::Circuit(..)
-            | Expression::Tuple(..)
-            | Expression::Binary(..)
-            | Expression::Unary(..)
-            | Expression::Ternary(..) => {
-                // Create a fresh variable name for the condition.
-                let symbol = self.unique_symbol("$cond$");
-                self.rename_table.update(symbol, symbol);
-
-                // Initialize a new `AssignStatement` for the condition.
-                let place = Expression::Identifier(Identifier::new(symbol));
-                let assign_statement = Self::simple_assign_statement(
-                    place.clone(),
-                    self.reconstruct_expression(conditional_statement.condition).0,
-                );
-                let rewritten_conditional_statement = ConditionalStatement {
-                    condition: place,
-                    then: conditional_statement.then,
-                    otherwise: conditional_statement.otherwise,
-                    span: conditional_statement.span,
-                };
-                statements.push(assign_statement);
-                self.reconstruct_conditional(rewritten_conditional_statement)
-            }
-        };
-
-        // Flatten the reconstructed `ConditionalStatement`
-        // by lifting the statements in the "if" and "else" block into their parent block.
-        let mut conditional_statement = match reconstructed_statement {
-            Statement::Conditional(conditional_statement) => conditional_statement,
-            _ => unreachable!("`reconstruct_conditional` will always produce a `ConditionalStatement`"),
-        };
-        statements.append(&mut conditional_statement.then.statements);
-        if let Some(statement) = conditional_statement.otherwise {
-            match *statement {
-                // If we encounter a `BlockStatement`,
-                // we need to lift its constituent statements into the current `BlockStatement`.
-                Statement::Block(mut block) => statements.append(&mut block.statements),
-                _ => unreachable!(
-                    "`self.reconstruct_conditional` will always produce a `BlockStatement` in the next block."
-                ),
-            }
-        }
-
-        // Add all phi functions to the current block.
-        statements.append(&mut self.clear_phi_functions());
-
-        statements
     }
 }

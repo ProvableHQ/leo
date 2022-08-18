@@ -17,20 +17,21 @@
 use crate::{RenameTable, StaticSingleAssigner};
 
 use leo_ast::{
-    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, DefinitionStatement, Expression,
-    ExpressionReconstructor, Identifier, Node, ReturnStatement, Statement, StatementReconstructor, TernaryExpression,
-    UnaryExpression, UnaryOperation,
+    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement,
+    DefinitionStatement, Expression, ExpressionConsumer, Identifier, IterationStatement, Node, ReturnStatement,
+    Statement, StatementConsumer, TernaryExpression, UnaryExpression, UnaryOperation,
 };
 use leo_span::Symbol;
 
 use indexmap::IndexSet;
 
-impl StatementReconstructor for StaticSingleAssigner<'_> {
+impl StatementConsumer for StaticSingleAssigner<'_> {
+    type Output = Vec<Statement>;
+
     /// Transforms a `ReturnStatement` into an empty `BlockStatement`,
     /// storing the expression and the associated guard in `self.early_returns`.
-    ///
     /// Note that type checking guarantees that there is at most one `ReturnStatement` in a block.
-    fn reconstruct_return(&mut self, input: ReturnStatement) -> Statement {
+    fn consume_return(&mut self, input: ReturnStatement) -> Self::Output {
         // Construct the associated guard.
         let guard = match self.condition_stack.is_empty() {
             true => None,
@@ -47,46 +48,60 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
             }
         };
 
-        // Reconstruct the expression and add it to the early returns.
-        let expression = self.reconstruct_expression(input.expression).0;
+        // Consume the expression and add it to `early_returns`.
+        let (expression, statements) = self.consume_expression(input.expression);
+        // Note that this is the only place where `self.early_returns` is mutated.
+        // Furthermore, `expression` will always be an identifier or tuple expression.
         self.early_returns.push((guard, expression));
 
-        // Return an empty block.
-        Statement::dummy(input.span)
+        statements
     }
 
-    /// Reconstructs the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
-    fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> Statement {
+    /// Consumes the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
+    fn consume_definition(&mut self, definition: DefinitionStatement) -> Self::Output {
+        // First consume the right-hand-side of the definition.
+        let (value, mut statements) = self.consume_expression(definition.value);
+
+        // Then assign a new unique name to the left-hand-side of the definition.
+        // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
         self.is_lhs = true;
-        let identifier = match self.reconstruct_identifier(definition.variable_name).0 {
+        let identifier = match self.consume_identifier(definition.variable_name).0 {
             Expression::Identifier(identifier) => identifier,
-            _ => unreachable!("`self.reconstruct_identifier` will always return an `Identifier`."),
+            _ => unreachable!("`self.consume_identifier` will always return an `Identifier`."),
         };
         self.is_lhs = false;
 
-        Self::simple_assign_statement(
-            Expression::Identifier(identifier),
-            self.reconstruct_expression(definition.value).0,
-        )
+        statements.push(Self::simple_assign_statement(Expression::Identifier(identifier), value));
+
+        statements
     }
 
-    /// Reconstruct all `AssignStatement`s, renaming as necessary.
-    fn reconstruct_assign(&mut self, assign: AssignStatement) -> Statement {
-        // First reconstruct the right-hand-side of the assignment.
-        let value = self.reconstruct_expression(assign.value).0;
+    /// Consume all `AssignStatement`s, renaming as necessary.
+    fn consume_assign(&mut self, assign: AssignStatement) -> Self::Output {
+        // First consume the right-hand-side of the assignment.
+        let (value, mut statements) = self.consume_expression(assign.value);
 
         // Then assign a new unique name to the left-hand-side of the assignment.
-        // Note that this order is necessary to ensure that the right-hand-side uses the correct name when reconstructing a complex assignment.
+        // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
+        // TODO: Can lhs have complex expressions?
         self.is_lhs = true;
-        let place = self.reconstruct_expression(assign.place).0;
+        let place = self.consume_expression(assign.place).0;
         self.is_lhs = false;
 
-        Self::simple_assign_statement(place, value)
+        statements.push(Self::simple_assign_statement(place, value));
+
+        statements
     }
 
-    /// Reconstructs a `ConditionalStatement`, producing phi functions for variables written in the then-block and otherwise-block.
-    fn reconstruct_conditional(&mut self, conditional: ConditionalStatement) -> Statement {
-        let condition = self.reconstruct_expression(conditional.condition).0;
+    /// Consumes a `ConditionalStatement`, producing phi functions for variables written in the then-block and otherwise-block.
+    /// Furthermore a new `AssignStatement` is introduced for non-trivial expressions in the condition of `ConditionalStatement`s.
+    /// For example,
+    ///   - `if x > 0 { x = x + 1 }` becomes `let $cond$0 = x > 0; if $cond$0 { x = x + 1; }`
+    ///   - `if true { x = x + 1 }` remains the same.
+    ///   - `if b { x = x + 1 }` remains the same.
+    fn consume_conditional(&mut self, conditional: ConditionalStatement) -> Self::Output {
+        // Simplify the condition and add it into the rename table.
+        let (condition, mut statements) = self.consume_expression(conditional.condition);
 
         // Instantiate a `RenameTable` for the then-block.
         self.push();
@@ -94,8 +109,8 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
         // Add condition to the condition stack.
         self.condition_stack.push(condition.clone());
 
-        // Reconstruct the then-block.
-        let then = self.reconstruct_block(conditional.then);
+        // Consume the then-block and flatten its constituent statements into the current block.
+        statements.extend(self.consume_block(conditional.then));
 
         // Remove condition from the condition stack.
         self.condition_stack.pop();
@@ -106,8 +121,8 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
         // Instantiate a `RenameTable` for the otherwise-block.
         self.push();
 
-        // Reconstruct the otherwise-block.
-        let otherwise = conditional.otherwise.map(|statement| {
+        // Consume the otherwise-block and flatten its constituent statements into the current block.
+        if let Some(statement) = conditional.otherwise {
             // Add the negated condition to the condition stack.
             self.condition_stack.push(Expression::Unary(UnaryExpression {
                 op: UnaryOperation::Not,
@@ -115,23 +130,11 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
                 span: condition.span(),
             }));
 
-            let reconstructed_block = Box::new(match *statement {
-                // The `ConditionalStatement` must be reconstructed as a `Block` statement to ensure that appropriate statements are produced.
-                Statement::Conditional(stmt) => self.reconstruct_statement(Statement::Block(Block {
-                    statements: vec![Statement::Conditional(stmt)],
-                    span: Default::default(),
-                })),
-                Statement::Block(stmt) => self.reconstruct_statement(Statement::Block(stmt)),
-                _ => unreachable!(
-                    "`ConditionalStatement`s next statement must be a `ConditionalStatement` or a `Block`."
-                ),
-            });
+            statements.extend(self.consume_statement(*statement));
 
             // Remove the negated condition from the condition stack.
             self.condition_stack.pop();
-
-            reconstructed_block
-        });
+        };
 
         // Remove the `RenameTable` for the otherwise-block.
         let else_table = self.pop();
@@ -176,37 +179,63 @@ impl StatementReconstructor for StaticSingleAssigner<'_> {
                 // Update the `RenameTable` with the new name of the variable.
                 self.rename_table.update(*(*symbol), new_name);
 
-                // Store the generate phi functions.
-                self.phi_functions.push(assignment);
+                // Store the generated phi function.
+                statements.push(assignment);
             }
         }
 
-        // Note that we only produce
-        Statement::Conditional(ConditionalStatement {
-            condition,
-            then,
-            otherwise,
-            span: conditional.span,
-        })
+        statements
     }
 
-    /// Reconstructs a `Block`, flattening its constituent `ConditionalStatement`s.
-    fn reconstruct_block(&mut self, block: Block) -> Block {
-        let mut statements = Vec::with_capacity(block.statements.len());
+    // TODO: Error message
+    fn consume_iteration(&mut self, _input: IterationStatement) -> Self::Output {
+        unreachable!("`IterationStatement`s should not be in the AST at this phase of compilation.");
+    }
 
-        // Reconstruct each statement in the block.
-        for statement in block.statements.into_iter() {
-            match statement {
-                Statement::Conditional(conditional_statement) => {
-                    statements.extend(self.flatten_conditional_statement(conditional_statement))
-                }
-                _ => statements.push(self.reconstruct_statement(statement)),
+    // TODO: Where do we handle console statements.
+    fn consume_console(&mut self, input: ConsoleStatement) -> Self::Output {
+        let (function, mut statements) = match input.function {
+            ConsoleFunction::Assert(expr) => {
+                let (expr, statements) = self.consume_expression(expr);
+                (ConsoleFunction::Assert(expr), statements)
             }
-        }
+            ConsoleFunction::AssertEq(left, right) => {
+                // Reconstruct the lhs of the binary expression.
+                let (left, mut statements) = self.consume_expression(left);
+                // Reconstruct the rhs of the binary expression.
+                let (right, mut right_statements) = self.consume_expression(right);
+                // Accumulate any statements produced.
+                statements.append(&mut right_statements);
 
-        Block {
-            statements,
-            span: block.span,
-        }
+                (ConsoleFunction::AssertEq(left, right), statements)
+            }
+            ConsoleFunction::AssertNeq(left, right) => {
+                // Reconstruct the lhs of the binary expression.
+                let (left, mut statements) = self.consume_expression(left);
+                // Reconstruct the rhs of the binary expression.
+                let (right, mut right_statements) = self.consume_expression(right);
+                // Accumulate any statements produced.
+                statements.append(&mut right_statements);
+
+                (ConsoleFunction::AssertNeq(left, right), statements)
+            }
+        };
+
+        // Add the console statement to the list of produced statements.
+        statements.push(Statement::Console(ConsoleStatement {
+            function,
+            span: input.span,
+        }));
+
+        statements
+    }
+
+    /// Consumes a `Block`, flattening its constituent `ConditionalStatement`s.
+    fn consume_block(&mut self, block: Block) -> Self::Output {
+        block
+            .statements
+            .into_iter()
+            .flat_map(|statement| self.consume_statement(statement))
+            .collect()
     }
 }
