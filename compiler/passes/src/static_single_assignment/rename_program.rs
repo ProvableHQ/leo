@@ -17,10 +17,7 @@
 use crate::StaticSingleAssigner;
 use itertools::Itertools;
 
-use leo_ast::{
-    Block, Expression, Function, FunctionConsumer, Identifier, Program, ProgramConsumer, ReturnStatement, Statement,
-    StatementConsumer, TernaryExpression, TupleExpression,
-};
+use leo_ast::{Block, CircuitExpression, CircuitVariableInitializer, Expression, Function, FunctionConsumer, Identifier, Program, ProgramConsumer, ReturnStatement, Statement, StatementConsumer, TernaryExpression, TupleExpression};
 
 impl FunctionConsumer for StaticSingleAssigner<'_> {
     type Output = Function;
@@ -86,6 +83,35 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
                                 })
                                 .collect(),
                             span: Default::default(),
+                        })
+                    }
+                    // If the function returns circuits, fold the return expressions into a circuit of ternary expressions.
+                    // Note that `expr` and `acc` are correspond to the `if` and `else` cases of the ternary expression respectively.
+                    (Expression::Circuit(expr_circuit), Expression::Circuit(acc_circuit)) => {
+                        Expression::Circuit(CircuitExpression {
+                            name: acc_circuit.name,
+                            span: acc_circuit.span,
+                            members: expr_circuit
+                                .members
+                                .into_iter()
+                                .zip_eq(acc_circuit.members.into_iter())
+                                .map(|(if_true, if_false)| {
+                                    let expression = construct_ternary_assignment(
+                                        guard.clone(),
+                                        match if_true.expression {
+                                            None => Expression::Identifier(if_true.identifier),
+                                            Some(expr) => expr,
+                                        },
+                                        match if_false.expression {
+                                            None => Expression::Identifier(if_false.identifier),
+                                            Some(expr) => expr,
+                                        });
+                                    CircuitVariableInitializer {
+                                        identifier: if_true.identifier,
+                                        expression: Some(expression),
+                                    }
+                                })
+                                .collect(),
                         })
                     }
                     // Otherwise, fold the return expressions into a single ternary expression.

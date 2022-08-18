@@ -155,16 +155,16 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             })
             .collect();
 
-        // Construct and accumulate a new assignment statement for the circuit init expression.
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Circuit(CircuitExpression {
-            name: input.name,
-            span: input.span,
-            // Consume the circuit members.
-            members,
-        }));
-        statements.push(statement);
-
-        (place, statements)
+        // Note that we do not construct a new assignment statement for the tuple expression.
+        // Expressions that produce compound data types need to be handled separately.
+        (
+            Expression::Circuit(CircuitExpression{
+                name: input.name,
+                span: input.span,
+                members
+            }),
+            statements,
+        )
     }
 
     /// `ErrExpressions` should not exist and thus do not need to be handled.
@@ -244,8 +244,8 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             })
             .collect();
 
-        // TODO: Fix when tuple expressions are supported.
-        // Note that we do not construct new assignment statement for the tuple expression, since tuple expressions are not supported.
+        // Note that we do not construct a new assignment statement for the tuple expression.
+        // Expressions that produce compound data types need to be handled separately.
         (
             Expression::Tuple(TupleExpression {
                 elements,
