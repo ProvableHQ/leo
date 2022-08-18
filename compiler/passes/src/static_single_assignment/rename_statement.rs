@@ -16,11 +16,7 @@
 
 use crate::{RenameTable, StaticSingleAssigner};
 
-use leo_ast::{
-    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleStatement,
-    DefinitionStatement, Expression, ExpressionConsumer, Identifier, IterationStatement, Node, ReturnStatement,
-    Statement, StatementConsumer, TernaryExpression, UnaryExpression, UnaryOperation,
-};
+use leo_ast::{AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DefinitionStatement, Expression, ExpressionConsumer, Identifier, IterationStatement, Node, ReturnStatement, Statement, StatementConsumer, TernaryExpression, UnaryExpression, UnaryOperation};
 use leo_span::Symbol;
 
 use indexmap::IndexSet;
@@ -194,7 +190,40 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
 
     // TODO: Where do we handle console statements.
     fn consume_console(&mut self, input: ConsoleStatement) -> Self::Output {
-        vec![Statement::Console(input)]
+        let (function, mut statements) = match input.function {
+            ConsoleFunction::Assert(expr) => {
+                let (expr, statements) = self.consume_expression(expr);
+                (ConsoleFunction::Assert(expr), statements)
+            }
+            ConsoleFunction::AssertEq(left, right) => {
+                // Reconstruct the lhs of the binary expression.
+                let (left, mut statements) = self.consume_expression(left);
+                // Reconstruct the rhs of the binary expression.
+                let (right, mut right_statements) = self.consume_expression(right);
+                // Accumulate any statements produced.
+                statements.append(&mut right_statements);
+
+                (ConsoleFunction::AssertEq(left, right), statements)
+            }
+            ConsoleFunction::AssertNeq(left, right) => {
+                // Reconstruct the lhs of the binary expression.
+                let (left, mut statements) = self.consume_expression(left);
+                // Reconstruct the rhs of the binary expression.
+                let (right, mut right_statements) = self.consume_expression(right);
+                // Accumulate any statements produced.
+                statements.append(&mut right_statements);
+
+                (ConsoleFunction::AssertNeq(left, right), statements)
+            }
+        };
+
+        // Add the console statement to the list of produced statements.
+        statements.push(Statement::Console(ConsoleStatement {
+            function,
+            span: input.span,
+        }));
+
+        statements
     }
 
     /// Consumes a `Block`, flattening its constituent `ConditionalStatement`s.
