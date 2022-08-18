@@ -17,7 +17,10 @@
 use crate::StaticSingleAssigner;
 use itertools::Itertools;
 
-use leo_ast::{Block, CircuitExpression, CircuitVariableInitializer, Expression, Function, FunctionConsumer, Identifier, Program, ProgramConsumer, ReturnStatement, Statement, StatementConsumer, TernaryExpression, TupleExpression};
+use leo_ast::{
+    Block, CircuitExpression, CircuitVariableInitializer, Expression, Function, FunctionConsumer, Identifier, Program,
+    ProgramConsumer, ReturnStatement, Statement, StatementConsumer, TernaryExpression, TupleExpression,
+};
 
 impl FunctionConsumer for StaticSingleAssigner<'_> {
     type Output = Function;
@@ -105,7 +108,8 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
                                         match if_false.expression {
                                             None => Expression::Identifier(if_false.identifier),
                                             Some(expr) => expr,
-                                        });
+                                        },
+                                    );
                                     CircuitVariableInitializer {
                                         identifier: if_true.identifier,
                                         expression: Some(expression),

@@ -158,10 +158,10 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         // Note that we do not construct a new assignment statement for the tuple expression.
         // Expressions that produce compound data types need to be handled separately.
         (
-            Expression::Circuit(CircuitExpression{
+            Expression::Circuit(CircuitExpression {
                 name: input.name,
                 span: input.span,
-                members
+                members,
             }),
             statements,
         )
