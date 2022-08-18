@@ -402,15 +402,14 @@ assignment-statement = expression assignment-operator expression ";"
 console-statement = %s"console" "." console-call ";"
 
 console-call = assert-call
-             / print-call
+             / assert-equal-call
+             / assert-not-equal-call
 
 assert-call = %s"assert" "(" expression ")"
 
-print-function = %s"error" / %s"log"
+assert-equal-call = %s"assert_eq" "(" expression "," expression [ "," ] ")"
 
-print-arguments = "(" string-literal  *( "," expression ) [ "," ] ")"
-
-print-call = print-function print-arguments
+assert-not-equal-call = %s"assert_neq" "(" expression "," expression [ "," ] ")"
 
 function-declaration = *annotation %s"function" identifier
                        "(" [ function-parameters ] ")" "->" type
@@ -438,26 +437,6 @@ declaration = function-declaration
             / record-declaration
 
 file = *declaration
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; Format String Grammar
-; ---------------------
-
-not-brace = %x0-7A / %x7C / %x7E-10FFFF  ; anything but { or }
-
-format-string-container = "{}"
-
-format-string-open-brace = "{{"
-
-format-string-close-brace = "}}"
-
-format-string-element = not-brace
-                      / format-string-container
-                      / format-string-open-brace
-                      / format-string-close-brace
-
-format-string = *format-string-element
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
