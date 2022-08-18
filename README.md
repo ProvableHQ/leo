@@ -35,9 +35,8 @@ integrate private applications into your stack. Leo compiles to circuits making 
 The syntax of Leo is influenced by traditional programming languages like JavaScript, Scala, and Rust, with a strong emphasis on readability and ease-of-use.
 Leo offers developers with tools to sanity check circuits including unit tests, integration tests, and console functions.
 
-Leo is one part of a greater ecosystem for building private applications on [Aleo](https://aleo.org/). If your goal is to build a user experience
-on the web that is both truly personal and truly private, then we recommend downloading the [Aleo Studio IDE](https://aleo.studio/)
-and checking out the [Aleo Package Manager](https://aleo.pm/).
+Leo is one part of a greater ecosystem for building private applications on [Aleo](https://aleo.org/). 
+The language is currently in an alpha stage and is subject to breaking changes.
 
 ## 2. Build Guide
 
@@ -58,22 +57,9 @@ We recommend installing Rust using [rustup](https://www.rustup.rs/). You can ins
   
   Download the [Windows 32-bit executable](https://win.rustup.rs/i686) and follow the on-screen instructions.
 
-### 2.2a Build from Crates.io
+### 2.2 Build from Source Code
 
-We recommend installing Leo this way. In your terminal, run:
-
-```bash
-cargo install leo-lang
-```
-
-Now to use Leo, in your terminal, run:
-```bash
-leo
-```
- 
-### 2.2b Build from Source Code
-
-Alternatively, you can install Leo by building from the source code as follows:
+We recommend installing Leo by building from the source code as follows:
 
 ```bash
 # Download the source code
@@ -95,8 +81,8 @@ Use the Leo CLI to create a new project
 
 ```bash
 # create a new `hello-world` Leo project
-leo new hello-world
-cd hello-world
+leo new helloworld
+cd helloworld
 
 # build & setup & prove & verify
 leo run
@@ -104,7 +90,7 @@ leo run
 
 The `leo new` command creates a new Leo project with a given name.
 
-The `leo run` command will compile the main program, generate keys for a trusted setup, fetch inputs, generate a proof and verify it.
+The `leo run` command will compile the program into Aleo instructions and run it.
 
 Congratulations! You've just run your first Leo program.
 
@@ -112,8 +98,7 @@ Congratulations! You've just run your first Leo program.
 
 * [Hello World - Next Steps](https://developer.aleo.org/developer/getting_started/hello_world)
 * [Leo Language Documentation](https://developer.aleo.org/developer/language/layout)
-* [Leo ABNF Grammar](./grammar/README.md)
-* [Leo CLI Documentation](https://developer.aleo.org/developer/cli/new)
+* [Leo ABNF Grammar](./docs/grammar/abnf-grammar.txt)
 * [Homepage](https://developer.aleo.org/developer/getting_started/overview)
 
 ## 5. Contributing
