@@ -102,73 +102,6 @@
 <span id="96">96</span>
 <span id="97">97</span>
 <span id="98">98</span>
-<span id="99">99</span>
-<span id="100">100</span>
-<span id="101">101</span>
-<span id="102">102</span>
-<span id="103">103</span>
-<span id="104">104</span>
-<span id="105">105</span>
-<span id="106">106</span>
-<span id="107">107</span>
-<span id="108">108</span>
-<span id="109">109</span>
-<span id="110">110</span>
-<span id="111">111</span>
-<span id="112">112</span>
-<span id="113">113</span>
-<span id="114">114</span>
-<span id="115">115</span>
-<span id="116">116</span>
-<span id="117">117</span>
-<span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
-<span id="122">122</span>
-<span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
-<span id="127">127</span>
-<span id="128">128</span>
-<span id="129">129</span>
-<span id="130">130</span>
-<span id="131">131</span>
-<span id="132">132</span>
-<span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-<span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -188,10 +121,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::RenameTable</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
 
-<span class="kw">use</span> <span class="ident">leo_ast</span>::{
-    <span class="ident">AssignStatement</span>, <span class="ident">ConditionalStatement</span>, <span class="ident">Expression</span>, <span class="ident">ExpressionReconstructor</span>, <span class="ident">Identifier</span>, <span class="ident">Statement</span>,
-    <span class="ident">StatementReconstructor</span>,
-};
+<span class="kw">use</span> <span class="ident">leo_ast</span>::{<span class="ident">AssignStatement</span>, <span class="ident">Expression</span>, <span class="ident">Identifier</span>, <span class="ident">Statement</span>};
 <span class="kw">use</span> <span class="ident">leo_errors::emitter::Handler</span>;
 <span class="kw">use</span> <span class="ident">leo_span::Symbol</span>;
 
@@ -204,8 +134,6 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">counter</span>: <span class="ident">usize</span>,
     <span class="doccomment">/// A flag to determine whether or not the traversal is on the left-hand side of a definition or an assignment.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">is_lhs</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Phi functions produced by static single assignment.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">phi_functions</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span>,
     <span class="doccomment">/// A stack of condition `Expression`s visited up to the current point in the AST.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">condition_stack</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
     <span class="doccomment">/// A list containing tuples of guards and expressions associated with early `ReturnStatement`s.</span>
@@ -220,7 +148,6 @@
             <span class="ident">_handler</span>: <span class="ident">handler</span>,
             <span class="ident">counter</span>: <span class="number">0</span>,
             <span class="ident">is_lhs</span>: <span class="bool-val">false</span>,
-            <span class="ident">phi_functions</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">condition_stack</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">early_returns</span>: <span class="ident">Vec::new</span>(),
         }
@@ -241,9 +168,19 @@
         }))
     }
 
-    <span class="doccomment">/// Clears the `self.phi_functions`, returning the ones that were previously produced.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">clear_phi_functions</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span> {
-        <span class="ident">core::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">phi_functions</span>)
+    <span class="doccomment">/// Constructs a simple assign statement for `expr` with a unique name.</span>
+    <span class="doccomment">/// For example, `expr` is transformed into `$var$0 = expr;`.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">unique_simple_assign_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">expr</span>: <span class="ident">Expression</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident">Statement</span>) {
+        <span class="comment">// Create a new variable for the expression.</span>
+        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">unique_symbol</span>(<span class="string">&quot;$var&quot;</span>);
+        <span class="kw">let</span> <span class="ident">place</span> <span class="op">=</span> <span class="ident">Expression::Identifier</span>(<span class="ident">Identifier</span> {
+            <span class="ident">name</span>,
+            <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+        });
+        <span class="comment">// Update the rename table.</span>
+        <span class="self">self</span>.<span class="ident">rename_table</span>.<span class="ident">update</span>(<span class="ident">name</span>, <span class="ident">name</span>);
+
+        (<span class="ident">place</span>.<span class="ident">clone</span>(), <span class="ident"><span class="self">Self</span>::simple_assign_statement</span>(<span class="ident">place</span>, <span class="ident">expr</span>))
     }
 
     <span class="doccomment">/// Clears the state associated with `ReturnStatements`, returning the ones that were previously produced.</span>
@@ -261,77 +198,6 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">RenameTable</span> {
         <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">rename_table</span>.<span class="ident">parent</span>.<span class="ident">clone</span>().<span class="ident">unwrap_or_default</span>();
         <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">rename_table</span>, <span class="kw-2">*</span><span class="ident">parent</span>)
-    }
-
-    <span class="doccomment">/// Introduces a new `AssignStatement` for non-trivial expressions in the condition of `ConditionalStatement`s.</span>
-    <span class="doccomment">/// For example,</span>
-    <span class="doccomment">///   - `if x &gt; 0 { x = x + 1 }` becomes `let $cond$0 = x &gt; 0; if $cond$0 { x = x + 1; }`</span>
-    <span class="doccomment">///   - `if true { x = x + 1 }` remains the same.</span>
-    <span class="doccomment">///   - `if b { x = x + 1 }` remains the same.</span>
-    <span class="doccomment">/// And then reconstructs and flattens `ConditionalStatement`.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">flatten_conditional_statement</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">conditional_statement</span>: <span class="ident">ConditionalStatement</span>,
-    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statements</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-
-        <span class="comment">// Reconstruct the `ConditionalStatement`.</span>
-        <span class="kw">let</span> <span class="ident">reconstructed_statement</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">conditional_statement</span>.<span class="ident">condition</span> {
-            <span class="ident">Expression::Err</span>(<span class="kw">_</span>) =&gt; {
-                <span class="macro">unreachable!</span>(<span class="string">&quot;Err expressions should not exist in the AST at this stage of compilation.&quot;</span>)
-            }
-            <span class="ident">Expression::Identifier</span>(..) <span class="op">|</span> <span class="ident">Expression::Literal</span>(..) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_conditional</span>(<span class="ident">conditional_statement</span>),
-            <span class="comment">// If the condition is a complex expression, introduce a new `AssignStatement` for it.</span>
-            <span class="ident">Expression::Access</span>(..)
-            <span class="op">|</span> <span class="ident">Expression::Call</span>(..)
-            <span class="op">|</span> <span class="ident">Expression::Circuit</span>(..)
-            <span class="op">|</span> <span class="ident">Expression::Tuple</span>(..)
-            <span class="op">|</span> <span class="ident">Expression::Binary</span>(..)
-            <span class="op">|</span> <span class="ident">Expression::Unary</span>(..)
-            <span class="op">|</span> <span class="ident">Expression::Ternary</span>(..) =&gt; {
-                <span class="comment">// Create a fresh variable name for the condition.</span>
-                <span class="kw">let</span> <span class="ident">symbol</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">unique_symbol</span>(<span class="string">&quot;$cond$&quot;</span>);
-                <span class="self">self</span>.<span class="ident">rename_table</span>.<span class="ident">update</span>(<span class="ident">symbol</span>, <span class="ident">symbol</span>);
-
-                <span class="comment">// Initialize a new `AssignStatement` for the condition.</span>
-                <span class="kw">let</span> <span class="ident">place</span> <span class="op">=</span> <span class="ident">Expression::Identifier</span>(<span class="ident">Identifier::new</span>(<span class="ident">symbol</span>));
-                <span class="kw">let</span> <span class="ident">assign_statement</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::simple_assign_statement</span>(
-                    <span class="ident">place</span>.<span class="ident">clone</span>(),
-                    <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">conditional_statement</span>.<span class="ident">condition</span>).<span class="number">0</span>,
-                );
-                <span class="kw">let</span> <span class="ident">rewritten_conditional_statement</span> <span class="op">=</span> <span class="ident">ConditionalStatement</span> {
-                    <span class="ident">condition</span>: <span class="ident">place</span>,
-                    <span class="ident">then</span>: <span class="ident">conditional_statement</span>.<span class="ident">then</span>,
-                    <span class="ident">otherwise</span>: <span class="ident">conditional_statement</span>.<span class="ident">otherwise</span>,
-                    <span class="ident">span</span>: <span class="ident">conditional_statement</span>.<span class="ident">span</span>,
-                };
-                <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">assign_statement</span>);
-                <span class="self">self</span>.<span class="ident">reconstruct_conditional</span>(<span class="ident">rewritten_conditional_statement</span>)
-            }
-        };
-
-        <span class="comment">// Flatten the reconstructed `ConditionalStatement`</span>
-        <span class="comment">// by lifting the statements in the &quot;if&quot; and &quot;else&quot; block into their parent block.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conditional_statement</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">reconstructed_statement</span> {
-            <span class="ident">Statement::Conditional</span>(<span class="ident">conditional_statement</span>) =&gt; <span class="ident">conditional_statement</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;`reconstruct_conditional` will always produce a `ConditionalStatement`&quot;</span>),
-        };
-        <span class="ident">statements</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conditional_statement</span>.<span class="ident">then</span>.<span class="ident">statements</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">statement</span>) <span class="op">=</span> <span class="ident">conditional_statement</span>.<span class="ident">otherwise</span> {
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">statement</span> {
-                <span class="comment">// If we encounter a `BlockStatement`,</span>
-                <span class="comment">// we need to lift its constituent statements into the current `BlockStatement`.</span>
-                <span class="ident">Statement::Block</span>(<span class="kw-2">mut</span> <span class="ident">block</span>) =&gt; <span class="ident">statements</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">block</span>.<span class="ident">statements</span>),
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(
-                    <span class="string">&quot;`self.reconstruct_conditional` will always produce a `BlockStatement` in the next block.&quot;</span>
-                ),
-            }
-        }
-
-        <span class="comment">// Add all phi functions to the current block.</span>
-        <span class="ident">statements</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">clear_phi_functions</span>());
-
-        <span class="ident">statements</span>
     }
 }
 </code></pre></div>

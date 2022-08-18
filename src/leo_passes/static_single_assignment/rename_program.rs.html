@@ -108,6 +108,74 @@
 <span id="102">102</span>
 <span id="103">103</span>
 <span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -128,13 +196,15 @@
 <span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
 
 <span class="kw">use</span> <span class="ident">leo_ast</span>::{
-    <span class="ident">Expression</span>, <span class="ident">Function</span>, <span class="ident">ProgramReconstructor</span>, <span class="ident">ReturnStatement</span>, <span class="ident">Statement</span>, <span class="ident">StatementReconstructor</span>, <span class="ident">TernaryExpression</span>,
-    <span class="ident">TupleExpression</span>,
+    <span class="ident">Block</span>, <span class="ident">CircuitExpression</span>, <span class="ident">CircuitVariableInitializer</span>, <span class="ident">Expression</span>, <span class="ident">Function</span>, <span class="ident">FunctionConsumer</span>, <span class="ident">Identifier</span>, <span class="ident">Program</span>,
+    <span class="ident">ProgramConsumer</span>, <span class="ident">ReturnStatement</span>, <span class="ident">Statement</span>, <span class="ident">StatementConsumer</span>, <span class="ident">TernaryExpression</span>, <span class="ident">TupleExpression</span>,
 };
 
-<span class="kw">impl</span> <span class="ident">ProgramReconstructor</span> <span class="kw">for</span> <span class="ident">StaticSingleAssigner</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">FunctionConsumer</span> <span class="kw">for</span> <span class="ident">StaticSingleAssigner</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Function</span>;
+
     <span class="doccomment">/// Reconstructs the `Function`s in the `Program`, while allocating the appropriate `RenameTable`s.</span>
-    <span class="kw">fn</span> <span class="ident">reconstruct_function</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">function</span>: <span class="ident">Function</span>) -&gt; <span class="ident">Function</span> {
+    <span class="kw">fn</span> <span class="ident">consume_function</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">function</span>: <span class="ident">Function</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="comment">// Allocate a `RenameTable` for the function.</span>
         <span class="self">self</span>.<span class="ident">push</span>();
 
@@ -145,7 +215,7 @@
                 .<span class="ident">update</span>(<span class="ident">input_variable</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">input_variable</span>.<span class="ident">identifier</span>.<span class="ident">name</span>);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">function</span>.<span class="ident">block</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statements</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_block</span>(<span class="ident">function</span>.<span class="ident">block</span>);
 
         <span class="comment">// Add the `ReturnStatement` to the end of the block.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">returns</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clear_early_returns</span>();
@@ -153,7 +223,27 @@
         <span class="comment">// Type checking guarantees that there exists at least one return statement in the function body.</span>
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">last_return_expression</span>) <span class="op">=</span> <span class="ident">returns</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
 
-        <span class="comment">// Fold all return expressions into a single ternary expression.</span>
+        <span class="comment">// Produce a chain of ternary expressions and assignments for the set of early returns.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmts</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">returns</span>.<span class="ident">len</span>());
+
+        <span class="comment">// Helper to construct and store ternary assignments. e.g `$ret$0 = $var$0 ? $var$1 : $var$2`</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">construct_ternary_assignment</span> <span class="op">=</span> <span class="op">|</span><span class="ident">guard</span>: <span class="ident">Expression</span>, <span class="ident">if_true</span>: <span class="ident">Expression</span>, <span class="ident">if_false</span>: <span class="ident">Expression</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">place</span> <span class="op">=</span> <span class="ident">Expression::Identifier</span>(<span class="ident">Identifier</span> {
+                <span class="ident">name</span>: <span class="self">self</span>.<span class="ident">unique_symbol</span>(<span class="string">&quot;$ret&quot;</span>),
+                <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+            });
+            <span class="ident">stmts</span>.<span class="ident">push</span>(<span class="ident"><span class="self">Self</span>::simple_assign_statement</span>(
+                <span class="ident">place</span>.<span class="ident">clone</span>(),
+                <span class="ident">Expression::Ternary</span>(<span class="ident">TernaryExpression</span> {
+                    <span class="ident">condition</span>: <span class="ident">Box::new</span>(<span class="ident">guard</span>),
+                    <span class="ident">if_true</span>: <span class="ident">Box::new</span>(<span class="ident">if_true</span>),
+                    <span class="ident">if_false</span>: <span class="ident">Box::new</span>(<span class="ident">if_false</span>),
+                    <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                }),
+            ));
+            <span class="ident">place</span>
+        };
+
         <span class="kw">let</span> <span class="ident">expression</span> <span class="op">=</span> <span class="ident">returns</span>
             .<span class="ident">into_iter</span>()
             .<span class="ident">rev</span>()
@@ -170,30 +260,53 @@
                                 .<span class="ident">into_iter</span>()
                                 .<span class="ident">zip_eq</span>(<span class="ident">acc_tuple</span>.<span class="ident">elements</span>.<span class="ident">into_iter</span>())
                                 .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">if_true</span>, <span class="ident">if_false</span>)<span class="op">|</span> {
-                                    <span class="ident">Expression::Ternary</span>(<span class="ident">TernaryExpression</span> {
-                                        <span class="ident">condition</span>: <span class="ident">Box::new</span>(<span class="ident">guard</span>.<span class="ident">clone</span>()),
-                                        <span class="ident">if_true</span>: <span class="ident">Box::new</span>(<span class="ident">if_true</span>),
-                                        <span class="ident">if_false</span>: <span class="ident">Box::new</span>(<span class="ident">if_false</span>),
-                                        <span class="ident">span</span>: <span class="ident">Default::default</span>(),
-                                    })
+                                    <span class="ident">construct_ternary_assignment</span>(<span class="ident">guard</span>.<span class="ident">clone</span>(), <span class="ident">if_true</span>, <span class="ident">if_false</span>)
                                 })
                                 .<span class="ident">collect</span>(),
                             <span class="ident">span</span>: <span class="ident">Default::default</span>(),
                         })
                     }
+                    <span class="comment">// If the function returns circuits, fold the return expressions into a circuit of ternary expressions.</span>
+                    <span class="comment">// Note that `expr` and `acc` are correspond to the `if` and `else` cases of the ternary expression respectively.</span>
+                    (<span class="ident">Expression::Circuit</span>(<span class="ident">expr_circuit</span>), <span class="ident">Expression::Circuit</span>(<span class="ident">acc_circuit</span>)) =&gt; {
+                        <span class="ident">Expression::Circuit</span>(<span class="ident">CircuitExpression</span> {
+                            <span class="ident">name</span>: <span class="ident">acc_circuit</span>.<span class="ident">name</span>,
+                            <span class="ident">span</span>: <span class="ident">acc_circuit</span>.<span class="ident">span</span>,
+                            <span class="ident">members</span>: <span class="ident">expr_circuit</span>
+                                .<span class="ident">members</span>
+                                .<span class="ident">into_iter</span>()
+                                .<span class="ident">zip_eq</span>(<span class="ident">acc_circuit</span>.<span class="ident">members</span>.<span class="ident">into_iter</span>())
+                                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">if_true</span>, <span class="ident">if_false</span>)<span class="op">|</span> {
+                                    <span class="kw">let</span> <span class="ident">expression</span> <span class="op">=</span> <span class="ident">construct_ternary_assignment</span>(
+                                        <span class="ident">guard</span>.<span class="ident">clone</span>(),
+                                        <span class="kw">match</span> <span class="ident">if_true</span>.<span class="ident">expression</span> {
+                                            <span class="prelude-val">None</span> =&gt; <span class="ident">Expression::Identifier</span>(<span class="ident">if_true</span>.<span class="ident">identifier</span>),
+                                            <span class="prelude-val">Some</span>(<span class="ident">expr</span>) =&gt; <span class="ident">expr</span>,
+                                        },
+                                        <span class="kw">match</span> <span class="ident">if_false</span>.<span class="ident">expression</span> {
+                                            <span class="prelude-val">None</span> =&gt; <span class="ident">Expression::Identifier</span>(<span class="ident">if_false</span>.<span class="ident">identifier</span>),
+                                            <span class="prelude-val">Some</span>(<span class="ident">expr</span>) =&gt; <span class="ident">expr</span>,
+                                        },
+                                    );
+                                    <span class="ident">CircuitVariableInitializer</span> {
+                                        <span class="ident">identifier</span>: <span class="ident">if_true</span>.<span class="ident">identifier</span>,
+                                        <span class="ident">expression</span>: <span class="prelude-val">Some</span>(<span class="ident">expression</span>),
+                                    }
+                                })
+                                .<span class="ident">collect</span>(),
+                        })
+                    }
                     <span class="comment">// Otherwise, fold the return expressions into a single ternary expression.</span>
                     <span class="comment">// Note that `expr` and `acc` are correspond to the `if` and `else` cases of the ternary expression respectively.</span>
-                    (<span class="ident">expr</span>, <span class="ident">acc</span>) =&gt; <span class="ident">Expression::Ternary</span>(<span class="ident">TernaryExpression</span> {
-                        <span class="ident">condition</span>: <span class="ident">Box::new</span>(<span class="ident">guard</span>),
-                        <span class="ident">if_true</span>: <span class="ident">Box::new</span>(<span class="ident">expr</span>),
-                        <span class="ident">if_false</span>: <span class="ident">Box::new</span>(<span class="ident">acc</span>),
-                        <span class="ident">span</span>: <span class="ident">Default::default</span>(),
-                    }),
+                    (<span class="ident">expr</span>, <span class="ident">acc</span>) =&gt; <span class="ident">construct_ternary_assignment</span>(<span class="ident">guard</span>, <span class="ident">expr</span>, <span class="ident">acc</span>),
                 },
             });
 
+        <span class="comment">// Add all of the accumulated statements to the end of the block.</span>
+        <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">stmts</span>);
+
         <span class="comment">// Add the `ReturnStatement` to the end of the block.</span>
-        <span class="ident">block</span>.<span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">Statement::Return</span>(<span class="ident">ReturnStatement</span> {
+        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">Statement::Return</span>(<span class="ident">ReturnStatement</span> {
             <span class="ident">expression</span>,
             <span class="ident">span</span>: <span class="ident">Default::default</span>(),
         }));
@@ -207,8 +320,31 @@
             <span class="ident">input</span>: <span class="ident">function</span>.<span class="ident">input</span>,
             <span class="ident">output</span>: <span class="ident">function</span>.<span class="ident">output</span>,
             <span class="ident">core_mapping</span>: <span class="ident">function</span>.<span class="ident">core_mapping</span>,
-            <span class="ident">block</span>,
+            <span class="ident">block</span>: <span class="ident">Block</span> {
+                <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                <span class="ident">statements</span>,
+            },
             <span class="ident">span</span>: <span class="ident">function</span>.<span class="ident">span</span>,
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">ProgramConsumer</span> <span class="kw">for</span> <span class="ident">StaticSingleAssigner</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Program</span>;
+
+    <span class="kw">fn</span> <span class="ident">consume_program</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Program</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
+        <span class="ident">Program</span> {
+            <span class="ident">name</span>: <span class="ident">input</span>.<span class="ident">name</span>,
+            <span class="ident">network</span>: <span class="ident">input</span>.<span class="ident">network</span>,
+            <span class="ident">expected_input</span>: <span class="ident">input</span>.<span class="ident">expected_input</span>,
+            <span class="comment">// TODO: Do inputs need to be processed? They are not processed in the existing compiler.</span>
+            <span class="ident">imports</span>: <span class="ident">input</span>.<span class="ident">imports</span>,
+            <span class="ident">functions</span>: <span class="ident">input</span>
+                .<span class="ident">functions</span>
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">f</span>)<span class="op">|</span> (<span class="ident">i</span>, <span class="self">self</span>.<span class="ident">consume_function</span>(<span class="ident">f</span>)))
+                .<span class="ident">collect</span>(),
+            <span class="ident">circuits</span>: <span class="ident">input</span>.<span class="ident">circuits</span>,
         }
     }
 }

@@ -79,6 +79,7 @@
 <span id="73">73</span>
 <span id="74">74</span>
 <span id="75">75</span>
+<span id="76">76</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -99,6 +100,7 @@
 <span class="doccomment">//! See https://en.wikipedia.org/wiki/Static_single-assignment_form for more information.</span>
 <span class="doccomment">//! The pass also flattens `ConditionalStatement`s into a sequence of `AssignStatement`s.</span>
 <span class="doccomment">//! The pass also rewrites `ReturnStatement`s into `AssignStatement`s and consolidates the returned values as a single `ReturnStatement` at the end of the function.</span>
+<span class="doccomment">//! The pass also simplifies complex expressions into a sequence of `AssignStatement`s. For example, `(a + b) * c` is rewritten into `$var$1 = a + b; $var$2 = $var$1 * c`.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Consider the following Leo code.</span>
 <span class="doccomment">//! ```leo</span>
@@ -139,7 +141,7 @@
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Pass</span>;
 
-<span class="kw">use</span> <span class="ident">leo_ast</span>::{<span class="ident">Ast</span>, <span class="ident">ProgramReconstructor</span>};
+<span class="kw">use</span> <span class="ident">leo_ast</span>::{<span class="ident">Ast</span>, <span class="ident">ProgramConsumer</span>};
 <span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">emitter::Handler</span>, <span class="prelude-ty">Result</span>};
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Pass</span> <span class="kw">for</span> <span class="ident">StaticSingleAssigner</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
@@ -147,8 +149,8 @@
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Ast</span><span class="op">&gt;</span>;
 
     <span class="kw">fn</span> <span class="ident">do_pass</span>((<span class="ident">ast</span>, <span class="ident">handler</span>): <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reconstructor</span> <span class="op">=</span> <span class="ident">StaticSingleAssigner::new</span>(<span class="ident">handler</span>);
-        <span class="kw">let</span> <span class="ident">program</span> <span class="op">=</span> <span class="ident">reconstructor</span>.<span class="ident">reconstruct_program</span>(<span class="ident">ast</span>.<span class="ident">into_repr</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">consumer</span> <span class="op">=</span> <span class="ident">StaticSingleAssigner::new</span>(<span class="ident">handler</span>);
+        <span class="kw">let</span> <span class="ident">program</span> <span class="op">=</span> <span class="ident">consumer</span>.<span class="ident">consume_program</span>(<span class="ident">ast</span>.<span class="ident">into_repr</span>());
         <span class="ident">handler</span>.<span class="ident">last_err</span>()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="ident">Ast::new</span>(<span class="ident">program</span>))
