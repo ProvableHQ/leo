@@ -36,9 +36,8 @@
 integrate private applications into your stack. Leo compiles to circuits making zero-knowledge proofs practical.</p>
 <p>The syntax of Leo is influenced by traditional programming languages like JavaScript, Scala, and Rust, with a strong emphasis on readability and ease-of-use.
 Leo offers developers with tools to sanity check circuits including unit tests, integration tests, and console functions.</p>
-<p>Leo is one part of a greater ecosystem for building private applications on <a href="https://aleo.org/">Aleo</a>. If your goal is to build a user experience
-on the web that is both truly personal and truly private, then we recommend downloading the <a href="https://aleo.studio/">Aleo Studio IDE</a>
-and checking out the <a href="https://aleo.pm/">Aleo Package Manager</a>.</p>
+<p>Leo is one part of a greater ecosystem for building private applications on <a href="https://aleo.org/">Aleo</a>. 
+The language is currently in an alpha stage and is subject to breaking changes.</p>
 <h3 id="2-build-guide"><a href="#2-build-guide">2. Build Guide</a></h3><h4 id="21-install-rust"><a href="#21-install-rust">2.1 Install Rust</a></h4>
 <p>We recommend installing Rust using <a href="https://www.rustup.rs/">rustup</a>. You can install <code>rustup</code> as follows:</p>
 <ul>
@@ -54,12 +53,8 @@ and checking out the <a href="https://aleo.pm/">Aleo Package Manager</a>.</p>
 <p>Download the <a href="https://win.rustup.rs/i686">Windows 32-bit executable</a> and follow the on-screen instructions.</p>
 </li>
 </ul>
-<h4 id="22a-build-from-cratesio"><a href="#22a-build-from-cratesio">2.2a Build from Crates.io</a></h4>
-<p>We recommend installing Leo this way. In your terminal, run:</p>
-<div class="example-wrap"><pre class="language-bash"><code>cargo install leo-lang</code></pre></div>
-<p>Now to use Leo, in your terminal, run:</p>
-<div class="example-wrap"><pre class="language-bash"><code>leo</code></pre></div><h4 id="22b-build-from-source-code"><a href="#22b-build-from-source-code">2.2b Build from Source Code</a></h4>
-<p>Alternatively, you can install Leo by building from the source code as follows:</p>
+<h4 id="22-build-from-source-code"><a href="#22-build-from-source-code">2.2 Build from Source Code</a></h4>
+<p>We recommend installing Leo by building from the source code as follows:</p>
 <div class="example-wrap"><pre class="language-bash"><code>git clone https://github.com/AleoHQ/leo
 cd leo
 
@@ -67,19 +62,18 @@ $ cargo build --release</code></pre></div>
 <p>This will generate an executable under the <code>./target/release</code> directory. To run Leo, run the following command:</p>
 <div class="example-wrap"><pre class="language-bash"><code>./target/release/leo</code></pre></div><h3 id="3-quick-start"><a href="#3-quick-start">3. Quick Start</a></h3>
 <p>Use the Leo CLI to create a new project</p>
-<div class="example-wrap"><pre class="language-bash"><code>leo new hello-world
-cd hello-world
+<div class="example-wrap"><pre class="language-bash"><code>leo new helloworld
+cd helloworld
 
 leo run</code></pre></div>
 <p>The <code>leo new</code> command creates a new Leo project with a given name.</p>
-<p>The <code>leo run</code> command will compile the main program, generate keys for a trusted setup, fetch inputs, generate a proof and verify it.</p>
+<p>The <code>leo run</code> command will compile the program into Aleo instructions and run it.</p>
 <p>Congratulations! You’ve just run your first Leo program.</p>
 <h3 id="4-documentation"><a href="#4-documentation">4. Documentation</a></h3>
 <ul>
 <li><a href="https://developer.aleo.org/developer/getting_started/hello_world">Hello World - Next Steps</a></li>
 <li><a href="https://developer.aleo.org/developer/language/layout">Leo Language Documentation</a></li>
-<li><a href="./grammar/README.md">Leo ABNF Grammar</a></li>
-<li><a href="https://developer.aleo.org/developer/cli/new">Leo CLI Documentation</a></li>
+<li><a href="./docs/grammar/abnf-grammar.txt">Leo ABNF Grammar</a></li>
 <li><a href="https://developer.aleo.org/developer/getting_started/overview">Homepage</a></li>
 </ul>
 <h3 id="5-contributing"><a href="#5-contributing">5. Contributing</a></h3>
