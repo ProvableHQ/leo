@@ -34,8 +34,8 @@ pub struct Run {
     #[structopt(name = "NAME", help = "The name of the program to run.", default_value = "main")]
     name: String,
 
-    #[structopt(long = "skip-key-check", help = "Skip key verification on Setup stage")]
-    pub(crate) skip_key_check: bool,
+    #[structopt(name = "INPUTS", help = "The inputs to the program.", default_value = "")]
+    inputs: Vec<String>,
 
     #[structopt(flatten)]
     pub(crate) compiler_options: BuildOptions,
