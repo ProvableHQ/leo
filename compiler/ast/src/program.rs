@@ -17,9 +17,10 @@
 //! A Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of ast statements and expressions.
 
-use crate::{Circuit, Function, FunctionInput, Identifier};
+use crate::{Circuit, Function, FunctionInput};
 
 use indexmap::IndexMap;
+use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -34,11 +35,11 @@ pub struct Program {
     /// Empty after parsing.
     pub expected_input: Vec<FunctionInput>,
     /// A map from import names to import definitions.
-    pub imports: IndexMap<Identifier, Program>,
+    pub imports: IndexMap<Symbol, Program>,
     /// A map from circuit names to circuit definitions.
-    pub circuits: IndexMap<Identifier, Circuit>,
+    pub circuits: IndexMap<Symbol, Circuit>,
     /// A map from function names to function definitions.
-    pub functions: IndexMap<Identifier, Function>,
+    pub functions: IndexMap<Symbol, Function>,
 }
 
 impl fmt::Display for Program {

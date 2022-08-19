@@ -27,20 +27,21 @@ pub use check_statements::*;
 pub mod checker;
 pub use checker::*;
 
-use crate::{Pass, SymbolTable};
+use crate::{DiGraph, Pass, SymbolTable};
 
 use leo_ast::{Ast, ProgramVisitor};
 use leo_errors::{emitter::Handler, Result};
+use leo_span::Symbol;
 
 impl<'a> Pass for TypeChecker<'a> {
     type Input = (&'a Ast, &'a Handler, SymbolTable);
-    type Output = Result<SymbolTable>;
+    type Output = Result<(SymbolTable, DiGraph<Symbol>)>;
 
     fn do_pass((ast, handler, st): Self::Input) -> Self::Output {
         let mut visitor = TypeChecker::new(st, handler);
         visitor.visit_program(ast.as_repr());
         handler.last_err()?;
 
-        Ok(visitor.symbol_table.take())
+        Ok((visitor.symbol_table.take(), visitor.call_graph))
     }
 }

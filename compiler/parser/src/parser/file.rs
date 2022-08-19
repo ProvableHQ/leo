@@ -18,8 +18,8 @@ use super::*;
 use crate::parse_ast;
 use leo_errors::{CompilerError, ParserError, ParserWarning, Result};
 use leo_span::source_map::FileName;
-use leo_span::sym;
 use leo_span::symbol::with_session_globals;
+use leo_span::{sym, Symbol};
 
 use std::fs;
 
@@ -80,7 +80,7 @@ impl ParserContext<'_> {
     }
 
     /// Parses an import statement `import foo.leo;`.
-    pub(super) fn parse_import(&mut self) -> Result<(Identifier, Program)> {
+    pub(super) fn parse_import(&mut self) -> Result<(Symbol, Program)> {
         // Parse `import`.
         let _start = self.expect(&Token::Import)?;
 
@@ -123,7 +123,7 @@ impl ParserContext<'_> {
         // Use the parser to construct the imported abstract syntax tree (ast).
         let program_ast = parse_ast(self.handler, &prg_sf.src, prg_sf.start_pos)?;
 
-        Ok((import_name, program_ast.into_repr()))
+        Ok((import_name.name, program_ast.into_repr()))
     }
 
     /// Returns a [`Vec<CircuitMember>`] AST node if the next tokens represent a circuit member variable
@@ -214,7 +214,7 @@ impl ParserContext<'_> {
     }
 
     /// Parses a circuit or record definition, e.g., `circit Foo { ... }` or `record Foo { ... }`.
-    pub(super) fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
+    pub(super) fn parse_circuit(&mut self) -> Result<(Symbol, Circuit)> {
         let is_record = matches!(&self.token.token, Token::Record);
         let start = self.expect_any(&[Token::Circuit, Token::Record])?;
         let circuit_name = self.expect_identifier()?;
@@ -223,7 +223,7 @@ impl ParserContext<'_> {
         let (members, end) = self.parse_circuit_members()?;
 
         Ok((
-            circuit_name,
+            circuit_name.name,
             Circuit {
                 identifier: circuit_name,
                 members,
@@ -296,7 +296,7 @@ impl ParserContext<'_> {
 
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
-    fn parse_function(&mut self) -> Result<(Identifier, Function)> {
+    fn parse_function(&mut self) -> Result<(Symbol, Function)> {
         // TODO: Handle dangling annotations.
         // TODO: Handle duplicate annotations.
         // Parse annotations, if they exist.
@@ -321,7 +321,7 @@ impl ParserContext<'_> {
         let block = self.parse_block()?;
 
         Ok((
-            name,
+            name.name,
             Function {
                 annotations,
                 identifier: name,

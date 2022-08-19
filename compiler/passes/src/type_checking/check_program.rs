@@ -35,7 +35,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // TODO: Improve error message to provide a path associated with the cycle.
         // Check that the type dependency graph does not contain any cycle.
-        if self.type_graph.contains_cycle() {
+        if self.type_graph.topological_sort().is_err() {
             self.emit_err(TypeCheckerError::recursive_type());
         }
 
@@ -47,7 +47,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // TODO: Improve error message to provide a path associated with the cycle.
         // Check that the call graph does not contain any cycle.
-        if self.call_graph.contains_cycle() {
+        if self.call_graph.topological_sort().is_err() {
             self.emit_err(TypeCheckerError::recursive_function())
         }
 

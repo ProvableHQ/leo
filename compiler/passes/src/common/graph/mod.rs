@@ -25,6 +25,13 @@ pub trait Node: Copy + 'static + Eq + PartialEq + Debug + Hash {}
 
 impl Node for Symbol {}
 
+/// Errors in graph operations.
+#[derive(Debug)]
+pub enum GraphError {
+    /// A cycle was detected in the graph.
+    CycleDetected,
+}
+
 /// A directed graph.
 #[derive(Debug)]
 pub struct DiGraph<N: Node> {
@@ -61,7 +68,7 @@ impl<N: Node> DiGraph<N> {
     }
 
     /// Detects if there is a cycle in the graph.
-    pub fn contains_cycle(&self) -> bool {
+    pub fn topological_sort(&self) -> Result<IndexSet<N>, GraphError> {
         // The set of nodes that do not need to be visited again.
         let mut finished: IndexSet<N> = IndexSet::with_capacity(self.nodes.len());
         // The set of nodes that are on the path to the current node in the search.
@@ -75,14 +82,15 @@ impl<N: Node> DiGraph<N> {
                 && self.contains_cycle_from(*node, &mut discovered, &mut finished)
             {
                 // A cycle was found.
-                return true;
+                return Err(GraphError::CycleDetected);
             }
         }
-        // No cycle was found.
-        false
+        // No cycle was found. Return the set of nodes in topological order.
+        Ok(finished)
     }
 
     // Detects if there is a cycle in the graph starting from the given node, via a recursive depth-first search.
+    // Nodes are added to to `finished` in topological order.
     fn contains_cycle_from(&self, node: N, discovered: &mut IndexSet<N>, finished: &mut IndexSet<N>) -> bool {
         // Add the node to the set of discovered nodes.
         discovered.insert(node);

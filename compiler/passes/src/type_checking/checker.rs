@@ -29,11 +29,6 @@ pub struct TypeChecker<'a> {
     pub(crate) handler: &'a Handler,
     pub(crate) parent: Option<Symbol>,
     pub(crate) has_return: bool,
-    /// Are we traversing a program function?
-    /// A "program function" is a function that can be invoked by a user or another program.
-    pub(crate) is_program_function: bool,
-    /// Does this function need to be inlined?
-    pub(crate) is_inlined: bool,
     /// Are we traversing a function, if so, what is its call type?
     /// Is it a program function, helper function, or inlined function?
     pub(crate) function: Option<(Symbol, CallType)>,
@@ -111,8 +106,6 @@ impl<'a> TypeChecker<'a> {
             handler,
             parent: None,
             has_return: false,
-            is_program_function: false,
-            is_inlined: false,
             function: None,
             call_graph: DiGraph::new(function_names),
             type_graph: DiGraph::new(circuit_names),

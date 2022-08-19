@@ -15,38 +15,47 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Inliner;
-use std::cell::RefCell;
 
-use leo_ast::{Function, ProgramReconstructor, StatementReconstructor};
+use leo_ast::{Program, ProgramReconstructor};
+
+use indexmap::IndexMap;
 
 impl ProgramReconstructor for Inliner<'_> {
-    fn reconstruct_function(&mut self, function: Function) -> Function {
-        let function_name = function.name();
+    fn reconstruct_program(&mut self, program: Program) -> Program {
+        // Get the original order of the functions. This is necessary to preserve the original order of the functions in the program.
+        let function_names = program.functions.keys().cloned().collect::<Vec<_>>();
+        // Store the functions for lookup.
+        self.functions = program.functions;
 
-        // Grab the function scope.
-        let prev_st = std::mem::take(&mut self.symbol_table);
-        self.symbol_table
-            .swap(prev_st.borrow().lookup_fn_scope(function_name).unwrap());
-        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
-        // Set the current block scope index to 0
-        self.block_index = 0;
+        // Get the topological order of the call graph.
+        // TODO: This function has already been called in type checking. Reorganize once passes are toggleable.
+        let topological_order = self.call_graph.topological_sort().unwrap();
 
-        // Reconstruct the function block.
-        let reconstructed_function = Function {
-            annotations: function.annotations,
-            identifier: function.identifier,
-            input: function.input,
-            output: function.output,
-            core_mapping: function.core_mapping,
-            block: self.reconstruct_block(function.block),
-            span: function.span,
-        };
+        // Inline the functions in the reverse topological order.
+        // Inlining in reverse topological order ensures that all callee functions have been inlined before the caller function is inlined.
+        for function_name in topological_order.iter().rev() {
+            // Note that this unwrap is safe since type checking guarantees that the function exists.
+            let function = self.functions.remove(function_name).unwrap();
+            // Inline the function calls.
+            let inlined_function = self.reconstruct_function(function);
+            // Insert the function back in the map.
+            self.functions.insert(*function_name, inlined_function);
+        }
 
-        // Pop back to parent scope.
-        let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        self.symbol_table.swap(prev_st.lookup_fn_scope(function_name).unwrap());
-        self.symbol_table = RefCell::new(prev_st);
+        // Rearrange the functions in the original order.
+        let mut functions = IndexMap::new();
+        for name in function_names {
+            // Note that the unwrap is safe since `self.functions` contains all functions in the program.
+            functions.insert(name, self.functions.remove(&name).unwrap());
+        }
 
-        reconstructed_function
+        Program {
+            name: program.name,
+            network: program.network,
+            expected_input: program.expected_input,
+            imports: program.imports,
+            circuits: program.circuits,
+            functions,
+        }
     }
 }

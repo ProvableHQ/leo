@@ -26,6 +26,7 @@ use leo_passes::*;
 use leo_span::source_map::FileName;
 use leo_span::symbol::with_session_globals;
 
+use leo_span::Symbol;
 use sha2::{Digest, Sha256};
 use std::fs;
 use std::path::PathBuf;
@@ -148,20 +149,19 @@ impl<'a> Compiler<'a> {
     }
 
     /// Runs the type checker pass.
-    pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<SymbolTable> {
+    pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<(SymbolTable, DiGraph<Symbol>)> {
         TypeChecker::do_pass((&self.ast, self.handler, symbol_table))
     }
 
     /// Runs the function inlining pass.
-    pub fn function_inlining_pass(&mut self, symbol_table: SymbolTable) -> Result<SymbolTable> {
-        let (ast, symbol_table) = Inliner::do_pass((std::mem::take(&mut self.ast), self.handler, symbol_table))?;
-        self.ast = ast;
+    pub fn function_inlining_pass(&mut self, call_graph: &DiGraph<Symbol>) -> Result<()> {
+        self.ast = Inliner::do_pass((std::mem::take(&mut self.ast), self.handler, call_graph))?;
 
         if self.output_options.inlined_ast {
             self.write_ast_to_json("inlined_ast.json")?;
         }
 
-        Ok(symbol_table)
+        Ok(())
     }
 
     /// Runs the loop unrolling pass.
@@ -190,16 +190,16 @@ impl<'a> Compiler<'a> {
     /// Runs the compiler stages.
     pub fn compiler_stages(&mut self) -> Result<SymbolTable> {
         let st = self.symbol_table_pass()?;
-        let st = self.type_checker_pass(st)?;
-
-        // TODO: Make this pass optional.
-        let st = self.function_inlining_pass(st)?;
+        let (st, call_graph) = self.type_checker_pass(st)?;
 
         // TODO: Make this pass optional.
         let st = self.loop_unrolling_pass(st)?;
 
         // TODO: Make this pass optional.
         self.static_single_assignment_pass()?;
+
+        // TODO: Make this pass optional.
+        self.function_inlining_pass(&call_graph)?;
 
         Ok(st)
     }

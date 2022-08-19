@@ -16,11 +16,11 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{Circuit, CircuitMember, Function, Identifier, Program};
+use leo_ast::{Circuit, CircuitMember, Function, Program};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
-use leo_span::sym;
+use leo_span::{sym, Symbol};
 use std::fmt::Write as _;
 
 impl<'a> CodeGenerator<'a> {
@@ -34,7 +34,7 @@ impl<'a> CodeGenerator<'a> {
                 &input
                     .imports
                     .iter()
-                    .map(|(identifier, imported_program)| self.visit_import(identifier, imported_program))
+                    .map(|(name, imported_program)| self.visit_import(*name, imported_program))
                     .join("\n"),
             );
 
@@ -96,7 +96,7 @@ impl<'a> CodeGenerator<'a> {
         program_string
     }
 
-    fn visit_import(&mut self, import_name: &'a Identifier, import_program: &'a Program) -> String {
+    fn visit_import(&mut self, import_name: Symbol, import_program: &'a Program) -> String {
         // Load symbols into composite mapping.
         let _import_program_string = self.visit_program(import_program);
         // todo: We do not need the import program string because we generate instructions for imports separately during leo build.

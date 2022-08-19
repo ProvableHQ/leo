@@ -14,27 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::SymbolTable;
+use crate::DiGraph;
 
+use leo_ast::Function;
 use leo_errors::emitter::Handler;
+use leo_span::Symbol;
 
-use std::cell::RefCell;
+use indexmap::IndexMap;
 
 pub struct Inliner<'a> {
-    /// The symbol table for the function being processed.
-    pub(crate) symbol_table: RefCell<SymbolTable>,
-    /// The index of the current block scope.
-    pub(crate) block_index: usize,
     /// An error handler used for any errors found during unrolling.
     pub(crate) _handler: &'a Handler,
+    /// The call graph of the program.
+    pub(crate) call_graph: &'a DiGraph<Symbol>,
+    /// The functions in the program.
+    pub(crate) functions: IndexMap<Symbol, Function>,
 }
 
 impl<'a> Inliner<'a> {
-    pub(crate) fn new(symbol_table: SymbolTable, _handler: &'a Handler) -> Self {
+    pub(crate) fn new(_handler: &'a Handler, call_graph: &'a DiGraph<Symbol>) -> Self {
         Self {
-            symbol_table: RefCell::new(symbol_table),
-            block_index: 0,
             _handler,
+            call_graph,
+            functions: Default::default(),
         }
     }
 }

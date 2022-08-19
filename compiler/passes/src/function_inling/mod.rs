@@ -14,12 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Pass, SymbolTable};
-
-use leo_ast::{Ast, ProgramReconstructor};
-use leo_errors::emitter::Handler;
-use leo_errors::Result;
-
 pub mod inliner;
 pub use inliner::*;
 
@@ -32,15 +26,22 @@ pub use inline_program::*;
 pub mod inline_statement;
 pub use inline_statement::*;
 
-impl<'a> Pass for Inliner<'a> {
-    type Input = (Ast, &'a Handler, SymbolTable);
-    type Output = Result<(Ast, SymbolTable)>;
+use crate::{DiGraph, Pass};
 
-    fn do_pass((ast, handler, st): Self::Input) -> Self::Output {
-        let mut reconstructor = Self::new(st, handler);
+use leo_ast::{Ast, ProgramReconstructor};
+use leo_errors::emitter::Handler;
+use leo_errors::Result;
+use leo_span::Symbol;
+
+impl<'a> Pass for Inliner<'a> {
+    type Input = (Ast, &'a Handler, &'a DiGraph<Symbol>);
+    type Output = Result<Ast>;
+
+    fn do_pass((ast, handler, call_graph): Self::Input) -> Self::Output {
+        let mut reconstructor = Self::new(handler, call_graph);
         let program = reconstructor.reconstruct_program(ast.into_repr());
         handler.last_err()?;
 
-        Ok((Ast::new(program), reconstructor.symbol_table.take()))
+        Ok(Ast::new(program))
     }
 }
