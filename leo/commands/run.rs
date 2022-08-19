@@ -34,7 +34,7 @@ pub struct Run {
     #[structopt(name = "NAME", help = "The name of the program to run.", default_value = "main")]
     name: String,
 
-    #[structopt(name = "INPUTS", help = "The inputs to the program.")]
+    #[structopt(name = "INPUTS", help = "The inputs to the program. If none are provided, the input file is used.")]
     inputs: Vec<String>,
 
     #[structopt(flatten)]
