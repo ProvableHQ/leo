@@ -289,12 +289,6 @@
 <span id="283">283</span>
 <span id="284">284</span>
 <span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -353,12 +347,6 @@
     <span class="kw">pub</span> <span class="ident">enable_unrolled_ast_snapshot</span>: <span class="ident">bool</span>,
     <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Writes AST snapshot of the SSA AST.&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">enable_ssa_ast_snapshot</span>: <span class="ident">bool</span>,
-    <span class="comment">// Note: This is currently made optional since code generation is just a prototype.</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(
-        <span class="ident">long</span>,
-        <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Runs the code generation stage of the compiler and prints the resulting bytecode.&quot;</span>
-    )]</span>
-    <span class="kw">pub</span> <span class="ident">enable_code_generation</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">BuildOptions</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OutputOptions</span> {
