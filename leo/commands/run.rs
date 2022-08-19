@@ -34,7 +34,7 @@ pub struct Run {
     #[structopt(name = "NAME", help = "The name of the program to run.", default_value = "main")]
     name: String,
 
-    #[structopt(name = "INPUTS", help = "The inputs to the program.", default_value = "")]
+    #[structopt(name = "INPUTS", help = "The inputs to the program.")]
     inputs: Vec<String>,
 
     #[structopt(flatten)]
@@ -57,10 +57,14 @@ impl Command for Run {
     }
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
-        // Get the input values.
-        let mut inputs = match input {
-            (Some(input_ast), circuits) => input_ast.program_inputs(&self.name, circuits),
-            _ => Vec::new(),
+        // If input values are provided, then run the program with those inputs.
+        // Otherwise, use the input file.
+        let mut inputs = match self.inputs.is_empty() {
+            true => match input {
+                (Some(input_ast), circuits) => input_ast.program_inputs(&self.name, circuits),
+                _ => Vec::new(),
+            },
+            false => self.inputs,
         };
 
         // Compose the `aleo run` command.
