@@ -56,12 +56,6 @@ pub struct BuildOptions {
     pub enable_unrolled_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot of the SSA AST.")]
     pub enable_ssa_ast_snapshot: bool,
-    // Note: This is currently made optional since code generation is just a prototype.
-    #[structopt(
-        long,
-        help = "Runs the code generation stage of the compiler and prints the resulting bytecode."
-    )]
-    pub enable_code_generation: bool,
 }
 
 impl From<BuildOptions> for OutputOptions {

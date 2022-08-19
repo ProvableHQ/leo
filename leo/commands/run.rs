@@ -34,8 +34,11 @@ pub struct Run {
     #[structopt(name = "NAME", help = "The name of the program to run.", default_value = "main")]
     name: String,
 
-    #[structopt(long = "skip-key-check", help = "Skip key verification on Setup stage")]
-    pub(crate) skip_key_check: bool,
+    #[structopt(
+        name = "INPUTS",
+        help = "The inputs to the program. If none are provided, the input file is used."
+    )]
+    inputs: Vec<String>,
 
     #[structopt(flatten)]
     pub(crate) compiler_options: BuildOptions,
@@ -57,10 +60,14 @@ impl Command for Run {
     }
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
-        // Get the input values.
-        let mut inputs = match input {
-            (Some(input_ast), circuits) => input_ast.program_inputs(&self.name, circuits),
-            _ => Vec::new(),
+        // If input values are provided, then run the program with those inputs.
+        // Otherwise, use the input file.
+        let mut inputs = match self.inputs.is_empty() {
+            true => match input {
+                (Some(input_ast), circuits) => input_ast.program_inputs(&self.name, circuits),
+                _ => Vec::new(),
+            },
+            false => self.inputs,
         };
 
         // Compose the `aleo run` command.
