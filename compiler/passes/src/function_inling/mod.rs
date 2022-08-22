@@ -26,7 +26,7 @@ pub use inline_program::*;
 pub mod inline_statement;
 pub use inline_statement::*;
 
-use crate::{DiGraph, Pass};
+use crate::{DiGraph, Pass, SymbolTable};
 
 use leo_ast::{Ast, ProgramReconstructor};
 use leo_errors::emitter::Handler;
@@ -34,11 +34,11 @@ use leo_errors::Result;
 use leo_span::Symbol;
 
 impl<'a> Pass for Inliner<'a> {
-    type Input = (Ast, &'a Handler, &'a DiGraph<Symbol>);
+    type Input = (Ast, &'a Handler, &'a SymbolTable, &'a DiGraph<Symbol>);
     type Output = Result<Ast>;
 
-    fn do_pass((ast, handler, call_graph): Self::Input) -> Self::Output {
-        let mut reconstructor = Self::new(handler, call_graph);
+    fn do_pass((ast, handler, st, call_graph): Self::Input) -> Self::Output {
+        let mut reconstructor = Self::new(handler, st, call_graph);
         let program = reconstructor.reconstruct_program(ast.into_repr());
         handler.last_err()?;
 

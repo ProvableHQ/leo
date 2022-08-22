@@ -14,28 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Inliner;
+use crate::{CallType, Inliner};
 
-use leo_ast::{CallExpression, Expression, ExpressionReconstructor};
+use leo_ast::{CallExpression, Expression, ExpressionReconstructor, Statement};
 
 impl ExpressionReconstructor for Inliner<'_> {
-    type AdditionalOutput = ();
+    type AdditionalOutput = Vec<Statement>;
 
     fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
-        // Reconstruct the function expression.
-        let function = self.reconstruct_expression(*input.function).0;
+        // Check if we are inlining the function.
+        let function = match *input.function {
+            Expression::Identifier(function) => function,
+            _ => unreachable!("A call expression's function must be an identifier."),
+        };
+        // Note that this unwrap is safe since type checking guarantees that the function exists.
+        let inline = self.symbol_table.lookup_fn_symbol(function.name).unwrap().call_type == CallType::Inlined;
 
-        (
-            Expression::Call(CallExpression {
-                function: Box::new(function),
-                arguments: input
-                    .arguments
-                    .into_iter()
-                    .map(|arg| self.reconstruct_expression(arg).0)
-                    .collect(),
-                span: input.span,
-            }),
-            Default::default(),
-        )
+        // Inline the function if `self.inlining` is true, otherwise, return the original call expression.
+        let expression = match inline {
+            false => input,
+            true => {
+                todo!()
+            }
+        };
+
+        (Expression::Call(expression), Default::default())
     }
 }
