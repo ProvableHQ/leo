@@ -40,29 +40,27 @@ impl<'a> CodeGenerator<'a> {
         let (operand, mut expression_instructions) = self.visit_expression(&input.expression);
         // TODO: Bytecode functions have an associated output mode. Currently defaulting to private since we do not yet support this at the Leo level.
         let types = self.visit_return_type(&self.current_function.unwrap().output, ParamMode::Private);
-        let mut instructions = operand
+        let instructions = operand
             .split('\n')
             .into_iter()
             .zip(types.iter())
-            .map(|(operand, type_)| format!("    output {} as {};", operand, type_))
-            .join("\n");
-        instructions.push('\n');
+            .map(|(operand, type_)| format!("    output {} as {};\n", operand, type_))
+            .join("");
 
         expression_instructions.push_str(&instructions);
 
         expression_instructions
     }
 
-    fn visit_definition(&mut self, input: &'a DefinitionStatement) -> String {
-        // Note: `DefinitionStatement`s should not exist in SSA form. However, for the purposes of this
-        // prototype, we will need to support them.
-        let (operand, expression_instructions) = self.visit_expression(&input.value);
-        self.variable_mapping.insert(&input.variable_name.name, operand);
-        expression_instructions
+    fn visit_definition(&mut self, _input: &'a DefinitionStatement) -> String {
+        // TODO: If SSA is made optional, then conditionally enable codegen for DefinitionStatement
+        // let (operand, expression_instructions) = self.visit_expression(&input.value);
+        // self.variable_mapping.insert(&input.variable_name.name, operand);
+        // expression_instructions
+        unreachable!("DefinitionStatement's should not exist in SSA form.")
     }
 
     fn visit_assign(&mut self, input: &'a AssignStatement) -> String {
-        // TODO: Once SSA is made optional, this should be made optional.
         match &input.place {
             Expression::Identifier(identifier) => {
                 let (operand, expression_instructions) = self.visit_expression(&input.value);
@@ -89,7 +87,7 @@ impl<'a> CodeGenerator<'a> {
         let mut generate_assert_instruction = |name: &str, left: &'a Expression, right: &'a Expression| {
             let (left_operand, left_instructions) = self.visit_expression(left);
             let (right_operand, right_instructions) = self.visit_expression(right);
-            let assert_instruction = format!("    {} {} {};", name, left_operand, right_operand);
+            let assert_instruction = format!("    {} {} {};\n", name, left_operand, right_operand);
 
             // Concatenate the instructions.
             let mut instructions = left_instructions;
@@ -101,10 +99,9 @@ impl<'a> CodeGenerator<'a> {
         match &input.function {
             ConsoleFunction::Assert(expr) => {
                 let (operand, mut instructions) = self.visit_expression(expr);
-                let assert_instruction = format!("    assert.eq {} true;", operand);
+                let assert_instruction = format!("    assert.eq {} true;\n", operand);
 
                 instructions.push_str(&assert_instruction);
-                instructions.push('\n');
                 instructions
             }
             ConsoleFunction::AssertEq(left, right) => generate_assert_instruction("assert.eq", left, right),
