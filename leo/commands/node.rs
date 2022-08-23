@@ -47,14 +47,6 @@ impl Command for Node {
     }
 
     fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {
-        // Open the Leo build/ directory
-        let path = context.dir()?;
-        let build_directory = BuildDirectory::open(&path)?;
-
-        // Change the cwd to the Leo build/ directory to compile aleo files.
-        std::env::set_current_dir(&build_directory)
-            .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
-
         // Compose the `aleo node` command.
         let mut arguments = vec![ALEO_CLI_COMMAND.to_string()];
 
@@ -62,8 +54,17 @@ impl Command for Node {
         match self {
             Node::Start { nodeploy } => {
                 arguments.push(String::from("start"));
+
                 if nodeploy {
                     arguments.push(String::from("--nodeploy"));
+                } else {
+                    // Open the Leo build/ directory
+                    let path = context.dir()?;
+                    let build_directory = BuildDirectory::open(&path).map_err(|_| CliError::needs_leo_build);
+
+                    // Change the cwd to the Leo build/ directory to deploy aleo files.
+                    std::env::set_current_dir(&build_directory)
+                        .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
                 }
             }
         }
