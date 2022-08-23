@@ -27,8 +27,6 @@ use aleo::commands::Node as AleoNode;
 use clap::StructOpt;
 use tracing::span::Span;
 
-const ALEO_NODE_SUBCOMMAND: &str = "node";
-
 /// Commands to operate a local development node.
 #[derive(StructOpt, Debug)]
 pub enum Node {
@@ -61,11 +59,12 @@ impl Command for Node {
             .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
 
         // Compose the `aleo node` command.
-        let mut arguments = vec![ALEO_CLI_COMMAND.to_string(), ALEO_NODE_SUBCOMMAND.to_string()];
+        let mut arguments = vec![ALEO_CLI_COMMAND.to_string()];
 
         // Add arguments to the command.
         match self {
             Node::Start{ nodeploy } => {
+                arguments.push(String::from("start"));
                 if nodeploy {
                     arguments.push(String::from("--nodeploy"));
                 }
@@ -73,8 +72,8 @@ impl Command for Node {
         }
 
         // Call the `aleo node` command from the Aleo SDK.
-        let command = AleoNode::try_parse_from(&arguments).map_err(CliError::failed_to_parse_aleo_run)?;
-        let res = command.parse().map_err(CliError::failed_to_execute_aleo_run)?;
+        let command = AleoNode::try_parse_from(&arguments).map_err(CliError::failed_to_parse_aleo_node)?;
+        let res = command.parse().map_err(CliError::failed_to_execute_aleo_node)?;
 
         // Log the output of the `aleo node` command.
         tracing::info!("{}", res);
