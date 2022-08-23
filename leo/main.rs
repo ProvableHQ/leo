@@ -83,7 +83,7 @@ enum Commands {
         command: Run,
     },
     #[structopt(subcommand)]
-    Node (Node)
+    Node(Node),
 }
 
 fn set_panic_hook() {

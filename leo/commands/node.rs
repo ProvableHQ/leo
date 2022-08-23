@@ -15,10 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::commands::ALEO_CLI_COMMAND;
-use crate::{
-    commands::{Command},
-    context::Context,
-};
+use crate::{commands::Command, context::Context};
 use leo_errors::{CliError, PackageError, Result};
 use leo_package::build::BuildDirectory;
 
@@ -34,7 +31,7 @@ pub enum Node {
     Start {
         /// Skips deploying the local program at genesis.
         nodeploy: bool,
-    }
+    },
 }
 
 impl Command for Node {
@@ -63,7 +60,7 @@ impl Command for Node {
 
         // Add arguments to the command.
         match self {
-            Node::Start{ nodeploy } => {
+            Node::Start { nodeploy } => {
                 arguments.push(String::from("start"));
                 if nodeploy {
                     arguments.push(String::from("--nodeploy"));
