@@ -120,9 +120,6 @@
 <span id="114">114</span>
 <span id="115">115</span>
 <span id="116">116</span>
-<span id="117">117</span>
-<span id="118">118</span>
-<span id="119">119</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -165,29 +162,27 @@
         <span class="kw">let</span> (<span class="ident">operand</span>, <span class="kw-2">mut</span> <span class="ident">expression_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">expression</span>);
         <span class="comment">// TODO: Bytecode functions have an associated output mode. Currently defaulting to private since we do not yet support this at the Leo level.</span>
         <span class="kw">let</span> <span class="ident">types</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_return_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current_function</span>.<span class="ident">unwrap</span>().<span class="ident">output</span>, <span class="ident">ParamMode::Private</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">operand</span>
+        <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">operand</span>
             .<span class="ident">split</span>(<span class="string">&#39;\n&#39;</span>)
             .<span class="ident">into_iter</span>()
             .<span class="ident">zip</span>(<span class="ident">types</span>.<span class="ident">iter</span>())
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">operand</span>, <span class="ident">type_</span>)<span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;    output {} as {};&quot;</span>, <span class="ident">operand</span>, <span class="ident">type_</span>))
-            .<span class="ident">join</span>(<span class="string">&quot;\n&quot;</span>);
-        <span class="ident">instructions</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>);
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">operand</span>, <span class="ident">type_</span>)<span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;    output {} as {};\n&quot;</span>, <span class="ident">operand</span>, <span class="ident">type_</span>))
+            .<span class="ident">join</span>(<span class="string">&quot;&quot;</span>);
 
         <span class="ident">expression_instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">instructions</span>);
 
         <span class="ident">expression_instructions</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_definition</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DefinitionStatement</span>) -&gt; <span class="ident">String</span> {
-        <span class="comment">// Note: `DefinitionStatement`s should not exist in SSA form. However, for the purposes of this</span>
-        <span class="comment">// prototype, we will need to support them.</span>
-        <span class="kw">let</span> (<span class="ident">operand</span>, <span class="ident">expression_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">value</span>);
-        <span class="self">self</span>.<span class="ident">variable_mapping</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">variable_name</span>.<span class="ident">name</span>, <span class="ident">operand</span>);
-        <span class="ident">expression_instructions</span>
+    <span class="kw">fn</span> <span class="ident">visit_definition</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DefinitionStatement</span>) -&gt; <span class="ident">String</span> {
+        <span class="comment">// TODO: If SSA is made optional, then conditionally enable codegen for DefinitionStatement</span>
+        <span class="comment">// let (operand, expression_instructions) = self.visit_expression(&amp;input.value);</span>
+        <span class="comment">// self.variable_mapping.insert(&amp;input.variable_name.name, operand);</span>
+        <span class="comment">// expression_instructions</span>
+        <span class="macro">unreachable!</span>(<span class="string">&quot;DefinitionStatement&#39;s should not exist in SSA form.&quot;</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">visit_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">AssignStatement</span>) -&gt; <span class="ident">String</span> {
-        <span class="comment">// TODO: Once SSA is made optional, this should be made optional.</span>
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">place</span> {
             <span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>) =&gt; {
                 <span class="kw">let</span> (<span class="ident">operand</span>, <span class="ident">expression_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">value</span>);
@@ -214,7 +209,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">generate_assert_instruction</span> <span class="op">=</span> <span class="op">|</span><span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">left</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span>, <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span><span class="op">|</span> {
             <span class="kw">let</span> (<span class="ident">left_operand</span>, <span class="ident">left_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>);
             <span class="kw">let</span> (<span class="ident">right_operand</span>, <span class="ident">right_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">right</span>);
-            <span class="kw">let</span> <span class="ident">assert_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    {} {} {};&quot;</span>, <span class="ident">name</span>, <span class="ident">left_operand</span>, <span class="ident">right_operand</span>);
+            <span class="kw">let</span> <span class="ident">assert_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    {} {} {};\n&quot;</span>, <span class="ident">name</span>, <span class="ident">left_operand</span>, <span class="ident">right_operand</span>);
 
             <span class="comment">// Concatenate the instructions.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">left_instructions</span>;
@@ -226,10 +221,9 @@
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">function</span> {
             <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>) =&gt; {
                 <span class="kw">let</span> (<span class="ident">operand</span>, <span class="kw-2">mut</span> <span class="ident">instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">expr</span>);
-                <span class="kw">let</span> <span class="ident">assert_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    assert.eq {} true;&quot;</span>, <span class="ident">operand</span>);
+                <span class="kw">let</span> <span class="ident">assert_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    assert.eq {} true;\n&quot;</span>, <span class="ident">operand</span>);
 
                 <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">assert_instruction</span>);
-                <span class="ident">instructions</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>);
                 <span class="ident">instructions</span>
             }
             <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; <span class="ident">generate_assert_instruction</span>(<span class="string">&quot;assert.eq&quot;</span>, <span class="ident">left</span>, <span class="ident">right</span>),
