@@ -47,7 +47,7 @@ version = "1.4.0"
 
 [dev-dependencies.snarkvm]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "45a6f01"
+rev = "f7f5b13"
 features = ["aleo-cli", "circuit", "console", "parallel"]
 
 [dev-dependencies.serde]

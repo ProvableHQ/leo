@@ -82,6 +82,13 @@ create_messages!(
     }
 
     @backtraced
+    needs_leo_build {
+        args: (),
+        msg: "You must run leo build before deploying a program.".to_string(),
+        help: None,
+    }
+
+    @backtraced
     failed_to_execute_aleo_build {
         args: (error: impl Display),
         msg: format!("Failed to execute the `aleo build` command.\nSnarkVM Error: {}", error),
@@ -103,6 +110,13 @@ create_messages!(
     }
 
     @backtraced
+    failed_to_execute_aleo_node {
+        args: (error: impl Display),
+        msg: format!("Failed to execute the `aleo node` command.\nSnarkVM Error: {}", error),
+        help: None,
+    }
+
+    @backtraced
     failed_to_parse_aleo_new {
         args: (error: impl Display),
         msg: format!("Failed to parse the `aleo new` command.\nSnarkVM Error: {}", error),
@@ -113,6 +127,13 @@ create_messages!(
     failed_to_parse_aleo_run {
         args: (error: impl Display),
         msg: format!("Failed to parse the `aleo run` command.\nSnarkVM Error: {}", error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_parse_aleo_node {
+        args: (error: impl Display),
+        msg: format!("Failed to parse the `aleo node` command.\nSnarkVM Error: {}", error),
         help: None,
     }
 );
