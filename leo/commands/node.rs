@@ -60,7 +60,7 @@ impl Command for Node {
                 } else {
                     // Open the Leo build/ directory
                     let path = context.dir()?;
-                    let build_directory = BuildDirectory::open(&path).map_err(|_| CliError::needs_leo_build)?;
+                    let build_directory = BuildDirectory::open(&path).map_err(|_| CliError::needs_leo_build())?;
 
                     // Change the cwd to the Leo build/ directory to deploy aleo files.
                     std::env::set_current_dir(&build_directory)
