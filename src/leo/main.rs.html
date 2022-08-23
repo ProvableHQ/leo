@@ -159,6 +159,9 @@
 <span id="153">153</span>
 <span id="154">154</span>
 <span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -243,6 +246,8 @@
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
         <span class="ident">command</span>: <span class="ident">Run</span>,
     },
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">subcommand</span>)]</span>
+    <span class="ident">Node</span>(<span class="ident">Node</span>),
 }
 
 <span class="kw">fn</span> <span class="ident">set_panic_hook</span>() {
@@ -307,6 +312,7 @@
         <span class="ident">Commands::Build</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
         <span class="ident">Commands::Clean</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
         <span class="ident">Commands::Run</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">Commands::Node</span>(<span class="ident">command</span>) =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
     }
 }
 

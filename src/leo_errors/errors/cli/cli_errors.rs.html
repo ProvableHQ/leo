@@ -122,6 +122,27 @@
 <span id="116">116</span>
 <span id="117">117</span>
 <span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -206,6 +227,13 @@
     }
 
     @<span class="ident">backtraced</span>
+    <span class="ident">needs_leo_build</span> {
+        <span class="ident">args</span>: (),
+        <span class="ident">msg</span>: <span class="string">&quot;You must run leo build before deploying a program.&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    @<span class="ident">backtraced</span>
     <span class="ident">failed_to_execute_aleo_build</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `aleo build` command.\nSnarkVM Error: {}&quot;</span>, <span class="ident">error</span>),
@@ -227,6 +255,13 @@
     }
 
     @<span class="ident">backtraced</span>
+    <span class="ident">failed_to_execute_aleo_node</span> {
+        <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `aleo node` command.\nSnarkVM Error: {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    @<span class="ident">backtraced</span>
     <span class="ident">failed_to_parse_aleo_new</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `aleo new` command.\nSnarkVM Error: {}&quot;</span>, <span class="ident">error</span>),
@@ -237,6 +272,13 @@
     <span class="ident">failed_to_parse_aleo_run</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `aleo run` command.\nSnarkVM Error: {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    @<span class="ident">backtraced</span>
+    <span class="ident">failed_to_parse_aleo_node</span> {
+        <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `aleo node` command.\nSnarkVM Error: {}&quot;</span>, <span class="ident">error</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 );
