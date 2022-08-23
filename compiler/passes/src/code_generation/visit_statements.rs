@@ -104,6 +104,7 @@ impl<'a> CodeGenerator<'a> {
                 let assert_instruction = format!("    assert.eq {} true;", operand);
 
                 instructions.push_str(&assert_instruction);
+                instructions.push('\n');
                 instructions
             }
             ConsoleFunction::AssertEq(left, right) => generate_assert_instruction("assert.eq", left, right),
