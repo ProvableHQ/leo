@@ -161,6 +161,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 let t1 = self.visit_expression(&input.left, destination);
                 let t2 = self.visit_expression(&input.right, destination);
 
+                // Check that both operands have the same type.
+                self.check_eq_types(&t1, &t2, input.span());
+
                 return_incorrect_type(t1, t2, destination)
             }
             BinaryOperation::BitwiseAnd | BinaryOperation::BitwiseOr | BinaryOperation::Xor => {
@@ -168,6 +171,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 self.assert_bool_int_type(destination, input.span());
                 let t1 = self.visit_expression(&input.left, destination);
                 let t2 = self.visit_expression(&input.right, destination);
+
+                // Check that both operands have the same type.
+                self.check_eq_types(&t1, &t2, input.span());
 
                 return_incorrect_type(t1, t2, destination)
             }
@@ -177,6 +183,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 let t1 = self.visit_expression(&input.left, destination);
                 let t2 = self.visit_expression(&input.right, destination);
 
+                // Check that both operands have the same type.
+                self.check_eq_types(&t1, &t2, input.span());
+
                 return_incorrect_type(t1, t2, destination)
             }
             BinaryOperation::Sub => {
@@ -184,6 +193,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 self.assert_field_group_int_type(destination, input.span());
                 let t1 = self.visit_expression(&input.left, destination);
                 let t2 = self.visit_expression(&input.right, destination);
+
+                // Check that both operands have the same type.
+                self.check_eq_types(&t1, &t2, input.span());
 
                 return_incorrect_type(t1, t2, destination)
             }
@@ -250,6 +262,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 let t1 = self.visit_expression(&input.left, destination);
                 let t2 = self.visit_expression(&input.right, destination);
 
+                // Check that both operands have the same type.
+                self.check_eq_types(&t1, &t2, input.span());
+
                 return_incorrect_type(t1, t2, destination)
             }
             BinaryOperation::Rem | BinaryOperation::RemWrapped => {
@@ -259,6 +274,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 let t1 = self.visit_expression(&input.left, destination);
                 let t2 = self.visit_expression(&input.right, destination);
 
+                // Check that both operands have the same type.
+                self.check_eq_types(&t1, &t2, input.span());
+
                 return_incorrect_type(t1, t2, destination)
             }
             BinaryOperation::Mod => {
@@ -267,6 +285,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
                 let t1 = self.visit_expression(&input.left, destination);
                 let t2 = self.visit_expression(&input.right, destination);
+
+                // Check that both operands have the same type.
+                self.check_eq_types(&t1, &t2, input.span());
 
                 return_incorrect_type(t1, t2, destination)
             }
@@ -360,6 +381,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 self.assert_int_type(destination, input.span);
                 let t1 = self.visit_expression(&input.left, destination);
                 let t2 = self.visit_expression(&input.right, destination);
+
+                // Check that both operands have the same type.
+                self.check_eq_types(&t1, &t2, input.span());
 
                 return_incorrect_type(t1, t2, destination)
             }
