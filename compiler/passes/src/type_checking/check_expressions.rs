@@ -44,21 +44,6 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     type AdditionalInput = Option<Type>;
     type Output = Option<Type>;
 
-    fn visit_expression(&mut self, input: &'a Expression, expected: &Self::AdditionalInput) -> Self::Output {
-        match input {
-            Expression::Access(access) => self.visit_access(access, expected),
-            Expression::Binary(binary) => self.visit_binary(binary, expected),
-            Expression::Call(call) => self.visit_call(call, expected),
-            Expression::Circuit(circuit) => self.visit_circuit_init(circuit, expected),
-            Expression::Identifier(identifier) => self.visit_identifier(identifier, expected),
-            Expression::Err(err) => self.visit_err(err, expected),
-            Expression::Literal(literal) => self.visit_literal(literal, expected),
-            Expression::Ternary(ternary) => self.visit_ternary(ternary, expected),
-            Expression::Tuple(tuple) => self.visit_tuple(tuple, expected),
-            Expression::Unary(expr) => self.visit_unary(expr, expected),
-        }
-    }
-
     fn visit_access(&mut self, input: &'a AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match input {
             AccessExpression::AssociatedFunction(access) => {
@@ -210,30 +195,51 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 let t2 = self.visit_expression(&input.right, &None);
 
                 // Allow group * scalar multiplication.
-                match (t1, t2) {
-                    (Some(Type::Group), right) => {
-                        // Right type must be scalar.
-                        self.assert_scalar_type(&right, input.right.span());
+                match (t1, input.left.span(), t2, input.right.span()) {
+                    (Some(Type::Group), _, other, other_span) | (other, other_span, Some(Type::Group), _) => {
+                        // Other type must be scalar.
+                        self.assert_scalar_type(&other, other_span);
 
                         // Operation returns group.
                         self.assert_group_type(destination, input.span());
 
                         Some(Type::Group)
                     }
-                    (left, Some(Type::Group)) => {
-                        // Left must be scalar.
-                        self.assert_scalar_type(&left, input.left.span());
+                    (Some(Type::Field), _, other, other_span) | (other, other_span, Some(Type::Field), _) => {
+                        // Other type must be field.
+                        self.assert_field_type(&other, other_span);
 
-                        // Operation returns group.
-                        self.assert_group_type(destination, input.span());
+                        // Operation returns field.
+                        self.assert_field_type(destination, input.span());
 
-                        Some(Type::Group)
+                        Some(Type::Field)
                     }
-                    (t1, t2) => {
-                        // Otherwise, only field or integer types.
-                        self.assert_field_int_type(destination, input.span());
+                    (Some(Type::Integer(integer_type)), _, other, other_span)
+                    | (other, other_span, Some(Type::Integer(integer_type)), _) => {
+                        // Other type must be the same integer type.
+                        self.assert_type(&other, &Type::Integer(integer_type), other_span);
 
-                        return_incorrect_type(t1, t2, destination)
+                        // Operation returns the same integer type.
+                        self.assert_type(destination, &Type::Integer(integer_type), input.span());
+
+                        Some(Type::Integer(integer_type))
+                    }
+                    (left_type, left_span, right_type, right_span) => {
+                        let check_type = |type_: Option<Type>, expression: &Expression, span: Span| match type_ {
+                            None => {
+                                self.emit_err(TypeCheckerError::could_not_determine_type(expression, span));
+                            }
+                            Some(type_) => {
+                                self.emit_err(TypeCheckerError::type_should_be(
+                                    type_,
+                                    "field, group, integer, or scalar",
+                                    span,
+                                ));
+                            }
+                        };
+                        check_type(left_type, &input.left, left_span);
+                        check_type(right_type, &input.right, right_span);
+                        destination.clone()
                     }
                 }
             }
@@ -271,7 +277,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 let t1 = self.visit_expression(&input.left, &None);
                 let t2 = self.visit_expression(&input.right, &None);
 
-                // Allow field * field.
+                // Allow field ^ field.
                 match (t1, t2) {
                     (Some(Type::Field), right) => {
                         // Right must be field.
@@ -301,10 +307,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
                         Some(left)
                     }
-                    (None, t2) => {
+                    (None, right) => {
                         // Lhs type is checked to be an integer by above.
                         // Rhs type must be magnitude (u8, u16, u32).
-                        self.assert_magnitude_type(&t2, input.right.span());
+                        self.assert_magnitude_type(&right, input.right.span());
                         destination.clone()
                     }
                 }

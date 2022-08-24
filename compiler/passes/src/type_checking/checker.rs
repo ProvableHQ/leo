@@ -25,9 +25,13 @@ use itertools::Itertools;
 use std::cell::RefCell;
 
 pub struct TypeChecker<'a> {
+    /// The symbol table for the program.
     pub(crate) symbol_table: RefCell<SymbolTable>,
+    /// The error handler.
     pub(crate) handler: &'a Handler,
-    pub(crate) parent: Option<Symbol>,
+    /// The name of the function that we are currently traversing.
+    pub(crate) function: Option<Symbol>,
+    /// Whether or not the function that we are currently traversing has a return statement.
     pub(crate) has_return: bool,
     /// Are we traversing a program function?
     /// A "program function" is a function that can be invoked by a user or another program.
@@ -84,7 +88,7 @@ impl<'a> TypeChecker<'a> {
             is_program_function: false,
             symbol_table: RefCell::new(symbol_table),
             handler,
-            parent: None,
+            function: None,
             has_return: false,
         }
     }

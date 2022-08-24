@@ -43,7 +43,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
 
         self.has_return = false;
-        self.parent = Some(input.name());
+        self.function = Some(input.name());
         input.input.iter().for_each(|input_var| {
             // Check that the type of input parameter is valid.
             self.assert_type_is_valid(input_var.span, &input_var.type_);
@@ -147,4 +147,6 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.assert_member_is_not_record(v.span, input.identifier.name, type_);
         }
     }
+
+    // TODO: Tyc for imports?
 }

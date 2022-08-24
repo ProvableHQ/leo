@@ -42,7 +42,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_return(&mut self, input: &'a ReturnStatement) {
         // we can safely unwrap all self.parent instances because
         // statements should always have some parent block
-        let parent = self.parent.unwrap();
+        let parent = self.function.unwrap();
         let return_type = &self
             .symbol_table
             .borrow()
