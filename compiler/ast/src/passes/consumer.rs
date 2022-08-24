@@ -111,6 +111,13 @@ pub trait ImportConsumer {
     fn consume_import(&mut self, input: Program) -> Self::Output;
 }
 
+/// A Consumer trait for mappings in the AST.
+pub trait MappingConsumer {
+    type Output;
+
+    fn consume_mapping(&mut self, input: Mapping) -> Self::Output;
+}
+
 /// A Consumer trait for the program represented by the AST.
 pub trait ProgramConsumer {
     type Output;

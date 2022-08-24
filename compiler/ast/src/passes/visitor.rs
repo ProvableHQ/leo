@@ -178,6 +178,8 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
     fn visit_program(&mut self, input: &'a Program) {
         input.imports.values().for_each(|import| self.visit_import(import));
 
+        input.mappings.values().for_each(|mapping| self.visit_mapping(mapping));
+
         input
             .functions
             .values()
@@ -194,6 +196,8 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
     }
 
     fn visit_circuit(&mut self, _input: &'a Circuit) {}
+
+    fn visit_mapping(&mut self, _input: &'a Mapping) {}
 
     fn visit_import(&mut self, input: &'a Program) {
         self.visit_program(input)

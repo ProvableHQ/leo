@@ -254,6 +254,11 @@ pub trait ProgramReconstructor: StatementReconstructor {
                 .into_iter()
                 .map(|(id, import)| (id, self.reconstruct_import(import)))
                 .collect(),
+            mappings: input
+                .mappings
+                .into_iter()
+                .map(|(id, mapping)| (id, self.reconstruct_mapping(mapping)))
+                .collect(),
             functions: input
                 .functions
                 .into_iter()
@@ -284,6 +289,10 @@ pub trait ProgramReconstructor: StatementReconstructor {
     }
 
     fn reconstruct_import(&mut self, input: Program) -> Program {
+        input
+    }
+
+    fn reconstruct_mapping(&mut self, input: Mapping) -> Mapping {
         input
     }
 }

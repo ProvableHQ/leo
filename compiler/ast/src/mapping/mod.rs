@@ -14,11 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::fmt;
+use crate::{Identifier, Node, Type};
+
 use leo_span::Span;
-use crate::{Identifier, Type};
+
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
 /// A mapping declaration, e.g `mapping balances: address => u128`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Mapping {
     /// The name of the mapping.
     pub identifier: Identifier,
@@ -32,7 +36,11 @@ pub struct Mapping {
 
 impl fmt::Display for Mapping {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "mapping {}: {} => {}", self.identifier, self.key_type, self.value_type)
+        write!(
+            f,
+            "mapping {}: {} => {}",
+            self.identifier, self.key_type, self.value_type
+        )
     }
 }
 

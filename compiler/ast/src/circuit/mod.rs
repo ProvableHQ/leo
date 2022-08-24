@@ -17,7 +17,7 @@
 pub mod circuit_member;
 pub use circuit_member::*;
 
-use crate::{CircuitMember, Identifier, Node};
+use crate::{Identifier, Node};
 use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
