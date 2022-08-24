@@ -21,8 +21,7 @@
 <li><a href="#2-build-guide">2. Build Guide</a>
 <ul>
 <li><a href="#21-install-rust">2.1 Install Rust</a></li>
-<li><a href="#22a-build-from-cratesio">2.2a Build from Crates.io</a></li>
-<li><a href="#22b-build-from-source-code">2.2b Build from Source Code</a></li>
+<li><a href="#22-build-from-source-code">2.2 Build from Source Code</a></li>
 </ul>
 </li>
 <li><a href="#3-quick-start">3. Quick Start</a></li>
@@ -58,9 +57,9 @@ The language is currently in an alpha stage and is subject to breaking changes.<
 <div class="example-wrap"><pre class="language-bash"><code>git clone https://github.com/AleoHQ/leo
 cd leo
 
-$ cargo build --release</code></pre></div>
-<p>This will generate an executable under the <code>./target/release</code> directory. To run Leo, run the following command:</p>
-<div class="example-wrap"><pre class="language-bash"><code>./target/release/leo</code></pre></div><h3 id="3-quick-start"><a href="#3-quick-start">3. Quick Start</a></h3>
+$ cargo install --path .</code></pre></div>
+<p>Now to use leo, in your terminal, run:</p>
+<div class="example-wrap"><pre class="language-bash"><code>leo</code></pre></div><h3 id="3-quick-start"><a href="#3-quick-start">3. Quick Start</a></h3>
 <p>Use the Leo CLI to create a new project</p>
 <div class="example-wrap"><pre class="language-bash"><code>leo new helloworld
 cd helloworld
