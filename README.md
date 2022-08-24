@@ -69,7 +69,7 @@ cd leo
 $ cargo install --path .
 ```
 
-Now to use aleo, in your terminal, run:
+Now to use leo, in your terminal, run:
 ```bash
 leo
 ```
