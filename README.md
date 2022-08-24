@@ -69,6 +69,11 @@ cd leo
 $ cargo install --path .
 ```
 
+Now to use aleo, in your terminal, run:
+```bash
+leo
+```
+
 ## 3. Quick Start
 
 Use the Leo CLI to create a new project
