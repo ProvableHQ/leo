@@ -29,6 +29,7 @@ impl ParserContext<'_> {
         let mut imports = IndexMap::new();
         let mut functions = IndexMap::new();
         let mut circuits = IndexMap::new();
+        let mut mappings = IndexMap::new();
 
         // TODO: Condense logic
         while self.has_next() {
@@ -40,6 +41,10 @@ impl ParserContext<'_> {
                 Token::Circuit | Token::Record => {
                     let (id, circuit) = self.parse_circuit()?;
                     circuits.insert(id, circuit);
+                }
+                Token::Mapping => {
+                    let (id, mapping) = self.parse_mapping()?;
+                    mappings.insert(id, mapping);
                 }
                 Token::At => {
                     let (id, function) = self.parse_function()?;
@@ -64,6 +69,7 @@ impl ParserContext<'_> {
             imports,
             functions,
             circuits,
+            mappings,
         })
     }
 
@@ -213,7 +219,7 @@ impl ParserContext<'_> {
         }
     }
 
-    /// Parses a circuit or record definition, e.g., `circit Foo { ... }` or `record Foo { ... }`.
+    /// Parses a circuit or record definition, e.g., `circuit Foo { ... }` or `record Foo { ... }`.
     pub(super) fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
         let is_record = matches!(&self.token.token, Token::Record);
         let start = self.expect_any(&[Token::Circuit, Token::Record])?;
@@ -229,6 +235,25 @@ impl ParserContext<'_> {
                 members,
                 is_record,
                 span: start + end,
+            },
+        ))
+    }
+
+    /// Parses a mapping declaration, e.g. `mapping balances: address => u128`.
+    pub(super) fn parse_mapping(&mut self) -> Result<(Identifier, Mapping)> {
+        let start = self.expect(&Token::Mapping)?;
+        let identifier = self.expect_identifier()?;
+        self.expect(&Token::Colon)?;
+        let (key_type, _) = self.parse_type()?;
+        self.expect(&Token::Arrow)?;
+        let (value_type, value_span) = self.parse_type()?;
+        Ok((
+            identifier,
+            Mapping {
+                identifier,
+                key_type,
+                value_type,
+                span: start + value_span,
             },
         ))
     }

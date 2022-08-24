@@ -167,6 +167,7 @@ impl ProgramConsumer for StaticSingleAssigner<'_> {
                 .map(|(i, f)| (i, self.consume_function(f)))
                 .collect(),
             circuits: input.circuits,
+            mappings: input.mappings,
         }
     }
 }

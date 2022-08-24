@@ -198,6 +198,7 @@ symbols! {
     assert_eq,
     assert_neq,
     main,
+    mapping,
     Mut: "mut",
     prelude,
     Public,

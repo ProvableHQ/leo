@@ -366,7 +366,7 @@ impl Token {
                     Token::ShrAssign,
                 )
             }
-            '=' => return match_two(&mut input, Token::Assign, '=', Token::Eq),
+            '=' => return match_three(&mut input, Token::Assign, '=', Token::Eq, '>', Token::BigArrow),
             '[' => return match_one(&mut input, Token::LeftSquare),
             ']' => return match_one(&mut input, Token::RightSquare),
             '{' => return match_one(&mut input, Token::LeftCurly),
