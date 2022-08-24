@@ -71,7 +71,7 @@ dependencies = [
 [[package]]
 name = "aleo"
 version = "0.2.0"
-source = "git+https://github.com/AleoHQ/aleo.git?rev=46b8e50#46b8e5064969ffafff7472de13d4f86a6a44ef0b"
+source = "git+https://github.com/AleoHQ/aleo.git?rev=ac95490#ac95490f691d04c1d95dde6e7c46bc89ebdfa60e"
 dependencies = [
  "anyhow",
  "clap 3.2.17",
