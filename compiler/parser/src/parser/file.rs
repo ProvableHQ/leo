@@ -245,15 +245,16 @@ impl ParserContext<'_> {
         let identifier = self.expect_identifier()?;
         self.expect(&Token::Colon)?;
         let (key_type, _) = self.parse_type()?;
-        self.expect(&Token::Arrow)?;
-        let (value_type, value_span) = self.parse_type()?;
+        self.expect(&Token::BigArrow)?;
+        let (value_type, _) = self.parse_type()?;
+        let end = self.expect(&Token::Semicolon)?;
         Ok((
             identifier,
             Mapping {
                 identifier,
                 key_type,
                 value_type,
-                span: start + value_span,
+                span: start + end,
             },
         ))
     }

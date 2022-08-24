@@ -8,3 +8,4 @@ outputs:
     imports: {}
     functions: {}
     circuits: {}
+    mappings: {}
