@@ -25,8 +25,8 @@
 pub mod access;
 pub use self::access::*;
 
-pub mod circuits;
-pub use self::circuits::*;
+pub mod circuit;
+pub use self::circuit::*;
 
 pub mod common;
 pub use self::common::*;
@@ -42,6 +42,9 @@ pub use self::groups::*;
 
 pub mod input;
 pub use self::input::*;
+
+pub mod mapping;
+pub use self::mapping::*;
 
 pub mod passes;
 pub use self::passes::*;

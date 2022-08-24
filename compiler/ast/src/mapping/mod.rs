@@ -14,8 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod circuit;
-pub use circuit::*;
+use std::fmt;
+use leo_span::Span;
+use crate::{Identifier, Type};
 
-pub mod circuit_member;
-pub use circuit_member::*;
+/// A mapping declaration, e.g `mapping balances: address => u128`.
+pub struct Mapping {
+    /// The name of the mapping.
+    pub identifier: Identifier,
+    /// The type of the key.
+    pub key_type: Type,
+    /// The type of the value.
+    pub value_type: Type,
+    /// The entire span of the mapping declaration.
+    pub span: Span,
+}
+
+impl fmt::Display for Mapping {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "mapping {}: {} => {}", self.identifier, self.key_type, self.value_type)
+    }
+}
+
+crate::simple_node_impl!(Mapping);
