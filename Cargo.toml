@@ -62,7 +62,7 @@ version = "1.5.3"
 
 [dependencies.aleo]
 git = "https://github.com/AleoHQ/aleo.git"
-rev = "46b8e50"
+rev = "ac95490"
 
 [dependencies.snarkvm]
 git = "https://github.com/AleoHQ/snarkVM.git"
