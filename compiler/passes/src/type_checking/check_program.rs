@@ -147,4 +147,22 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.assert_member_is_not_record(v.span, input.identifier.name, type_);
         }
     }
+
+    fn visit_mapping(&mut self, input: &'a Mapping) {
+        // Check that a mapping's key type is not tuple types or mapping types.
+        match input.key_type {
+            Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span)),
+            // Note that this is not possible since the parser does not currently accept mapping types.
+            Type::Mapping(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "mapping", input.span)),
+            _ => {}
+        }
+
+        // Check that a mapping's value type is not tuple types or mapping types.
+        match input.value_type {
+            Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span)),
+            // Note that this is not possible since the parser does not currently accept mapping types.
+            Type::Mapping(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "mapping", input.span)),
+            _ => {}
+        }
+    }
 }

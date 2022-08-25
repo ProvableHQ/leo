@@ -36,8 +36,11 @@ impl<'a> CodeGenerator<'a> {
                     unreachable!("All composite types should be known at this phase of compilation")
                 }
             }
+            Type::Mapping(_) => {
+                unreachable!("Mapping types are not supported at this phase of compilation")
+            }
             Type::Tuple(_) => {
-                unreachable!("All composite types should be known at this phase of compilation")
+                unreachable!("Tuple types are not supported at this phase of compilation")
             }
             Type::Err => unreachable!("Error types should not exist at this phase of compilation"),
         }

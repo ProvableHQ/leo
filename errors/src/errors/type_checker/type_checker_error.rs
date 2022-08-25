@@ -295,4 +295,11 @@ create_messages!(
         msg: format!("A circuit or record cannot contain another record."),
         help: Some(format!("Remove the record `{child}` from `{parent}`.")),
     }
+
+    @formatted
+    invalid_mapping_type {
+        args: (component: impl Display, type_: impl Display),
+        msg: format!("A mapping's {component} cannot be a {type_}"),
+        help: None,
+    }
 );

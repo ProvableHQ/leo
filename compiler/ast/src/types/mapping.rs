@@ -14,14 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod integer_type;
-pub use integer_type::*;
+use crate::Type;
 
-pub mod mapping;
-pub use mapping::*;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-pub mod tuple;
-pub use tuple::*;
+/// A mapping type of a key and value type.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct MappingType {
+    pub key: Box<Type>,
+    pub value: Box<Type>,
+}
 
-pub mod type_;
-pub use type_::*;
+impl fmt::Display for MappingType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({} => {})", self.key, self.value)
+    }
+}
