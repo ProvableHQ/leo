@@ -31,7 +31,7 @@ impl<'a> CodeGenerator<'a> {
             | Type::Integer(..) => format!("{}", input),
             Type::Identifier(ident) => {
                 if let Some((_, type_)) = self.composite_mapping.get(&ident.name) {
-                    format!("{}.{}", ident.to_string().to_lowercase(), type_)
+                    format!("{}.{}", ident, type_)
                 } else {
                     unreachable!("All composite types should be known at this phase of compilation")
                 }

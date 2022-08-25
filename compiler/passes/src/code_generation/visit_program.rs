@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{Circuit, CircuitMember, Function, Identifier, Program};
+use leo_ast::{Circuit, CircuitMember, Function, Identifier, Mapping, Program, Type};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -60,6 +60,15 @@ impl<'a> CodeGenerator<'a> {
 
         // Newline separator.
         program_string.push('\n');
+
+        // Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
+        program_string.push_str(
+            &input
+                .mappings
+                .values()
+                .map(|mapping| self.visit_mapping(mapping))
+                .join("\n"),
+        );
 
         // Store closures and functions in separate strings.
         let mut closures = String::new();
@@ -118,7 +127,7 @@ impl<'a> CodeGenerator<'a> {
         self.composite_mapping
             .insert(&circuit.identifier.name, (false, String::from("private"))); // todo: private by default here.
 
-        let mut output_string = format!("interface {}:\n", circuit.identifier.to_string().to_lowercase()); // todo: check if this is safe from name conflicts.
+        let mut output_string = format!("interface {}:\n", circuit.identifier); // todo: check if this is safe from name conflicts.
 
         // Construct and append the record variables.
         for var in circuit.members.iter() {
@@ -137,8 +146,7 @@ impl<'a> CodeGenerator<'a> {
         let mut output_string = String::from("record");
         self.composite_mapping
             .insert(&record.identifier.name, (true, output_string.clone()));
-        writeln!(output_string, " {}:", record.identifier.to_string().to_lowercase())
-            .expect("failed to write to string"); // todo: check if this is safe from name conflicts.
+        writeln!(output_string, " {}:", record.identifier).expect("failed to write to string"); // todo: check if this is safe from name conflicts.
 
         // Construct and append the record variables.
         for var in record.members.iter() {
@@ -149,8 +157,7 @@ impl<'a> CodeGenerator<'a> {
             writeln!(
                 output_string,
                 "    {} as {}.private;", // todo: CAUTION private record variables only.
-                name,
-                type_.to_string().to_lowercase(),
+                name, type_,
             )
             .expect("failed to write to string");
         }
@@ -189,5 +196,37 @@ impl<'a> CodeGenerator<'a> {
         function_string.push_str(&block_string);
 
         function_string
+    }
+
+    fn visit_mapping(&mut self, mapping: &'a Mapping) -> String {
+        // Create the prefix of the mapping string, e.g. `mapping foo:`.
+        let mut mapping_string = format!("mapping {}:\n", mapping.identifier);
+
+        // Helper to construct the string associated with the type.
+        let create_type = |type_: &Type| {
+            match type_ {
+                Type::Mapping(_) | Type::Tuple(_) => unreachable!("Mappings cannot contain mappings or tuples."),
+                Type::Identifier(identifier) => {
+                    // Lookup the type in the composite mapping.
+                    // Note that this unwrap is safe since all circuit and records have been added to the composite mapping.
+                    let (is_record, _) = self.composite_mapping.get(&identifier.name).unwrap();
+                    match is_record {
+                        // If the type is a record, then declare the type as is.
+                        true => format!("{}", identifier),
+                        // If the type is a circuit, then add the public modifier.
+                        false => format!("{}.public", identifier),
+                    }
+                }
+                type_ => format!("{}.public", type_),
+            }
+        };
+
+        // Create the key string, e.g. `    key as address.public`.
+        mapping_string.push_str(&format!("\tkey left as {};\n", create_type(&mapping.key_type)));
+
+        // Create the value string, e.g. `    value as address.public`.
+        mapping_string.push_str(&format!("\tvalue right as {};\n", create_type(&mapping.value_type)));
+
+        mapping_string
     }
 }

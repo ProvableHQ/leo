@@ -199,6 +199,8 @@ fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>, handler: &Handler) -> R
     // Compile Leo program to bytecode.
     let bytecode = CodeGenerator::do_pass((&parsed.ast, handler))?;
 
+    println!("\n{}\n", bytecode);
+
     Ok(bytecode)
 }
 
