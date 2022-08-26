@@ -17,8 +17,9 @@
 use crate::CodeGenerator;
 
 use leo_ast::{
-    AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DefinitionStatement, Expression,
-    IterationStatement, ParamMode, ReturnStatement, Statement,
+    AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
+    DefinitionStatement, Expression, FinalizeStatement, IncrementStatement, IterationStatement, ParamMode,
+    ReturnStatement, Statement,
 };
 
 use itertools::Itertools;
@@ -26,13 +27,16 @@ use itertools::Itertools;
 impl<'a> CodeGenerator<'a> {
     fn visit_statement(&mut self, input: &'a Statement) -> String {
         match input {
-            Statement::Return(stmt) => self.visit_return(stmt),
-            Statement::Definition(stmt) => self.visit_definition(stmt),
             Statement::Assign(stmt) => self.visit_assign(stmt),
-            Statement::Conditional(stmt) => self.visit_conditional(stmt),
-            Statement::Iteration(stmt) => self.visit_iteration(stmt),
-            Statement::Console(stmt) => self.visit_console(stmt),
             Statement::Block(stmt) => self.visit_block(stmt),
+            Statement::Conditional(stmt) => self.visit_conditional(stmt),
+            Statement::Console(stmt) => self.visit_console(stmt),
+            Statement::Decrement(stmt) => self.visit_decrement(stmt),
+            Statement::Definition(stmt) => self.visit_definition(stmt),
+            Statement::Finalize(stmt) => self.visit_finalize(stmt),
+            Statement::Increment(stmt) => self.visit_increment(stmt),
+            Statement::Iteration(stmt) => self.visit_iteration(stmt),
+            Statement::Return(stmt) => self.visit_return(stmt),
         }
     }
 
@@ -58,6 +62,18 @@ impl<'a> CodeGenerator<'a> {
         // self.variable_mapping.insert(&input.variable_name.name, operand);
         // expression_instructions
         unreachable!("DefinitionStatement's should not exist in SSA form.")
+    }
+
+    fn visit_increment(&mut self, _input: &'a IncrementStatement) -> String {
+        todo!()
+    }
+
+    fn visit_decrement(&mut self, _input: &'a DecrementStatement) -> String {
+        todo!()
+    }
+
+    fn visit_finalize(&mut self, _input: &'a FinalizeStatement) -> String {
+        todo!()
     }
 
     fn visit_assign(&mut self, input: &'a AssignStatement) -> String {

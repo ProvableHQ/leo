@@ -18,8 +18,9 @@ use crate::{RenameTable, StaticSingleAssigner};
 
 use leo_ast::{
     AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement,
-    DefinitionStatement, Expression, ExpressionConsumer, Identifier, IterationStatement, Node, ReturnStatement,
-    Statement, StatementConsumer, TernaryExpression, UnaryExpression, UnaryOperation,
+    DecrementStatement, DefinitionStatement, Expression, ExpressionConsumer, FinalizeStatement, Identifier,
+    IncrementStatement, IterationStatement, Node, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
+    UnaryExpression, UnaryOperation,
 };
 use leo_span::Symbol;
 
@@ -27,54 +28,6 @@ use indexmap::IndexSet;
 
 impl StatementConsumer for StaticSingleAssigner<'_> {
     type Output = Vec<Statement>;
-
-    /// Transforms a `ReturnStatement` into an empty `BlockStatement`,
-    /// storing the expression and the associated guard in `self.early_returns`.
-    /// Note that type checking guarantees that there is at most one `ReturnStatement` in a block.
-    fn consume_return(&mut self, input: ReturnStatement) -> Self::Output {
-        // Construct the associated guard.
-        let guard = match self.condition_stack.is_empty() {
-            true => None,
-            false => {
-                let (first, rest) = self.condition_stack.split_first().unwrap();
-                Some(rest.iter().cloned().fold(first.clone(), |acc, condition| {
-                    Expression::Binary(BinaryExpression {
-                        op: BinaryOperation::And,
-                        left: Box::new(acc),
-                        right: Box::new(condition),
-                        span: Default::default(),
-                    })
-                }))
-            }
-        };
-
-        // Consume the expression and add it to `early_returns`.
-        let (expression, statements) = self.consume_expression(input.expression);
-        // Note that this is the only place where `self.early_returns` is mutated.
-        // Furthermore, `expression` will always be an identifier or tuple expression.
-        self.early_returns.push((guard, expression));
-
-        statements
-    }
-
-    /// Consumes the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
-    fn consume_definition(&mut self, definition: DefinitionStatement) -> Self::Output {
-        // First consume the right-hand-side of the definition.
-        let (value, mut statements) = self.consume_expression(definition.value);
-
-        // Then assign a new unique name to the left-hand-side of the definition.
-        // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
-        self.is_lhs = true;
-        let identifier = match self.consume_identifier(definition.variable_name).0 {
-            Expression::Identifier(identifier) => identifier,
-            _ => unreachable!("`self.consume_identifier` will always return an `Identifier`."),
-        };
-        self.is_lhs = false;
-
-        statements.push(Self::simple_assign_statement(Expression::Identifier(identifier), value));
-
-        statements
-    }
 
     /// Consume all `AssignStatement`s, renaming as necessary.
     fn consume_assign(&mut self, assign: AssignStatement) -> Self::Output {
@@ -91,6 +44,15 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         statements.push(Self::simple_assign_statement(place, value));
 
         statements
+    }
+
+    /// Consumes a `Block`, flattening its constituent `ConditionalStatement`s.
+    fn consume_block(&mut self, block: Block) -> Self::Output {
+        block
+            .statements
+            .into_iter()
+            .flat_map(|statement| self.consume_statement(statement))
+            .collect()
     }
 
     /// Consumes a `ConditionalStatement`, producing phi functions for variables written in the then-block and otherwise-block.
@@ -187,11 +149,6 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         statements
     }
 
-    // TODO: Error message
-    fn consume_iteration(&mut self, _input: IterationStatement) -> Self::Output {
-        unreachable!("`IterationStatement`s should not be in the AST at this phase of compilation.");
-    }
-
     // TODO: Where do we handle console statements.
     fn consume_console(&mut self, input: ConsoleStatement) -> Self::Output {
         let (function, mut statements) = match input.function {
@@ -230,12 +187,68 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         statements
     }
 
-    /// Consumes a `Block`, flattening its constituent `ConditionalStatement`s.
-    fn consume_block(&mut self, block: Block) -> Self::Output {
-        block
-            .statements
-            .into_iter()
-            .flat_map(|statement| self.consume_statement(statement))
-            .collect()
+    fn consume_decrement(&mut self, _input: DecrementStatement) -> Self::Output {
+        todo!()
+    }
+
+    /// Consumes the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
+    fn consume_definition(&mut self, definition: DefinitionStatement) -> Self::Output {
+        // First consume the right-hand-side of the definition.
+        let (value, mut statements) = self.consume_expression(definition.value);
+
+        // Then assign a new unique name to the left-hand-side of the definition.
+        // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
+        self.is_lhs = true;
+        let identifier = match self.consume_identifier(definition.variable_name).0 {
+            Expression::Identifier(identifier) => identifier,
+            _ => unreachable!("`self.consume_identifier` will always return an `Identifier`."),
+        };
+        self.is_lhs = false;
+
+        statements.push(Self::simple_assign_statement(Expression::Identifier(identifier), value));
+
+        statements
+    }
+
+    fn consume_finalize(&mut self, _input: FinalizeStatement) -> Self::Output {
+        todo!()
+    }
+
+    fn consume_increment(&mut self, _input: IncrementStatement) -> Self::Output {
+        todo!()
+    }
+
+    // TODO: Error message
+    fn consume_iteration(&mut self, _input: IterationStatement) -> Self::Output {
+        unreachable!("`IterationStatement`s should not be in the AST at this phase of compilation.");
+    }
+
+    /// Transforms a `ReturnStatement` into an empty `BlockStatement`,
+    /// storing the expression and the associated guard in `self.early_returns`.
+    /// Note that type checking guarantees that there is at most one `ReturnStatement` in a block.
+    fn consume_return(&mut self, input: ReturnStatement) -> Self::Output {
+        // Construct the associated guard.
+        let guard = match self.condition_stack.is_empty() {
+            true => None,
+            false => {
+                let (first, rest) = self.condition_stack.split_first().unwrap();
+                Some(rest.iter().cloned().fold(first.clone(), |acc, condition| {
+                    Expression::Binary(BinaryExpression {
+                        op: BinaryOperation::And,
+                        left: Box::new(acc),
+                        right: Box::new(condition),
+                        span: Default::default(),
+                    })
+                }))
+            }
+        };
+
+        // Consume the expression and add it to `early_returns`.
+        let (expression, statements) = self.consume_expression(input.expression);
+        // Note that this is the only place where `self.early_returns` is mutated.
+        // Furthermore, `expression` will always be an identifier or tuple expression.
+        self.early_returns.push((guard, expression));
+
+        statements
     }
 }

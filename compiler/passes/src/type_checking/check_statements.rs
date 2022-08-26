@@ -29,52 +29,16 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
 
         match input {
-            Statement::Return(stmt) => self.visit_return(stmt),
-            Statement::Definition(stmt) => self.visit_definition(stmt),
             Statement::Assign(stmt) => self.visit_assign(stmt),
-            Statement::Conditional(stmt) => self.visit_conditional(stmt),
-            Statement::Iteration(stmt) => self.visit_iteration(stmt),
-            Statement::Console(stmt) => self.visit_console(stmt),
             Statement::Block(stmt) => self.visit_block(stmt),
-        }
-    }
-
-    fn visit_return(&mut self, input: &'a ReturnStatement) {
-        // we can safely unwrap all self.parent instances because
-        // statements should always have some parent block
-        let parent = self.parent.unwrap();
-        let return_type = &self
-            .symbol_table
-            .borrow()
-            .lookup_fn_symbol(parent)
-            .map(|f| f.output.clone());
-
-        self.has_return = true;
-
-        self.visit_expression(&input.expression, return_type);
-    }
-
-    fn visit_definition(&mut self, input: &'a DefinitionStatement) {
-        let declaration = if input.declaration_type == DeclarationType::Const {
-            VariableType::Const
-        } else {
-            VariableType::Mut
-        };
-
-        // Check that the type of the definition is valid.
-        self.assert_type_is_valid(input.span, &input.type_);
-
-        self.visit_expression(&input.value, &Some(input.type_.clone()));
-
-        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-            input.variable_name.name,
-            VariableSymbol {
-                type_: input.type_.clone(),
-                span: input.span(),
-                declaration,
-            },
-        ) {
-            self.handler.emit_err(err);
+            Statement::Conditional(stmt) => self.visit_conditional(stmt),
+            Statement::Console(stmt) => self.visit_console(stmt),
+            Statement::Decrement(stmt) => self.visit_decrement(stmt),
+            Statement::Definition(stmt) => self.visit_definition(stmt),
+            Statement::Finalize(stmt) => self.visit_finalize(stmt),
+            Statement::Increment(stmt) => self.visit_increment(stmt),
+            Statement::Iteration(stmt) => self.visit_iteration(stmt),
+            Statement::Return(stmt) => self.visit_return(stmt),
         }
     }
 
@@ -108,6 +72,26 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
     }
 
+    fn visit_block(&mut self, input: &'a Block) {
+        // Creates a new sub-scope since we are in a block.
+        let scope_index = self.symbol_table.borrow_mut().insert_block();
+        let previous_symbol_table = std::mem::take(&mut self.symbol_table);
+        self.symbol_table.swap(
+            previous_symbol_table
+                .borrow()
+                .lookup_scope_by_index(scope_index)
+                .unwrap(),
+        );
+        self.symbol_table.borrow_mut().parent = Some(Box::new(previous_symbol_table.into_inner()));
+
+        input.statements.iter().for_each(|stmt| self.visit_statement(stmt));
+
+        let previous_symbol_table = *self.symbol_table.borrow_mut().parent.take().unwrap();
+        self.symbol_table
+            .swap(previous_symbol_table.lookup_scope_by_index(scope_index).unwrap());
+        self.symbol_table = RefCell::new(previous_symbol_table);
+    }
+
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
         self.visit_expression(&input.condition, &Some(Type::Boolean));
 
@@ -134,6 +118,58 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         // Restore the previous `has_return` flag.
         self.has_return = previous_has_return || (then_block_has_return && otherwise_block_has_return);
+    }
+
+    fn visit_console(&mut self, input: &'a ConsoleStatement) {
+        match &input.function {
+            ConsoleFunction::Assert(expr) => {
+                let type_ = self.visit_expression(expr, &Some(Type::Boolean));
+                self.assert_bool_type(&type_, expr.span());
+            }
+            ConsoleFunction::AssertEq(left, right) | ConsoleFunction::AssertNeq(left, right) => {
+                let t1 = self.visit_expression(left, &None);
+                let t2 = self.visit_expression(right, &None);
+
+                // Check that the types are equal.
+                self.check_eq_types(&t1, &t2, input.span());
+            }
+        }
+    }
+
+    fn visit_decrement(&mut self, _input: &'a DecrementStatement) {
+        todo!()
+    }
+
+    fn visit_definition(&mut self, input: &'a DefinitionStatement) {
+        let declaration = if input.declaration_type == DeclarationType::Const {
+            VariableType::Const
+        } else {
+            VariableType::Mut
+        };
+
+        // Check that the type of the definition is valid.
+        self.assert_type_is_valid(input.span, &input.type_);
+
+        self.visit_expression(&input.value, &Some(input.type_.clone()));
+
+        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+            input.variable_name.name,
+            VariableSymbol {
+                type_: input.type_.clone(),
+                span: input.span(),
+                declaration,
+            },
+        ) {
+            self.handler.emit_err(err);
+        }
+    }
+
+    fn visit_finalize(&mut self, _input: &'a FinalizeStatement) {
+        todo!()
+    }
+
+    fn visit_increment(&mut self, _input: &'a IncrementStatement) {
+        todo!()
     }
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
@@ -190,39 +226,18 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_console(&mut self, input: &'a ConsoleStatement) {
-        match &input.function {
-            ConsoleFunction::Assert(expr) => {
-                let type_ = self.visit_expression(expr, &Some(Type::Boolean));
-                self.assert_bool_type(&type_, expr.span());
-            }
-            ConsoleFunction::AssertEq(left, right) | ConsoleFunction::AssertNeq(left, right) => {
-                let t1 = self.visit_expression(left, &None);
-                let t2 = self.visit_expression(right, &None);
+    fn visit_return(&mut self, input: &'a ReturnStatement) {
+        // we can safely unwrap all self.parent instances because
+        // statements should always have some parent block
+        let parent = self.parent.unwrap();
+        let return_type = &self
+            .symbol_table
+            .borrow()
+            .lookup_fn_symbol(parent)
+            .map(|f| f.output.clone());
 
-                // Check that the types are equal.
-                self.check_eq_types(&t1, &t2, input.span());
-            }
-        }
-    }
+        self.has_return = true;
 
-    fn visit_block(&mut self, input: &'a Block) {
-        // Creates a new sub-scope since we are in a block.
-        let scope_index = self.symbol_table.borrow_mut().insert_block();
-        let previous_symbol_table = std::mem::take(&mut self.symbol_table);
-        self.symbol_table.swap(
-            previous_symbol_table
-                .borrow()
-                .lookup_scope_by_index(scope_index)
-                .unwrap(),
-        );
-        self.symbol_table.borrow_mut().parent = Some(Box::new(previous_symbol_table.into_inner()));
-
-        input.statements.iter().for_each(|stmt| self.visit_statement(stmt));
-
-        let previous_symbol_table = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        self.symbol_table
-            .swap(previous_symbol_table.lookup_scope_by_index(scope_index).unwrap());
-        self.symbol_table = RefCell::new(previous_symbol_table);
+        self.visit_expression(&input.expression, return_type);
     }
 }

@@ -333,13 +333,51 @@ impl ParserContext<'_> {
         let (inputs, ..) = self.parse_paren_comma_list(|p| p.parse_function_parameter().map(Some))?;
 
         // Parse return type.
-        self.expect(&Token::Arrow)?;
-        self.disallow_circuit_construction = true;
-        let output = self.parse_type()?.0;
-        self.disallow_circuit_construction = false;
+        let output = match self.eat(&Token::Arrow) {
+            false => Type::Unit,
+            true => {
+                self.disallow_circuit_construction = true;
+                let output = self.parse_type()?.0;
+                self.disallow_circuit_construction = false;
+                output
+            }
+        };
 
         // Parse the function body.
         let block = self.parse_block()?;
+
+        // Parse the `finalize` block if it exists.
+        let finalize = match self.eat(&Token::Finalize) {
+            false => None,
+            true => {
+                // Get starting span.
+                let start = self.prev_token.span;
+
+                // Parse parameters.
+                let (input, ..) = self.parse_paren_comma_list(|p| p.parse_function_parameter().map(Some))?;
+
+                // Parse return type.
+                let output = match self.eat(&Token::Arrow) {
+                    false => Type::Unit,
+                    true => {
+                        self.disallow_circuit_construction = true;
+                        let output = self.parse_type()?.0;
+                        self.disallow_circuit_construction = false;
+                        output
+                    }
+                };
+
+                // Parse the finalize body.
+                let block = self.parse_block()?;
+
+                Some(Finalize {
+                    input,
+                    output,
+                    span: start + block.span,
+                    block,
+                })
+            }
+        };
 
         Ok((
             name,
@@ -349,7 +387,7 @@ impl ParserContext<'_> {
                 input: inputs,
                 output,
                 span: start + block.span,
-                finalize: None,
+                finalize,
                 block,
             },
         ))

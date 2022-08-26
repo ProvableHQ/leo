@@ -20,6 +20,29 @@ use crate::unroller::Unroller;
 use crate::{VariableSymbol, VariableType};
 
 impl StatementReconstructor for Unroller<'_> {
+    fn reconstruct_block(&mut self, input: Block) -> Block {
+        let scope_index = self.current_scope_index();
+
+        // Enter the block scope.
+        self.enter_block_scope(scope_index);
+        self.block_index = 0;
+
+        let block = Block {
+            statements: input
+                .statements
+                .into_iter()
+                .map(|s| self.reconstruct_statement(s))
+                .collect(),
+            span: input.span,
+        };
+
+        // Exit the block scope.
+        self.exit_block_scope(scope_index);
+        self.block_index = scope_index + 1;
+
+        block
+    }
+
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> Statement {
         // If we are unrolling a loop, then we need to repopulate the symbol table.
         if self.is_unrolling {
@@ -70,28 +93,5 @@ impl StatementReconstructor for Unroller<'_> {
             // If both loop bounds are not constant, then the loop is not unrolled.
             _ => Statement::Iteration(Box::from(input)),
         }
-    }
-
-    fn reconstruct_block(&mut self, input: Block) -> Block {
-        let scope_index = self.current_scope_index();
-
-        // Enter the block scope.
-        self.enter_block_scope(scope_index);
-        self.block_index = 0;
-
-        let block = Block {
-            statements: input
-                .statements
-                .into_iter()
-                .map(|s| self.reconstruct_statement(s))
-                .collect(),
-            span: input.span,
-        };
-
-        // Exit the block scope.
-        self.exit_block_scope(scope_index);
-        self.block_index = scope_index + 1;
-
-        block
     }
 }
