@@ -54,8 +54,8 @@ pub use self::passes::*;
 pub mod program;
 pub use self::program::*;
 
-pub mod statements;
-pub use self::statements::*;
+pub mod statement;
+pub use self::statement::*;
 
 pub mod types;
 pub use self::types::*;

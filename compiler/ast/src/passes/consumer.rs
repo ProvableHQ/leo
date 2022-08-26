@@ -65,29 +65,38 @@ pub trait StatementConsumer {
 
     fn consume_statement(&mut self, input: Statement) -> Self::Output {
         match input {
-            Statement::Return(stmt) => self.consume_return(stmt),
-            Statement::Definition(stmt) => self.consume_definition(stmt),
             Statement::Assign(stmt) => self.consume_assign(*stmt),
-            Statement::Conditional(stmt) => self.consume_conditional(stmt),
-            Statement::Iteration(stmt) => self.consume_iteration(*stmt),
-            Statement::Console(stmt) => self.consume_console(stmt),
             Statement::Block(stmt) => self.consume_block(stmt),
+            Statement::Conditional(stmt) => self.consume_conditional(stmt),
+            Statement::Console(stmt) => self.consume_console(stmt),
+            Statement::Decrement(stmt) => self.consume_decrement(stmt),
+            Statement::Definition(stmt) => self.consume_definition(stmt),
+            Statement::Finalize(stmt) => self.consume_finalize(stmt),
+            Statement::Increment(stmt) => self.consume_increment(stmt),
+            Statement::Iteration(stmt) => self.consume_iteration(*stmt),
+            Statement::Return(stmt) => self.consume_return(stmt),
         }
     }
 
-    fn consume_return(&mut self, input: ReturnStatement) -> Self::Output;
-
-    fn consume_definition(&mut self, input: DefinitionStatement) -> Self::Output;
-
     fn consume_assign(&mut self, input: AssignStatement) -> Self::Output;
+
+    fn consume_block(&mut self, input: Block) -> Self::Output;
 
     fn consume_conditional(&mut self, input: ConditionalStatement) -> Self::Output;
 
-    fn consume_iteration(&mut self, input: IterationStatement) -> Self::Output;
-
     fn consume_console(&mut self, input: ConsoleStatement) -> Self::Output;
 
-    fn consume_block(&mut self, input: Block) -> Self::Output;
+    fn consume_decrement(&mut self, input: DecrementStatement) -> Self::Output;
+
+    fn consume_definition(&mut self, input: DefinitionStatement) -> Self::Output;
+
+    fn consume_finalize(&mut self, input: FinalizeStatement) -> Self::Output;
+
+    fn consume_increment(&mut self, input: IncrementStatement) -> Self::Output;
+
+    fn consume_iteration(&mut self, input: IterationStatement) -> Self::Output;
+
+    fn consume_return(&mut self, input: ReturnStatement) -> Self::Output;
 }
 
 /// A Consumer trait for functions in the AST.

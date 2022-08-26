@@ -14,26 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod statement;
-pub use statement::*;
+use crate::{Expression, Node};
 
-pub mod conditional;
-pub use conditional::*;
+use leo_span::Span;
 
-pub mod block;
-pub use block::*;
+use core::fmt;
+use serde::{Deserialize, Serialize};
 
-pub mod return_statement;
-pub use return_statement::*;
+/// A return statement `finalize expression;`.
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+pub struct FinalizeStatement {
+    /// The arguments to pass to the finalize block.
+    pub expression: Expression,
+    /// The span of `finalize expression` excluding the semicolon.
+    pub span: Span,
+}
 
-pub mod iteration;
-pub use iteration::*;
+impl fmt::Display for FinalizeStatement {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "finalize {}", self.expression)
+    }
+}
 
-pub mod definition;
-pub use definition::*;
-
-pub mod console;
-pub use console::*;
-
-pub mod assign;
-pub use assign::*;
+crate::simple_node_impl!(FinalizeStatement);

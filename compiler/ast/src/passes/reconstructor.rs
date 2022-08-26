@@ -155,31 +155,17 @@ pub trait ExpressionReconstructor {
 pub trait StatementReconstructor: ExpressionReconstructor {
     fn reconstruct_statement(&mut self, input: Statement) -> Statement {
         match input {
-            Statement::Return(stmt) => self.reconstruct_return(stmt),
-            Statement::Definition(stmt) => self.reconstruct_definition(stmt),
             Statement::Assign(stmt) => self.reconstruct_assign(*stmt),
-            Statement::Conditional(stmt) => self.reconstruct_conditional(stmt),
-            Statement::Iteration(stmt) => self.reconstruct_iteration(*stmt),
-            Statement::Console(stmt) => self.reconstruct_console(stmt),
             Statement::Block(stmt) => Statement::Block(self.reconstruct_block(stmt)),
+            Statement::Conditional(stmt) => self.reconstruct_conditional(stmt),
+            Statement::Console(stmt) => self.reconstruct_console(stmt),
+            Statement::Decrement(stmt) => self.reconstruct_decrement(stmt),
+            Statement::Definition(stmt) => self.reconstruct_definition(stmt),
+            Statement::Finalize(stmt) => self.reconstruct_finalize(stmt),
+            Statement::Increment(stmt) => self.reconstruct_increment(stmt),
+            Statement::Iteration(stmt) => self.reconstruct_iteration(*stmt),
+            Statement::Return(stmt) => self.reconstruct_return(stmt),
         }
-    }
-
-    fn reconstruct_return(&mut self, input: ReturnStatement) -> Statement {
-        Statement::Return(ReturnStatement {
-            expression: self.reconstruct_expression(input.expression).0,
-            span: input.span,
-        })
-    }
-
-    fn reconstruct_definition(&mut self, input: DefinitionStatement) -> Statement {
-        Statement::Definition(DefinitionStatement {
-            declaration_type: input.declaration_type,
-            variable_name: input.variable_name,
-            type_: input.type_,
-            value: self.reconstruct_expression(input.value).0,
-            span: input.span,
-        })
     }
 
     fn reconstruct_assign(&mut self, input: AssignStatement) -> Statement {
@@ -190,6 +176,17 @@ pub trait StatementReconstructor: ExpressionReconstructor {
         }))
     }
 
+    fn reconstruct_block(&mut self, input: Block) -> Block {
+        Block {
+            statements: input
+                .statements
+                .into_iter()
+                .map(|s| self.reconstruct_statement(s))
+                .collect(),
+            span: input.span,
+        }
+    }
+
     fn reconstruct_conditional(&mut self, input: ConditionalStatement) -> Statement {
         Statement::Conditional(ConditionalStatement {
             condition: self.reconstruct_expression(input.condition).0,
@@ -197,20 +194,6 @@ pub trait StatementReconstructor: ExpressionReconstructor {
             otherwise: input.otherwise.map(|n| Box::new(self.reconstruct_statement(*n))),
             span: input.span,
         })
-    }
-
-    fn reconstruct_iteration(&mut self, input: IterationStatement) -> Statement {
-        Statement::Iteration(Box::new(IterationStatement {
-            variable: input.variable,
-            type_: input.type_,
-            start: self.reconstruct_expression(input.start).0,
-            start_value: input.start_value,
-            stop: self.reconstruct_expression(input.stop).0,
-            stop_value: input.stop_value,
-            block: self.reconstruct_block(input.block),
-            inclusive: input.inclusive,
-            span: input.span,
-        }))
     }
 
     fn reconstruct_console(&mut self, input: ConsoleStatement) -> Statement {
@@ -230,15 +213,60 @@ pub trait StatementReconstructor: ExpressionReconstructor {
         })
     }
 
-    fn reconstruct_block(&mut self, input: Block) -> Block {
-        Block {
-            statements: input
-                .statements
-                .into_iter()
-                .map(|s| self.reconstruct_statement(s))
-                .collect(),
+    fn reconstruct_decrement(&mut self, input: DecrementStatement) -> Statement {
+        Statement::Decrement(DecrementStatement {
+            mapping: input.mapping,
+            index: input.index,
+            amount: input.amount,
             span: input.span,
-        }
+        })
+    }
+
+    fn reconstruct_definition(&mut self, input: DefinitionStatement) -> Statement {
+        Statement::Definition(DefinitionStatement {
+            declaration_type: input.declaration_type,
+            variable_name: input.variable_name,
+            type_: input.type_,
+            value: self.reconstruct_expression(input.value).0,
+            span: input.span,
+        })
+    }
+
+    fn reconstruct_finalize(&mut self, input: FinalizeStatement) -> Statement {
+        Statement::Finalize(FinalizeStatement {
+            expression: input.expression,
+            span: input.span,
+        })
+    }
+
+    fn reconstruct_increment(&mut self, input: IncrementStatement) -> Statement {
+        Statement::Increment(IncrementStatement {
+            mapping: input.mapping,
+            index: input.index,
+            amount: input.amount,
+            span: input.span,
+        })
+    }
+
+    fn reconstruct_iteration(&mut self, input: IterationStatement) -> Statement {
+        Statement::Iteration(Box::new(IterationStatement {
+            variable: input.variable,
+            type_: input.type_,
+            start: self.reconstruct_expression(input.start).0,
+            start_value: input.start_value,
+            stop: self.reconstruct_expression(input.stop).0,
+            stop_value: input.stop_value,
+            block: self.reconstruct_block(input.block),
+            inclusive: input.inclusive,
+            span: input.span,
+        }))
+    }
+
+    fn reconstruct_return(&mut self, input: ReturnStatement) -> Statement {
+        Statement::Return(ReturnStatement {
+            expression: self.reconstruct_expression(input.expression).0,
+            span: input.span,
+        })
     }
 }
 

@@ -116,26 +116,25 @@ pub trait ExpressionVisitor<'a> {
 pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
     fn visit_statement(&mut self, input: &'a Statement) {
         match input {
-            Statement::Return(stmt) => self.visit_return(stmt),
-            Statement::Definition(stmt) => self.visit_definition(stmt),
             Statement::Assign(stmt) => self.visit_assign(stmt),
-            Statement::Conditional(stmt) => self.visit_conditional(stmt),
-            Statement::Iteration(stmt) => self.visit_iteration(stmt),
-            Statement::Console(stmt) => self.visit_console(stmt),
             Statement::Block(stmt) => self.visit_block(stmt),
+            Statement::Conditional(stmt) => self.visit_conditional(stmt),
+            Statement::Console(stmt) => self.visit_console(stmt),
+            Statement::Decrement(stmt) => self.visit_decrement(stmt),
+            Statement::Definition(stmt) => self.visit_definition(stmt),
+            Statement::Finalize(stmt) => self.visit_finalize(stmt),
+            Statement::Increment(stmt) => self.visit_increment(stmt),
+            Statement::Iteration(stmt) => self.visit_iteration(stmt),
+            Statement::Return(stmt) => self.visit_return(stmt),
         }
-    }
-
-    fn visit_return(&mut self, input: &'a ReturnStatement) {
-        self.visit_expression(&input.expression, &Default::default());
-    }
-
-    fn visit_definition(&mut self, input: &'a DefinitionStatement) {
-        self.visit_expression(&input.value, &Default::default());
     }
 
     fn visit_assign(&mut self, input: &'a AssignStatement) {
         self.visit_expression(&input.value, &Default::default());
+    }
+
+    fn visit_block(&mut self, input: &'a Block) {
+        input.statements.iter().for_each(|stmt| self.visit_statement(stmt));
     }
 
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
@@ -144,12 +143,6 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
         if let Some(stmt) = input.otherwise.as_ref() {
             self.visit_statement(stmt);
         }
-    }
-
-    fn visit_iteration(&mut self, input: &'a IterationStatement) {
-        self.visit_expression(&input.start, &Default::default());
-        self.visit_expression(&input.stop, &Default::default());
-        self.visit_block(&input.block);
     }
 
     fn visit_console(&mut self, input: &'a ConsoleStatement) {
@@ -168,8 +161,34 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
         };
     }
 
-    fn visit_block(&mut self, input: &'a Block) {
-        input.statements.iter().for_each(|stmt| self.visit_statement(stmt));
+    fn visit_decrement(&mut self, input: &'a DecrementStatement) {
+        self.visit_expression(&input.amount, &Default::default());
+        self.visit_expression(&input.index, &Default::default());
+        self.visit_identifier(&input.mapping, &Default::default());
+    }
+
+    fn visit_definition(&mut self, input: &'a DefinitionStatement) {
+        self.visit_expression(&input.value, &Default::default());
+    }
+
+    fn visit_finalize(&mut self, input: &'a FinalizeStatement) {
+        self.visit_expression(&input.expression, &Default::default());
+    }
+
+    fn visit_increment(&mut self, input: &'a IncrementStatement) {
+        self.visit_expression(&input.amount, &Default::default());
+        self.visit_expression(&input.index, &Default::default());
+        self.visit_identifier(&input.mapping, &Default::default());
+    }
+
+    fn visit_iteration(&mut self, input: &'a IterationStatement) {
+        self.visit_expression(&input.start, &Default::default());
+        self.visit_expression(&input.stop, &Default::default());
+        self.visit_block(&input.block);
+    }
+
+    fn visit_return(&mut self, input: &'a ReturnStatement) {
+        self.visit_expression(&input.expression, &Default::default());
     }
 }
 
