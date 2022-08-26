@@ -43,6 +43,8 @@ pub enum Type {
     String,
     /// A static tuple of at least one type.
     Tuple(Tuple),
+    /// The `unit` type.
+    Unit,
     /// Placeholder for a type that could not be resolved or was not well-formed.
     /// Will eventually lead to a compile error.
     Err,
@@ -61,7 +63,8 @@ impl Type {
             | (Type::Field, Type::Field)
             | (Type::Group, Type::Group)
             | (Type::Scalar, Type::Scalar)
-            | (Type::String, Type::String) => true,
+            | (Type::String, Type::String)
+            | (Type::Unit, Type::Unit) => true,
             (Type::Integer(left), Type::Integer(right)) => left.eq(right),
             (Type::Mapping(left), Type::Mapping(right)) => {
                 left.key.eq_flat(&right.key) && left.value.eq_flat(&right.value)
@@ -89,6 +92,7 @@ impl fmt::Display for Type {
             Type::Scalar => write!(f, "scalar"),
             Type::String => write!(f, "string"),
             Type::Tuple(ref tuple) => write!(f, "{}", tuple),
+            Type::Unit => write!(f, "()"),
             Type::Err => write!(f, "error"),
         }
     }

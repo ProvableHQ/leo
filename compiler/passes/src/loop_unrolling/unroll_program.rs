@@ -38,8 +38,8 @@ impl ProgramReconstructor for Unroller<'_> {
             identifier: function.identifier,
             input: function.input,
             output: function.output,
-            core_mapping: function.core_mapping,
             block: self.reconstruct_block(function.block),
+            finalize: function.finalize,
             span: function.span,
         };
 

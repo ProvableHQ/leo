@@ -43,6 +43,7 @@ impl<'a> CodeGenerator<'a> {
                 unreachable!("Tuple types are not supported at this phase of compilation")
             }
             Type::Err => unreachable!("Error types should not exist at this phase of compilation"),
+            Type::Unit => unreachable!("Unit types are not supported at this phase of compilation"),
         }
     }
 

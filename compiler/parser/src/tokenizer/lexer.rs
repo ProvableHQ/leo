@@ -402,6 +402,7 @@ impl Token {
                     "else" => Token::Else,
                     "false" => Token::False,
                     "field" => Token::Field,
+                    "finalize" => Token::Finalize,
                     "for" => Token::For,
                     "function" => Token::Function,
                     "group" => Token::Group,

@@ -187,6 +187,7 @@ symbols! {
     CoreFunction,
     console,
     Else: "else",
+    finalize,
     For: "for",
     function,
     If: "if",

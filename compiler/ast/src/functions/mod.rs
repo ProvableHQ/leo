@@ -17,6 +17,9 @@
 pub mod annotation;
 pub use annotation::*;
 
+pub mod finalize;
+pub use finalize::*;
+
 pub mod function_input;
 pub use function_input::*;
 
@@ -24,7 +27,6 @@ use crate::{Block, Identifier, Node, Type};
 use leo_span::{sym, Span, Symbol};
 
 use serde::{Deserialize, Serialize};
-use std::cell::Cell;
 use std::fmt;
 
 /// A function definition.
@@ -38,11 +40,10 @@ pub struct Function {
     pub input: Vec<FunctionInput>,
     /// The function's required return type.
     pub output: Type,
-    /// Any mapping to the core library.
-    /// Always `None` when initially parsed.
-    pub core_mapping: Cell<Option<Symbol>>,
     /// The body of the function.
     pub block: Block,
+    /// An optional finalize block
+    pub finalize: Option<Finalize>,
     /// The entire span of the function definition.
     pub span: Span,
 }

@@ -193,6 +193,9 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
 
     fn visit_function(&mut self, input: &'a Function) {
         self.visit_block(&input.block);
+        if let Some(finalize) = &input.finalize {
+            self.visit_block(&finalize.block);
+        }
     }
 
     fn visit_circuit(&mut self, _input: &'a Circuit) {}

@@ -278,8 +278,13 @@ pub trait ProgramReconstructor: StatementReconstructor {
             identifier: input.identifier,
             input: input.input,
             output: input.output,
-            core_mapping: input.core_mapping,
             block: self.reconstruct_block(input.block),
+            finalize: input.finalize.map(|finalize| Finalize {
+                input: finalize.input,
+                output: finalize.output,
+                block: self.reconstruct_block(finalize.block),
+                span: finalize.span,
+            }),
             span: input.span,
         }
     }

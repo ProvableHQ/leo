@@ -141,11 +141,11 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
             identifier: function.identifier,
             input: function.input,
             output: function.output,
-            core_mapping: function.core_mapping,
             block: Block {
                 span: Default::default(),
                 statements,
             },
+            finalize: function.finalize,
             span: function.span,
         }
     }

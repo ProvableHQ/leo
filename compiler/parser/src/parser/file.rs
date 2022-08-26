@@ -349,8 +349,8 @@ impl ParserContext<'_> {
                 input: inputs,
                 output,
                 span: start + block.span,
+                finalize: None,
                 block,
-                core_mapping: <_>::default(),
             },
         ))
     }
