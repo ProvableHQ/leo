@@ -149,6 +149,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_mapping(&mut self, input: &'a Mapping) {
+        // Check that a mapping's key type is valid.
+        self.assert_type_is_valid(input.span, &input.key_type);
         // Check that a mapping's key type is not tuple types or mapping types.
         match input.key_type {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span)),
@@ -157,6 +159,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             _ => {}
         }
 
+        // Check that a mapping's value type is valid.
+        self.assert_type_is_valid(input.span, &input.value_type);
         // Check that a mapping's value type is not tuple types or mapping types.
         match input.value_type {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span)),

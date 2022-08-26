@@ -212,7 +212,7 @@ impl<'a> CodeGenerator<'a> {
                     let (is_record, _) = self.composite_mapping.get(&identifier.name).unwrap();
                     match is_record {
                         // If the type is a record, then declare the type as is.
-                        true => format!("{}", identifier),
+                        true => format!("{}.record", identifier),
                         // If the type is a circuit, then add the public modifier.
                         false => format!("{}.public", identifier),
                     }

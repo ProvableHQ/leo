@@ -366,11 +366,16 @@ impl<'a> TypeChecker<'a> {
             Type::Identifier(identifier) if self.symbol_table.borrow().lookup_circuit(identifier.name).is_none() => {
                 self.emit_err(TypeCheckerError::undefined_type(identifier.name, span));
             }
-            // Check that the constituent types are valid.
+            // Check that the constituent types of the tuple are valid.
             Type::Tuple(tuple_type) => {
                 for type_ in tuple_type.iter() {
                     self.assert_type_is_valid(span, type_)
                 }
+            }
+            // Check that the constituent types of mapping are valid.
+            Type::Mapping(mapping_type) => {
+                self.assert_type_is_valid(span, &mapping_type.key);
+                self.assert_type_is_valid(span, &mapping_type.value);
             }
             _ => {} // Do nothing.
         }
