@@ -197,31 +197,31 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
     fn visit_program(&mut self, input: &'a Program) {
         input.imports.values().for_each(|import| self.visit_import(import));
 
+        input
+            .circuits
+            .values()
+            .for_each(|function| self.visit_circuit(function));
+
         input.mappings.values().for_each(|mapping| self.visit_mapping(mapping));
 
         input
             .functions
             .values()
             .for_each(|function| self.visit_function(function));
-
-        input
-            .circuits
-            .values()
-            .for_each(|function| self.visit_circuit(function));
     }
 
-    fn visit_function(&mut self, input: &'a Function) {
-        self.visit_block(&input.block);
-        if let Some(finalize) = &input.finalize {
-            self.visit_block(&finalize.block);
-        }
+    fn visit_import(&mut self, input: &'a Program) {
+        self.visit_program(input)
     }
 
     fn visit_circuit(&mut self, _input: &'a Circuit) {}
 
     fn visit_mapping(&mut self, _input: &'a Mapping) {}
 
-    fn visit_import(&mut self, input: &'a Program) {
-        self.visit_program(input)
+    fn visit_function(&mut self, input: &'a Function) {
+        self.visit_block(&input.block);
+        if let Some(finalize) = &input.finalize {
+            self.visit_block(&finalize.block);
+        }
     }
 }

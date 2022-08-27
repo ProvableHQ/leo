@@ -19,6 +19,17 @@ use leo_span::Span;
 
 use crate::SymbolTable;
 
+/// Metadata associated with the finalize block.
+#[derive(Debug, Clone)]
+pub struct FinalizeData {
+    /// The inputs to the finalize block.
+    pub(crate) input: Vec<FunctionInput>,
+    /// The output type of the finalize block.
+    pub(crate) output: Type,
+    /// The span of the finalize block.
+    pub(crate) span: Span,
+}
+
 /// An entry for a function in the symbol table.
 #[derive(Clone, Debug)]
 pub struct FunctionSymbol {
@@ -30,6 +41,8 @@ pub struct FunctionSymbol {
     pub(crate) span: Span,
     /// The inputs to the function.
     pub(crate) input: Vec<FunctionInput>,
+    /// Metadata associated with the finalize block.
+    pub(crate) finalize: Option<FinalizeData>,
 }
 
 impl SymbolTable {
@@ -39,6 +52,11 @@ impl SymbolTable {
             output: func.output.clone(),
             span: func.span,
             input: func.input.clone(),
+            finalize: func.finalize.as_ref().map(|finalize| FinalizeData {
+                input: finalize.input.clone(),
+                output: finalize.output.clone(),
+                span: finalize.span,
+            }),
         }
     }
 }

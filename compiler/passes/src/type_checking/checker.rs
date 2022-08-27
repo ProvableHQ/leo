@@ -25,13 +25,19 @@ use itertools::Itertools;
 use std::cell::RefCell;
 
 pub struct TypeChecker<'a> {
+    /// The symbol table for the program.
     pub(crate) symbol_table: RefCell<SymbolTable>,
+    /// The error handler.
     pub(crate) handler: &'a Handler,
-    pub(crate) parent: Option<Symbol>,
+    /// The name of the function that we are currently traversing.
+    pub(crate) function: Option<Symbol>,
+    /// Whether or not the function that we are currently traversing has a return statement.
     pub(crate) has_return: bool,
     /// Are we traversing a program function?
     /// A "program function" is a function that can be invoked by a user or another program.
     pub(crate) is_program_function: bool,
+    /// Are we traversing a finalize block?
+    pub(crate) is_finalize: bool,
 }
 
 const BOOLEAN_TYPE: Type = Type::Boolean;
@@ -84,9 +90,36 @@ impl<'a> TypeChecker<'a> {
             is_program_function: false,
             symbol_table: RefCell::new(symbol_table),
             handler,
-            parent: None,
+            function: None,
             has_return: false,
+            is_finalize: false,
         }
+    }
+
+    /// Enters a child scope.
+    pub(crate) fn enter_scope(&mut self, index: usize) {
+        let previous_symbol_table = std::mem::take(&mut self.symbol_table);
+        self.symbol_table
+            .swap(previous_symbol_table.borrow().lookup_scope_by_index(index).unwrap());
+        self.symbol_table.borrow_mut().parent = Some(Box::new(previous_symbol_table.into_inner()));
+    }
+
+    /// Creates a new child scope.
+    pub(crate) fn create_child_scope(&mut self) -> usize {
+        // Creates a new child scope.
+        let scope_index = self.symbol_table.borrow_mut().insert_block();
+        // Enter the new scope.
+        self.enter_scope(scope_index);
+        // Return the index of the new scope.
+        scope_index
+    }
+
+    /// Exits the current scope.
+    pub(crate) fn exit_scope(&mut self, index: usize) {
+        let previous_symbol_table = *self.symbol_table.borrow_mut().parent.take().unwrap();
+        self.symbol_table
+            .swap(previous_symbol_table.lookup_scope_by_index(index).unwrap());
+        self.symbol_table = RefCell::new(previous_symbol_table);
     }
 
     /// Emits a type checker error.
@@ -379,6 +412,16 @@ impl<'a> TypeChecker<'a> {
             }
             _ => {} // Do nothing.
         }
+    }
+
+    /// Emits an error if the type is not a mapping.
+    pub(crate) fn assert_mapping_type(&self, type_: &Option<Type>, span: Span) {
+        self.check_type(
+            |type_| matches!(type_, Type::Mapping(_)),
+            "mapping".to_string(),
+            type_,
+            span,
+        )
     }
 }
 

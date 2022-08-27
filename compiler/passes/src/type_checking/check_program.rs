@@ -21,78 +21,11 @@ use leo_errors::TypeCheckerError;
 
 use leo_span::sym;
 
-use std::cell::RefCell;
 use std::collections::HashSet;
 
 // TODO: Generally, cleanup tyc logic.
 
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
-    fn visit_function(&mut self, input: &'a Function) {
-        // Check that the function's annotations are valid.
-        for annotation in input.annotations.iter() {
-            match annotation.identifier.name {
-                // Set `is_program_function` to true if the corresponding annotation is found.
-                sym::program => self.is_program_function = true,
-                _ => self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span)),
-            }
-        }
-
-        let prev_st = std::mem::take(&mut self.symbol_table);
-        self.symbol_table
-            .swap(prev_st.borrow().lookup_fn_scope(input.name()).unwrap());
-        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
-
-        self.has_return = false;
-        self.parent = Some(input.name());
-        input.input.iter().for_each(|input_var| {
-            // Check that the type of input parameter is valid.
-            self.assert_type_is_valid(input_var.span, &input_var.type_);
-            self.assert_not_tuple(input_var.span, &input_var.type_);
-
-            // If the function is not a program function, then check that the parameters do not have an associated mode.
-            if !self.is_program_function && input_var.mode() != ParamMode::None {
-                self.emit_err(TypeCheckerError::helper_function_inputs_cannot_have_modes(
-                    input_var.span,
-                ));
-            }
-
-            // Check for conflicting variable names.
-            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                input_var.identifier.name,
-                VariableSymbol {
-                    type_: input_var.type_.clone(),
-                    span: input_var.identifier.span(),
-                    declaration: VariableType::Input(input_var.mode()),
-                },
-            ) {
-                self.handler.emit_err(err);
-            }
-        });
-        self.visit_block(&input.block);
-
-        if !self.has_return {
-            self.emit_err(TypeCheckerError::function_has_no_return(input.name(), input.span()));
-        } else {
-            // Check that the return type is valid.
-            // TODO: Span should be just for the return type.
-            self.assert_type_is_valid(input.span, &input.output);
-        }
-
-        // Ensure there are no nested tuples in the return type.
-        if let Type::Tuple(tys) = &input.output {
-            for ty in &tys.0 {
-                self.assert_not_tuple(input.span, ty);
-            }
-        }
-
-        let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        self.symbol_table.swap(prev_st.lookup_fn_scope(input.name()).unwrap());
-        self.symbol_table = RefCell::new(prev_st);
-
-        // Unset `is_program_function` flag.
-        self.is_program_function = false;
-    }
-
     fn visit_circuit(&mut self, input: &'a Circuit) {
         // Check for conflicting circuit/record member names.
         let mut used = HashSet::new();
@@ -168,5 +101,143 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             Type::Mapping(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "mapping", input.span)),
             _ => {}
         }
+    }
+
+    fn visit_function(&mut self, function: &'a Function) {
+        // Check that the function's annotations are valid.
+        for annotation in function.annotations.iter() {
+            match annotation.identifier.name {
+                // Set `is_program_function` to true if the corresponding annotation is found.
+                sym::program => self.is_program_function = true,
+                _ => self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span)),
+            }
+        }
+
+        // Lookup function metadata in the symbol table.
+        // Note that this unwrap is safe since function metadata is stored in a prior pass.
+        let function_index = self
+            .symbol_table
+            .borrow()
+            .lookup_fn_symbol(function.identifier.name)
+            .unwrap()
+            .id;
+
+        // Enter the function's scope.
+        self.enter_scope(function_index);
+
+        // The function's body does not have a return statement.
+        self.has_return = false;
+
+        // Store the name of the function.
+        self.function = Some(function.name());
+
+        // Create a new child scope for the function's parameters and body.
+        let scope_index = self.create_child_scope();
+
+        function.input.iter().for_each(|input_var| {
+            // Check that the type of input parameter is valid.
+            self.assert_type_is_valid(input_var.span, &input_var.type_);
+            self.assert_not_tuple(input_var.span, &input_var.type_);
+
+            // If the function is not a program function, then check that the parameters do not have an associated mode.
+            if !self.is_program_function && input_var.mode() != ParamMode::None {
+                self.emit_err(TypeCheckerError::helper_function_inputs_cannot_have_modes(
+                    input_var.span,
+                ));
+            }
+
+            // Check for conflicting variable names.
+            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+                input_var.identifier.name,
+                VariableSymbol {
+                    type_: input_var.type_.clone(),
+                    span: input_var.identifier.span(),
+                    declaration: VariableType::Input(input_var.mode()),
+                },
+            ) {
+                self.handler.emit_err(err);
+            }
+        });
+
+        self.visit_block(&function.block);
+
+        if !self.has_return {
+            self.emit_err(TypeCheckerError::function_has_no_return(
+                function.name(),
+                function.span(),
+            ));
+        } else {
+            // Check that the return type is valid.
+            // TODO: Span should be just for the return type.
+            self.assert_type_is_valid(function.span, &function.output);
+        }
+
+        // Ensure there are no nested tuples in the return type.
+        if let Type::Tuple(tys) = &function.output {
+            for ty in &tys.0 {
+                self.assert_not_tuple(function.span, ty);
+            }
+        }
+
+        // Exit the scope for the function's parameters and body.
+        self.exit_scope(scope_index);
+
+        // Traverse and check the finalize block if it exists.
+        if let Some(finalize) = &function.finalize {
+            self.is_finalize = true;
+
+            if !self.is_program_function {
+                self.emit_err(TypeCheckerError::only_program_functions_can_have_finalize(
+                    finalize.span,
+                ));
+            }
+
+            // Create a new child scope for the finalize block.
+            let scope_index = self.create_child_scope();
+
+            finalize.input.iter().for_each(|input_var| {
+                // Check that the type of input parameter is valid.
+                self.assert_type_is_valid(input_var.span, &input_var.type_);
+                self.assert_not_tuple(input_var.span, &input_var.type_);
+
+                // Check that the input parameter is not constant or private.
+                if input_var.mode() == ParamMode::Const || input_var.mode() == ParamMode::Private {
+                    self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span));
+                }
+
+                // Check for conflicting variable names.
+                if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+                    input_var.identifier.name,
+                    VariableSymbol {
+                        type_: input_var.type_.clone(),
+                        span: input_var.identifier.span(),
+                        declaration: VariableType::Input(input_var.mode()),
+                    },
+                ) {
+                    self.handler.emit_err(err);
+                }
+            });
+
+            // Type check the finalize block.
+            self.visit_block(&finalize.block);
+
+            // Exit the scope for the finalize block.
+            self.exit_scope(scope_index);
+
+            // Ensure there are no nested tuples in the return type.
+            if let Type::Tuple(tys) = &finalize.output {
+                for ty in &tys.0 {
+                    self.assert_not_tuple(function.span, ty);
+                }
+            }
+
+            self.is_finalize = false;
+        }
+
+        // Exit the function's scope.
+        self.exit_scope(function_index);
+
+        // Unset `is_program_function` flag.
+        self.is_program_function = false;
     }
 }

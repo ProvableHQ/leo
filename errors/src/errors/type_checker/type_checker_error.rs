@@ -302,4 +302,39 @@ create_messages!(
         msg: format!("A mapping's {component} cannot be a {type_}"),
         help: None,
     }
+
+    @formatted
+    only_program_functions_can_have_finalize {
+        args: (),
+        msg: format!("Only program functions can have a `finalize` block."),
+        help: Some("Remove the `finalize` block or add a `@program` annotation to the function.".to_string()),
+    }
+
+    @formatted
+    finalize_input_mode_must_be_public {
+        args: (),
+        msg: format!("An input to a finalize block must be public."),
+        help: Some("Add a `public` modifier to the input variable declaration or remove the visibility modifier entirely.".to_string()),
+    }
+
+    @formatted
+    finalize_in_finalize {
+        args: (),
+        msg: format!("A finalize block cannot contain a finalize statement."),
+        help: None,
+    }
+
+    @formatted
+    increment_or_decrement_outside_finalize {
+        args: (),
+        msg: format!("`increment` or `decrement` statements must be inside a finalize block."),
+        help: None,
+    }
+
+    @formatted
+    finalize_without_finalize_block {
+        args: (),
+        msg: format!("Cannot use a `finalize` statement without a `finalize` block."),
+        help: None,
+    }
 );

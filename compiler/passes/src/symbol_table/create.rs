@@ -46,10 +46,8 @@ impl<'a> ExpressionVisitor<'a> for CreateSymbolTable<'a> {
 impl<'a> StatementVisitor<'a> for CreateSymbolTable<'a> {}
 
 impl<'a> ProgramVisitor<'a> for CreateSymbolTable<'a> {
-    fn visit_function(&mut self, input: &'a Function) {
-        if let Err(err) = self.symbol_table.insert_fn(input.name(), input) {
-            self.handler.emit_err(err);
-        }
+    fn visit_import(&mut self, input: &'a Program) {
+        self.visit_program(input)
     }
 
     fn visit_circuit(&mut self, input: &'a Circuit) {
@@ -75,7 +73,9 @@ impl<'a> ProgramVisitor<'a> for CreateSymbolTable<'a> {
         }
     }
 
-    fn visit_import(&mut self, input: &'a Program) {
-        self.visit_program(input)
+    fn visit_function(&mut self, input: &'a Function) {
+        if let Err(err) = self.symbol_table.insert_fn(input.name(), input) {
+            self.handler.emit_err(err);
+        }
     }
 }
