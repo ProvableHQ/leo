@@ -162,6 +162,12 @@
 <span id="156">156</span>
 <span id="157">157</span>
 <span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -248,6 +254,12 @@
     },
     <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">subcommand</span>)]</span>
     <span class="ident">Node</span>(<span class="ident">Node</span>),
+
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">about</span> <span class="op">=</span> <span class="string">&quot;Deploy a program&quot;</span>)]</span>
+    <span class="ident">Deploy</span> {
+        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
+        <span class="ident">command</span>: <span class="ident">Deploy</span>,
+    },
 }
 
 <span class="kw">fn</span> <span class="ident">set_panic_hook</span>() {
@@ -307,12 +319,12 @@
     <span class="kw">let</span> <span class="ident">context</span> <span class="op">=</span> <span class="ident">handle_error</span>(<span class="ident">Context::new</span>(<span class="ident">cli</span>.<span class="ident">path</span>));
 
     <span class="kw">match</span> <span class="ident">cli</span>.<span class="ident">command</span> {
-        <span class="comment">// CommandOpts::Init { command } =&gt; command.try_execute(context),</span>
         <span class="ident">Commands::New</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
         <span class="ident">Commands::Build</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
         <span class="ident">Commands::Clean</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
         <span class="ident">Commands::Run</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
         <span class="ident">Commands::Node</span>(<span class="ident">command</span>) =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+        <span class="ident">Commands::Deploy</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
     }
 }
 

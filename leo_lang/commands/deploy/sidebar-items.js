@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["Deploy","Deploys an Aleo program."]]};
