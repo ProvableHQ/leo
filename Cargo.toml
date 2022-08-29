@@ -62,11 +62,11 @@ version = "1.5.3"
 
 [dependencies.aleo]
 git = "https://github.com/AleoHQ/aleo.git"
-rev = "ac95490"
+rev = "46722e3"
 
 [dependencies.snarkvm]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "f7f5b13"
+rev = "d041a0e"
 features = ["aleo-cli", "circuit", "console", "parallel"]
 
 [dependencies.backtrace]
