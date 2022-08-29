@@ -33,6 +33,8 @@ pub struct TypeChecker<'a> {
     pub(crate) function: Option<Symbol>,
     /// Whether or not the function that we are currently traversing has a return statement.
     pub(crate) has_return: bool,
+    /// Whether or not the function that we are currently traversing has a finalize statement.
+    pub(crate) has_finalize: bool,
     /// Are we traversing a program function?
     /// A "program function" is a function that can be invoked by a user or another program.
     pub(crate) is_program_function: bool,
@@ -92,6 +94,7 @@ impl<'a> TypeChecker<'a> {
             handler,
             function: None,
             has_return: false,
+            has_finalize: false,
             is_finalize: false,
         }
     }

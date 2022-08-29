@@ -21,6 +21,7 @@ use leo_errors::TypeCheckerError;
 
 impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_statement(&mut self, input: &'a Statement) {
+        // No statements can follow a return statement.
         if self.has_return {
             self.emit_err(TypeCheckerError::unreachable_code_after_return(input.span()));
             return;
@@ -80,8 +81,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let mut then_block_has_return = false;
         let mut otherwise_block_has_return = false;
 
+        let mut then_block_has_finalize = false;
+        let mut otherwise_block_has_finalize = false;
+
         // Set the `has_return` flag for the then-block.
         let previous_has_return = core::mem::replace(&mut self.has_return, then_block_has_return);
+        // Set the `has_finalize` flag for the then-block.
+        let previous_has_finalize = core::mem::replace(&mut self.has_finalize, then_block_has_finalize);
 
         // Create a new scope for the then-block.
         let scope_index = self.symbol_table.borrow_mut().insert_block();
@@ -93,10 +99,14 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         // Store the `has_return` flag for the then-block.
         then_block_has_return = self.has_return;
+        // Store the `has_finalize` flag for the then-block.
+        then_block_has_finalize = self.has_finalize;
 
         if let Some(otherwise) = &input.otherwise {
             // Set the `has_return` flag for the otherwise-block.
             self.has_return = otherwise_block_has_return;
+            // Set the `has_finalize` flag for the otherwise-block.
+            self.has_finalize = otherwise_block_has_finalize;
 
             match &**otherwise {
                 Statement::Block(stmt) => {
@@ -115,10 +125,14 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
             // Store the `has_return` flag for the otherwise-block.
             otherwise_block_has_return = self.has_return;
+            // Store the `has_finalize` flag for the otherwise-block.
+            otherwise_block_has_finalize = self.has_finalize;
         }
 
         // Restore the previous `has_return` flag.
         self.has_return = previous_has_return || (then_block_has_return && otherwise_block_has_return);
+        // Restore the previous `has_finalize` flag.
+        self.has_finalize = previous_has_finalize || (then_block_has_finalize && otherwise_block_has_finalize);
     }
 
     fn visit_console(&mut self, input: &'a ConsoleStatement) {
@@ -214,6 +228,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             None => self.emit_err(TypeCheckerError::finalize_without_finalize_block(input.span())),
             Some(finalize) => {
                 let type_ = self.visit_expression(&input.expression, &None);
+                // TODO: Check that the finalize type is correct.
                 self.assert_and_return_type(finalize.output, &type_, input.expression.span());
             }
         }
@@ -273,6 +288,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
 
         let prior_has_return = core::mem::take(&mut self.has_return);
+        let prior_has_finalize = core::mem::take(&mut self.has_finalize);
 
         self.visit_block(&input.block);
 
@@ -280,7 +296,12 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             self.emit_err(TypeCheckerError::loop_body_contains_return(input.span()));
         }
 
+        if self.has_finalize {
+            self.emit_err(TypeCheckerError::loop_body_contains_finalize(input.span()));
+        }
+
         self.has_return = prior_has_return;
+        self.has_finalize = prior_has_finalize;
 
         // Exit the scope.
         self.exit_scope(scope_index);
@@ -308,7 +329,12 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             .symbol_table
             .borrow()
             .lookup_fn_symbol(parent)
-            .map(|f| f.output.clone());
+            .map(|f| match self.is_finalize {
+                // TODO: Check this.
+                // Note that this `unwrap()` is safe since we checked that the function has a finalize block.
+                true => f.finalize.as_ref().unwrap().output.clone(),
+                false => f.output.clone(),
+            });
 
         self.has_return = true;
 

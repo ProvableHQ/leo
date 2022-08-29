@@ -337,4 +337,11 @@ create_messages!(
         msg: format!("Cannot use a `finalize` statement without a `finalize` block."),
         help: None,
     }
+
+    @formatted
+    loop_body_contains_finalize {
+        args: (),
+        msg: format!("Loop body contains a finalize statement."),
+        help: Some("Remove the finalize statement.".to_string()),
+    }
 );

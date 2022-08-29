@@ -128,6 +128,9 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // The function's body does not have a return statement.
         self.has_return = false;
 
+        // The function's body does not have a finalize statement.
+        self.has_finalize = false;
+
         // Store the name of the function.
         self.function = Some(function.name());
 
@@ -161,16 +164,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         self.visit_block(&function.block);
 
-        if !self.has_return {
-            self.emit_err(TypeCheckerError::function_has_no_return(
-                function.name(),
-                function.span(),
-            ));
-        } else {
-            // Check that the return type is valid.
-            // TODO: Span should be just for the return type.
-            self.assert_type_is_valid(function.span, &function.output);
-        }
+        // Check that the return type is valid.
+        self.assert_type_is_valid(function.span, &function.output);
 
         // Ensure there are no nested tuples in the return type.
         if let Type::Tuple(tys) = &function.output {
@@ -185,6 +180,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Traverse and check the finalize block if it exists.
         if let Some(finalize) = &function.finalize {
             self.is_finalize = true;
+            // The function's finalize block does not have a return statement.
+            self.has_return = false;
 
             if !self.is_program_function {
                 self.emit_err(TypeCheckerError::only_program_functions_can_have_finalize(
@@ -220,6 +217,9 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
             // Type check the finalize block.
             self.visit_block(&finalize.block);
+
+            // Check that the return type is valid.
+            self.assert_type_is_valid(finalize.span, &finalize.output);
 
             // Exit the scope for the finalize block.
             self.exit_scope(scope_index);

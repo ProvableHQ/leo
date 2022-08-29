@@ -187,8 +187,22 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         statements
     }
 
-    fn consume_decrement(&mut self, _input: DecrementStatement) -> Self::Output {
-        todo!()
+    fn consume_decrement(&mut self, input: DecrementStatement) -> Self::Output {
+        // First consume the expression associated with the amount.
+        let (amount, mut statements) = self.consume_expression(input.amount);
+
+        // Then, consume the expression associated with the index.
+        let (index, index_statements) = self.consume_expression(input.index);
+        statements.extend(index_statements);
+
+        statements.push(Statement::Decrement(DecrementStatement {
+            mapping: input.mapping,
+            index,
+            amount,
+            span: input.span,
+        }));
+
+        statements
     }
 
     /// Consumes the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
@@ -210,12 +224,48 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         statements
     }
 
-    fn consume_finalize(&mut self, _input: FinalizeStatement) -> Self::Output {
-        todo!()
+    fn consume_finalize(&mut self, input: FinalizeStatement) -> Self::Output {
+        // Construct the associated guard.
+        let guard = match self.condition_stack.is_empty() {
+            true => None,
+            false => {
+                let (first, rest) = self.condition_stack.split_first().unwrap();
+                Some(rest.iter().cloned().fold(first.clone(), |acc, condition| {
+                    Expression::Binary(BinaryExpression {
+                        op: BinaryOperation::And,
+                        left: Box::new(acc),
+                        right: Box::new(condition),
+                        span: Default::default(),
+                    })
+                }))
+            }
+        };
+
+        // Consume the expression and add it to `early_finalizes`.
+        let (expression, statements) = self.consume_expression(input.expression);
+        // Note that this is the only place where `self.early_finalizes` is appended.
+        // Furthermore, `expression` will always be an identifier or tuple expression.
+        self.early_finalizes.push((guard, expression));
+
+        statements
     }
 
-    fn consume_increment(&mut self, _input: IncrementStatement) -> Self::Output {
-        todo!()
+    fn consume_increment(&mut self, input: IncrementStatement) -> Self::Output {
+        // First consume the expression associated with the amount.
+        let (amount, mut statements) = self.consume_expression(input.amount);
+
+        // Then, consume the expression associated with the index.
+        let (index, index_statements) = self.consume_expression(input.index);
+        statements.extend(index_statements);
+
+        statements.push(Statement::Increment(IncrementStatement {
+            mapping: input.mapping,
+            index,
+            amount,
+            span: input.span,
+        }));
+
+        statements
     }
 
     // TODO: Error message
@@ -245,7 +295,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
 
         // Consume the expression and add it to `early_returns`.
         let (expression, statements) = self.consume_expression(input.expression);
-        // Note that this is the only place where `self.early_returns` is mutated.
+        // Note that this is the only place where `self.early_returns` is appended.
         // Furthermore, `expression` will always be an identifier or tuple expression.
         self.early_returns.push((guard, expression));
 
