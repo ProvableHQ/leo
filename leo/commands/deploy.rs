@@ -19,28 +19,21 @@ use crate::{commands::Command, context::Context};
 use leo_errors::{CliError, PackageError, Result};
 use leo_package::build::BuildDirectory;
 
-use aleo::commands::Node as AleoNode;
+use aleo::commands::Deploy as AleoDeploy;
 
 use clap::StructOpt;
 use tracing::span::Span;
 
-/// Commands to operate a local development node.
+/// Deploys an Aleo program.
 #[derive(StructOpt, Debug)]
-pub enum Node {
-    /// Starts a local development node
-    Start {
-        /// Skips deploying the local program at genesis.
-        #[structopt(long)]
-        nodeploy: bool,
-    },
-}
+pub struct Deploy;
 
-impl Command for Node {
+impl Command for Deploy {
     type Input = ();
     type Output = ();
 
     fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Node")
+        tracing::span!(tracing::Level::INFO, "Deploy")
     }
 
     fn prelude(&self, _: Context) -> Result<Self::Input> {
@@ -48,30 +41,16 @@ impl Command for Node {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        // Compose the `aleo node` command.
-        let mut arguments = vec![ALEO_CLI_COMMAND.to_string()];
+        // Open the Leo build/ directory
+        let path = context.dir()?;
+        let build_directory = BuildDirectory::open(&path).map_err(|_| CliError::needs_leo_build())?;
 
-        // Add arguments to the command.
-        match self {
-            Node::Start { nodeploy } => {
-                arguments.push(String::from("start"));
-
-                if nodeploy {
-                    arguments.push(String::from("--nodeploy"));
-                } else {
-                    // Open the Leo build/ directory
-                    let path = context.dir()?;
-                    let build_directory = BuildDirectory::open(&path).map_err(|_| CliError::needs_leo_build())?;
-
-                    // Change the cwd to the Leo build/ directory to deploy aleo files.
-                    std::env::set_current_dir(&build_directory)
-                        .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
-                }
-            }
-        }
+        // Change the cwd to the Leo build/ directory to deploy aleo files.
+        std::env::set_current_dir(&build_directory)
+            .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
 
         // Call the `aleo node` command from the Aleo SDK.
-        let command = AleoNode::try_parse_from(&arguments).map_err(CliError::failed_to_parse_aleo_node)?;
+        let command = AleoDeploy::try_parse_from(&[ALEO_CLI_COMMAND]).map_err(CliError::failed_to_parse_aleo_node)?;
         let res = command.parse().map_err(CliError::failed_to_execute_aleo_node)?;
 
         // Log the output of the `aleo node` command.
