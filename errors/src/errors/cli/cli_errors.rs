@@ -117,6 +117,13 @@ create_messages!(
     }
 
     @backtraced
+    failed_to_execute_aleo_deploy {
+        args: (error: impl Display),
+        msg: format!("Failed to execute the `aleo deploy` command.\nSnarkVM Error: {}", error),
+        help: None,
+    }
+
+    @backtraced
     failed_to_parse_aleo_new {
         args: (error: impl Display),
         msg: format!("Failed to parse the `aleo new` command.\nSnarkVM Error: {}", error),
@@ -134,6 +141,13 @@ create_messages!(
     failed_to_parse_aleo_node {
         args: (error: impl Display),
         msg: format!("Failed to parse the `aleo node` command.\nSnarkVM Error: {}", error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_parse_aleo_deploy {
+        args: (error: impl Display),
+        msg: format!("Failed to parse the `aleo deploy` command.\nSnarkVM Error: {}", error),
         help: None,
     }
 );
