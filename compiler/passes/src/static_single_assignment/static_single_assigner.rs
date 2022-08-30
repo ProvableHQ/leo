@@ -70,8 +70,12 @@ impl<'a> StaticSingleAssigner<'a> {
     /// Constructs the assignment statement `place = expr;`.
     /// This function should be the only place where `AssignStatement`s are constructed.
     pub(crate) fn simple_assign_statement(&mut self, identifier: Identifier, value: Expression) -> Statement {
-        if let Expression::Circuit(expr) = &value {
+        if let Expression::Circuit(ref expr) = value {
             self.circuits.insert(identifier.name, expr.name.name);
+        } else if let Expression::Identifier(ref id) = value {
+            if let Some(symbol) = self.circuits.get(&id.name) {
+                self.circuits.insert(identifier.name, *symbol);
+            }
         }
 
         // Update the rename table.

@@ -186,6 +186,8 @@ impl<'a> Compiler<'a> {
         // TODO: Make this pass optional.
         self.static_single_assignment_pass(&st)?;
 
+        println!("AST after SSA: {:?}", self.ast);
+
         Ok(st)
     }
 
