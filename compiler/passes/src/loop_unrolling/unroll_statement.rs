@@ -24,8 +24,7 @@ impl StatementReconstructor for Unroller<'_> {
         let scope_index = self.current_scope_index();
 
         // Enter the block scope.
-        self.enter_block_scope(scope_index);
-        self.block_index = 0;
+        let previous_scope_index = self.enter_scope(scope_index);
 
         let block = Block {
             statements: input
@@ -37,8 +36,7 @@ impl StatementReconstructor for Unroller<'_> {
         };
 
         // Exit the block scope.
-        self.exit_block_scope(scope_index);
-        self.block_index = scope_index + 1;
+        self.exit_scope(previous_scope_index);
 
         block
     }

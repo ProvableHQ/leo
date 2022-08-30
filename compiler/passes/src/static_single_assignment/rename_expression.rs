@@ -17,7 +17,11 @@
 use crate::StaticSingleAssigner;
 use itertools::Itertools;
 
-use leo_ast::{AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, CircuitExpression, CircuitMember, CircuitVariableInitializer, ErrExpression, Expression, ExpressionConsumer, Identifier, Literal, MemberAccess, Statement, TernaryExpression, TupleAccess, TupleExpression, UnaryExpression};
+use leo_ast::{
+    AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, CircuitExpression, CircuitMember,
+    CircuitVariableInitializer, ErrExpression, Expression, ExpressionConsumer, Identifier, Literal, MemberAccess,
+    Statement, TernaryExpression, TupleAccess, TupleExpression, UnaryExpression,
+};
 
 impl ExpressionConsumer for StaticSingleAssigner<'_> {
     type Output = (Expression, Vec<Statement>);
@@ -162,7 +166,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
 
         // Add the variable to the set of circuit variables.
         match place {
-            Expression::Identifier(identifier) => self.circuits.insert(identifier.name),
+            Expression::Identifier(identifier) => self.circuits.insert(identifier.name, input.name.name),
             _ => unreachable!("`place` is always an identifier"),
         };
 
@@ -187,10 +191,11 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             }
             // Otherwise, we look up the previous name in the `RenameTable`.
             false => *self.rename_table.lookup(identifier.name).unwrap_or_else(|| {
-                panic!(
-                    "SSA Error: An entry in the `RenameTable` for {} should exist.",
-                    identifier.name
-                )
+                &identifier.name
+                // panic!(
+                //     "SSA Error: An entry in the `RenameTable` for {} should exist.",
+                //     identifier.name
+                // )
             }),
         };
 
@@ -245,31 +250,47 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             }
             // If the `true` and `false` cases are circuits, handle the appropriately.
             // Note that type checking guarantees that both expressions have the same same type.
-            (Expression::Identifier(first), Expression::Identifier(second)) if self.circuits.contains(&first.name) && self.circuits.contains(&second.name) => {
-                let first_circuit = self.symbol_table.lookup_circuit(first.name).unwrap();
-                let second_circuit = self.symbol_table.lookup_circuit(second.name).unwrap();
+            (Expression::Identifier(first), Expression::Identifier(second))
+                if self.circuits.contains_key(&first.name) && self.circuits.contains_key(&second.name) =>
+            {
+                // TODO: Document.
+                let first_circuit = self
+                    .symbol_table
+                    .lookup_circuit(*self.circuits.get(&first.name).unwrap())
+                    .unwrap();
+                let second_circuit = self
+                    .symbol_table
+                    .lookup_circuit(*self.circuits.get(&second.name).unwrap())
+                    .unwrap();
                 assert_eq!(first_circuit, second_circuit);
 
                 // For each circuit member, construct a new ternary expression.
-                let members = first_circuit.members.iter().map(|CircuitMember::CircuitVariable(id, _)| {
-                    let (expression, stmts) = self.consume_ternary(TernaryExpression {
-                        condition: Box::new(cond_expr.clone()),
-                        if_true: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
-                            inner: Box::new(Expression::Identifier(first)),
-                            name: *id,
-                            span: Default::default()
-                        }))),
-                        if_false: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
-                            inner: Box::new(Expression::Identifier(second)),
-                            name: *id,
-                            span: Default::default()
-                        }))),
-                        span: Default::default(),
-                    });
-                    statements.extend(stmts);
+                let members = first_circuit
+                    .members
+                    .iter()
+                    .map(|CircuitMember::CircuitVariable(id, _)| {
+                        let (expression, stmts) = self.consume_ternary(TernaryExpression {
+                            condition: Box::new(cond_expr.clone()),
+                            if_true: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
+                                inner: Box::new(Expression::Identifier(first)),
+                                name: *id,
+                                span: Default::default(),
+                            }))),
+                            if_false: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
+                                inner: Box::new(Expression::Identifier(second)),
+                                name: *id,
+                                span: Default::default(),
+                            }))),
+                            span: Default::default(),
+                        });
+                        statements.extend(stmts);
 
-                    CircuitVariableInitializer { identifier: *id, expression: Some(expression) }
-                }).collect();
+                        CircuitVariableInitializer {
+                            identifier: *id,
+                            expression: Some(expression),
+                        }
+                    })
+                    .collect();
 
                 let (expr, stmts) = self.consume_circuit_init(CircuitExpression {
                     name: first_circuit.identifier,

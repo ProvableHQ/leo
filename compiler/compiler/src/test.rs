@@ -194,12 +194,11 @@ fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>, handler: &Handler) -> R
     let st = parsed.symbol_table_pass()?;
     let st = parsed.type_checker_pass(st)?;
     let st = parsed.loop_unrolling_pass(st)?;
+
     parsed.static_single_assignment_pass(&st)?;
 
     // Compile Leo program to bytecode.
     let bytecode = CodeGenerator::do_pass((&parsed.ast, handler))?;
-
-    println!("\n{}\n", bytecode);
 
     Ok(bytecode)
 }

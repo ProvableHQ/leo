@@ -16,14 +16,11 @@
 
 use crate::{RenameTable, SymbolTable};
 
-use leo_ast::{
-    AssignStatement, Expression, ExpressionConsumer, Identifier,
-    Statement, TernaryExpression,
-};
+use leo_ast::{AssignStatement, Circuit, Expression, ExpressionConsumer, Identifier, Statement, TernaryExpression};
 use leo_errors::emitter::Handler;
 use leo_span::Symbol;
 
-use indexmap::IndexSet;
+use indexmap::{IndexMap, IndexSet};
 use std::fmt::Display;
 
 pub struct StaticSingleAssigner<'a> {
@@ -38,7 +35,7 @@ pub struct StaticSingleAssigner<'a> {
     /// A flag to determine whether or not the traversal is on the left-hand side of a definition or an assignment.
     pub(crate) is_lhs: bool,
     /// The set of variables that are circuits.
-    pub(crate) circuits: IndexSet<Symbol>,
+    pub(crate) circuits: IndexMap<Symbol, Symbol>,
     /// A stack of condition `Expression`s visited up to the current point in the AST.
     pub(crate) condition_stack: Vec<Expression>,
     /// A list containing tuples of guards and expressions associated with early `ReturnStatement`s.
@@ -57,7 +54,7 @@ impl<'a> StaticSingleAssigner<'a> {
             _handler: handler,
             counter: 0,
             is_lhs: false,
-            circuits: IndexSet::new(),
+            circuits: IndexMap::new(),
             condition_stack: Vec::new(),
             early_returns: Vec::new(),
             early_finalizes: Vec::new(),
@@ -73,9 +70,12 @@ impl<'a> StaticSingleAssigner<'a> {
     /// Constructs the assignment statement `place = expr;`.
     /// This function should be the only place where `AssignStatement`s are constructed.
     pub(crate) fn simple_assign_statement(&mut self, identifier: Identifier, value: Expression) -> Statement {
-        if matches!(value, Expression::Circuit(_)) {
-            self.circuits.insert(identifier.name);
+        if let Expression::Circuit(expr) = &value {
+            self.circuits.insert(identifier.name, expr.name.name);
         }
+
+        // Update the rename table.
+        self.rename_table.update(identifier.name, identifier.name);
 
         Statement::Assign(Box::new(AssignStatement {
             place: Expression::Identifier(identifier),
@@ -94,9 +94,6 @@ impl<'a> StaticSingleAssigner<'a> {
             name,
             span: Default::default(),
         };
-
-        // Update the rename table.
-        self.rename_table.update(name, name);
 
         (Expression::Identifier(place), self.simple_assign_statement(place, expr))
     }

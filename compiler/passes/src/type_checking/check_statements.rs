@@ -72,7 +72,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_block(&mut self, input: &'a Block) {
+        // Create a new scope for the then-block.
+        let scope_index = self.create_child_scope();
+
         input.statements.iter().for_each(|stmt| self.visit_statement(stmt));
+
+        // Exit the scope for the then-block.
+        self.exit_scope(scope_index);
     }
 
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
@@ -89,13 +95,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Set the `has_finalize` flag for the then-block.
         let previous_has_finalize = core::mem::replace(&mut self.has_finalize, then_block_has_finalize);
 
-        // Create a new scope for the then-block.
-        let scope_index = self.symbol_table.borrow_mut().insert_block();
-
         self.visit_block(&input.then);
-
-        // Exit the scope for the then-block.
-        self.exit_scope(scope_index);
 
         // Store the `has_return` flag for the then-block.
         then_block_has_return = self.has_return;
@@ -110,14 +110,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
             match &**otherwise {
                 Statement::Block(stmt) => {
-                    // Create a new scope for the otherwise-block.
-                    let scope_index = self.symbol_table.borrow_mut().insert_block();
-
                     // Visit the otherwise-block.
                     self.visit_block(stmt);
-
-                    // Exit the scope for the otherwise-block.
-                    self.exit_scope(scope_index);
                 }
                 Statement::Conditional(stmt) => self.visit_conditional(stmt),
                 _ => unreachable!("Else-case can only be a block or conditional statement."),
