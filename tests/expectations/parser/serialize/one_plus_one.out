@@ -13,7 +13,6 @@ outputs:
         input: []
         output:
           Integer: U8
-        core_mapping: ~
         block:
           statements:
             - Return:
@@ -30,5 +29,6 @@ outputs:
                           - U8
                           - "1"
                     op: Add
+        finalize: ~
     circuits: {}
     mappings: {}

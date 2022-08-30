@@ -14,18 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::RenameTable;
-use itertools::Itertools;
-use std::fmt::Display;
+use crate::{RenameTable, SymbolTable};
 
 use leo_ast::{
-    AssignStatement, CircuitExpression, CircuitVariableInitializer, Expression, Identifier, Statement,
-    TernaryExpression, TupleExpression,
+    AssignStatement, Expression, ExpressionConsumer, Identifier,
+    Statement, TernaryExpression,
 };
 use leo_errors::emitter::Handler;
 use leo_span::Symbol;
 
+use indexmap::IndexSet;
+use std::fmt::Display;
+
 pub struct StaticSingleAssigner<'a> {
+    /// The symbol table associated with the program.
+    pub(crate) symbol_table: &'a SymbolTable,
     /// The `RenameTable` for the current basic block in the AST
     pub(crate) rename_table: RenameTable,
     /// An error handler used for any errors found during unrolling.
@@ -34,6 +37,8 @@ pub struct StaticSingleAssigner<'a> {
     pub(crate) counter: usize,
     /// A flag to determine whether or not the traversal is on the left-hand side of a definition or an assignment.
     pub(crate) is_lhs: bool,
+    /// The set of variables that are circuits.
+    pub(crate) circuits: IndexSet<Symbol>,
     /// A stack of condition `Expression`s visited up to the current point in the AST.
     pub(crate) condition_stack: Vec<Expression>,
     /// A list containing tuples of guards and expressions associated with early `ReturnStatement`s.
@@ -45,12 +50,14 @@ pub struct StaticSingleAssigner<'a> {
 }
 
 impl<'a> StaticSingleAssigner<'a> {
-    pub(crate) fn new(handler: &'a Handler) -> Self {
+    pub(crate) fn new(handler: &'a Handler, symbol_table: &'a SymbolTable) -> Self {
         Self {
+            symbol_table,
             rename_table: RenameTable::new(None),
             _handler: handler,
             counter: 0,
             is_lhs: false,
+            circuits: IndexSet::new(),
             condition_stack: Vec::new(),
             early_returns: Vec::new(),
             early_finalizes: Vec::new(),
@@ -64,9 +71,14 @@ impl<'a> StaticSingleAssigner<'a> {
     }
 
     /// Constructs the assignment statement `place = expr;`.
-    pub(crate) fn simple_assign_statement(place: Expression, value: Expression) -> Statement {
+    /// This function should be the only place where `AssignStatement`s are constructed.
+    pub(crate) fn simple_assign_statement(&mut self, identifier: Identifier, value: Expression) -> Statement {
+        if matches!(value, Expression::Circuit(_)) {
+            self.circuits.insert(identifier.name);
+        }
+
         Statement::Assign(Box::new(AssignStatement {
-            place,
+            place: Expression::Identifier(identifier),
             value,
             span: Default::default(),
         }))
@@ -77,14 +89,16 @@ impl<'a> StaticSingleAssigner<'a> {
     pub(crate) fn unique_simple_assign_statement(&mut self, expr: Expression) -> (Expression, Statement) {
         // Create a new variable for the expression.
         let name = self.unique_symbol("$var");
-        let place = Expression::Identifier(Identifier {
+
+        let place = Identifier {
             name,
             span: Default::default(),
-        });
+        };
+
         // Update the rename table.
         self.rename_table.update(name, name);
 
-        (place.clone(), Self::simple_assign_statement(place, expr))
+        (Expression::Identifier(place), self.simple_assign_statement(place, expr))
     }
 
     /// Clears the state associated with `ReturnStatements`, returning the ones that were previously produced.
@@ -120,24 +134,24 @@ impl<'a> StaticSingleAssigner<'a> {
         let (_, last_expression) = guards.pop().unwrap();
 
         // Produce a chain of ternary expressions and assignments for the guards.
-        let mut stmts = Vec::with_capacity(guards.len());
+        let mut statements = Vec::with_capacity(guards.len());
 
         // Helper to construct and store ternary assignments. e.g `$ret$0 = $var$0 ? $var$1 : $var$2`
         let mut construct_ternary_assignment = |guard: Expression, if_true: Expression, if_false: Expression| {
-            let place = Expression::Identifier(Identifier {
+            let place = Identifier {
                 name: self.unique_symbol(prefix),
                 span: Default::default(),
+            };
+            let (value, stmts) = self.consume_ternary(TernaryExpression {
+                condition: Box::new(guard),
+                if_true: Box::new(if_true),
+                if_false: Box::new(if_false),
+                span: Default::default(),
             });
-            stmts.push(Self::simple_assign_statement(
-                place.clone(),
-                Expression::Ternary(TernaryExpression {
-                    condition: Box::new(guard),
-                    if_true: Box::new(if_true),
-                    if_false: Box::new(if_false),
-                    span: Default::default(),
-                }),
-            ));
-            place
+            statements.extend(stmts);
+
+            statements.push(self.simple_assign_statement(place, value));
+            Expression::Identifier(place)
         };
 
         let expression = guards
@@ -146,58 +160,9 @@ impl<'a> StaticSingleAssigner<'a> {
             .fold(last_expression, |acc, (guard, expr)| match guard {
                 None => unreachable!("All expression except for the last one must have a guard."),
                 // Note that type checking guarantees that all expressions have the same type.
-                Some(guard) => match (expr, acc) {
-                    // If the function returns tuples, fold the expressions into a tuple of ternary expressions.
-                    // Note that `expr` and `acc` are correspond to the `if` and `else` cases of the ternary expression respectively.
-                    (Expression::Tuple(expr_tuple), Expression::Tuple(acc_tuple)) => {
-                        Expression::Tuple(TupleExpression {
-                            elements: expr_tuple
-                                .elements
-                                .into_iter()
-                                .zip_eq(acc_tuple.elements.into_iter())
-                                .map(|(if_true, if_false)| {
-                                    construct_ternary_assignment(guard.clone(), if_true, if_false)
-                                })
-                                .collect(),
-                            span: Default::default(),
-                        })
-                    }
-                    // If the expression is a circuit, fold the expressions into a circuit of ternary expressions.
-                    // Note that `expr` and `acc` are correspond to the `if` and `else` cases of the ternary expression respectively.
-                    (Expression::Circuit(expr_circuit), Expression::Circuit(acc_circuit)) => {
-                        Expression::Circuit(CircuitExpression {
-                            name: acc_circuit.name,
-                            span: acc_circuit.span,
-                            members: expr_circuit
-                                .members
-                                .into_iter()
-                                .zip_eq(acc_circuit.members.into_iter())
-                                .map(|(if_true, if_false)| {
-                                    let expression = construct_ternary_assignment(
-                                        guard.clone(),
-                                        match if_true.expression {
-                                            None => Expression::Identifier(if_true.identifier),
-                                            Some(expr) => expr,
-                                        },
-                                        match if_false.expression {
-                                            None => Expression::Identifier(if_false.identifier),
-                                            Some(expr) => expr,
-                                        },
-                                    );
-                                    CircuitVariableInitializer {
-                                        identifier: if_true.identifier,
-                                        expression: Some(expression),
-                                    }
-                                })
-                                .collect(),
-                        })
-                    }
-                    // Otherwise, fold the return expressions into a single ternary expression.
-                    // Note that `expr` and `acc` are correspond to the `if` and `else` cases of the ternary expression respectively.
-                    (expr, acc) => construct_ternary_assignment(guard, expr, acc),
-                },
+                Some(guard) => construct_ternary_assignment(guard, expr, acc),
             });
 
-        (stmts, expression)
+        (statements, expression)
     }
 }

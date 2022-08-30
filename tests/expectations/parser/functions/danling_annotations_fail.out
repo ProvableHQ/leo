@@ -17,12 +17,12 @@ outputs:
         input: []
         output:
           Integer: U8
-        core_mapping: ~
         block:
           statements: []
           span:
             lo: 107
             hi: 109
+        finalize: ~
         span:
           lo: 85
           hi: 109

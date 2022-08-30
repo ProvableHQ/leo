@@ -165,8 +165,8 @@ impl<'a> Compiler<'a> {
     }
 
     /// Runs the static single assignment pass.
-    pub fn static_single_assignment_pass(&mut self) -> Result<()> {
-        self.ast = StaticSingleAssigner::do_pass((std::mem::take(&mut self.ast), self.handler))?;
+    pub fn static_single_assignment_pass(&mut self, symbol_table: &SymbolTable) -> Result<()> {
+        self.ast = StaticSingleAssigner::do_pass((std::mem::take(&mut self.ast), self.handler, symbol_table))?;
 
         if self.output_options.ssa_ast {
             self.write_ast_to_json("ssa_ast.json")?;
@@ -184,7 +184,7 @@ impl<'a> Compiler<'a> {
         let st = self.loop_unrolling_pass(st)?;
 
         // TODO: Make this pass optional.
-        self.static_single_assignment_pass()?;
+        self.static_single_assignment_pass(&st)?;
 
         Ok(st)
     }

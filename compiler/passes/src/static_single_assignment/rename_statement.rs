@@ -38,10 +38,13 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
         // TODO: Can lhs have complex expressions?
         self.is_lhs = true;
-        let place = self.consume_expression(assign.place).0;
+        let place = match self.consume_expression(assign.place).0 {
+            Expression::Identifier(identifier) => identifier,
+            _ => panic!("Type checking"),
+        };
         self.is_lhs = false;
 
-        statements.push(Self::simple_assign_statement(place, value));
+        statements.push(self.simple_assign_statement(place, value));
 
         statements
     }
@@ -124,18 +127,22 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 // Create a new name for the variable written to in the `ConditionalStatement`.
                 let new_name = self.unique_symbol(symbol);
 
+                let (value, stmts) = self.consume_ternary(TernaryExpression {
+                    condition: Box::new(condition.clone()),
+                    if_true: create_phi_argument(&if_table, **symbol),
+                    if_false: create_phi_argument(&else_table, **symbol),
+                    span: Default::default(),
+                });
+
+                statements.extend(stmts);
+
                 // Create a new `AssignStatement` for the phi function.
-                let assignment = Self::simple_assign_statement(
-                    Expression::Identifier(Identifier {
+                let assignment = self.simple_assign_statement(
+                    Identifier {
                         name: new_name,
                         span: Default::default(),
-                    }),
-                    Expression::Ternary(TernaryExpression {
-                        condition: Box::new(condition.clone()),
-                        if_true: create_phi_argument(&if_table, **symbol),
-                        if_false: create_phi_argument(&else_table, **symbol),
-                        span: Default::default(),
-                    }),
+                    },
+                    value,
                 );
 
                 // Update the `RenameTable` with the new name of the variable.
@@ -219,7 +226,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         };
         self.is_lhs = false;
 
-        statements.push(Self::simple_assign_statement(Expression::Identifier(identifier), value));
+        statements.push(self.simple_assign_statement(identifier, value));
 
         statements
     }
@@ -296,7 +303,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         // Consume the expression and add it to `early_returns`.
         let (expression, statements) = self.consume_expression(input.expression);
         // Note that this is the only place where `self.early_returns` is appended.
-        // Furthermore, `expression` will always be an identifier or tuple expression.
+        // Furthermore, `expression` will always be an identifier, tuple expression, or circuit expression.
         self.early_returns.push((guard, expression));
 
         statements

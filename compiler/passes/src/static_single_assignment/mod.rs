@@ -57,17 +57,17 @@ pub(crate) use rename_table::*;
 pub mod static_single_assigner;
 pub use static_single_assigner::*;
 
-use crate::Pass;
+use crate::{Pass, SymbolTable};
 
 use leo_ast::{Ast, ProgramConsumer};
 use leo_errors::{emitter::Handler, Result};
 
 impl<'a> Pass for StaticSingleAssigner<'a> {
-    type Input = (Ast, &'a Handler);
+    type Input = (Ast, &'a Handler, &'a SymbolTable);
     type Output = Result<Ast>;
 
-    fn do_pass((ast, handler): Self::Input) -> Self::Output {
-        let mut consumer = StaticSingleAssigner::new(handler);
+    fn do_pass((ast, handler, st): Self::Input) -> Self::Output {
+        let mut consumer = StaticSingleAssigner::new(handler, st);
         let program = consumer.consume_program(ast.into_repr());
         handler.last_err()?;
 

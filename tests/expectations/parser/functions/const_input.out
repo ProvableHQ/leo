@@ -20,12 +20,12 @@ outputs:
               hi: 20
         output:
           Integer: U8
-        core_mapping: ~
         block:
           statements: []
           span:
             lo: 32
             hi: 34
+        finalize: ~
         span:
           lo: 2
           hi: 34
@@ -42,12 +42,12 @@ outputs:
               hi: 57
         output:
           Integer: U8
-        core_mapping: ~
         block:
           statements: []
           span:
             lo: 70
             hi: 72
+        finalize: ~
         span:
           lo: 36
           hi: 72

@@ -27,7 +27,6 @@ outputs:
               hi: 29
         output:
           Integer: U8
-        core_mapping: ~
         block:
           statements:
             - Return:
@@ -45,6 +44,7 @@ outputs:
           span:
             lo: 42
             hi: 61
+        finalize: ~
         span:
           lo: 2
           hi: 61
@@ -68,7 +68,6 @@ outputs:
               hi: 90
         output:
           Integer: U8
-        core_mapping: ~
         block:
           statements:
             - Return:
@@ -86,6 +85,7 @@ outputs:
           span:
             lo: 103
             hi: 122
+        finalize: ~
         span:
           lo: 63
           hi: 122
