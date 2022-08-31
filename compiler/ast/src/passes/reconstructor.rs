@@ -306,10 +306,12 @@ pub trait ProgramReconstructor: StatementReconstructor {
             identifier: input.identifier,
             input: input.input,
             output: input.output,
+            output_type: input.output_type,
             block: self.reconstruct_block(input.block),
             finalize: input.finalize.map(|finalize| Finalize {
                 input: finalize.input,
                 output: finalize.output,
+                output_type: finalize.output_type,
                 block: self.reconstruct_block(finalize.block),
                 span: finalize.span,
             }),

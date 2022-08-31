@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{ParamMode, Type};
+use leo_ast::{Mode, Type};
 use std::fmt::Write as _;
 
 impl<'a> CodeGenerator<'a> {
@@ -47,7 +47,7 @@ impl<'a> CodeGenerator<'a> {
         }
     }
 
-    pub(crate) fn visit_type_with_visibility(&mut self, input: &'a Type, visibility: ParamMode) -> String {
+    pub(crate) fn visit_type_with_visibility(&mut self, input: &'a Type, visibility: Mode) -> String {
         let mut type_string = self.visit_type(input);
 
         if let Type::Identifier(_) = input {
@@ -58,7 +58,7 @@ impl<'a> CodeGenerator<'a> {
             if self.is_program_function {
                 // If a visibility is not provided in a program function, then it is private by default.
                 let visibility = match visibility {
-                    ParamMode::None => ParamMode::Private,
+                    Mode::None => Mode::Private,
                     _ => visibility,
                 };
                 write!(type_string, ".{}", visibility).expect("failed to write to string");
@@ -69,7 +69,7 @@ impl<'a> CodeGenerator<'a> {
     }
 
     /// Returns one or more types equal to the number of return tuple members.
-    pub(crate) fn visit_return_type(&mut self, input: &'a Type, visibility: ParamMode) -> Vec<String> {
+    pub(crate) fn visit_return_type(&mut self, input: &'a Type, visibility: Mode) -> Vec<String> {
         // Handle return tuples.
         if let Type::Tuple(types) = input {
             types

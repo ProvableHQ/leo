@@ -18,8 +18,8 @@ use crate::CodeGenerator;
 
 use leo_ast::{
     AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
-    DefinitionStatement, Expression, FinalizeStatement, IncrementStatement, IterationStatement, ParamMode,
-    ReturnStatement, Statement,
+    DefinitionStatement, Expression, FinalizeStatement, IncrementStatement, IterationStatement, Mode, ReturnStatement,
+    Statement,
 };
 
 use itertools::Itertools;
@@ -43,7 +43,7 @@ impl<'a> CodeGenerator<'a> {
     fn visit_return(&mut self, input: &'a ReturnStatement) -> String {
         let (operand, mut expression_instructions) = self.visit_expression(&input.expression);
         // TODO: Bytecode functions have an associated output mode. Currently defaulting to private since we do not yet support this at the Leo level.
-        let types = self.visit_return_type(&self.current_function.unwrap().output, ParamMode::Private);
+        let types = self.visit_return_type(&self.current_function.unwrap().output_type, Mode::Private);
         let instructions = operand
             .split('\n')
             .into_iter()

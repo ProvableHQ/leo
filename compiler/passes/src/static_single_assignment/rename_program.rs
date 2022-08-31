@@ -80,6 +80,7 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
             identifier: function.identifier,
             input: function.input,
             output: function.output,
+            output_type: function.output_type,
             block: Block {
                 span: Default::default(),
                 statements,

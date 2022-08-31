@@ -66,7 +66,7 @@ impl ParserContext<'_> {
     /// `<identifier> : <type> = <expression>;`
     /// Returns [`Definition`].
     fn parse_input_definition(&mut self) -> Result<Definition> {
-        let mode = self.parse_function_parameter_mode()?;
+        let mode = self.parse_mode()?;
 
         let name = self.expect_identifier()?;
         self.expect(&Token::Colon)?;

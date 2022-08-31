@@ -14,16 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::*;
-use crate::{Expression, Identifier, Mode, Type};
+use core::fmt;
+use serde::{Deserialize, Serialize};
 
-/// A single definition inside a section in a state or an input file.
-/// Definitions should be structured as: `<name>: <type_> = <value>;`
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct Definition {
-    pub mode: Mode,
-    pub type_: Type,
-    pub name: Identifier,
-    pub value: Expression,
-    pub span: Span,
+/// The mode associated with a type.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Mode {
+    None,
+    Const,
+    Private,
+    Public,
+}
+
+impl fmt::Display for Mode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use Mode::*;
+
+        match self {
+            None => write!(f, ""),
+            Const => write!(f, "const"),
+            Private => write!(f, "private"),
+            Public => write!(f, "public"),
+        }
+    }
 }

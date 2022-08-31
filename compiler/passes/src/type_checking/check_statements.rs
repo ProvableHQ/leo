@@ -53,7 +53,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(var_name.name) {
             match &var.declaration {
                 VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
-                VariableType::Input(ParamMode::Const) => {
+                VariableType::Input(Mode::Const) => {
                     self.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
                 }
                 _ => {}
@@ -223,7 +223,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             Some(finalize) => {
                 let type_ = self.visit_expression(&input.expression, &None);
                 // TODO: Check that the finalize type is correct.
-                self.assert_and_return_type(finalize.output, &type_, input.expression.span());
+                self.assert_and_return_type(finalize.output_type, &type_, input.expression.span());
             }
         }
     }
@@ -326,8 +326,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             .map(|f| match self.is_finalize {
                 // TODO: Check this.
                 // Note that this `unwrap()` is safe since we checked that the function has a finalize block.
-                true => f.finalize.as_ref().unwrap().output.clone(),
-                false => f.output.clone(),
+                true => f.finalize.as_ref().unwrap().output_type.clone(),
+                false => f.output_type.clone(),
             });
 
         self.has_return = true;

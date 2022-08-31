@@ -260,7 +260,7 @@ impl ParserContext<'_> {
     }
 
     /// Returns a [`ParamMode`] AST node if the next tokens represent a function parameter mode.
-    pub(super) fn parse_function_parameter_mode(&mut self) -> Result<ParamMode> {
+    pub(super) fn parse_mode(&mut self) -> Result<Mode> {
         // TODO: Allow explicit "private" mode.
         let public = self.eat(&Token::Public).then(|| self.prev_token.span);
         let constant = self.eat(&Token::Constant).then(|| self.prev_token.span);
@@ -271,10 +271,10 @@ impl ParserContext<'_> {
         }
 
         match (public, constant, const_) {
-            (None, Some(_), None) => Ok(ParamMode::Const),
-            (None, None, Some(_)) => Ok(ParamMode::Const),
-            (None, None, None) => Ok(ParamMode::None),
-            (Some(_), None, None) => Ok(ParamMode::Public),
+            (None, Some(_), None) => Ok(Mode::Const),
+            (None, None, Some(_)) => Ok(Mode::Const),
+            (None, None, None) => Ok(Mode::None),
+            (Some(_), None, None) => Ok(Mode::Public),
             (Some(m1), Some(m2), None) | (Some(m1), None, Some(m2)) | (None, Some(m1), Some(m2)) => {
                 Err(ParserError::inputs_multiple_variable_types_specified(m1 + m2).into())
             }
@@ -285,10 +285,23 @@ impl ParserContext<'_> {
     }
 
     /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
-    fn parse_function_parameter(&mut self) -> Result<FunctionInput> {
-        let mode = self.parse_function_parameter_mode()?;
+    fn parse_function_input(&mut self) -> Result<FunctionInput> {
+        let mode = self.parse_mode()?;
         let (name, type_) = self.parse_typed_ident()?;
-        Ok(FunctionInput::new(name, mode, type_, name.span))
+        Ok(FunctionInput {
+            identifier: name,
+            mode,
+            type_,
+            span: name.span,
+        })
+    }
+
+    /// Returns a [`FunctionOutput`] AST node if the next tokens represent a function output.
+    fn parse_function_output(&mut self) -> Result<FunctionOutput> {
+        // TODO: Could this span be made more accurate?
+        let mode = self.parse_mode()?;
+        let (type_, span) = self.parse_type()?;
+        Ok(FunctionOutput { mode, type_, span })
     }
 
     /// Returns `true` if the next token is Function or if it is a Const followed by Function.
@@ -330,14 +343,14 @@ impl ParserContext<'_> {
         let name = self.expect_identifier()?;
 
         // Parse parameters.
-        let (inputs, ..) = self.parse_paren_comma_list(|p| p.parse_function_parameter().map(Some))?;
+        let (inputs, ..) = self.parse_paren_comma_list(|p| p.parse_function_input().map(Some))?;
 
         // Parse return type.
         let output = match self.eat(&Token::Arrow) {
-            false => Type::Unit,
+            false => vec![],
             true => {
                 self.disallow_circuit_construction = true;
-                let output = self.parse_type()?.0;
+                let (output, ..) = self.parse_paren_comma_list(|p| p.parse_function_output().map(Some))?;
                 self.disallow_circuit_construction = false;
                 output
             }
@@ -354,14 +367,14 @@ impl ParserContext<'_> {
                 let start = self.prev_token.span;
 
                 // Parse parameters.
-                let (input, ..) = self.parse_paren_comma_list(|p| p.parse_function_parameter().map(Some))?;
+                let (input, ..) = self.parse_paren_comma_list(|p| p.parse_function_input().map(Some))?;
 
                 // Parse return type.
                 let output = match self.eat(&Token::Arrow) {
-                    false => Type::Unit,
+                    false => vec![],
                     true => {
                         self.disallow_circuit_construction = true;
-                        let output = self.parse_type()?.0;
+                        let (output, ..) = self.parse_paren_comma_list(|p| p.parse_function_output().map(Some))?;
                         self.disallow_circuit_construction = false;
                         output
                     }
@@ -369,27 +382,16 @@ impl ParserContext<'_> {
 
                 // Parse the finalize body.
                 let block = self.parse_block()?;
+                let span = start + block.span;
 
-                Some(Finalize {
-                    input,
-                    output,
-                    span: start + block.span,
-                    block,
-                })
+                Some(Finalize::new(input, output, block, span))
             }
         };
 
+        let span = start + block.span;
         Ok((
             name,
-            Function {
-                annotations,
-                identifier: name,
-                input: inputs,
-                output,
-                span: start + block.span,
-                finalize,
-                block,
-            },
+            Function::new(annotations, name, inputs, output, block, finalize, span),
         ))
     }
 }

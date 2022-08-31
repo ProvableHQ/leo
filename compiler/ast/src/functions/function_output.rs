@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Mode, Node, Type};
+use crate::{Mode, Node, Type};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -22,10 +22,8 @@ use std::fmt;
 
 /// A function parameter.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
-pub struct FunctionInput {
-    /// The name the parameter is accessible as in the function's body.
-    pub identifier: Identifier,
-    /// The mode of the function parameter.
+pub struct FunctionOutput {
+    /// The mode of the function output.
     pub mode: Mode,
     /// What's the parameter's type?
     pub type_: Type,
@@ -33,16 +31,10 @@ pub struct FunctionInput {
     pub span: Span,
 }
 
-impl FunctionInput {
-    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} {}: {}", self.mode, self.identifier, self.type_)
-    }
-}
-
-impl fmt::Display for FunctionInput {
+impl fmt::Display for FunctionOutput {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.format(f)
+        write!(f, "{} {}", self.mode, self.type_)
     }
 }
 
-crate::simple_node_impl!(FunctionInput);
+crate::simple_node_impl!(FunctionOutput);

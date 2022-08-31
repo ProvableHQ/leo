@@ -143,7 +143,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.assert_not_tuple(input_var.span, &input_var.type_);
 
             // If the function is not a program function, then check that the parameters do not have an associated mode.
-            if !self.is_program_function && input_var.mode() != ParamMode::None {
+            if !self.is_program_function && input_var.mode != Mode::None {
                 self.emit_err(TypeCheckerError::helper_function_inputs_cannot_have_modes(
                     input_var.span,
                 ));
@@ -155,7 +155,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 VariableSymbol {
                     type_: input_var.type_.clone(),
                     span: input_var.identifier.span(),
-                    declaration: VariableType::Input(input_var.mode()),
+                    declaration: VariableType::Input(input_var.mode),
                 },
             ) {
                 self.handler.emit_err(err);
@@ -165,10 +165,10 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.visit_block(&function.block);
 
         // Check that the return type is valid.
-        self.assert_type_is_valid(function.span, &function.output);
+        self.assert_type_is_valid(function.span, &function.output_type);
 
         // Ensure there are no nested tuples in the return type.
-        if let Type::Tuple(tys) = &function.output {
+        if let Type::Tuple(tys) = &function.output_type {
             for ty in &tys.0 {
                 self.assert_not_tuple(function.span, ty);
             }
@@ -198,7 +198,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 self.assert_not_tuple(input_var.span, &input_var.type_);
 
                 // Check that the input parameter is not constant or private.
-                if input_var.mode() == ParamMode::Const || input_var.mode() == ParamMode::Private {
+                if input_var.mode == Mode::Const || input_var.mode == Mode::Private {
                     self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span));
                 }
 
@@ -208,7 +208,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                     VariableSymbol {
                         type_: input_var.type_.clone(),
                         span: input_var.identifier.span(),
-                        declaration: VariableType::Input(input_var.mode()),
+                        declaration: VariableType::Input(input_var.mode),
                     },
                 ) {
                     self.handler.emit_err(err);
@@ -219,13 +219,13 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.visit_block(&finalize.block);
 
             // Check that the return type is valid.
-            self.assert_type_is_valid(finalize.span, &finalize.output);
+            self.assert_type_is_valid(finalize.span, &finalize.output_type);
 
             // Exit the scope for the finalize block.
             self.exit_scope(scope_index);
 
             // Ensure there are no nested tuples in the return type.
-            if let Type::Tuple(tys) = &finalize.output {
+            if let Type::Tuple(tys) = &finalize.output_type {
                 for ty in &tys.0 {
                     self.assert_not_tuple(function.span, ty);
                 }

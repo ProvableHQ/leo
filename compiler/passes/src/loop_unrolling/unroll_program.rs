@@ -50,6 +50,7 @@ impl ProgramReconstructor for Unroller<'_> {
             Finalize {
                 input: finalize.input,
                 output: finalize.output,
+                output_type: finalize.output_type,
                 block,
                 span: finalize.span,
             }
@@ -61,6 +62,7 @@ impl ProgramReconstructor for Unroller<'_> {
             identifier: function.identifier,
             input: function.input,
             output: function.output,
+            output_type: function.output_type,
             block,
             finalize,
             span: function.span,

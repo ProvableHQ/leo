@@ -25,7 +25,7 @@ pub struct FinalizeData {
     /// The inputs to the finalize block.
     pub(crate) input: Vec<FunctionInput>,
     /// The output type of the finalize block.
-    pub(crate) output: Type,
+    pub(crate) output_type: Type,
     /// The span of the finalize block.
     pub(crate) span: Span,
 }
@@ -36,7 +36,7 @@ pub struct FunctionSymbol {
     /// The index associated with the scope in the parent symbol table.
     pub(crate) id: usize,
     /// The output type of the function.
-    pub(crate) output: Type,
+    pub(crate) output_type: Type,
     /// The `Span` associated with the function.
     pub(crate) span: Span,
     /// The inputs to the function.
@@ -49,12 +49,12 @@ impl SymbolTable {
     pub(crate) fn new_function_symbol(id: usize, func: &Function) -> FunctionSymbol {
         FunctionSymbol {
             id,
-            output: func.output.clone(),
+            output_type: func.output_type.clone(),
             span: func.span,
             input: func.input.clone(),
             finalize: func.finalize.as_ref().map(|finalize| FinalizeData {
                 input: finalize.input.clone(),
-                output: finalize.output.clone(),
+                output_type: finalize.output_type.clone(),
                 span: finalize.span,
             }),
         }

@@ -384,7 +384,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table` alive for the entire block and will be very memory inefficient!
                 let func = self.symbol_table.borrow().lookup_fn_symbol(ident.name).cloned();
                 if let Some(func) = func {
-                    let ret = self.assert_and_return_type(func.output, expected, func.span);
+                    let ret = self.assert_and_return_type(func.output_type, expected, func.span);
 
                     // Check number of function arguments.
                     if func.input.len() != input.arguments.len() {
