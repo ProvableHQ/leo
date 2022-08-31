@@ -26,6 +26,13 @@ outputs:
               lo: 21
               hi: 22
         output:
+          - mode: None
+            type_:
+              Integer: U8
+            span:
+              lo: 32
+              hi: 34
+        output_type:
           Integer: U8
         block:
           statements:

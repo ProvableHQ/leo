@@ -26,6 +26,13 @@ outputs:
               lo: 28
               hi: 29
         output:
+          - mode: None
+            type_:
+              Integer: U8
+            span:
+              lo: 39
+              hi: 41
+        output_type:
           Integer: U8
         block:
           statements:
@@ -67,6 +74,13 @@ outputs:
               lo: 89
               hi: 90
         output:
+          - mode: None
+            type_:
+              Integer: U8
+            span:
+              lo: 100
+              hi: 102
+        output_type:
           Integer: U8
         block:
           statements:

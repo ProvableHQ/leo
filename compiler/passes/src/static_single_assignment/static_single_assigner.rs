@@ -16,11 +16,11 @@
 
 use crate::{RenameTable, SymbolTable};
 
-use leo_ast::{AssignStatement, Circuit, Expression, ExpressionConsumer, Identifier, Statement, TernaryExpression};
+use leo_ast::{AssignStatement, Expression, ExpressionConsumer, Identifier, Statement, TernaryExpression};
 use leo_errors::emitter::Handler;
 use leo_span::Symbol;
 
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexMap;
 use std::fmt::Display;
 
 pub struct StaticSingleAssigner<'a> {

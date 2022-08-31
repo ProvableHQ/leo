@@ -123,10 +123,10 @@ impl ParserContext<'_> {
     /// Returns a [`FinalizeStatement`] AST node if the next tokens represent a finalize statement.
     fn parse_finalize_statement(&mut self) -> Result<FinalizeStatement> {
         let start = self.expect(&Token::Finalize)?;
-        let expression = self.parse_expression()?;
+        let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
         self.expect(&Token::Semicolon)?;
-        let span = start + expression.span();
-        Ok(FinalizeStatement { span, expression })
+        let span = start + span;
+        Ok(FinalizeStatement { span, arguments })
     }
 
     /// Returns a [`DecrementStatement`] AST node if the next tokens represent a decrement statement.

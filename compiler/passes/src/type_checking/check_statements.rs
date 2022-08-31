@@ -221,9 +221,23 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         match finalize {
             None => self.emit_err(TypeCheckerError::finalize_without_finalize_block(input.span())),
             Some(finalize) => {
-                let type_ = self.visit_expression(&input.expression, &None);
-                // TODO: Check that the finalize type is correct.
-                self.assert_and_return_type(finalize.output_type, &type_, input.expression.span());
+                // Check number of function arguments.
+                if finalize.input.len() != input.arguments.len() {
+                    self.emit_err(TypeCheckerError::incorrect_num_args_to_finalize(
+                        finalize.input.len(),
+                        input.arguments.len(),
+                        input.span(),
+                    ));
+                }
+
+                // Check function argument types.
+                finalize
+                    .input
+                    .iter()
+                    .zip(input.arguments.iter())
+                    .for_each(|(expected, argument)| {
+                        self.visit_expression(argument, &Some(expected.type_.clone()));
+                    });
             }
         }
     }

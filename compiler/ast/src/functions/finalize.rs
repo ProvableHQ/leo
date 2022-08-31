@@ -57,7 +57,6 @@ impl Finalize {
 
 impl fmt::Display for Finalize {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, " finalize")?;
         let parameters = self.input.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",");
         let returns = match self.output.len() {
             0 => "()".to_string(),
@@ -67,7 +66,7 @@ impl fmt::Display for Finalize {
                 self.output.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",")
             ),
         };
-        write!(f, "({}) -> {} {}", parameters, returns, self.block)
+        write!(f, " finalize({}) -> {} {}", parameters, returns, self.block)
     }
 }
 

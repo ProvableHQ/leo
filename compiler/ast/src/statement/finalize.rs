@@ -21,18 +21,25 @@ use leo_span::Span;
 use core::fmt;
 use serde::{Deserialize, Serialize};
 
-/// A return statement `finalize expression;`.
+/// A return statement `finalize(arg1, ..., argN);`.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct FinalizeStatement {
     /// The arguments to pass to the finalize block.
-    pub expression: Expression,
-    /// The span of `finalize expression` excluding the semicolon.
+    pub arguments: Vec<Expression>,
+    /// The span of `finalize(arg1, ..., argN)` excluding the semicolon.
     pub span: Span,
 }
 
 impl fmt::Display for FinalizeStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "finalize {}", self.expression)
+        write!(f, "finalize(")?;
+        for (i, param) in self.arguments.iter().enumerate() {
+            write!(f, "{}", param)?;
+            if i < self.arguments.len() - 1 {
+                write!(f, ", ")?;
+            }
+        }
+        write!(f, ");")
     }
 }
 

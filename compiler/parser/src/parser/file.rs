@@ -350,7 +350,10 @@ impl ParserContext<'_> {
             false => vec![],
             true => {
                 self.disallow_circuit_construction = true;
-                let (output, ..) = self.parse_paren_comma_list(|p| p.parse_function_output().map(Some))?;
+                let output = match self.peek_is_left_par() {
+                    true => self.parse_paren_comma_list(|p| p.parse_function_output().map(Some))?.0,
+                    false => vec![self.parse_function_output()?],
+                };
                 self.disallow_circuit_construction = false;
                 output
             }
@@ -374,7 +377,10 @@ impl ParserContext<'_> {
                     false => vec![],
                     true => {
                         self.disallow_circuit_construction = true;
-                        let (output, ..) = self.parse_paren_comma_list(|p| p.parse_function_output().map(Some))?;
+                        let output = match self.peek_is_left_par() {
+                            true => self.parse_paren_comma_list(|p| p.parse_function_output().map(Some))?.0,
+                            false => vec![self.parse_function_output()?],
+                        };
                         self.disallow_circuit_construction = false;
                         output
                     }

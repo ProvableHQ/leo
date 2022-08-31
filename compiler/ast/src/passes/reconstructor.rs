@@ -234,7 +234,11 @@ pub trait StatementReconstructor: ExpressionReconstructor {
 
     fn reconstruct_finalize(&mut self, input: FinalizeStatement) -> Statement {
         Statement::Finalize(FinalizeStatement {
-            expression: input.expression,
+            arguments: input
+                .arguments
+                .into_iter()
+                .map(|arg| self.reconstruct_expression(arg).0)
+                .collect(),
             span: input.span,
         })
     }

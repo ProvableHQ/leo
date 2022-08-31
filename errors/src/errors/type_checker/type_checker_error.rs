@@ -344,4 +344,41 @@ create_messages!(
         msg: format!("Loop body contains a finalize statement."),
         help: Some("Remove the finalize statement.".to_string()),
     }
+
+    @formatted
+    missing_return {
+        args: (),
+        msg: format!("Function must return a value."),
+        help: None,
+    }
+
+    @formatted
+    finalize_block_must_not_be_empty {
+        args: (),
+        msg: format!("A finalize block cannot be empty."),
+        help: None,
+    }
+
+    @formatted
+    cannot_have_constant_output_mode {
+        args: (),
+        msg: format!("A returned value cannot be a constant."),
+        help: None,
+    }
+
+    @formatted
+    program_function_inputs_cannot_be_const {
+        args: (),
+        msg: format!("Program functions cannot have constant inputs."),
+        help: None,
+    }
+
+    @formatted
+    incorrect_num_args_to_finalize {
+        args: (expected: impl Display, received: impl Display),
+        msg: format!(
+            "`finalize` expected `{expected}` args, but got `{received}`",
+        ),
+        help: None,
+    }
 );

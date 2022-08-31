@@ -137,16 +137,22 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Create a new child scope for the function's parameters and body.
         let scope_index = self.create_child_scope();
 
+        // Type check the function's parameters.
         function.input.iter().for_each(|input_var| {
             // Check that the type of input parameter is valid.
             self.assert_type_is_valid(input_var.span, &input_var.type_);
             self.assert_not_tuple(input_var.span, &input_var.type_);
 
-            // If the function is not a program function, then check that the parameters do not have an associated mode.
-            if !self.is_program_function && input_var.mode != Mode::None {
-                self.emit_err(TypeCheckerError::helper_function_inputs_cannot_have_modes(
-                    input_var.span,
-                ));
+            match self.is_program_function {
+                // If the function is a program function, then check that the parameter mode is not a constant.
+                true if input_var.mode == Mode::Const => self.emit_err(
+                    TypeCheckerError::program_function_inputs_cannot_be_const(input_var.span),
+                ),
+                // If the function is not a program function, then check that the parameters do not have an associated mode.
+                false if input_var.mode != Mode::None => self.emit_err(
+                    TypeCheckerError::helper_function_inputs_cannot_have_modes(input_var.span),
+                ),
+                _ => {} // Do nothing.
             }
 
             // Check for conflicting variable names.
@@ -162,16 +168,25 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             }
         });
 
+        // Type check the function's return type.
+        function.output.iter().for_each(|output_type| {
+            // Check that the type of output is valid.
+            self.assert_type_is_valid(output_type.span, &output_type.type_);
+
+            // Check that the mode of the output is valid.
+            if output_type.mode == Mode::Const {
+                self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(output_type.span));
+            }
+        });
+
         self.visit_block(&function.block);
 
         // Check that the return type is valid.
         self.assert_type_is_valid(function.span, &function.output_type);
 
-        // Ensure there are no nested tuples in the return type.
-        if let Type::Tuple(tys) = &function.output_type {
-            for ty in &tys.0 {
-                self.assert_not_tuple(function.span, ty);
-            }
+        // If the function has a return type, then check that it has a return.
+        if function.output_type != Type::Unit && !self.has_return {
+            self.emit_err(TypeCheckerError::missing_return(function.span));
         }
 
         // Exit the scope for the function's parameters and body.
@@ -215,21 +230,36 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 }
             });
 
+            // Type check the function's return type.
+            finalize.output.iter().for_each(|output_type| {
+                // Check that the type of output is valid.
+                self.assert_type_is_valid(output_type.span, &output_type.type_);
+
+                // Check that the mode of the output is valid.
+                if output_type.mode == Mode::Const {
+                    self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(output_type.span));
+                }
+            });
+
+            // TODO: Remove when this restriction is removed.
+            // Check that the finalize block is not empty.
+            if finalize.block.statements.is_empty() {
+                self.emit_err(TypeCheckerError::finalize_block_must_not_be_empty(finalize.span));
+            }
+
             // Type check the finalize block.
             self.visit_block(&finalize.block);
 
             // Check that the return type is valid.
             self.assert_type_is_valid(finalize.span, &finalize.output_type);
 
+            // If the function has a return type, then check that it has a return.
+            if function.output_type != Type::Unit && !self.has_return {
+                self.emit_err(TypeCheckerError::missing_return(function.span));
+            }
+
             // Exit the scope for the finalize block.
             self.exit_scope(scope_index);
-
-            // Ensure there are no nested tuples in the return type.
-            if let Type::Tuple(tys) = &finalize.output_type {
-                for ty in &tys.0 {
-                    self.assert_not_tuple(function.span, ty);
-                }
-            }
 
             self.is_finalize = false;
         }

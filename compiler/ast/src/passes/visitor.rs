@@ -172,7 +172,9 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
     }
 
     fn visit_finalize(&mut self, input: &'a FinalizeStatement) {
-        self.visit_expression(&input.expression, &Default::default());
+        input.arguments.iter().for_each(|expr| {
+            self.visit_expression(expr, &Default::default());
+        });
     }
 
     fn visit_increment(&mut self, input: &'a IncrementStatement) {

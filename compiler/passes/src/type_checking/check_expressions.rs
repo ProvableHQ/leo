@@ -538,30 +538,37 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_tuple(&mut self, input: &'a TupleExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        // Check the expected tuple types if they are known.
-        if let Some(Type::Tuple(expected_types)) = expected {
-            // Check actual length is equal to expected length.
-            if expected_types.len() != input.elements.len() {
-                self.emit_err(TypeCheckerError::incorrect_tuple_length(
-                    expected_types.len(),
-                    input.elements.len(),
-                    input.span(),
-                ));
+        match input.elements.len() {
+            0 => Some(self.assert_and_return_type(Type::Unit, expected, input.span())),
+            1 => self.visit_expression(&input.elements[0], expected),
+            _ => {
+                // Check the expected tuple types if they are known.
+
+                if let Some(Type::Tuple(expected_types)) = expected {
+                    // Check actual length is equal to expected length.
+                    if expected_types.len() != input.elements.len() {
+                        self.emit_err(TypeCheckerError::incorrect_tuple_length(
+                            expected_types.len(),
+                            input.elements.len(),
+                            input.span(),
+                        ));
+                    }
+
+                    expected_types
+                        .iter()
+                        .zip(input.elements.iter())
+                        .for_each(|(expected, expr)| {
+                            self.visit_expression(expr, &Some(expected.clone()));
+                        });
+
+                    Some(Type::Tuple(expected_types.clone()))
+                } else {
+                    // Tuples must be explicitly typed in testnet3.
+                    self.emit_err(TypeCheckerError::invalid_tuple(input.span()));
+
+                    None
+                }
             }
-
-            expected_types
-                .iter()
-                .zip(input.elements.iter())
-                .for_each(|(expected, expr)| {
-                    self.visit_expression(expr, &Some(expected.clone()));
-                });
-
-            Some(Type::Tuple(expected_types.clone()))
-        } else {
-            // Tuples must be explicitly typed in testnet3.
-            self.emit_err(TypeCheckerError::invalid_tuple(input.span()));
-
-            None
         }
     }
 
