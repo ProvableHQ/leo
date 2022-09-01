@@ -16,9 +16,7 @@
 
 use crate::{Assigner, SymbolTable};
 
-use leo_ast::{
-    Expression, ExpressionReconstructor, Identifier, Statement, TernaryExpression,
-};
+use leo_ast::{Expression, ExpressionReconstructor, Identifier, Statement, TernaryExpression};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
@@ -32,12 +30,16 @@ pub struct Flattener<'a> {
     pub(crate) circuits: IndexMap<Symbol, Symbol>,
     /// A stack of condition `Expression`s visited up to the current point in the AST.
     pub(crate) condition_stack: Vec<Expression>,
-    /// A list containing tuples of guards and expressions associated with early `ReturnStatement`s.
-    /// Note that early returns are inserted in the order they are encountered during a pre-order traversal of the AST.
-    pub(crate) early_returns: Vec<(Option<Expression>, Expression)>,
-    /// A list containing tuples of guards and expressions associated with early `FinalizeStatement`s.
-    /// Note that early finalizes are inserted in the order they are encountered during a pre-order traversal of the AST.
-    pub(crate) early_finalizes: Vec<(Option<Expression>, Expression)>,
+    /// A list containing tuples of guards and expressions associated `ReturnStatement`s.
+    /// A guard is an expression that evaluates to true on the execution path of the `ReturnStatement`.
+    /// Note that returns are inserted in the order they are encountered during a pre-order traversal of the AST.
+    /// Note that type checking guarantees that there is at most one return in a basic block.
+    pub(crate) returns: Vec<(Option<Expression>, Expression)>,
+    /// A list containing tuples of guards and expressions associated with `FinalizeStatement`s.
+    /// A guard is an expression that evaluates to true on the execution path of the `FinalizeStatement`.
+    /// Note that finalizes are inserted in the order they are encountered during a pre-order traversal of the AST.
+    /// Note that type checking guarantees that there is at most one finalize in a basic block.
+    pub(crate) finalizes: Vec<Vec<(Option<Expression>, Expression)>>,
 }
 
 impl<'a> Flattener<'a> {
@@ -47,28 +49,29 @@ impl<'a> Flattener<'a> {
             assigner,
             circuits: IndexMap::new(),
             condition_stack: Vec::new(),
-            early_returns: Vec::new(),
-            early_finalizes: Vec::new(),
+            returns: Vec::new(),
+            finalizes: Vec::new(),
         }
     }
 
-    /// Clears the state associated with `ReturnStatements`, returning the ones that were previously produced.
+    /// Clears the state associated with `ReturnStatements`, returning the ones that were previously stored.
     pub(crate) fn clear_early_returns(&mut self) -> Vec<(Option<Expression>, Expression)> {
-        core::mem::take(&mut self.early_returns)
+        core::mem::take(&mut self.returns)
     }
 
-    // Clears the state associated with `FinalizeStatements`, returning the ones that were previously produced.
-    pub(crate) fn clear_early_finalizes(&mut self) -> Vec<(Option<Expression>, Expression)> {
-        core::mem::take(&mut self.early_finalizes)
+    /// Clears the state associated with `FinalizeStatements`, returning the ones that were previously stored.
+    pub(crate) fn clear_early_finalizes(&mut self) -> Vec<Vec<(Option<Expression>, Expression)>> {
+        core::mem::take(&mut self.finalizes)
     }
 
     /// Fold guards and expressions into a single expression.
+    // TODO: Remove below assumption.
     /// Note that this function assumes that at least one guard is present.
     pub(crate) fn fold_guards(
         &mut self,
         prefix: &str,
         mut guards: Vec<(Option<Expression>, Expression)>,
-    ) -> (Vec<Statement>, Expression) {
+    ) -> (Expression, Vec<Statement>) {
         // Type checking guarantees that there exists at least one return statement in the function body.
         let (_, last_expression) = guards.pop().unwrap();
 
@@ -102,6 +105,6 @@ impl<'a> Flattener<'a> {
                 Some(guard) => construct_ternary_assignment(guard, expr, acc),
             });
 
-        (statements, expression)
+        (expression, statements)
     }
 }

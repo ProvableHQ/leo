@@ -16,10 +16,7 @@
 
 use crate::StaticSingleAssigner;
 
-use leo_ast::{
-    Block, Finalize, Function, FunctionConsumer, Program, ProgramConsumer,
-    StatementConsumer,
-};
+use leo_ast::{Block, Finalize, Function, FunctionConsumer, Program, ProgramConsumer, StatementConsumer};
 
 impl FunctionConsumer for StaticSingleAssigner {
     type Output = Function;

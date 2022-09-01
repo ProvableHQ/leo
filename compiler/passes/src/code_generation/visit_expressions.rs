@@ -48,6 +48,10 @@ impl<'a> CodeGenerator<'a> {
         (self.variable_mapping.get(&input.name).unwrap().clone(), String::new())
     }
 
+    fn visit_err(&mut self, _input: &'a ErrExpression) -> (String, String) {
+        unreachable!("`ErrExpression`s should not be in the AST at this phase of compilation.")
+    }
+
     fn visit_value(&mut self, input: &'a Literal) -> (String, String) {
         (format!("{}", input), String::new())
     }

@@ -18,8 +18,8 @@ use crate::StaticSingleAssigner;
 
 use leo_ast::{
     AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, CircuitExpression,
-    CircuitVariableInitializer, ErrExpression, Expression, ExpressionConsumer, Identifier, Literal, MemberAccess,
-    Statement, TernaryExpression, TupleAccess, TupleExpression, UnaryExpression,
+    CircuitVariableInitializer, Expression, ExpressionConsumer, Identifier, Literal, MemberAccess, Statement,
+    TernaryExpression, TupleAccess, TupleExpression, UnaryExpression,
 };
 
 impl ExpressionConsumer for StaticSingleAssigner {

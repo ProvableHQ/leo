@@ -19,17 +19,13 @@ use leo_span::Symbol;
 use std::fmt::Display;
 
 /// A struct used to create assignment statements.
+#[derive(Default)]
 pub struct Assigner {
     /// A strictly increasing counter, used to ensure that new variable names are unique.
     pub(crate) counter: usize,
 }
 
 impl Assigner {
-    /// Initializes a new assigner.
-    pub fn new() -> Self {
-        Self { counter: 0 }
-    }
-
     /// Return a new unique `Symbol` from a `&str`.
     pub(crate) fn unique_symbol(&mut self, arg: impl Display) -> Symbol {
         self.counter += 1;

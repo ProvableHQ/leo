@@ -59,7 +59,7 @@ pub use flattener::*;
 use crate::{Assigner, Pass, SymbolTable};
 
 use leo_ast::{Ast, ProgramReconstructor};
-use leo_errors::{Result};
+use leo_errors::Result;
 
 impl<'a> Pass for Flattener<'a> {
     type Input = (Ast, &'a SymbolTable, Assigner);

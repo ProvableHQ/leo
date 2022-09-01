@@ -16,8 +16,6 @@
 
 use crate::{Assigner, RenameTable};
 
-// TODO: Consider refactoring out an Assigner struct that produces (unique) assignment statements.
-
 pub struct StaticSingleAssigner {
     /// The `RenameTable` for the current basic block in the AST
     pub(crate) rename_table: RenameTable,
@@ -33,7 +31,7 @@ impl StaticSingleAssigner {
         Self {
             rename_table: RenameTable::new(None),
             is_lhs: false,
-            assigner: Assigner::new(),
+            assigner: Assigner::default(),
         }
     }
 

@@ -17,9 +17,9 @@
 use crate::{RenameTable, StaticSingleAssigner};
 
 use leo_ast::{
-    AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement,
-    DecrementStatement, DefinitionStatement, Expression, ExpressionConsumer, FinalizeStatement, Identifier,
-    IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
+    AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
+    DefinitionStatement, Expression, ExpressionConsumer, FinalizeStatement, Identifier, IncrementStatement,
+    IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
 };
 use leo_span::Symbol;
 
@@ -101,7 +101,7 @@ impl StatementConsumer for StaticSingleAssigner {
         // Add reconstructed conditional statement to the list of produced statements.
         statements.push(Statement::Conditional(ConditionalStatement {
             span: conditional.span,
-            condition,
+            condition: condition.clone(),
             then,
             otherwise,
         }));

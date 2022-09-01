@@ -60,10 +60,10 @@ pub(crate) use rename_table::*;
 pub mod static_single_assigner;
 pub use static_single_assigner::*;
 
-use crate::{Pass};
+use crate::Pass;
 
 use leo_ast::{Ast, ProgramConsumer};
-use leo_errors::{Result};
+use leo_errors::Result;
 
 impl Pass for StaticSingleAssigner {
     type Input = Ast;
