@@ -14,102 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{RenameTable, SymbolTable};
+use crate::{Assigner, RenameTable};
 
-use leo_ast::{AssignStatement, Expression, ExpressionConsumer, Identifier, Statement, TernaryExpression};
-use leo_errors::emitter::Handler;
-use leo_span::Symbol;
+// TODO: Consider refactoring out an Assigner struct that produces (unique) assignment statements.
 
-use indexmap::IndexMap;
-use std::fmt::Display;
-
-pub struct StaticSingleAssigner<'a> {
-    /// The symbol table associated with the program.
-    pub(crate) symbol_table: &'a SymbolTable,
+pub struct StaticSingleAssigner {
     /// The `RenameTable` for the current basic block in the AST
     pub(crate) rename_table: RenameTable,
-    /// An error handler used for any errors found during unrolling.
-    pub(crate) _handler: &'a Handler,
-    /// A strictly increasing counter, used to ensure that new variable names are unique.
-    pub(crate) counter: usize,
     /// A flag to determine whether or not the traversal is on the left-hand side of a definition or an assignment.
     pub(crate) is_lhs: bool,
-    /// The set of variables that are circuits.
-    pub(crate) circuits: IndexMap<Symbol, Symbol>,
-    /// A stack of condition `Expression`s visited up to the current point in the AST.
-    pub(crate) condition_stack: Vec<Expression>,
-    /// A list containing tuples of guards and expressions associated with early `ReturnStatement`s.
-    /// Note that early returns are inserted in the order they are encountered during a pre-order traversal of the AST.
-    pub(crate) early_returns: Vec<(Option<Expression>, Expression)>,
-    /// A list containing tuples of guards and expressions associated with early `FinalizeStatement`s.
-    /// Note that early finalizes are inserted in the order they are encountered during a pre-order traversal of the AST.
-    pub(crate) early_finalizes: Vec<(Option<Expression>, Expression)>,
+    /// An struct used to construct (unique) assignment statements.
+    pub(crate) assigner: Assigner,
 }
 
-impl<'a> StaticSingleAssigner<'a> {
-    pub(crate) fn new(handler: &'a Handler, symbol_table: &'a SymbolTable) -> Self {
+impl StaticSingleAssigner {
+    /// Initializes a new `StaticSingleAssigner` with an empty `RenameTable`.
+    pub(crate) fn new() -> Self {
         Self {
-            symbol_table,
             rename_table: RenameTable::new(None),
-            _handler: handler,
-            counter: 0,
             is_lhs: false,
-            circuits: IndexMap::new(),
-            condition_stack: Vec::new(),
-            early_returns: Vec::new(),
-            early_finalizes: Vec::new(),
+            assigner: Assigner::new(),
         }
-    }
-
-    /// Return a new unique `Symbol` from a `&str`.
-    pub(crate) fn unique_symbol(&mut self, arg: impl Display) -> Symbol {
-        self.counter += 1;
-        Symbol::intern(&format!("{}${}", arg, self.counter - 1))
-    }
-
-    /// Constructs the assignment statement `place = expr;`.
-    /// This function should be the only place where `AssignStatement`s are constructed.
-    pub(crate) fn simple_assign_statement(&mut self, identifier: Identifier, value: Expression) -> Statement {
-        if let Expression::Circuit(ref expr) = value {
-            self.circuits.insert(identifier.name, expr.name.name);
-        } else if let Expression::Identifier(ref id) = value {
-            if let Some(symbol) = self.circuits.get(&id.name) {
-                self.circuits.insert(identifier.name, *symbol);
-            }
-        }
-
-        // Update the rename table.
-        self.rename_table.update(identifier.name, identifier.name);
-
-        Statement::Assign(Box::new(AssignStatement {
-            place: Expression::Identifier(identifier),
-            value,
-            span: Default::default(),
-        }))
-    }
-
-    /// Constructs a simple assign statement for `expr` with a unique name.
-    /// For example, `expr` is transformed into `$var$0 = expr;`.
-    pub(crate) fn unique_simple_assign_statement(&mut self, expr: Expression) -> (Expression, Statement) {
-        // Create a new variable for the expression.
-        let name = self.unique_symbol("$var");
-
-        let place = Identifier {
-            name,
-            span: Default::default(),
-        };
-
-        (Expression::Identifier(place), self.simple_assign_statement(place, expr))
-    }
-
-    /// Clears the state associated with `ReturnStatements`, returning the ones that were previously produced.
-    pub(crate) fn clear_early_returns(&mut self) -> Vec<(Option<Expression>, Expression)> {
-        core::mem::take(&mut self.early_returns)
-    }
-
-    // Clears the state associated with `FinalizeStatements`, returning the ones that were previously produced.
-    pub(crate) fn clear_early_finalizes(&mut self) -> Vec<(Option<Expression>, Expression)> {
-        core::mem::take(&mut self.early_finalizes)
     }
 
     /// Pushes a new scope, setting the current scope as the new scope's parent.
@@ -122,48 +47,5 @@ impl<'a> StaticSingleAssigner<'a> {
     pub(crate) fn pop(&mut self) -> RenameTable {
         let parent = self.rename_table.parent.clone().unwrap_or_default();
         core::mem::replace(&mut self.rename_table, *parent)
-    }
-
-    /// Fold guards and expressions into a single expression.
-    /// Note that this function assumes that at least one guard is present.
-    pub(crate) fn fold_guards(
-        &mut self,
-        prefix: &str,
-        mut guards: Vec<(Option<Expression>, Expression)>,
-    ) -> (Vec<Statement>, Expression) {
-        // Type checking guarantees that there exists at least one return statement in the function body.
-        let (_, last_expression) = guards.pop().unwrap();
-
-        // Produce a chain of ternary expressions and assignments for the guards.
-        let mut statements = Vec::with_capacity(guards.len());
-
-        // Helper to construct and store ternary assignments. e.g `$ret$0 = $var$0 ? $var$1 : $var$2`
-        let mut construct_ternary_assignment = |guard: Expression, if_true: Expression, if_false: Expression| {
-            let place = Identifier {
-                name: self.unique_symbol(prefix),
-                span: Default::default(),
-            };
-            let (value, stmts) = self.consume_ternary(TernaryExpression {
-                condition: Box::new(guard),
-                if_true: Box::new(if_true),
-                if_false: Box::new(if_false),
-                span: Default::default(),
-            });
-            statements.extend(stmts);
-
-            statements.push(self.simple_assign_statement(place, value));
-            Expression::Identifier(place)
-        };
-
-        let expression = guards
-            .into_iter()
-            .rev()
-            .fold(last_expression, |acc, (guard, expr)| match guard {
-                None => unreachable!("All expression except for the last one must have a guard."),
-                // Note that type checking guarantees that all expressions have the same type.
-                Some(guard) => construct_ternary_assignment(guard, expr, acc),
-            });
-
-        (statements, expression)
     }
 }

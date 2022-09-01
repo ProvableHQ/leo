@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+// TODO: Fix documentation.
+
 //! The Static Single Assignment pass traverses the AST and converts it into SSA form.
 //! See https://en.wikipedia.org/wiki/Static_single-assignment_form for more information.
 //! The pass also flattens `ConditionalStatement`s into a sequence of `AssignStatement`s.
@@ -45,34 +47,28 @@
 //!     return $cond$0 ? $return$2 : $return$5;
 //! ```
 
-mod assigner;
-pub(crate) use assigner::*;
+mod flatten_expression;
 
-mod rename_expression;
+mod flatten_program;
 
-mod rename_program;
+mod flatten_statement;
 
-mod rename_statement;
+pub mod flattener;
+pub use flattener::*;
 
-mod rename_table;
-pub(crate) use rename_table::*;
+use crate::{Assigner, Pass, SymbolTable};
 
-pub mod static_single_assigner;
-pub use static_single_assigner::*;
-
-use crate::{Pass};
-
-use leo_ast::{Ast, ProgramConsumer};
+use leo_ast::{Ast, ProgramReconstructor};
 use leo_errors::{Result};
 
-impl Pass for StaticSingleAssigner {
-    type Input = Ast;
-    type Output = Result<(Ast, Assigner)>;
+impl<'a> Pass for Flattener<'a> {
+    type Input = (Ast, &'a SymbolTable, Assigner);
+    type Output = Result<Ast>;
 
-    fn do_pass(ast: Self::Input) -> Self::Output {
-        let mut consumer = StaticSingleAssigner::new();
-        let program = consumer.consume_program(ast.into_repr());
+    fn do_pass((ast, st, assigner): Self::Input) -> Self::Output {
+        let mut reconstructor = Flattener::new(st, assigner);
+        let program = reconstructor.reconstruct_program(ast.into_repr());
 
-        Ok((Ast::new(program), consumer.assigner))
+        Ok(Ast::new(program))
     }
 }

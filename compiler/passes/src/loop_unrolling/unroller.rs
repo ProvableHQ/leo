@@ -185,17 +185,20 @@ impl<'a> Unroller<'a> {
         };
 
         // The first statement in the block is the assignment of the loop variable to the current iteration count.
-        let mut statements = vec![self.reconstruct_definition(DefinitionStatement {
-            declaration_type: DeclarationType::Const,
-            type_: input.type_.clone(),
-            value: Expression::Literal(value),
-            span: Default::default(),
-            variable_name: input.variable,
-        })];
+        let mut statements = vec![
+            self.reconstruct_definition(DefinitionStatement {
+                declaration_type: DeclarationType::Const,
+                type_: input.type_.clone(),
+                value: Expression::Literal(value),
+                span: Default::default(),
+                variable_name: input.variable,
+            })
+            .0,
+        ];
 
         // Reconstruct the statements in the loop body.
         input.block.statements.clone().into_iter().for_each(|s| {
-            statements.push(self.reconstruct_statement(s));
+            statements.push(self.reconstruct_statement(s).0);
         });
 
         let block = Statement::Block(Block {

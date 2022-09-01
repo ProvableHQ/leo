@@ -15,15 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::StaticSingleAssigner;
-use itertools::Itertools;
 
 use leo_ast::{
-    AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, CircuitExpression, CircuitMember,
+    AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, CircuitExpression,
     CircuitVariableInitializer, ErrExpression, Expression, ExpressionConsumer, Identifier, Literal, MemberAccess,
     Statement, TernaryExpression, TupleAccess, TupleExpression, UnaryExpression,
 };
 
-impl ExpressionConsumer for StaticSingleAssigner<'_> {
+impl ExpressionConsumer for StaticSingleAssigner {
     type Output = (Expression, Vec<Statement>);
 
     /// Consumes an access expression, accumulating any statements that are generated.
@@ -73,7 +72,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             }
             expr => (expr, Vec::new()),
         };
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Access(expr));
+        let (place, statement) = self.assigner.unique_simple_assign_statement(Expression::Access(expr));
         statements.push(statement);
 
         (place, statements)
@@ -89,12 +88,14 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         statements.append(&mut right_statements);
 
         // Construct and accumulate a unique assignment statement storing the result of the binary expression.
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Binary(BinaryExpression {
-            left: Box::new(left_expression),
-            right: Box::new(right_expression),
-            op: input.op,
-            span: input.span,
-        }));
+        let (place, statement) = self
+            .assigner
+            .unique_simple_assign_statement(Expression::Binary(BinaryExpression {
+                left: Box::new(left_expression),
+                right: Box::new(right_expression),
+                op: input.op,
+                span: input.span,
+            }));
         statements.push(statement);
 
         (place, statements)
@@ -116,13 +117,15 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             .collect();
 
         // Construct and accumulate a new assignment statement for the call expression.
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Call(CallExpression {
-            // Note that we do not rename the function name.
-            function: input.function,
-            // Consume the arguments.
-            arguments,
-            span: input.span,
-        }));
+        let (place, statement) = self
+            .assigner
+            .unique_simple_assign_statement(Expression::Call(CallExpression {
+                // Note that we do not rename the function name.
+                function: input.function,
+                // Consume the arguments.
+                arguments,
+                span: input.span,
+            }));
         statements.push(statement);
 
         (place, statements)
@@ -156,28 +159,17 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             })
             .collect();
 
-        // Construct and accumulate a new assignment statement for the call expression.
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Circuit(CircuitExpression {
-            name: input.name,
-            span: input.span,
-            members,
-        }));
+        // Construct and accumulate a new assignment statement for the circuit expression.
+        let (place, statement) = self
+            .assigner
+            .unique_simple_assign_statement(Expression::Circuit(CircuitExpression {
+                name: input.name,
+                span: input.span,
+                members,
+            }));
         statements.push(statement);
 
-        // Add the variable to the set of circuit variables.
-        match place {
-            Expression::Identifier(identifier) => self.circuits.insert(identifier.name, input.name.name),
-            _ => unreachable!("`place` is always an identifier"),
-        };
-
-        // Note that we do not construct a new assignment statement for the tuple expression.
-        // Expressions that produce compound data types need to be handled separately.
         (place, statements)
-    }
-
-    /// `ErrExpressions` should not exist and thus do not need to be handled.
-    fn consume_err(&mut self, _input: ErrExpression) -> Self::Output {
-        unreachable!("`ErrExpression`s should not be in the AST at this phase of compilation.")
     }
 
     /// Produces a new `Identifier` with a unique name.
@@ -185,13 +177,14 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         let name = match self.is_lhs {
             // If consuming the left-hand side of a definition or assignment, a new unique name is introduced.
             true => {
-                let new_name = self.unique_symbol(identifier.name);
+                let new_name = self.assigner.unique_symbol(identifier.name);
                 self.rename_table.update(identifier.name, new_name);
                 new_name
             }
             // Otherwise, we look up the previous name in the `RenameTable`.
             false => *self.rename_table.lookup(identifier.name).unwrap_or_else(|| {
                 &identifier.name
+                // TODO: Document why we don't need to panic.
                 // panic!(
                 //     "SSA Error: An entry in the `RenameTable` for {} should exist.",
                 //     identifier.name
@@ -226,95 +219,18 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         statements.append(&mut if_true_statements);
         statements.append(&mut if_false_statements);
 
-        match (if_true_expr, if_false_expr) {
-            (Expression::Tuple(first), Expression::Tuple(second)) => {
-                let tuple = Expression::Tuple(TupleExpression {
-                    elements: first
-                        .elements
-                        .into_iter()
-                        .zip_eq(second.elements.into_iter())
-                        .map(|(if_true, if_false)| {
-                            let (ternary, stmts) = self.consume_ternary(TernaryExpression {
-                                condition: Box::new(cond_expr.clone()),
-                                if_true: Box::new(if_true),
-                                if_false: Box::new(if_false),
-                                span: input.span,
-                            });
-                            statements.extend(stmts);
-                            ternary
-                        })
-                        .collect(),
-                    span: Default::default(),
-                });
-                (tuple, statements)
-            }
-            // If the `true` and `false` cases are circuits, handle the appropriately.
-            // Note that type checking guarantees that both expressions have the same same type.
-            (Expression::Identifier(first), Expression::Identifier(second))
-                if self.circuits.contains_key(&first.name) && self.circuits.contains_key(&second.name) =>
-            {
-                // TODO: Document.
-                let first_circuit = self
-                    .symbol_table
-                    .lookup_circuit(*self.circuits.get(&first.name).unwrap())
-                    .unwrap();
-                let second_circuit = self
-                    .symbol_table
-                    .lookup_circuit(*self.circuits.get(&second.name).unwrap())
-                    .unwrap();
-                assert_eq!(first_circuit, second_circuit);
+        // Construct and accumulate a unique assignment statement storing the result of the ternary expression.
+        let (place, statement) = self
+            .assigner
+            .unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
+                condition: Box::new(cond_expr),
+                if_true: Box::new(if_true_expr),
+                if_false: Box::new(if_false_expr),
+                span: input.span,
+            }));
+        statements.push(statement);
 
-                // For each circuit member, construct a new ternary expression.
-                let members = first_circuit
-                    .members
-                    .iter()
-                    .map(|CircuitMember::CircuitVariable(id, _)| {
-                        let (expression, stmts) = self.consume_ternary(TernaryExpression {
-                            condition: Box::new(cond_expr.clone()),
-                            if_true: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
-                                inner: Box::new(Expression::Identifier(first)),
-                                name: *id,
-                                span: Default::default(),
-                            }))),
-                            if_false: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
-                                inner: Box::new(Expression::Identifier(second)),
-                                name: *id,
-                                span: Default::default(),
-                            }))),
-                            span: Default::default(),
-                        });
-                        statements.extend(stmts);
-
-                        CircuitVariableInitializer {
-                            identifier: *id,
-                            expression: Some(expression),
-                        }
-                    })
-                    .collect();
-
-                let (expr, stmts) = self.consume_circuit_init(CircuitExpression {
-                    name: first_circuit.identifier,
-                    members,
-                    span: Default::default(),
-                });
-
-                statements.extend(stmts);
-
-                (expr, statements)
-            }
-            (if_true_expr, if_false_expr) => {
-                // Construct and accumulate a unique assignment statement storing the result of the ternary expression.
-                let (place, statement) = self.unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
-                    condition: Box::new(cond_expr),
-                    if_true: Box::new(if_true_expr),
-                    if_false: Box::new(if_false_expr),
-                    span: input.span,
-                }));
-                statements.push(statement);
-
-                (place, statements)
-            }
-        }
+        (place, statements)
     }
 
     /// Consumes a tuple expression, accumulating any statements that are generated
@@ -333,7 +249,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             .collect();
 
         // Note that we do not construct a new assignment statement for the tuple expression.
-        // Expressions that produce compound data types need to be handled separately.
+        // This is because tuple expressions are restricted to use in a return statement.
         (
             Expression::Tuple(TupleExpression {
                 elements,
@@ -349,11 +265,13 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         let (receiver, mut statements) = self.consume_expression(*input.receiver);
 
         // Construct and accumulate a new assignment statement for the unary expression.
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Unary(UnaryExpression {
-            op: input.op,
-            receiver: Box::new(receiver),
-            span: input.span,
-        }));
+        let (place, statement) = self
+            .assigner
+            .unique_simple_assign_statement(Expression::Unary(UnaryExpression {
+                op: input.op,
+                receiver: Box::new(receiver),
+                span: input.span,
+            }));
         statements.push(statement);
 
         (place, statements)

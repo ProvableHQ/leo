@@ -17,16 +17,15 @@
 use crate::{RenameTable, StaticSingleAssigner};
 
 use leo_ast::{
-    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement,
+    AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement,
     DecrementStatement, DefinitionStatement, Expression, ExpressionConsumer, FinalizeStatement, Identifier,
-    IncrementStatement, IterationStatement, Node, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
-    UnaryExpression, UnaryOperation,
+    IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
 };
 use leo_span::Symbol;
 
 use indexmap::IndexSet;
 
-impl StatementConsumer for StaticSingleAssigner<'_> {
+impl StatementConsumer for StaticSingleAssigner {
     type Output = Vec<Statement>;
 
     /// Consume all `AssignStatement`s, renaming as necessary.
@@ -36,15 +35,14 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
 
         // Then assign a new unique name to the left-hand-side of the assignment.
         // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
-        // TODO: Can lhs have complex expressions?
         self.is_lhs = true;
         let place = match self.consume_expression(assign.place).0 {
             Expression::Identifier(identifier) => identifier,
-            _ => panic!("Type checking"),
+            _ => panic!("Type checking guarantees that the left-hand-side of an assignment is an identifier."),
         };
         self.is_lhs = false;
 
-        statements.push(self.simple_assign_statement(place, value));
+        statements.push(self.assigner.simple_assign_statement(place, value));
 
         statements
     }
@@ -58,7 +56,8 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
             .collect()
     }
 
-    /// Consumes a `ConditionalStatement`, producing phi functions for variables written in the then-block and otherwise-block.
+    /// Consumes a `ConditionalStatement`, producing phi functions (assign statements) for variables written in the then-block and otherwise-block.
+    /// For more information on phi functions, see https://en.wikipedia.org/wiki/Static_single_assignment_form.
     /// Furthermore a new `AssignStatement` is introduced for non-trivial expressions in the condition of `ConditionalStatement`s.
     /// For example,
     ///   - `if x > 0 { x = x + 1 }` becomes `let $cond$0 = x > 0; if $cond$0 { x = x + 1; }`
@@ -71,14 +70,11 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         // Instantiate a `RenameTable` for the then-block.
         self.push();
 
-        // Add condition to the condition stack.
-        self.condition_stack.push(condition.clone());
-
-        // Consume the then-block and flatten its constituent statements into the current block.
-        statements.extend(self.consume_block(conditional.then));
-
-        // Remove condition from the condition stack.
-        self.condition_stack.pop();
+        // Consume the then-block.
+        let then = Block {
+            span: conditional.then.span,
+            statements: self.consume_block(conditional.then),
+        };
 
         // Remove the `RenameTable` for the then-block.
         let if_table = self.pop();
@@ -87,29 +83,35 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         self.push();
 
         // Consume the otherwise-block and flatten its constituent statements into the current block.
-        if let Some(statement) = conditional.otherwise {
-            // Add the negated condition to the condition stack.
-            self.condition_stack.push(Expression::Unary(UnaryExpression {
-                op: UnaryOperation::Not,
-                receiver: Box::new(condition.clone()),
-                span: condition.span(),
-            }));
-
-            statements.extend(self.consume_statement(*statement));
-
-            // Remove the negated condition from the condition stack.
-            self.condition_stack.pop();
-        };
+        let otherwise = conditional.otherwise.map(|otherwise| Box::new(Statement::Block(match *otherwise {
+            Statement::Block(block) => Block {
+                span: block.span,
+                statements: self.consume_block(block),
+            },
+            Statement::Conditional(conditional) => Block {
+                span: conditional.span,
+                statements: self.consume_conditional(conditional),
+            },
+            _ => unreachable!("Type checking guarantees that the otherwise-block of a conditional statement is a block or another conditional statement."),
+        })));
 
         // Remove the `RenameTable` for the otherwise-block.
         let else_table = self.pop();
+
+        // Add reconstructed conditional statement to the list of produced statements.
+        statements.push(Statement::Conditional(ConditionalStatement {
+            span: conditional.span,
+            condition,
+            then,
+            otherwise,
+        }));
 
         // Compute the write set for the variables written in the then-block or otherwise-block.
         let if_write_set: IndexSet<&Symbol> = IndexSet::from_iter(if_table.local_names());
         let else_write_set: IndexSet<&Symbol> = IndexSet::from_iter(else_table.local_names());
         let write_set = if_write_set.union(&else_write_set);
 
-        // For each variable in the write set, instantiate a phi function.
+        // For each variable in the write set, instantiate and add a phi function to the list of produced statements.
         for symbol in write_set {
             // Note that phi functions only need to be instantiated if the variable exists before the `ConditionalStatement`.
             if self.rename_table.lookup(**symbol).is_some() {
@@ -125,7 +127,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 };
 
                 // Create a new name for the variable written to in the `ConditionalStatement`.
-                let new_name = self.unique_symbol(symbol);
+                let new_name = self.assigner.unique_symbol(symbol);
 
                 let (value, stmts) = self.consume_ternary(TernaryExpression {
                     condition: Box::new(condition.clone()),
@@ -137,7 +139,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 statements.extend(stmts);
 
                 // Create a new `AssignStatement` for the phi function.
-                let assignment = self.simple_assign_statement(
+                let assignment = self.assigner.simple_assign_statement(
                     Identifier {
                         name: new_name,
                         span: Default::default(),
@@ -156,7 +158,6 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         statements
     }
 
-    // TODO: Where do we handle console statements.
     fn consume_console(&mut self, input: ConsoleStatement) -> Self::Output {
         let (function, mut statements) = match input.function {
             ConsoleFunction::Assert(expr) => {
@@ -167,9 +168,9 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 // Reconstruct the lhs of the binary expression.
                 let (left, mut statements) = self.consume_expression(left);
                 // Reconstruct the rhs of the binary expression.
-                let (right, mut right_statements) = self.consume_expression(right);
+                let (right, right_statements) = self.consume_expression(right);
                 // Accumulate any statements produced.
-                statements.append(&mut right_statements);
+                statements.extend(right_statements);
 
                 (ConsoleFunction::AssertEq(left, right), statements)
             }
@@ -177,9 +178,9 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 // Reconstruct the lhs of the binary expression.
                 let (left, mut statements) = self.consume_expression(left);
                 // Reconstruct the rhs of the binary expression.
-                let (right, mut right_statements) = self.consume_expression(right);
+                let (right, right_statements) = self.consume_expression(right);
                 // Accumulate any statements produced.
-                statements.append(&mut right_statements);
+                statements.extend(right_statements);
 
                 (ConsoleFunction::AssertNeq(left, right), statements)
             }
@@ -226,33 +227,30 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         };
         self.is_lhs = false;
 
-        statements.push(self.simple_assign_statement(identifier, value));
+        statements.push(self.assigner.simple_assign_statement(identifier, value));
 
         statements
     }
 
     fn consume_finalize(&mut self, input: FinalizeStatement) -> Self::Output {
-        // Construct the associated guard.
-        let guard = match self.condition_stack.is_empty() {
-            true => None,
-            false => {
-                let (first, rest) = self.condition_stack.split_first().unwrap();
-                Some(rest.iter().cloned().fold(first.clone(), |acc, condition| {
-                    Expression::Binary(BinaryExpression {
-                        op: BinaryOperation::And,
-                        left: Box::new(acc),
-                        right: Box::new(condition),
-                        span: Default::default(),
-                    })
-                }))
-            }
-        };
+        let mut statements = Vec::new();
 
-        // Consume the expression and add it to `early_finalizes`.
-        let (expression, statements) = self.consume_expression(input.expression);
-        // Note that this is the only place where `self.early_finalizes` is appended.
-        // Furthermore, `expression` will always be an identifier or tuple expression.
-        self.early_finalizes.push((guard, expression));
+        // Process the arguments, accumulating any statements produced.
+        let arguments = input
+            .arguments
+            .into_iter()
+            .map(|argument| {
+                let (argument, stmts) = self.consume_expression(argument);
+                statements.extend(stmts);
+                argument
+            })
+            .collect();
+
+        // Construct and accumulate a simplified finalize statement.
+        statements.push(Statement::Finalize(FinalizeStatement {
+            arguments,
+            span: input.span,
+        }));
 
         statements
     }
@@ -284,27 +282,14 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
     /// storing the expression and the associated guard in `self.early_returns`.
     /// Note that type checking guarantees that there is at most one `ReturnStatement` in a block.
     fn consume_return(&mut self, input: ReturnStatement) -> Self::Output {
-        // Construct the associated guard.
-        let guard = match self.condition_stack.is_empty() {
-            true => None,
-            false => {
-                let (first, rest) = self.condition_stack.split_first().unwrap();
-                Some(rest.iter().cloned().fold(first.clone(), |acc, condition| {
-                    Expression::Binary(BinaryExpression {
-                        op: BinaryOperation::And,
-                        left: Box::new(acc),
-                        right: Box::new(condition),
-                        span: Default::default(),
-                    })
-                }))
-            }
-        };
+        // Consume the return expression.
+        let (expression, mut statements) = self.consume_expression(input.expression);
 
-        // Consume the expression and add it to `early_returns`.
-        let (expression, statements) = self.consume_expression(input.expression);
-        // Note that this is the only place where `self.early_returns` is appended.
-        // Furthermore, `expression` will always be an identifier, tuple expression, or circuit expression.
-        self.early_returns.push((guard, expression));
+        // Add the simplified return statement to the list of produced statements.
+        statements.push(Statement::Return(ReturnStatement {
+            expression,
+            span: input.span,
+        }));
 
         statements
     }

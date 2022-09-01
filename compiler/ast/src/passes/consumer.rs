@@ -46,7 +46,9 @@ pub trait ExpressionConsumer {
 
     fn consume_circuit_init(&mut self, _input: CircuitExpression) -> Self::Output;
 
-    fn consume_err(&mut self, _input: ErrExpression) -> Self::Output;
+    fn consume_err(&mut self, _input: ErrExpression) -> Self::Output {
+        unreachable!("`ErrExpression`s should not be in the AST at this phase of compilation.")
+    }
 
     fn consume_identifier(&mut self, _input: Identifier) -> Self::Output;
 

@@ -308,8 +308,4 @@ impl<'a> CodeGenerator<'a> {
         // CAUTION: does not return the destination_register.
         (tuple_elements, instructions)
     }
-
-    fn visit_err(&mut self, _input: &'a ErrExpression) -> (String, String) {
-        unreachable!("`ErrExpression`s should not be in the AST at this phase of compilation.")
-    }
 }

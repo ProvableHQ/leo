@@ -44,21 +44,6 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     type AdditionalInput = Option<Type>;
     type Output = Option<Type>;
 
-    fn visit_expression(&mut self, input: &'a Expression, expected: &Self::AdditionalInput) -> Self::Output {
-        match input {
-            Expression::Access(access) => self.visit_access(access, expected),
-            Expression::Binary(binary) => self.visit_binary(binary, expected),
-            Expression::Call(call) => self.visit_call(call, expected),
-            Expression::Circuit(circuit) => self.visit_circuit_init(circuit, expected),
-            Expression::Identifier(identifier) => self.visit_identifier(identifier, expected),
-            Expression::Err(err) => self.visit_err(err, expected),
-            Expression::Literal(literal) => self.visit_literal(literal, expected),
-            Expression::Ternary(ternary) => self.visit_ternary(ternary, expected),
-            Expression::Tuple(tuple) => self.visit_tuple(tuple, expected),
-            Expression::Unary(expr) => self.visit_unary(expr, expected),
-        }
-    }
-
     fn visit_access(&mut self, input: &'a AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match input {
             AccessExpression::AssociatedFunction(access) => {
@@ -166,6 +151,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             AccessExpression::AssociatedConstant(..) => {} // todo: Add support for associated constants (u8::MAX).
         }
         None
+    }
+
+    // We do not want to panic on `ErrExpression`s in order to propagate as many errors as possible.
+    fn visit_err(&mut self, _input: &'a ErrExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        Default::default()
     }
 
     fn visit_binary(&mut self, input: &'a BinaryExpression, destination: &Self::AdditionalInput) -> Self::Output {

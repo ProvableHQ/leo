@@ -34,14 +34,14 @@ impl ProgramReconstructor for Unroller<'_> {
 
         let previous_scope_index = self.enter_scope(self.scope_index);
 
-        let block = self.reconstruct_block(function.block);
+        let block = self.reconstruct_block(function.block).0;
 
         self.exit_scope(previous_scope_index);
 
         let finalize = function.finalize.map(|finalize| {
             let previous_scope_index = self.enter_scope(self.scope_index);
 
-            let block = self.reconstruct_block(finalize.block);
+            let block = self.reconstruct_block(finalize.block).0;
 
             self.exit_scope(previous_scope_index);
 

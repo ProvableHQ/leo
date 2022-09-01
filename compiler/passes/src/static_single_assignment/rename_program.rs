@@ -17,11 +17,11 @@
 use crate::StaticSingleAssigner;
 
 use leo_ast::{
-    Block, FinalizeStatement, Function, FunctionConsumer, Program, ProgramConsumer, ReturnStatement, Statement,
+    Block, Finalize, Function, FunctionConsumer, Program, ProgramConsumer,
     StatementConsumer,
 };
 
-impl FunctionConsumer for StaticSingleAssigner<'_> {
+impl FunctionConsumer for StaticSingleAssigner {
     type Output = Function;
 
     /// Reconstructs the `Function`s in the `Program`, while allocating the appropriate `RenameTable`s.
@@ -36,44 +36,41 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
                 .update(input_variable.identifier.name, input_variable.identifier.name);
         }
 
-        let mut statements = self.consume_block(function.block);
-
-        // Get all of the guards and return expression.
-        let returns = self.clear_early_returns();
-
-        // If the function contains return statements, then we fold them into a single return statement.
-        if !returns.is_empty() {
-            let (stmts, expression) = self.fold_guards("ret$", returns);
-
-            // Add all of the accumulated statements to the end of the block.
-            statements.extend(stmts);
-
-            // Add the `ReturnStatement` to the end of the block.
-            statements.push(Statement::Return(ReturnStatement {
-                expression,
-                span: Default::default(),
-            }));
-        }
-
-        // Get all of the guards and finalize expression.
-        let finalizes = self.clear_early_finalizes();
-
-        // If the function contains finalize statements, then we fold them into a single finalize statement.
-        if !finalizes.is_empty() {
-            let (stmts, expression) = self.fold_guards("fin$", finalizes);
-
-            // Add all of the accumulated statements to the end of the block.
-            statements.extend(stmts);
-
-            // Add the `FinalizeStatement` to the end of the block.
-            statements.push(Statement::Finalize(FinalizeStatement {
-                expression,
-                span: Default::default(),
-            }));
-        }
+        let block = Block {
+            span: function.block.span,
+            statements: self.consume_block(function.block),
+        };
 
         // Remove the `RenameTable` for the function.
         self.pop();
+
+        let finalize = function.finalize.map(|finalize| {
+            // Allocate a `RenameTable` for the finalize block.
+            self.push();
+
+            // There is no need to reconstruct `finalize.inputs`.
+            // However, for each input, we must add each symbol to the rename table.
+            for input_variable in finalize.input.iter() {
+                self.rename_table
+                    .update(input_variable.identifier.name, input_variable.identifier.name);
+            }
+
+            let block = Block {
+                span: finalize.block.span,
+                statements: self.consume_block(finalize.block),
+            };
+
+            // Remove the `RenameTable` for the finalize block.
+            self.pop();
+
+            Finalize {
+                input: finalize.input,
+                output: finalize.output,
+                output_type: finalize.output_type,
+                block,
+                span: finalize.span,
+            }
+        });
 
         Function {
             annotations: function.annotations,
@@ -81,17 +78,14 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
             input: function.input,
             output: function.output,
             output_type: function.output_type,
-            block: Block {
-                span: Default::default(),
-                statements,
-            },
-            finalize: function.finalize,
+            block,
+            finalize,
             span: function.span,
         }
     }
 }
 
-impl ProgramConsumer for StaticSingleAssigner<'_> {
+impl ProgramConsumer for StaticSingleAssigner {
     type Output = Program;
 
     fn consume_program(&mut self, input: Program) -> Self::Output {
