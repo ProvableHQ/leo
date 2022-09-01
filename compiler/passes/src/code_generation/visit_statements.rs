@@ -19,7 +19,7 @@ use crate::CodeGenerator;
 use leo_ast::{
     AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
     DefinitionStatement, Expression, FinalizeStatement, IncrementStatement, IterationStatement, Mode, ReturnStatement,
-    Statement,
+    Statement, Type,
 };
 
 use itertools::Itertools;
@@ -41,19 +41,24 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_return(&mut self, input: &'a ReturnStatement) -> String {
-        let (operand, mut expression_instructions) = self.visit_expression(&input.expression);
-        // TODO: Bytecode functions have an associated output mode. Currently defaulting to private since we do not yet support this at the Leo level.
-        let types = self.visit_return_type(&self.current_function.unwrap().output_type, Mode::Private);
-        let instructions = operand
-            .split('\n')
-            .into_iter()
-            .zip(types.iter())
-            .map(|(operand, type_)| format!("    output {} as {};\n", operand, type_))
-            .join("");
+        match &self.current_function.unwrap().output_type {
+            Type::Unit => String::new(),
+            output_type => {
+                let (operand, mut expression_instructions) = self.visit_expression(&input.expression);
+                // TODO: Bytecode functions have an associated output mode. Currently defaulting to private since we do not yet support this at the Leo level.
+                let types = self.visit_return_type(output_type, Mode::Private);
+                let instructions = operand
+                    .split('\n')
+                    .into_iter()
+                    .zip(types.iter())
+                    .map(|(operand, type_)| format!("    output {} as {};\n", operand, type_))
+                    .join("");
 
-        expression_instructions.push_str(&instructions);
+                expression_instructions.push_str(&instructions);
 
-        expression_instructions
+                expression_instructions
+            }
+        }
     }
 
     fn visit_definition(&mut self, _input: &'a DefinitionStatement) -> String {

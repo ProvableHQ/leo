@@ -10,3 +10,4 @@ outputs:
     initial_ast: ca25d9f5fe8cfa0ac152be3a55b16d8d76d7b7912a7496eda6d06545c6da395d
     unrolled_ast: ca25d9f5fe8cfa0ac152be3a55b16d8d76d7b7912a7496eda6d06545c6da395d
     ssa_ast: c547de860e263f637957c68a80e56cf9c7e0f419d3763410550ea6d34aacdaf5
+    flattened_ast: 0d0233680fba1b0b1856e039771cfcd79940df636de882dd455edcc11115aedb

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372023]: Tuples must be explicitly typed in Leo\n    --> compiler-test:4:12\n     |\n   4 |     return ();\n     |            ^^\n     |\n     = The function definition must match the function return statement\n"
+  - "Failed to parse string. Parsing Error: VerboseError { errors: [(\"closure main:\\n    input r0 as boolean;\\n    input r1 as boolean;\\n\\n\\n\", Nom(Tag)), (\"closure main:\\n    input r0 as boolean;\\n    input r1 as boolean;\\n\\n\\n\", Nom(Alt)), (\"closure main:\\n    input r0 as boolean;\\n    input r1 as boolean;\\n\\n\\n\", Nom(Many1))] }"

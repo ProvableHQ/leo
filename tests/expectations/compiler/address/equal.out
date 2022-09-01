@@ -7,3 +7,4 @@ outputs:
     initial_ast: 099ee6d9fd61230ae9e4f10e44e09de275769b115f9b898fb2e13e5b7d92c2e5
     unrolled_ast: 099ee6d9fd61230ae9e4f10e44e09de275769b115f9b898fb2e13e5b7d92c2e5
     ssa_ast: 466995e2761c6ef36419e232a4442d536edda517244c4b99de71bb8bb7ad3c9c
+    flattened_ast: 0fac3bb4caf5c4cd6b27fbfa5a7b58ce3f33bdaf1512c1df9edab75f12ed0667

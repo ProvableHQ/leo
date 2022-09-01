@@ -8,3 +8,4 @@ outputs:
     initial_ast: d95a9e41c9283eeed9e89ba1cff9d1796ac7c1e1403b507314e70b68f54d35f8
     unrolled_ast: d95a9e41c9283eeed9e89ba1cff9d1796ac7c1e1403b507314e70b68f54d35f8
     ssa_ast: f15558ecf772685eec575bab755be21c469b693976f85c428ee3f2a0e8a6b25a
+    flattened_ast: edf07e01fbcd81c2a72c8b6c602432cd13a7ebfc15c8c424297e1f6a02989da5

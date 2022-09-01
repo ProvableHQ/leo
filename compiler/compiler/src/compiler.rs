@@ -165,11 +165,23 @@ impl<'a> Compiler<'a> {
     }
 
     /// Runs the static single assignment pass.
-    pub fn static_single_assignment_pass(&mut self, symbol_table: &SymbolTable) -> Result<()> {
-        self.ast = StaticSingleAssigner::do_pass((std::mem::take(&mut self.ast), self.handler, symbol_table))?;
+    pub fn static_single_assignment_pass(&mut self) -> Result<Assigner> {
+        let (ast, assigner) = StaticSingleAssigner::do_pass(std::mem::take(&mut self.ast))?;
+        self.ast = ast;
 
         if self.output_options.ssa_ast {
             self.write_ast_to_json("ssa_ast.json")?;
+        }
+
+        Ok(assigner)
+    }
+
+    /// Runs the flattening pass.
+    pub fn flattening_pass(&mut self, symbol_table: &SymbolTable, assigner: Assigner) -> Result<()> {
+        self.ast = Flattener::do_pass((std::mem::take(&mut self.ast), symbol_table, assigner))?;
+
+        if self.output_options.flattened_ast {
+            self.write_ast_to_json("flattened_ast.json")?;
         }
 
         Ok(())
@@ -184,9 +196,11 @@ impl<'a> Compiler<'a> {
         let st = self.loop_unrolling_pass(st)?;
 
         // TODO: Make this pass optional.
-        self.static_single_assignment_pass(&st)?;
+        let assigner = self.static_single_assignment_pass()?;
 
         println!("AST after SSA: {:?}", self.ast);
+
+        self.flattening_pass(&st, assigner)?;
 
         Ok(st)
     }

@@ -56,6 +56,8 @@ pub struct BuildOptions {
     pub enable_unrolled_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot of the SSA AST.")]
     pub enable_ssa_ast_snapshot: bool,
+    #[structopt(long, help = "Writes AST snapshot of the flattened AST.")]
+    pub enable_flattened_ast_snapshot: bool,
 }
 
 impl From<BuildOptions> for OutputOptions {
@@ -66,12 +68,14 @@ impl From<BuildOptions> for OutputOptions {
             initial_ast: options.enable_initial_ast_snapshot,
             unrolled_ast: options.enable_unrolled_ast_snapshot,
             ssa_ast: options.enable_ssa_ast_snapshot,
+            flattened_ast: options.enable_flattened_ast_snapshot,
         };
         if options.enable_all_ast_snapshots {
             out_options.initial_input_ast = true;
             out_options.initial_ast = true;
             out_options.unrolled_ast = true;
             out_options.ssa_ast = true;
+            out_options.flattened_ast = true;
         }
 
         out_options

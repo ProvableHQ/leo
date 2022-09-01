@@ -45,8 +45,8 @@
 //!     return $cond$0 ? $return$2 : $return$5;
 //! ```
 
-mod assigner;
-pub(crate) use assigner::*;
+pub mod assigner;
+pub use assigner::*;
 
 mod rename_expression;
 
