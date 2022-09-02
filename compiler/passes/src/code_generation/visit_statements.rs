@@ -23,6 +23,7 @@ use leo_ast::{
 };
 
 use itertools::Itertools;
+use std::fmt::Write as _;
 
 impl<'a> CodeGenerator<'a> {
     fn visit_statement(&mut self, input: &'a Statement) -> String {
@@ -69,16 +70,36 @@ impl<'a> CodeGenerator<'a> {
         unreachable!("DefinitionStatement's should not exist in SSA form.")
     }
 
-    fn visit_increment(&mut self, _input: &'a IncrementStatement) -> String {
-        todo!()
+    fn visit_increment(&mut self, input: &'a IncrementStatement) -> String {
+        let (index, mut instructions) = self.visit_expression(&input.index);
+        let (amount, amount_instructions) = self.visit_expression(&input.amount);
+        instructions.push_str(&amount_instructions);
+        instructions.push_str(&format!("    increment {}[{}] by {};\n", input.mapping, index, amount));
+
+        instructions
     }
 
-    fn visit_decrement(&mut self, _input: &'a DecrementStatement) -> String {
-        todo!()
+    fn visit_decrement(&mut self, input: &'a DecrementStatement) -> String {
+        let (index, mut instructions) = self.visit_expression(&input.index);
+        let (amount, amount_instructions) = self.visit_expression(&input.amount);
+        instructions.push_str(&amount_instructions);
+        instructions.push_str(&format!("    decrement {}[{}] by {};\n", input.mapping, index, amount));
+
+        instructions
     }
 
-    fn visit_finalize(&mut self, _input: &'a FinalizeStatement) -> String {
-        todo!()
+    fn visit_finalize(&mut self, input: &'a FinalizeStatement) -> String {
+        let mut instructions = String::new();
+        let mut finalize_instruction = format!("    finalize");
+
+        for argument in input.arguments.iter() {
+            let (argument, argument_instructions) = self.visit_expression(argument);
+            write!(finalize_instruction, " {}", argument).expect("failed to write to string");
+            instructions.push_str(&argument_instructions);
+        }
+        writeln!(finalize_instruction, ";").expect("failed to write to string");
+
+        finalize_instruction
     }
 
     fn visit_assign(&mut self, input: &'a AssignStatement) -> String {

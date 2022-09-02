@@ -21,6 +21,7 @@ use leo_ast::{
     CircuitVariableInitializer, Expression, ExpressionConsumer, Identifier, Literal, MemberAccess, Statement,
     TernaryExpression, TupleAccess, TupleExpression, UnaryExpression,
 };
+use leo_span::sym;
 
 impl ExpressionConsumer for StaticSingleAssigner {
     type Output = (Expression, Vec<Statement>);
@@ -49,6 +50,14 @@ impl ExpressionConsumer for StaticSingleAssigner {
                 )
             }
             AccessExpression::Member(member) => {
+                // TODO: Create AST node for native access expressions?
+                // If the access expression is of the form `self.<name>`, then don't rename it.
+                if let Expression::Identifier(Identifier { name, .. }) = *member.inner {
+                    if name == sym::SelfLower {
+                        return (Expression::Access(AccessExpression::Member(member)), Vec::new());
+                    }
+                }
+
                 let (expr, statements) = self.consume_expression(*member.inner);
                 (
                     AccessExpression::Member(MemberAccess {

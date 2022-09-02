@@ -169,6 +169,8 @@ impl<'a> CodeGenerator<'a> {
         // Initialize the state of `self` with the appropriate values before visiting `function`.
         self.next_register = 0;
         self.variable_mapping = IndexMap::new();
+        // TODO: Figure out a better way to initialize.
+        self.variable_mapping.insert(&sym::SelfLower, "self".to_string());
         self.current_function = Some(function);
 
         // Construct the header of the function.
@@ -194,6 +196,35 @@ impl<'a> CodeGenerator<'a> {
         //  Construct and append the function body.
         let block_string = self.visit_block(&function.block);
         function_string.push_str(&block_string);
+
+        // If the finalize block exists, generate the appropriate bytecode.
+        if let Some(finalize) = &function.finalize {
+            // Clear the register count.
+            self.next_register = 0;
+
+            // Clear the variable mapping.
+            // TODO: Figure out a better way to initialize.
+            self.variable_mapping = IndexMap::new();
+            self.variable_mapping.insert(&sym::SelfLower, "self".to_string());
+
+            function_string.push_str(&format!("\nfinalize {}:\n", function.identifier));
+
+            // Construct and append the input declarations of the finalize block.
+            for input in finalize.input.iter() {
+                let register_string = format!("r{}", self.next_register);
+                self.next_register += 1;
+
+                self.variable_mapping
+                    .insert(&input.identifier.name, register_string.clone());
+
+                let type_string = self.visit_type_with_visibility(&input.type_, input.mode);
+                writeln!(function_string, "    input {} as {};", register_string, type_string,)
+                    .expect("failed to write to string");
+            }
+
+            // Construct and append the finalize block body.
+            function_string.push_str(&self.visit_block(&finalize.block));
+        }
 
         function_string
     }

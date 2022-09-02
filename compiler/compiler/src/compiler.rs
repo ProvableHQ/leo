@@ -198,8 +198,6 @@ impl<'a> Compiler<'a> {
         // TODO: Make this pass optional.
         let assigner = self.static_single_assignment_pass()?;
 
-        println!("AST after SSA: {:?}", self.ast);
-
         self.flattening_pass(&st, assigner)?;
 
         Ok(st)

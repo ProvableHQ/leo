@@ -16,7 +16,7 @@
 
 use leo_ast::Function;
 use leo_errors::emitter::Handler;
-use leo_span::Symbol;
+use leo_span::{sym, Symbol};
 
 use indexmap::IndexMap;
 
@@ -40,6 +40,7 @@ pub struct CodeGenerator<'a> {
 impl<'a> CodeGenerator<'a> {
     /// Initializes a new `CodeGenerator`.
     pub fn new(handler: &'a Handler) -> Self {
+        // Initialize variable mapping.
         Self {
             _handler: handler,
             next_register: 0,

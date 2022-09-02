@@ -254,8 +254,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.assert_type_is_valid(finalize.span, &finalize.output_type);
 
             // If the function has a return type, then check that it has a return.
-            if function.output_type != Type::Unit && !self.has_return {
-                self.emit_err(TypeCheckerError::missing_return(function.span));
+            if finalize.output_type != Type::Unit && !self.has_return {
+                self.emit_err(TypeCheckerError::missing_return(finalize.span));
             }
 
             // Exit the scope for the finalize block.

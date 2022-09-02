@@ -422,6 +422,7 @@ impl Token {
                     "record" => Token::Record,
                     "return" => Token::Return,
                     "scalar" => Token::Scalar,
+                    "self" => Token::SelfLower,
                     "string" => Token::String,
                     "true" => Token::True,
                     "u8" => Token::U8,

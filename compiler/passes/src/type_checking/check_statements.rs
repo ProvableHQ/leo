@@ -204,7 +204,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_finalize(&mut self, input: &'a FinalizeStatement) {
-        if !self.is_finalize {
+        if self.is_finalize {
             self.emit_err(TypeCheckerError::finalize_in_finalize(input.span()));
         }
 
