@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{Circuit, CircuitMember, Function, Identifier, Mapping, Program, Type};
+use leo_ast::{Circuit, CircuitMember, Function, Identifier, Mapping, Mode, Program, Type};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -188,7 +188,11 @@ impl<'a> CodeGenerator<'a> {
             self.variable_mapping
                 .insert(&input.identifier.name, register_string.clone());
 
-            let type_string = self.visit_type_with_visibility(&input.type_, input.mode);
+            let visibility = match (self.is_program_function, input.mode) {
+                (true, Mode::None) => Mode::Private,
+                _ => input.mode,
+            };
+            let type_string = self.visit_type_with_visibility(&input.type_, visibility);
             writeln!(function_string, "    input {} as {};", register_string, type_string,)
                 .expect("failed to write to string");
         }
@@ -201,6 +205,7 @@ impl<'a> CodeGenerator<'a> {
         if let Some(finalize) = &function.finalize {
             // Clear the register count.
             self.next_register = 0;
+            self.in_finalize = true;
 
             // Clear the variable mapping.
             // TODO: Figure out a better way to initialize.
@@ -217,13 +222,20 @@ impl<'a> CodeGenerator<'a> {
                 self.variable_mapping
                     .insert(&input.identifier.name, register_string.clone());
 
-                let type_string = self.visit_type_with_visibility(&input.type_, input.mode);
+                // A finalize block defaults to public visibility.
+                let visibility = match (self.is_program_function, input.mode) {
+                    (true, Mode::None) => Mode::Public,
+                    _ => unreachable!("Only program functions can have finalize blocks."),
+                };
+                let type_string = self.visit_type_with_visibility(&input.type_, visibility);
                 writeln!(function_string, "    input {} as {};", register_string, type_string,)
                     .expect("failed to write to string");
             }
 
             // Construct and append the finalize block body.
             function_string.push_str(&self.visit_block(&finalize.block));
+
+            self.in_finalize = false;
         }
 
         function_string

@@ -17,7 +17,6 @@
 use crate::CodeGenerator;
 
 use leo_ast::{Mode, Type};
-use std::fmt::Write as _;
 
 impl<'a> CodeGenerator<'a> {
     fn visit_type(&mut self, input: &'a Type) -> String {
@@ -29,13 +28,7 @@ impl<'a> CodeGenerator<'a> {
             | Type::Scalar
             | Type::String
             | Type::Integer(..) => format!("{}", input),
-            Type::Identifier(ident) => {
-                if let Some((_, type_)) = self.composite_mapping.get(&ident.name) {
-                    format!("{}.{}", ident, type_)
-                } else {
-                    unreachable!("All composite types should be known at this phase of compilation")
-                }
-            }
+            Type::Identifier(ident) => format!("{}", ident),
             Type::Mapping(_) => {
                 unreachable!("Mapping types are not supported at this phase of compilation")
             }
@@ -47,25 +40,18 @@ impl<'a> CodeGenerator<'a> {
         }
     }
 
-    pub(crate) fn visit_type_with_visibility(&mut self, input: &'a Type, visibility: Mode) -> String {
-        let mut type_string = self.visit_type(input);
-
-        if let Type::Identifier(_) = input {
-            // Do not append anything for record and circuit types.
-        } else {
-            // todo: CAUTION private by default.
-            // Only program functions need a visibility associated with the input type.
-            if self.is_program_function {
-                // If a visibility is not provided in a program function, then it is private by default.
-                let visibility = match visibility {
-                    Mode::None => Mode::Private,
-                    _ => visibility,
-                };
-                write!(type_string, ".{}", visibility).expect("failed to write to string");
+    pub(crate) fn visit_type_with_visibility(&mut self, type_: &'a Type, visibility: Mode) -> String {
+        match type_ {
+            // When the type is a record.
+            // Note that this unwrap is safe because all composite types have been added to the mapping.
+            Type::Identifier(identifier) if self.composite_mapping.get(&identifier.name).unwrap().0 => {
+                format!("{}.record", identifier)
             }
+            _ => match visibility {
+                Mode::None => self.visit_type(type_),
+                _ => format!("{}.{}", self.visit_type(type_), visibility),
+            },
         }
-
-        type_string
     }
 
     /// Returns one or more types equal to the number of return tuple members.

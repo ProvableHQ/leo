@@ -42,17 +42,40 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_return(&mut self, input: &'a ReturnStatement) -> String {
-        match &self.current_function.unwrap().output_type {
-            Type::Unit => String::new(),
-            output_type => {
+        match input.expression {
+            // Skip empty return statements.
+            Expression::Tuple(ref tuple) if tuple.elements.is_empty() => String::new(),
+            _ => {
                 let (operand, mut expression_instructions) = self.visit_expression(&input.expression);
-                // TODO: Bytecode functions have an associated output mode. Currently defaulting to private since we do not yet support this at the Leo level.
-                let types = self.visit_return_type(output_type, Mode::Private);
                 let instructions = operand
                     .split('\n')
                     .into_iter()
-                    .zip(types.iter())
-                    .map(|(operand, type_)| format!("    output {} as {};\n", operand, type_))
+                    .zip(self.current_function.unwrap().output.iter())
+                    .enumerate()
+                    .map(|(i, (operand, output))| {
+                        let visibility = if self.is_program_function {
+                            match self.in_finalize {
+                                // If in finalize block, the default visibility is public.
+                                true => match output.mode {
+                                    Mode::None => Mode::Public,
+                                    mode => mode,
+                                },
+                                // If not in finalize block, the default visibility is private.
+                                false => match output.mode {
+                                    Mode::None => Mode::Private,
+                                    mode => mode,
+                                },
+                            }
+                        } else {
+                            // Only program functions have visibilities associated with their outputs.
+                            Mode::None
+                        };
+                        format!(
+                            "    output {} as {};\n",
+                            operand,
+                            self.visit_type_with_visibility(&output.type_, visibility)
+                        )
+                    })
                     .join("");
 
                 expression_instructions.push_str(&instructions);
