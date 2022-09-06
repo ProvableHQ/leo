@@ -84,7 +84,7 @@ fn hash_content(content: &str) -> String {
 }
 
 fn hash_file(path: &str) -> String {
-    let file = fs::read_to_string(&Path::new(path)).unwrap();
+    let file = fs::read_to_string(Path::new(path)).unwrap();
     hash_content(&file)
 }
 
@@ -210,7 +210,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     let cwd = test.config.get("cwd").map(|val| {
         let mut cwd = test.path.clone();
         cwd.pop();
-        cwd.join(&val.as_str().unwrap())
+        cwd.join(val.as_str().unwrap())
     });
 
     let mut parsed = handler.extend_if_error(parse_program(handler, &test.content, cwd))?;

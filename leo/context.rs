@@ -67,7 +67,7 @@ impl Context {
 
         // Read the manifest file to string.
         let manifest_string =
-            std::fs::read_to_string(&manifest.path()).map_err(PackageError::failed_to_open_manifest)?;
+            std::fs::read_to_string(manifest.path()).map_err(PackageError::failed_to_open_manifest)?;
 
         // Construct the file path.
         let build_manifest_path = build_path.join(Manifest::<Network>::file_name());

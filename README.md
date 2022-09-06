@@ -95,14 +95,14 @@ Congratulations! You've just run your first Leo program.
 
 ## 4. Documentation
 
-* [Hello World - Next Steps](https://developer.aleo.org/developer/getting_started/hello_world)
-* [Leo Language Documentation](https://developer.aleo.org/developer/language/layout)
+* [Hello World - Next Steps](https://developer.aleo.org/leo/getting_started/hello_world)
+* [Leo Language Documentation](https://developer.aleo.org/leo/getting_started/overview)
 * [Leo ABNF Grammar](./docs/grammar/abnf-grammar.txt)
-* [Homepage](https://developer.aleo.org/developer/getting_started/overview)
+* [Homepage](https://developer.aleo.org/overview/)
 
 ## 5. Contributing
  
-Please see our guidelines in the [developer documentation](https://developer.aleo.org/developer/additional_material/contributing)
+Please see our guidelines in the [developer documentation](./CONTRIBUTING.md)
 
 Thank you for helping make Leo better!
 

@@ -142,7 +142,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                 // Case where `access.name` is not a member of the circuit.
                                 None => {
                                     self.emit_err(TypeCheckerError::invalid_circuit_variable(
-                                        &access.name,
+                                        access.name,
                                         &circ,
                                         access.name.span(),
                                     ));
@@ -405,7 +405,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
                     Some(ret)
                 } else {
-                    self.emit_err(TypeCheckerError::unknown_sym("function", &ident.name, ident.span()));
+                    self.emit_err(TypeCheckerError::unknown_sym("function", ident.name, ident.span()));
                     None
                 }
             }
@@ -451,7 +451,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         } else {
             self.emit_err(TypeCheckerError::unknown_sym(
                 "circuit",
-                &input.name.name,
+                input.name.name,
                 input.name.span(),
             ));
             None
