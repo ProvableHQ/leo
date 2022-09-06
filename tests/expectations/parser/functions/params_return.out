@@ -6,6 +6,8 @@ outputs:
     network: ""
     expected_input: []
     imports: {}
+    circuits: {}
+    mappings: {}
     functions:
       "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
         annotations: []
@@ -55,5 +57,3 @@ outputs:
         span:
           lo: 2
           hi: 55
-    circuits: {}
-    mappings: {}

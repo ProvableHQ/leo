@@ -6,7 +6,6 @@ outputs:
     network: ""
     expected_input: []
     imports: {}
-    functions: {}
     circuits: {}
     mappings:
       "{\"name\":\"balances\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":18}\"}":
@@ -26,3 +25,4 @@ outputs:
         span:
           lo: 38
           hi: 62
+    functions: {}

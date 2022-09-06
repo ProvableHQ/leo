@@ -84,7 +84,8 @@ impl ProgramReconstructor for Flattener<'_> {
         let finalizes = self.clear_early_finalizes();
 
         // If the function contains finalize statements, then we fold them into a single finalize statement.
-        if !finalizes.is_empty() {
+        let contains_finalize = finalizes.iter().any(|component| !component.is_empty());
+        if contains_finalize {
             let arguments = finalizes
                 .into_iter()
                 .enumerate()
@@ -97,6 +98,7 @@ impl ProgramReconstructor for Flattener<'_> {
                     expression
                 })
                 .collect();
+
 
             // Add the `FinalizeStatement` to the end of the block.
             block.statements.push(Statement::Finalize(FinalizeStatement {

@@ -79,10 +79,6 @@ impl ExpressionReconstructor for Flattener<'_> {
             (Expression::Identifier(first), Expression::Identifier(second))
                 if self.circuits.contains_key(&first.name) && self.circuits.contains_key(&second.name) =>
             {
-                println!("first: {:?}", first);
-                println!("second: {:?}", second);
-                println!("Circuits: {:?}", self.circuits);
-
                 let first_circuit = self
                     .symbol_table
                     .lookup_circuit(*self.circuits.get(&first.name).unwrap())
