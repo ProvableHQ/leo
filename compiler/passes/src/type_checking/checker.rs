@@ -305,7 +305,7 @@ impl<'a> TypeChecker<'a> {
                 None => {
                     // Not a core library circuit.
                     self.emit_err(TypeCheckerError::invalid_core_instruction(
-                        &ident.name,
+                        ident.name,
                         function.name,
                         ident.span(),
                     ));
