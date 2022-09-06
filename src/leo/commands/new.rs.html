@@ -163,7 +163,7 @@
     <span class="kw">fn</span> <span class="ident">apply</span>(<span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>, <span class="kw">_</span>: <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="comment">// Call the `aleo new` command from the Aleo SDK.</span>
         <span class="kw">let</span> <span class="ident">command</span> <span class="op">=</span>
-            <span class="ident">AleoNew::try_parse_from</span>(<span class="kw-2">&amp;</span>[<span class="ident">ALEO_CLI_COMMAND</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>]).<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_parse_aleo_new</span>)<span class="question-mark">?</span>;
+            <span class="ident">AleoNew::try_parse_from</span>([<span class="ident">ALEO_CLI_COMMAND</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>]).<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_parse_aleo_new</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">command</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_execute_aleo_new</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// todo: modify the readme file to recommend building with `leo build`.</span>
