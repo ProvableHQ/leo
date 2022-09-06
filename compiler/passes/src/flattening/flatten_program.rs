@@ -99,7 +99,6 @@ impl ProgramReconstructor for Flattener<'_> {
                 })
                 .collect();
 
-
             // Add the `FinalizeStatement` to the end of the block.
             block.statements.push(Statement::Finalize(FinalizeStatement {
                 arguments,

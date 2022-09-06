@@ -52,19 +52,19 @@ impl ExpressionReconstructor for Flattener<'_> {
                         .into_iter()
                         .zip_eq(second.elements.into_iter())
                         .map(|(if_true, if_false)| {
+                            // Reconstruct the true case.
+                            let (if_true, stmts) = self.reconstruct_expression(if_true);
+                            statements.extend(stmts);
+
+                            // Reconstruct the false case.
+                            let (if_false, stmts) = self.reconstruct_expression(if_false);
+                            statements.extend(stmts);
+
                             // Construct a new ternary expression for the tuple element.
                             let (ternary, stmts) = self.reconstruct_ternary(TernaryExpression {
                                 condition: input.condition.clone(),
-                                if_true: {
-                                    let (expression, stmts) = self.reconstruct_expression(*if_true);
-                                    statements.extend(stmts);
-                                    Box::new(expression)
-                                },
-                                if_false: {
-                                    let (expression, stmts) = self.reconstruct_expression(*if_false);
-                                    statements.extend(stmts);
-                                    Box::new(expression)
-                                },
+                                if_true: Box::new(if_true),
+                                if_false: Box::new(if_false),
                                 span: input.span,
                             });
 
@@ -162,20 +162,20 @@ impl ExpressionReconstructor for Flattener<'_> {
             // Otherwise, create a new intermediate assignment for the ternary expression are return the assigned variable.
             // Note that a new assignment must be created to flattened nested ternary expressions.
             (if_true, if_false) => {
+                // Reconstruct the true case.
+                let (if_true, stmts) = self.reconstruct_expression(if_true);
+                statements.extend(stmts);
+
+                // Reconstruct the false case.
+                let (if_false, stmts) = self.reconstruct_expression(if_false);
+                statements.extend(stmts);
+
                 let (identifier, statement) =
                     self.assigner
                         .unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
                             condition: input.condition,
-                            if_true: {
-                                let (expression, stmts) = self.reconstruct_expression(if_true);
-                                statements.extend(stmts);
-                                Box::new(expression)
-                            },
-                            if_false: {
-                                let (expression, stmts) = self.reconstruct_expression(if_false);
-                                statements.extend(stmts);
-                                Box::new(expression)
-                            },
+                            if_true: Box::new(if_true),
+                            if_false: Box::new(if_false),
                             span: input.span,
                         }));
 
