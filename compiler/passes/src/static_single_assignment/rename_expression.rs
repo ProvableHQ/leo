@@ -191,14 +191,10 @@ impl ExpressionConsumer for StaticSingleAssigner {
                 new_name
             }
             // Otherwise, we look up the previous name in the `RenameTable`.
-            false => *self.rename_table.lookup(identifier.name).unwrap_or_else(|| {
-                &identifier.name
-                // TODO: Document why we don't need to panic.
-                // panic!(
-                //     "SSA Error: An entry in the `RenameTable` for {} should exist.",
-                //     identifier.name
-                // )
-            }),
+            // Note that we do not panic if the identifier is not found in the rename table.
+            // Variables that do not exist in the rename table are ones that have been introduced during the SSA pass.
+            // These variables are never re-assigned, and will never have an entry in the rename-table.
+            false => *self.rename_table.lookup(identifier.name).unwrap_or(&identifier.name),
         };
 
         (

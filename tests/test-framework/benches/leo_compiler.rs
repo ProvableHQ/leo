@@ -204,7 +204,7 @@ impl Sample {
             let symbol_table = compiler
                 .type_checker_pass(symbol_table)
                 .expect("failed to run type check pass");
-            compiler
+            let symbol_table = compiler
                 .loop_unrolling_pass(symbol_table)
                 .expect("failed to run loop unrolling pass");
             let assigner = compiler
@@ -229,7 +229,7 @@ impl Sample {
             let symbol_table = compiler
                 .type_checker_pass(symbol_table)
                 .expect("failed to run type check pass");
-            compiler
+            let symbol_table = compiler
                 .loop_unrolling_pass(symbol_table)
                 .expect("failed to run loop unrolling pass");
             let assigner = compiler

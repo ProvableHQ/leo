@@ -75,6 +75,7 @@ impl Function {
         finalize: Option<Finalize>,
         span: Span,
     ) -> Self {
+        // Determine the output type of the function
         let output_type = match output.len() {
             0 => Type::Unit,
             1 => output[0].type_.clone(),

@@ -19,7 +19,7 @@ use crate::CodeGenerator;
 use leo_ast::{
     AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
     DefinitionStatement, Expression, FinalizeStatement, IncrementStatement, IterationStatement, Mode, ReturnStatement,
-    Statement, Type,
+    Statement,
 };
 
 use itertools::Itertools;
@@ -51,8 +51,7 @@ impl<'a> CodeGenerator<'a> {
                     .split('\n')
                     .into_iter()
                     .zip(self.current_function.unwrap().output.iter())
-                    .enumerate()
-                    .map(|(i, (operand, output))| {
+                    .map(|(operand, output)| {
                         let visibility = if self.is_program_function {
                             match self.in_finalize {
                                 // If in finalize block, the default visibility is public.
@@ -113,7 +112,7 @@ impl<'a> CodeGenerator<'a> {
 
     fn visit_finalize(&mut self, input: &'a FinalizeStatement) -> String {
         let mut instructions = String::new();
-        let mut finalize_instruction = format!("    finalize");
+        let mut finalize_instruction = "    finalize".to_string();
 
         for argument in input.arguments.iter() {
             let (argument, argument_instructions) = self.visit_expression(argument);

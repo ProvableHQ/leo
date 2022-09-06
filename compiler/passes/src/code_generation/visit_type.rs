@@ -53,17 +53,4 @@ impl<'a> CodeGenerator<'a> {
             },
         }
     }
-
-    /// Returns one or more types equal to the number of return tuple members.
-    pub(crate) fn visit_return_type(&mut self, input: &'a Type, visibility: Mode) -> Vec<String> {
-        // Handle return tuples.
-        if let Type::Tuple(types) = input {
-            types
-                .iter()
-                .map(|type_| self.visit_type_with_visibility(type_, visibility))
-                .collect()
-        } else {
-            vec![self.visit_type_with_visibility(input, visibility)]
-        }
-    }
 }

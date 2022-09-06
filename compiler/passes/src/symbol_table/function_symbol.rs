@@ -26,8 +26,6 @@ pub struct FinalizeData {
     pub(crate) input: Vec<FunctionInput>,
     /// The output type of the finalize block.
     pub(crate) output_type: Type,
-    /// The span of the finalize block.
-    pub(crate) span: Span,
 }
 
 /// An entry for a function in the symbol table.
@@ -55,7 +53,6 @@ impl SymbolTable {
             finalize: func.finalize.as_ref().map(|finalize| FinalizeData {
                 input: finalize.input.clone(),
                 output_type: finalize.output_type.clone(),
-                span: finalize.span,
             }),
         }
     }
