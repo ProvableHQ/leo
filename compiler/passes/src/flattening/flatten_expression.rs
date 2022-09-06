@@ -55,8 +55,16 @@ impl ExpressionReconstructor for Flattener<'_> {
                             // Construct a new ternary expression for the tuple element.
                             let (ternary, stmts) = self.reconstruct_ternary(TernaryExpression {
                                 condition: input.condition.clone(),
-                                if_true: Box::new(if_true),
-                                if_false: Box::new(if_false),
+                                if_true: {
+                                    let (expression, stmts) = self.reconstruct_expression(*if_true);
+                                    statements.extend(stmts);
+                                    Box::new(expression)
+                                },
+                                if_false: {
+                                    let (expression, stmts) = self.reconstruct_expression(*if_false);
+                                    statements.extend(stmts);
+                                    Box::new(expression)
+                                },
                                 span: input.span,
                             });
 
@@ -87,7 +95,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                     .symbol_table
                     .lookup_circuit(*self.circuits.get(&second.name).unwrap())
                     .unwrap();
-                // Note that type checking guarantees that both expressions have the same same type.
+                // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
                 assert_eq!(first_circuit, second_circuit);
 
                 // For each circuit member, construct a new ternary expression.
@@ -158,12 +166,23 @@ impl ExpressionReconstructor for Flattener<'_> {
                     self.assigner
                         .unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
                             condition: input.condition,
-                            if_true: Box::new(if_true),
-                            if_false: Box::new(if_false),
+                            if_true: {
+                                let (expression, stmts) = self.reconstruct_expression(if_true);
+                                statements.extend(stmts);
+                                Box::new(expression)
+                            },
+                            if_false: {
+                                let (expression, stmts) = self.reconstruct_expression(if_false);
+                                statements.extend(stmts);
+                                Box::new(expression)
+                            },
                             span: input.span,
                         }));
 
-                (identifier, vec![statement])
+                // Accumulate the new assignment statement.
+                statements.push(statement);
+
+                (identifier, statements)
             }
         }
     }

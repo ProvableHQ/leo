@@ -14,37 +14,40 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-// TODO: Fix documentation.
-
-//! The Static Single Assignment pass traverses the AST and converts it into SSA form.
-//! See https://en.wikipedia.org/wiki/Static_single-assignment_form for more information.
-//! The pass also flattens `ConditionalStatement`s into a sequence of `AssignStatement`s.
-//! The pass also rewrites `ReturnStatement`s into `AssignStatement`s and consolidates the returned values as a single `ReturnStatement` at the end of the function.
-//! The pass also simplifies complex expressions into a sequence of `AssignStatement`s. For example, `(a + b) * c` is rewritten into `$var$1 = a + b; $var$2 = $var$1 * c`.
+//! The flattening pass traverses the AST after the SSA pass and converts into a sequential code.
+//! The pass flattens `ConditionalStatement`s into a sequence of `AssignStatement`s.
+//! The pass rewrites `ReturnStatement`s into `AssignStatement`s and consolidates the returned values as a single `ReturnStatement` at the end of the function.
+//! The pass rewrites ternary expressions over composite data types, into ternary expressions over the individual fields of the composite data type, followed by an expression constructing the composite data type.
 //!
-//! Consider the following Leo code.
+//! Consider the following Leo code, output by the SSA pass.
 //! ```leo
 //! function main(flag: u8, value: u8) -> u8 {
-//!     if (flag == 0u8) {
-//!         value += 1u8;
-//!         return value;
+//!     $var$0 = flag == 0u8;
+//!     if ($var$0) {
+//!         $var$1 = value + 1u8;
+//!         value$1 = $var$1;
+//!         return value$1;
 //!     } else {
-//!         value += 2u8;
+//!         $var$2 = value + 2u8;
+//!         value$2 = $var$2;
 //!     }
-//!     return value;
+//!     value$3 = $var$0 ? value$1 : value$2;
+//!     return value$3;
 //! }
 //! ```
 //!
-//! The SSA pass produces the following code.
+//! The flattening pass produces the following code.
 //! ```leo
 //! function main(flag: u8, value: u8) -> u8 {
-//!     let $cond$0 = flag == 0u8;
-//!     let value$1 = value + 1u8;
-//!     let $return$2 = value$1;
-//!     let value$3 = value + 2u8;
-//!     let value$4 = $cond$0 ? value$1 : value$4;
-//!     let $return$5 = value$4;
-//!     return $cond$0 ? $return$2 : $return$5;
+//!     $var$0 = flag == 0u8;
+//!     $var$1 = value + 1u8;
+//!     value$1 = $var$1;
+//!     $var$2 = value + 2u8;
+//!     value$2 = $var$2;
+//!     value$3 = $var$0 ? value$1 : value$2;
+//!     ret$4 = $var$0 ? value$1 : value$3;
+//!     return ret$4;
+//! }
 //! ```
 
 mod flatten_expression;

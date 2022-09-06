@@ -20,8 +20,6 @@ use leo_ast::{
     Finalize, FinalizeStatement, Function, ProgramReconstructor, ReturnStatement, Statement, StatementReconstructor,
 };
 
-// TODO: Document.
-
 impl ProgramReconstructor for Flattener<'_> {
     /// Flattens a function's body and finalize block, if it exists.
     fn reconstruct_function(&mut self, function: Function) -> Function {
@@ -84,6 +82,8 @@ impl ProgramReconstructor for Flattener<'_> {
         let finalizes = self.clear_early_finalizes();
 
         // If the function contains finalize statements, then we fold them into a single finalize statement.
+        // Note that `finalizes` is always initialized to the appropriate number of vectors.
+        // If the function does not contain a finalize statement, then all of the component vectors will remain empty.
         let contains_finalize = finalizes.iter().any(|component| !component.is_empty());
         if contains_finalize {
             let arguments = finalizes

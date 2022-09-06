@@ -23,6 +23,7 @@ use indexmap::IndexMap;
 
 pub struct Flattener<'a> {
     /// The symbol table associated with the program.
+    /// This table is used to lookup circuit definitions, when they are folded.
     pub(crate) symbol_table: &'a SymbolTable,
     /// An struct used to construct (unique) assignment statements.
     pub(crate) assigner: Assigner,
@@ -65,7 +66,6 @@ impl<'a> Flattener<'a> {
     }
 
     /// Fold guards and expressions into a single expression.
-    // TODO: Remove below assumption.
     /// Note that this function assumes that at least one guard is present.
     pub(crate) fn fold_guards(
         &mut self,

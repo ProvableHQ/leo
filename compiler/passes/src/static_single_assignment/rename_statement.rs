@@ -158,6 +158,7 @@ impl StatementConsumer for StaticSingleAssigner {
         statements
     }
 
+    /// Consumes the expressions in a `ConsoleStatement`, returning the list of simplified statements.
     fn consume_console(&mut self, input: ConsoleStatement) -> Self::Output {
         let (function, mut statements) = match input.function {
             ConsoleFunction::Assert(expr) => {
@@ -195,6 +196,7 @@ impl StatementConsumer for StaticSingleAssigner {
         statements
     }
 
+    /// Consumes the expressions associated with the `DecrementStatement`, returning the simplified `DecrementStatement`.
     fn consume_decrement(&mut self, input: DecrementStatement) -> Self::Output {
         // First consume the expression associated with the amount.
         let (amount, mut statements) = self.consume_expression(input.amount);
@@ -232,6 +234,7 @@ impl StatementConsumer for StaticSingleAssigner {
         statements
     }
 
+    /// Consumes the expressions associated with the `FinalizeStatement`, returning the simplified `FinalizeStatement`.
     fn consume_finalize(&mut self, input: FinalizeStatement) -> Self::Output {
         let mut statements = Vec::new();
 
@@ -255,6 +258,7 @@ impl StatementConsumer for StaticSingleAssigner {
         statements
     }
 
+    /// Consumes the expressions associated with the `IncrementStatement`, returning a simplified `IncrementStatement`.
     fn consume_increment(&mut self, input: IncrementStatement) -> Self::Output {
         // First consume the expression associated with the amount.
         let (amount, mut statements) = self.consume_expression(input.amount);
@@ -278,8 +282,7 @@ impl StatementConsumer for StaticSingleAssigner {
         unreachable!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 
-    /// Transforms a `ReturnStatement` into an empty `BlockStatement`,
-    /// storing the expression and the associated guard in `self.early_returns`.
+    /// Reconstructs the expression associated with the return statement, returning a simplified `ReturnStatement`.
     /// Note that type checking guarantees that there is at most one `ReturnStatement` in a block.
     fn consume_return(&mut self, input: ReturnStatement) -> Self::Output {
         // Consume the return expression.

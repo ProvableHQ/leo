@@ -21,7 +21,6 @@ use leo_ast::{
     ExpressionReconstructor, FinalizeStatement, IterationStatement, Node, ReturnStatement, Statement,
     StatementReconstructor, UnaryExpression, UnaryOperation,
 };
-// TODO: Document
 
 impl StatementReconstructor for Flattener<'_> {
     /// Flattens an assign statement, if necessary.
@@ -143,6 +142,7 @@ impl StatementReconstructor for Flattener<'_> {
             }
         };
 
+        // For each finalize argument, add it and its associated guard to the appropriate list of finalize arguments.
         // Note that type checking guarantees that the number of arguments in a finalize statement is equal to the number of arguments in to the finalize block.
         for (i, argument) in input.arguments.into_iter().enumerate() {
             // Note that this unwrap is safe since we initialize `self.finalizes` with a number of vectors equal to the number of finalize arguments.
@@ -176,6 +176,7 @@ impl StatementReconstructor for Flattener<'_> {
             }
         };
 
+        // Add it to the list of return statements.
         self.returns.push((guard, input.expression));
 
         (Statement::dummy(Default::default()), Default::default())
