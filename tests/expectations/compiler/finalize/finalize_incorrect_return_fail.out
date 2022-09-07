@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372003]: Expected type `u64` but type `u8` was found\n    --> compiler-test:10:12\n     |\n  10 |     return 1u8 + 2u8;\n     |            ^^^\nError [ETYC0372003]: Expected type `u64` but type `u8` was found\n    --> compiler-test:10:18\n     |\n  10 |     return 1u8 + 2u8;\n     |                  ^^^\n"

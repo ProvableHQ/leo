@@ -162,11 +162,11 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             Some(Type::Mapping(mapping_type)) => {
                 // Check that the index matches the key type of the mapping.
                 let index_type = self.visit_expression(&input.index, &None);
-                self.assert_and_return_type(*mapping_type.key, &index_type, input.index.span());
+                self.assert_type(&index_type, &mapping_type.key, input.index.span());
 
                 // Check that the amount matches the value type of the mapping.
                 let amount_type = self.visit_expression(&input.amount, &None);
-                self.assert_and_return_type(*mapping_type.value, &amount_type, input.amount.span());
+                self.assert_type(&amount_type, &mapping_type.value, input.amount.span());
 
                 // Check that the amount type is incrementable.
                 self.assert_field_group_scalar_int_type(&amount_type, input.amount.span());
@@ -207,6 +207,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         if self.is_finalize {
             self.emit_err(TypeCheckerError::finalize_in_finalize(input.span()));
         }
+
+        // Set the `has_finalize` flag.
+        self.has_finalize = true;
 
         // Check that the function has a finalize block.
         // Note that `self.function.unwrap()` is safe since every `self.function` is set for every function.
@@ -259,11 +262,11 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             Some(Type::Mapping(mapping_type)) => {
                 // Check that the index matches the key type of the mapping.
                 let index_type = self.visit_expression(&input.index, &None);
-                self.assert_and_return_type(*mapping_type.key, &index_type, input.index.span());
+                self.assert_type(&index_type, &mapping_type.key, input.index.span());
 
                 // Check that the amount matches the value type of the mapping.
                 let amount_type = self.visit_expression(&input.amount, &None);
-                self.assert_and_return_type(*mapping_type.value, &amount_type, input.amount.span());
+                self.assert_type(&amount_type, &mapping_type.value, input.amount.span());
 
                 // Check that the amount type is incrementable.
                 self.assert_field_group_scalar_int_type(&amount_type, input.amount.span());

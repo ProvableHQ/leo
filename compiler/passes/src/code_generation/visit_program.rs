@@ -225,6 +225,7 @@ impl<'a> CodeGenerator<'a> {
                 // A finalize block defaults to public visibility.
                 let visibility = match (self.is_program_function, input.mode) {
                     (true, Mode::None) => Mode::Public,
+                    (true, mode) => mode,
                     _ => unreachable!("Only program functions can have finalize blocks."),
                 };
                 let type_string = self.visit_type_with_visibility(&input.type_, visibility);

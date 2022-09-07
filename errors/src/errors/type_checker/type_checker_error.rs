@@ -388,4 +388,11 @@ create_messages!(
         msg: format!("The allowed accesses to `self` are `self.caller`."),
         help: None,
     }
+
+    @formatted
+    missing_finalize {
+        args: (),
+        msg: format!("Function must contain a `finalize` statement on all execution paths."),
+        help: None,
+    }
 );

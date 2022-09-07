@@ -3,6 +3,6 @@ namespace: ParseStatement
 expectation: Pass
 */
 
-increment(foo, bar, baz);
+decrement(foo, bar, baz);
 
-increment(foo, 2u8, 3u8);
+decrement(foo, 2u8, 3u8);

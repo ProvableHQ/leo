@@ -189,6 +189,11 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.emit_err(TypeCheckerError::missing_return(function.span));
         }
 
+        // If the function has a finalize block, then check that it has at least one finalize statement.
+        if function.finalize.is_some() && !self.has_finalize {
+            self.emit_err(TypeCheckerError::missing_finalize(function.span));
+        }
+
         // Exit the scope for the function's parameters and body.
         self.exit_scope(scope_index);
 
@@ -197,6 +202,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.is_finalize = true;
             // The function's finalize block does not have a return statement.
             self.has_return = false;
+            // The function;s finalize block does not have a finalize statement.
+            self.has_finalize = false;
 
             if !self.is_program_function {
                 self.emit_err(TypeCheckerError::only_program_functions_can_have_finalize(
@@ -237,7 +244,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
                 // Check that the mode of the output is valid.
                 if output_type.mode == Mode::Const {
-                    self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(output_type.span));
+                    self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(output_type.span));
                 }
             });
 

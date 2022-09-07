@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected { -- found 'u64'\n    --> compiler-test:15:63\n     |\n  15 | } finalize (public receiver: address, amount: u64) -> private u64 {\n     |                                                               ^^^"
