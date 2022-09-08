@@ -38,8 +38,8 @@ pub use err::*;
 mod ternary;
 pub use ternary::*;
 
-mod tuple_init;
-pub use tuple_init::*;
+mod tuple;
+pub use tuple::*;
 
 mod unary;
 pub use unary::*;
