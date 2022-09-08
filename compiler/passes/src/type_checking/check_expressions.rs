@@ -136,7 +136,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                         // Case where `access.name` is not a member of the circuit.
                                         None => {
                                             self.emit_err(TypeCheckerError::invalid_circuit_variable(
-                                                &access.name,
+                                                access.name,
                                                 &circ,
                                                 access.name.span(),
                                             ));

@@ -78,26 +78,31 @@ impl ProgramReconstructor for Flattener<'_> {
             }));
         }
 
-        // Get all of the guards and finalize expression.
-        let finalizes = self.clear_early_finalizes();
+        // If the function has a finalize block, then type checking guarantees that it has at least one finalize statement.
+        if finalize.is_some() {
+            // Get all of the guards and finalize expression.
+            let finalize_arguments = self.clear_early_finalizes();
+            let arguments = match finalize_arguments.iter().all(|component| component.is_empty()) {
+                // If the finalize statement takes no arguments, then output an empty vector.
+                true => vec![],
+                // If the function contains finalize statements with at least one argument, then we fold them into a vector of arguments.
+                // Note that `finalizes` is always initialized to the appropriate number of vectors.
+                false => {
+                    // Construct an expression for each argument to the finalize statement.
+                    finalize_arguments
+                        .into_iter()
+                        .enumerate()
+                        .map(|(i, component)| {
+                            let (expression, stmts) = self.fold_guards(format!("fin${i}$").as_str(), component);
 
-        // If the function contains finalize statements, then we fold them into a single finalize statement.
-        // Note that `finalizes` is always initialized to the appropriate number of vectors.
-        // If the function does not contain a finalize statement, then all of the component vectors will remain empty.
-        let contains_finalize = finalizes.iter().any(|component| !component.is_empty());
-        if contains_finalize {
-            let arguments = finalizes
-                .into_iter()
-                .enumerate()
-                .map(|(i, component)| {
-                    let (expression, stmts) = self.fold_guards(format!("fin${i}$").as_str(), component);
+                            // Add all of the accumulated statements to the end of the block.
+                            block.statements.extend(stmts);
 
-                    // Add all of the accumulated statements to the end of the block.
-                    block.statements.extend(stmts);
-
-                    expression
-                })
-                .collect();
+                            expression
+                        })
+                        .collect()
+                }
+            };
 
             // Add the `FinalizeStatement` to the end of the block.
             block.statements.push(Statement::Finalize(FinalizeStatement {

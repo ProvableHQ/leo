@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372039]: A finalize block cannot be empty.\n    --> compiler-test:7:3\n     |\n   7 | } finalize (public receiver: address, public amount: u64) {}\n     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
