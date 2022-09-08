@@ -16,7 +16,7 @@
 
 use super::*;
 
-/// A tuple construction expression, e.g., `(foo, false, 42)`.
+/// A tuple expression, e.g., `(foo, false, 42)`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TupleExpression {
     /// The elements of the tuple.
