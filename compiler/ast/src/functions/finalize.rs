@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, FunctionInput, FunctionOutput, Node, Tuple, Type};
+use crate::{Block, FunctionInput, FunctionOutput, Identifier, Node, Tuple, Type};
 
 use leo_span::Span;
 
@@ -24,6 +24,8 @@ use serde::{Deserialize, Serialize};
 /// A finalize block.
 #[derive(Clone, Serialize, Deserialize, PartialEq, Eq, Debug)]
 pub struct Finalize {
+    /// The finalize identifier.
+    pub identifier: Identifier,
     /// The finalize block's input parameters.
     pub input: Vec<FunctionInput>,
     /// The finalize blocks's output declaration.
@@ -38,7 +40,13 @@ pub struct Finalize {
 
 impl Finalize {
     /// Create a new finalize block.
-    pub fn new(input: Vec<FunctionInput>, output: Vec<FunctionOutput>, block: Block, span: Span) -> Self {
+    pub fn new(
+        identifier: Identifier,
+        input: Vec<FunctionInput>,
+        output: Vec<FunctionOutput>,
+        block: Block,
+        span: Span,
+    ) -> Self {
         let output_type = match output.len() {
             0 => Type::Unit,
             1 => output[0].type_.clone(),
@@ -46,6 +54,7 @@ impl Finalize {
         };
 
         Self {
+            identifier,
             input,
             output,
             output_type,
@@ -66,7 +75,11 @@ impl fmt::Display for Finalize {
                 self.output.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",")
             ),
         };
-        write!(f, " finalize({}) -> {} {}", parameters, returns, self.block)
+        write!(
+            f,
+            " finalize {}({}) -> {} {}",
+            self.identifier, parameters, returns, self.block
+        )
     }
 }
 

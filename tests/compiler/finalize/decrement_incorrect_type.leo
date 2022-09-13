@@ -15,7 +15,9 @@ mapping tokens: address => Token;
 @program
 function decrease_self(amount: u128) {
     finalize(self.caller, amount);
-} finalize(addr: address, amount: u128) {
+}
+
+finalize decrease_self(addr: address, amount: u128) {
     decrement(tokens, addr, amount);
     decrement(amounts, 1u8, amount);
     decrement(amounts, addr, 1u8);

@@ -212,7 +212,7 @@ impl<'a> CodeGenerator<'a> {
             self.variable_mapping = IndexMap::new();
             self.variable_mapping.insert(&sym::SelfLower, "self".to_string());
 
-            function_string.push_str(&format!("\nfinalize {}:\n", function.identifier));
+            function_string.push_str(&format!("\nfinalize {}:\n", finalize.identifier));
 
             // Construct and append the input declarations of the finalize block.
             for input in finalize.input.iter() {

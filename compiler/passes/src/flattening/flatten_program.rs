@@ -50,6 +50,7 @@ impl ProgramReconstructor for Flattener<'_> {
             self.finalizes = vec![vec![]; finalize.input.len()];
 
             Finalize {
+                identifier: finalize.identifier,
                 input: finalize.input,
                 output: finalize.output,
                 output_type: finalize.output_type,

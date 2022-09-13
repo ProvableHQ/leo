@@ -7,6 +7,6 @@ expectation: Pass
 function matches(addr: address) -> bool {
     finalize(self.caller);
     return self.caller == addr;
-} finalize(addr: address) -> bool {
+} finalize matches(addr: address) -> bool {
     return addr == self.caller;
 }

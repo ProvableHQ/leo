@@ -346,6 +346,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
             output_type: input.output_type,
             block: self.reconstruct_block(input.block).0,
             finalize: input.finalize.map(|finalize| Finalize {
+                identifier: finalize.identifier,
                 input: finalize.input,
                 output: finalize.output,
                 output_type: finalize.output_type,

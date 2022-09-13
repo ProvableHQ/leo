@@ -18,7 +18,9 @@ record token {
 function mint_public(public receiver: address, public amount: u64) {
     // Mint the tokens publicly by invoking the computation on-chain.
     finalize(receiver, amount);
-} finalize (public receiver: address, public amount: u64) {
+}
+
+finalize mint_public(public receiver: address, public amount: u64) {
     // Increments `account[receiver]` by `amount`.
     // If `account[receiver]` does not exist, it will be created.
     // If `account[receiver] + amount` overflows, `mint_public` is reverted.
@@ -40,7 +42,9 @@ function mint_private(receiver: address, amount: u64) -> token {
 function transfer_public(public receiver: address, public amount: u64) {
     // Transfer the tokens publicly, by invoking the computation on-chain.
     finalize(self.caller, receiver, amount);
-} finalize (public sender: address, public receiver: address, public amount: u64) {
+}
+
+finalize transfer_public(public sender: address, public receiver: address, public amount: u64) {
     // Decrements `account[sender]` by `amount`.
     // If `account[sender]` does not exist, it will be created.
     // If `account[sender] - amount` underflows, `transfer_public` is reverted.
@@ -98,7 +102,9 @@ function transfer_private_to_public(sender: token, public receiver: address, pub
 
     // Output the sender's change record.
     return remaining;
-} finalize (public receiver: address, public amount: u64) {
+}
+
+finalize transfer_private_to_public(public receiver: address, public amount: u64) {
     // Increments `account[receiver]` by `amount`.
     // If `account[receiver]` does not exist, it will be created.
     // If `account[receiver] + amount` overflows, `transfer_private_to_public` is reverted.
@@ -121,7 +127,9 @@ function transfer_public_to_private(public receiver: address, public amount: u64
 
     // Output the receiver's record.
     return transferred;
-} finalize (public sender: address, public amount: u64) {
+}
+
+finalize transfer_public_to_private(public sender: address, public amount: u64) {
     // Decrements `account[sender]` by `amount`.
     // If `account[sender]` does not exist, it will be created.
     // If `account[sender] - amount` underflows, `transfer_public_to_private` is reverted.

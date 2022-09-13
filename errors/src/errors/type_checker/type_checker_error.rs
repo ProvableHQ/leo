@@ -395,4 +395,11 @@ create_messages!(
         msg: format!("Function must contain a `finalize` statement on all execution paths."),
         help: None,
     }
+
+    @formatted
+    finalize_name_mismatch {
+        args: (finalize_name: impl Display, function_name: impl Display),
+        msg: format!("`finalize` name `{finalize_name}` does not match function name `{function_name}`"),
+        help: None,
+    }
 );

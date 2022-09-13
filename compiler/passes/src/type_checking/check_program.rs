@@ -205,8 +205,18 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             // The function;s finalize block does not have a finalize statement.
             self.has_finalize = false;
 
+            // Check that the function is a program function.
             if !self.is_program_function {
                 self.emit_err(TypeCheckerError::only_program_functions_can_have_finalize(
+                    finalize.span,
+                ));
+            }
+
+            // Check that the name of the finalize block matches the function name.
+            if function.identifier.name != finalize.identifier.name {
+                self.emit_err(TypeCheckerError::finalize_name_mismatch(
+                    function.identifier.name,
+                    finalize.identifier.name,
                     finalize.span,
                 ));
             }

@@ -369,6 +369,9 @@ impl ParserContext<'_> {
                 // Get starting span.
                 let start = self.prev_token.span;
 
+                // Parse the identifier.
+                let identifier = self.expect_identifier()?;
+
                 // Parse parameters.
                 let (input, ..) = self.parse_paren_comma_list(|p| p.parse_function_input().map(Some))?;
 
@@ -390,7 +393,7 @@ impl ParserContext<'_> {
                 let block = self.parse_block()?;
                 let span = start + block.span;
 
-                Some(Finalize::new(input, output, block, span))
+                Some(Finalize::new(identifier, input, output, block, span))
             }
         };
 

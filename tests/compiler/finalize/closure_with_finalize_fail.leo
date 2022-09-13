@@ -10,14 +10,18 @@ function foo(a: u8, b: u8) -> u8 {
 
 function bar(a: u8, b: u8) -> u8 {
     return a + b;
-} finalize(a: u8, b: u8) -> u8 {
+}
+
+finalize bar(a: u8, b: u8) -> u8 {
     return a + b;
 }
 
 
 function mint_public(receiver: address, amount: u64) {
     finalize(receiver, amount);
-} finalize (receiver: address, amount: u64) {
+}
+
+finalize mint_public(receiver: address, amount: u64) {
     increment(account, receiver, amount);
 }
 

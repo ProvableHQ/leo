@@ -46,6 +46,7 @@ impl ProgramReconstructor for Unroller<'_> {
             self.exit_scope(previous_scope_index);
 
             Finalize {
+                identifier: finalize.identifier,
                 input: finalize.input,
                 output: finalize.output,
                 output_type: finalize.output_type,

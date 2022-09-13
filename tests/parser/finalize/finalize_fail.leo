@@ -11,13 +11,19 @@ function main() -> bool {
 
 function main() -> bool {
 
+} finalize() {
+
+}
+
+function main() -> bool {
+
 } finalie() {
 
 }
 
 function main() -> bool {
 
-} finalize() floo {
+} finalize main() floo {
 
 }
 

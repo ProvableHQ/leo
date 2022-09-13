@@ -15,12 +15,16 @@ function write(public addr: address, public amount: u128) {
 
 function read_in_finalize(public addr: address) {
     finalize(addr);
-} finalize(public addr: address) -> public u128 {
+}
+
+finalize read_in_finalize(public addr: address) -> public u128 {
     return balances[addr];
 }
 
 function write_in_finalize(public addr: address, public amount: u128) {
     finalize(addr, amount);
-} finalize(public: addr: address, public amount: u128) {
+}
+
+finalize write_in_finalize(public: addr: address, public amount: u128) {
     balances[addr] = amount;
 }

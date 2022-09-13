@@ -61,6 +61,7 @@ impl FunctionConsumer for StaticSingleAssigner {
             self.pop();
 
             Finalize {
+                identifier: finalize.identifier,
                 input: finalize.input,
                 output: finalize.output,
                 output_type: finalize.output_type,
