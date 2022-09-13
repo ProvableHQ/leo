@@ -44,6 +44,29 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     type AdditionalInput = Option<Type>;
     type Output = Option<Type>;
 
+    fn visit_expression(&mut self, input: &'a Expression, additional: &Self::AdditionalInput) -> Self::Output {
+        match input {
+            Expression::Access(access) => self.visit_access(access, additional),
+            Expression::Binary(binary) => self.visit_binary(binary, additional),
+            Expression::Call(call) => self.visit_call(call, additional),
+            Expression::Circuit(circuit) => self.visit_circuit_init(circuit, additional),
+            Expression::Err(err) => self.visit_err(err, additional),
+            Expression::Identifier(identifier) => self.visit_identifier(identifier, additional),
+            Expression::Literal(literal) => self.visit_literal(literal, additional),
+            Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
+            Expression::Tuple(tuple) => {
+                match tuple.elements.len() {
+                    0 => self.emit_err(TypeCheckerError::unit_tuple(input.span())),
+                    1 => self.emit_err(TypeCheckerError::singleton_tuple(input.span())),
+                    _ => (), // Do nothing.
+                }
+
+                self.visit_tuple(tuple, additional)
+            }
+            Expression::Unary(unary) => self.visit_unary(unary, additional),
+        }
+    }
+
     fn visit_access(&mut self, input: &'a AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match input {
             AccessExpression::AssociatedFunction(access) => {

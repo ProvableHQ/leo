@@ -78,6 +78,10 @@ impl ParserContext<'_> {
     pub fn parse_type(&mut self) -> Result<(Type, Span)> {
         if let Some(ident) = self.eat_identifier() {
             Ok((Type::Identifier(ident), ident.span))
+        } else if self.token.token == Token::LeftParen {
+            let (types, _, span) = self.parse_paren_comma_list(|p| p.parse_type().map(Some))?;
+
+            Ok((Type::Tuple(Tuple(types.into_iter().map(|t| t.0).collect())), span))
         } else {
             self.parse_primitive_type()
         }

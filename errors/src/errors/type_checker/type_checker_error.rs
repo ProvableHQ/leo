@@ -423,4 +423,28 @@ create_messages!(
         msg: format!("Cannot call a local transition function from a transition function."),
         help: None,
     }
+
+    // TODO: Eventually update to warnings.
+    @formatted
+    assign_unit_expression_to_variable {
+        args: (),
+        msg: format!("Cannot assign a unit expression to a variable."),
+        help: None,
+    }
+
+    // TODO: Eventually update to warnings.
+    @formatted
+    singleton_tuple {
+        args: (),
+        msg: format!("Tuples of a single element are not allowed."),
+        help: None,
+    }
+
+    // TODO: Eventually update to warnings.
+    @formatted
+    unit_tuple {
+        args: (),
+        msg: format!("Tuples of a zero elements are not allowed."),
+        help: None,
+    }
 );

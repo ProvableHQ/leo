@@ -59,6 +59,12 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 _ => {}
             }
 
+            match &var.type_ {
+                Type::Unit => self.emit_err(TypeCheckerError::assign_unit_expression_to_variable(input.span)),
+                Type::Tuple(tuple) if tuple.len() == 1 => self.emit_err(TypeCheckerError::singleton_tuple(input.span)),
+                _ => () // Do nothing
+            }
+
             Some(var.type_.clone())
         } else {
             self.emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span));
@@ -188,6 +194,12 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         // Check that the type of the definition is valid.
         self.assert_type_is_valid(input.span, &input.type_);
+
+        match &input.type_ {
+            Type::Unit => self.emit_err(TypeCheckerError::assign_unit_expression_to_variable(input.span)),
+            Type::Tuple(tuple) if tuple.len() == 1 => self.emit_err(TypeCheckerError::singleton_tuple(input.span)),
+            _ => () // Do nothing
+        }
 
         self.visit_expression(&input.value, &Some(input.type_.clone()));
 
