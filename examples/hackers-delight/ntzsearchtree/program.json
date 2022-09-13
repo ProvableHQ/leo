@@ -1,0 +1,10 @@
+{
+    "program": "ntzsearchtree.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkp6FAfhh6Ka5a1Y7pExtTbbxhTbNsYW3BLEu6MN8MR2rMy",
+        "address": "aleo143kzqw88fcjm74s8tnj3f30ntf9gv6sy7f8d6djxseydkjfjh5ys5khzcs"
+    },
+    "license": "MIT"
+}

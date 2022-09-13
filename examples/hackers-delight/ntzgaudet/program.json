@@ -1,0 +1,10 @@
+{
+    "program": "ntzgaudet.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkpE119vf79xTdab9GcybudCNwf86oiwZjSiLe1BWYdFNJq",
+        "address": "aleo1cukvzl26vv9ulwc26ugud3pgnxfhzzzhqaqeqdphhk3vnntvlqyq2uzg53"
+    },
+    "license": "MIT"
+}
