@@ -1,0 +1,28 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - name: ""
+    network: ""
+    expected_input: []
+    imports: {}
+    circuits: {}
+    mappings:
+      "{\"name\":\"balances\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":18}\"}":
+        identifier: "{\"name\":\"balances\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":18}\"}"
+        key_type: Address
+        value_type:
+          Integer: U128
+        span:
+          lo: 2
+          hi: 36
+      "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":46,\\\"hi\\\":49}\"}":
+        identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":46,\\\"hi\\\":49}\"}"
+        key_type:
+          Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":51,\\\"hi\\\":54}\"}"
+        value_type:
+          Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":58,\\\"hi\\\":61}\"}"
+        span:
+          lo: 38
+          hi: 62
+    functions: {}

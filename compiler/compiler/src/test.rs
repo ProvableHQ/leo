@@ -58,6 +58,7 @@ fn new_compiler(handler: &Handler, main_file_path: PathBuf) -> Compiler<'_> {
             initial_ast: true,
             unrolled_ast: true,
             ssa_ast: true,
+            flattened_ast: true,
         }),
     )
 }
@@ -114,6 +115,7 @@ struct CompileOutput {
     pub initial_ast: String,
     pub unrolled_ast: String,
     pub ssa_ast: String,
+    pub flattened_ast: String,
 }
 
 /// Get the path of the `input_file` given in `input` into `list`.
@@ -193,8 +195,10 @@ fn temp_dir() -> PathBuf {
 fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>, handler: &Handler) -> Result<String, LeoError> {
     let st = parsed.symbol_table_pass()?;
     let st = parsed.type_checker_pass(st)?;
-    let _st = parsed.loop_unrolling_pass(st)?;
-    parsed.static_single_assignment_pass()?;
+    let st = parsed.loop_unrolling_pass(st)?;
+    let assigner = parsed.static_single_assignment_pass()?;
+
+    parsed.flattening_pass(&st, assigner)?;
 
     // Compile Leo program to bytecode.
     let bytecode = CodeGenerator::do_pass((&parsed.ast, handler))?;
@@ -270,6 +274,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     let initial_ast = hash_file("/tmp/output/initial_ast.json");
     let unrolled_ast = hash_file("/tmp/output/unrolled_ast.json");
     let ssa_ast = hash_file("/tmp/output/ssa_ast.json");
+    let flattened_ast = hash_file("/tmp/output/flattened_ast.json");
 
     if fs::read_dir("/tmp/output").is_ok() {
         fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
@@ -280,6 +285,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         initial_ast,
         unrolled_ast,
         ssa_ast,
+        flattened_ast,
     };
     Ok(serde_yaml::to_value(&final_output).expect("serialization failed"))
 }

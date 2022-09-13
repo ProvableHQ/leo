@@ -17,7 +17,7 @@
 use leo_ast::*;
 use leo_errors::emitter::Handler;
 use leo_errors::TypeCheckerError;
-use leo_span::Span;
+use leo_span::{sym, Span};
 use std::str::FromStr;
 
 use crate::TypeChecker;
@@ -43,21 +43,6 @@ fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: &Option<T
 impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     type AdditionalInput = Option<Type>;
     type Output = Option<Type>;
-
-    fn visit_expression(&mut self, input: &'a Expression, expected: &Self::AdditionalInput) -> Self::Output {
-        match input {
-            Expression::Access(access) => self.visit_access(access, expected),
-            Expression::Binary(binary) => self.visit_binary(binary, expected),
-            Expression::Call(call) => self.visit_call(call, expected),
-            Expression::Circuit(circuit) => self.visit_circuit_init(circuit, expected),
-            Expression::Identifier(identifier) => self.visit_identifier(identifier, expected),
-            Expression::Err(err) => self.visit_err(err, expected),
-            Expression::Literal(literal) => self.visit_literal(literal, expected),
-            Expression::Ternary(ternary) => self.visit_ternary(ternary, expected),
-            Expression::Tuple(tuple) => self.visit_tuple(tuple, expected),
-            Expression::Unary(expr) => self.visit_unary(expr, expected),
-        }
-    }
 
     fn visit_access(&mut self, input: &'a AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match input {
@@ -125,41 +110,52 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 }
             }
             AccessExpression::Member(access) => {
-                // Check that the type of `inner` in `inner.name` is a circuit.
-                match self.visit_expression(&access.inner, &None) {
-                    Some(Type::Identifier(identifier)) => {
-                        // Retrieve the circuit definition associated with `identifier`.
-                        let circ = self.symbol_table.borrow().lookup_circuit(identifier.name).cloned();
-                        if let Some(circ) = circ {
-                            // Check that `access.name` is a member of the circuit.
-                            match circ
-                                .members
-                                .iter()
-                                .find(|circuit_member| circuit_member.name() == access.name.name)
-                            {
-                                // Case where `access.name` is a member of the circuit.
-                                Some(CircuitMember::CircuitVariable(_, type_)) => return Some(type_.clone()),
-                                // Case where `access.name` is not a member of the circuit.
-                                None => {
-                                    self.emit_err(TypeCheckerError::invalid_circuit_variable(
-                                        access.name,
-                                        &circ,
-                                        access.name.span(),
-                                    ));
+                match *access.inner {
+                    // If the access expression is of the form `self.<name>`, then check the <name> is valid.
+                    Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match access.name.name {
+                        sym::caller => return Some(Type::Address),
+                        _ => {
+                            self.emit_err(TypeCheckerError::invalid_self_access(access.name.span()));
+                        }
+                    },
+                    _ => {
+                        // Check that the type of `inner` in `inner.name` is a circuit.
+                        match self.visit_expression(&access.inner, &None) {
+                            Some(Type::Identifier(identifier)) => {
+                                // Retrieve the circuit definition associated with `identifier`.
+                                let circ = self.symbol_table.borrow().lookup_circuit(identifier.name).cloned();
+                                if let Some(circ) = circ {
+                                    // Check that `access.name` is a member of the circuit.
+                                    match circ
+                                        .members
+                                        .iter()
+                                        .find(|circuit_member| circuit_member.name() == access.name.name)
+                                    {
+                                        // Case where `access.name` is a member of the circuit.
+                                        Some(CircuitMember::CircuitVariable(_, type_)) => return Some(type_.clone()),
+                                        // Case where `access.name` is not a member of the circuit.
+                                        None => {
+                                            self.emit_err(TypeCheckerError::invalid_circuit_variable(
+                                                access.name,
+                                                &circ,
+                                                access.name.span(),
+                                            ));
+                                        }
+                                    }
+                                } else {
+                                    self.emit_err(TypeCheckerError::undefined_type(&access.inner, access.inner.span()));
                                 }
                             }
-                        } else {
-                            self.emit_err(TypeCheckerError::undefined_type(&access.inner, access.inner.span()));
+                            Some(type_) => {
+                                self.emit_err(TypeCheckerError::type_should_be(type_, "circuit", access.inner.span()));
+                            }
+                            None => {
+                                self.emit_err(TypeCheckerError::could_not_determine_type(
+                                    &access.inner,
+                                    access.inner.span(),
+                                ));
+                            }
                         }
-                    }
-                    Some(type_) => {
-                        self.emit_err(TypeCheckerError::type_should_be(type_, "circuit", access.inner.span()));
-                    }
-                    None => {
-                        self.emit_err(TypeCheckerError::could_not_determine_type(
-                            &access.inner,
-                            access.inner.span(),
-                        ));
                     }
                 }
             }
@@ -384,7 +380,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table` alive for the entire block and will be very memory inefficient!
                 let func = self.symbol_table.borrow().lookup_fn_symbol(ident.name).cloned();
                 if let Some(func) = func {
-                    let ret = self.assert_and_return_type(func.output, expected, func.span);
+                    let ret = self.assert_and_return_type(func.output_type, expected, func.span);
 
                     // Check number of function arguments.
                     if func.input.len() != input.arguments.len() {
@@ -458,10 +454,13 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
+    // We do not want to panic on `ErrExpression`s in order to propagate as many errors as possible.
+    fn visit_err(&mut self, _input: &'a ErrExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        Default::default()
+    }
+
     fn visit_identifier(&mut self, var: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
-        if let Some(circuit) = self.symbol_table.borrow().lookup_circuit(var.name) {
-            Some(self.assert_and_return_type(Type::Identifier(circuit.identifier), expected, var.span))
-        } else if let Some(var) = self.symbol_table.borrow().lookup_variable(var.name) {
+        if let Some(var) = self.symbol_table.borrow().lookup_variable(var.name) {
             Some(self.assert_and_return_type(var.type_.clone(), expected, var.span))
         } else {
             self.emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()));
@@ -538,30 +537,37 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_tuple(&mut self, input: &'a TupleExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        // Check the expected tuple types if they are known.
-        if let Some(Type::Tuple(expected_types)) = expected {
-            // Check actual length is equal to expected length.
-            if expected_types.len() != input.elements.len() {
-                self.emit_err(TypeCheckerError::incorrect_tuple_length(
-                    expected_types.len(),
-                    input.elements.len(),
-                    input.span(),
-                ));
+        match input.elements.len() {
+            0 => Some(self.assert_and_return_type(Type::Unit, expected, input.span())),
+            1 => self.visit_expression(&input.elements[0], expected),
+            _ => {
+                // Check the expected tuple types if they are known.
+
+                if let Some(Type::Tuple(expected_types)) = expected {
+                    // Check actual length is equal to expected length.
+                    if expected_types.len() != input.elements.len() {
+                        self.emit_err(TypeCheckerError::incorrect_tuple_length(
+                            expected_types.len(),
+                            input.elements.len(),
+                            input.span(),
+                        ));
+                    }
+
+                    expected_types
+                        .iter()
+                        .zip(input.elements.iter())
+                        .for_each(|(expected, expr)| {
+                            self.visit_expression(expr, &Some(expected.clone()));
+                        });
+
+                    Some(Type::Tuple(expected_types.clone()))
+                } else {
+                    // Tuples must be explicitly typed in testnet3.
+                    self.emit_err(TypeCheckerError::invalid_tuple(input.span()));
+
+                    None
+                }
             }
-
-            expected_types
-                .iter()
-                .zip(input.elements.iter())
-                .for_each(|(expected, expr)| {
-                    self.visit_expression(expr, &Some(expected.clone()));
-                });
-
-            Some(Type::Tuple(expected_types.clone()))
-        } else {
-            // Tuples must be explicitly typed in testnet3.
-            self.emit_err(TypeCheckerError::invalid_tuple(input.span()));
-
-            None
         }
     }
 

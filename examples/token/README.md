@@ -1,13 +1,8 @@
-# token
+# token.aleo
 
 ## Build Guide
 
-To compile this program, run:
+To compile this Aleo program, run:
 ```bash
-leo build
-```
-
-To run this program, run:
-```bash
-leo run
+aleo build
 ```

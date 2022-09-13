@@ -17,7 +17,7 @@
 use super::*;
 use leo_errors::{ParserError, Result};
 
-use leo_span::Symbol;
+use leo_span::{sym, Symbol};
 use snarkvm_console::{account::Address, network::Testnet3};
 
 const INT_TYPES: &[Token] = &[
@@ -576,6 +576,10 @@ impl ParserContext<'_> {
                     Expression::Identifier(ident)
                 }
             }
+            Token::SelfLower => Expression::Identifier(Identifier {
+                name: sym::SelfLower,
+                span,
+            }),
             t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
                 name: t.keyword_to_symbol().unwrap(),
                 span,

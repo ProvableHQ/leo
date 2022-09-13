@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372006]: Tuples of zero elements are not allowed.\n    --> compiler-test:3:36\n     |\n   3 | function main(a: bool, b: bool) -> () {\n     |                                    ^^"
+  - "Failed to parse string. Parsing Error: VerboseError { errors: [(\"closure main:\\n    input r0 as boolean;\\n    input r1 as boolean;\\n\\n\\n\", Nom(Tag)), (\"closure main:\\n    input r0 as boolean;\\n    input r1 as boolean;\\n\\n\\n\", Nom(Alt)), (\"closure main:\\n    input r0 as boolean;\\n    input r1 as boolean;\\n\\n\\n\", Nom(Many1))] }"

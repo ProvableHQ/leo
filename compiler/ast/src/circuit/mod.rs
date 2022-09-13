@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CircuitMember, Identifier, Node};
+pub mod circuit_member;
+pub use circuit_member::*;
+
+use crate::{Identifier, Node};
 use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};

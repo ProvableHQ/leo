@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected -> -- found '{'\n    --> compiler-test:3:17\n     |\n   3 | function main() {\n     |                 ^"
+  - "Error [ETYC0372008]: The value -1 is not a valid `u128`\n    --> compiler-test:4:21\n     |\n   4 |     const a: u128 = -1u128;\n     |                     ^^^^^^\n"

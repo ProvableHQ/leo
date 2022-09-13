@@ -14,26 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod statement;
-pub use statement::*;
+use crate::{Mode, Node, Type};
+use leo_span::Span;
 
-pub mod conditional;
-pub use conditional::*;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-pub mod block;
-pub use block::*;
+/// A function parameter.
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+pub struct FunctionOutput {
+    /// The mode of the function output.
+    pub mode: Mode,
+    /// The type of the function output.
+    pub type_: Type,
+    /// The parameters span from any annotations to its type.
+    pub span: Span,
+}
 
-pub mod return_statement;
-pub use return_statement::*;
+impl fmt::Display for FunctionOutput {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} {}", self.mode, self.type_)
+    }
+}
 
-pub mod iteration;
-pub use iteration::*;
-
-pub mod definition;
-pub use definition::*;
-
-pub mod console;
-pub use console::*;
-
-pub mod assign;
-pub use assign::*;
+crate::simple_node_impl!(FunctionOutput);

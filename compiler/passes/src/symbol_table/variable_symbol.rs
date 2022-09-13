@@ -16,14 +16,14 @@
 
 use std::fmt::Display;
 
-use leo_ast::{ParamMode, Type};
+use leo_ast::{Mode, Type};
 use leo_span::Span;
 
 /// An enumeration of the different types of variable type.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum VariableType {
     Const,
-    Input(ParamMode),
+    Input(Mode),
     Mut,
 }
 

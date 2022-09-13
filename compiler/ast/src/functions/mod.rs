@@ -17,14 +17,22 @@
 pub mod annotation;
 pub use annotation::*;
 
+pub mod finalize;
+pub use finalize::*;
+
 pub mod function_input;
 pub use function_input::*;
 
-use crate::{Block, Identifier, Node, Type};
+pub mod function_output;
+pub use function_output::*;
+
+pub mod mode;
+pub use mode::*;
+
+use crate::{Block, Identifier, Node, Tuple, Type};
 use leo_span::{sym, Span, Symbol};
 
 use serde::{Deserialize, Serialize};
-use std::cell::Cell;
 use std::fmt;
 
 /// A function definition.
@@ -34,15 +42,16 @@ pub struct Function {
     pub annotations: Vec<Annotation>,
     /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
     pub identifier: Identifier,
-    /// The function's parameters.
+    /// The function's input parameters.
     pub input: Vec<FunctionInput>,
-    /// The function's required return type.
-    pub output: Type,
-    /// Any mapping to the core library.
-    /// Always `None` when initially parsed.
-    pub core_mapping: Cell<Option<Symbol>>,
+    /// The function's output declarations.
+    pub output: Vec<FunctionOutput>,
+    /// The function's output type.
+    pub output_type: Type,
     /// The body of the function.
     pub block: Block,
+    /// An optional finalize block
+    pub finalize: Option<Finalize>,
     /// The entire span of the function definition.
     pub span: Span,
 }
@@ -56,6 +65,34 @@ impl PartialEq for Function {
 impl Eq for Function {}
 
 impl Function {
+    /// Initialize a new function.
+    pub fn new(
+        annotations: Vec<Annotation>,
+        identifier: Identifier,
+        input: Vec<FunctionInput>,
+        output: Vec<FunctionOutput>,
+        block: Block,
+        finalize: Option<Finalize>,
+        span: Span,
+    ) -> Self {
+        // Determine the output type of the function
+        let output_type = match output.len() {
+            0 => Type::Unit,
+            1 => output[0].type_.clone(),
+            _ => Type::Tuple(Tuple(output.iter().map(|output| output.type_.clone()).collect())),
+        };
+
+        Function {
+            annotations,
+            identifier,
+            input,
+            output,
+            output_type,
+            block,
+            finalize,
+            span,
+        }
+    }
     /// Returns function name.
     pub fn name(&self) -> Symbol {
         self.identifier.name
@@ -73,7 +110,11 @@ impl Function {
         write!(f, "function {}", self.identifier)?;
 
         let parameters = self.input.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",");
-        let returns = self.output.to_string();
+        let returns = match self.output.len() {
+            0 => "()".to_string(),
+            1 => self.output[0].to_string(),
+            _ => self.output.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(","),
+        };
         write!(f, "({}) -> {} {}", parameters, returns, self.block)
     }
 }

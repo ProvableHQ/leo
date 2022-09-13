@@ -1,0 +1,34 @@
+---
+namespace: ParseStatement
+expectation: Pass
+outputs:
+  - Decrement:
+      mapping: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":13}\"}"
+      index:
+        Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":18}\"}"
+      amount:
+        Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":23}\"}"
+      span:
+        lo: 0
+        hi: 24
+  - Decrement:
+      mapping: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":13}\"}"
+      index:
+        Literal:
+          Integer:
+            - U8
+            - "2"
+            - span:
+                lo: 15
+                hi: 18
+      amount:
+        Literal:
+          Integer:
+            - U8
+            - "3"
+            - span:
+                lo: 20
+                hi: 23
+      span:
+        lo: 0
+        hi: 24

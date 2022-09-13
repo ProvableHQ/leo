@@ -6,14 +6,22 @@ outputs:
     network: ""
     expected_input: []
     imports: {}
+    circuits: {}
+    mappings: {}
     functions:
       "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
         annotations: []
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
         input: []
         output:
+          - mode: None
+            type_:
+              Integer: U32
+            span:
+              lo: 18
+              hi: 21
+        output_type:
           Integer: U32
-        core_mapping: ~
         block:
           statements:
             - Return:
@@ -31,7 +39,7 @@ outputs:
           span:
             lo: 22
             hi: 41
+        finalize: ~
         span:
           lo: 2
           hi: 41
-    circuits: {}
