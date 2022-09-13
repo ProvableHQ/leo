@@ -624,6 +624,51 @@
 <span id="618">618</span>
 <span id="619">619</span>
 <span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -798,6 +843,9 @@
                 <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
                 <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);
 
+                <span class="comment">// Check that both operands have the same type.</span>
+                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+
                 <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
             }
             <span class="ident">BinaryOperation::BitwiseAnd</span> <span class="op">|</span> <span class="ident">BinaryOperation::BitwiseOr</span> <span class="op">|</span> <span class="ident">BinaryOperation::Xor</span> =&gt; {
@@ -805,6 +853,9 @@
                 <span class="self">self</span>.<span class="ident">assert_bool_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
                 <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
                 <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);
+
+                <span class="comment">// Check that both operands have the same type.</span>
+                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
 
                 <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
             }
@@ -814,6 +865,9 @@
                 <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
                 <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);
 
+                <span class="comment">// Check that both operands have the same type.</span>
+                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+
                 <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
             }
             <span class="ident">BinaryOperation::Sub</span> =&gt; {
@@ -821,6 +875,9 @@
                 <span class="self">self</span>.<span class="ident">assert_field_group_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
                 <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
                 <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);
+
+                <span class="comment">// Check that both operands have the same type.</span>
+                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
 
                 <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
             }
@@ -832,30 +889,51 @@
                 <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
 
                 <span class="comment">// Allow group * scalar multiplication.</span>
-                <span class="kw">match</span> (<span class="ident">t1</span>, <span class="ident">t2</span>) {
-                    (<span class="prelude-val">Some</span>(<span class="ident">Type::Group</span>), <span class="ident">right</span>) =&gt; {
-                        <span class="comment">// Right type must be scalar.</span>
-                        <span class="self">self</span>.<span class="ident">assert_scalar_type</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>, <span class="ident">input</span>.<span class="ident">right</span>.<span class="ident">span</span>());
+                <span class="kw">match</span> (<span class="ident">t1</span>, <span class="ident">input</span>.<span class="ident">left</span>.<span class="ident">span</span>(), <span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">right</span>.<span class="ident">span</span>()) {
+                    (<span class="prelude-val">Some</span>(<span class="ident">Type::Group</span>), <span class="kw">_</span>, <span class="ident">other</span>, <span class="ident">other_span</span>) <span class="op">|</span> (<span class="ident">other</span>, <span class="ident">other_span</span>, <span class="prelude-val">Some</span>(<span class="ident">Type::Group</span>), <span class="kw">_</span>) =&gt; {
+                        <span class="comment">// Other type must be scalar.</span>
+                        <span class="self">self</span>.<span class="ident">assert_scalar_type</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>, <span class="ident">other_span</span>);
 
                         <span class="comment">// Operation returns group.</span>
                         <span class="self">self</span>.<span class="ident">assert_group_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
 
                         <span class="prelude-val">Some</span>(<span class="ident">Type::Group</span>)
                     }
-                    (<span class="ident">left</span>, <span class="prelude-val">Some</span>(<span class="ident">Type::Group</span>)) =&gt; {
-                        <span class="comment">// Left must be scalar.</span>
-                        <span class="self">self</span>.<span class="ident">assert_scalar_type</span>(<span class="kw-2">&amp;</span><span class="ident">left</span>, <span class="ident">input</span>.<span class="ident">left</span>.<span class="ident">span</span>());
+                    (<span class="prelude-val">Some</span>(<span class="ident">Type::Field</span>), <span class="kw">_</span>, <span class="ident">other</span>, <span class="ident">other_span</span>) <span class="op">|</span> (<span class="ident">other</span>, <span class="ident">other_span</span>, <span class="prelude-val">Some</span>(<span class="ident">Type::Field</span>), <span class="kw">_</span>) =&gt; {
+                        <span class="comment">// Other type must be field.</span>
+                        <span class="self">self</span>.<span class="ident">assert_field_type</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>, <span class="ident">other_span</span>);
 
-                        <span class="comment">// Operation returns group.</span>
-                        <span class="self">self</span>.<span class="ident">assert_group_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+                        <span class="comment">// Operation returns field.</span>
+                        <span class="self">self</span>.<span class="ident">assert_field_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
 
-                        <span class="prelude-val">Some</span>(<span class="ident">Type::Group</span>)
+                        <span class="prelude-val">Some</span>(<span class="ident">Type::Field</span>)
                     }
-                    (<span class="ident">t1</span>, <span class="ident">t2</span>) =&gt; {
-                        <span class="comment">// Otherwise, only field or integer types.</span>
-                        <span class="self">self</span>.<span class="ident">assert_field_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+                    (<span class="prelude-val">Some</span>(<span class="ident">Type::Integer</span>(<span class="ident">integer_type</span>)), <span class="kw">_</span>, <span class="ident">other</span>, <span class="ident">other_span</span>)
+                    <span class="op">|</span> (<span class="ident">other</span>, <span class="ident">other_span</span>, <span class="prelude-val">Some</span>(<span class="ident">Type::Integer</span>(<span class="ident">integer_type</span>)), <span class="kw">_</span>) =&gt; {
+                        <span class="comment">// Other type must be the same integer type.</span>
+                        <span class="self">self</span>.<span class="ident">assert_type</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>, <span class="kw-2">&amp;</span><span class="ident">Type::Integer</span>(<span class="ident">integer_type</span>), <span class="ident">other_span</span>);
 
-                        <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
+                        <span class="comment">// Operation returns the same integer type.</span>
+                        <span class="self">self</span>.<span class="ident">assert_type</span>(<span class="ident">destination</span>, <span class="kw-2">&amp;</span><span class="ident">Type::Integer</span>(<span class="ident">integer_type</span>), <span class="ident">input</span>.<span class="ident">span</span>());
+
+                        <span class="prelude-val">Some</span>(<span class="ident">Type::Integer</span>(<span class="ident">integer_type</span>))
+                    }
+                    (<span class="ident">left_type</span>, <span class="ident">left_span</span>, <span class="ident">right_type</span>, <span class="ident">right_span</span>) =&gt; {
+                        <span class="kw">let</span> <span class="ident">check_type</span> <span class="op">=</span> <span class="op">|</span><span class="ident">type_</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>, <span class="ident">expression</span>: <span class="kw-2">&amp;</span><span class="ident">Expression</span>, <span class="ident">span</span>: <span class="ident">Span</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">type_</span> {
+                            <span class="prelude-val">None</span> =&gt; {
+                                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::could_not_determine_type</span>(<span class="ident">expression</span>, <span class="ident">span</span>));
+                            }
+                            <span class="prelude-val">Some</span>(<span class="ident">type_</span>) =&gt; {
+                                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::type_should_be</span>(
+                                    <span class="ident">type_</span>,
+                                    <span class="string">&quot;field, group, integer, or scalar&quot;</span>,
+                                    <span class="ident">span</span>,
+                                ));
+                            }
+                        };
+                        <span class="ident">check_type</span>(<span class="ident">left_type</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">left_span</span>);
+                        <span class="ident">check_type</span>(<span class="ident">right_type</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">right_span</span>);
+                        <span class="ident">destination</span>.<span class="ident">clone</span>()
                     }
                 }
             }
@@ -866,6 +944,9 @@
                 <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
                 <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);
 
+                <span class="comment">// Check that both operands have the same type.</span>
+                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+
                 <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
             }
             <span class="ident">BinaryOperation::Rem</span> <span class="op">|</span> <span class="ident">BinaryOperation::RemWrapped</span> =&gt; {
@@ -874,6 +955,9 @@
 
                 <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
                 <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);
+
+                <span class="comment">// Check that both operands have the same type.</span>
+                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
 
                 <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
             }
@@ -884,6 +968,9 @@
                 <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
                 <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);
 
+                <span class="comment">// Check that both operands have the same type.</span>
+                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+
                 <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
             }
             <span class="ident">BinaryOperation::Pow</span> =&gt; {
@@ -893,7 +980,7 @@
                 <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
                 <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
 
-                <span class="comment">// Allow field * field.</span>
+                <span class="comment">// Allow field ^ field.</span>
                 <span class="kw">match</span> (<span class="ident">t1</span>, <span class="ident">t2</span>) {
                     (<span class="prelude-val">Some</span>(<span class="ident">Type::Field</span>), <span class="ident">right</span>) =&gt; {
                         <span class="comment">// Right must be field.</span>
@@ -923,10 +1010,10 @@
 
                         <span class="prelude-val">Some</span>(<span class="ident">left</span>)
                     }
-                    (<span class="prelude-val">None</span>, <span class="ident">t2</span>) =&gt; {
+                    (<span class="prelude-val">None</span>, <span class="ident">right</span>) =&gt; {
                         <span class="comment">// Lhs type is checked to be an integer by above.</span>
                         <span class="comment">// Rhs type must be magnitude (u8, u16, u32).</span>
-                        <span class="self">self</span>.<span class="ident">assert_magnitude_type</span>(<span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">right</span>.<span class="ident">span</span>());
+                        <span class="self">self</span>.<span class="ident">assert_magnitude_type</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>, <span class="ident">input</span>.<span class="ident">right</span>.<span class="ident">span</span>());
                         <span class="ident">destination</span>.<span class="ident">clone</span>()
                     }
                 }
@@ -976,6 +1063,9 @@
                 <span class="self">self</span>.<span class="ident">assert_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>);
                 <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
                 <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);
+
+                <span class="comment">// Check that both operands have the same type.</span>
+                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
 
                 <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
             }
