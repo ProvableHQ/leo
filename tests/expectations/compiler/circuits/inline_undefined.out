@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected -> -- found '{'\n    --> compiler-test:3:17\n     |\n   3 | function main() {\n     |                 ^"
+  - "Error [ETYC0372017]: The type `Foo` is not found in the current scope.\n    --> compiler-test:4:5\n     |\n   4 |     const a: Foo = Foo { };\n     |     ^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372005]: Unknown circuit `Foo`\n    --> compiler-test:4:20\n     |\n   4 |     const a: Foo = Foo { };\n     |                    ^^^\n"

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, IntegerType, Tuple};
+use crate::{Identifier, IntegerType, MappingType, Tuple};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -35,12 +35,16 @@ pub enum Type {
     Identifier(Identifier),
     /// An integer type.
     Integer(IntegerType),
+    /// A mapping type.
+    Mapping(MappingType),
     /// The `scalar` type.
     Scalar,
     /// The `string` type.
     String,
     /// A static tuple of at least one type.
     Tuple(Tuple),
+    /// The `unit` type.
+    Unit,
     /// Placeholder for a type that could not be resolved or was not well-formed.
     /// Will eventually lead to a compile error.
     Err,
@@ -59,8 +63,12 @@ impl Type {
             | (Type::Field, Type::Field)
             | (Type::Group, Type::Group)
             | (Type::Scalar, Type::Scalar)
-            | (Type::String, Type::String) => true,
+            | (Type::String, Type::String)
+            | (Type::Unit, Type::Unit) => true,
             (Type::Integer(left), Type::Integer(right)) => left.eq(right),
+            (Type::Mapping(left), Type::Mapping(right)) => {
+                left.key.eq_flat(&right.key) && left.value.eq_flat(&right.value)
+            }
             (Type::Tuple(left), Type::Tuple(right)) => left
                 .iter()
                 .zip(right.iter())
@@ -80,9 +88,11 @@ impl fmt::Display for Type {
             Type::Group => write!(f, "group"),
             Type::Identifier(ref variable) => write!(f, "{}", variable),
             Type::Integer(ref integer_type) => write!(f, "{}", integer_type),
+            Type::Mapping(ref mapping_type) => write!(f, "{}", mapping_type),
             Type::Scalar => write!(f, "scalar"),
             Type::String => write!(f, "string"),
             Type::Tuple(ref tuple) => write!(f, "{}", tuple),
+            Type::Unit => write!(f, "()"),
             Type::Err => write!(f, "error"),
         }
     }

@@ -21,7 +21,7 @@
 
 ascii = %x0-7F
 
-safe-nonascii = %x80-2029 / %x202F-2065 / %x2070-D7FF / %xE000-10FFFF
+safe-nonascii = %x80-2029 / %x202F-2065 / %x206A-D7FF / %xE000-10FFFF
                 ; excludes bidi embeddings/overrides/isolates
                 ; and excludes high/low surrogates
 

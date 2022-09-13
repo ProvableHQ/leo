@@ -49,7 +49,7 @@ outputs:
   - "Error [EPAR0370009]: unexpected string: expected 'identifier', found 'u128'\n    --> test:1:4\n     |\n   1 | x::u128\n     |    ^^^^"
   - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '&'\n    --> test:1:4\n     |\n   1 | x::&\n     |    ^"
   - "Error [EPAR0370009]: unexpected string: expected 'identifier', found 'return'\n    --> test:1:4\n     |\n   1 | x::return\n     |    ^^^^^^"
-  - "Error [EPAR0370005]: expected ; -- found '<eof>'\n    --> test:1:4\n     |\n   1 | x::self\n     |    ^^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found 'self'\n    --> test:1:4\n     |\n   1 | x::self\n     |    ^^^^"
   - "Error [EPAR0370005]: expected ; -- found '<eof>'\n    --> test:1:4\n     |\n   1 | x::Self\n     |    ^^^^"
   - "Error [EPAR0370009]: unexpected string: expected 'identifier', found 'true'\n    --> test:1:4\n     |\n   1 | x::true\n     |    ^^^^"
   - "Error [EPAR0370009]: unexpected string: expected 'identifier', found 'false'\n    --> test:1:4\n     |\n   1 | x::false\n     |    ^^^^^"

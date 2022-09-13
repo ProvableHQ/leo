@@ -17,7 +17,7 @@
 use leo_ast::*;
 use leo_errors::emitter::Handler;
 
-use crate::SymbolTable;
+use crate::{SymbolTable, VariableSymbol, VariableType};
 
 /// A compiler pass during which the `SymbolTable` is created.
 /// Note that this pass only creates the initial entries for functions and circuits.
@@ -46,10 +46,8 @@ impl<'a> ExpressionVisitor<'a> for CreateSymbolTable<'a> {
 impl<'a> StatementVisitor<'a> for CreateSymbolTable<'a> {}
 
 impl<'a> ProgramVisitor<'a> for CreateSymbolTable<'a> {
-    fn visit_function(&mut self, input: &'a Function) {
-        if let Err(err) = self.symbol_table.insert_fn(input.name(), input) {
-            self.handler.emit_err(err);
-        }
+    fn visit_import(&mut self, input: &'a Program) {
+        self.visit_program(input)
     }
 
     fn visit_circuit(&mut self, input: &'a Circuit) {
@@ -58,7 +56,26 @@ impl<'a> ProgramVisitor<'a> for CreateSymbolTable<'a> {
         }
     }
 
-    fn visit_import(&mut self, input: &'a Program) {
-        self.visit_program(input)
+    fn visit_mapping(&mut self, input: &'a Mapping) {
+        // Add the variable associated with the mapping to the symbol table.
+        if let Err(err) = self.symbol_table.insert_variable(
+            input.identifier.name,
+            VariableSymbol {
+                type_: Type::Mapping(MappingType {
+                    key: Box::new(input.key_type.clone()),
+                    value: Box::new(input.value_type.clone()),
+                }),
+                span: input.span,
+                declaration: VariableType::Mut,
+            },
+        ) {
+            self.handler.emit_err(err);
+        }
+    }
+
+    fn visit_function(&mut self, input: &'a Function) {
+        if let Err(err) = self.symbol_table.insert_fn(input.name(), input) {
+            self.handler.emit_err(err);
+        }
     }
 }

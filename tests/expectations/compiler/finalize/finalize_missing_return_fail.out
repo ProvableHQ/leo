@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372038]: Function must return a value.\n    --> compiler-test:11:1\n     |\n  11 | finalize mint_public (public receiver: address, public amount: u64) -> u64 {\n  12 |     increment(account, receiver, amount);\n  13 | }\n     | ^\n"

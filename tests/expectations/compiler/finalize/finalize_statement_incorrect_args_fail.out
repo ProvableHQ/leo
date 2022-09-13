@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372042]: `finalize` expected `2` args, but got `3`\n    --> compiler-test:8:5\n     |\n   8 |     finalize(receiver, amount, amount);\n     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"

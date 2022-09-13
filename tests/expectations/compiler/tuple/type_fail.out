@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372003]: Expected type `u64` but type `boolean` was found\n    --> compiler-test:3:24\n     |\n   3 | function main(a: bool, b: bool) -> (bool, bool) {\n     |                        ^\nError [ETYC0372003]: Expected type `boolean` but type `u64` was found\n    --> compiler-test:6:20\n     |\n   6 |     return (t.0, t.1);\n     |                    ^\n"
+  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '('\n    --> compiler-test:4:12\n     |\n   4 |     let t: (bool, u64) = (a, b); // We should expect a boolean, not a u64.\n     |            ^"

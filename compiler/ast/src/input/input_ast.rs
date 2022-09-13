@@ -73,7 +73,7 @@ impl InputAst {
 
     /// Serializes the `Input` into a JSON Value.
     pub fn to_json_value(&self) -> Result<serde_json::Value> {
-        Ok(serde_json::to_value(&self).map_err(|e| AstError::failed_to_convert_ast_to_json_value(&e))?)
+        Ok(serde_json::to_value(self).map_err(|e| AstError::failed_to_convert_ast_to_json_value(&e))?)
     }
 
     /// Serializes the input into a JSON file.

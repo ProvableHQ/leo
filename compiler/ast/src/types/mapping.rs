@@ -14,8 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod circuit;
-pub use circuit::*;
+use crate::Type;
 
-pub mod circuit_member;
-pub use circuit_member::*;
+use serde::{Deserialize, Serialize};
+use std::fmt;
+
+/// A mapping type of a key and value type.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct MappingType {
+    pub key: Box<Type>,
+    pub value: Box<Type>,
+}
+
+impl fmt::Display for MappingType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({} => {})", self.key, self.value)
+    }
+}

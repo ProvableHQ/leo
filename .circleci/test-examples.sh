@@ -57,15 +57,38 @@
   $LEO run main
 )
 
-# Build and run the token example programs.
+# Build and run the simple token example programs.
 (
-  cd ./project/examples/token || exit
+  cd ./project/examples/simple_token || exit
 
   # Run the mint program.
   $LEO run mint
 
   # Run the transfer program.
   $LEO run transfer
+)
+
+# Build and run the token example program.
+(
+  cd ./project/examples/token || exit
+
+  # Run the mint_public function.
+  $LEO run mint_public
+
+  # Run the mint_private function.
+  $LEO run mint_private
+
+  # Run the transfer_public function.
+  $LEO run transfer_public
+
+  # Run the transfer_private function.
+  $LEO run transfer_private
+
+  # Run the transfer_private_to_public function.
+  $LEO run transfer_private_to_public
+
+  # Run the transfer_public_to_private function.
+  $LEO run transfer_public_to_private
 )
 
 # Build and run the two-adicity program.

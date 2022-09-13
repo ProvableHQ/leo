@@ -14,23 +14,46 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::cell::RefCell;
-
 use leo_ast::*;
 
 use crate::Unroller;
 
 impl ProgramReconstructor for Unroller<'_> {
     fn reconstruct_function(&mut self, function: Function) -> Function {
-        let function_name = function.name();
+        // Lookup function metadata in the symbol table.
+        // Note that this unwrap is safe since function metadata is stored in a prior pass.
+        let function_index = self
+            .symbol_table
+            .borrow()
+            .lookup_fn_symbol(function.identifier.name)
+            .unwrap()
+            .id;
 
-        // Grab our function scope.
-        let prev_st = std::mem::take(&mut self.symbol_table);
-        self.symbol_table
-            .swap(prev_st.borrow().lookup_fn_scope(function_name).unwrap());
-        self.symbol_table.borrow_mut().parent = Some(Box::new(prev_st.into_inner()));
-        // Set our current block scope index to 0
-        self.block_index = 0;
+        // Enter the function's scope.
+        let previous_function_index = self.enter_scope(function_index);
+
+        let previous_scope_index = self.enter_scope(self.scope_index);
+
+        let block = self.reconstruct_block(function.block).0;
+
+        self.exit_scope(previous_scope_index);
+
+        let finalize = function.finalize.map(|finalize| {
+            let previous_scope_index = self.enter_scope(self.scope_index);
+
+            let block = self.reconstruct_block(finalize.block).0;
+
+            self.exit_scope(previous_scope_index);
+
+            Finalize {
+                identifier: finalize.identifier,
+                input: finalize.input,
+                output: finalize.output,
+                output_type: finalize.output_type,
+                block,
+                span: finalize.span,
+            }
+        });
 
         // Reconstruct the function block.
         let reconstructed_function = Function {
@@ -38,15 +61,14 @@ impl ProgramReconstructor for Unroller<'_> {
             identifier: function.identifier,
             input: function.input,
             output: function.output,
-            core_mapping: function.core_mapping,
-            block: self.reconstruct_block(function.block),
+            output_type: function.output_type,
+            block,
+            finalize,
             span: function.span,
         };
 
-        // Pop back to parent scope.
-        let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        self.symbol_table.swap(prev_st.lookup_fn_scope(function_name).unwrap());
-        self.symbol_table = RefCell::new(prev_st);
+        // Exit the function's scope.
+        self.exit_scope(previous_function_index);
 
         reconstructed_function
     }

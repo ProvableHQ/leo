@@ -295,4 +295,111 @@ create_messages!(
         msg: format!("A circuit or record cannot contain another record."),
         help: Some(format!("Remove the record `{child}` from `{parent}`.")),
     }
+
+    @formatted
+    invalid_mapping_type {
+        args: (component: impl Display, type_: impl Display),
+        msg: format!("A mapping's {component} cannot be a {type_}"),
+        help: None,
+    }
+
+    @formatted
+    only_program_functions_can_have_finalize {
+        args: (),
+        msg: format!("Only program functions can have a `finalize` block."),
+        help: Some("Remove the `finalize` block or add a `@program` annotation to the function.".to_string()),
+    }
+
+    @formatted
+    finalize_input_mode_must_be_public {
+        args: (),
+        msg: format!("An input to a finalize block must be public."),
+        help: Some("Add a `public` modifier to the input variable declaration or remove the visibility modifier entirely.".to_string()),
+    }
+
+    @formatted
+    finalize_in_finalize {
+        args: (),
+        msg: format!("A finalize block cannot contain a finalize statement."),
+        help: None,
+    }
+
+    @formatted
+    increment_or_decrement_outside_finalize {
+        args: (),
+        msg: format!("`increment` or `decrement` statements must be inside a finalize block."),
+        help: None,
+    }
+
+    @formatted
+    finalize_without_finalize_block {
+        args: (),
+        msg: format!("Cannot use a `finalize` statement without a `finalize` block."),
+        help: None,
+    }
+
+    @formatted
+    loop_body_contains_finalize {
+        args: (),
+        msg: format!("Loop body contains a finalize statement."),
+        help: Some("Remove the finalize statement.".to_string()),
+    }
+
+    @formatted
+    missing_return {
+        args: (),
+        msg: format!("Function must return a value."),
+        help: None,
+    }
+
+    @formatted
+    finalize_block_must_not_be_empty {
+        args: (),
+        msg: format!("A finalize block cannot be empty."),
+        help: None,
+    }
+
+    @formatted
+    cannot_have_constant_output_mode {
+        args: (),
+        msg: format!("A returned value cannot be a constant."),
+        help: None,
+    }
+
+    @formatted
+    program_function_inputs_cannot_be_const {
+        args: (),
+        msg: format!("Program functions cannot have constant inputs."),
+        help: None,
+    }
+
+    @formatted
+    incorrect_num_args_to_finalize {
+        args: (expected: impl Display, received: impl Display),
+        msg: format!(
+            "`finalize` expected `{expected}` args, but got `{received}`",
+        ),
+        help: None,
+    }
+
+    @formatted
+    invalid_self_access {
+        args: (),
+        msg: format!("The allowed accesses to `self` are `self.caller`."),
+        help: None,
+    }
+
+    @formatted
+    missing_finalize {
+        args: (),
+        msg: format!("Function must contain a `finalize` statement on all execution paths."),
+        help: None,
+    }
+
+    @formatted
+    finalize_name_mismatch {
+        args: (finalize_name: impl Display, function_name: impl Display),
+        msg: format!("`finalize` name `{finalize_name}` does not match function name `{function_name}`"),
+        help: None,
+    }
 );

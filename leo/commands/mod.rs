@@ -21,8 +21,14 @@ pub use build::Build;
 pub mod clean;
 pub use clean::Clean;
 
+pub mod deploy;
+pub use deploy::Deploy;
+
 pub mod new;
 pub use new::New;
+
+pub mod node;
+pub use node::Node;
 
 pub mod run;
 pub use run::Run;

@@ -29,6 +29,7 @@ impl ParserContext<'_> {
         let mut imports = IndexMap::new();
         let mut functions = IndexMap::new();
         let mut circuits = IndexMap::new();
+        let mut mappings = IndexMap::new();
 
         // TODO: Condense logic
         while self.has_next() {
@@ -40,6 +41,10 @@ impl ParserContext<'_> {
                 Token::Circuit | Token::Record => {
                     let (id, circuit) = self.parse_circuit()?;
                     circuits.insert(id, circuit);
+                }
+                Token::Mapping => {
+                    let (id, mapping) = self.parse_mapping()?;
+                    mappings.insert(id, mapping);
                 }
                 Token::At => {
                     let (id, function) = self.parse_function()?;
@@ -64,6 +69,7 @@ impl ParserContext<'_> {
             imports,
             functions,
             circuits,
+            mappings,
         })
     }
 
@@ -213,7 +219,7 @@ impl ParserContext<'_> {
         }
     }
 
-    /// Parses a circuit or record definition, e.g., `circit Foo { ... }` or `record Foo { ... }`.
+    /// Parses a circuit or record definition, e.g., `circuit Foo { ... }` or `record Foo { ... }`.
     pub(super) fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
         let is_record = matches!(&self.token.token, Token::Record);
         let start = self.expect_any(&[Token::Circuit, Token::Record])?;
@@ -233,8 +239,28 @@ impl ParserContext<'_> {
         ))
     }
 
+    /// Parses a mapping declaration, e.g. `mapping balances: address => u128`.
+    pub(super) fn parse_mapping(&mut self) -> Result<(Identifier, Mapping)> {
+        let start = self.expect(&Token::Mapping)?;
+        let identifier = self.expect_identifier()?;
+        self.expect(&Token::Colon)?;
+        let (key_type, _) = self.parse_type()?;
+        self.expect(&Token::BigArrow)?;
+        let (value_type, _) = self.parse_type()?;
+        let end = self.expect(&Token::Semicolon)?;
+        Ok((
+            identifier,
+            Mapping {
+                identifier,
+                key_type,
+                value_type,
+                span: start + end,
+            },
+        ))
+    }
+
     /// Returns a [`ParamMode`] AST node if the next tokens represent a function parameter mode.
-    pub(super) fn parse_function_parameter_mode(&mut self) -> Result<ParamMode> {
+    pub(super) fn parse_mode(&mut self) -> Result<Mode> {
         // TODO: Allow explicit "private" mode.
         let public = self.eat(&Token::Public).then(|| self.prev_token.span);
         let constant = self.eat(&Token::Constant).then(|| self.prev_token.span);
@@ -245,10 +271,10 @@ impl ParserContext<'_> {
         }
 
         match (public, constant, const_) {
-            (None, Some(_), None) => Ok(ParamMode::Const),
-            (None, None, Some(_)) => Ok(ParamMode::Const),
-            (None, None, None) => Ok(ParamMode::None),
-            (Some(_), None, None) => Ok(ParamMode::Public),
+            (None, Some(_), None) => Ok(Mode::Const),
+            (None, None, Some(_)) => Ok(Mode::Const),
+            (None, None, None) => Ok(Mode::None),
+            (Some(_), None, None) => Ok(Mode::Public),
             (Some(m1), Some(m2), None) | (Some(m1), None, Some(m2)) | (None, Some(m1), Some(m2)) => {
                 Err(ParserError::inputs_multiple_variable_types_specified(m1 + m2).into())
             }
@@ -259,10 +285,23 @@ impl ParserContext<'_> {
     }
 
     /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
-    fn parse_function_parameter(&mut self) -> Result<FunctionInput> {
-        let mode = self.parse_function_parameter_mode()?;
+    fn parse_function_input(&mut self) -> Result<FunctionInput> {
+        let mode = self.parse_mode()?;
         let (name, type_) = self.parse_typed_ident()?;
-        Ok(FunctionInput::new(name, mode, type_, name.span))
+        Ok(FunctionInput {
+            identifier: name,
+            mode,
+            type_,
+            span: name.span,
+        })
+    }
+
+    /// Returns a [`FunctionOutput`] AST node if the next tokens represent a function output.
+    fn parse_function_output(&mut self) -> Result<FunctionOutput> {
+        // TODO: Could this span be made more accurate?
+        let mode = self.parse_mode()?;
+        let (type_, span) = self.parse_type()?;
+        Ok(FunctionOutput { mode, type_, span })
     }
 
     /// Returns `true` if the next token is Function or if it is a Const followed by Function.
@@ -304,28 +343,64 @@ impl ParserContext<'_> {
         let name = self.expect_identifier()?;
 
         // Parse parameters.
-        let (inputs, ..) = self.parse_paren_comma_list(|p| p.parse_function_parameter().map(Some))?;
+        let (inputs, ..) = self.parse_paren_comma_list(|p| p.parse_function_input().map(Some))?;
 
         // Parse return type.
-        self.expect(&Token::Arrow)?;
-        self.disallow_circuit_construction = true;
-        let output = self.parse_type()?.0;
-        self.disallow_circuit_construction = false;
+        let output = match self.eat(&Token::Arrow) {
+            false => vec![],
+            true => {
+                self.disallow_circuit_construction = true;
+                let output = match self.peek_is_left_par() {
+                    true => self.parse_paren_comma_list(|p| p.parse_function_output().map(Some))?.0,
+                    false => vec![self.parse_function_output()?],
+                };
+                self.disallow_circuit_construction = false;
+                output
+            }
+        };
 
         // Parse the function body.
         let block = self.parse_block()?;
 
+        // Parse the `finalize` block if it exists.
+        let finalize = match self.eat(&Token::Finalize) {
+            false => None,
+            true => {
+                // Get starting span.
+                let start = self.prev_token.span;
+
+                // Parse the identifier.
+                let identifier = self.expect_identifier()?;
+
+                // Parse parameters.
+                let (input, ..) = self.parse_paren_comma_list(|p| p.parse_function_input().map(Some))?;
+
+                // Parse return type.
+                let output = match self.eat(&Token::Arrow) {
+                    false => vec![],
+                    true => {
+                        self.disallow_circuit_construction = true;
+                        let output = match self.peek_is_left_par() {
+                            true => self.parse_paren_comma_list(|p| p.parse_function_output().map(Some))?.0,
+                            false => vec![self.parse_function_output()?],
+                        };
+                        self.disallow_circuit_construction = false;
+                        output
+                    }
+                };
+
+                // Parse the finalize body.
+                let block = self.parse_block()?;
+                let span = start + block.span;
+
+                Some(Finalize::new(identifier, input, output, block, span))
+            }
+        };
+
+        let span = start + block.span;
         Ok((
             name,
-            Function {
-                annotations,
-                identifier: name,
-                input: inputs,
-                output,
-                span: start + block.span,
-                block,
-                core_mapping: <_>::default(),
-            },
+            Function::new(annotations, name, inputs, output, block, finalize, span),
         ))
     }
 }
