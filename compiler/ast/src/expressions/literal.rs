@@ -51,7 +51,7 @@ impl fmt::Display for Literal {
             Self::Group(group) => write!(f, "{}group", group),
             Self::Integer(type_, value, _) => write!(f, "{}{}", value, type_),
             Self::Scalar(scalar, _) => write!(f, "{}scalar", scalar),
-            Self::String(string, _) => write!(f, "{}", string),
+            Self::String(string, _) => write!(f, "\"{}\"", string),
         }
     }
 }
