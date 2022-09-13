@@ -35,10 +35,10 @@ pub struct TypeChecker<'a> {
     pub(crate) has_return: bool,
     /// Whether or not the function that we are currently traversing has a finalize statement.
     pub(crate) has_finalize: bool,
-    /// Are we traversing a program function?
+    /// Whether or not we are currently traversing a program function.
     /// A "program function" is a function that can be invoked by a user or another program.
     pub(crate) is_program_function: bool,
-    /// Are we traversing a finalize block?
+    /// Whether or not we are currently traversing a finalize block.
     pub(crate) is_finalize: bool,
 }
 

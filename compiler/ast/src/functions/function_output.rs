@@ -25,7 +25,7 @@ use std::fmt;
 pub struct FunctionOutput {
     /// The mode of the function output.
     pub mode: Mode,
-    /// What's the parameter's type?
+    /// The type of the function output.
     pub type_: Type,
     /// The parameters span from any annotations to its type.
     pub span: Span,
