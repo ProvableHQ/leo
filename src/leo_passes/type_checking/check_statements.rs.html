@@ -232,6 +232,132 @@
 <span id="226">226</span>
 <span id="227">227</span>
 <span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -253,39 +379,164 @@
 <span class="kw">use</span> <span class="ident">leo_ast</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">leo_errors::TypeCheckerError</span>;
 
-<span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">StatementVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TypeChecker</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">visit_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Statement</span>) {
+        <span class="comment">// No statements can follow a return statement.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">has_return</span> {
             <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::unreachable_code_after_return</span>(<span class="ident">input</span>.<span class="ident">span</span>()));
             <span class="kw">return</span>;
         }
 
         <span class="kw">match</span> <span class="ident">input</span> {
-            <span class="ident">Statement::Return</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_return</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Definition</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_definition</span>(<span class="ident">stmt</span>),
             <span class="ident">Statement::Assign</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_assign</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Conditional</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_conditional</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Iteration</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_iteration</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Console</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_console</span>(<span class="ident">stmt</span>),
             <span class="ident">Statement::Block</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_block</span>(<span class="ident">stmt</span>),
+            <span class="ident">Statement::Conditional</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_conditional</span>(<span class="ident">stmt</span>),
+            <span class="ident">Statement::Console</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_console</span>(<span class="ident">stmt</span>),
+            <span class="ident">Statement::Decrement</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_decrement</span>(<span class="ident">stmt</span>),
+            <span class="ident">Statement::Definition</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_definition</span>(<span class="ident">stmt</span>),
+            <span class="ident">Statement::Finalize</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_finalize</span>(<span class="ident">stmt</span>),
+            <span class="ident">Statement::Increment</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_increment</span>(<span class="ident">stmt</span>),
+            <span class="ident">Statement::Iteration</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_iteration</span>(<span class="ident">stmt</span>),
+            <span class="ident">Statement::Return</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_return</span>(<span class="ident">stmt</span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_return</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ReturnStatement</span>) {
-        <span class="comment">// we can safely unwrap all self.parent instances because</span>
-        <span class="comment">// statements should always have some parent block</span>
-        <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parent</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">return_type</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>
-            .<span class="ident">symbol_table</span>
-            .<span class="ident">borrow</span>()
-            .<span class="ident">lookup_fn_symbol</span>(<span class="ident">parent</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">output</span>.<span class="ident">clone</span>());
+    <span class="kw">fn</span> <span class="ident">visit_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">AssignStatement</span>) {
+        <span class="kw">let</span> <span class="ident">var_name</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">place</span> {
+            <span class="ident">Expression::Identifier</span>(<span class="ident">id</span>) =&gt; <span class="ident">id</span>,
+            <span class="kw">_</span> =&gt; {
+                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::invalid_assignment_target</span>(<span class="ident">input</span>.<span class="ident">place</span>.<span class="ident">span</span>()));
+                <span class="kw">return</span>;
+            }
+        };
 
-        <span class="self">self</span>.<span class="ident">has_return</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="kw">let</span> <span class="ident">var_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">var</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">lookup_variable</span>(<span class="ident">var_name</span>.<span class="ident">name</span>) {
+            <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">var</span>.<span class="ident">declaration</span> {
+                <span class="ident">VariableType::Const</span> =&gt; <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::cannot_assign_to_const_var</span>(<span class="ident">var_name</span>, <span class="ident">var</span>.<span class="ident">span</span>)),
+                <span class="ident">VariableType::Input</span>(<span class="ident">Mode::Const</span>) =&gt; {
+                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::cannot_assign_to_const_input</span>(<span class="ident">var_name</span>, <span class="ident">var</span>.<span class="ident">span</span>))
+                }
+                <span class="kw">_</span> =&gt; {}
+            }
 
-        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">expression</span>, <span class="ident">return_type</span>);
+            <span class="prelude-val">Some</span>(<span class="ident">var</span>.<span class="ident">type_</span>.<span class="ident">clone</span>())
+        } <span class="kw">else</span> {
+            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::unknown_sym</span>(<span class="string">&quot;variable&quot;</span>, <span class="ident">var_name</span>.<span class="ident">name</span>, <span class="ident">var_name</span>.<span class="ident">span</span>));
+
+            <span class="prelude-val">None</span>
+        };
+
+        <span class="kw">if</span> <span class="ident">var_type</span>.<span class="ident">is_some</span>() {
+            <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">var_type</span>);
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">visit_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Block</span>) {
+        <span class="comment">// Create a new scope for the then-block.</span>
+        <span class="kw">let</span> <span class="ident">scope_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">create_child_scope</span>();
+
+        <span class="ident">input</span>.<span class="ident">statements</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">stmt</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_statement</span>(<span class="ident">stmt</span>));
+
+        <span class="comment">// Exit the scope for the then-block.</span>
+        <span class="self">self</span>.<span class="ident">exit_scope</span>(<span class="ident">scope_index</span>);
+    }
+
+    <span class="kw">fn</span> <span class="ident">visit_conditional</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ConditionalStatement</span>) {
+        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">condition</span>, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">Type::Boolean</span>));
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">then_block_has_return</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">otherwise_block_has_return</span> <span class="op">=</span> <span class="bool-val">false</span>;
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">then_block_has_finalize</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">otherwise_block_has_finalize</span> <span class="op">=</span> <span class="bool-val">false</span>;
+
+        <span class="comment">// Set the `has_return` flag for the then-block.</span>
+        <span class="kw">let</span> <span class="ident">previous_has_return</span> <span class="op">=</span> <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">has_return</span>, <span class="ident">then_block_has_return</span>);
+        <span class="comment">// Set the `has_finalize` flag for the then-block.</span>
+        <span class="kw">let</span> <span class="ident">previous_has_finalize</span> <span class="op">=</span> <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">has_finalize</span>, <span class="ident">then_block_has_finalize</span>);
+
+        <span class="self">self</span>.<span class="ident">visit_block</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">then</span>);
+
+        <span class="comment">// Store the `has_return` flag for the then-block.</span>
+        <span class="ident">then_block_has_return</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">has_return</span>;
+        <span class="comment">// Store the `has_finalize` flag for the then-block.</span>
+        <span class="ident">then_block_has_finalize</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">has_finalize</span>;
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">otherwise</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">otherwise</span> {
+            <span class="comment">// Set the `has_return` flag for the otherwise-block.</span>
+            <span class="self">self</span>.<span class="ident">has_return</span> <span class="op">=</span> <span class="ident">otherwise_block_has_return</span>;
+            <span class="comment">// Set the `has_finalize` flag for the otherwise-block.</span>
+            <span class="self">self</span>.<span class="ident">has_finalize</span> <span class="op">=</span> <span class="ident">otherwise_block_has_finalize</span>;
+
+            <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">otherwise</span> {
+                <span class="ident">Statement::Block</span>(<span class="ident">stmt</span>) =&gt; {
+                    <span class="comment">// Visit the otherwise-block.</span>
+                    <span class="self">self</span>.<span class="ident">visit_block</span>(<span class="ident">stmt</span>);
+                }
+                <span class="ident">Statement::Conditional</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_conditional</span>(<span class="ident">stmt</span>),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Else-case can only be a block or conditional statement.&quot;</span>),
+            }
+
+            <span class="comment">// Store the `has_return` flag for the otherwise-block.</span>
+            <span class="ident">otherwise_block_has_return</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">has_return</span>;
+            <span class="comment">// Store the `has_finalize` flag for the otherwise-block.</span>
+            <span class="ident">otherwise_block_has_finalize</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">has_finalize</span>;
+        }
+
+        <span class="comment">// Restore the previous `has_return` flag.</span>
+        <span class="self">self</span>.<span class="ident">has_return</span> <span class="op">=</span> <span class="ident">previous_has_return</span> <span class="op">|</span><span class="op">|</span> (<span class="ident">then_block_has_return</span> <span class="op">&amp;&amp;</span> <span class="ident">otherwise_block_has_return</span>);
+        <span class="comment">// Restore the previous `has_finalize` flag.</span>
+        <span class="self">self</span>.<span class="ident">has_finalize</span> <span class="op">=</span> <span class="ident">previous_has_finalize</span> <span class="op">|</span><span class="op">|</span> (<span class="ident">then_block_has_finalize</span> <span class="op">&amp;&amp;</span> <span class="ident">otherwise_block_has_finalize</span>);
+    }
+
+    <span class="kw">fn</span> <span class="ident">visit_console</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ConsoleStatement</span>) {
+        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">function</span> {
+            <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">type_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">expr</span>, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">Type::Boolean</span>));
+                <span class="self">self</span>.<span class="ident">assert_bool_type</span>(<span class="kw-2">&amp;</span><span class="ident">type_</span>, <span class="ident">expr</span>.<span class="ident">span</span>());
+            }
+            <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">|</span> <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+                <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">right</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+
+                <span class="comment">// Check that the types are equal.</span>
+                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+            }
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">visit_decrement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DecrementStatement</span>) {
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_finalize</span> {
+            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::increment_or_decrement_outside_finalize</span>(<span class="ident">input</span>.<span class="ident">span</span>()));
+        }
+
+        <span class="comment">// Assert that the first operand is a mapping.</span>
+        <span class="kw">let</span> <span class="ident">mapping_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_identifier</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">mapping</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+        <span class="self">self</span>.<span class="ident">assert_mapping_type</span>(<span class="kw-2">&amp;</span><span class="ident">mapping_type</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+
+        <span class="kw">match</span> <span class="ident">mapping_type</span> {
+            <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::could_not_determine_type</span>(
+                <span class="ident">input</span>.<span class="ident">mapping</span>,
+                <span class="ident">input</span>.<span class="ident">mapping</span>.<span class="ident">span</span>,
+            )),
+            <span class="prelude-val">Some</span>(<span class="ident">Type::Mapping</span>(<span class="ident">mapping_type</span>)) =&gt; {
+                <span class="comment">// Check that the index matches the key type of the mapping.</span>
+                <span class="kw">let</span> <span class="ident">index_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">index</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+                <span class="self">self</span>.<span class="ident">assert_type</span>(<span class="kw-2">&amp;</span><span class="ident">index_type</span>, <span class="kw-2">&amp;</span><span class="ident">mapping_type</span>.<span class="ident">key</span>, <span class="ident">input</span>.<span class="ident">index</span>.<span class="ident">span</span>());
+
+                <span class="comment">// Check that the amount matches the value type of the mapping.</span>
+                <span class="kw">let</span> <span class="ident">amount_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">amount</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+                <span class="self">self</span>.<span class="ident">assert_type</span>(<span class="kw-2">&amp;</span><span class="ident">amount_type</span>, <span class="kw-2">&amp;</span><span class="ident">mapping_type</span>.<span class="ident">value</span>, <span class="ident">input</span>.<span class="ident">amount</span>.<span class="ident">span</span>());
+
+                <span class="comment">// Check that the amount type is incrementable.</span>
+                <span class="self">self</span>.<span class="ident">assert_field_group_scalar_int_type</span>(<span class="kw-2">&amp;</span><span class="ident">amount_type</span>, <span class="ident">input</span>.<span class="ident">amount</span>.<span class="ident">span</span>());
+            }
+            <span class="prelude-val">Some</span>(<span class="ident">mapping_type</span>) =&gt; <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::expected_one_type_of</span>(
+                <span class="string">&quot;mapping&quot;</span>,
+                <span class="ident">mapping_type</span>,
+                <span class="ident">input</span>.<span class="ident">mapping</span>.<span class="ident">span</span>,
+            )),
+        }
     }
 
     <span class="kw">fn</span> <span class="ident">visit_definition</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DefinitionStatement</span>) {
@@ -312,62 +563,80 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">AssignStatement</span>) {
-        <span class="kw">let</span> <span class="ident">var_name</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">place</span> {
-            <span class="ident">Expression::Identifier</span>(<span class="ident">id</span>) =&gt; <span class="ident">id</span>,
-            <span class="kw">_</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::invalid_assignment_target</span>(<span class="ident">input</span>.<span class="ident">place</span>.<span class="ident">span</span>()));
-                <span class="kw">return</span>;
-            }
-        };
+    <span class="kw">fn</span> <span class="ident">visit_finalize</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">FinalizeStatement</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_finalize</span> {
+            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::finalize_in_finalize</span>(<span class="ident">input</span>.<span class="ident">span</span>()));
+        }
 
-        <span class="kw">let</span> <span class="ident">var_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">var</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">lookup_variable</span>(<span class="ident">var_name</span>.<span class="ident">name</span>) {
-            <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">var</span>.<span class="ident">declaration</span> {
-                <span class="ident">VariableType::Const</span> =&gt; <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::cannot_assign_to_const_var</span>(<span class="ident">var_name</span>, <span class="ident">var</span>.<span class="ident">span</span>)),
-                <span class="ident">VariableType::Input</span>(<span class="ident">ParamMode::Const</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::cannot_assign_to_const_input</span>(<span class="ident">var_name</span>, <span class="ident">var</span>.<span class="ident">span</span>))
+        <span class="comment">// Set the `has_finalize` flag.</span>
+        <span class="self">self</span>.<span class="ident">has_finalize</span> <span class="op">=</span> <span class="bool-val">true</span>;
+
+        <span class="comment">// Check that the function has a finalize block.</span>
+        <span class="comment">// Note that `self.function.unwrap()` is safe since every `self.function` is set for every function.</span>
+        <span class="comment">// Note that `(self.function.unwrap()).unwrap()` is safe since all functions have been checked to exist.</span>
+        <span class="kw">let</span> <span class="ident">finalize</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">symbol_table</span>
+            .<span class="ident">borrow</span>()
+            .<span class="ident">lookup_fn_symbol</span>(<span class="self">self</span>.<span class="ident">function</span>.<span class="ident">unwrap</span>())
+            .<span class="ident">unwrap</span>()
+            .<span class="ident">finalize</span>
+            .<span class="ident">clone</span>();
+        <span class="kw">match</span> <span class="ident">finalize</span> {
+            <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::finalize_without_finalize_block</span>(<span class="ident">input</span>.<span class="ident">span</span>())),
+            <span class="prelude-val">Some</span>(<span class="ident">finalize</span>) =&gt; {
+                <span class="comment">// Check number of function arguments.</span>
+                <span class="kw">if</span> <span class="ident">finalize</span>.<span class="ident">input</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">input</span>.<span class="ident">arguments</span>.<span class="ident">len</span>() {
+                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::incorrect_num_args_to_finalize</span>(
+                        <span class="ident">finalize</span>.<span class="ident">input</span>.<span class="ident">len</span>(),
+                        <span class="ident">input</span>.<span class="ident">arguments</span>.<span class="ident">len</span>(),
+                        <span class="ident">input</span>.<span class="ident">span</span>(),
+                    ));
                 }
-                <span class="kw">_</span> =&gt; {}
+
+                <span class="comment">// Check function argument types.</span>
+                <span class="ident">finalize</span>
+                    .<span class="ident">input</span>
+                    .<span class="ident">iter</span>()
+                    .<span class="ident">zip</span>(<span class="ident">input</span>.<span class="ident">arguments</span>.<span class="ident">iter</span>())
+                    .<span class="ident">for_each</span>(<span class="op">|</span>(<span class="ident">expected</span>, <span class="ident">argument</span>)<span class="op">|</span> {
+                        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">argument</span>, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">expected</span>.<span class="ident">type_</span>.<span class="ident">clone</span>()));
+                    });
             }
-
-            <span class="prelude-val">Some</span>(<span class="ident">var</span>.<span class="ident">type_</span>.<span class="ident">clone</span>())
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::unknown_sym</span>(<span class="string">&quot;variable&quot;</span>, <span class="ident">var_name</span>.<span class="ident">name</span>, <span class="ident">var_name</span>.<span class="ident">span</span>));
-
-            <span class="prelude-val">None</span>
-        };
-
-        <span class="kw">if</span> <span class="ident">var_type</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">var_type</span>);
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_conditional</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ConditionalStatement</span>) {
-        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">condition</span>, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">Type::Boolean</span>));
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">then_block_has_return</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">otherwise_block_has_return</span> <span class="op">=</span> <span class="bool-val">false</span>;
-
-        <span class="comment">// Set the `has_return` flag for the then-block.</span>
-        <span class="kw">let</span> <span class="ident">previous_has_return</span> <span class="op">=</span> <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">has_return</span>, <span class="ident">then_block_has_return</span>);
-
-        <span class="self">self</span>.<span class="ident">visit_block</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">then</span>);
-
-        <span class="comment">// Store the `has_return` flag for the then-block.</span>
-        <span class="ident">then_block_has_return</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">has_return</span>;
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">input</span>.<span class="ident">otherwise</span>.<span class="ident">as_ref</span>() {
-            <span class="comment">// Set the `has_return` flag for the otherwise-block.</span>
-            <span class="self">self</span>.<span class="ident">has_return</span> <span class="op">=</span> <span class="ident">otherwise_block_has_return</span>;
-
-            <span class="self">self</span>.<span class="ident">visit_statement</span>(<span class="ident">s</span>);
-
-            <span class="comment">// Store the `has_return` flag for the otherwise-block.</span>
-            <span class="ident">otherwise_block_has_return</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">has_return</span>;
+    <span class="kw">fn</span> <span class="ident">visit_increment</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">IncrementStatement</span>) {
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_finalize</span> {
+            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::increment_or_decrement_outside_finalize</span>(<span class="ident">input</span>.<span class="ident">span</span>()));
         }
 
-        <span class="comment">// Restore the previous `has_return` flag.</span>
-        <span class="self">self</span>.<span class="ident">has_return</span> <span class="op">=</span> <span class="ident">previous_has_return</span> <span class="op">|</span><span class="op">|</span> (<span class="ident">then_block_has_return</span> <span class="op">&amp;&amp;</span> <span class="ident">otherwise_block_has_return</span>);
+        <span class="comment">// Assert that the first operand is a mapping.</span>
+        <span class="kw">let</span> <span class="ident">mapping_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_identifier</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">mapping</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+        <span class="self">self</span>.<span class="ident">assert_mapping_type</span>(<span class="kw-2">&amp;</span><span class="ident">mapping_type</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+
+        <span class="kw">match</span> <span class="ident">mapping_type</span> {
+            <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::could_not_determine_type</span>(
+                <span class="ident">input</span>.<span class="ident">mapping</span>,
+                <span class="ident">input</span>.<span class="ident">mapping</span>.<span class="ident">span</span>,
+            )),
+            <span class="prelude-val">Some</span>(<span class="ident">Type::Mapping</span>(<span class="ident">mapping_type</span>)) =&gt; {
+                <span class="comment">// Check that the index matches the key type of the mapping.</span>
+                <span class="kw">let</span> <span class="ident">index_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">index</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+                <span class="self">self</span>.<span class="ident">assert_type</span>(<span class="kw-2">&amp;</span><span class="ident">index_type</span>, <span class="kw-2">&amp;</span><span class="ident">mapping_type</span>.<span class="ident">key</span>, <span class="ident">input</span>.<span class="ident">index</span>.<span class="ident">span</span>());
+
+                <span class="comment">// Check that the amount matches the value type of the mapping.</span>
+                <span class="kw">let</span> <span class="ident">amount_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">amount</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+                <span class="self">self</span>.<span class="ident">assert_type</span>(<span class="kw-2">&amp;</span><span class="ident">amount_type</span>, <span class="kw-2">&amp;</span><span class="ident">mapping_type</span>.<span class="ident">value</span>, <span class="ident">input</span>.<span class="ident">amount</span>.<span class="ident">span</span>());
+
+                <span class="comment">// Check that the amount type is incrementable.</span>
+                <span class="self">self</span>.<span class="ident">assert_field_group_scalar_int_type</span>(<span class="kw-2">&amp;</span><span class="ident">amount_type</span>, <span class="ident">input</span>.<span class="ident">amount</span>.<span class="ident">span</span>());
+            }
+            <span class="prelude-val">Some</span>(<span class="ident">mapping_type</span>) =&gt; <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::expected_one_type_of</span>(
+                <span class="string">&quot;mapping&quot;</span>,
+                <span class="ident">mapping_type</span>,
+                <span class="ident">input</span>.<span class="ident">mapping</span>.<span class="ident">span</span>,
+            )),
+        }
     }
 
     <span class="kw">fn</span> <span class="ident">visit_iteration</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">IterationStatement</span>) {
@@ -375,11 +644,7 @@
         <span class="self">self</span>.<span class="ident">assert_int_type</span>(<span class="ident">iter_type</span>, <span class="ident">input</span>.<span class="ident">variable</span>.<span class="ident">span</span>);
 
         <span class="comment">// Create a new scope for the loop body.</span>
-        <span class="kw">let</span> <span class="ident">scope_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">insert_block</span>();
-        <span class="kw">let</span> <span class="ident">prev_st</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">symbol_table</span>);
-        <span class="self">self</span>.<span class="ident">symbol_table</span>
-            .<span class="ident">swap</span>(<span class="ident">prev_st</span>.<span class="ident">borrow</span>().<span class="ident">lookup_scope_by_index</span>(<span class="ident">scope_index</span>).<span class="ident">unwrap</span>());
-        <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">parent</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">prev_st</span>.<span class="ident">into_inner</span>()));
+        <span class="kw">let</span> <span class="ident">scope_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">create_child_scope</span>();
 
         <span class="comment">// Add the loop variable to the scope of the loop body.</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">insert_variable</span>(
@@ -394,20 +659,23 @@
         }
 
         <span class="kw">let</span> <span class="ident">prior_has_return</span> <span class="op">=</span> <span class="ident">core::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">has_return</span>);
+        <span class="kw">let</span> <span class="ident">prior_has_finalize</span> <span class="op">=</span> <span class="ident">core::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">has_finalize</span>);
 
-        <span class="ident">input</span>.<span class="ident">block</span>.<span class="ident">statements</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_statement</span>(<span class="ident">s</span>));
+        <span class="self">self</span>.<span class="ident">visit_block</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">block</span>);
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">has_return</span> {
             <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::loop_body_contains_return</span>(<span class="ident">input</span>.<span class="ident">span</span>()));
         }
 
-        <span class="self">self</span>.<span class="ident">has_return</span> <span class="op">=</span> <span class="ident">prior_has_return</span>;
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">has_finalize</span> {
+            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::loop_body_contains_finalize</span>(<span class="ident">input</span>.<span class="ident">span</span>()));
+        }
 
-        <span class="comment">// Restore the previous scope.</span>
-        <span class="kw">let</span> <span class="ident">prev_st</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">parent</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-        <span class="self">self</span>.<span class="ident">symbol_table</span>
-            .<span class="ident">swap</span>(<span class="ident">prev_st</span>.<span class="ident">lookup_scope_by_index</span>(<span class="ident">scope_index</span>).<span class="ident">unwrap</span>());
-        <span class="self">self</span>.<span class="ident">symbol_table</span> <span class="op">=</span> <span class="ident">RefCell::new</span>(<span class="ident">prev_st</span>);
+        <span class="self">self</span>.<span class="ident">has_return</span> <span class="op">=</span> <span class="ident">prior_has_return</span>;
+        <span class="self">self</span>.<span class="ident">has_finalize</span> <span class="op">=</span> <span class="ident">prior_has_finalize</span>;
+
+        <span class="comment">// Exit the scope.</span>
+        <span class="self">self</span>.<span class="ident">exit_scope</span>(<span class="ident">scope_index</span>);
 
         <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">start</span>, <span class="ident">iter_type</span>);
 
@@ -424,40 +692,24 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_console</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ConsoleStatement</span>) {
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">function</span> {
-            <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">type_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">expr</span>, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">Type::Boolean</span>));
-                <span class="self">self</span>.<span class="ident">assert_bool_type</span>(<span class="kw-2">&amp;</span><span class="ident">type_</span>, <span class="ident">expr</span>.<span class="ident">span</span>());
-            }
-            <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">|</span> <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-                <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">right</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+    <span class="kw">fn</span> <span class="ident">visit_return</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ReturnStatement</span>) {
+        <span class="comment">// we can safely unwrap all self.parent instances because</span>
+        <span class="comment">// statements should always have some parent block</span>
+        <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">function</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">return_type</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>
+            .<span class="ident">symbol_table</span>
+            .<span class="ident">borrow</span>()
+            .<span class="ident">lookup_fn_symbol</span>(<span class="ident">parent</span>)
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">is_finalize</span> {
+                <span class="comment">// TODO: Check this.</span>
+                <span class="comment">// Note that this `unwrap()` is safe since we checked that the function has a finalize block.</span>
+                <span class="bool-val">true</span> =&gt; <span class="ident">f</span>.<span class="ident">finalize</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">output_type</span>.<span class="ident">clone</span>(),
+                <span class="bool-val">false</span> =&gt; <span class="ident">f</span>.<span class="ident">output_type</span>.<span class="ident">clone</span>(),
+            });
 
-                <span class="comment">// Check that the types are equal.</span>
-                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
-            }
-        }
-    }
+        <span class="self">self</span>.<span class="ident">has_return</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
-    <span class="kw">fn</span> <span class="ident">visit_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Block</span>) {
-        <span class="comment">// Creates a new sub-scope since we are in a block.</span>
-        <span class="kw">let</span> <span class="ident">scope_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">insert_block</span>();
-        <span class="kw">let</span> <span class="ident">previous_symbol_table</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">symbol_table</span>);
-        <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">swap</span>(
-            <span class="ident">previous_symbol_table</span>
-                .<span class="ident">borrow</span>()
-                .<span class="ident">lookup_scope_by_index</span>(<span class="ident">scope_index</span>)
-                .<span class="ident">unwrap</span>(),
-        );
-        <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">parent</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">previous_symbol_table</span>.<span class="ident">into_inner</span>()));
-
-        <span class="ident">input</span>.<span class="ident">statements</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">stmt</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_statement</span>(<span class="ident">stmt</span>));
-
-        <span class="kw">let</span> <span class="ident">previous_symbol_table</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">parent</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-        <span class="self">self</span>.<span class="ident">symbol_table</span>
-            .<span class="ident">swap</span>(<span class="ident">previous_symbol_table</span>.<span class="ident">lookup_scope_by_index</span>(<span class="ident">scope_index</span>).<span class="ident">unwrap</span>());
-        <span class="self">self</span>.<span class="ident">symbol_table</span> <span class="op">=</span> <span class="ident">RefCell::new</span>(<span class="ident">previous_symbol_table</span>);
+        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">expression</span>, <span class="ident">return_type</span>);
     }
 }
 </code></pre></div>

@@ -197,6 +197,89 @@
 <span id="191">191</span>
 <span id="192">192</span>
 <span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -215,7 +298,7 @@
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::CodeGenerator</span>;
 
-<span class="kw">use</span> <span class="ident">leo_ast</span>::{<span class="ident">Circuit</span>, <span class="ident">CircuitMember</span>, <span class="ident">Function</span>, <span class="ident">Identifier</span>, <span class="ident">Program</span>};
+<span class="kw">use</span> <span class="ident">leo_ast</span>::{<span class="ident">Circuit</span>, <span class="ident">CircuitMember</span>, <span class="ident">Function</span>, <span class="ident">Identifier</span>, <span class="ident">Mapping</span>, <span class="ident">Mode</span>, <span class="ident">Program</span>, <span class="ident">Type</span>};
 
 <span class="kw">use</span> <span class="ident">indexmap::IndexMap</span>;
 <span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
@@ -259,6 +342,15 @@
 
         <span class="comment">// Newline separator.</span>
         <span class="ident">program_string</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>);
+
+        <span class="comment">// Visit each mapping in the Leo AST and produce an Aleo mapping declaration.</span>
+        <span class="ident">program_string</span>.<span class="ident">push_str</span>(
+            <span class="kw-2">&amp;</span><span class="ident">input</span>
+                .<span class="ident">mappings</span>
+                .<span class="ident">values</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">mapping</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_mapping</span>(<span class="ident">mapping</span>))
+                .<span class="ident">join</span>(<span class="string">&quot;\n&quot;</span>),
+        );
 
         <span class="comment">// Store closures and functions in separate strings.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closures</span> <span class="op">=</span> <span class="ident">String::new</span>();
@@ -317,7 +409,7 @@
         <span class="self">self</span>.<span class="ident">composite_mapping</span>
             .<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">circuit</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, (<span class="bool-val">false</span>, <span class="ident">String::from</span>(<span class="string">&quot;private&quot;</span>))); <span class="comment">// todo: private by default here.</span>
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_string</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;interface {}:\n&quot;</span>, <span class="ident">circuit</span>.<span class="ident">identifier</span>.<span class="ident">to_string</span>().<span class="ident">to_lowercase</span>()); <span class="comment">// todo: check if this is safe from name conflicts.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_string</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;interface {}:\n&quot;</span>, <span class="ident">circuit</span>.<span class="ident">identifier</span>); <span class="comment">// todo: check if this is safe from name conflicts.</span>
 
         <span class="comment">// Construct and append the record variables.</span>
         <span class="kw">for</span> <span class="ident">var</span> <span class="kw">in</span> <span class="ident">circuit</span>.<span class="ident">members</span>.<span class="ident">iter</span>() {
@@ -336,8 +428,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_string</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="string">&quot;record&quot;</span>);
         <span class="self">self</span>.<span class="ident">composite_mapping</span>
             .<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">record</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, (<span class="bool-val">true</span>, <span class="ident">output_string</span>.<span class="ident">clone</span>()));
-        <span class="macro">writeln!</span>(<span class="ident">output_string</span>, <span class="string">&quot; {}:&quot;</span>, <span class="ident">record</span>.<span class="ident">identifier</span>.<span class="ident">to_string</span>().<span class="ident">to_lowercase</span>())
-            .<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>); <span class="comment">// todo: check if this is safe from name conflicts.</span>
+        <span class="macro">writeln!</span>(<span class="ident">output_string</span>, <span class="string">&quot; {}:&quot;</span>, <span class="ident">record</span>.<span class="ident">identifier</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>); <span class="comment">// todo: check if this is safe from name conflicts.</span>
 
         <span class="comment">// Construct and append the record variables.</span>
         <span class="kw">for</span> <span class="ident">var</span> <span class="kw">in</span> <span class="ident">record</span>.<span class="ident">members</span>.<span class="ident">iter</span>() {
@@ -348,8 +439,7 @@
             <span class="macro">writeln!</span>(
                 <span class="ident">output_string</span>,
                 <span class="string">&quot;    {} as {}.private;&quot;</span>, <span class="comment">// todo: CAUTION private record variables only.</span>
-                <span class="ident">name</span>,
-                <span class="ident">type_</span>.<span class="ident">to_string</span>().<span class="ident">to_lowercase</span>(),
+                <span class="ident">name</span>, <span class="ident">type_</span>,
             )
             .<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
         }
@@ -361,6 +451,8 @@
         <span class="comment">// Initialize the state of `self` with the appropriate values before visiting `function`.</span>
         <span class="self">self</span>.<span class="ident">next_register</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="self">self</span>.<span class="ident">variable_mapping</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
+        <span class="comment">// TODO: Figure out a better way to initialize.</span>
+        <span class="self">self</span>.<span class="ident">variable_mapping</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">sym::SelfLower</span>, <span class="string">&quot;self&quot;</span>.<span class="ident">to_string</span>());
         <span class="self">self</span>.<span class="ident">current_function</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">function</span>);
 
         <span class="comment">// Construct the header of the function.</span>
@@ -378,7 +470,11 @@
             <span class="self">self</span>.<span class="ident">variable_mapping</span>
                 .<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">register_string</span>.<span class="ident">clone</span>());
 
-            <span class="kw">let</span> <span class="ident">type_string</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_type_with_visibility</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">type_</span>, <span class="ident">input</span>.<span class="ident">mode</span>());
+            <span class="kw">let</span> <span class="ident">visibility</span> <span class="op">=</span> <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">is_program_function</span>, <span class="ident">input</span>.<span class="ident">mode</span>) {
+                (<span class="bool-val">true</span>, <span class="ident">Mode::None</span>) =&gt; <span class="ident">Mode::Private</span>,
+                <span class="kw">_</span> =&gt; <span class="ident">input</span>.<span class="ident">mode</span>,
+            };
+            <span class="kw">let</span> <span class="ident">type_string</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_type_with_visibility</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">type_</span>, <span class="ident">visibility</span>);
             <span class="macro">writeln!</span>(<span class="ident">function_string</span>, <span class="string">&quot;    input {} as {};&quot;</span>, <span class="ident">register_string</span>, <span class="ident">type_string</span>,)
                 .<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
         }
@@ -387,7 +483,77 @@
         <span class="kw">let</span> <span class="ident">block_string</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_block</span>(<span class="kw-2">&amp;</span><span class="ident">function</span>.<span class="ident">block</span>);
         <span class="ident">function_string</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">block_string</span>);
 
+        <span class="comment">// If the finalize block exists, generate the appropriate bytecode.</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">finalize</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">function</span>.<span class="ident">finalize</span> {
+            <span class="comment">// Clear the register count.</span>
+            <span class="self">self</span>.<span class="ident">next_register</span> <span class="op">=</span> <span class="number">0</span>;
+            <span class="self">self</span>.<span class="ident">in_finalize</span> <span class="op">=</span> <span class="bool-val">true</span>;
+
+            <span class="comment">// Clear the variable mapping.</span>
+            <span class="comment">// TODO: Figure out a better way to initialize.</span>
+            <span class="self">self</span>.<span class="ident">variable_mapping</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
+            <span class="self">self</span>.<span class="ident">variable_mapping</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">sym::SelfLower</span>, <span class="string">&quot;self&quot;</span>.<span class="ident">to_string</span>());
+
+            <span class="ident">function_string</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\nfinalize {}:\n&quot;</span>, <span class="ident">finalize</span>.<span class="ident">identifier</span>));
+
+            <span class="comment">// Construct and append the input declarations of the finalize block.</span>
+            <span class="kw">for</span> <span class="ident">input</span> <span class="kw">in</span> <span class="ident">finalize</span>.<span class="ident">input</span>.<span class="ident">iter</span>() {
+                <span class="kw">let</span> <span class="ident">register_string</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.<span class="ident">next_register</span>);
+                <span class="self">self</span>.<span class="ident">next_register</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+
+                <span class="self">self</span>.<span class="ident">variable_mapping</span>
+                    .<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">register_string</span>.<span class="ident">clone</span>());
+
+                <span class="comment">// A finalize block defaults to public visibility.</span>
+                <span class="kw">let</span> <span class="ident">visibility</span> <span class="op">=</span> <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">is_program_function</span>, <span class="ident">input</span>.<span class="ident">mode</span>) {
+                    (<span class="bool-val">true</span>, <span class="ident">Mode::None</span>) =&gt; <span class="ident">Mode::Public</span>,
+                    (<span class="bool-val">true</span>, <span class="ident">mode</span>) =&gt; <span class="ident">mode</span>,
+                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Only program functions can have finalize blocks.&quot;</span>),
+                };
+                <span class="kw">let</span> <span class="ident">type_string</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_type_with_visibility</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">type_</span>, <span class="ident">visibility</span>);
+                <span class="macro">writeln!</span>(<span class="ident">function_string</span>, <span class="string">&quot;    input {} as {};&quot;</span>, <span class="ident">register_string</span>, <span class="ident">type_string</span>,)
+                    .<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
+            }
+
+            <span class="comment">// Construct and append the finalize block body.</span>
+            <span class="ident">function_string</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">visit_block</span>(<span class="kw-2">&amp;</span><span class="ident">finalize</span>.<span class="ident">block</span>));
+
+            <span class="self">self</span>.<span class="ident">in_finalize</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        }
+
         <span class="ident">function_string</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">visit_mapping</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">mapping</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Mapping</span>) -&gt; <span class="ident">String</span> {
+        <span class="comment">// Create the prefix of the mapping string, e.g. `mapping foo:`.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mapping_string</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;mapping {}:\n&quot;</span>, <span class="ident">mapping</span>.<span class="ident">identifier</span>);
+
+        <span class="comment">// Helper to construct the string associated with the type.</span>
+        <span class="kw">let</span> <span class="ident">create_type</span> <span class="op">=</span> <span class="op">|</span><span class="ident">type_</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span><span class="op">|</span> {
+            <span class="kw">match</span> <span class="ident">type_</span> {
+                <span class="ident">Type::Mapping</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">Type::Tuple</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Mappings cannot contain mappings or tuples.&quot;</span>),
+                <span class="ident">Type::Identifier</span>(<span class="ident">identifier</span>) =&gt; {
+                    <span class="comment">// Lookup the type in the composite mapping.</span>
+                    <span class="comment">// Note that this unwrap is safe since all circuit and records have been added to the composite mapping.</span>
+                    <span class="kw">let</span> (<span class="ident">is_record</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">composite_mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">identifier</span>.<span class="ident">name</span>).<span class="ident">unwrap</span>();
+                    <span class="kw">match</span> <span class="ident">is_record</span> {
+                        <span class="comment">// If the type is a record, then declare the type as is.</span>
+                        <span class="bool-val">true</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}.record&quot;</span>, <span class="ident">identifier</span>),
+                        <span class="comment">// If the type is a circuit, then add the public modifier.</span>
+                        <span class="bool-val">false</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}.public&quot;</span>, <span class="ident">identifier</span>),
+                    }
+                }
+                <span class="ident">type_</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}.public&quot;</span>, <span class="ident">type_</span>),
+            }
+        };
+
+        <span class="comment">// Create the key string, e.g. `    key as address.public`.</span>
+        <span class="ident">mapping_string</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\tkey left as {};\n&quot;</span>, <span class="ident">create_type</span>(<span class="kw-2">&amp;</span><span class="ident">mapping</span>.<span class="ident">key_type</span>)));
+
+        <span class="comment">// Create the value string, e.g. `    value as address.public`.</span>
+        <span class="ident">mapping_string</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\tvalue right as {};\n&quot;</span>, <span class="ident">create_type</span>(<span class="kw-2">&amp;</span><span class="ident">mapping</span>.<span class="ident">value_type</span>)));
+
+        <span class="ident">mapping_string</span>
     }
 }
 </code></pre></div>

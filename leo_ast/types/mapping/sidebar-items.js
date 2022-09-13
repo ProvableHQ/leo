@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["MappingType","A mapping type of a key and value type."]]};

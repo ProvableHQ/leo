@@ -255,6 +255,60 @@
 <span id="249">249</span>
 <span id="250">250</span>
 <span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -298,6 +352,9 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span> {
             <span class="ident">Token::Return</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Return</span>(<span class="self">self</span>.<span class="ident">parse_return_statement</span>()<span class="question-mark">?</span>)),
+            <span class="ident">Token::Finalize</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Finalize</span>(<span class="self">self</span>.<span class="ident">parse_finalize_statement</span>()<span class="question-mark">?</span>)),
+            <span class="ident">Token::Increment</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Increment</span>(<span class="self">self</span>.<span class="ident">parse_increment_statement</span>()<span class="question-mark">?</span>)),
+            <span class="ident">Token::Decrement</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Decrement</span>(<span class="self">self</span>.<span class="ident">parse_decrement_statement</span>()<span class="question-mark">?</span>)),
             <span class="ident">Token::If</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Conditional</span>(<span class="self">self</span>.<span class="ident">parse_conditional_statement</span>()<span class="question-mark">?</span>)),
             <span class="ident">Token::For</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Iteration</span>(<span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">parse_loop_statement</span>()<span class="question-mark">?</span>))),
             <span class="ident">Token::Console</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Console</span>(<span class="self">self</span>.<span class="ident">parse_console_statement</span>()<span class="question-mark">?</span>)),
@@ -372,6 +429,57 @@
         <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semicolon</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">start</span> <span class="op">+</span> <span class="ident">expression</span>.<span class="ident">span</span>();
         <span class="prelude-val">Ok</span>(<span class="ident">ReturnStatement</span> { <span class="ident">span</span>, <span class="ident">expression</span> })
+    }
+
+    <span class="doccomment">/// Returns a [`FinalizeStatement`] AST node if the next tokens represent a finalize statement.</span>
+    <span class="kw">fn</span> <span class="ident">parse_finalize_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">FinalizeStatement</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Finalize</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> (<span class="ident">arguments</span>, <span class="kw">_</span>, <span class="ident">span</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_paren_comma_list</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">parse_expression</span>().<span class="ident">map</span>(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semicolon</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">start</span> <span class="op">+</span> <span class="ident">span</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">FinalizeStatement</span> { <span class="ident">span</span>, <span class="ident">arguments</span> })
+    }
+
+    <span class="doccomment">/// Returns a [`DecrementStatement`] AST node if the next tokens represent a decrement statement.</span>
+    <span class="kw">fn</span> <span class="ident">parse_decrement_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DecrementStatement</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Decrement</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::LeftParen</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">mapping</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Comma</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Comma</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">amount</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Comma</span>);
+        <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::RightParen</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semicolon</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">start</span> <span class="op">+</span> <span class="ident">end</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">DecrementStatement</span> {
+            <span class="ident">mapping</span>,
+            <span class="ident">index</span>,
+            <span class="ident">amount</span>,
+            <span class="ident">span</span>,
+        })
+    }
+
+    <span class="doccomment">/// Returns an [`IncrementStatement`] AST node if the next tokens represent an increment statement.</span>
+    <span class="kw">fn</span> <span class="ident">parse_increment_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IncrementStatement</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Increment</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::LeftParen</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">mapping</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Comma</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Comma</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">amount</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Comma</span>);
+        <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::RightParen</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semicolon</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">start</span> <span class="op">+</span> <span class="ident">end</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">IncrementStatement</span> {
+            <span class="ident">mapping</span>,
+            <span class="ident">index</span>,
+            <span class="ident">amount</span>,
+            <span class="ident">span</span>,
+        })
     }
 
     <span class="doccomment">/// Returns a [`ConditionalStatement`] AST node if the next tokens represent a conditional statement.</span>

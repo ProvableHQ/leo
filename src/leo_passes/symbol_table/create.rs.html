@@ -68,6 +68,23 @@
 <span id="62">62</span>
 <span id="63">63</span>
 <span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -87,7 +104,7 @@
 <span class="kw">use</span> <span class="ident">leo_ast</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">leo_errors::emitter::Handler</span>;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::SymbolTable</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">SymbolTable</span>, <span class="ident">VariableSymbol</span>, <span class="ident">VariableType</span>};
 
 <span class="doccomment">/// A compiler pass during which the `SymbolTable` is created.</span>
 <span class="doccomment">/// Note that this pass only creates the initial entries for functions and circuits.</span>
@@ -116,10 +133,8 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">StatementVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CreateSymbolTable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ProgramVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CreateSymbolTable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">visit_function</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Function</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">insert_fn</span>(<span class="ident">input</span>.<span class="ident">name</span>(), <span class="ident">input</span>) {
-            <span class="self">self</span>.<span class="ident">handler</span>.<span class="ident">emit_err</span>(<span class="ident">err</span>);
-        }
+    <span class="kw">fn</span> <span class="ident">visit_import</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Program</span>) {
+        <span class="self">self</span>.<span class="ident">visit_program</span>(<span class="ident">input</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">visit_circuit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Circuit</span>) {
@@ -128,8 +143,27 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_import</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Program</span>) {
-        <span class="self">self</span>.<span class="ident">visit_program</span>(<span class="ident">input</span>)
+    <span class="kw">fn</span> <span class="ident">visit_mapping</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Mapping</span>) {
+        <span class="comment">// Add the variable associated with the mapping to the symbol table.</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">insert_variable</span>(
+            <span class="ident">input</span>.<span class="ident">identifier</span>.<span class="ident">name</span>,
+            <span class="ident">VariableSymbol</span> {
+                <span class="ident">type_</span>: <span class="ident">Type::Mapping</span>(<span class="ident">MappingType</span> {
+                    <span class="ident">key</span>: <span class="ident">Box::new</span>(<span class="ident">input</span>.<span class="ident">key_type</span>.<span class="ident">clone</span>()),
+                    <span class="ident">value</span>: <span class="ident">Box::new</span>(<span class="ident">input</span>.<span class="ident">value_type</span>.<span class="ident">clone</span>()),
+                }),
+                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+                <span class="ident">declaration</span>: <span class="ident">VariableType::Mut</span>,
+            },
+        ) {
+            <span class="self">self</span>.<span class="ident">handler</span>.<span class="ident">emit_err</span>(<span class="ident">err</span>);
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">visit_function</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Function</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">insert_fn</span>(<span class="ident">input</span>.<span class="ident">name</span>(), <span class="ident">input</span>) {
+            <span class="self">self</span>.<span class="ident">handler</span>.<span class="ident">emit_err</span>(<span class="ident">err</span>);
+        }
     }
 }
 </code></pre></div>

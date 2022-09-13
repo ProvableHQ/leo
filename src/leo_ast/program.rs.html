@@ -77,6 +77,14 @@
 <span id="71">71</span>
 <span id="72">72</span>
 <span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -96,7 +104,7 @@
 <span class="doccomment">//! A Leo program consists of import, circuit, and function definitions.</span>
 <span class="doccomment">//! Each defined type consists of ast statements and expressions.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Circuit</span>, <span class="ident">Function</span>, <span class="ident">FunctionInput</span>, <span class="ident">Identifier</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Circuit</span>, <span class="ident">Function</span>, <span class="ident">FunctionInput</span>, <span class="ident">Identifier</span>, <span class="ident">Mapping</span>};
 
 <span class="kw">use</span> <span class="ident">indexmap::IndexMap</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -114,10 +122,12 @@
     <span class="kw">pub</span> <span class="ident">expected_input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FunctionInput</span><span class="op">&gt;</span>,
     <span class="doccomment">/// A map from import names to import definitions.</span>
     <span class="kw">pub</span> <span class="ident">imports</span>: <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Identifier</span>, <span class="ident">Program</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// A map from function names to function definitions.</span>
-    <span class="kw">pub</span> <span class="ident">functions</span>: <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Identifier</span>, <span class="ident">Function</span><span class="op">&gt;</span>,
     <span class="doccomment">/// A map from circuit names to circuit definitions.</span>
     <span class="kw">pub</span> <span class="ident">circuits</span>: <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Identifier</span>, <span class="ident">Circuit</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// A map from mapping names to mapping definitions.</span>
+    <span class="kw">pub</span> <span class="ident">mappings</span>: <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Identifier</span>, <span class="ident">Mapping</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// A map from function names to function definitions.</span>
+    <span class="kw">pub</span> <span class="ident">functions</span>: <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Identifier</span>, <span class="ident">Function</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Program</span> {
@@ -125,14 +135,19 @@
         <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">_import</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">imports</span>.<span class="ident">iter</span>() {
             <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;import {}.leo;&quot;</span>, <span class="ident">id</span>)<span class="question-mark">?</span>;
         }
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">function</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">functions</span>.<span class="ident">iter</span>() {
-            <span class="ident">function</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)<span class="question-mark">?</span>;
-            <span class="macro">writeln!</span>(<span class="ident">f</span>,)<span class="question-mark">?</span>;
-        }
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">circuit</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">circuits</span>.<span class="ident">iter</span>() {
             <span class="ident">circuit</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)<span class="question-mark">?</span>;
             <span class="macro">writeln!</span>(<span class="ident">f</span>,)<span class="question-mark">?</span>;
         }
+        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">mapping</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">mappings</span>.<span class="ident">iter</span>() {
+            <span class="ident">mapping</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(<span class="ident">f</span>,)<span class="question-mark">?</span>;
+        }
+        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">function</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">functions</span>.<span class="ident">iter</span>() {
+            <span class="ident">function</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(<span class="ident">f</span>,)<span class="question-mark">?</span>;
+        }
+
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&quot;</span>)
     }
 }
@@ -145,8 +160,9 @@
             <span class="ident">network</span>: <span class="ident">String::new</span>(),
             <span class="ident">expected_input</span>: <span class="macro">vec!</span>[],
             <span class="ident">imports</span>: <span class="ident">IndexMap::new</span>(),
-            <span class="ident">functions</span>: <span class="ident">IndexMap::new</span>(),
             <span class="ident">circuits</span>: <span class="ident">IndexMap::new</span>(),
+            <span class="ident">mappings</span>: <span class="ident">IndexMap::new</span>(),
+            <span class="ident">functions</span>: <span class="ident">IndexMap::new</span>(),
         }
     }
 }

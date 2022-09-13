@@ -245,6 +245,64 @@
 <span id="239">239</span>
 <span id="240">240</span>
 <span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -264,42 +322,200 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">RenameTable</span>, <span class="ident">StaticSingleAssigner</span>};
 
 <span class="kw">use</span> <span class="ident">leo_ast</span>::{
-    <span class="ident">AssignStatement</span>, <span class="ident">BinaryExpression</span>, <span class="ident">BinaryOperation</span>, <span class="ident">Block</span>, <span class="ident">ConditionalStatement</span>, <span class="ident">ConsoleFunction</span>, <span class="ident">ConsoleStatement</span>,
-    <span class="ident">DefinitionStatement</span>, <span class="ident">Expression</span>, <span class="ident">ExpressionConsumer</span>, <span class="ident">Identifier</span>, <span class="ident">IterationStatement</span>, <span class="ident">Node</span>, <span class="ident">ReturnStatement</span>,
-    <span class="ident">Statement</span>, <span class="ident">StatementConsumer</span>, <span class="ident">TernaryExpression</span>, <span class="ident">UnaryExpression</span>, <span class="ident">UnaryOperation</span>,
+    <span class="ident">AssignStatement</span>, <span class="ident">Block</span>, <span class="ident">ConditionalStatement</span>, <span class="ident">ConsoleFunction</span>, <span class="ident">ConsoleStatement</span>, <span class="ident">DecrementStatement</span>,
+    <span class="ident">DefinitionStatement</span>, <span class="ident">Expression</span>, <span class="ident">ExpressionConsumer</span>, <span class="ident">FinalizeStatement</span>, <span class="ident">Identifier</span>, <span class="ident">IncrementStatement</span>,
+    <span class="ident">IterationStatement</span>, <span class="ident">ReturnStatement</span>, <span class="ident">Statement</span>, <span class="ident">StatementConsumer</span>, <span class="ident">TernaryExpression</span>,
 };
 <span class="kw">use</span> <span class="ident">leo_span::Symbol</span>;
 
 <span class="kw">use</span> <span class="ident">indexmap::IndexSet</span>;
 
-<span class="kw">impl</span> <span class="ident">StatementConsumer</span> <span class="kw">for</span> <span class="ident">StaticSingleAssigner</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">StatementConsumer</span> <span class="kw">for</span> <span class="ident">StaticSingleAssigner</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span>;
 
-    <span class="doccomment">/// Transforms a `ReturnStatement` into an empty `BlockStatement`,</span>
-    <span class="doccomment">/// storing the expression and the associated guard in `self.early_returns`.</span>
-    <span class="doccomment">/// Note that type checking guarantees that there is at most one `ReturnStatement` in a block.</span>
-    <span class="kw">fn</span> <span class="ident">consume_return</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ReturnStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="comment">// Construct the associated guard.</span>
-        <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">condition_stack</span>.<span class="ident">is_empty</span>() {
-            <span class="bool-val">true</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="bool-val">false</span> =&gt; {
-                <span class="kw">let</span> (<span class="ident">first</span>, <span class="ident">rest</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">condition_stack</span>.<span class="ident">split_first</span>().<span class="ident">unwrap</span>();
-                <span class="prelude-val">Some</span>(<span class="ident">rest</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>().<span class="ident">fold</span>(<span class="ident">first</span>.<span class="ident">clone</span>(), <span class="op">|</span><span class="ident">acc</span>, <span class="ident">condition</span><span class="op">|</span> {
-                    <span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
-                        <span class="ident">op</span>: <span class="ident">BinaryOperation::And</span>,
-                        <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">acc</span>),
-                        <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="ident">condition</span>),
+    <span class="doccomment">/// Consume all `AssignStatement`s, renaming as necessary.</span>
+    <span class="kw">fn</span> <span class="ident">consume_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">assign</span>: <span class="ident">AssignStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
+        <span class="comment">// First consume the right-hand-side of the assignment.</span>
+        <span class="kw">let</span> (<span class="ident">value</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">assign</span>.<span class="ident">value</span>);
+
+        <span class="comment">// Then assign a new unique name to the left-hand-side of the assignment.</span>
+        <span class="comment">// Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.</span>
+        <span class="self">self</span>.<span class="ident">is_lhs</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="kw">let</span> <span class="ident">place</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">assign</span>.<span class="ident">place</span>).<span class="number">0</span> {
+            <span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>) =&gt; <span class="ident">identifier</span>,
+            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Type checking guarantees that the left-hand-side of an assignment is an identifier.&quot;</span>),
+        };
+        <span class="self">self</span>.<span class="ident">is_lhs</span> <span class="op">=</span> <span class="bool-val">false</span>;
+
+        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">assigner</span>.<span class="ident">simple_assign_statement</span>(<span class="ident">place</span>, <span class="ident">value</span>));
+
+        <span class="ident">statements</span>
+    }
+
+    <span class="doccomment">/// Consumes a `Block`, flattening its constituent `ConditionalStatement`s.</span>
+    <span class="kw">fn</span> <span class="ident">consume_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">block</span>: <span class="ident">Block</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
+        <span class="ident">block</span>
+            .<span class="ident">statements</span>
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">statement</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">consume_statement</span>(<span class="ident">statement</span>))
+            .<span class="ident">collect</span>()
+    }
+
+    <span class="doccomment">/// Consumes a `ConditionalStatement`, producing phi functions (assign statements) for variables written in the then-block and otherwise-block.</span>
+    <span class="doccomment">/// For more information on phi functions, see https://en.wikipedia.org/wiki/Static_single_assignment_form.</span>
+    <span class="doccomment">/// Furthermore a new `AssignStatement` is introduced for non-trivial expressions in the condition of `ConditionalStatement`s.</span>
+    <span class="doccomment">/// For example,</span>
+    <span class="doccomment">///   - `if x &gt; 0 { x = x + 1 }` becomes `let $cond$0 = x &gt; 0; if $cond$0 { x = x + 1; }`</span>
+    <span class="doccomment">///   - `if true { x = x + 1 }` remains the same.</span>
+    <span class="doccomment">///   - `if b { x = x + 1 }` remains the same.</span>
+    <span class="kw">fn</span> <span class="ident">consume_conditional</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">conditional</span>: <span class="ident">ConditionalStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
+        <span class="comment">// Simplify the condition and add it into the rename table.</span>
+        <span class="kw">let</span> (<span class="ident">condition</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">conditional</span>.<span class="ident">condition</span>);
+
+        <span class="comment">// Instantiate a `RenameTable` for the then-block.</span>
+        <span class="self">self</span>.<span class="ident">push</span>();
+
+        <span class="comment">// Consume the then-block.</span>
+        <span class="kw">let</span> <span class="ident">then</span> <span class="op">=</span> <span class="ident">Block</span> {
+            <span class="ident">span</span>: <span class="ident">conditional</span>.<span class="ident">then</span>.<span class="ident">span</span>,
+            <span class="ident">statements</span>: <span class="self">self</span>.<span class="ident">consume_block</span>(<span class="ident">conditional</span>.<span class="ident">then</span>),
+        };
+
+        <span class="comment">// Remove the `RenameTable` for the then-block.</span>
+        <span class="kw">let</span> <span class="ident">if_table</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pop</span>();
+
+        <span class="comment">// Instantiate a `RenameTable` for the otherwise-block.</span>
+        <span class="self">self</span>.<span class="ident">push</span>();
+
+        <span class="comment">// Consume the otherwise-block and flatten its constituent statements into the current block.</span>
+        <span class="kw">let</span> <span class="ident">otherwise</span> <span class="op">=</span> <span class="ident">conditional</span>.<span class="ident">otherwise</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">otherwise</span><span class="op">|</span> <span class="ident">Box::new</span>(<span class="ident">Statement::Block</span>(<span class="kw">match</span> <span class="kw-2">*</span><span class="ident">otherwise</span> {
+            <span class="ident">Statement::Block</span>(<span class="ident">block</span>) =&gt; <span class="ident">Block</span> {
+                <span class="ident">span</span>: <span class="ident">block</span>.<span class="ident">span</span>,
+                <span class="ident">statements</span>: <span class="self">self</span>.<span class="ident">consume_block</span>(<span class="ident">block</span>),
+            },
+            <span class="ident">Statement::Conditional</span>(<span class="ident">conditional</span>) =&gt; <span class="ident">Block</span> {
+                <span class="ident">span</span>: <span class="ident">conditional</span>.<span class="ident">span</span>,
+                <span class="ident">statements</span>: <span class="self">self</span>.<span class="ident">consume_conditional</span>(<span class="ident">conditional</span>),
+            },
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that the otherwise-block of a conditional statement is a block or another conditional statement.&quot;</span>),
+        })));
+
+        <span class="comment">// Remove the `RenameTable` for the otherwise-block.</span>
+        <span class="kw">let</span> <span class="ident">else_table</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pop</span>();
+
+        <span class="comment">// Add reconstructed conditional statement to the list of produced statements.</span>
+        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">Statement::Conditional</span>(<span class="ident">ConditionalStatement</span> {
+            <span class="ident">span</span>: <span class="ident">conditional</span>.<span class="ident">span</span>,
+            <span class="ident">condition</span>: <span class="ident">condition</span>.<span class="ident">clone</span>(),
+            <span class="ident">then</span>,
+            <span class="ident">otherwise</span>,
+        }));
+
+        <span class="comment">// Compute the write set for the variables written in the then-block or otherwise-block.</span>
+        <span class="kw">let</span> <span class="ident">if_write_set</span>: <span class="ident">IndexSet</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Symbol</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">IndexSet::from_iter</span>(<span class="ident">if_table</span>.<span class="ident">local_names</span>());
+        <span class="kw">let</span> <span class="ident">else_write_set</span>: <span class="ident">IndexSet</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Symbol</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">IndexSet::from_iter</span>(<span class="ident">else_table</span>.<span class="ident">local_names</span>());
+        <span class="kw">let</span> <span class="ident">write_set</span> <span class="op">=</span> <span class="ident">if_write_set</span>.<span class="ident">union</span>(<span class="kw-2">&amp;</span><span class="ident">else_write_set</span>);
+
+        <span class="comment">// For each variable in the write set, instantiate and add a phi function to the list of produced statements.</span>
+        <span class="kw">for</span> <span class="ident">symbol</span> <span class="kw">in</span> <span class="ident">write_set</span> {
+            <span class="comment">// Note that phi functions only need to be instantiated if the variable exists before the `ConditionalStatement`.</span>
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">rename_table</span>.<span class="ident">lookup</span>(<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">symbol</span>).<span class="ident">is_some</span>() {
+                <span class="comment">// Helper to lookup a symbol and create an argument for the phi function.</span>
+                <span class="kw">let</span> <span class="ident">create_phi_argument</span> <span class="op">=</span> <span class="op">|</span><span class="ident">table</span>: <span class="kw-2">&amp;</span><span class="ident">RenameTable</span>, <span class="ident">symbol</span>: <span class="ident">Symbol</span><span class="op">|</span> {
+                    <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">table</span>
+                        .<span class="ident">lookup</span>(<span class="ident">symbol</span>)
+                        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;Symbol {} should exist in the program.&quot;</span>, <span class="ident">symbol</span>));
+                    <span class="ident">Box::new</span>(<span class="ident">Expression::Identifier</span>(<span class="ident">Identifier</span> {
+                        <span class="ident">name</span>,
                         <span class="ident">span</span>: <span class="ident">Default::default</span>(),
-                    })
-                }))
+                    }))
+                };
+
+                <span class="comment">// Create a new name for the variable written to in the `ConditionalStatement`.</span>
+                <span class="kw">let</span> <span class="ident">new_name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">assigner</span>.<span class="ident">unique_symbol</span>(<span class="ident">symbol</span>);
+
+                <span class="kw">let</span> (<span class="ident">value</span>, <span class="ident">stmts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_ternary</span>(<span class="ident">TernaryExpression</span> {
+                    <span class="ident">condition</span>: <span class="ident">Box::new</span>(<span class="ident">condition</span>.<span class="ident">clone</span>()),
+                    <span class="ident">if_true</span>: <span class="ident">create_phi_argument</span>(<span class="kw-2">&amp;</span><span class="ident">if_table</span>, <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">symbol</span>),
+                    <span class="ident">if_false</span>: <span class="ident">create_phi_argument</span>(<span class="kw-2">&amp;</span><span class="ident">else_table</span>, <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">symbol</span>),
+                    <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                });
+
+                <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">stmts</span>);
+
+                <span class="comment">// Create a new `AssignStatement` for the phi function.</span>
+                <span class="kw">let</span> <span class="ident">assignment</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">assigner</span>.<span class="ident">simple_assign_statement</span>(
+                    <span class="ident">Identifier</span> {
+                        <span class="ident">name</span>: <span class="ident">new_name</span>,
+                        <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                    },
+                    <span class="ident">value</span>,
+                );
+
+                <span class="comment">// Update the `RenameTable` with the new name of the variable.</span>
+                <span class="self">self</span>.<span class="ident">rename_table</span>.<span class="ident">update</span>(<span class="kw-2">*</span>(<span class="kw-2">*</span><span class="ident">symbol</span>), <span class="ident">new_name</span>);
+
+                <span class="comment">// Store the generated phi function.</span>
+                <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">assignment</span>);
+            }
+        }
+
+        <span class="ident">statements</span>
+    }
+
+    <span class="doccomment">/// Consumes the expressions in a `ConsoleStatement`, returning the list of simplified statements.</span>
+    <span class="kw">fn</span> <span class="ident">consume_console</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ConsoleStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
+        <span class="kw">let</span> (<span class="ident">function</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">function</span> {
+            <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>) =&gt; {
+                <span class="kw">let</span> (<span class="ident">expr</span>, <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">expr</span>);
+                (<span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>), <span class="ident">statements</span>)
+            }
+            <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; {
+                <span class="comment">// Reconstruct the lhs of the binary expression.</span>
+                <span class="kw">let</span> (<span class="ident">left</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">left</span>);
+                <span class="comment">// Reconstruct the rhs of the binary expression.</span>
+                <span class="kw">let</span> (<span class="ident">right</span>, <span class="ident">right_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">right</span>);
+                <span class="comment">// Accumulate any statements produced.</span>
+                <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">right_statements</span>);
+
+                (<span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>), <span class="ident">statements</span>)
+            }
+            <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; {
+                <span class="comment">// Reconstruct the lhs of the binary expression.</span>
+                <span class="kw">let</span> (<span class="ident">left</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">left</span>);
+                <span class="comment">// Reconstruct the rhs of the binary expression.</span>
+                <span class="kw">let</span> (<span class="ident">right</span>, <span class="ident">right_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">right</span>);
+                <span class="comment">// Accumulate any statements produced.</span>
+                <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">right_statements</span>);
+
+                (<span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>), <span class="ident">statements</span>)
             }
         };
 
-        <span class="comment">// Consume the expression and add it to `early_returns`.</span>
-        <span class="kw">let</span> (<span class="ident">expression</span>, <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">input</span>.<span class="ident">expression</span>);
-        <span class="comment">// Note that this is the only place where `self.early_returns` is mutated.</span>
-        <span class="comment">// Furthermore, `expression` will always be an identifier or tuple expression.</span>
-        <span class="self">self</span>.<span class="ident">early_returns</span>.<span class="ident">push</span>((<span class="ident">guard</span>, <span class="ident">expression</span>));
+        <span class="comment">// Add the console statement to the list of produced statements.</span>
+        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">Statement::Console</span>(<span class="ident">ConsoleStatement</span> {
+            <span class="ident">function</span>,
+            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+        }));
+
+        <span class="ident">statements</span>
+    }
+
+    <span class="doccomment">/// Consumes the expressions associated with the `DecrementStatement`, returning the simplified `DecrementStatement`.</span>
+    <span class="kw">fn</span> <span class="ident">consume_decrement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">DecrementStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
+        <span class="comment">// First consume the expression associated with the amount.</span>
+        <span class="kw">let</span> (<span class="ident">amount</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">input</span>.<span class="ident">amount</span>);
+
+        <span class="comment">// Then, consume the expression associated with the index.</span>
+        <span class="kw">let</span> (<span class="ident">index</span>, <span class="ident">index_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">input</span>.<span class="ident">index</span>);
+        <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">index_statements</span>);
+
+        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">Statement::Decrement</span>(<span class="ident">DecrementStatement</span> {
+            <span class="ident">mapping</span>: <span class="ident">input</span>.<span class="ident">mapping</span>,
+            <span class="ident">index</span>,
+            <span class="ident">amount</span>,
+            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+        }));
 
         <span class="ident">statements</span>
     }
@@ -318,118 +534,50 @@
         };
         <span class="self">self</span>.<span class="ident">is_lhs</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
-        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident"><span class="self">Self</span>::simple_assign_statement</span>(<span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>), <span class="ident">value</span>));
+        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">assigner</span>.<span class="ident">simple_assign_statement</span>(<span class="ident">identifier</span>, <span class="ident">value</span>));
 
         <span class="ident">statements</span>
     }
 
-    <span class="doccomment">/// Consume all `AssignStatement`s, renaming as necessary.</span>
-    <span class="kw">fn</span> <span class="ident">consume_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">assign</span>: <span class="ident">AssignStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="comment">// First consume the right-hand-side of the assignment.</span>
-        <span class="kw">let</span> (<span class="ident">value</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">assign</span>.<span class="ident">value</span>);
+    <span class="doccomment">/// Consumes the expressions associated with the `FinalizeStatement`, returning the simplified `FinalizeStatement`.</span>
+    <span class="kw">fn</span> <span class="ident">consume_finalize</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">FinalizeStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statements</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
-        <span class="comment">// Then assign a new unique name to the left-hand-side of the assignment.</span>
-        <span class="comment">// Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.</span>
-        <span class="comment">// TODO: Can lhs have complex expressions?</span>
-        <span class="self">self</span>.<span class="ident">is_lhs</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">let</span> <span class="ident">place</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">assign</span>.<span class="ident">place</span>).<span class="number">0</span>;
-        <span class="self">self</span>.<span class="ident">is_lhs</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="comment">// Process the arguments, accumulating any statements produced.</span>
+        <span class="kw">let</span> <span class="ident">arguments</span> <span class="op">=</span> <span class="ident">input</span>
+            .<span class="ident">arguments</span>
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">argument</span><span class="op">|</span> {
+                <span class="kw">let</span> (<span class="ident">argument</span>, <span class="ident">stmts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">argument</span>);
+                <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">stmts</span>);
+                <span class="ident">argument</span>
+            })
+            .<span class="ident">collect</span>();
 
-        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident"><span class="self">Self</span>::simple_assign_statement</span>(<span class="ident">place</span>, <span class="ident">value</span>));
+        <span class="comment">// Construct and accumulate a simplified finalize statement.</span>
+        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">Statement::Finalize</span>(<span class="ident">FinalizeStatement</span> {
+            <span class="ident">arguments</span>,
+            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+        }));
 
         <span class="ident">statements</span>
     }
 
-    <span class="doccomment">/// Consumes a `ConditionalStatement`, producing phi functions for variables written in the then-block and otherwise-block.</span>
-    <span class="doccomment">/// Furthermore a new `AssignStatement` is introduced for non-trivial expressions in the condition of `ConditionalStatement`s.</span>
-    <span class="doccomment">/// For example,</span>
-    <span class="doccomment">///   - `if x &gt; 0 { x = x + 1 }` becomes `let $cond$0 = x &gt; 0; if $cond$0 { x = x + 1; }`</span>
-    <span class="doccomment">///   - `if true { x = x + 1 }` remains the same.</span>
-    <span class="doccomment">///   - `if b { x = x + 1 }` remains the same.</span>
-    <span class="kw">fn</span> <span class="ident">consume_conditional</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">conditional</span>: <span class="ident">ConditionalStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="comment">// Simplify the condition and add it into the rename table.</span>
-        <span class="kw">let</span> (<span class="ident">condition</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">conditional</span>.<span class="ident">condition</span>);
+    <span class="doccomment">/// Consumes the expressions associated with the `IncrementStatement`, returning a simplified `IncrementStatement`.</span>
+    <span class="kw">fn</span> <span class="ident">consume_increment</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">IncrementStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
+        <span class="comment">// First consume the expression associated with the amount.</span>
+        <span class="kw">let</span> (<span class="ident">amount</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">input</span>.<span class="ident">amount</span>);
 
-        <span class="comment">// Instantiate a `RenameTable` for the then-block.</span>
-        <span class="self">self</span>.<span class="ident">push</span>();
+        <span class="comment">// Then, consume the expression associated with the index.</span>
+        <span class="kw">let</span> (<span class="ident">index</span>, <span class="ident">index_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">input</span>.<span class="ident">index</span>);
+        <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">index_statements</span>);
 
-        <span class="comment">// Add condition to the condition stack.</span>
-        <span class="self">self</span>.<span class="ident">condition_stack</span>.<span class="ident">push</span>(<span class="ident">condition</span>.<span class="ident">clone</span>());
-
-        <span class="comment">// Consume the then-block and flatten its constituent statements into the current block.</span>
-        <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">consume_block</span>(<span class="ident">conditional</span>.<span class="ident">then</span>));
-
-        <span class="comment">// Remove condition from the condition stack.</span>
-        <span class="self">self</span>.<span class="ident">condition_stack</span>.<span class="ident">pop</span>();
-
-        <span class="comment">// Remove the `RenameTable` for the then-block.</span>
-        <span class="kw">let</span> <span class="ident">if_table</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pop</span>();
-
-        <span class="comment">// Instantiate a `RenameTable` for the otherwise-block.</span>
-        <span class="self">self</span>.<span class="ident">push</span>();
-
-        <span class="comment">// Consume the otherwise-block and flatten its constituent statements into the current block.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">statement</span>) <span class="op">=</span> <span class="ident">conditional</span>.<span class="ident">otherwise</span> {
-            <span class="comment">// Add the negated condition to the condition stack.</span>
-            <span class="self">self</span>.<span class="ident">condition_stack</span>.<span class="ident">push</span>(<span class="ident">Expression::Unary</span>(<span class="ident">UnaryExpression</span> {
-                <span class="ident">op</span>: <span class="ident">UnaryOperation::Not</span>,
-                <span class="ident">receiver</span>: <span class="ident">Box::new</span>(<span class="ident">condition</span>.<span class="ident">clone</span>()),
-                <span class="ident">span</span>: <span class="ident">condition</span>.<span class="ident">span</span>(),
-            }));
-
-            <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">consume_statement</span>(<span class="kw-2">*</span><span class="ident">statement</span>));
-
-            <span class="comment">// Remove the negated condition from the condition stack.</span>
-            <span class="self">self</span>.<span class="ident">condition_stack</span>.<span class="ident">pop</span>();
-        };
-
-        <span class="comment">// Remove the `RenameTable` for the otherwise-block.</span>
-        <span class="kw">let</span> <span class="ident">else_table</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pop</span>();
-
-        <span class="comment">// Compute the write set for the variables written in the then-block or otherwise-block.</span>
-        <span class="kw">let</span> <span class="ident">if_write_set</span>: <span class="ident">IndexSet</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Symbol</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">IndexSet::from_iter</span>(<span class="ident">if_table</span>.<span class="ident">local_names</span>());
-        <span class="kw">let</span> <span class="ident">else_write_set</span>: <span class="ident">IndexSet</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Symbol</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">IndexSet::from_iter</span>(<span class="ident">else_table</span>.<span class="ident">local_names</span>());
-        <span class="kw">let</span> <span class="ident">write_set</span> <span class="op">=</span> <span class="ident">if_write_set</span>.<span class="ident">union</span>(<span class="kw-2">&amp;</span><span class="ident">else_write_set</span>);
-
-        <span class="comment">// For each variable in the write set, instantiate a phi function.</span>
-        <span class="kw">for</span> <span class="ident">symbol</span> <span class="kw">in</span> <span class="ident">write_set</span> {
-            <span class="comment">// Note that phi functions only need to be instantiated if the variable exists before the `ConditionalStatement`.</span>
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">rename_table</span>.<span class="ident">lookup</span>(<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">symbol</span>).<span class="ident">is_some</span>() {
-                <span class="comment">// Helper to lookup a symbol and create an argument for the phi function.</span>
-                <span class="kw">let</span> <span class="ident">create_phi_argument</span> <span class="op">=</span> <span class="op">|</span><span class="ident">table</span>: <span class="kw-2">&amp;</span><span class="ident">RenameTable</span>, <span class="ident">symbol</span>: <span class="ident">Symbol</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">table</span>
-                        .<span class="ident">lookup</span>(<span class="ident">symbol</span>)
-                        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;Symbol {} should exist in the program.&quot;</span>, <span class="ident">symbol</span>));
-                    <span class="ident">Box::new</span>(<span class="ident">Expression::Identifier</span>(<span class="ident">Identifier</span> {
-                        <span class="ident">name</span>,
-                        <span class="ident">span</span>: <span class="ident">Default::default</span>(),
-                    }))
-                };
-
-                <span class="comment">// Create a new name for the variable written to in the `ConditionalStatement`.</span>
-                <span class="kw">let</span> <span class="ident">new_name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">unique_symbol</span>(<span class="ident">symbol</span>);
-
-                <span class="comment">// Create a new `AssignStatement` for the phi function.</span>
-                <span class="kw">let</span> <span class="ident">assignment</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::simple_assign_statement</span>(
-                    <span class="ident">Expression::Identifier</span>(<span class="ident">Identifier</span> {
-                        <span class="ident">name</span>: <span class="ident">new_name</span>,
-                        <span class="ident">span</span>: <span class="ident">Default::default</span>(),
-                    }),
-                    <span class="ident">Expression::Ternary</span>(<span class="ident">TernaryExpression</span> {
-                        <span class="ident">condition</span>: <span class="ident">Box::new</span>(<span class="ident">condition</span>.<span class="ident">clone</span>()),
-                        <span class="ident">if_true</span>: <span class="ident">create_phi_argument</span>(<span class="kw-2">&amp;</span><span class="ident">if_table</span>, <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">symbol</span>),
-                        <span class="ident">if_false</span>: <span class="ident">create_phi_argument</span>(<span class="kw-2">&amp;</span><span class="ident">else_table</span>, <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">symbol</span>),
-                        <span class="ident">span</span>: <span class="ident">Default::default</span>(),
-                    }),
-                );
-
-                <span class="comment">// Update the `RenameTable` with the new name of the variable.</span>
-                <span class="self">self</span>.<span class="ident">rename_table</span>.<span class="ident">update</span>(<span class="kw-2">*</span>(<span class="kw-2">*</span><span class="ident">symbol</span>), <span class="ident">new_name</span>);
-
-                <span class="comment">// Store the generated phi function.</span>
-                <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">assignment</span>);
-            }
-        }
+        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">Statement::Increment</span>(<span class="ident">IncrementStatement</span> {
+            <span class="ident">mapping</span>: <span class="ident">input</span>.<span class="ident">mapping</span>,
+            <span class="ident">index</span>,
+            <span class="ident">amount</span>,
+            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+        }));
 
         <span class="ident">statements</span>
     }
@@ -439,51 +587,19 @@
         <span class="macro">unreachable!</span>(<span class="string">&quot;`IterationStatement`s should not be in the AST at this phase of compilation.&quot;</span>);
     }
 
-    <span class="comment">// TODO: Where do we handle console statements.</span>
-    <span class="kw">fn</span> <span class="ident">consume_console</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ConsoleStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">let</span> (<span class="ident">function</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">function</span> {
-            <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>) =&gt; {
-                <span class="kw">let</span> (<span class="ident">expr</span>, <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">expr</span>);
-                (<span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>), <span class="ident">statements</span>)
-            }
-            <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; {
-                <span class="comment">// Reconstruct the lhs of the binary expression.</span>
-                <span class="kw">let</span> (<span class="ident">left</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">left</span>);
-                <span class="comment">// Reconstruct the rhs of the binary expression.</span>
-                <span class="kw">let</span> (<span class="ident">right</span>, <span class="kw-2">mut</span> <span class="ident">right_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">right</span>);
-                <span class="comment">// Accumulate any statements produced.</span>
-                <span class="ident">statements</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">right_statements</span>);
+    <span class="doccomment">/// Reconstructs the expression associated with the return statement, returning a simplified `ReturnStatement`.</span>
+    <span class="doccomment">/// Note that type checking guarantees that there is at most one `ReturnStatement` in a block.</span>
+    <span class="kw">fn</span> <span class="ident">consume_return</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ReturnStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
+        <span class="comment">// Consume the return expression.</span>
+        <span class="kw">let</span> (<span class="ident">expression</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">input</span>.<span class="ident">expression</span>);
 
-                (<span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>), <span class="ident">statements</span>)
-            }
-            <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; {
-                <span class="comment">// Reconstruct the lhs of the binary expression.</span>
-                <span class="kw">let</span> (<span class="ident">left</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">left</span>);
-                <span class="comment">// Reconstruct the rhs of the binary expression.</span>
-                <span class="kw">let</span> (<span class="ident">right</span>, <span class="kw-2">mut</span> <span class="ident">right_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">right</span>);
-                <span class="comment">// Accumulate any statements produced.</span>
-                <span class="ident">statements</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">right_statements</span>);
-
-                (<span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>), <span class="ident">statements</span>)
-            }
-        };
-
-        <span class="comment">// Add the console statement to the list of produced statements.</span>
-        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">Statement::Console</span>(<span class="ident">ConsoleStatement</span> {
-            <span class="ident">function</span>,
+        <span class="comment">// Add the simplified return statement to the list of produced statements.</span>
+        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">Statement::Return</span>(<span class="ident">ReturnStatement</span> {
+            <span class="ident">expression</span>,
             <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
         }));
 
         <span class="ident">statements</span>
-    }
-
-    <span class="doccomment">/// Consumes a `Block`, flattening its constituent `ConditionalStatement`s.</span>
-    <span class="kw">fn</span> <span class="ident">consume_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">block</span>: <span class="ident">Block</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="ident">block</span>
-            .<span class="ident">statements</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">statement</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">consume_statement</span>(<span class="ident">statement</span>))
-            .<span class="ident">collect</span>()
     }
 }
 </code></pre></div>

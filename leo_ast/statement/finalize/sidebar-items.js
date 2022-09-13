@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["FinalizeStatement","A return statement `finalize(arg1, ..., argN);`."]]};

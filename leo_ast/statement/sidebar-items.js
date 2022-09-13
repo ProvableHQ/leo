@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["Statement","Program statement that defines some action (or expression) to be carried out."]],"mod":[["assign",""],["block",""],["conditional",""],["console",""],["decrement",""],["definition",""],["finalize",""],["increment",""],["iteration",""],["return_",""]]};

@@ -195,6 +195,9 @@
 <span id="189">189</span>
 <span id="190">190</span>
 <span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -285,6 +288,7 @@
     else
     false
     field
+    finalize
     for
     function
     group
@@ -300,6 +304,7 @@
     mut
     return
     scalar
+    self
     string
     test
     true
@@ -320,6 +325,7 @@
     ,
     -
     -&gt;
+    =&gt;
     _
     .
     ..
@@ -351,7 +357,7 @@
 
             <span class="macro">assert_eq!</span>(
                 <span class="ident">output</span>,
-                <span class="string">r#&quot;&quot;test&quot; &quot;test{}test&quot; &quot;test{}&quot; &quot;{}test&quot; &quot;test{&quot; &quot;test}&quot; &quot;test{test&quot; &quot;test}test&quot; &quot;te{{}}&quot; test_ident 12345 address bool const else false field for function group i128 i64 i32 i16 i8 if in input let mut return scalar string test true u128 u64 u32 u16 u8 console ! != &amp;&amp; ( ) * ** + , - -&gt; _ . .. / : ; &lt; &lt;= = == &gt; &gt;= [ ] { { } } || ? @ // test
+                <span class="string">r#&quot;&quot;test&quot; &quot;test{}test&quot; &quot;test{}&quot; &quot;{}test&quot; &quot;test{&quot; &quot;test}&quot; &quot;test{test&quot; &quot;test}test&quot; &quot;te{{}}&quot; test_ident 12345 address bool const else false field finalize for function group i128 i64 i32 i16 i8 if in input let mut return scalar self string test true u128 u64 u32 u16 u8 console ! != &amp;&amp; ( ) * ** + , - -&gt; =&gt; _ . .. / : ; &lt; &lt;= = == &gt; &gt;= [ ] { { } } || ? @ // test
  /* test */ // &quot;#</span>
             );
         });

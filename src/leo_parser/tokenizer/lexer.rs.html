@@ -473,6 +473,11 @@
 <span id="467">467</span>
 <span id="468">468</span>
 <span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -841,7 +846,7 @@
                     <span class="ident">Token::ShrAssign</span>,
                 )
             }
-            <span class="string">&#39;=&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">match_two</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::Assign</span>, <span class="string">&#39;=&#39;</span>, <span class="ident">Token::Eq</span>),
+            <span class="string">&#39;=&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">match_three</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::Assign</span>, <span class="string">&#39;=&#39;</span>, <span class="ident">Token::Eq</span>, <span class="string">&#39;&gt;&#39;</span>, <span class="ident">Token::BigArrow</span>),
             <span class="string">&#39;[&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">match_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::LeftSquare</span>),
             <span class="string">&#39;]&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">match_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::RightSquare</span>),
             <span class="string">&#39;{&#39;</span> =&gt; <span class="kw">return</span> <span class="ident">match_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>, <span class="ident">Token::LeftCurly</span>),
@@ -874,9 +879,11 @@
                     <span class="string">&quot;console&quot;</span> =&gt; <span class="ident">Token::Console</span>,
                     <span class="string">&quot;const&quot;</span> =&gt; <span class="ident">Token::Const</span>,
                     <span class="string">&quot;constant&quot;</span> =&gt; <span class="ident">Token::Constant</span>,
+                    <span class="string">&quot;decrement&quot;</span> =&gt; <span class="ident">Token::Decrement</span>,
                     <span class="string">&quot;else&quot;</span> =&gt; <span class="ident">Token::Else</span>,
                     <span class="string">&quot;false&quot;</span> =&gt; <span class="ident">Token::False</span>,
                     <span class="string">&quot;field&quot;</span> =&gt; <span class="ident">Token::Field</span>,
+                    <span class="string">&quot;finalize&quot;</span> =&gt; <span class="ident">Token::Finalize</span>,
                     <span class="string">&quot;for&quot;</span> =&gt; <span class="ident">Token::For</span>,
                     <span class="string">&quot;function&quot;</span> =&gt; <span class="ident">Token::Function</span>,
                     <span class="string">&quot;group&quot;</span> =&gt; <span class="ident">Token::Group</span>,
@@ -887,12 +894,15 @@
                     <span class="string">&quot;i128&quot;</span> =&gt; <span class="ident">Token::I128</span>,
                     <span class="string">&quot;if&quot;</span> =&gt; <span class="ident">Token::If</span>,
                     <span class="string">&quot;in&quot;</span> =&gt; <span class="ident">Token::In</span>,
+                    <span class="string">&quot;increment&quot;</span> =&gt; <span class="ident">Token::Increment</span>,
                     <span class="string">&quot;import&quot;</span> =&gt; <span class="ident">Token::Import</span>,
                     <span class="string">&quot;let&quot;</span> =&gt; <span class="ident">Token::Let</span>,
+                    <span class="string">&quot;mapping&quot;</span> =&gt; <span class="ident">Token::Mapping</span>,
                     <span class="string">&quot;public&quot;</span> =&gt; <span class="ident">Token::Public</span>,
                     <span class="string">&quot;record&quot;</span> =&gt; <span class="ident">Token::Record</span>,
                     <span class="string">&quot;return&quot;</span> =&gt; <span class="ident">Token::Return</span>,
                     <span class="string">&quot;scalar&quot;</span> =&gt; <span class="ident">Token::Scalar</span>,
+                    <span class="string">&quot;self&quot;</span> =&gt; <span class="ident">Token::SelfLower</span>,
                     <span class="string">&quot;string&quot;</span> =&gt; <span class="ident">Token::String</span>,
                     <span class="string">&quot;true&quot;</span> =&gt; <span class="ident">Token::True</span>,
                     <span class="string">&quot;u8&quot;</span> =&gt; <span class="ident">Token::U8</span>,

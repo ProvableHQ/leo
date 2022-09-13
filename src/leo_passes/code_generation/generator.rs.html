@@ -56,6 +56,10 @@
 <span id="50">50</span>
 <span id="51">51</span>
 <span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -93,11 +97,14 @@
     <span class="doccomment">/// Are we traversing a program function?</span>
     <span class="doccomment">/// A &quot;program function&quot; is a function that can be invoked by a user or another program.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">is_program_function</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Are we traversing a finalize block?</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">in_finalize</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CodeGenerator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Initializes a new `CodeGenerator`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">handler</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Handler</span>) -&gt; <span class="self">Self</span> {
+        <span class="comment">// Initialize variable mapping.</span>
         <span class="self">Self</span> {
             <span class="ident">_handler</span>: <span class="ident">handler</span>,
             <span class="ident">next_register</span>: <span class="number">0</span>,
@@ -105,6 +112,7 @@
             <span class="ident">variable_mapping</span>: <span class="ident">IndexMap::new</span>(),
             <span class="ident">composite_mapping</span>: <span class="ident">IndexMap::new</span>(),
             <span class="ident">is_program_function</span>: <span class="bool-val">false</span>,
+            <span class="ident">in_finalize</span>: <span class="bool-val">false</span>,
         }
     }
 }

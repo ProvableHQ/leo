@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["Mapping","A mapping declaration, e.g `mapping balances: address => u128`."]]};

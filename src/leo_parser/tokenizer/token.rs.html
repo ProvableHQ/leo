@@ -346,6 +346,24 @@
 <span id="340">340</span>
 <span id="341">341</span>
 <span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -425,6 +443,7 @@
     <span class="ident">DoubleColon</span>,
     <span class="ident">Question</span>,
     <span class="ident">Arrow</span>,
+    <span class="ident">BigArrow</span>,
     <span class="ident">Shl</span>,
     <span class="ident">ShlAssign</span>,
     <span class="ident">Shr</span>,
@@ -461,13 +480,17 @@
     <span class="ident">Const</span>,
     <span class="comment">// Constant parameter</span>
     <span class="ident">Constant</span>,
+    <span class="ident">Decrement</span>,
     <span class="ident">Else</span>,
+    <span class="ident">Finalize</span>,
     <span class="ident">For</span>,
     <span class="ident">Function</span>,
     <span class="ident">If</span>,
     <span class="ident">Import</span>,
     <span class="ident">In</span>,
+    <span class="ident">Increment</span>,
     <span class="ident">Let</span>,
+    <span class="ident">Mapping</span>,
     <span class="comment">// For public inputs.</span>
     <span class="ident">Public</span>,
     <span class="ident">Return</span>,
@@ -489,9 +512,11 @@
     <span class="ident">Token::Console</span>,
     <span class="ident">Token::Const</span>,
     <span class="ident">Token::Constant</span>,
+    <span class="ident">Token::Decrement</span>,
     <span class="ident">Token::Else</span>,
     <span class="ident">Token::False</span>,
     <span class="ident">Token::Field</span>,
+    <span class="ident">Token::Finalize</span>,
     <span class="ident">Token::For</span>,
     <span class="ident">Token::Function</span>,
     <span class="ident">Token::Group</span>,
@@ -503,7 +528,9 @@
     <span class="ident">Token::If</span>,
     <span class="ident">Token::Import</span>,
     <span class="ident">Token::In</span>,
+    <span class="ident">Token::Increment</span>,
     <span class="ident">Token::Let</span>,
+    <span class="ident">Token::Mapping</span>,
     <span class="ident">Token::Public</span>,
     <span class="ident">Token::Record</span>,
     <span class="ident">Token::Return</span>,
@@ -534,9 +561,11 @@
             <span class="ident">Token::Console</span> =&gt; <span class="ident">sym::console</span>,
             <span class="ident">Token::Const</span> =&gt; <span class="ident">sym::Const</span>,
             <span class="ident">Token::Constant</span> =&gt; <span class="ident">sym::Constant</span>,
+            <span class="ident">Token::Decrement</span> =&gt; <span class="ident">sym::decrement</span>,
             <span class="ident">Token::Else</span> =&gt; <span class="ident">sym::Else</span>,
             <span class="ident">Token::False</span> =&gt; <span class="ident">sym::False</span>,
             <span class="ident">Token::Field</span> =&gt; <span class="ident">sym::field</span>,
+            <span class="ident">Token::Finalize</span> =&gt; <span class="ident">sym::finalize</span>,
             <span class="ident">Token::For</span> =&gt; <span class="ident">sym::For</span>,
             <span class="ident">Token::Function</span> =&gt; <span class="ident">sym::function</span>,
             <span class="ident">Token::Group</span> =&gt; <span class="ident">sym::group</span>,
@@ -547,8 +576,10 @@
             <span class="ident">Token::I128</span> =&gt; <span class="ident">sym::i128</span>,
             <span class="ident">Token::If</span> =&gt; <span class="ident">sym::If</span>,
             <span class="ident">Token::In</span> =&gt; <span class="ident">sym::In</span>,
+            <span class="ident">Token::Increment</span> =&gt; <span class="ident">sym::increment</span>,
             <span class="ident">Token::Import</span> =&gt; <span class="ident">sym::import</span>,
             <span class="ident">Token::Let</span> =&gt; <span class="ident">sym::Let</span>,
+            <span class="ident">Token::Mapping</span> =&gt; <span class="ident">sym::mapping</span>,
             <span class="ident">Token::Public</span> =&gt; <span class="ident">sym::Public</span>,
             <span class="ident">Token::Record</span> =&gt; <span class="ident">sym::record</span>,
             <span class="ident">Token::Return</span> =&gt; <span class="ident">sym::Return</span>,
@@ -623,6 +654,7 @@
             <span class="ident">DoubleColon</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;::&quot;</span>),
             <span class="ident">Question</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;?&quot;</span>),
             <span class="ident">Arrow</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;-&gt;&quot;</span>),
+            <span class="ident">BigArrow</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;=&gt;&quot;</span>),
             <span class="ident">Shl</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;&lt;&quot;</span>),
             <span class="ident">ShlAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;&lt;=&quot;</span>),
             <span class="ident">Shr</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&gt;&gt;&quot;</span>),
@@ -654,13 +686,17 @@
             <span class="ident">Console</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;console&quot;</span>),
             <span class="ident">Const</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;const&quot;</span>),
             <span class="ident">Constant</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;constant&quot;</span>),
+            <span class="ident">Decrement</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;decrement&quot;</span>),
             <span class="ident">Else</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;else&quot;</span>),
+            <span class="ident">Finalize</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;finalize&quot;</span>),
             <span class="ident">For</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;for&quot;</span>),
             <span class="ident">Function</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;function&quot;</span>),
             <span class="ident">If</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;if&quot;</span>),
             <span class="ident">Import</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;import&quot;</span>),
             <span class="ident">In</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;in&quot;</span>),
+            <span class="ident">Increment</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;increment&quot;</span>),
             <span class="ident">Let</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;let&quot;</span>),
+            <span class="ident">Mapping</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;mapping&quot;</span>),
             <span class="ident">SelfLower</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;self&quot;</span>),
             <span class="ident">Public</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;public&quot;</span>),
             <span class="ident">Return</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;return&quot;</span>),

@@ -123,7 +123,28 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">VariableSymbol</span>, <span class="ident">VariableType</span>};
 
 <span class="kw">impl</span> <span class="ident">StatementReconstructor</span> <span class="kw">for</span> <span class="ident">Unroller</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">reconstruct_definition</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">DefinitionStatement</span>) -&gt; <span class="ident">Statement</span> {
+    <span class="kw">fn</span> <span class="ident">reconstruct_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Block</span>) -&gt; (<span class="ident">Block</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+        <span class="kw">let</span> <span class="ident">scope_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_scope_index</span>();
+
+        <span class="comment">// Enter the block scope.</span>
+        <span class="kw">let</span> <span class="ident">previous_scope_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">enter_scope</span>(<span class="ident">scope_index</span>);
+
+        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">Block</span> {
+            <span class="ident">statements</span>: <span class="ident">input</span>
+                .<span class="ident">statements</span>
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">reconstruct_statement</span>(<span class="ident">s</span>).<span class="number">0</span>)
+                .<span class="ident">collect</span>(),
+            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+        };
+
+        <span class="comment">// Exit the block scope.</span>
+        <span class="self">self</span>.<span class="ident">exit_scope</span>(<span class="ident">previous_scope_index</span>);
+
+        (<span class="ident">block</span>, <span class="ident">Default::default</span>())
+    }
+
+    <span class="kw">fn</span> <span class="ident">reconstruct_definition</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">DefinitionStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
         <span class="comment">// If we are unrolling a loop, then we need to repopulate the symbol table.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_unrolling</span> {
             <span class="kw">let</span> <span class="ident">declaration</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">declaration_type</span> <span class="op">==</span> <span class="ident">DeclarationType::Const</span> {
@@ -143,10 +164,10 @@
                 <span class="self">self</span>.<span class="ident">handler</span>.<span class="ident">emit_err</span>(<span class="ident">err</span>);
             }
         }
-        <span class="ident">Statement::Definition</span>(<span class="ident">input</span>)
+        (<span class="ident">Statement::Definition</span>(<span class="ident">input</span>), <span class="ident">Default::default</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_iteration</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">IterationStatement</span>) -&gt; <span class="ident">Statement</span> {
+    <span class="kw">fn</span> <span class="ident">reconstruct_iteration</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">IterationStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
         <span class="comment">// We match on start and stop cause loops require</span>
         <span class="comment">// bounds to be constants.</span>
         <span class="kw">match</span> (
@@ -158,44 +179,23 @@
                 <span class="op">|</span> (<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I16</span>), <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I16</span>))
                 <span class="op">|</span> (<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I32</span>), <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I32</span>))
                 <span class="op">|</span> (<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I64</span>), <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I64</span>))
-                <span class="op">|</span> (<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I128</span>), <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I128</span>)) =&gt; {
-                    <span class="self">self</span>.<span class="ident">unroll_iteration_statement</span>::<span class="op">&lt;</span><span class="ident">i128</span><span class="op">&gt;</span>(<span class="ident">input</span>, <span class="ident">start</span>, <span class="ident">stop</span>)
-                }
+                <span class="op">|</span> (<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I128</span>), <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I128</span>)) =&gt; (
+                    <span class="self">self</span>.<span class="ident">unroll_iteration_statement</span>::<span class="op">&lt;</span><span class="ident">i128</span><span class="op">&gt;</span>(<span class="ident">input</span>, <span class="ident">start</span>, <span class="ident">stop</span>),
+                    <span class="ident">Default::default</span>(),
+                ),
                 (<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U8</span>), <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U8</span>))
                 <span class="op">|</span> (<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U16</span>), <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U16</span>))
                 <span class="op">|</span> (<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U32</span>), <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U32</span>))
                 <span class="op">|</span> (<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U64</span>), <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U64</span>))
-                <span class="op">|</span> (<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U128</span>), <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U128</span>)) =&gt; {
-                    <span class="self">self</span>.<span class="ident">unroll_iteration_statement</span>::<span class="op">&lt;</span><span class="ident">u128</span><span class="op">&gt;</span>(<span class="ident">input</span>, <span class="ident">start</span>, <span class="ident">stop</span>)
-                }
+                <span class="op">|</span> (<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U128</span>), <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U128</span>)) =&gt; (
+                    <span class="self">self</span>.<span class="ident">unroll_iteration_statement</span>::<span class="op">&lt;</span><span class="ident">u128</span><span class="op">&gt;</span>(<span class="ident">input</span>, <span class="ident">start</span>, <span class="ident">stop</span>),
+                    <span class="ident">Default::default</span>(),
+                ),
                 <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking ensures that `start` and `stop` have the same type.&quot;</span>),
             },
             <span class="comment">// If both loop bounds are not constant, then the loop is not unrolled.</span>
-            <span class="kw">_</span> =&gt; <span class="ident">Statement::Iteration</span>(<span class="ident">Box::from</span>(<span class="ident">input</span>)),
+            <span class="kw">_</span> =&gt; (<span class="ident">Statement::Iteration</span>(<span class="ident">Box::from</span>(<span class="ident">input</span>)), <span class="ident">Default::default</span>()),
         }
-    }
-
-    <span class="kw">fn</span> <span class="ident">reconstruct_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Block</span>) -&gt; <span class="ident">Block</span> {
-        <span class="kw">let</span> <span class="ident">scope_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_scope_index</span>();
-
-        <span class="comment">// Enter the block scope.</span>
-        <span class="self">self</span>.<span class="ident">enter_block_scope</span>(<span class="ident">scope_index</span>);
-        <span class="self">self</span>.<span class="ident">block_index</span> <span class="op">=</span> <span class="number">0</span>;
-
-        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">Block</span> {
-            <span class="ident">statements</span>: <span class="ident">input</span>
-                .<span class="ident">statements</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">reconstruct_statement</span>(<span class="ident">s</span>))
-                .<span class="ident">collect</span>(),
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
-        };
-
-        <span class="comment">// Exit the block scope.</span>
-        <span class="self">self</span>.<span class="ident">exit_block_scope</span>(<span class="ident">scope_index</span>);
-        <span class="self">self</span>.<span class="ident">block_index</span> <span class="op">=</span> <span class="ident">scope_index</span> <span class="op">+</span> <span class="number">1</span>;
-
-        <span class="ident">block</span>
     }
 }
 </code></pre></div>

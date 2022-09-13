@@ -277,6 +277,17 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -297,11 +308,12 @@
 
 <span class="kw">use</span> <span class="ident">leo_ast</span>::{
     <span class="ident">AccessExpression</span>, <span class="ident">AssociatedFunction</span>, <span class="ident">BinaryExpression</span>, <span class="ident">CallExpression</span>, <span class="ident">CircuitExpression</span>,
-    <span class="ident">CircuitVariableInitializer</span>, <span class="ident">ErrExpression</span>, <span class="ident">Expression</span>, <span class="ident">ExpressionConsumer</span>, <span class="ident">Identifier</span>, <span class="ident">Literal</span>, <span class="ident">MemberAccess</span>,
-    <span class="ident">Statement</span>, <span class="ident">TernaryExpression</span>, <span class="ident">TupleAccess</span>, <span class="ident">TupleExpression</span>, <span class="ident">UnaryExpression</span>,
+    <span class="ident">CircuitVariableInitializer</span>, <span class="ident">Expression</span>, <span class="ident">ExpressionConsumer</span>, <span class="ident">Identifier</span>, <span class="ident">Literal</span>, <span class="ident">MemberAccess</span>, <span class="ident">Statement</span>,
+    <span class="ident">TernaryExpression</span>, <span class="ident">TupleAccess</span>, <span class="ident">TupleExpression</span>, <span class="ident">UnaryExpression</span>,
 };
+<span class="kw">use</span> <span class="ident">leo_span::sym</span>;
 
-<span class="kw">impl</span> <span class="ident">ExpressionConsumer</span> <span class="kw">for</span> <span class="ident">StaticSingleAssigner</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">ExpressionConsumer</span> <span class="kw">for</span> <span class="ident">StaticSingleAssigner</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> (<span class="ident">Expression</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span>);
 
     <span class="doccomment">/// Consumes an access expression, accumulating any statements that are generated.</span>
@@ -328,6 +340,14 @@
                 )
             }
             <span class="ident">AccessExpression::Member</span>(<span class="ident">member</span>) =&gt; {
+                <span class="comment">// TODO: Create AST node for native access expressions?</span>
+                <span class="comment">// If the access expression is of the form `self.&lt;name&gt;`, then don&#39;t rename it.</span>
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Expression::Identifier</span>(<span class="ident">Identifier</span> { <span class="ident">name</span>, .. }) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">member</span>.<span class="ident">inner</span> {
+                    <span class="kw">if</span> <span class="ident">name</span> <span class="op">==</span> <span class="ident">sym::SelfLower</span> {
+                        <span class="kw">return</span> (<span class="ident">Expression::Access</span>(<span class="ident">AccessExpression::Member</span>(<span class="ident">member</span>)), <span class="ident">Vec::new</span>());
+                    }
+                }
+
                 <span class="kw">let</span> (<span class="ident">expr</span>, <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="kw-2">*</span><span class="ident">member</span>.<span class="ident">inner</span>);
                 (
                     <span class="ident">AccessExpression::Member</span>(<span class="ident">MemberAccess</span> {
@@ -351,7 +371,7 @@
             }
             <span class="ident">expr</span> =&gt; (<span class="ident">expr</span>, <span class="ident">Vec::new</span>()),
         };
-        <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Access</span>(<span class="ident">expr</span>));
+        <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">assigner</span>.<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Access</span>(<span class="ident">expr</span>));
         <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
 
         (<span class="ident">place</span>, <span class="ident">statements</span>)
@@ -367,12 +387,14 @@
         <span class="ident">statements</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">right_statements</span>);
 
         <span class="comment">// Construct and accumulate a unique assignment statement storing the result of the binary expression.</span>
-        <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
-            <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">left_expression</span>),
-            <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="ident">right_expression</span>),
-            <span class="ident">op</span>: <span class="ident">input</span>.<span class="ident">op</span>,
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
-        }));
+        <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">assigner</span>
+            .<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
+                <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">left_expression</span>),
+                <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="ident">right_expression</span>),
+                <span class="ident">op</span>: <span class="ident">input</span>.<span class="ident">op</span>,
+                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            }));
         <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
 
         (<span class="ident">place</span>, <span class="ident">statements</span>)
@@ -394,13 +416,15 @@
             .<span class="ident">collect</span>();
 
         <span class="comment">// Construct and accumulate a new assignment statement for the call expression.</span>
-        <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Call</span>(<span class="ident">CallExpression</span> {
-            <span class="comment">// Note that we do not rename the function name.</span>
-            <span class="ident">function</span>: <span class="ident">input</span>.<span class="ident">function</span>,
-            <span class="comment">// Consume the arguments.</span>
-            <span class="ident">arguments</span>,
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
-        }));
+        <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">assigner</span>
+            .<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Call</span>(<span class="ident">CallExpression</span> {
+                <span class="comment">// Note that we do not rename the function name.</span>
+                <span class="ident">function</span>: <span class="ident">input</span>.<span class="ident">function</span>,
+                <span class="comment">// Consume the arguments.</span>
+                <span class="ident">arguments</span>,
+                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            }));
         <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
 
         (<span class="ident">place</span>, <span class="ident">statements</span>)
@@ -434,21 +458,17 @@
             })
             .<span class="ident">collect</span>();
 
-        <span class="comment">// Note that we do not construct a new assignment statement for the tuple expression.</span>
-        <span class="comment">// Expressions that produce compound data types need to be handled separately.</span>
-        (
-            <span class="ident">Expression::Circuit</span>(<span class="ident">CircuitExpression</span> {
+        <span class="comment">// Construct and accumulate a new assignment statement for the circuit expression.</span>
+        <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">assigner</span>
+            .<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Circuit</span>(<span class="ident">CircuitExpression</span> {
                 <span class="ident">name</span>: <span class="ident">input</span>.<span class="ident">name</span>,
                 <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
                 <span class="ident">members</span>,
-            }),
-            <span class="ident">statements</span>,
-        )
-    }
+            }));
+        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
 
-    <span class="doccomment">/// `ErrExpressions` should not exist and thus do not need to be handled.</span>
-    <span class="kw">fn</span> <span class="ident">consume_err</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="ident">ErrExpression</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;`ErrExpression`s should not be in the AST at this phase of compilation.&quot;</span>)
+        (<span class="ident">place</span>, <span class="ident">statements</span>)
     }
 
     <span class="doccomment">/// Produces a new `Identifier` with a unique name.</span>
@@ -456,17 +476,15 @@
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">is_lhs</span> {
             <span class="comment">// If consuming the left-hand side of a definition or assignment, a new unique name is introduced.</span>
             <span class="bool-val">true</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">new_name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">unique_symbol</span>(<span class="ident">identifier</span>.<span class="ident">name</span>);
+                <span class="kw">let</span> <span class="ident">new_name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">assigner</span>.<span class="ident">unique_symbol</span>(<span class="ident">identifier</span>.<span class="ident">name</span>);
                 <span class="self">self</span>.<span class="ident">rename_table</span>.<span class="ident">update</span>(<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">new_name</span>);
                 <span class="ident">new_name</span>
             }
             <span class="comment">// Otherwise, we look up the previous name in the `RenameTable`.</span>
-            <span class="bool-val">false</span> =&gt; <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">rename_table</span>.<span class="ident">lookup</span>(<span class="ident">identifier</span>.<span class="ident">name</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="macro">panic!</span>(
-                    <span class="string">&quot;SSA Error: An entry in the `RenameTable` for {} should exist.&quot;</span>,
-                    <span class="ident">identifier</span>.<span class="ident">name</span>
-                )
-            }),
+            <span class="comment">// Note that we do not panic if the identifier is not found in the rename table.</span>
+            <span class="comment">// Variables that do not exist in the rename table are ones that have been introduced during the SSA pass.</span>
+            <span class="comment">// These variables are never re-assigned, and will never have an entry in the rename-table.</span>
+            <span class="bool-val">false</span> =&gt; <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">rename_table</span>.<span class="ident">lookup</span>(<span class="ident">identifier</span>.<span class="ident">name</span>).<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="ident">identifier</span>.<span class="ident">name</span>),
         };
 
         (
@@ -497,12 +515,14 @@
         <span class="ident">statements</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">if_false_statements</span>);
 
         <span class="comment">// Construct and accumulate a unique assignment statement storing the result of the ternary expression.</span>
-        <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Ternary</span>(<span class="ident">TernaryExpression</span> {
-            <span class="ident">condition</span>: <span class="ident">Box::new</span>(<span class="ident">cond_expr</span>),
-            <span class="ident">if_true</span>: <span class="ident">Box::new</span>(<span class="ident">if_true_expr</span>),
-            <span class="ident">if_false</span>: <span class="ident">Box::new</span>(<span class="ident">if_false_expr</span>),
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
-        }));
+        <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">assigner</span>
+            .<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Ternary</span>(<span class="ident">TernaryExpression</span> {
+                <span class="ident">condition</span>: <span class="ident">Box::new</span>(<span class="ident">cond_expr</span>),
+                <span class="ident">if_true</span>: <span class="ident">Box::new</span>(<span class="ident">if_true_expr</span>),
+                <span class="ident">if_false</span>: <span class="ident">Box::new</span>(<span class="ident">if_false_expr</span>),
+                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            }));
         <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
 
         (<span class="ident">place</span>, <span class="ident">statements</span>)
@@ -524,7 +544,7 @@
             .<span class="ident">collect</span>();
 
         <span class="comment">// Note that we do not construct a new assignment statement for the tuple expression.</span>
-        <span class="comment">// Expressions that produce compound data types need to be handled separately.</span>
+        <span class="comment">// This is because tuple expressions are restricted to use in a return statement.</span>
         (
             <span class="ident">Expression::Tuple</span>(<span class="ident">TupleExpression</span> {
                 <span class="ident">elements</span>,
@@ -540,11 +560,13 @@
         <span class="kw">let</span> (<span class="ident">receiver</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">receiver</span>);
 
         <span class="comment">// Construct and accumulate a new assignment statement for the unary expression.</span>
-        <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Unary</span>(<span class="ident">UnaryExpression</span> {
-            <span class="ident">op</span>: <span class="ident">input</span>.<span class="ident">op</span>,
-            <span class="ident">receiver</span>: <span class="ident">Box::new</span>(<span class="ident">receiver</span>),
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
-        }));
+        <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">assigner</span>
+            .<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Unary</span>(<span class="ident">UnaryExpression</span> {
+                <span class="ident">op</span>: <span class="ident">input</span>.<span class="ident">op</span>,
+                <span class="ident">receiver</span>: <span class="ident">Box::new</span>(<span class="ident">receiver</span>),
+                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            }));
         <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
 
         (<span class="ident">place</span>, <span class="ident">statements</span>)

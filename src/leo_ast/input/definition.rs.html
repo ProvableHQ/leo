@@ -50,13 +50,13 @@
 <span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 
 <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Expression</span>, <span class="ident">Identifier</span>, <span class="ident">ParamMode</span>, <span class="ident">Type</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Expression</span>, <span class="ident">Identifier</span>, <span class="ident">Mode</span>, <span class="ident">Type</span>};
 
 <span class="doccomment">/// A single definition inside a section in a state or an input file.</span>
 <span class="doccomment">/// Definitions should be structured as: `&lt;name&gt;: &lt;type_&gt; = &lt;value&gt;;`</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Definition</span> {
-    <span class="kw">pub</span> <span class="ident">mode</span>: <span class="ident">ParamMode</span>,
+    <span class="kw">pub</span> <span class="ident">mode</span>: <span class="ident">Mode</span>,
     <span class="kw">pub</span> <span class="ident">type_</span>: <span class="ident">Type</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">Identifier</span>,
     <span class="kw">pub</span> <span class="ident">value</span>: <span class="ident">Expression</span>,

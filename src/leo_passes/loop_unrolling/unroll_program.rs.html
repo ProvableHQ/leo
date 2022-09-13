@@ -57,6 +57,28 @@
 <span id="51">51</span>
 <span id="52">52</span>
 <span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -73,23 +95,46 @@
 <span class="comment">// You should have received a copy of the GNU General Public License</span>
 <span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 
-<span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
-
 <span class="kw">use</span> <span class="ident">leo_ast</span>::<span class="kw-2">*</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Unroller</span>;
 
 <span class="kw">impl</span> <span class="ident">ProgramReconstructor</span> <span class="kw">for</span> <span class="ident">Unroller</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">reconstruct_function</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">function</span>: <span class="ident">Function</span>) -&gt; <span class="ident">Function</span> {
-        <span class="kw">let</span> <span class="ident">function_name</span> <span class="op">=</span> <span class="ident">function</span>.<span class="ident">name</span>();
+        <span class="comment">// Lookup function metadata in the symbol table.</span>
+        <span class="comment">// Note that this unwrap is safe since function metadata is stored in a prior pass.</span>
+        <span class="kw">let</span> <span class="ident">function_index</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">symbol_table</span>
+            .<span class="ident">borrow</span>()
+            .<span class="ident">lookup_fn_symbol</span>(<span class="ident">function</span>.<span class="ident">identifier</span>.<span class="ident">name</span>)
+            .<span class="ident">unwrap</span>()
+            .<span class="ident">id</span>;
 
-        <span class="comment">// Grab our function scope.</span>
-        <span class="kw">let</span> <span class="ident">prev_st</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">symbol_table</span>);
-        <span class="self">self</span>.<span class="ident">symbol_table</span>
-            .<span class="ident">swap</span>(<span class="ident">prev_st</span>.<span class="ident">borrow</span>().<span class="ident">lookup_fn_scope</span>(<span class="ident">function_name</span>).<span class="ident">unwrap</span>());
-        <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">parent</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">prev_st</span>.<span class="ident">into_inner</span>()));
-        <span class="comment">// Set our current block scope index to 0</span>
-        <span class="self">self</span>.<span class="ident">block_index</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="comment">// Enter the function&#39;s scope.</span>
+        <span class="kw">let</span> <span class="ident">previous_function_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">enter_scope</span>(<span class="ident">function_index</span>);
+
+        <span class="kw">let</span> <span class="ident">previous_scope_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">enter_scope</span>(<span class="self">self</span>.<span class="ident">scope_index</span>);
+
+        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">function</span>.<span class="ident">block</span>).<span class="number">0</span>;
+
+        <span class="self">self</span>.<span class="ident">exit_scope</span>(<span class="ident">previous_scope_index</span>);
+
+        <span class="kw">let</span> <span class="ident">finalize</span> <span class="op">=</span> <span class="ident">function</span>.<span class="ident">finalize</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">finalize</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">previous_scope_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">enter_scope</span>(<span class="self">self</span>.<span class="ident">scope_index</span>);
+
+            <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">finalize</span>.<span class="ident">block</span>).<span class="number">0</span>;
+
+            <span class="self">self</span>.<span class="ident">exit_scope</span>(<span class="ident">previous_scope_index</span>);
+
+            <span class="ident">Finalize</span> {
+                <span class="ident">identifier</span>: <span class="ident">finalize</span>.<span class="ident">identifier</span>,
+                <span class="ident">input</span>: <span class="ident">finalize</span>.<span class="ident">input</span>,
+                <span class="ident">output</span>: <span class="ident">finalize</span>.<span class="ident">output</span>,
+                <span class="ident">output_type</span>: <span class="ident">finalize</span>.<span class="ident">output_type</span>,
+                <span class="ident">block</span>,
+                <span class="ident">span</span>: <span class="ident">finalize</span>.<span class="ident">span</span>,
+            }
+        });
 
         <span class="comment">// Reconstruct the function block.</span>
         <span class="kw">let</span> <span class="ident">reconstructed_function</span> <span class="op">=</span> <span class="ident">Function</span> {
@@ -97,15 +142,14 @@
             <span class="ident">identifier</span>: <span class="ident">function</span>.<span class="ident">identifier</span>,
             <span class="ident">input</span>: <span class="ident">function</span>.<span class="ident">input</span>,
             <span class="ident">output</span>: <span class="ident">function</span>.<span class="ident">output</span>,
-            <span class="ident">core_mapping</span>: <span class="ident">function</span>.<span class="ident">core_mapping</span>,
-            <span class="ident">block</span>: <span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">function</span>.<span class="ident">block</span>),
+            <span class="ident">output_type</span>: <span class="ident">function</span>.<span class="ident">output_type</span>,
+            <span class="ident">block</span>,
+            <span class="ident">finalize</span>,
             <span class="ident">span</span>: <span class="ident">function</span>.<span class="ident">span</span>,
         };
 
-        <span class="comment">// Pop back to parent scope.</span>
-        <span class="kw">let</span> <span class="ident">prev_st</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">parent</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-        <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">swap</span>(<span class="ident">prev_st</span>.<span class="ident">lookup_fn_scope</span>(<span class="ident">function_name</span>).<span class="ident">unwrap</span>());
-        <span class="self">self</span>.<span class="ident">symbol_table</span> <span class="op">=</span> <span class="ident">RefCell::new</span>(<span class="ident">prev_st</span>);
+        <span class="comment">// Exit the function&#39;s scope.</span>
+        <span class="self">self</span>.<span class="ident">exit_scope</span>(<span class="ident">previous_function_index</span>);
 
         <span class="ident">reconstructed_function</span>
     }

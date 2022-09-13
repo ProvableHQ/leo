@@ -289,6 +289,10 @@
 <span id="283">283</span>
 <span id="284">284</span>
 <span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -347,6 +351,8 @@
     <span class="kw">pub</span> <span class="ident">enable_unrolled_ast_snapshot</span>: <span class="ident">bool</span>,
     <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Writes AST snapshot of the SSA AST.&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">enable_ssa_ast_snapshot</span>: <span class="ident">bool</span>,
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Writes AST snapshot of the flattened AST.&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">enable_flattened_ast_snapshot</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">BuildOptions</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OutputOptions</span> {
@@ -357,12 +363,14 @@
             <span class="ident">initial_ast</span>: <span class="ident">options</span>.<span class="ident">enable_initial_ast_snapshot</span>,
             <span class="ident">unrolled_ast</span>: <span class="ident">options</span>.<span class="ident">enable_unrolled_ast_snapshot</span>,
             <span class="ident">ssa_ast</span>: <span class="ident">options</span>.<span class="ident">enable_ssa_ast_snapshot</span>,
+            <span class="ident">flattened_ast</span>: <span class="ident">options</span>.<span class="ident">enable_flattened_ast_snapshot</span>,
         };
         <span class="kw">if</span> <span class="ident">options</span>.<span class="ident">enable_all_ast_snapshots</span> {
             <span class="ident">out_options</span>.<span class="ident">initial_input_ast</span> <span class="op">=</span> <span class="bool-val">true</span>;
             <span class="ident">out_options</span>.<span class="ident">initial_ast</span> <span class="op">=</span> <span class="bool-val">true</span>;
             <span class="ident">out_options</span>.<span class="ident">unrolled_ast</span> <span class="op">=</span> <span class="bool-val">true</span>;
             <span class="ident">out_options</span>.<span class="ident">ssa_ast</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            <span class="ident">out_options</span>.<span class="ident">flattened_ast</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
 
         <span class="ident">out_options</span>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["DecrementStatement","A decrement statement `decrement(foo, bar, 1);`."]]};

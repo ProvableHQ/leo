@@ -293,6 +293,88 @@
 <span id="287">287</span>
 <span id="288">288</span>
 <span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -396,8 +478,8 @@
         (<span class="ident">Expression::Circuit</span>(<span class="ident">input</span>), <span class="ident">Default::default</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_err</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ErrExpression</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
-        (<span class="ident">Expression::Err</span>(<span class="ident">input</span>), <span class="ident">Default::default</span>())
+    <span class="kw">fn</span> <span class="ident">reconstruct_err</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="ident">ErrExpression</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+        <span class="macro">unreachable!</span>(<span class="string">&quot;`ErrExpression`s should not be in the AST at this phase of compilation.&quot;</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">reconstruct_identifier</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Identifier</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
@@ -448,92 +530,157 @@
 
 <span class="doccomment">/// A Reconstructor trait for statements in the AST.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">StatementReconstructor</span>: <span class="ident">ExpressionReconstructor</span> {
-    <span class="kw">fn</span> <span class="ident">reconstruct_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Statement</span>) -&gt; <span class="ident">Statement</span> {
+    <span class="kw">fn</span> <span class="ident">reconstruct_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Statement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
         <span class="kw">match</span> <span class="ident">input</span> {
-            <span class="ident">Statement::Return</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_return</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Definition</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_definition</span>(<span class="ident">stmt</span>),
             <span class="ident">Statement::Assign</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_assign</span>(<span class="kw-2">*</span><span class="ident">stmt</span>),
+            <span class="ident">Statement::Block</span>(<span class="ident">stmt</span>) =&gt; {
+                <span class="kw">let</span> (<span class="ident">stmt</span>, <span class="ident">output</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">stmt</span>);
+                (<span class="ident">Statement::Block</span>(<span class="ident">stmt</span>), <span class="ident">output</span>)
+            }
             <span class="ident">Statement::Conditional</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_conditional</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Iteration</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_iteration</span>(<span class="kw-2">*</span><span class="ident">stmt</span>),
             <span class="ident">Statement::Console</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_console</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Block</span>(<span class="ident">stmt</span>) =&gt; <span class="ident">Statement::Block</span>(<span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">stmt</span>)),
+            <span class="ident">Statement::Decrement</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_decrement</span>(<span class="ident">stmt</span>),
+            <span class="ident">Statement::Definition</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_definition</span>(<span class="ident">stmt</span>),
+            <span class="ident">Statement::Finalize</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_finalize</span>(<span class="ident">stmt</span>),
+            <span class="ident">Statement::Increment</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_increment</span>(<span class="ident">stmt</span>),
+            <span class="ident">Statement::Iteration</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_iteration</span>(<span class="kw-2">*</span><span class="ident">stmt</span>),
+            <span class="ident">Statement::Return</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_return</span>(<span class="ident">stmt</span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_return</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ReturnStatement</span>) -&gt; <span class="ident">Statement</span> {
-        <span class="ident">Statement::Return</span>(<span class="ident">ReturnStatement</span> {
-            <span class="ident">expression</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">expression</span>).<span class="number">0</span>,
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
-        })
+    <span class="kw">fn</span> <span class="ident">reconstruct_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">AssignStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+        (
+            <span class="ident">Statement::Assign</span>(<span class="ident">Box::new</span>(<span class="ident">AssignStatement</span> {
+                <span class="ident">place</span>: <span class="ident">input</span>.<span class="ident">place</span>,
+                <span class="ident">value</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">value</span>).<span class="number">0</span>,
+                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            })),
+            <span class="ident">Default::default</span>(),
+        )
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_definition</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">DefinitionStatement</span>) -&gt; <span class="ident">Statement</span> {
-        <span class="ident">Statement::Definition</span>(<span class="ident">DefinitionStatement</span> {
-            <span class="ident">declaration_type</span>: <span class="ident">input</span>.<span class="ident">declaration_type</span>,
-            <span class="ident">variable_name</span>: <span class="ident">input</span>.<span class="ident">variable_name</span>,
-            <span class="ident">type_</span>: <span class="ident">input</span>.<span class="ident">type_</span>,
-            <span class="ident">value</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">value</span>).<span class="number">0</span>,
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
-        })
-    }
-
-    <span class="kw">fn</span> <span class="ident">reconstruct_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">AssignStatement</span>) -&gt; <span class="ident">Statement</span> {
-        <span class="ident">Statement::Assign</span>(<span class="ident">Box::new</span>(<span class="ident">AssignStatement</span> {
-            <span class="ident">place</span>: <span class="ident">input</span>.<span class="ident">place</span>,
-            <span class="ident">value</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">value</span>).<span class="number">0</span>,
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
-        }))
-    }
-
-    <span class="kw">fn</span> <span class="ident">reconstruct_conditional</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ConditionalStatement</span>) -&gt; <span class="ident">Statement</span> {
-        <span class="ident">Statement::Conditional</span>(<span class="ident">ConditionalStatement</span> {
-            <span class="ident">condition</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">condition</span>).<span class="number">0</span>,
-            <span class="ident">then</span>: <span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">input</span>.<span class="ident">then</span>),
-            <span class="ident">otherwise</span>: <span class="ident">input</span>.<span class="ident">otherwise</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">reconstruct_statement</span>(<span class="kw-2">*</span><span class="ident">n</span>))),
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
-        })
-    }
-
-    <span class="kw">fn</span> <span class="ident">reconstruct_iteration</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">IterationStatement</span>) -&gt; <span class="ident">Statement</span> {
-        <span class="ident">Statement::Iteration</span>(<span class="ident">Box::new</span>(<span class="ident">IterationStatement</span> {
-            <span class="ident">variable</span>: <span class="ident">input</span>.<span class="ident">variable</span>,
-            <span class="ident">type_</span>: <span class="ident">input</span>.<span class="ident">type_</span>,
-            <span class="ident">start</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">start</span>).<span class="number">0</span>,
-            <span class="ident">start_value</span>: <span class="ident">input</span>.<span class="ident">start_value</span>,
-            <span class="ident">stop</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">stop</span>).<span class="number">0</span>,
-            <span class="ident">stop_value</span>: <span class="ident">input</span>.<span class="ident">stop_value</span>,
-            <span class="ident">block</span>: <span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">input</span>.<span class="ident">block</span>),
-            <span class="ident">inclusive</span>: <span class="ident">input</span>.<span class="ident">inclusive</span>,
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
-        }))
-    }
-
-    <span class="kw">fn</span> <span class="ident">reconstruct_console</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ConsoleStatement</span>) -&gt; <span class="ident">Statement</span> {
-        <span class="ident">Statement::Console</span>(<span class="ident">ConsoleStatement</span> {
-            <span class="ident">function</span>: <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">function</span> {
-                <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>) =&gt; <span class="ident">ConsoleFunction::Assert</span>(<span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">expr</span>).<span class="number">0</span>),
-                <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; <span class="ident">ConsoleFunction::AssertEq</span>(
-                    <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">left</span>).<span class="number">0</span>,
-                    <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">right</span>).<span class="number">0</span>,
-                ),
-                <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; <span class="ident">ConsoleFunction::AssertNeq</span>(
-                    <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">left</span>).<span class="number">0</span>,
-                    <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">right</span>).<span class="number">0</span>,
-                ),
+    <span class="kw">fn</span> <span class="ident">reconstruct_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Block</span>) -&gt; (<span class="ident">Block</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+        (
+            <span class="ident">Block</span> {
+                <span class="ident">statements</span>: <span class="ident">input</span>
+                    .<span class="ident">statements</span>
+                    .<span class="ident">into_iter</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">reconstruct_statement</span>(<span class="ident">s</span>).<span class="number">0</span>)
+                    .<span class="ident">collect</span>(),
+                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
             },
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
-        })
+            <span class="ident">Default::default</span>(),
+        )
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Block</span>) -&gt; <span class="ident">Block</span> {
-        <span class="ident">Block</span> {
-            <span class="ident">statements</span>: <span class="ident">input</span>
-                .<span class="ident">statements</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">reconstruct_statement</span>(<span class="ident">s</span>))
-                .<span class="ident">collect</span>(),
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
-        }
+    <span class="kw">fn</span> <span class="ident">reconstruct_conditional</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ConditionalStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+        (
+            <span class="ident">Statement::Conditional</span>(<span class="ident">ConditionalStatement</span> {
+                <span class="ident">condition</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">condition</span>).<span class="number">0</span>,
+                <span class="ident">then</span>: <span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">input</span>.<span class="ident">then</span>).<span class="number">0</span>,
+                <span class="ident">otherwise</span>: <span class="ident">input</span>.<span class="ident">otherwise</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">reconstruct_statement</span>(<span class="kw-2">*</span><span class="ident">n</span>).<span class="number">0</span>)),
+                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            }),
+            <span class="ident">Default::default</span>(),
+        )
+    }
+
+    <span class="kw">fn</span> <span class="ident">reconstruct_console</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ConsoleStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+        (
+            <span class="ident">Statement::Console</span>(<span class="ident">ConsoleStatement</span> {
+                <span class="ident">function</span>: <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">function</span> {
+                    <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>) =&gt; <span class="ident">ConsoleFunction::Assert</span>(<span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">expr</span>).<span class="number">0</span>),
+                    <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; <span class="ident">ConsoleFunction::AssertEq</span>(
+                        <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">left</span>).<span class="number">0</span>,
+                        <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">right</span>).<span class="number">0</span>,
+                    ),
+                    <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; <span class="ident">ConsoleFunction::AssertNeq</span>(
+                        <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">left</span>).<span class="number">0</span>,
+                        <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">right</span>).<span class="number">0</span>,
+                    ),
+                },
+                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            }),
+            <span class="ident">Default::default</span>(),
+        )
+    }
+
+    <span class="kw">fn</span> <span class="ident">reconstruct_decrement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">DecrementStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+        (
+            <span class="ident">Statement::Decrement</span>(<span class="ident">DecrementStatement</span> {
+                <span class="ident">mapping</span>: <span class="ident">input</span>.<span class="ident">mapping</span>,
+                <span class="ident">index</span>: <span class="ident">input</span>.<span class="ident">index</span>,
+                <span class="ident">amount</span>: <span class="ident">input</span>.<span class="ident">amount</span>,
+                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            }),
+            <span class="ident">Default::default</span>(),
+        )
+    }
+
+    <span class="kw">fn</span> <span class="ident">reconstruct_definition</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">DefinitionStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+        (
+            <span class="ident">Statement::Definition</span>(<span class="ident">DefinitionStatement</span> {
+                <span class="ident">declaration_type</span>: <span class="ident">input</span>.<span class="ident">declaration_type</span>,
+                <span class="ident">variable_name</span>: <span class="ident">input</span>.<span class="ident">variable_name</span>,
+                <span class="ident">type_</span>: <span class="ident">input</span>.<span class="ident">type_</span>,
+                <span class="ident">value</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">value</span>).<span class="number">0</span>,
+                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            }),
+            <span class="ident">Default::default</span>(),
+        )
+    }
+
+    <span class="kw">fn</span> <span class="ident">reconstruct_finalize</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">FinalizeStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+        (
+            <span class="ident">Statement::Finalize</span>(<span class="ident">FinalizeStatement</span> {
+                <span class="ident">arguments</span>: <span class="ident">input</span>
+                    .<span class="ident">arguments</span>
+                    .<span class="ident">into_iter</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">arg</span>).<span class="number">0</span>)
+                    .<span class="ident">collect</span>(),
+                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            }),
+            <span class="ident">Default::default</span>(),
+        )
+    }
+
+    <span class="kw">fn</span> <span class="ident">reconstruct_increment</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">IncrementStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+        (
+            <span class="ident">Statement::Increment</span>(<span class="ident">IncrementStatement</span> {
+                <span class="ident">mapping</span>: <span class="ident">input</span>.<span class="ident">mapping</span>,
+                <span class="ident">index</span>: <span class="ident">input</span>.<span class="ident">index</span>,
+                <span class="ident">amount</span>: <span class="ident">input</span>.<span class="ident">amount</span>,
+                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            }),
+            <span class="ident">Default::default</span>(),
+        )
+    }
+
+    <span class="kw">fn</span> <span class="ident">reconstruct_iteration</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">IterationStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+        (
+            <span class="ident">Statement::Iteration</span>(<span class="ident">Box::new</span>(<span class="ident">IterationStatement</span> {
+                <span class="ident">variable</span>: <span class="ident">input</span>.<span class="ident">variable</span>,
+                <span class="ident">type_</span>: <span class="ident">input</span>.<span class="ident">type_</span>,
+                <span class="ident">start</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">start</span>).<span class="number">0</span>,
+                <span class="ident">start_value</span>: <span class="ident">input</span>.<span class="ident">start_value</span>,
+                <span class="ident">stop</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">stop</span>).<span class="number">0</span>,
+                <span class="ident">stop_value</span>: <span class="ident">input</span>.<span class="ident">stop_value</span>,
+                <span class="ident">block</span>: <span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">input</span>.<span class="ident">block</span>).<span class="number">0</span>,
+                <span class="ident">inclusive</span>: <span class="ident">input</span>.<span class="ident">inclusive</span>,
+                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            })),
+            <span class="ident">Default::default</span>(),
+        )
+    }
+
+    <span class="kw">fn</span> <span class="ident">reconstruct_return</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ReturnStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+        (
+            <span class="ident">Statement::Return</span>(<span class="ident">ReturnStatement</span> {
+                <span class="ident">expression</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">expression</span>).<span class="number">0</span>,
+                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            }),
+            <span class="ident">Default::default</span>(),
+        )
     }
 }
 
@@ -548,6 +695,11 @@
                 .<span class="ident">imports</span>
                 .<span class="ident">into_iter</span>()
                 .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="ident">import</span>)<span class="op">|</span> (<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">reconstruct_import</span>(<span class="ident">import</span>)))
+                .<span class="ident">collect</span>(),
+            <span class="ident">mappings</span>: <span class="ident">input</span>
+                .<span class="ident">mappings</span>
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="ident">mapping</span>)<span class="op">|</span> (<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">reconstruct_mapping</span>(<span class="ident">mapping</span>)))
                 .<span class="ident">collect</span>(),
             <span class="ident">functions</span>: <span class="ident">input</span>
                 .<span class="ident">functions</span>
@@ -568,8 +720,16 @@
             <span class="ident">identifier</span>: <span class="ident">input</span>.<span class="ident">identifier</span>,
             <span class="ident">input</span>: <span class="ident">input</span>.<span class="ident">input</span>,
             <span class="ident">output</span>: <span class="ident">input</span>.<span class="ident">output</span>,
-            <span class="ident">core_mapping</span>: <span class="ident">input</span>.<span class="ident">core_mapping</span>,
-            <span class="ident">block</span>: <span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">input</span>.<span class="ident">block</span>),
+            <span class="ident">output_type</span>: <span class="ident">input</span>.<span class="ident">output_type</span>,
+            <span class="ident">block</span>: <span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">input</span>.<span class="ident">block</span>).<span class="number">0</span>,
+            <span class="ident">finalize</span>: <span class="ident">input</span>.<span class="ident">finalize</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">finalize</span><span class="op">|</span> <span class="ident">Finalize</span> {
+                <span class="ident">identifier</span>: <span class="ident">finalize</span>.<span class="ident">identifier</span>,
+                <span class="ident">input</span>: <span class="ident">finalize</span>.<span class="ident">input</span>,
+                <span class="ident">output</span>: <span class="ident">finalize</span>.<span class="ident">output</span>,
+                <span class="ident">output_type</span>: <span class="ident">finalize</span>.<span class="ident">output_type</span>,
+                <span class="ident">block</span>: <span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">finalize</span>.<span class="ident">block</span>).<span class="number">0</span>,
+                <span class="ident">span</span>: <span class="ident">finalize</span>.<span class="ident">span</span>,
+            }),
             <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
         }
     }
@@ -579,6 +739,10 @@
     }
 
     <span class="kw">fn</span> <span class="ident">reconstruct_import</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Program</span>) -&gt; <span class="ident">Program</span> {
+        <span class="ident">input</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">reconstruct_mapping</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Mapping</span>) -&gt; <span class="ident">Mapping</span> {
         <span class="ident">input</span>
     }
 }

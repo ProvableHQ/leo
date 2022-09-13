@@ -97,6 +97,47 @@
 <span id="91">91</span>
 <span id="92">92</span>
 <span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -116,14 +157,22 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">annotation</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">annotation</span>::<span class="kw-2">*</span>;
 
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">finalize</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">finalize</span>::<span class="kw-2">*</span>;
+
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">function_input</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">function_input</span>::<span class="kw-2">*</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Block</span>, <span class="ident">Identifier</span>, <span class="ident">Node</span>, <span class="ident">Type</span>};
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">function_output</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">function_output</span>::<span class="kw-2">*</span>;
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">mode</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">mode</span>::<span class="kw-2">*</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Block</span>, <span class="ident">Identifier</span>, <span class="ident">Node</span>, <span class="ident">Tuple</span>, <span class="ident">Type</span>};
 <span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">sym</span>, <span class="ident">Span</span>, <span class="ident">Symbol</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std::cell::Cell</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="doccomment">/// A function definition.</span>
@@ -133,15 +182,16 @@
     <span class="kw">pub</span> <span class="ident">annotations</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Annotation</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The function identifier, e.g., `foo` in `function foo(...) { ... }`.</span>
     <span class="kw">pub</span> <span class="ident">identifier</span>: <span class="ident">Identifier</span>,
-    <span class="doccomment">/// The function&#39;s parameters.</span>
+    <span class="doccomment">/// The function&#39;s input parameters.</span>
     <span class="kw">pub</span> <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FunctionInput</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The function&#39;s required return type.</span>
-    <span class="kw">pub</span> <span class="ident">output</span>: <span class="ident">Type</span>,
-    <span class="doccomment">/// Any mapping to the core library.</span>
-    <span class="doccomment">/// Always `None` when initially parsed.</span>
-    <span class="kw">pub</span> <span class="ident">core_mapping</span>: <span class="ident">Cell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Symbol</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The function&#39;s output declarations.</span>
+    <span class="kw">pub</span> <span class="ident">output</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FunctionOutput</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The function&#39;s output type.</span>
+    <span class="kw">pub</span> <span class="ident">output_type</span>: <span class="ident">Type</span>,
     <span class="doccomment">/// The body of the function.</span>
     <span class="kw">pub</span> <span class="ident">block</span>: <span class="ident">Block</span>,
+    <span class="doccomment">/// An optional finalize block</span>
+    <span class="kw">pub</span> <span class="ident">finalize</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Finalize</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The entire span of the function definition.</span>
     <span class="kw">pub</span> <span class="ident">span</span>: <span class="ident">Span</span>,
 }
@@ -155,6 +205,34 @@
 <span class="kw">impl</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">Function</span> {}
 
 <span class="kw">impl</span> <span class="ident">Function</span> {
+    <span class="doccomment">/// Initialize a new function.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+        <span class="ident">annotations</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Annotation</span><span class="op">&gt;</span>,
+        <span class="ident">identifier</span>: <span class="ident">Identifier</span>,
+        <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FunctionInput</span><span class="op">&gt;</span>,
+        <span class="ident">output</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FunctionOutput</span><span class="op">&gt;</span>,
+        <span class="ident">block</span>: <span class="ident">Block</span>,
+        <span class="ident">finalize</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Finalize</span><span class="op">&gt;</span>,
+        <span class="ident">span</span>: <span class="ident">Span</span>,
+    ) -&gt; <span class="self">Self</span> {
+        <span class="comment">// Determine the output type of the function</span>
+        <span class="kw">let</span> <span class="ident">output_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">output</span>.<span class="ident">len</span>() {
+            <span class="number">0</span> =&gt; <span class="ident">Type::Unit</span>,
+            <span class="number">1</span> =&gt; <span class="ident">output</span>[<span class="number">0</span>].<span class="ident">type_</span>.<span class="ident">clone</span>(),
+            <span class="kw">_</span> =&gt; <span class="ident">Type::Tuple</span>(<span class="ident">Tuple</span>(<span class="ident">output</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">output</span><span class="op">|</span> <span class="ident">output</span>.<span class="ident">type_</span>.<span class="ident">clone</span>()).<span class="ident">collect</span>())),
+        };
+
+        <span class="ident">Function</span> {
+            <span class="ident">annotations</span>,
+            <span class="ident">identifier</span>,
+            <span class="ident">input</span>,
+            <span class="ident">output</span>,
+            <span class="ident">output_type</span>,
+            <span class="ident">block</span>,
+            <span class="ident">finalize</span>,
+            <span class="ident">span</span>,
+        }
+    }
     <span class="doccomment">/// Returns function name.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Symbol</span> {
         <span class="self">self</span>.<span class="ident">identifier</span>.<span class="ident">name</span>
@@ -172,7 +250,11 @@
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;function {}&quot;</span>, <span class="self">self</span>.<span class="ident">identifier</span>)<span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">parameters</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>()).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">join</span>(<span class="string">&quot;,&quot;</span>);
-        <span class="kw">let</span> <span class="ident">returns</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">output</span>.<span class="ident">to_string</span>();
+        <span class="kw">let</span> <span class="ident">returns</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">output</span>.<span class="ident">len</span>() {
+            <span class="number">0</span> =&gt; <span class="string">&quot;()&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="number">1</span> =&gt; <span class="self">self</span>.<span class="ident">output</span>[<span class="number">0</span>].<span class="ident">to_string</span>(),
+            <span class="kw">_</span> =&gt; <span class="self">self</span>.<span class="ident">output</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>()).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">join</span>(<span class="string">&quot;,&quot;</span>),
+        };
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;({}) -&gt; {} {}&quot;</span>, <span class="ident">parameters</span>, <span class="ident">returns</span>, <span class="self">self</span>.<span class="ident">block</span>)
     }
 }

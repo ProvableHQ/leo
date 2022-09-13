@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["FunctionOutput","A function parameter."]]};

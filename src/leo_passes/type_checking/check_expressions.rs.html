@@ -618,6 +618,12 @@
 <span id="612">612</span>
 <span id="613">613</span>
 <span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -637,7 +643,7 @@
 <span class="kw">use</span> <span class="ident">leo_ast</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">leo_errors::emitter::Handler</span>;
 <span class="kw">use</span> <span class="ident">leo_errors::TypeCheckerError</span>;
-<span class="kw">use</span> <span class="ident">leo_span::Span</span>;
+<span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">sym</span>, <span class="ident">Span</span>};
 <span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::TypeChecker</span>;
@@ -663,21 +669,6 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ExpressionVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TypeChecker</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">AdditionalInput</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>;
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>;
-
-    <span class="kw">fn</span> <span class="ident">visit_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::AdditionalInput</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">match</span> <span class="ident">input</span> {
-            <span class="ident">Expression::Access</span>(<span class="ident">access</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_access</span>(<span class="ident">access</span>, <span class="ident">expected</span>),
-            <span class="ident">Expression::Binary</span>(<span class="ident">binary</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_binary</span>(<span class="ident">binary</span>, <span class="ident">expected</span>),
-            <span class="ident">Expression::Call</span>(<span class="ident">call</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_call</span>(<span class="ident">call</span>, <span class="ident">expected</span>),
-            <span class="ident">Expression::Circuit</span>(<span class="ident">circuit</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_circuit_init</span>(<span class="ident">circuit</span>, <span class="ident">expected</span>),
-            <span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_identifier</span>(<span class="ident">identifier</span>, <span class="ident">expected</span>),
-            <span class="ident">Expression::Err</span>(<span class="ident">err</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_err</span>(<span class="ident">err</span>, <span class="ident">expected</span>),
-            <span class="ident">Expression::Literal</span>(<span class="ident">literal</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_literal</span>(<span class="ident">literal</span>, <span class="ident">expected</span>),
-            <span class="ident">Expression::Ternary</span>(<span class="ident">ternary</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_ternary</span>(<span class="ident">ternary</span>, <span class="ident">expected</span>),
-            <span class="ident">Expression::Tuple</span>(<span class="ident">tuple</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_tuple</span>(<span class="ident">tuple</span>, <span class="ident">expected</span>),
-            <span class="ident">Expression::Unary</span>(<span class="ident">expr</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_unary</span>(<span class="ident">expr</span>, <span class="ident">expected</span>),
-        }
-    }
 
     <span class="kw">fn</span> <span class="ident">visit_access</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">AccessExpression</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::AdditionalInput</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="kw">match</span> <span class="ident">input</span> {
@@ -745,41 +736,52 @@
                 }
             }
             <span class="ident">AccessExpression::Member</span>(<span class="ident">access</span>) =&gt; {
-                <span class="comment">// Check that the type of `inner` in `inner.name` is a circuit.</span>
-                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">access</span>.<span class="ident">inner</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>) {
-                    <span class="prelude-val">Some</span>(<span class="ident">Type::Identifier</span>(<span class="ident">identifier</span>)) =&gt; {
-                        <span class="comment">// Retrieve the circuit definition associated with `identifier`.</span>
-                        <span class="kw">let</span> <span class="ident">circ</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow</span>().<span class="ident">lookup_circuit</span>(<span class="ident">identifier</span>.<span class="ident">name</span>).<span class="ident">cloned</span>();
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">circ</span>) <span class="op">=</span> <span class="ident">circ</span> {
-                            <span class="comment">// Check that `access.name` is a member of the circuit.</span>
-                            <span class="kw">match</span> <span class="ident">circ</span>
-                                .<span class="ident">members</span>
-                                .<span class="ident">iter</span>()
-                                .<span class="ident">find</span>(<span class="op">|</span><span class="ident">circuit_member</span><span class="op">|</span> <span class="ident">circuit_member</span>.<span class="ident">name</span>() <span class="op">==</span> <span class="ident">access</span>.<span class="ident">name</span>.<span class="ident">name</span>)
-                            {
-                                <span class="comment">// Case where `access.name` is a member of the circuit.</span>
-                                <span class="prelude-val">Some</span>(<span class="ident">CircuitMember::CircuitVariable</span>(<span class="kw">_</span>, <span class="ident">type_</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">type_</span>.<span class="ident">clone</span>()),
-                                <span class="comment">// Case where `access.name` is not a member of the circuit.</span>
-                                <span class="prelude-val">None</span> =&gt; {
-                                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::invalid_circuit_variable</span>(
-                                        <span class="ident">access</span>.<span class="ident">name</span>,
-                                        <span class="kw-2">&amp;</span><span class="ident">circ</span>,
-                                        <span class="ident">access</span>.<span class="ident">name</span>.<span class="ident">span</span>(),
-                                    ));
+                <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">access</span>.<span class="ident">inner</span> {
+                    <span class="comment">// If the access expression is of the form `self.&lt;name&gt;`, then check the &lt;name&gt; is valid.</span>
+                    <span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>) <span class="kw">if</span> <span class="ident">identifier</span>.<span class="ident">name</span> <span class="op">==</span> <span class="ident">sym::SelfLower</span> =&gt; <span class="kw">match</span> <span class="ident">access</span>.<span class="ident">name</span>.<span class="ident">name</span> {
+                        <span class="ident">sym::caller</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Type::Address</span>),
+                        <span class="kw">_</span> =&gt; {
+                            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::invalid_self_access</span>(<span class="ident">access</span>.<span class="ident">name</span>.<span class="ident">span</span>()));
+                        }
+                    },
+                    <span class="kw">_</span> =&gt; {
+                        <span class="comment">// Check that the type of `inner` in `inner.name` is a circuit.</span>
+                        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">access</span>.<span class="ident">inner</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>) {
+                            <span class="prelude-val">Some</span>(<span class="ident">Type::Identifier</span>(<span class="ident">identifier</span>)) =&gt; {
+                                <span class="comment">// Retrieve the circuit definition associated with `identifier`.</span>
+                                <span class="kw">let</span> <span class="ident">circ</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow</span>().<span class="ident">lookup_circuit</span>(<span class="ident">identifier</span>.<span class="ident">name</span>).<span class="ident">cloned</span>();
+                                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">circ</span>) <span class="op">=</span> <span class="ident">circ</span> {
+                                    <span class="comment">// Check that `access.name` is a member of the circuit.</span>
+                                    <span class="kw">match</span> <span class="ident">circ</span>
+                                        .<span class="ident">members</span>
+                                        .<span class="ident">iter</span>()
+                                        .<span class="ident">find</span>(<span class="op">|</span><span class="ident">circuit_member</span><span class="op">|</span> <span class="ident">circuit_member</span>.<span class="ident">name</span>() <span class="op">==</span> <span class="ident">access</span>.<span class="ident">name</span>.<span class="ident">name</span>)
+                                    {
+                                        <span class="comment">// Case where `access.name` is a member of the circuit.</span>
+                                        <span class="prelude-val">Some</span>(<span class="ident">CircuitMember::CircuitVariable</span>(<span class="kw">_</span>, <span class="ident">type_</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">type_</span>.<span class="ident">clone</span>()),
+                                        <span class="comment">// Case where `access.name` is not a member of the circuit.</span>
+                                        <span class="prelude-val">None</span> =&gt; {
+                                            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::invalid_circuit_variable</span>(
+                                                <span class="ident">access</span>.<span class="ident">name</span>,
+                                                <span class="kw-2">&amp;</span><span class="ident">circ</span>,
+                                                <span class="ident">access</span>.<span class="ident">name</span>.<span class="ident">span</span>(),
+                                            ));
+                                        }
+                                    }
+                                } <span class="kw">else</span> {
+                                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::undefined_type</span>(<span class="kw-2">&amp;</span><span class="ident">access</span>.<span class="ident">inner</span>, <span class="ident">access</span>.<span class="ident">inner</span>.<span class="ident">span</span>()));
                                 }
                             }
-                        } <span class="kw">else</span> {
-                            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::undefined_type</span>(<span class="kw-2">&amp;</span><span class="ident">access</span>.<span class="ident">inner</span>, <span class="ident">access</span>.<span class="ident">inner</span>.<span class="ident">span</span>()));
+                            <span class="prelude-val">Some</span>(<span class="ident">type_</span>) =&gt; {
+                                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::type_should_be</span>(<span class="ident">type_</span>, <span class="string">&quot;circuit&quot;</span>, <span class="ident">access</span>.<span class="ident">inner</span>.<span class="ident">span</span>()));
+                            }
+                            <span class="prelude-val">None</span> =&gt; {
+                                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::could_not_determine_type</span>(
+                                    <span class="kw-2">&amp;</span><span class="ident">access</span>.<span class="ident">inner</span>,
+                                    <span class="ident">access</span>.<span class="ident">inner</span>.<span class="ident">span</span>(),
+                                ));
+                            }
                         }
-                    }
-                    <span class="prelude-val">Some</span>(<span class="ident">type_</span>) =&gt; {
-                        <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::type_should_be</span>(<span class="ident">type_</span>, <span class="string">&quot;circuit&quot;</span>, <span class="ident">access</span>.<span class="ident">inner</span>.<span class="ident">span</span>()));
-                    }
-                    <span class="prelude-val">None</span> =&gt; {
-                        <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::could_not_determine_type</span>(
-                            <span class="kw-2">&amp;</span><span class="ident">access</span>.<span class="ident">inner</span>,
-                            <span class="ident">access</span>.<span class="ident">inner</span>.<span class="ident">span</span>(),
-                        ));
                     }
                 }
             }
@@ -1004,7 +1006,7 @@
                 <span class="comment">// Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table` alive for the entire block and will be very memory inefficient!</span>
                 <span class="kw">let</span> <span class="ident">func</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow</span>().<span class="ident">lookup_fn_symbol</span>(<span class="ident">ident</span>.<span class="ident">name</span>).<span class="ident">cloned</span>();
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">func</span>) <span class="op">=</span> <span class="ident">func</span> {
-                    <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">func</span>.<span class="ident">output</span>, <span class="ident">expected</span>, <span class="ident">func</span>.<span class="ident">span</span>);
+                    <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">func</span>.<span class="ident">output_type</span>, <span class="ident">expected</span>, <span class="ident">func</span>.<span class="ident">span</span>);
 
                     <span class="comment">// Check number of function arguments.</span>
                     <span class="kw">if</span> <span class="ident">func</span>.<span class="ident">input</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">input</span>.<span class="ident">arguments</span>.<span class="ident">len</span>() {
@@ -1078,10 +1080,13 @@
         }
     }
 
+    <span class="comment">// We do not want to panic on `ErrExpression`s in order to propagate as many errors as possible.</span>
+    <span class="kw">fn</span> <span class="ident">visit_err</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ErrExpression</span>, <span class="ident">_additional</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::AdditionalInput</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
+        <span class="ident">Default::default</span>()
+    }
+
     <span class="kw">fn</span> <span class="ident">visit_identifier</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">var</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Identifier</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::AdditionalInput</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">circuit</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow</span>().<span class="ident">lookup_circuit</span>(<span class="ident">var</span>.<span class="ident">name</span>) {
-            <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::Identifier</span>(<span class="ident">circuit</span>.<span class="ident">identifier</span>), <span class="ident">expected</span>, <span class="ident">var</span>.<span class="ident">span</span>))
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">var</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow</span>().<span class="ident">lookup_variable</span>(<span class="ident">var</span>.<span class="ident">name</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">var</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow</span>().<span class="ident">lookup_variable</span>(<span class="ident">var</span>.<span class="ident">name</span>) {
             <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">var</span>.<span class="ident">type_</span>.<span class="ident">clone</span>(), <span class="ident">expected</span>, <span class="ident">var</span>.<span class="ident">span</span>))
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::unknown_sym</span>(<span class="string">&quot;variable&quot;</span>, <span class="ident">var</span>.<span class="ident">name</span>, <span class="ident">var</span>.<span class="ident">span</span>()));
@@ -1158,30 +1163,37 @@
     }
 
     <span class="kw">fn</span> <span class="ident">visit_tuple</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TupleExpression</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::AdditionalInput</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="comment">// Check the expected tuple types if they are known.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">Type::Tuple</span>(<span class="ident">expected_types</span>)) <span class="op">=</span> <span class="ident">expected</span> {
-            <span class="comment">// Check actual length is equal to expected length.</span>
-            <span class="kw">if</span> <span class="ident">expected_types</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">input</span>.<span class="ident">elements</span>.<span class="ident">len</span>() {
-                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::incorrect_tuple_length</span>(
-                    <span class="ident">expected_types</span>.<span class="ident">len</span>(),
-                    <span class="ident">input</span>.<span class="ident">elements</span>.<span class="ident">len</span>(),
-                    <span class="ident">input</span>.<span class="ident">span</span>(),
-                ));
+        <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">elements</span>.<span class="ident">len</span>() {
+            <span class="number">0</span> =&gt; <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::Unit</span>, <span class="ident">expected</span>, <span class="ident">input</span>.<span class="ident">span</span>())),
+            <span class="number">1</span> =&gt; <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">elements</span>[<span class="number">0</span>], <span class="ident">expected</span>),
+            <span class="kw">_</span> =&gt; {
+                <span class="comment">// Check the expected tuple types if they are known.</span>
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">Type::Tuple</span>(<span class="ident">expected_types</span>)) <span class="op">=</span> <span class="ident">expected</span> {
+                    <span class="comment">// Check actual length is equal to expected length.</span>
+                    <span class="kw">if</span> <span class="ident">expected_types</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">input</span>.<span class="ident">elements</span>.<span class="ident">len</span>() {
+                        <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::incorrect_tuple_length</span>(
+                            <span class="ident">expected_types</span>.<span class="ident">len</span>(),
+                            <span class="ident">input</span>.<span class="ident">elements</span>.<span class="ident">len</span>(),
+                            <span class="ident">input</span>.<span class="ident">span</span>(),
+                        ));
+                    }
+
+                    <span class="ident">expected_types</span>
+                        .<span class="ident">iter</span>()
+                        .<span class="ident">zip</span>(<span class="ident">input</span>.<span class="ident">elements</span>.<span class="ident">iter</span>())
+                        .<span class="ident">for_each</span>(<span class="op">|</span>(<span class="ident">expected</span>, <span class="ident">expr</span>)<span class="op">|</span> {
+                            <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">expr</span>, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">expected</span>.<span class="ident">clone</span>()));
+                        });
+
+                    <span class="prelude-val">Some</span>(<span class="ident">Type::Tuple</span>(<span class="ident">expected_types</span>.<span class="ident">clone</span>()))
+                } <span class="kw">else</span> {
+                    <span class="comment">// Tuples must be explicitly typed in testnet3.</span>
+                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::invalid_tuple</span>(<span class="ident">input</span>.<span class="ident">span</span>()));
+
+                    <span class="prelude-val">None</span>
+                }
             }
-
-            <span class="ident">expected_types</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">zip</span>(<span class="ident">input</span>.<span class="ident">elements</span>.<span class="ident">iter</span>())
-                .<span class="ident">for_each</span>(<span class="op">|</span>(<span class="ident">expected</span>, <span class="ident">expr</span>)<span class="op">|</span> {
-                    <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">expr</span>, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">expected</span>.<span class="ident">clone</span>()));
-                });
-
-            <span class="prelude-val">Some</span>(<span class="ident">Type::Tuple</span>(<span class="ident">expected_types</span>.<span class="ident">clone</span>()))
-        } <span class="kw">else</span> {
-            <span class="comment">// Tuples must be explicitly typed in testnet3.</span>
-            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::invalid_tuple</span>(<span class="ident">input</span>.<span class="ident">span</span>()));
-
-            <span class="prelude-val">None</span>
         }
     }
 

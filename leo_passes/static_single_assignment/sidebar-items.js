@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["rename_expression",""],["rename_program",""],["rename_statement",""],["rename_table",""],["static_single_assigner",""]]};
+window.SIDEBAR_ITEMS = {"mod":[["assigner",""],["rename_expression",""],["rename_program",""],["rename_statement",""],["rename_table",""],["static_single_assigner",""]]};
