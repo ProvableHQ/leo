@@ -82,8 +82,10 @@ keyword = %s"address"
         / %s"console"
         / %s"const"
         / %s"constant"
+        / %s"decrement"
         / %s"else"
         / %s"field"
+        / %s"finalize"
         / %s"for"
         / %s"function"
         / %s"group"
@@ -94,7 +96,9 @@ keyword = %s"address"
         / %s"i128"
         / %s"if"
         / %s"in"
+        / %s"increment"
         / %s"let"
+        / %s"mapping"
         / %s"public"
         / %s"record"
         / %s"return"
@@ -202,7 +206,7 @@ symbol = "!"
        / "[" / "]"
        / "{" / "}"
        / "," / "." / ".." / ";" / ":" / "::" / "?"
-       / "->" / "_"
+       / "->" / "=>" / "_"
        / %s")group"
 
 token = keyword
@@ -362,6 +366,9 @@ statement = return-statement
           / loop-statement
           / assignment-statement
           / console-statement
+          / finalize-statement
+          / increment-statement
+          / decrement-statement
           / block
 
 block = "{" *statement "}"
@@ -411,9 +418,21 @@ assert-equal-call = %s"assert_eq" "(" expression "," expression [ "," ] ")"
 
 assert-not-equal-call = %s"assert_neq" "(" expression "," expression [ "," ] ")"
 
+finalize-statement = %s"finalize" function-arguments ";"
+
+increment-statement =
+    %s"increment" "(" identifier "," expression "," expression [ "," ] ")" ";"
+
+decrement-statement =
+    %s"decrement" "(" identifier "," expression "," expression [ "," ] ")" ";"
+
 function-declaration = *annotation %s"function" identifier
                        "(" [ function-parameters ] ")" "->" type
-                       block
+                       block [ finalizer ]
+
+finalizer = %s"finalize" identifier
+            "(" [ function-parameters ] ")" "->" type
+            block
 
 function-parameters = function-parameter *( "," function-parameter ) [ "," ]
 
@@ -432,9 +451,12 @@ circuit-component-declaration = identifier ":" type
 record-declaration = %s"record" identifier
                      "{" circuit-component-declarations "}"
 
+mapping-declaration = %s"mapping" identifier ":" type "=>" type ";"
+
 declaration = function-declaration
             / circuit-declaration
             / record-declaration
+            / mapping-declaration
 
 file = *declaration
 
