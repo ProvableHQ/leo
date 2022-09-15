@@ -78,16 +78,8 @@ impl ParserContext<'_> {
     pub fn parse_type(&mut self) -> Result<(Type, Span)> {
         if let Some(ident) = self.eat_identifier() {
             Ok((Type::Identifier(ident), ident.span))
-        } else if self.peek_is_left_par() {
-            self.parse_tuple_type()
         } else {
             self.parse_primitive_type()
         }
-    }
-
-    /// Parses a type of form `(ty_0, ty_1, ...)`.
-    fn parse_tuple_type(&mut self) -> Result<(Type, Span)> {
-        let (types, _, span) = self.parse_paren_comma_list(|p| p.parse_type().map(|(ty, _)| ty).map(Some))?;
-        Ok((Tuple::try_new(types, span)?, span))
     }
 }

@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected -> -- found '{'\n    --> test:3:16\n     |\n   3 | function foo() {\n     |                ^"
+  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:4:13\n     |\n   4 |     let mut x = 0;\n     |             ^"

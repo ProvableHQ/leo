@@ -1,0 +1,3 @@
+// The program input for ntzdebruijn/src/main.leo
+[main]
+public x: u32 = 2147483648u32;

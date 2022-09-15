@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{Circuit, CircuitMember, Function, Identifier, Program};
+use leo_ast::{Circuit, CircuitMember, Function, Identifier, Mapping, Mode, Program, Type};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -60,6 +60,15 @@ impl<'a> CodeGenerator<'a> {
 
         // Newline separator.
         program_string.push('\n');
+
+        // Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
+        program_string.push_str(
+            &input
+                .mappings
+                .values()
+                .map(|mapping| self.visit_mapping(mapping))
+                .join("\n"),
+        );
 
         // Store closures and functions in separate strings.
         let mut closures = String::new();
@@ -118,7 +127,7 @@ impl<'a> CodeGenerator<'a> {
         self.composite_mapping
             .insert(&circuit.identifier.name, (false, String::from("private"))); // todo: private by default here.
 
-        let mut output_string = format!("interface {}:\n", circuit.identifier.to_string().to_lowercase()); // todo: check if this is safe from name conflicts.
+        let mut output_string = format!("interface {}:\n", circuit.identifier); // todo: check if this is safe from name conflicts.
 
         // Construct and append the record variables.
         for var in circuit.members.iter() {
@@ -137,8 +146,7 @@ impl<'a> CodeGenerator<'a> {
         let mut output_string = String::from("record");
         self.composite_mapping
             .insert(&record.identifier.name, (true, output_string.clone()));
-        writeln!(output_string, " {}:", record.identifier.to_string().to_lowercase())
-            .expect("failed to write to string"); // todo: check if this is safe from name conflicts.
+        writeln!(output_string, " {}:", record.identifier).expect("failed to write to string"); // todo: check if this is safe from name conflicts.
 
         // Construct and append the record variables.
         for var in record.members.iter() {
@@ -149,8 +157,7 @@ impl<'a> CodeGenerator<'a> {
             writeln!(
                 output_string,
                 "    {} as {}.private;", // todo: CAUTION private record variables only.
-                name,
-                type_.to_string().to_lowercase(),
+                name, type_,
             )
             .expect("failed to write to string");
         }
@@ -162,6 +169,8 @@ impl<'a> CodeGenerator<'a> {
         // Initialize the state of `self` with the appropriate values before visiting `function`.
         self.next_register = 0;
         self.variable_mapping = IndexMap::new();
+        // TODO: Figure out a better way to initialize.
+        self.variable_mapping.insert(&sym::SelfLower, "self".to_string());
         self.current_function = Some(function);
 
         // Construct the header of the function.
@@ -179,7 +188,11 @@ impl<'a> CodeGenerator<'a> {
             self.variable_mapping
                 .insert(&input.identifier.name, register_string.clone());
 
-            let type_string = self.visit_type_with_visibility(&input.type_, input.mode());
+            let visibility = match (self.is_program_function, input.mode) {
+                (true, Mode::None) => Mode::Private,
+                _ => input.mode,
+            };
+            let type_string = self.visit_type_with_visibility(&input.type_, visibility);
             writeln!(function_string, "    input {} as {};", register_string, type_string,)
                 .expect("failed to write to string");
         }
@@ -188,6 +201,76 @@ impl<'a> CodeGenerator<'a> {
         let block_string = self.visit_block(&function.block);
         function_string.push_str(&block_string);
 
+        // If the finalize block exists, generate the appropriate bytecode.
+        if let Some(finalize) = &function.finalize {
+            // Clear the register count.
+            self.next_register = 0;
+            self.in_finalize = true;
+
+            // Clear the variable mapping.
+            // TODO: Figure out a better way to initialize.
+            self.variable_mapping = IndexMap::new();
+            self.variable_mapping.insert(&sym::SelfLower, "self".to_string());
+
+            function_string.push_str(&format!("\nfinalize {}:\n", finalize.identifier));
+
+            // Construct and append the input declarations of the finalize block.
+            for input in finalize.input.iter() {
+                let register_string = format!("r{}", self.next_register);
+                self.next_register += 1;
+
+                self.variable_mapping
+                    .insert(&input.identifier.name, register_string.clone());
+
+                // A finalize block defaults to public visibility.
+                let visibility = match (self.is_program_function, input.mode) {
+                    (true, Mode::None) => Mode::Public,
+                    (true, mode) => mode,
+                    _ => unreachable!("Only program functions can have finalize blocks."),
+                };
+                let type_string = self.visit_type_with_visibility(&input.type_, visibility);
+                writeln!(function_string, "    input {} as {};", register_string, type_string,)
+                    .expect("failed to write to string");
+            }
+
+            // Construct and append the finalize block body.
+            function_string.push_str(&self.visit_block(&finalize.block));
+
+            self.in_finalize = false;
+        }
+
         function_string
+    }
+
+    fn visit_mapping(&mut self, mapping: &'a Mapping) -> String {
+        // Create the prefix of the mapping string, e.g. `mapping foo:`.
+        let mut mapping_string = format!("mapping {}:\n", mapping.identifier);
+
+        // Helper to construct the string associated with the type.
+        let create_type = |type_: &Type| {
+            match type_ {
+                Type::Mapping(_) | Type::Tuple(_) => unreachable!("Mappings cannot contain mappings or tuples."),
+                Type::Identifier(identifier) => {
+                    // Lookup the type in the composite mapping.
+                    // Note that this unwrap is safe since all circuit and records have been added to the composite mapping.
+                    let (is_record, _) = self.composite_mapping.get(&identifier.name).unwrap();
+                    match is_record {
+                        // If the type is a record, then declare the type as is.
+                        true => format!("{}.record", identifier),
+                        // If the type is a circuit, then add the public modifier.
+                        false => format!("{}.public", identifier),
+                    }
+                }
+                type_ => format!("{}.public", type_),
+            }
+        };
+
+        // Create the key string, e.g. `    key as address.public`.
+        mapping_string.push_str(&format!("\tkey left as {};\n", create_type(&mapping.key_type)));
+
+        // Create the value string, e.g. `    value as address.public`.
+        mapping_string.push_str(&format!("\tvalue right as {};\n", create_type(&mapping.value_type)));
+
+        mapping_string
     }
 }

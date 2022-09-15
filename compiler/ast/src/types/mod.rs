@@ -17,6 +17,9 @@
 pub mod integer_type;
 pub use integer_type::*;
 
+pub mod mapping;
+pub use mapping::*;
+
 pub mod tuple;
 pub use tuple::*;
 

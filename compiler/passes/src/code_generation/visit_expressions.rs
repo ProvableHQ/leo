@@ -48,6 +48,10 @@ impl<'a> CodeGenerator<'a> {
         (self.variable_mapping.get(&input.name).unwrap().clone(), String::new())
     }
 
+    fn visit_err(&mut self, _input: &'a ErrExpression) -> (String, String) {
+        unreachable!("`ErrExpression`s should not be in the AST at this phase of compilation.")
+    }
+
     fn visit_value(&mut self, input: &'a Literal) -> (String, String) {
         (format!("{}", input), String::new())
     }
@@ -159,13 +163,12 @@ impl<'a> CodeGenerator<'a> {
     fn visit_circuit_init(&mut self, input: &'a CircuitExpression) -> (String, String) {
         // Lookup circuit or record.
         let name = if let Some((is_record, type_)) = self.composite_mapping.get(&input.name.name) {
-            let name = input.name.to_string().to_lowercase();
             if *is_record {
                 // record.private;
-                format!("{}.{}", name, type_)
+                format!("{}.{}", input.name, type_)
             } else {
                 // foo; // no visibility for interfaces
-                name
+                input.name.to_string()
             }
         } else {
             unreachable!("All composite types should be known at this phase of compilation")
@@ -308,9 +311,5 @@ impl<'a> CodeGenerator<'a> {
 
         // CAUTION: does not return the destination_register.
         (tuple_elements, instructions)
-    }
-
-    fn visit_err(&mut self, _input: &'a ErrExpression) -> (String, String) {
-        unreachable!("`ErrExpression`s should not be in the AST at this phase of compilation.")
     }
 }

@@ -6,6 +6,8 @@ outputs:
     network: ""
     expected_input: []
     imports: {}
+    circuits: {}
+    mappings: {}
     functions:
       "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}":
         annotations:
@@ -16,8 +18,14 @@ outputs:
         identifier: "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
         input: []
         output:
+          - mode: None
+            type_:
+              Integer: U8
+            span:
+              lo: 27
+              hi: 29
+        output_type:
           Integer: U8
-        core_mapping: ~
         block:
           statements:
             - Return:
@@ -35,6 +43,7 @@ outputs:
           span:
             lo: 30
             hi: 49
+        finalize: ~
         span:
           lo: 11
           hi: 49
@@ -47,8 +56,14 @@ outputs:
         identifier: "{\"name\":\"g\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":90}\"}"
         input: []
         output:
+          - mode: None
+            type_:
+              Integer: U8
+            span:
+              lo: 96
+              hi: 98
+        output_type:
           Integer: U8
-        core_mapping: ~
         block:
           statements:
             - Return:
@@ -66,7 +81,7 @@ outputs:
           span:
             lo: 99
             hi: 118
+        finalize: ~
         span:
           lo: 80
           hi: 118
-    circuits: {}

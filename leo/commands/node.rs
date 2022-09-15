@@ -43,11 +43,11 @@ impl Command for Node {
         tracing::span!(tracing::Level::INFO, "Node")
     }
 
-    fn prelude(&self, _context: Context) -> Result<Self::Input> {
+    fn prelude(&self, _: Context) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Compose the `aleo node` command.
         let mut arguments = vec![ALEO_CLI_COMMAND.to_string()];
 

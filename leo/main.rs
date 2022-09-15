@@ -84,6 +84,12 @@ enum Commands {
     },
     #[structopt(subcommand)]
     Node(Node),
+
+    #[structopt(about = "Deploy a program")]
+    Deploy {
+        #[structopt(flatten)]
+        command: Deploy,
+    },
 }
 
 fn set_panic_hook() {
@@ -143,12 +149,12 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
     let context = handle_error(Context::new(cli.path));
 
     match cli.command {
-        // CommandOpts::Init { command } => command.try_execute(context),
         Commands::New { command } => command.try_execute(context),
         Commands::Build { command } => command.try_execute(context),
         Commands::Clean { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
         Commands::Node(command) => command.try_execute(context),
+        Commands::Deploy { command } => command.try_execute(context),
     }
 }
 

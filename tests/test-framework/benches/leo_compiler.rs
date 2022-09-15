@@ -39,6 +39,8 @@ enum BenchMode {
     Unroll,
     /// Benchmarks static single assignment.
     Ssa,
+    /// Benchmarks flattening.
+    Flatten,
     /// Benchmarks all the above stages.
     Full,
 }
@@ -103,6 +105,7 @@ impl Sample {
             BenchMode::Type => self.bench_type_checker(c),
             BenchMode::Unroll => self.bench_loop_unroller(c),
             BenchMode::Ssa => self.bench_ssa(c),
+            BenchMode::Flatten => self.bench_flattener(c),
             BenchMode::Full => self.bench_full(c),
         }
     }
@@ -195,6 +198,26 @@ impl Sample {
         })
     }
 
+    fn bench_flattener(&self, c: &mut Criterion) {
+        self.bencher_after_parse(c, "flattener pass", |mut compiler| {
+            let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
+            let symbol_table = compiler
+                .type_checker_pass(symbol_table)
+                .expect("failed to run type check pass");
+            let symbol_table = compiler
+                .loop_unrolling_pass(symbol_table)
+                .expect("failed to run loop unrolling pass");
+            let assigner = compiler
+                .static_single_assignment_pass()
+                .expect("failed to run ssa pass");
+            let start = Instant::now();
+            let out = compiler.flattening_pass(&symbol_table, assigner);
+            let time = start.elapsed();
+            out.expect("failed to run flattener pass");
+            time
+        });
+    }
+
     fn bench_full(&self, c: &mut Criterion) {
         self.bencher(c, "full", |mut compiler| {
             let (input, name) = self.data();
@@ -206,12 +229,15 @@ impl Sample {
             let symbol_table = compiler
                 .type_checker_pass(symbol_table)
                 .expect("failed to run type check pass");
-            compiler
+            let symbol_table = compiler
                 .loop_unrolling_pass(symbol_table)
                 .expect("failed to run loop unrolling pass");
-            compiler
+            let assigner = compiler
                 .static_single_assignment_pass()
                 .expect("failed to run ssa pass");
+            compiler
+                .flattening_pass(&symbol_table, assigner)
+                .expect("failed to run flattening pass");
             start.elapsed()
         })
     }
@@ -230,6 +256,7 @@ bench!(bench_symbol, BenchMode::Symbol);
 bench!(bench_type, BenchMode::Type);
 bench!(bench_unroll, BenchMode::Unroll);
 bench!(bench_ssa, BenchMode::Ssa);
+bench!(bench_flatten, BenchMode::Flatten);
 bench!(bench_full, BenchMode::Full);
 
 criterion_group!(
@@ -241,6 +268,7 @@ criterion_group!(
         bench_type,
         bench_unroll,
         bench_ssa,
+        bench_flatten,
         bench_full
 );
 criterion_main!(benches);

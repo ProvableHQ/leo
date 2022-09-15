@@ -14,40 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node, Type};
+use crate::{Identifier, Mode, Node, Type};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ParamMode {
-    None,
-    Const,
-    Private,
-    Public,
-}
-
-impl fmt::Display for ParamMode {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use ParamMode::*;
-
-        match self {
-            None => write!(f, ""),
-            Const => write!(f, "const"),
-            Private => write!(f, "private"),
-            Public => write!(f, "public"),
-        }
-    }
-}
-
 /// A function parameter.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct FunctionInput {
     /// The name the parameter is accessible as in the function's body.
     pub identifier: Identifier,
     /// The mode of the function parameter.
-    mode: ParamMode,
+    pub mode: Mode,
     /// What's the parameter's type?
     pub type_: Type,
     /// The parameters span from any annotations to its type.
@@ -55,35 +34,12 @@ pub struct FunctionInput {
 }
 
 impl FunctionInput {
-    pub fn new(identifier: Identifier, mode: ParamMode, type_: Type, span: Span) -> Self {
-        Self {
-            identifier,
-            mode,
-            type_,
-            span,
-        }
-    }
-
-    pub fn mode(&self) -> ParamMode {
-        self.mode
-    }
-}
-
-impl FunctionInput {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} ", self.mode)?;
-        write!(f, "{}: ", self.identifier)?;
-        write!(f, "{}", self.type_)
+        write!(f, "{} {}: {}", self.mode, self.identifier, self.type_)
     }
 }
 
 impl fmt::Display for FunctionInput {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.format(f)
-    }
-}
-
-impl fmt::Debug for FunctionInput {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }

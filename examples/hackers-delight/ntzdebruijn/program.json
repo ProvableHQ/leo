@@ -1,0 +1,10 @@
+{
+    "program": "ntzdebruijn.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkpBAYqv1Em7zjLNyQkGxfRQUtT4JNScLAznYfEDJeNJ8HJ",
+        "address": "aleo1a6gctkkkwu9fjlzvcfp6970rz2tskp8638x99stjqm3cs4889ufqtc3xg5"
+    },
+    "license": "MIT"
+}

@@ -1,0 +1,10 @@
+{
+    "program": "ntzloops.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkp3T8ynGSS35DrhWE4nBuBTkuUtd3wkpiyiyJ7452MvYmB",
+        "address": "aleo14lva4hqc4tpw4elhxndthkwnjuak22kn9gukqmzy6x9xdrjcu5yqvqwak5"
+    },
+    "license": "MIT"
+}

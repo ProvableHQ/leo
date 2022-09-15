@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372025]: Tuples are only allowed as function return types.\n    --> compiler-test:6:5\n     |\n   6 |     bar: (Bar, Bar),\n     |     ^^^\nError [ETYC0372025]: Tuples are only allowed as function return types.\n    --> compiler-test:10:5\n     |\n  10 |     bar: (Token, Token),\n     |     ^^^\nError [ETYC0372030]: A circuit or record cannot contain another record.\n    --> compiler-test:10:5\n     |\n  10 |     bar: (Token, Token),\n     |     ^^^\n     |\n     = Remove the record `Token` from `Bar`.\nError [ETYC0372030]: A circuit or record cannot contain another record.\n    --> compiler-test:10:5\n     |\n  10 |     bar: (Token, Token),\n     |     ^^^\n     |\n     = Remove the record `Token` from `Bar`.\n"
+  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '('\n    --> compiler-test:6:10\n     |\n   6 |     bar: (Bar, Bar),\n     |          ^"

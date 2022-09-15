@@ -27,8 +27,8 @@ use crate::{Clusivity, LoopBound, RangeIterator, SymbolTable};
 pub struct Unroller<'a> {
     /// The symbol table for the function being processed.
     pub(crate) symbol_table: RefCell<SymbolTable>,
-    /// The index of the current block scope.
-    pub(crate) block_index: usize,
+    /// The index of the current scope.
+    pub(crate) scope_index: usize,
     /// An error handler used for any errors found during unrolling.
     pub(crate) handler: &'a Handler,
     /// Are we in the midst of unrolling a loop?
@@ -39,7 +39,7 @@ impl<'a> Unroller<'a> {
     pub(crate) fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
         Self {
             symbol_table: RefCell::new(symbol_table),
-            block_index: 0,
+            scope_index: 0,
             handler,
             is_unrolling: false,
         }
@@ -51,23 +51,25 @@ impl<'a> Unroller<'a> {
         if self.is_unrolling {
             self.symbol_table.borrow_mut().insert_block()
         } else {
-            self.block_index
+            self.scope_index
         }
     }
 
-    /// Enters a child block scope.
-    pub(crate) fn enter_block_scope(&mut self, index: usize) {
+    /// Enters a child scope.
+    pub(crate) fn enter_scope(&mut self, index: usize) -> usize {
         let previous_symbol_table = std::mem::take(&mut self.symbol_table);
         self.symbol_table
             .swap(previous_symbol_table.borrow().lookup_scope_by_index(index).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(previous_symbol_table.into_inner()));
+        core::mem::replace(&mut self.scope_index, 0)
     }
 
     /// Exits the current block scope.
-    pub(crate) fn exit_block_scope(&mut self, index: usize) {
+    pub(crate) fn exit_scope(&mut self, index: usize) {
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
         self.symbol_table.swap(prev_st.lookup_scope_by_index(index).unwrap());
         self.symbol_table = RefCell::new(prev_st);
+        self.scope_index = index + 1;
     }
 
     /// Unrolls an IterationStatement.
@@ -104,8 +106,7 @@ impl<'a> Unroller<'a> {
         let scope_index = self.current_scope_index();
 
         // Enter the scope of the loop body.
-        self.enter_block_scope(scope_index);
-        self.block_index = 0;
+        let previous_scope_index = self.enter_scope(scope_index);
 
         // Clear the symbol table for the loop body.
         // This is necessary because loop unrolling transforms the program, which requires reconstructing the symbol table.
@@ -132,8 +133,7 @@ impl<'a> Unroller<'a> {
         });
 
         // Exit the scope of the loop body.
-        self.exit_block_scope(scope_index);
-        self.block_index = scope_index + 1;
+        self.exit_scope(previous_scope_index);
 
         iter_blocks
     }
@@ -142,7 +142,7 @@ impl<'a> Unroller<'a> {
     fn unroll_single_iteration<I: LoopBound>(&mut self, input: &IterationStatement, iteration_count: I) -> Statement {
         // Create a scope for a single unrolling of the `IterationStatement`.
         let scope_index = self.symbol_table.borrow_mut().insert_block();
-        self.enter_block_scope(scope_index);
+        let previous_scope_index = self.enter_scope(scope_index);
 
         let prior_is_unrolling = self.is_unrolling;
         self.is_unrolling = true;
@@ -185,17 +185,20 @@ impl<'a> Unroller<'a> {
         };
 
         // The first statement in the block is the assignment of the loop variable to the current iteration count.
-        let mut statements = vec![self.reconstruct_definition(DefinitionStatement {
-            declaration_type: DeclarationType::Const,
-            type_: input.type_.clone(),
-            value: Expression::Literal(value),
-            span: Default::default(),
-            variable_name: input.variable,
-        })];
+        let mut statements = vec![
+            self.reconstruct_definition(DefinitionStatement {
+                declaration_type: DeclarationType::Const,
+                type_: input.type_.clone(),
+                value: Expression::Literal(value),
+                span: Default::default(),
+                variable_name: input.variable,
+            })
+            .0,
+        ];
 
         // Reconstruct the statements in the loop body.
         input.block.statements.clone().into_iter().for_each(|s| {
-            statements.push(self.reconstruct_statement(s));
+            statements.push(self.reconstruct_statement(s).0);
         });
 
         let block = Statement::Block(Block {
@@ -206,7 +209,7 @@ impl<'a> Unroller<'a> {
         self.is_unrolling = prior_is_unrolling;
 
         // Exit the scope.
-        self.exit_block_scope(scope_index);
+        self.exit_scope(previous_scope_index);
 
         block
     }

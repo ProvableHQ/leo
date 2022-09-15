@@ -35,11 +35,14 @@ pub struct CodeGenerator<'a> {
     /// Are we traversing a program function?
     /// A "program function" is a function that can be invoked by a user or another program.
     pub(crate) is_program_function: bool,
+    /// Are we traversing a finalize block?
+    pub(crate) in_finalize: bool,
 }
 
 impl<'a> CodeGenerator<'a> {
     /// Initializes a new `CodeGenerator`.
     pub fn new(handler: &'a Handler) -> Self {
+        // Initialize variable mapping.
         Self {
             _handler: handler,
             next_register: 0,
@@ -47,6 +50,7 @@ impl<'a> CodeGenerator<'a> {
             variable_mapping: IndexMap::new(),
             composite_mapping: IndexMap::new(),
             is_program_function: false,
+            in_finalize: false,
         }
     }
 }

@@ -41,6 +41,9 @@ impl ParserContext<'_> {
     pub(crate) fn parse_statement(&mut self) -> Result<Statement> {
         match &self.token.token {
             Token::Return => Ok(Statement::Return(self.parse_return_statement()?)),
+            Token::Finalize => Ok(Statement::Finalize(self.parse_finalize_statement()?)),
+            Token::Increment => Ok(Statement::Increment(self.parse_increment_statement()?)),
+            Token::Decrement => Ok(Statement::Decrement(self.parse_decrement_statement()?)),
             Token::If => Ok(Statement::Conditional(self.parse_conditional_statement()?)),
             Token::For => Ok(Statement::Iteration(Box::new(self.parse_loop_statement()?))),
             Token::Console => Ok(Statement::Console(self.parse_console_statement()?)),
@@ -115,6 +118,57 @@ impl ParserContext<'_> {
         self.expect(&Token::Semicolon)?;
         let span = start + expression.span();
         Ok(ReturnStatement { span, expression })
+    }
+
+    /// Returns a [`FinalizeStatement`] AST node if the next tokens represent a finalize statement.
+    fn parse_finalize_statement(&mut self) -> Result<FinalizeStatement> {
+        let start = self.expect(&Token::Finalize)?;
+        let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
+        self.expect(&Token::Semicolon)?;
+        let span = start + span;
+        Ok(FinalizeStatement { span, arguments })
+    }
+
+    /// Returns a [`DecrementStatement`] AST node if the next tokens represent a decrement statement.
+    fn parse_decrement_statement(&mut self) -> Result<DecrementStatement> {
+        let start = self.expect(&Token::Decrement)?;
+        self.expect(&Token::LeftParen)?;
+        let mapping = self.expect_identifier()?;
+        self.expect(&Token::Comma)?;
+        let index = self.parse_expression()?;
+        self.expect(&Token::Comma)?;
+        let amount = self.parse_expression()?;
+        self.eat(&Token::Comma);
+        let end = self.expect(&Token::RightParen)?;
+        self.expect(&Token::Semicolon)?;
+        let span = start + end;
+        Ok(DecrementStatement {
+            mapping,
+            index,
+            amount,
+            span,
+        })
+    }
+
+    /// Returns an [`IncrementStatement`] AST node if the next tokens represent an increment statement.
+    fn parse_increment_statement(&mut self) -> Result<IncrementStatement> {
+        let start = self.expect(&Token::Increment)?;
+        self.expect(&Token::LeftParen)?;
+        let mapping = self.expect_identifier()?;
+        self.expect(&Token::Comma)?;
+        let index = self.parse_expression()?;
+        self.expect(&Token::Comma)?;
+        let amount = self.parse_expression()?;
+        self.eat(&Token::Comma);
+        let end = self.expect(&Token::RightParen)?;
+        self.expect(&Token::Semicolon)?;
+        let span = start + end;
+        Ok(IncrementStatement {
+            mapping,
+            index,
+            amount,
+            span,
+        })
     }
 
     /// Returns a [`ConditionalStatement`] AST node if the next tokens represent a conditional statement.

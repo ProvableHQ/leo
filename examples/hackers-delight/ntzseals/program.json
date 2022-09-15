@@ -1,0 +1,10 @@
+{
+    "program": "ntzseals.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkpG6G5iLouRcupzPXVKpapbwq4AVEmU4tTSQGCe1JGE75h",
+        "address": "aleo1uds398s2cuju0uc9x6ggcvvrhdlmu682gjj4zdhgflwu0z3htcrsf40cfa"
+    },
+    "license": "MIT"
+}

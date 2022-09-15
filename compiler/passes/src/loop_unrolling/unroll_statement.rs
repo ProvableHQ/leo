@@ -20,7 +20,28 @@ use crate::unroller::Unroller;
 use crate::{VariableSymbol, VariableType};
 
 impl StatementReconstructor for Unroller<'_> {
-    fn reconstruct_definition(&mut self, input: DefinitionStatement) -> Statement {
+    fn reconstruct_block(&mut self, input: Block) -> (Block, Self::AdditionalOutput) {
+        let scope_index = self.current_scope_index();
+
+        // Enter the block scope.
+        let previous_scope_index = self.enter_scope(scope_index);
+
+        let block = Block {
+            statements: input
+                .statements
+                .into_iter()
+                .map(|s| self.reconstruct_statement(s).0)
+                .collect(),
+            span: input.span,
+        };
+
+        // Exit the block scope.
+        self.exit_scope(previous_scope_index);
+
+        (block, Default::default())
+    }
+
+    fn reconstruct_definition(&mut self, input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         // If we are unrolling a loop, then we need to repopulate the symbol table.
         if self.is_unrolling {
             let declaration = if input.declaration_type == DeclarationType::Const {
@@ -40,10 +61,10 @@ impl StatementReconstructor for Unroller<'_> {
                 self.handler.emit_err(err);
             }
         }
-        Statement::Definition(input)
+        (Statement::Definition(input), Default::default())
     }
 
-    fn reconstruct_iteration(&mut self, input: IterationStatement) -> Statement {
+    fn reconstruct_iteration(&mut self, input: IterationStatement) -> (Statement, Self::AdditionalOutput) {
         // We match on start and stop cause loops require
         // bounds to be constants.
         match (
@@ -55,43 +76,22 @@ impl StatementReconstructor for Unroller<'_> {
                 | (Type::Integer(IntegerType::I16), Type::Integer(IntegerType::I16))
                 | (Type::Integer(IntegerType::I32), Type::Integer(IntegerType::I32))
                 | (Type::Integer(IntegerType::I64), Type::Integer(IntegerType::I64))
-                | (Type::Integer(IntegerType::I128), Type::Integer(IntegerType::I128)) => {
-                    self.unroll_iteration_statement::<i128>(input, start, stop)
-                }
+                | (Type::Integer(IntegerType::I128), Type::Integer(IntegerType::I128)) => (
+                    self.unroll_iteration_statement::<i128>(input, start, stop),
+                    Default::default(),
+                ),
                 (Type::Integer(IntegerType::U8), Type::Integer(IntegerType::U8))
                 | (Type::Integer(IntegerType::U16), Type::Integer(IntegerType::U16))
                 | (Type::Integer(IntegerType::U32), Type::Integer(IntegerType::U32))
                 | (Type::Integer(IntegerType::U64), Type::Integer(IntegerType::U64))
-                | (Type::Integer(IntegerType::U128), Type::Integer(IntegerType::U128)) => {
-                    self.unroll_iteration_statement::<u128>(input, start, stop)
-                }
+                | (Type::Integer(IntegerType::U128), Type::Integer(IntegerType::U128)) => (
+                    self.unroll_iteration_statement::<u128>(input, start, stop),
+                    Default::default(),
+                ),
                 _ => unreachable!("Type checking ensures that `start` and `stop` have the same type."),
             },
             // If both loop bounds are not constant, then the loop is not unrolled.
-            _ => Statement::Iteration(Box::from(input)),
+            _ => (Statement::Iteration(Box::from(input)), Default::default()),
         }
-    }
-
-    fn reconstruct_block(&mut self, input: Block) -> Block {
-        let scope_index = self.current_scope_index();
-
-        // Enter the block scope.
-        self.enter_block_scope(scope_index);
-        self.block_index = 0;
-
-        let block = Block {
-            statements: input
-                .statements
-                .into_iter()
-                .map(|s| self.reconstruct_statement(s))
-                .collect(),
-            span: input.span,
-        };
-
-        // Exit the block scope.
-        self.exit_block_scope(scope_index);
-        self.block_index = scope_index + 1;
-
-        block
     }
 }

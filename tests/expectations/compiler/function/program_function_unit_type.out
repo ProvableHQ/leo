@@ -1,0 +1,10 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - output:
+      - initial_input_ast: no input
+    initial_ast: bc3633f516774da99cc13d1f83df5607e79cdd0efef044a6aa135aed9bb88a93
+    unrolled_ast: bc3633f516774da99cc13d1f83df5607e79cdd0efef044a6aa135aed9bb88a93
+    ssa_ast: bc3633f516774da99cc13d1f83df5607e79cdd0efef044a6aa135aed9bb88a93
+    flattened_ast: bc3633f516774da99cc13d1f83df5607e79cdd0efef044a6aa135aed9bb88a93
