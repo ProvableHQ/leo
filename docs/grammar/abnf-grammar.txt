@@ -430,7 +430,9 @@ function-declaration = *annotation %s"function" identifier
                        "(" [ function-parameters ] ")" "->" type
                        block [ finalizer ]
 
-finalizer = %s"finalize" "(" [ function-parameters ] ")" "->" type block
+finalizer = %s"finalize" identifier
+            "(" [ function-parameters ] ")" "->" type
+            block
 
 function-parameters = function-parameter *( "," function-parameter ) [ "," ]
 
