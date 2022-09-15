@@ -62,7 +62,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             match &var.type_ {
                 Type::Unit => self.emit_err(TypeCheckerError::assign_unit_expression_to_variable(input.span)),
                 Type::Tuple(tuple) if tuple.len() == 1 => self.emit_err(TypeCheckerError::singleton_tuple(input.span)),
-                _ => () // Do nothing
+                _ => (), // Do nothing
             }
 
             Some(var.type_.clone())
@@ -198,7 +198,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         match &input.type_ {
             Type::Unit => self.emit_err(TypeCheckerError::assign_unit_expression_to_variable(input.span)),
             Type::Tuple(tuple) if tuple.len() == 1 => self.emit_err(TypeCheckerError::singleton_tuple(input.span)),
-            _ => () // Do nothing
+            _ => (), // Do nothing
         }
 
         self.visit_expression(&input.value, &Some(input.type_.clone()));

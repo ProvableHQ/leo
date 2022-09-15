@@ -127,7 +127,7 @@ impl StatementConsumer for StaticSingleAssigner {
                 };
 
                 // Create a new name for the variable written to in the `ConditionalStatement`.
-                let new_name = self.assigner.unique_symbol(symbol);
+                let new_name = self.assigner.unique_symbol(symbol, "$");
 
                 let (value, stmts) = self.consume_ternary(TernaryExpression {
                     condition: Box::new(condition.clone()),
