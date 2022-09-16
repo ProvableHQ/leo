@@ -29,7 +29,10 @@ path = "leo/main.rs"
 members = [
   "compiler/ast",
   "compiler/compiler",
+  "compiler/core",
   "compiler/parser",
+  "compiler/passes",
+  "compiler/span",
   "docs/grammar",
   "errors",
   "leo/package",
