@@ -1279,7 +1279,7 @@ dependencies = [
  "rand_core",
  "reqwest",
  "rusty-hook",
- "self_update 0.31.0",
+ "self_update 0.32.0",
  "serde",
  "serde_json",
  "snarkvm",
@@ -2218,9 +2218,9 @@ dependencies = [
 
 [[package]]
 name = "self_update"
-version = "0.31.0"
+version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b05ab948d728a6439b9da58a94c9df77d421a8bf558145681f908e170232f120"
+checksum = "7e08f3ce73aed26096783c26570ba416ff8f4524c89a14bcdf068967dc80daef"
 dependencies = [
  "hyper",
  "indicatif 0.17.0",
