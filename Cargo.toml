@@ -68,8 +68,8 @@ git = "https://github.com/AleoHQ/aleo.git"
 rev = "ddbb647"
 
 [dependencies.snarkvm]
-git = "https://github.com/AleoHQ/snarkVM.git"
-tag = "v0.9.0"
+version = "0.9.0"
+#git = "https://github.com/AleoHQ/snarkVM.git"
 #rev = "69cf3bd"
 features = ["aleo-cli", "circuit", "console", "parallel"]
 
