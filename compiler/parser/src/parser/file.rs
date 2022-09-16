@@ -262,9 +262,9 @@ impl ParserContext<'_> {
     /// Returns a [`ParamMode`] AST node if the next tokens represent a function parameter mode.
     pub(super) fn parse_mode(&mut self) -> Result<Mode> {
         // TODO: Allow explicit "private" mode.
-        let public = self.eat(&Token::Public).then(|| self.prev_token.span);
-        let constant = self.eat(&Token::Constant).then(|| self.prev_token.span);
-        let const_ = self.eat(&Token::Const).then(|| self.prev_token.span);
+        let public = self.eat(&Token::Public).then_some(self.prev_token.span);
+        let constant = self.eat(&Token::Constant).then_some(self.prev_token.span);
+        let const_ = self.eat(&Token::Const).then_some(self.prev_token.span);
 
         if let Some(span) = const_ {
             self.emit_warning(ParserWarning::const_parameter_or_input(span));

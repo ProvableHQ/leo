@@ -51,7 +51,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             let check_has_field = |need, expected_ty: Type| match input
                 .members
                 .iter()
-                .find_map(|CircuitMember::CircuitVariable(v, t)| (v.name == need).then(|| (v, t)))
+                .find_map(|CircuitMember::CircuitVariable(v, t)| (v.name == need).then_some((v, t)))
             {
                 Some((_, actual_ty)) if expected_ty.eq_flat(actual_ty) => {} // All good, found + right type!
                 Some((field, _)) => {
