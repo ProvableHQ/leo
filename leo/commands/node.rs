@@ -40,7 +40,7 @@ impl Command for Node {
     type Output = ();
 
     fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Node")
+        tracing::span!(tracing::Level::INFO, "Leo")
     }
 
     fn prelude(&self, _: Context) -> Result<Self::Input> {

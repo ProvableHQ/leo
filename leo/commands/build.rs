@@ -94,7 +94,7 @@ impl Command for Build {
     type Output = (Option<InputAst>, IndexMap<Symbol, Circuit>);
 
     fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Build")
+        tracing::span!(tracing::Level::INFO, "Leo")
     }
 
     fn prelude(&self, _: Context) -> Result<Self::Input> {
@@ -279,11 +279,10 @@ fn compile_leo_file(
 
     // Log the build as successful.
     tracing::info!(
-        "✅ Compiled '{}' into Aleo instructions {}",
+        "compiled '{}' into Aleo instructions {}",
         file_name,
         path_string.dimmed()
     );
-    // }
 
     Ok(symbol_table.circuits)
 }

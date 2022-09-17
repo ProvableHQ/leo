@@ -32,7 +32,7 @@ impl Command for Clean {
     type Output = ();
 
     fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Cleaning")
+        tracing::span!(tracing::Level::INFO, "Leo")
     }
 
     fn prelude(&self, _: Context) -> Result<Self::Input> {
@@ -44,11 +44,11 @@ impl Command for Clean {
 
         // Removes the outputs/ directory.
         let outputs_path = OutputsDirectory::remove(&path)?;
-        tracing::info!("✅ Cleaned the outputs directory {}", outputs_path.dimmed());
+        tracing::info!("cleaned the outputs directory {}", outputs_path.dimmed());
 
         // Removes the build/ directory.
         let build_path = BuildDirectory::remove(&path)?;
-        tracing::info!("✅ Cleaned the build directory {}", build_path.dimmed());
+        tracing::info!("cleaned the build directory {}", build_path.dimmed());
 
         Ok(())
     }

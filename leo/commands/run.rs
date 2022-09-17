@@ -49,7 +49,7 @@ impl Command for Run {
     type Output = ();
 
     fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Executing")
+        tracing::span!(tracing::Level::INFO, "Leo")
     }
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
