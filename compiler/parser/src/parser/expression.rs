@@ -443,7 +443,7 @@ impl ParserContext<'_> {
         let mut dist = 1; // 0th is `(` so 1st is first gc's start.
         let first_gc = self.peek_group_coordinate(&mut dist)?;
 
-        let check_ahead = |d, token: &_| self.look_ahead(d, |t| (&t.token == token).then(|| t.span));
+        let check_ahead = |d, token: &_| self.look_ahead(d, |t| (&t.token == token).then_some(t.span));
 
         // Peek at `,`.
         check_ahead(dist, &Token::Comma)?;
@@ -532,7 +532,7 @@ impl ParserContext<'_> {
                 let suffix_span = self.token.span;
                 let full_span = span + suffix_span;
                 let assert_no_whitespace = |x| assert_no_whitespace(span, suffix_span, &value, x);
-                match self.eat_any(INT_TYPES).then(|| &self.prev_token.token) {
+                match self.eat_any(INT_TYPES).then_some(&self.prev_token.token) {
                     // Literal followed by `field`, e.g., `42field`.
                     Some(Token::Field) => {
                         assert_no_whitespace("field")?;

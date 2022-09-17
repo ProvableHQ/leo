@@ -16,7 +16,7 @@ categories = ["cryptography::cryptocurrencies", "web-programming"]
 include = ["Cargo.toml", "src", "README.md", "LICENSE.md"]
 license = "GPL-3.0"
 edition = "2021"
-rust-version = "1.56.1"
+rust-version = "1.63"
 
 [dependencies.leo-ast]
 path = "../ast"
@@ -46,8 +46,9 @@ path = "../../tests/test-framework"
 version = "1.4.0"
 
 [dev-dependencies.snarkvm]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "d041a0e"
+version = "0.9.0"
+#git = "https://github.com/AleoHQ/snarkVM.git"
+#rev = "69cf3bd"
 features = ["aleo-cli", "circuit", "console", "parallel"]
 
 [dev-dependencies.serde]
