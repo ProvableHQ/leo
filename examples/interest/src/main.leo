@@ -27,7 +27,11 @@ function bounded_iteration_interest(capital: u32,
         if i < iterations {
             // Note that the added amount is rounded down.
             amount += (amount * rate) / 100u32;
+
         } // Skip the remaining iterations.
+        if i == 40u8 {
+            return amount;
+        }
     }
     return amount;
 }

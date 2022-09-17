@@ -4,17 +4,26 @@
 // The state of the board is captured by a value of this circuit type.
 // This will work better with arrays, but for now we just expand the 9 cells.
 
+circuit Row {
+    e1: u8,
+    e2: u8,
+    e3: u8
+}
+
 circuit Board {
-    // c(ell){row}{column} (0 for empty, 1 for X, 2 for O):
-    c11: u8,
-    c12: u8,
-    c13: u8,
-    c21: u8,
-    c22: u8,
-    c23: u8,
-    c31: u8,
-    c32: u8,
-    c33: u8
+    r1: Row,
+    r2: Row,
+    r3: Row,
+}
+
+// This function creates a new game board, with all cells empty.
+@program
+function new() -> Board {
+    return Board {
+        r1: Row { e1: 0u8, e2: 0u8, e3: 0u8 },
+        r2: Row { e1: 0u8, e2: 0u8, e3: 0u8 },
+        r3: Row { e1: 0u8, e2: 0u8, e3: 0u8 },
+    };
 }
 
 // This function checks whether a player is a winner on a board.
@@ -23,20 +32,20 @@ circuit Board {
 
 function win(b: Board, p: u8) -> bool {
     return
-        (b.c11 == p && b.c12 == p && b.c13 == p) || // row 1
-        (b.c21 == p && b.c22 == p && b.c23 == p) || // row 2
-        (b.c31 == p && b.c32 == p && b.c33 == p) || // row 3
-        (b.c11 == p && b.c21 == p && b.c31 == p) || // column 1
-        (b.c12 == p && b.c22 == p && b.c32 == p) || // column 2
-        (b.c13 == p && b.c23 == p && b.c33 == p) || // column 3
-        (b.c11 == p && b.c22 == p && b.c33 == p) || // diagonal
-        (b.c13 == p && b.c22 == p && b.c31 == p); // other diagonal
+        (b.r1.e1 == p && b.r1.e2 == p && b.r1.e3 == p) || // row 1
+        (b.r2.e1 == p && b.r2.e2 == p && b.r2.e3 == p) || // row 2
+        (b.r3.e1 == p && b.r3.e3 == p && b.r3.e3 == p) || // row 3
+        (b.r1.e1 == p && b.r2.e1 == p && b.r3.e1 == p) || // column 1
+        (b.r1.e2 == p && b.r2.e3 == p && b.r3.e2 == p) || // column 2
+        (b.r1.e3 == p && b.r2.e3 == p && b.r3.e3 == p) || // column 3
+        (b.r1.e1 == p && b.r2.e2 == p && b.r3.e3 == p) || // diagonal
+        (b.r1.e3 == p && b.r2.e2 == p && b.r3.e1 == p); // other diagonal
 }
 
 // This carries out a single move: a player (1 for X, 2 for O) marking a cell.
 // The cell must be empty (i.e. contain 0), otherwise this is a no-op.
 // The u8 result is the winning player, of 0 if there is no winner (yet).
-
+//
 @program
 function main(public player: u8, row: u8, col: u8, board: Board) -> (Board, u8) {
     console.assert(player == 1u8 || player == 2u8); // 1 for X, 2 for O
@@ -44,113 +53,95 @@ function main(public player: u8, row: u8, col: u8, board: Board) -> (Board, u8) 
     console.assert(1u8 <= col && col <= 3u8);
     let new: Board = board;
     // This will work better when circuit assignment is supported.
-    if row == 1u8 && col == 1u8 && new.c11 == 0u8 {
+    if row == 1u8 && col == 1u8 && new.r1.e1 == 0u8 {
         new = Board {
-            c11: player,
-            c12: new.c12,
-            c13: new.c13,
-            c21: new.c21,
-            c22: new.c22,
-            c23: new.c23,
-            c31: new.c31,
-            c32: new.c32,
-            c33: new.c33,
+            r1: Row {
+                e1: player,
+                e2: new.r1.e2,
+                e3: new.r1.e3
+            },
+            r2: new.r2,
+            r3: new.r3
         };
-    } else if row == 1u8 && col == 2u8 && new.c12 == 0u8 {
+    } else if row == 1u8 && col == 2u8 && new.r1.e2 == 0u8 {
         new = Board {
-            c11: new.c11,
-            c12: player,
-            c13: new.c13,
-            c21: new.c21,
-            c22: new.c22,
-            c23: new.c23,
-            c31: new.c31,
-            c32: new.c32,
-            c33: new.c33,
+            r1: Row {
+                e1: new.r1.e1,
+                e2: player,
+                e3: new.r1.e3
+            },
+            r2: new.r2,
+            r3: new.r3
         };
-    } else if row == 1u8 && col == 3u8 && new.c13 == 0u8 {
+    } else if row == 1u8 && col == 3u8 && new.r1.e3 == 0u8 {
         new = Board {
-            c11: new.c11,
-            c12: new.c12,
-            c13: player,
-            c21: new.c21,
-            c22: new.c22,
-            c23: new.c23,
-            c31: new.c31,
-            c32: new.c32,
-            c33: new.c33,
+            r1: Row {
+                e1: new.r1.e1,
+                e2: new.r1.e2,
+                e3: player
+            },
+            r2: new.r2,
+            r3: new.r3
         };
-    } else if row == 2u8 && col == 1u8 && new.c21 == 0u8 {
+    } else if row == 2u8 && col == 1u8 && new.r2.e1 == 0u8 {
         new = Board {
-            c11: new.c11,
-            c12: new.c12,
-            c13: new.c13,
-            c21: player,
-            c22: new.c22,
-            c23: new.c23,
-            c31: new.c31,
-            c32: new.c32,
-            c33: new.c33,
+            r1: new.r1,
+            r2: Row {
+                e1: player,
+                e2: new.r2.e2,
+                e3: new.r2.e3
+            },
+            r3: new.r3
         };
-    } else if row == 2u8 && col == 2u8 && new.c22 == 0u8 {
+    } else if row == 2u8 && col == 2u8 && new.r2.e2 == 0u8 {
         new = Board {
-            c11: new.c11,
-            c12: new.c12,
-            c13: new.c13,
-            c21: new.c21,
-            c22: player,
-            c23: new.c23,
-            c31: new.c31,
-            c32: new.c32,
-            c33: new.c33,
+            r1: new.r1,
+            r2: Row {
+                e1: new.r2.e1,
+                e2: player,
+                e3: new.r2.e3
+            },
+            r3: new.r3
         };
-    } else if row == 2u8 && col == 3u8 && new.c23 == 0u8 {
+    } else if row == 2u8 && col == 3u8 && new.r2.e3 == 0u8 {
         new = Board {
-            c11: new.c11,
-            c12: new.c12,
-            c13: new.c13,
-            c21: new.c21,
-            c22: new.c22,
-            c23: player,
-            c31: new.c31,
-            c32: new.c32,
-            c33: new.c33,
+            r1: new.r1,
+            r2: Row {
+                e1: new.r2.e1,
+                e2: new.r2.e2,
+                e3: player
+            },
+            r3: new.r3
         };
-    } else if row == 3u8 && col == 1u8 && new.c31 == 0u8 {
+    } else if row == 3u8 && col == 1u8 && new.r3.e1 == 0u8 {
         new = Board {
-            c11: new.c11,
-            c12: new.c12,
-            c13: new.c13,
-            c21: new.c21,
-            c22: new.c22,
-            c23: new.c23,
-            c31: player,
-            c32: new.c32,
-            c33: new.c33,
+            r1: new.r1,
+            r2: new.r2,
+            r3: Row {
+                e1: player,
+                e2: new.r3.e2,
+                e3: new.r3.e3
+            }
         };
-    } else if row == 3u8 && col == 2u8 && new.c32 == 0u8 {
+    } else if row == 3u8 && col == 2u8 && new.r3.e2 == 0u8 {
         new = Board {
-            c11: new.c11,
-            c12: new.c12,
-            c13: new.c13,
-            c21: new.c21,
-            c22: new.c22,
-            c23: new.c23,
-            c31: new.c31,
-            c32: player,
-            c33: new.c33,
+            r1: new.r1,
+            r2: new.r2,
+            r3: Row {
+                e1: new.r3.e1,
+                e2: player,
+                e3: new.r3.e3
+            }
         };
-    } else if row == 3u8 && col == 3u8 && new.c33 == 0u8 {
+    } else if row == 3u8 && col == 3u8 && new.r3.e3 == 0u8 {
         new = Board {
-            c11: new.c11,
-            c12: new.c12,
-            c13: new.c13,
-            c21: new.c21,
-            c22: new.c22,
-            c23: new.c23,
-            c31: new.c31,
-            c32: new.c32,
-            c33: player,
+            r1: new.r1,
+            r2: new.r2,
+            r3: Row {
+                e1: new.r3.e1,
+                e2: new.r3.e2,
+                e3: player
+            }
         };
     }
     if win(new, 1u8) {
