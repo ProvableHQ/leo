@@ -129,8 +129,6 @@ impl ProgramReconstructor for Flattener<'_> {
             }));
         }
 
-        println!("Circuit Mapping: {:?}", self.circuits);
-
         Function {
             annotations: function.annotations,
             identifier: function.identifier,
