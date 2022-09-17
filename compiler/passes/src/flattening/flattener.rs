@@ -111,7 +111,7 @@ impl<'a> Flattener<'a> {
             .into_iter()
             .rev()
             .fold(last_expression, |acc, (guard, expr)| match guard {
-                None => unreachable!("All expression except for the last one must have a guard."),
+                None => unreachable!("All expressions except for the last one must have a guard."),
                 // Note that type checking guarantees that all expressions have the same type.
                 Some(guard) => construct_ternary_assignment(guard, expr, acc),
             });
@@ -120,7 +120,6 @@ impl<'a> Flattener<'a> {
     }
 
     /// Looks up the name of the circuit associated with an identifier or access expression, if it exists.
-    /// The function assumes that the identifier or access expression is a circuit.
     pub(crate) fn lookup_circuit_symbol(&self, expression: &Expression) -> Option<Symbol> {
         match expression {
             Expression::Identifier(identifier) => self.circuits.get(&identifier.name).copied(),
@@ -138,19 +137,13 @@ impl<'a> Flattener<'a> {
                     _ => None,
                 }
             }
-            _ => unreachable!("Expected identifier or access expression"),
+            _ => None,
         }
     }
 
     /// Updates `self.circuits` for new assignment statements.
     /// Expects the left hand side of the assignment to be an identifier.
-    pub(crate) fn update_circuits(&mut self, lhs: &Expression, rhs: &Expression) {
-        let lhs = match lhs {
-            Expression::Identifier(identifier) => identifier,
-            // TODO: Document, or fix
-            _ => unreachable!("Expected identifier"),
-        };
-
+    pub(crate) fn update_circuits(&mut self, lhs: &Identifier, rhs: &Expression) {
         match rhs {
             Expression::Circuit(rhs) => {
                 self.circuits.insert(lhs.name, rhs.name.name);
@@ -166,17 +159,20 @@ impl<'a> Flattener<'a> {
     }
 
     /// A wrapper around `assigner.unique_simple_assign_statement` that updates `self.circuits`.
-    pub(crate) fn unique_simple_assign_statement(&mut self, expr: Expression) -> (Expression, Statement) {
-        // TODO: Fix clone
-        let (place, statement) = self.assigner.unique_simple_assign_statement(expr.clone());
-        self.update_circuits(&place, &expr);
+    pub(crate) fn unique_simple_assign_statement(&mut self, expr: Expression) -> (Identifier, Statement) {
+        let (place, statement) = self.assigner.unique_simple_assign_statement(expr);
+        match &statement {
+            Statement::Assign(assign) => {
+                self.update_circuits(&place, &assign.value);
+            }
+            _ => unreachable!("`assigner.unique_simple_assign_statement` always returns an assignment statement."),
+        }
         (place, statement)
     }
 
     /// A wrapper around `assigner.simple_assign_statement` that updates `self.circuits`.
     pub(crate) fn simple_assign_statement(&mut self, lhs: Identifier, rhs: Expression) -> Statement {
-        // TODO: Fix clone.
-        self.update_circuits(&Expression::Identifier(lhs), &rhs);
+        self.update_circuits(&lhs, &rhs);
         self.assigner.simple_assign_statement(lhs, rhs)
     }
 }

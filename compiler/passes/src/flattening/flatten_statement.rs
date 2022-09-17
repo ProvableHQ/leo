@@ -41,12 +41,11 @@ impl StatementReconstructor for Flattener<'_> {
         };
 
         // Update the `self.circuits` if the rhs is a circuit.
-        let place = Expression::Identifier(lhs);
-        self.update_circuits(&place, &value);
+        self.update_circuits(&lhs, &value);
 
         (
             Statement::Assign(Box::new(AssignStatement {
-                place,
+                place: Expression::Identifier(lhs),
                 value,
                 span: assign.span,
             })),

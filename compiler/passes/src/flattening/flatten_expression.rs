@@ -76,7 +76,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                             statements.push(statement);
 
                             // Return the identifier associated with the folded tuple element.
-                            identifier
+                            Expression::Identifier(identifier)
                         })
                         .collect(),
                     span: Default::default(),
@@ -132,7 +132,7 @@ impl ExpressionReconstructor for Flattener<'_> {
 
                                 CircuitVariableInitializer {
                                     identifier: *id,
-                                    expression: Some(identifier),
+                                    expression: Some(Expression::Identifier(identifier)),
                                 }
                             })
                             .collect();
@@ -150,18 +150,12 @@ impl ExpressionReconstructor for Flattener<'_> {
                         let (identifier, statement) = self.unique_simple_assign_statement(expr);
 
                         // Mark the lhs of the assignment as a circuit.
-                        match identifier {
-                            Expression::Identifier(identifier) => self
-                                .circuits
-                                .insert(identifier.name, first_member_circuit.identifier.name),
-                            _ => unreachable!(
-                                "`unique_simple_assign_statement` always produces an identifier on the left hand size."
-                            ),
-                        };
+                        self.circuits
+                            .insert(identifier.name, first_member_circuit.identifier.name);
 
                         statements.push(statement);
 
-                        (identifier, statements)
+                        (Expression::Identifier(identifier), statements)
                     }
                     _ => {
                         let if_true = Expression::Access(AccessExpression::Member(first));
@@ -185,7 +179,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                         // Accumulate the new assignment statement.
                         statements.push(statement);
 
-                        (identifier, statements)
+                        (Expression::Identifier(identifier), statements)
                     }
                 }
             }
@@ -234,7 +228,7 @@ impl ExpressionReconstructor for Flattener<'_> {
 
                         CircuitVariableInitializer {
                             identifier: *id,
-                            expression: Some(identifier),
+                            expression: Some(Expression::Identifier(identifier)),
                         }
                     })
                     .collect();
@@ -252,18 +246,11 @@ impl ExpressionReconstructor for Flattener<'_> {
                 let (identifier, statement) = self.unique_simple_assign_statement(expr);
 
                 // Mark the lhs of the assignment as a circuit.
-                match identifier {
-                    Expression::Identifier(identifier) => {
-                        self.circuits.insert(identifier.name, first_circuit.identifier.name)
-                    }
-                    _ => unreachable!(
-                        "`unique_simple_assign_statement` always produces an identifier on the left hand size."
-                    ),
-                };
+                self.circuits.insert(identifier.name, first_circuit.identifier.name);
 
                 statements.push(statement);
 
-                (identifier, statements)
+                (Expression::Identifier(identifier), statements)
             }
             // Otherwise, create a new intermediate assignment for the ternary expression are return the assigned variable.
             // Note that a new assignment must be created to flattened nested ternary expressions.
@@ -287,7 +274,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                 // Accumulate the new assignment statement.
                 statements.push(statement);
 
-                (identifier, statements)
+                (Expression::Identifier(identifier), statements)
             }
         }
     }
