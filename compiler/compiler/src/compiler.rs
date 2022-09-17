@@ -198,7 +198,11 @@ impl<'a> Compiler<'a> {
         // TODO: Make this pass optional.
         let assigner = self.static_single_assignment_pass()?;
 
+        println!("Before flattening: {:?}", self.ast);
+
         self.flattening_pass(&st, assigner)?;
+
+        println!("After flattening: {:?}", self.ast);
 
         Ok(st)
     }
