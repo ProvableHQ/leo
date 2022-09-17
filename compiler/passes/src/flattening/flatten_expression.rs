@@ -22,6 +22,8 @@ use leo_ast::{
     ExpressionReconstructor, MemberAccess, Statement, TernaryExpression, TupleExpression,
 };
 
+// TODO: Clean up logic. To be done in a follow-up PR (feat/tuples)
+
 impl ExpressionReconstructor for Flattener<'_> {
     type AdditionalOutput = Vec<Statement>;
 
