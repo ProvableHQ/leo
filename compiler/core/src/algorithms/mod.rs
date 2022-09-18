@@ -22,7 +22,7 @@ pub use pedersen::*;
 mod poseidon;
 pub use poseidon::*;
 
-use leo_ast::{IntegerType, Type};
+use leo_ast::Type;
 use leo_span::{sym, Symbol};
 
 /// A core instruction that maps directly to an AVM bytecode instruction.
@@ -95,49 +95,45 @@ impl CoreInstruction {
         }
     }
 
-    /// The allowed types for the first argument of the instruction.
-    pub fn first_arg_types(&self) -> &'static [Type] {
+    /// Returns whether or not the first argument is an allowed type.
+    pub fn first_arg_is_allowed_type(&self, type_: &Type) -> bool {
         match self {
-            Self::BHP256Commit => BHP256Commit::first_arg_types(),
-            Self::BHP256Hash => BHP256Hash::first_arg_types(),
-            Self::BHP512Commit => BHP512Commit::first_arg_types(),
-            Self::BHP512Hash => BHP512Hash::first_arg_types(),
-            Self::BHP768Commit => BHP768Commit::first_arg_types(),
-            Self::BHP768Hash => BHP768Hash::first_arg_types(),
-            Self::BHP1024Commit => BHP1024Commit::first_arg_types(),
-            Self::BHP1024Hash => BHP1024Hash::first_arg_types(),
-
-            Self::Pedersen64Commit => Pedersen64Commit::first_arg_types(),
-            Self::Pedersen64Hash => Pedersen64Hash::first_arg_types(),
-            Self::Pedersen128Commit => Pedersen128Commit::first_arg_types(),
-            Self::Pedersen128Hash => Pedersen128Hash::first_arg_types(),
-
-            Self::Poseidon2Hash => Poseidon2Hash::first_arg_types(),
-            Self::Poseidon4Hash => Poseidon4Hash::first_arg_types(),
-            Self::Poseidon8Hash => Poseidon8Hash::first_arg_types(),
+            CoreInstruction::BHP256Commit => BHP256Commit::first_arg_is_allowed_type(type_),
+            CoreInstruction::BHP256Hash => BHP256Hash::first_arg_is_allowed_type(type_),
+            CoreInstruction::BHP512Commit => BHP512Commit::first_arg_is_allowed_type(type_),
+            CoreInstruction::BHP512Hash => BHP512Hash::first_arg_is_allowed_type(type_),
+            CoreInstruction::BHP768Commit => BHP768Commit::first_arg_is_allowed_type(type_),
+            CoreInstruction::BHP768Hash => BHP768Hash::first_arg_is_allowed_type(type_),
+            CoreInstruction::BHP1024Commit => BHP1024Commit::first_arg_is_allowed_type(type_),
+            CoreInstruction::BHP1024Hash => BHP1024Hash::first_arg_is_allowed_type(type_),
+            CoreInstruction::Pedersen64Commit => Pedersen64Commit::first_arg_is_allowed_type(type_),
+            CoreInstruction::Pedersen64Hash => Pedersen64Hash::first_arg_is_allowed_type(type_),
+            CoreInstruction::Pedersen128Commit => Pedersen128Commit::first_arg_is_allowed_type(type_),
+            CoreInstruction::Pedersen128Hash => Pedersen128Hash::first_arg_is_allowed_type(type_),
+            CoreInstruction::Poseidon2Hash => Poseidon2Hash::first_arg_is_allowed_type(type_),
+            CoreInstruction::Poseidon4Hash => Poseidon4Hash::first_arg_is_allowed_type(type_),
+            CoreInstruction::Poseidon8Hash => Poseidon8Hash::first_arg_is_allowed_type(type_),
         }
     }
 
-    /// The allowed types for the second argument of the instruction.
-    pub fn second_arg_types(&self) -> &'static [Type] {
+    /// Returns whether or not the second argument is an allowed type.
+    pub fn second_arg_is_allowed_type(&self, type_: &Type) -> bool {
         match self {
-            Self::BHP256Commit => BHP256Commit::second_arg_types(),
-            Self::BHP256Hash => BHP256Hash::second_arg_types(),
-            Self::BHP512Commit => BHP512Commit::second_arg_types(),
-            Self::BHP512Hash => BHP512Hash::second_arg_types(),
-            Self::BHP768Commit => BHP768Commit::second_arg_types(),
-            Self::BHP768Hash => BHP768Hash::second_arg_types(),
-            Self::BHP1024Commit => BHP1024Commit::second_arg_types(),
-            Self::BHP1024Hash => BHP1024Hash::second_arg_types(),
-
-            Self::Pedersen64Commit => Pedersen64Commit::second_arg_types(),
-            Self::Pedersen64Hash => Pedersen64Hash::second_arg_types(),
-            Self::Pedersen128Commit => Pedersen128Commit::second_arg_types(),
-            Self::Pedersen128Hash => Pedersen128Hash::second_arg_types(),
-
-            Self::Poseidon2Hash => Poseidon2Hash::second_arg_types(),
-            Self::Poseidon4Hash => Poseidon4Hash::second_arg_types(),
-            Self::Poseidon8Hash => Poseidon8Hash::second_arg_types(),
+            CoreInstruction::BHP256Commit => BHP256Commit::second_arg_is_allowed_type(type_),
+            CoreInstruction::BHP256Hash => BHP256Hash::second_arg_is_allowed_type(type_),
+            CoreInstruction::BHP512Commit => BHP512Commit::second_arg_is_allowed_type(type_),
+            CoreInstruction::BHP512Hash => BHP512Hash::second_arg_is_allowed_type(type_),
+            CoreInstruction::BHP768Commit => BHP768Commit::second_arg_is_allowed_type(type_),
+            CoreInstruction::BHP768Hash => BHP768Hash::second_arg_is_allowed_type(type_),
+            CoreInstruction::BHP1024Commit => BHP1024Commit::second_arg_is_allowed_type(type_),
+            CoreInstruction::BHP1024Hash => BHP1024Hash::second_arg_is_allowed_type(type_),
+            CoreInstruction::Pedersen64Commit => Pedersen64Commit::second_arg_is_allowed_type(type_),
+            CoreInstruction::Pedersen64Hash => Pedersen64Hash::second_arg_is_allowed_type(type_),
+            CoreInstruction::Pedersen128Commit => Pedersen128Commit::second_arg_is_allowed_type(type_),
+            CoreInstruction::Pedersen128Hash => Pedersen128Hash::second_arg_is_allowed_type(type_),
+            CoreInstruction::Poseidon2Hash => Poseidon2Hash::second_arg_is_allowed_type(type_),
+            CoreInstruction::Poseidon4Hash => Poseidon4Hash::second_arg_is_allowed_type(type_),
+            CoreInstruction::Poseidon8Hash => Poseidon8Hash::second_arg_is_allowed_type(type_),
         }
     }
 
@@ -170,62 +166,16 @@ impl CoreInstruction {
 trait CoreFunction {
     const NUM_ARGS: usize;
 
-    /// Returns first argument allowed types.
-    fn first_arg_types() -> &'static [Type];
+    /// Returns whether or not the first argument is an allowed type.
+    fn first_arg_is_allowed_type(_: &Type) -> bool {
+        false
+    }
 
-    /// Returns the second argument allowed types.
-    /// Implementing this method is optional since some functions may not allow a second argument.
-    fn second_arg_types() -> &'static [Type] {
-        &[]
+    /// Returns whether or not the second argument is an allowed type.
+    fn second_arg_is_allowed_type(_: &Type) -> bool {
+        false
     }
 
     /// The return type of the core function.
     fn return_type() -> Type;
 }
-
-const ALL_TYPES: [Type; 16] = [
-    Type::Address,
-    Type::Boolean,
-    Type::Field,
-    Type::Group,
-    Type::Integer(IntegerType::I8),
-    Type::Integer(IntegerType::I16),
-    Type::Integer(IntegerType::I32),
-    Type::Integer(IntegerType::I64),
-    Type::Integer(IntegerType::I128),
-    Type::Integer(IntegerType::U8),
-    Type::Integer(IntegerType::U16),
-    Type::Integer(IntegerType::U32),
-    Type::Integer(IntegerType::U64),
-    Type::Integer(IntegerType::U128),
-    Type::Scalar,
-    Type::String,
-];
-
-const BOOL_INT_STRING_TYPES: [Type; 12] = [
-    Type::Boolean,
-    Type::Integer(IntegerType::I8),
-    Type::Integer(IntegerType::I16),
-    Type::Integer(IntegerType::I32),
-    Type::Integer(IntegerType::I64),
-    Type::Integer(IntegerType::I128),
-    Type::Integer(IntegerType::U8),
-    Type::Integer(IntegerType::U16),
-    Type::Integer(IntegerType::U32),
-    Type::Integer(IntegerType::U64),
-    Type::Integer(IntegerType::U128),
-    Type::String,
-];
-
-const BOOL_INT64_STRING_TYPES: [Type; 10] = [
-    Type::Boolean,
-    Type::Integer(IntegerType::I8),
-    Type::Integer(IntegerType::I16),
-    Type::Integer(IntegerType::I32),
-    Type::Integer(IntegerType::I64),
-    Type::Integer(IntegerType::U8),
-    Type::Integer(IntegerType::U16),
-    Type::Integer(IntegerType::U32),
-    Type::Integer(IntegerType::U64),
-    Type::String,
-];

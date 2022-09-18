@@ -51,6 +51,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 if let Some(core_instruction) = self.check_core_circuit_call(&access.ty, &access.name) {
                     // Check num input arguments.
                     if core_instruction.num_args() != access.args.len() {
+                        // TODO: Better error messages.
                         self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
                             core_instruction.num_args(),
                             access.args.len(),
@@ -60,14 +61,28 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
                     // Check first argument type.
                     if let Some(first_arg) = access.args.get(0usize) {
-                        let first_arg_type = self.visit_expression(first_arg, &None);
-                        self.assert_one_of_types(&first_arg_type, core_instruction.first_arg_types(), access.span());
+                        if let Some(first_arg_type) = self.visit_expression(first_arg, &None) {
+                            if !core_instruction.first_arg_is_allowed_type(&first_arg_type) {
+                                // TODO: Better error messages.
+                                self.emit_err(TypeCheckerError::invalid_type(
+                                    &first_arg_type,
+                                    access.args.get(0).unwrap().span(),
+                                ));
+                            }
+                        }
                     }
 
                     // Check second argument type.
                     if let Some(second_arg) = access.args.get(1usize) {
-                        let second_arg_type = self.visit_expression(second_arg, &None);
-                        self.assert_one_of_types(&second_arg_type, core_instruction.second_arg_types(), access.span());
+                        if let Some(second_arg_type) = self.visit_expression(second_arg, &None) {
+                            if !core_instruction.second_arg_is_allowed_type(&second_arg_type) {
+                                // TODO: Better error messages.
+                                self.emit_err(TypeCheckerError::invalid_type(
+                                    &second_arg_type,
+                                    access.args.get(1).unwrap().span(),
+                                ));
+                            }
+                        }
                     }
 
                     // Check return type.

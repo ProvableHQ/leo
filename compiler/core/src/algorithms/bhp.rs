@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::algorithms::{CoreFunction, ALL_TYPES};
+use crate::algorithms::CoreFunction;
 use leo_ast::Type;
 
 pub struct BHP256Hash;
@@ -22,8 +22,8 @@ pub struct BHP256Hash;
 impl CoreFunction for BHP256Hash {
     const NUM_ARGS: usize = 1;
 
-    fn first_arg_types() -> &'static [Type] {
-        &ALL_TYPES
+    fn first_arg_is_allowed_type(type_: &Type) -> bool {
+        !matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Err | Type::Unit)
     }
 
     fn return_type() -> Type {
@@ -36,12 +36,12 @@ pub struct BHP256Commit;
 impl CoreFunction for BHP256Commit {
     const NUM_ARGS: usize = 2;
 
-    fn first_arg_types() -> &'static [Type] {
-        &ALL_TYPES
+    fn first_arg_is_allowed_type(type_: &Type) -> bool {
+        !matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Err | Type::Unit)
     }
 
-    fn second_arg_types() -> &'static [Type] {
-        &[Type::Scalar]
+    fn second_arg_is_allowed_type(type_: &Type) -> bool {
+        matches!(type_, Type::Scalar)
     }
 
     fn return_type() -> Type {
@@ -54,8 +54,8 @@ pub struct BHP512Hash;
 impl CoreFunction for BHP512Hash {
     const NUM_ARGS: usize = 1;
 
-    fn first_arg_types() -> &'static [Type] {
-        &ALL_TYPES
+    fn first_arg_is_allowed_type(type_: &Type) -> bool {
+        !matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Err | Type::Unit)
     }
 
     fn return_type() -> Type {
@@ -68,12 +68,12 @@ pub struct BHP512Commit;
 impl CoreFunction for BHP512Commit {
     const NUM_ARGS: usize = 2;
 
-    fn first_arg_types() -> &'static [Type] {
-        &ALL_TYPES
+    fn first_arg_is_allowed_type(type_: &Type) -> bool {
+        !matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Err | Type::Unit)
     }
 
-    fn second_arg_types() -> &'static [Type] {
-        &[Type::Scalar]
+    fn second_arg_is_allowed_type(type_: &Type) -> bool {
+        matches!(type_, Type::Scalar)
     }
 
     fn return_type() -> Type {
@@ -86,8 +86,8 @@ pub struct BHP768Hash;
 impl CoreFunction for BHP768Hash {
     const NUM_ARGS: usize = 1;
 
-    fn first_arg_types() -> &'static [Type] {
-        &ALL_TYPES
+    fn first_arg_is_allowed_type(type_: &Type) -> bool {
+        !matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Err | Type::Unit)
     }
 
     fn return_type() -> Type {
@@ -100,12 +100,12 @@ pub struct BHP768Commit;
 impl CoreFunction for BHP768Commit {
     const NUM_ARGS: usize = 2;
 
-    fn first_arg_types() -> &'static [Type] {
-        &ALL_TYPES
+    fn first_arg_is_allowed_type(type_: &Type) -> bool {
+        !matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Err | Type::Unit)
     }
 
-    fn second_arg_types() -> &'static [Type] {
-        &[Type::Scalar]
+    fn second_arg_is_allowed_type(type_: &Type) -> bool {
+        matches!(type_, Type::Scalar)
     }
 
     fn return_type() -> Type {
@@ -118,8 +118,8 @@ pub struct BHP1024Hash;
 impl CoreFunction for BHP1024Hash {
     const NUM_ARGS: usize = 1;
 
-    fn first_arg_types() -> &'static [Type] {
-        &ALL_TYPES
+    fn first_arg_is_allowed_type(type_: &Type) -> bool {
+        !matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Err | Type::Unit)
     }
 
     fn return_type() -> Type {
@@ -132,12 +132,12 @@ pub struct BHP1024Commit;
 impl CoreFunction for BHP1024Commit {
     const NUM_ARGS: usize = 2;
 
-    fn first_arg_types() -> &'static [Type] {
-        &ALL_TYPES
+    fn first_arg_is_allowed_type(type_: &Type) -> bool {
+        !matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Err | Type::Unit)
     }
 
-    fn second_arg_types() -> &'static [Type] {
-        &[Type::Scalar]
+    fn second_arg_is_allowed_type(type_: &Type) -> bool {
+        matches!(type_, Type::Scalar)
     }
 
     fn return_type() -> Type {

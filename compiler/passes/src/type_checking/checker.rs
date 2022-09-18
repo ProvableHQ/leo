@@ -174,16 +174,6 @@ impl<'a> TypeChecker<'a> {
         )
     }
 
-    /// Emits an error to the error handler if the actual type is not equal to any of the expected types.
-    pub(crate) fn assert_one_of_types(&self, actual: &Option<Type>, expected: &[Type], span: Span) {
-        self.check_type(
-            |actual: &Type| expected.iter().any(|t: &Type| t == actual),
-            types_to_string(expected),
-            actual,
-            span,
-        )
-    }
-
     /// Emits an error to the handler if the given type is not a boolean.
     pub(crate) fn assert_bool_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
