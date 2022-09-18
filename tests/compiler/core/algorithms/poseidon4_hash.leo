@@ -4,6 +4,11 @@ expectation: Pass
 input_file: inputs/int64.in
 */
 
+circuit Foo {
+    a: u128,
+    b: u128,
+}
+
 @program
 function main(
     i8_value: i8,
@@ -35,6 +40,7 @@ function main(
     let k: field = Poseidon4::hash(u128_value);
     let l: field = Poseidon4::hash(scalar_value);
     // let m: field = Poseidon4::hash(string_value);
+    let n: field = Poseidon2::hash(Foo { a: 1u128, b: 2u128 });
 
     return a + l;
 }

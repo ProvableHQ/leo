@@ -4,6 +4,11 @@ expectation: Pass
 input_file: inputs/int64.in
 */
 
+circuit Foo {
+    a: u128,
+    b: u128,
+}
+
 @program
 function main(
     i8_value: i8,
@@ -41,6 +46,7 @@ function main(
     let n: field = BHP512::hash(u128_value);
     let o: field = BHP512::hash(scalar_value);
     // let p: field = BHP512::hash(string_value);
+    let q: field = BHP256::hash(Foo { a: 1u128, b: 1u128 });
 
     return a + o;
 }
