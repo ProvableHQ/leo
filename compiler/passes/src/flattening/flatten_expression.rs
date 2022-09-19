@@ -22,6 +22,8 @@ use leo_ast::{
     ExpressionReconstructor, MemberAccess, Statement, TernaryExpression, TupleExpression,
 };
 
+// TODO: Clean up logic. To be done in a follow-up PR (feat/tuples)
+
 impl ExpressionReconstructor for Flattener<'_> {
     type AdditionalOutput = Vec<Statement>;
 
@@ -72,18 +74,118 @@ impl ExpressionReconstructor for Flattener<'_> {
                             statements.extend(stmts);
 
                             // Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the tuple element.
-                            let (identifier, statement) = self.assigner.unique_simple_assign_statement(ternary);
+                            let (identifier, statement) = self.unique_simple_assign_statement(ternary);
                             statements.push(statement);
 
                             // Return the identifier associated with the folded tuple element.
-                            identifier
+                            Expression::Identifier(identifier)
                         })
                         .collect(),
                     span: Default::default(),
                 });
                 (tuple, statements)
             }
-            // If both expressions are circuits, construct ternary expression for each of the members and a circuit expression for the result.
+            // If both expressions are access expressions which themselves are circuits, construct ternary expression for nested circuit member.
+            (
+                Expression::Access(AccessExpression::Member(first)),
+                Expression::Access(AccessExpression::Member(second)),
+            ) => {
+                // Lookup the circuit symbols associated with the expressions.
+                // TODO: Remove clones
+                let first_circuit_symbol =
+                    self.lookup_circuit_symbol(&Expression::Access(AccessExpression::Member(first.clone())));
+                let second_circuit_symbol =
+                    self.lookup_circuit_symbol(&Expression::Access(AccessExpression::Member(second.clone())));
+
+                match (first_circuit_symbol, second_circuit_symbol) {
+                    (Some(first_circuit_symbol), Some(second_circuit_symbol)) => {
+                        let first_member_circuit = self.symbol_table.lookup_circuit(first_circuit_symbol).unwrap();
+                        let second_member_circuit = self.symbol_table.lookup_circuit(second_circuit_symbol).unwrap();
+                        // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
+                        assert_eq!(first_member_circuit, second_member_circuit);
+
+                        // For each circuit member, construct a new ternary expression.
+                        let members = first_member_circuit
+                            .members
+                            .iter()
+                            .map(|CircuitMember::CircuitVariable(id, _)| {
+                                // Construct a new ternary expression for the circuit member.
+                                let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
+                                    condition: input.condition.clone(),
+                                    if_true: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
+                                        inner: Box::new(Expression::Access(AccessExpression::Member(first.clone()))),
+                                        name: *id,
+                                        span: Default::default(),
+                                    }))),
+                                    if_false: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
+                                        inner: Box::new(Expression::Access(AccessExpression::Member(second.clone()))),
+                                        name: *id,
+                                        span: Default::default(),
+                                    }))),
+                                    span: Default::default(),
+                                });
+
+                                // Accumulate any statements generated.
+                                statements.extend(stmts);
+
+                                // Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the circuit member.
+                                let (identifier, statement) = self.unique_simple_assign_statement(expression);
+                                statements.push(statement);
+
+                                CircuitVariableInitializer {
+                                    identifier: *id,
+                                    expression: Some(Expression::Identifier(identifier)),
+                                }
+                            })
+                            .collect();
+
+                        let (expr, stmts) = self.reconstruct_circuit_init(CircuitExpression {
+                            name: first_member_circuit.identifier,
+                            members,
+                            span: Default::default(),
+                        });
+
+                        // Accumulate any statements generated.
+                        statements.extend(stmts);
+
+                        // Create a new assignment statement for the circuit expression.
+                        let (identifier, statement) = self.unique_simple_assign_statement(expr);
+
+                        // Mark the lhs of the assignment as a circuit.
+                        self.circuits
+                            .insert(identifier.name, first_member_circuit.identifier.name);
+
+                        statements.push(statement);
+
+                        (Expression::Identifier(identifier), statements)
+                    }
+                    _ => {
+                        let if_true = Expression::Access(AccessExpression::Member(first));
+                        let if_false = Expression::Access(AccessExpression::Member(second));
+                        // Reconstruct the true case.
+                        let (if_true, stmts) = self.reconstruct_expression(if_true);
+                        statements.extend(stmts);
+
+                        // Reconstruct the false case.
+                        let (if_false, stmts) = self.reconstruct_expression(if_false);
+                        statements.extend(stmts);
+
+                        let (identifier, statement) =
+                            self.unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
+                                condition: input.condition,
+                                if_true: Box::new(if_true),
+                                if_false: Box::new(if_false),
+                                span: input.span,
+                            }));
+
+                        // Accumulate the new assignment statement.
+                        statements.push(statement);
+
+                        (Expression::Identifier(identifier), statements)
+                    }
+                }
+            }
+            // If both expressions are identifiers which are circuits, construct ternary expression for each of the members and a circuit expression for the result.
             (Expression::Identifier(first), Expression::Identifier(second))
                 if self.circuits.contains_key(&first.name) && self.circuits.contains_key(&second.name) =>
             {
@@ -123,12 +225,12 @@ impl ExpressionReconstructor for Flattener<'_> {
                         statements.extend(stmts);
 
                         // Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the circuit member.
-                        let (identifier, statement) = self.assigner.unique_simple_assign_statement(expression);
+                        let (identifier, statement) = self.unique_simple_assign_statement(expression);
                         statements.push(statement);
 
                         CircuitVariableInitializer {
                             identifier: *id,
-                            expression: Some(identifier),
+                            expression: Some(Expression::Identifier(identifier)),
                         }
                     })
                     .collect();
@@ -143,21 +245,14 @@ impl ExpressionReconstructor for Flattener<'_> {
                 statements.extend(stmts);
 
                 // Create a new assignment statement for the circuit expression.
-                let (identifier, statement) = self.assigner.unique_simple_assign_statement(expr);
+                let (identifier, statement) = self.unique_simple_assign_statement(expr);
 
                 // Mark the lhs of the assignment as a circuit.
-                match identifier {
-                    Expression::Identifier(identifier) => {
-                        self.circuits.insert(identifier.name, first_circuit.identifier.name)
-                    }
-                    _ => unreachable!(
-                        "`unique_simple_assign_statement` always produces an identifier on the left hand size."
-                    ),
-                };
+                self.circuits.insert(identifier.name, first_circuit.identifier.name);
 
                 statements.push(statement);
 
-                (identifier, statements)
+                (Expression::Identifier(identifier), statements)
             }
             // Otherwise, create a new intermediate assignment for the ternary expression are return the assigned variable.
             // Note that a new assignment must be created to flattened nested ternary expressions.
@@ -171,18 +266,17 @@ impl ExpressionReconstructor for Flattener<'_> {
                 statements.extend(stmts);
 
                 let (identifier, statement) =
-                    self.assigner
-                        .unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
-                            condition: input.condition,
-                            if_true: Box::new(if_true),
-                            if_false: Box::new(if_false),
-                            span: input.span,
-                        }));
+                    self.unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
+                        condition: input.condition,
+                        if_true: Box::new(if_true),
+                        if_false: Box::new(if_false),
+                        span: input.span,
+                    }));
 
                 // Accumulate the new assignment statement.
                 statements.push(statement);
 
-                (identifier, statements)
+                (Expression::Identifier(identifier), statements)
             }
         }
     }

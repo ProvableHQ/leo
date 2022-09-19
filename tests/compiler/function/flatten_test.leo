@@ -1,8 +1,7 @@
-// This is suggestive of a tic-tac-toe game.
-// There are two players: 1, who uses X; and 2, who uses O.
-
-// The state of the board is captured by a value of this circuit type.
-// This will work better with arrays, but for now we just expand the 9 cells.
+/*
+namespace: Compile
+expectation: Pass
+*/
 
 circuit Row {
     e1: u8,
@@ -16,20 +15,6 @@ circuit Board {
     r3: Row,
 }
 
-// This function creates a new game board, with all cells empty.
-@program
-function new() -> Board {
-    return Board {
-        r1: Row { e1: 0u8, e2: 0u8, e3: 0u8 },
-        r2: Row { e1: 0u8, e2: 0u8, e3: 0u8 },
-        r3: Row { e1: 0u8, e2: 0u8, e3: 0u8 },
-    };
-}
-
-// This function checks whether a player is a winner on a board.
-// It checks if there are three marks for the player
-// in any row, column, or diagonal.
-
 function win(b: Board, p: u8) -> bool {
     return
         (b.r1.e1 == p && b.r1.e2 == p && b.r1.e3 == p) || // row 1
@@ -42,17 +27,9 @@ function win(b: Board, p: u8) -> bool {
         (b.r1.e3 == p && b.r2.e2 == p && b.r3.e1 == p); // other diagonal
 }
 
-// This carries out a single move: a player (1 for X, 2 for O) marking a cell.
-// The cell must be empty (i.e. contain 0), otherwise this is a no-op.
-// The u8 result is the winning player, of 0 if there is no winner (yet).
-//
 @program
 function main(public player: u8, row: u8, col: u8, board: Board) -> (Board, u8) {
-    console.assert(player == 1u8 || player == 2u8); // 1 for X, 2 for O
-    console.assert(1u8 <= row && row <= 3u8);
-    console.assert(1u8 <= col && col <= 3u8);
     let updated: Board = board;
-    // This will work better when circuit assignment is supported.
     if row == 1u8 && col == 1u8 && updated.r1.e1 == 0u8 {
         updated = Board {
             r1: Row {

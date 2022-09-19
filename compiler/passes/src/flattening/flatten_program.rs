@@ -18,6 +18,7 @@ use crate::Flattener;
 
 use leo_ast::{
     Finalize, FinalizeStatement, Function, ProgramReconstructor, ReturnStatement, Statement, StatementReconstructor,
+    Type,
 };
 
 impl ProgramReconstructor for Flattener<'_> {
@@ -26,6 +27,14 @@ impl ProgramReconstructor for Flattener<'_> {
         // First, flatten the finalize block. This allows us to initialize self.finalizes correctly.
         // Note that this is safe since the finalize block is independent of the function body.
         let finalize = function.finalize.map(|finalize| {
+            // Initialize `self.circuits` with the finalize's input as necessary.
+            self.circuits = Default::default();
+            for input in &finalize.input {
+                if let Type::Identifier(circuit_name) = input.type_ {
+                    self.circuits.insert(input.identifier.name, circuit_name.name);
+                }
+            }
+
             // Flatten the finalize block.
             let mut block = self.reconstruct_block(finalize.block).0;
 
@@ -58,6 +67,14 @@ impl ProgramReconstructor for Flattener<'_> {
                 span: finalize.span,
             }
         });
+
+        // Initialize `self.circuits` with the function's input as necessary.
+        self.circuits = Default::default();
+        for input in &function.input {
+            if let Type::Identifier(circuit_name) = input.type_ {
+                self.circuits.insert(input.identifier.name, circuit_name.name);
+            }
+        }
 
         // Flatten the function body.
         let mut block = self.reconstruct_block(function.block).0;

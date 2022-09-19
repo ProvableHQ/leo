@@ -34,22 +34,14 @@ impl StatementReconstructor for Flattener<'_> {
         };
 
         let (value, statements) = match assign.value {
-            // If the rhs of the assignment is a circuit, add it to `self.circuits`.
-            Expression::Circuit(rhs) => {
-                self.circuits.insert(lhs.name, rhs.name.name);
-                (Expression::Circuit(rhs), Default::default())
-            }
-            // If the rhs of the assignment is an identifier that is a circuit, add it to `self.circuits`.
-            Expression::Identifier(rhs) if self.circuits.contains_key(&rhs.name) => {
-                // Note that this unwrap is safe because we just checked that the key exists.
-                self.circuits.insert(lhs.name, *self.circuits.get(&rhs.name).unwrap());
-                (Expression::Identifier(rhs), Default::default())
-            }
             // If the rhs of the assignment is ternary expression, reconstruct it.
             Expression::Ternary(ternary) => self.reconstruct_ternary(ternary),
             // Otherwise return the original statement.
             value => (value, Default::default()),
         };
+
+        // Update the `self.circuits` if the rhs is a circuit.
+        self.update_circuits(&lhs, &value);
 
         (
             Statement::Assign(Box::new(AssignStatement {

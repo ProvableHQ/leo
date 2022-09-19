@@ -84,7 +84,7 @@ impl ExpressionConsumer for StaticSingleAssigner {
         let (place, statement) = self.assigner.unique_simple_assign_statement(Expression::Access(expr));
         statements.push(statement);
 
-        (place, statements)
+        (Expression::Identifier(place), statements)
     }
 
     /// Consumes a binary expression, accumulating any statements that are generated.
@@ -107,7 +107,7 @@ impl ExpressionConsumer for StaticSingleAssigner {
             }));
         statements.push(statement);
 
-        (place, statements)
+        (Expression::Identifier(place), statements)
     }
 
     /// Consumes a call expression without visiting the function name, accumulating any statements that are generated.
@@ -137,7 +137,7 @@ impl ExpressionConsumer for StaticSingleAssigner {
             }));
         statements.push(statement);
 
-        (place, statements)
+        (Expression::Identifier(place), statements)
     }
 
     /// Consumes a circuit initialization expression with renamed variables, accumulating any statements that are generated.
@@ -178,7 +178,7 @@ impl ExpressionConsumer for StaticSingleAssigner {
             }));
         statements.push(statement);
 
-        (place, statements)
+        (Expression::Identifier(place), statements)
     }
 
     /// Produces a new `Identifier` with a unique name.
@@ -235,7 +235,7 @@ impl ExpressionConsumer for StaticSingleAssigner {
             }));
         statements.push(statement);
 
-        (place, statements)
+        (Expression::Identifier(place), statements)
     }
 
     /// Consumes a tuple expression, accumulating any statements that are generated
@@ -279,6 +279,6 @@ impl ExpressionConsumer for StaticSingleAssigner {
             }));
         statements.push(statement);
 
-        (place, statements)
+        (Expression::Identifier(place), statements)
     }
 }
