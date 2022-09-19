@@ -108,7 +108,7 @@
 
     <span class="doccomment">/// Constructs a simple assign statement for `expr` with a unique name.</span>
     <span class="doccomment">/// For example, `expr` is transformed into `$var$0 = expr;`.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">unique_simple_assign_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">expr</span>: <span class="ident">Expression</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident">Statement</span>) {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">unique_simple_assign_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">expr</span>: <span class="ident">Expression</span>) -&gt; (<span class="ident">Identifier</span>, <span class="ident">Statement</span>) {
         <span class="comment">// Create a new variable for the expression.</span>
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">unique_symbol</span>(<span class="string">&quot;$var&quot;</span>);
 
@@ -117,7 +117,7 @@
             <span class="ident">span</span>: <span class="ident">Default::default</span>(),
         };
 
-        (<span class="ident">Expression::Identifier</span>(<span class="ident">place</span>), <span class="self">self</span>.<span class="ident">simple_assign_statement</span>(<span class="ident">place</span>, <span class="ident">expr</span>))
+        (<span class="ident">place</span>, <span class="self">self</span>.<span class="ident">simple_assign_statement</span>(<span class="ident">place</span>, <span class="ident">expr</span>))
     }
 }
 </code></pre></div>

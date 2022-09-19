@@ -180,14 +180,6 @@
 <span id="174">174</span>
 <span id="175">175</span>
 <span id="176">176</span>
-<span id="177">177</span>
-<span id="178">178</span>
-<span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -224,22 +216,14 @@
         };
 
         <span class="kw">let</span> (<span class="ident">value</span>, <span class="ident">statements</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">assign</span>.<span class="ident">value</span> {
-            <span class="comment">// If the rhs of the assignment is a circuit, add it to `self.circuits`.</span>
-            <span class="ident">Expression::Circuit</span>(<span class="ident">rhs</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">circuits</span>.<span class="ident">insert</span>(<span class="ident">lhs</span>.<span class="ident">name</span>, <span class="ident">rhs</span>.<span class="ident">name</span>.<span class="ident">name</span>);
-                (<span class="ident">Expression::Circuit</span>(<span class="ident">rhs</span>), <span class="ident">Default::default</span>())
-            }
-            <span class="comment">// If the rhs of the assignment is an identifier that is a circuit, add it to `self.circuits`.</span>
-            <span class="ident">Expression::Identifier</span>(<span class="ident">rhs</span>) <span class="kw">if</span> <span class="self">self</span>.<span class="ident">circuits</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">rhs</span>.<span class="ident">name</span>) =&gt; {
-                <span class="comment">// Note that this unwrap is safe because we just checked that the key exists.</span>
-                <span class="self">self</span>.<span class="ident">circuits</span>.<span class="ident">insert</span>(<span class="ident">lhs</span>.<span class="ident">name</span>, <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">circuits</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">rhs</span>.<span class="ident">name</span>).<span class="ident">unwrap</span>());
-                (<span class="ident">Expression::Identifier</span>(<span class="ident">rhs</span>), <span class="ident">Default::default</span>())
-            }
             <span class="comment">// If the rhs of the assignment is ternary expression, reconstruct it.</span>
             <span class="ident">Expression::Ternary</span>(<span class="ident">ternary</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_ternary</span>(<span class="ident">ternary</span>),
             <span class="comment">// Otherwise return the original statement.</span>
             <span class="ident">value</span> =&gt; (<span class="ident">value</span>, <span class="ident">Default::default</span>()),
         };
+
+        <span class="comment">// Update the `self.circuits` if the rhs is a circuit.</span>
+        <span class="self">self</span>.<span class="ident">update_circuits</span>(<span class="kw-2">&amp;</span><span class="ident">lhs</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>);
 
         (
             <span class="ident">Statement::Assign</span>(<span class="ident">Box::new</span>(<span class="ident">AssignStatement</span> {

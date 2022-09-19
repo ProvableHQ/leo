@@ -374,7 +374,7 @@
         <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">assigner</span>.<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Access</span>(<span class="ident">expr</span>));
         <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
 
-        (<span class="ident">place</span>, <span class="ident">statements</span>)
+        (<span class="ident">Expression::Identifier</span>(<span class="ident">place</span>), <span class="ident">statements</span>)
     }
 
     <span class="doccomment">/// Consumes a binary expression, accumulating any statements that are generated.</span>
@@ -397,7 +397,7 @@
             }));
         <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
 
-        (<span class="ident">place</span>, <span class="ident">statements</span>)
+        (<span class="ident">Expression::Identifier</span>(<span class="ident">place</span>), <span class="ident">statements</span>)
     }
 
     <span class="doccomment">/// Consumes a call expression without visiting the function name, accumulating any statements that are generated.</span>
@@ -427,7 +427,7 @@
             }));
         <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
 
-        (<span class="ident">place</span>, <span class="ident">statements</span>)
+        (<span class="ident">Expression::Identifier</span>(<span class="ident">place</span>), <span class="ident">statements</span>)
     }
 
     <span class="doccomment">/// Consumes a circuit initialization expression with renamed variables, accumulating any statements that are generated.</span>
@@ -468,7 +468,7 @@
             }));
         <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
 
-        (<span class="ident">place</span>, <span class="ident">statements</span>)
+        (<span class="ident">Expression::Identifier</span>(<span class="ident">place</span>), <span class="ident">statements</span>)
     }
 
     <span class="doccomment">/// Produces a new `Identifier` with a unique name.</span>
@@ -525,7 +525,7 @@
             }));
         <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
 
-        (<span class="ident">place</span>, <span class="ident">statements</span>)
+        (<span class="ident">Expression::Identifier</span>(<span class="ident">place</span>), <span class="ident">statements</span>)
     }
 
     <span class="doccomment">/// Consumes a tuple expression, accumulating any statements that are generated</span>
@@ -569,7 +569,7 @@
             }));
         <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
 
-        (<span class="ident">place</span>, <span class="ident">statements</span>)
+        (<span class="ident">Expression::Identifier</span>(<span class="ident">place</span>), <span class="ident">statements</span>)
     }
 }
 </code></pre></div>
