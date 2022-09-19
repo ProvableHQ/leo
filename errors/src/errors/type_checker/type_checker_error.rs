@@ -402,4 +402,11 @@ create_messages!(
         msg: format!("`finalize` name `{finalize_name}` does not match function name `{function_name}`"),
         help: None,
     }
+
+    @formatted
+    invalid_type {
+        args: (type_: impl Display),
+        msg: format!("Invalid type `{type_}`"),
+        help: None,
+    }
 );

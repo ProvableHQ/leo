@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::algorithms::{CoreFunction, ALL_TYPES};
+use crate::algorithms::CoreFunction;
 use leo_ast::Type;
 
 pub struct Poseidon2Hash;
@@ -22,8 +22,8 @@ pub struct Poseidon2Hash;
 impl CoreFunction for Poseidon2Hash {
     const NUM_ARGS: usize = 1;
 
-    fn first_arg_types() -> &'static [Type] {
-        &ALL_TYPES
+    fn first_arg_is_allowed_type(type_: &Type) -> bool {
+        !matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Err | Type::Unit)
     }
 
     fn return_type() -> Type {
@@ -36,8 +36,8 @@ pub struct Poseidon4Hash;
 impl CoreFunction for Poseidon4Hash {
     const NUM_ARGS: usize = 1;
 
-    fn first_arg_types() -> &'static [Type] {
-        &ALL_TYPES
+    fn first_arg_is_allowed_type(type_: &Type) -> bool {
+        !matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Err | Type::Unit)
     }
 
     fn return_type() -> Type {
@@ -50,8 +50,8 @@ pub struct Poseidon8Hash;
 impl CoreFunction for Poseidon8Hash {
     const NUM_ARGS: usize = 1;
 
-    fn first_arg_types() -> &'static [Type] {
-        &ALL_TYPES
+    fn first_arg_is_allowed_type(type_: &Type) -> bool {
+        !matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Err | Type::Unit)
     }
 
     fn return_type() -> Type {
