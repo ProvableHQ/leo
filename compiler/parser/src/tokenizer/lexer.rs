@@ -417,6 +417,7 @@ impl Token {
                     "increment" => Token::Increment,
                     "import" => Token::Import,
                     "let" => Token::Let,
+                    "leo" => Token::Leo,
                     "mapping" => Token::Mapping,
                     "public" => Token::Public,
                     "record" => Token::Record,

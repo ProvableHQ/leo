@@ -91,6 +91,7 @@ pub trait ExpressionReconstructor {
                     .into_iter()
                     .map(|arg| self.reconstruct_expression(arg).0)
                     .collect(),
+                external: input.external,
                 span: input.span,
             }),
             Default::default(),

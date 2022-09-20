@@ -130,6 +130,8 @@ pub enum Token {
     Return,
     SelfLower,
     Static,
+    // For imports.
+    Leo,
 
     // Meta Tokens
     Eof,
@@ -213,6 +215,7 @@ impl Token {
             Token::Increment => sym::increment,
             Token::Import => sym::import,
             Token::Let => sym::Let,
+            Token::Leo => sym::leo,
             Token::Mapping => sym::mapping,
             Token::Public => sym::Public,
             Token::Record => sym::record,
@@ -335,6 +338,7 @@ impl fmt::Display for Token {
             Public => write!(f, "public"),
             Return => write!(f, "return"),
             Static => write!(f, "static"),
+            Leo => write!(f, "leo"),
             Eof => write!(f, "<eof>"),
         }
     }

@@ -95,12 +95,11 @@ impl ParserContext<'_> {
 
         // Parse `.leo`.
         self.expect(&Token::Dot)?;
-        let leo_file_extension = self.expect_identifier()?;
-
-        // Throw error for non-leo files.
-        if leo_file_extension.name.ne(&sym::leo) {
-            return Err(ParserError::leo_imports_only(leo_file_extension, self.token.span).into());
+        if !self.eat(&Token::Leo) {
+            // Throw error for non-leo files.
+            return Err(ParserError::leo_imports_only(self.token.span).into());
         }
+
         let _end = self.expect(&Token::Semicolon)?;
 
         // Tokenize and parse import file.
