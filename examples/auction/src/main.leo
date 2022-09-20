@@ -1,4 +1,10 @@
-// This record defines a bid in the auction.
+// A bid in an auction.
+// - `owner`     : The address of the account that owns the record associated with this bid.
+//                 This is separate from the address of the account that placed the bid.
+// - `gates`     : The value associated with the record (always zero).
+// - `bidder`    : The address of the account that placed the bid.
+// - `amount`    : The amount of the bid.
+// - `is_winner` : Whether the bid is the winning bid.
 record Bid {
     owner: address,
     gates: u64,
@@ -7,11 +13,12 @@ record Bid {
     is_winner: bool,
 }
 
-// This function creates a new bid.
-// This function checks that `bidder` invoked the function.
-// Note that the owner of the record is set to the entity responsible for running the auction.
-//   The entity's address is aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh.
-//   This is necessary to allow the entity running the auction to process bids.
+// Returns a new bid.
+// - `bidder` : The address of the account that placed the bid.
+// - `amount` : The amount of the bid.
+// Requires that `bidder` matches the function caller.
+// The owner of the record is set to the entity responsible for running the auction (auction runner).
+// The address of the auction runner is aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh.
 @program
 function place_bid(bidder: address, amount: u64) -> Bid {
     console.assert_eq(self.caller, bidder);
@@ -24,9 +31,12 @@ function place_bid(bidder: address, amount: u64) -> Bid {
     };
 }
 
-// This function consumes two bids, selecting the winning one. In the event of a tie, the first bid is selected.
-// This function should be invoked once the bidding period has ended.
-// This function can only be called by the entity running the auction.
+// Returns the winning bid.
+// - `first`  : The first bid.
+// - `second` : The second bid.
+// Requires that the function caller is the auction runner.
+// Assumes that the function is invoked only after the bidding period has ended.
+// In the event of a tie, the first bid is selected.
 @program
 function resolve(first: Bid, second: Bid) -> Bid {
     console.assert_eq(self.caller, aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh);
@@ -37,9 +47,10 @@ function resolve(first: Bid, second: Bid) -> Bid {
     }
 }
 
-// This function returns ownership of the `Bid` record to the original bidder.
-// This function should be called after all bids have been resolved.
-// This function can only be called by the entity running the auction.
+// Returns ownership of the bid to bidder.
+// - `bid` : The winning bid.
+// Requires that the function caller is the auction runner.
+// Assumes that the function is invoked only after all bids have been resolved.
 @program
 function finish(bid: Bid) -> Bid {
     console.assert_eq(self.caller, aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh);
