@@ -54,7 +54,11 @@
 # Build and run the tic tac toe example Leo program.
 (
   cd ./project/examples/tictactoe || exit
-  $LEO run main
+  $LEO run new
+  $LEO run make_move
+
+  chmod +x ./run.sh
+  ./run.sh
 )
 
 # Build and run the simple token example programs.

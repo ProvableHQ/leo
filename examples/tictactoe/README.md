@@ -1,13 +1,8 @@
-# Tic Tac Toe in Leo
+# tictactoe.aleo
 
 ## Build Guide
 
-To compile this Leo program:
+To compile this Aleo program, run:
 ```bash
-leo build
-```
-
-To run this Leo program:
-```bash
-leo run
+aleo build
 ```
