@@ -1,0 +1,10 @@
+{
+    "program": "roulette.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkpCvErV4RYZrZDFxSWrt9WA7XWkvBqJPQFRRG8gtxz5NYw",
+        "address": "aleo10lwstajey700xag2etpzf2s9h6hwan94fkq6ww0qeqvu3r7ktcysh64m3s"
+    },
+    "license": "MIT"
+}

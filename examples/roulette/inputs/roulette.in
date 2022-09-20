@@ -1,0 +1,29 @@
+// The program input for roulette/src/main.leo
+[psd_hash]
+public a: u32 = 1u32;
+
+[mint_casino_token_record]
+a: address = aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx;
+b: u64 = 0u64;
+
+[make_bet]
+casino: Token = Token {
+	owner: aleo10lwstajey700xag2etpzf2s9h6hwan94fkq6ww0qeqvu3r7ktcysh64m3s,
+	gates: 0u64,
+	amount: 100u64,
+    _nonce: 0group,
+};
+player: address = aleo1ht2a9q0gsd38j0se4t9lsfulxgqrens2vgzgry3pkvs93xrrzu8s892zn7;
+spin: u8 = 0u8;
+bet: u8 = 0u8;
+bet_amount: u64 = 1u64;
+balance: u64 = 100u64;
+
+[psd_bits_mod]
+r0: bool = false;
+r1: bool = false;
+r2: bool = false;
+r3: bool = false;
+r4: bool = false;
+r5: bool = true;
+r6: u16 = 1u16;
