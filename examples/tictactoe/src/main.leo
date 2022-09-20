@@ -1,13 +1,7 @@
-// This is suggestive of a tic-tac-toe game.
-// There are two players: 1, who uses X; and 2, who uses O.
-
-// The state of the board is captured by a value of this circuit type.
-// This will work better with arrays, but for now we just expand the 9 cells.
-
 circuit Row {
-    e1: u8,
-    e2: u8,
-    e3: u8
+    c1: u8,
+    c2: u8,
+    c3: u8
 }
 
 circuit Board {
@@ -16,137 +10,72 @@ circuit Board {
     r3: Row,
 }
 
-// This function creates a new game board, with all cells empty.
 @program
 function new() -> Board {
     return Board {
-        r1: Row { e1: 0u8, e2: 0u8, e3: 0u8 },
-        r2: Row { e1: 0u8, e2: 0u8, e3: 0u8 },
-        r3: Row { e1: 0u8, e2: 0u8, e3: 0u8 },
+        r1: Row { c1: 0u8, c2: 0u8, c3: 0u8 },
+        r2: Row { c1: 0u8, c2: 0u8, c3: 0u8 },
+        r3: Row { c1: 0u8, c2: 0u8, c3: 0u8 },
     };
 }
 
-// This function checks whether a player is a winner on a board.
-// It checks if there are three marks for the player
-// in any row, column, or diagonal.
-
-function win(b: Board, p: u8) -> bool {
+function check_for_win(b: Board, p: u8) -> bool {
     return
-        (b.r1.e1 == p && b.r1.e2 == p && b.r1.e3 == p) || // row 1
-        (b.r2.e1 == p && b.r2.e2 == p && b.r2.e3 == p) || // row 2
-        (b.r3.e1 == p && b.r3.e3 == p && b.r3.e3 == p) || // row 3
-        (b.r1.e1 == p && b.r2.e1 == p && b.r3.e1 == p) || // column 1
-        (b.r1.e2 == p && b.r2.e3 == p && b.r3.e2 == p) || // column 2
-        (b.r1.e3 == p && b.r2.e3 == p && b.r3.e3 == p) || // column 3
-        (b.r1.e1 == p && b.r2.e2 == p && b.r3.e3 == p) || // diagonal
-        (b.r1.e3 == p && b.r2.e2 == p && b.r3.e1 == p); // other diagonal
+        (b.r1.c1 == p && b.r1.c2 == p && b.r1.c3 == p) || // row 1
+        (b.r2.c1 == p && b.r2.c2 == p && b.r2.c3 == p) || // row 2
+        (b.r3.c1 == p && b.r3.c3 == p && b.r3.c3 == p) || // row 3
+        (b.r1.c1 == p && b.r2.c1 == p && b.r3.c1 == p) || // column 1
+        (b.r1.c2 == p && b.r2.c3 == p && b.r3.c2 == p) || // column 2
+        (b.r1.c3 == p && b.r2.c3 == p && b.r3.c3 == p) || // column 3
+        (b.r1.c1 == p && b.r2.c2 == p && b.r3.c3 == p) || // diagonal
+        (b.r1.c3 == p && b.r2.c2 == p && b.r3.c1 == p); // other diagonal
 }
 
-// This carries out a single move: a player (1 for X, 2 for O) marking a cell.
-// The cell must be empty (i.e. contain 0), otherwise this is a no-op.
-// The u8 result is the winning player, of 0 if there is no winner (yet).
-//
 @program
-function main(public player: u8, row: u8, col: u8, board: Board) -> (Board, u8) {
+function make_move(player: u8, row: u8, col: u8, board: Board) -> (Board, u8) {
     console.assert(player == 1u8 || player == 2u8); // 1 for X, 2 for O
     console.assert(1u8 <= row && row <= 3u8);
     console.assert(1u8 <= col && col <= 3u8);
-    let updated: Board = board;
-    // This will work better when circuit assignment is supported.
-    if row == 1u8 && col == 1u8 && updated.r1.e1 == 0u8 {
-        updated = Board {
-            r1: Row {
-                e1: player,
-                e2: updated.r1.e2,
-                e3: updated.r1.e3
-            },
-            r2: updated.r2,
-            r3: updated.r3
-        };
-    } else if row == 1u8 && col == 2u8 && updated.r1.e2 == 0u8 {
-        updated = Board {
-            r1: Row {
-                e1: updated.r1.e1,
-                e2: player,
-                e3: updated.r1.e3
-            },
-            r2: updated.r2,
-            r3: updated.r3
-        };
-    } else if row == 1u8 && col == 3u8 && updated.r1.e3 == 0u8 {
-        updated = Board {
-            r1: Row {
-                e1: updated.r1.e1,
-                e2: updated.r1.e2,
-                e3: player
-            },
-            r2: updated.r2,
-            r3: updated.r3
-        };
-    } else if row == 2u8 && col == 1u8 && updated.r2.e1 == 0u8 {
-        updated = Board {
-            r1: updated.r1,
-            r2: Row {
-                e1: player,
-                e2: updated.r2.e2,
-                e3: updated.r2.e3
-            },
-            r3: updated.r3
-        };
-    } else if row == 2u8 && col == 2u8 && updated.r2.e2 == 0u8 {
-        updated = Board {
-            r1: updated.r1,
-            r2: Row {
-                e1: updated.r2.e1,
-                e2: player,
-                e3: updated.r2.e3
-            },
-            r3: updated.r3
-        };
-    } else if row == 2u8 && col == 3u8 && updated.r2.e3 == 0u8 {
-        updated = Board {
-            r1: updated.r1,
-            r2: Row {
-                e1: updated.r2.e1,
-                e2: updated.r2.e2,
-                e3: player
-            },
-            r3: updated.r3
-        };
-    } else if row == 3u8 && col == 1u8 && updated.r3.e1 == 0u8 {
-        updated = Board {
-            r1: updated.r1,
-            r2: updated.r2,
-            r3: Row {
-                e1: player,
-                e2: updated.r3.e2,
-                e3: updated.r3.e3
-            }
-        };
-    } else if row == 3u8 && col == 2u8 && updated.r3.e2 == 0u8 {
-        updated = Board {
-            r1: updated.r1,
-            r2: updated.r2,
-            r3: Row {
-                e1: updated.r3.e1,
-                e2: player,
-                e3: updated.r3.e3
-            }
-        };
-    } else if row == 3u8 && col == 3u8 && updated.r3.e3 == 0u8 {
-        updated = Board {
-            r1: updated.r1,
-            r2: updated.r2,
-            r3: Row {
-                e1: updated.r3.e1,
-                e2: updated.r3.e2,
-                e3: player
-            }
-        };
+
+    let r1c1: u8 = board.r1.c1;
+    let r1c2: u8 = board.r1.c2;
+    let r1c3: u8 = board.r1.c3;
+    let r2c1: u8 = board.r2.c1;
+    let r2c2: u8 = board.r2.c2;
+    let r2c3: u8 = board.r2.c3;
+    let r3c1: u8 = board.r3.c1;
+    let r3c2: u8 = board.r3.c2;
+    let r3c3: u8 = board.r3.c3;
+
+    if row == 1u8 && col == 1u8 && r1c1 == 0u8 {
+        r1c1 = player;
+    } else if row == 1u8 && col == 2u8 && r1c2 == 0u8 {
+        r1c2 = player;
+    } else if row == 1u8 && col == 3u8 && r1c3 == 0u8 {
+        r1c3 = player;
+    } else if row == 2u8 && col == 1u8 && r2c1 == 0u8 {
+        r2c1 = player;
+    } else if row == 2u8 && col == 2u8 && r2c2 == 0u8 {
+        r2c2 = player;
+    } else if row == 2u8 && col == 3u8 && r2c3 == 0u8 {
+        r2c3 = player;
+    } else if row == 3u8 && col == 1u8 && r3c1 == 0u8 {
+        r3c1 = player;
+    } else if row == 3u8 && col == 2u8 && r3c2 == 0u8 {
+        r3c2 = player;
+    } else if row == 3u8 && col == 3u8 && r3c3 == 0u8 {
+        r3c3 = player;
     }
-    if win(updated, 1u8) {
+
+    let updated: Board = Board {
+        r1: Row { c1: r1c1, c2: r1c2, c3: r1c3 },
+        r2: Row { c1: r2c1, c2: r2c2, c3: r2c3 },
+        r3: Row { c1: r3c1, c2: r2c2, c3: r2c3 },
+    };
+
+    if check_for_win(updated, 1u8) {
         return (updated, 1u8);
-    } else if win(updated, 2u8) {
+    } else if check_for_win(updated, 2u8) {
         return (updated, 2u8);
     } else {
         return (updated, 0u8);
