@@ -11,8 +11,8 @@ circuit ProposalInfo {
 record Proposal {
     owner: address,
     gates: u64,
-    id: field, // todo: make public
-    info: ProposalInfo, // todo make public
+    id: field,
+    info: ProposalInfo,
 }
 
 // Save proposal info in public storage.

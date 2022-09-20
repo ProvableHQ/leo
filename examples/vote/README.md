@@ -4,17 +4,16 @@
 
 `vote.leo` is a general vote program.
 
-Anyone can propose new proposals, proposer can issue tickets to the voters, and the voter can vote without exposing privacy (with the help of Aleo's flexible privacy mechanism).
-
-Proposal information and statistical voting results is public, while the correlation between the voter and the vote is private(protected by zk).
+Anyone can issue new proposals, 
+proposers can issue tickets to the voters, 
+and voters can vote without exposing their identity.
 
 This example is inspired by the [aleo-vote](https://github.com/zkprivacy/aleo-vote) example written by the Aleo community.
 
 ## Noteworthy Features
 
-mappings etc.
-
-
+Voter identity is concealed by privately passing a voter's ballot into a function.
+Proposal information and voting results are revealed using the public `mapping` datatype in Leo.
 
 ## How to Run
 
@@ -27,7 +26,7 @@ Make changes to `vote/inputs/vote.in` before running each command.
 
 ### Propose
 
-Anyone can propose new proposals publicly by calling `propose` function.
+Anyone can issue a new proposal publicly by calling `propose` function.
 
 Run `propose`:
 
@@ -53,9 +52,11 @@ Output sample:
 
 ### Create Ticket
 
-Proposer can create new tickets for proposed proposals.
+Proposers can create new tickets for proposed proposals.
 
-Ticket is a record with `owner` and `pid`, it can be used to vote for the specific proposal - `pid`, and can only be used(voted) by the ticket `owner`.
+Ticket is a record with `owner` and `pid`, 
+it can be used to vote for the specific proposal - `pid`, 
+and can only be used(voted) by the ticket `owner`.
 
 Run `new_ticket`:
 
@@ -76,9 +77,9 @@ Output sample:
 
 ### Vote
 
-Ticket owner can use the ticket to vote `agree` / `disagree` with the specific proposal - `pid`.
+A ticket owner can use their ticket record to vote `agree` / `disagree` with the specific proposal - `pid`.
 
-As the ticket record can be used as an input privately, the voter's privacy is protected by zk.
+Since the ticket record can be used as an input privately, the voter's privacy is protected.
 
 Run `agree`:
 
