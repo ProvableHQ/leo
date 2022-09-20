@@ -6,7 +6,7 @@
 // the address of the currently winning bidder
 // and the currently winning amount.
 // The owner and gates fields are required in a record;
-// the owner address in general differs from the curent auction winner:
+// the owner address in general differs from the current auction winner:
 // the owner is the one running the auction itself.
 
 record Auction {

@@ -33,7 +33,7 @@ impl Command for Deploy {
     type Output = ();
 
     fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Deploy")
+        tracing::span!(tracing::Level::INFO, "Leo")
     }
 
     fn prelude(&self, _: Context) -> Result<Self::Input> {
