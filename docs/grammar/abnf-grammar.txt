@@ -59,7 +59,7 @@ not-double-quote-or-backslash-or-line-feed-or-carriage-return =
     %x0-9 / %xB-C / %xE-21 / %x23-5B / %x5D-7F / safe-nonascii
     ; anything but " or \ or <LF> or <CR>
 
-comment = block-comment / end-of-line-comment
+comment = block-comment / line-comment
 
 block-comment = "/*" rest-of-block-comment
 
@@ -74,7 +74,7 @@ rest-of-block-comment-after-star =
     / not-star-or-slash-or-line-feed-or-carriage-return rest-of-block-comment
     / line-terminator rest-of-block-comment
 
-end-of-line-comment = "//" *not-line-feed-or-carriage-return
+line-comment = "//" *not-line-feed-or-carriage-return
 
 keyword = %s"address"
         / %s"bool"
