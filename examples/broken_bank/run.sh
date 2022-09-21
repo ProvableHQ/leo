@@ -75,5 +75,5 @@ echo "{
 echo "
 
 
-The bank is withdrawing the user's tokens after 75 periods."
+The bank is withdrawing the user's tokens after 15 periods at 12.34%."
 leo run withdraw aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a 50u64 1234u64 15u64;
