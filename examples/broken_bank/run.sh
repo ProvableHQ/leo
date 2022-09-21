@@ -7,12 +7,12 @@ then
 fi
 
 # The private key and address of the bank.
-# Swap these into program.json, when running transactions as the first bidder.
+# Swap these into program.json, when running transactions as the bank.
 # "private_key": "APrivateKey1zkpHtqVWT6fSHgUMNxsuVf7eaR6id2cj7TieKY1Z8CP5rCD",
 # "address": "aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a"
 
 # The private key and address of the user.
-# Swap these into program.json, when running transactions as the second bidder.
+# Swap these into program.json, when running transactions as the user.
 # "private_key": "APrivateKey1zkp75cpr5NNQpVWc5mfsD9Uf2wg6XvHknf82iwB636q3rtc"
 # "address": "aleo1zeklp6dd8e764spe74xez6f8w27dlua3w7hl4z2uln03re52egpsv46ngg"
 

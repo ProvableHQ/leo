@@ -11,7 +11,7 @@ record Token {
 }
 
 // The `mint` function initializes a new record with the
-// to the receiver of tokens in `r1` for the receiver in `r0`.
+// specified number of tokens assigned to the specified receiver.
 @program
 function mint(owner: address, amount: u64) -> Token {
     return Token {
