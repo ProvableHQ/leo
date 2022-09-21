@@ -18,7 +18,7 @@ fi
 
 # Swap in the private key and address of the bank to program.json.
 echo "{
-  \"program\": \"bank.aleo\",
+  \"program\": \"broken_bank.aleo\",
   \"version\": \"0.0.0\",
   \"description\": \"\",
   \"development\": {
@@ -37,7 +37,7 @@ leo run issue aleo1zeklp6dd8e764spe74xez6f8w27dlua3w7hl4z2uln03re52egpsv46ngg 10
 
 # Swap in the private key and address of the user to program.json.
 echo "{
-  \"program\": \"bank.aleo\",
+  \"program\": \"broken_bank.aleo\",
   \"version\": \"0.0.0\",
   \"description\": \"\",
   \"development\": {
@@ -61,7 +61,7 @@ leo run deposit "{
 
 # Swap in the private key and address of the bank to program.json.
 echo "{
-  \"program\": \"bank.aleo\",
+  \"program\": \"broken_bank.aleo\",
   \"version\": \"0.0.0\",
   \"description\": \"\",
   \"development\": {
@@ -75,5 +75,5 @@ echo "{
 echo "
 
 
-The bank is withdrawing the user's tokens after 75 periods."
+The bank is withdrawing the user's tokens after 15 periods at 12.34%."
 leo run withdraw aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a 50u64 1234u64 15u64;

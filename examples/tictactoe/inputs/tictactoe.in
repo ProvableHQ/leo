@@ -1,5 +1,7 @@
+// The `new` function does not take any inputs.
 [new]
 
+// Inputs for the `make_move` function.
 [make_move]
 player: u8 = 1u8;
 row: u8 = 1u8;
