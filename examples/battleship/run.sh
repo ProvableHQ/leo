@@ -8,7 +8,14 @@ fi
 
 # Follow along in the README.md for a detailed explanation of each step.
 
-# 1. Setup
+# 1: Initializing Player 1
+echo "
+###############################################################################
+########                                                               ########
+########                 STEP 1: Initializing Player 1                 ########
+########                                                               ########
+###############################################################################
+"
 echo "{
   \"program\": \"battleship.aleo\",
   \"version\": \"0.0.0\",
@@ -21,10 +28,29 @@ echo "{
   \"license\": \"MIT\"
 }" > program.json
 
-# 2. Select Player 1's Board
+echo "✅ Successfully initialized Player 1."
+
+# 2: Player 1 Places Ships On The Board
+echo "
+###############################################################################
+########                                                               ########
+########           STEP 2: Player 1 Places Ships On The Board          ########
+########                                                               ########
+###############################################################################
+"
 leo run initialize_board 34084860461056u64 551911718912u64 7u64 1157425104234217472u64 aleo1wyvu96dvv0auq9e4qme54kjuhzglyfcf576h0g3nrrmrmr0505pqd6wnry
 
-# 3. Pass to Player 2
+echo "
+✅ Successfully initialized Player 1's board."
+
+# 3: Player 1 Passes The Board To Player 2
+echo "
+###############################################################################
+########                                                               ########
+########         STEP 3: Player 1 Passes The Board To Player 2         ########
+########                                                               ########
+###############################################################################
+"
 leo run offer_battleship '{
   owner: aleo15g9c69urtdhvfml0vjl8px07txmxsy454urhgzk57szmcuttpqgq5cvcdy.private,
   gates: 0u64.private,
@@ -36,8 +62,17 @@ leo run offer_battleship '{
   game_started: false.private,
   _nonce: 3887646704618532506963887075433683846689834495661101507703164090915348189037group.public
 }'
+echo "
+✅ Successfully passed the board to Player 2."
 
-# 4. Select Player 2's Board
+# 4: Player 2 Places Ships On The Board
+echo "
+###############################################################################
+########                                                               ########
+########           STEP 4: Player 2 Places Ships On The Board          ########
+########                                                               ########
+###############################################################################
+"
 (
   echo "{
     \"program\": \"battleship.aleo\",
@@ -53,8 +88,18 @@ leo run offer_battleship '{
 
   leo run initialize_board 31u64 2207646875648u64 224u64 9042383626829824u64 aleo15g9c69urtdhvfml0vjl8px07txmxsy454urhgzk57szmcuttpqgq5cvcdy
 )
+echo "
+✅ Successfully initialized Player 2's board."
 
-# 5. Pass to Player 1
+# 5: Passing The Board Back To Player 1
+echo "
+###############################################################################
+########                                                               ########
+########          STEP 5: Passing The Board Back To Player 1           ########
+########                                                               ########
+###############################################################################
+
+"
 leo run start_battleship '{
   owner: aleo1wyvu96dvv0auq9e4qme54kjuhzglyfcf576h0g3nrrmrmr0505pqd6wnry.private,
   gates: 0u64.private,
@@ -74,8 +119,17 @@ leo run start_battleship '{
   prev_hit_or_miss: 0u64.private,
   _nonce: 4374626042494973146987320062571809401151262172766172816829659487584978644457group.public
 }'
+echo "
+✅ Successfully passed the board back to Player 1."
 
-# 6. Player 1 Shoots First
+# 6: Player 1 Takes The 1st Turn
+echo "
+###############################################################################
+########                                                               ########
+########               STEP 6: Player 1 Takes The 1st Turn             ########
+########                                                               ########
+###############################################################################
+"
 (
   echo "{
     \"program\": \"battleship.aleo\",
@@ -109,8 +163,17 @@ leo run start_battleship '{
     _nonce: 3742551407126138397717446975757978589064777004441277005584760115236217735495group.public
   }' 1u64
 )
+echo "
+✅ Successfully executed Player 1's turn."
 
-# 7. Player 2 Shoots Second
+# 7: Player 2 Takes The 2nd Turn
+echo "
+###############################################################################
+########                                                               ########
+########               STEP 7: Player 2 Takes The 2nd Turn             ########
+########                                                               ########
+###############################################################################
+"
 (
   echo "{
     \"program\": \"battleship.aleo\",
@@ -144,8 +207,17 @@ leo run start_battleship '{
     _nonce: 5481529266389297320813092061136936339861329677911328036818179854958874588416group.public
   }' 2048u64
 )
+echo "
+✅ Successfully executed Player 2's turn."
 
-# 8. Player 1 Shoots Third
+# 8: Player 1 Takes The 3rd Turn
+echo "
+###############################################################################
+########                                                               ########
+########              STEP 8: Player 1 Takes The 3rd Turn              ########
+########                                                               ########
+###############################################################################
+"
 (
   echo "{
     \"program\": \"battleship.aleo\",
@@ -179,8 +251,17 @@ leo run start_battleship '{
     _nonce: 5851606198769770675504009323414373017067582072428989801313256693053765675198group.public
   }' 2u64
 )
+echo "
+✅ Successfully executed Player 1's turn."
 
-# 9. Player 2 Shoots Fourth
+# 9: Player 2 Takes The 4th Turn
+echo "
+###############################################################################
+########                                                               ########
+########               STEP 9: Player 2 Takes The 4th Turn             ########
+########                                                               ########
+###############################################################################
+"
 (
   echo "{
     \"program\": \"battleship.aleo\",
@@ -214,3 +295,5 @@ leo run start_battleship '{
     _nonce: 710336412388939616658264778971886770861024495941253598683184288448156545822group.public
   }' 4u64
 )
+echo "
+✅ Successfully executed Player 2's turn."
