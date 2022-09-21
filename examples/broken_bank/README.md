@@ -1,35 +1,28 @@
-# Blind Auction
+# Broken Bank
 
 A "broken" bank written in Leo.
 
 ## Summary
 
-A first-price sealed-bid auction (or blind auction) is a type of auction in which each participant submits a bid without knowing the bids of the other participants.
-The bidder with the highest bid wins the auction.
-
-In this model, there are two parties: the auctioneer and the bidders.
-- **Bidder**: A participant in the auction.
-- **Auctioneer**: The party responsible for conducting the auction.
-
-We make following assumptions about the auction:
-- The auctioneer is honest. That is, the auctioneer will resolve **all** bids in the order they are received. The auctioneer will not tamper with the bids.
-- There is no limit to the number of bids.
-- The auctioneer knows the identity of all bidders, but bidders do not necessarily know the identity of other bidders.
-
-Under this model, we require that:
-- Bidders do not learn any information about the value of other bids.
-
-### Auction Flow
-The auction is conducted in a series of stages.
-- **Bidding**: In the bidding stage, bidders submit bids to the auctioneer. They do so by invoking the `place_bid` function.
-- **Resolution**:  In the resolution stage, the auctioneer resolves the bids in the order they were received. The auctioneer does so by invoking the `resolve` function. The resolution process produces a single winning bid.
-- **Finishing**: In this stage, the auctioneer finishes the auction by invoking the `finish` function. This function returns the winning bid to the bidder, which the bidder can then use to claim the item.
-
-## Vulnerabilities
-
-You may have already guessed that this program has a few vulnerabilities. Can you find them?
+This application implements a bank that issues tokens to users and allows users to deposit tokens and accrue interest on their deposits.
 
 
+### User Flow
+1. The bank issues users tokens via the `issue` function.
+2. A user deposits tokens via the `deposit` function.
+3. Upon a user's request to withdraw, the bank calculates the appropriate amount of compound interest and pays the user the principal and interest via the `withdraw` function.
+
+Note that the program can be easily extended to include addition features such as a `transfer` function, which would allow users to transfer tokens to other users.
+
+## Bugs
+
+You may have already guessed that this program has a few bugs. We list some of them below: 
+- `withdraw` can only be invoked by the bank. A malicious bank could lock users' tokens by not invoking `withdraw`.
+- `withdraw` fails if the sum of the interest and principal is greater than the user's balance. 
+- User's can increase their principal by depositing tokens multiple times, including immediately before withdrawl.
+- Integer division rounds down; if the calculated interest is too small, then it will be rounded down to zero.
+
+Can you find any others?
 
 ## Language Features and Concepts
 - `record` declarations

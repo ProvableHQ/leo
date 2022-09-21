@@ -12,7 +12,7 @@ In this model, there are two parties: the auctioneer and the bidders.
 - **Auctioneer**: The party responsible for conducting the auction.
 
 We make following assumptions about the auction:
-- The auctioneer is honest. That is, the auctioneer will resolve **all** bids in the order they are received. The auctioneer will not tamper with the bids.
+- The auctioneer is honest. That is, the auctioneer will resolve **all** bids in the order they are received. The auctioneer will not tamper with the bids. The auctioneer will not reveal the bids to any other party.
 - There is no limit to the number of bids.
 - The auctioneer knows the identity of all bidders, but bidders do not necessarily know the identity of other bidders.
 
