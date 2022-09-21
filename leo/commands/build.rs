@@ -27,7 +27,6 @@ use leo_span::symbol::with_session_globals;
 use aleo::commands::Build as AleoBuild;
 
 use clap::StructOpt;
-use colored::Colorize;
 use indexmap::IndexMap;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -183,6 +182,7 @@ impl Command for Build {
         if self.compiler_options.offline {
             args.push("--offline");
         }
+        println!();
         let command = AleoBuild::try_parse_from(&args).map_err(CliError::failed_to_execute_aleo_build)?;
         let result = command.parse().map_err(CliError::failed_to_execute_aleo_build)?;
 
@@ -275,14 +275,10 @@ fn compile_leo_file(
         .map_err(CliError::failed_to_load_instructions)?;
 
     // Prepare the path string.
-    let path_string = format!("(in \"{}\")", aleo_file_path.display());
+    let _path_string = format!("(in \"{}\")", aleo_file_path.display());
 
     // Log the build as successful.
-    tracing::info!(
-        "compiled '{}' into Aleo instructions {}",
-        file_name,
-        path_string.dimmed()
-    );
+    tracing::info!("Compiled '{}' into Aleo instructions", file_name,);
 
     Ok(symbol_table.circuits)
 }

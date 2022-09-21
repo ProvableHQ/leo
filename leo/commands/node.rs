@@ -71,6 +71,7 @@ impl Command for Node {
         }
 
         // Call the `aleo node` command from the Aleo SDK.
+        println!();
         let command = AleoNode::try_parse_from(&arguments).map_err(CliError::failed_to_parse_aleo_node)?;
         let res = command.parse().map_err(CliError::failed_to_execute_aleo_node)?;
 
