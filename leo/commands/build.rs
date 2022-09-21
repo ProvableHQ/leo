@@ -182,7 +182,6 @@ impl Command for Build {
         if self.compiler_options.offline {
             args.push("--offline");
         }
-        println!();
         let command = AleoBuild::try_parse_from(&args).map_err(CliError::failed_to_execute_aleo_build)?;
         let result = command.parse().map_err(CliError::failed_to_execute_aleo_build)?;
 
