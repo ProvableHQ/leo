@@ -14,12 +14,13 @@ outputs:
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
         input: []
         output:
-          - mode: None
-            type_:
-              Integer: U32
-            span:
-              lo: 18
-              hi: 21
+          - Internal:
+              mode: None
+              type_:
+                Integer: U32
+              span:
+                lo: 18
+                hi: 21
         output_type:
           Integer: U32
         block:

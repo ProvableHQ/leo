@@ -1,7 +1,0 @@
----
-namespace: ParseStatement
-expectation: Fail
-outputs:
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found ';'\n    --> test:1:10\n     |\n   1 | finalize(;\n     |          ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found ','\n    --> test:1:15\n     |\n   1 | finalize(foo, ,);\n     |               ^"
-  - "Error [EPAR0370005]: expected ; -- found '<eof>'\n    --> test:1:18\n     |\n   1 | finalize(foo, bar)\n     |                  ^"

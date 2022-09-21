@@ -26,12 +26,13 @@ outputs:
         identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":29}\"}"
         input: []
         output:
-          - mode: None
-            type_:
-              Integer: U8
-            span:
-              lo: 35
-              hi: 37
+          - Internal:
+              mode: None
+              type_:
+                Integer: U8
+              span:
+                lo: 35
+                hi: 37
         output_type:
           Integer: U8
         block:
@@ -52,12 +53,13 @@ outputs:
         identifier: "{\"name\":\"mint\",\"span\":\"{\\\"lo\\\":60,\\\"hi\\\":64}\"}"
         input: []
         output:
-          - mode: None
-            type_:
-              Integer: U8
-            span:
-              lo: 70
-              hi: 72
+          - Internal:
+              mode: None
+              type_:
+                Integer: U8
+              span:
+                lo: 70
+                hi: 72
         output_type:
           Integer: U8
         block:
@@ -78,12 +80,13 @@ outputs:
         identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}"
         input: []
         output:
-          - mode: None
-            type_:
-              Integer: U8
-            span:
-              lo: 102
-              hi: 104
+          - Internal:
+              mode: None
+              type_:
+                Integer: U8
+              span:
+                lo: 102
+                hi: 104
         output_type:
           Integer: U8
         block:

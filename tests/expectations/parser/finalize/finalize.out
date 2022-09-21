@@ -14,11 +14,12 @@ outputs:
         identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":15}\"}"
         input: []
         output:
-          - mode: None
-            type_: Boolean
-            span:
-              lo: 21
-              hi: 25
+          - Internal:
+              mode: None
+              type_: Boolean
+              span:
+                lo: 21
+                hi: 25
         output_type: Boolean
         block:
           statements: []
@@ -46,11 +47,12 @@ outputs:
         identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":63,\\\"hi\\\":67}\"}"
         input: []
         output:
-          - mode: None
-            type_: Boolean
-            span:
-              lo: 73
-              hi: 77
+          - Internal:
+              mode: None
+              type_: Boolean
+              span:
+                lo: 73
+                hi: 77
         output_type: Boolean
         block:
           statements: []
@@ -60,27 +62,30 @@ outputs:
         finalize:
           identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}"
           input:
-            - identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":97,\\\"hi\\\":98}\"}"
-              mode: None
-              type_:
-                Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":100,\\\"hi\\\":103}\"}"
-              span:
-                lo: 97
-                hi: 98
-            - identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":105,\\\"hi\\\":106}\"}"
-              mode: None
-              type_:
-                Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":108,\\\"hi\\\":111}\"}"
-              span:
-                lo: 105
-                hi: 106
+            - Internal:
+                identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":97,\\\"hi\\\":98}\"}"
+                mode: None
+                type_:
+                  Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":100,\\\"hi\\\":103}\"}"
+                span:
+                  lo: 97
+                  hi: 98
+            - Internal:
+                identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":105,\\\"hi\\\":106}\"}"
+                mode: None
+                type_:
+                  Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":108,\\\"hi\\\":111}\"}"
+                span:
+                  lo: 105
+                  hi: 106
           output:
-            - mode: None
-              type_:
-                Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":116,\\\"hi\\\":119}\"}"
-              span:
-                lo: 116
-                hi: 119
+            - Internal:
+                mode: None
+                type_:
+                  Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":116,\\\"hi\\\":119}\"}"
+                span:
+                  lo: 116
+                  hi: 119
           output_type:
             Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":116,\\\"hi\\\":119}\"}"
           block:

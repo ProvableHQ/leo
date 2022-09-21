@@ -13,27 +13,30 @@ outputs:
         annotations: []
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
         input:
-          - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-            mode: None
-            type_:
-              Integer: U32
-            span:
-              lo: 13
-              hi: 14
-          - identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":21,\\\"hi\\\":22}\"}"
-            mode: None
-            type_:
-              Integer: I32
-            span:
-              lo: 21
-              hi: 22
+          - Internal:
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
+              mode: None
+              type_:
+                Integer: U32
+              span:
+                lo: 13
+                hi: 14
+          - Internal:
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":21,\\\"hi\\\":22}\"}"
+              mode: None
+              type_:
+                Integer: I32
+              span:
+                lo: 21
+                hi: 22
         output:
-          - mode: None
-            type_:
-              Integer: U32
-            span:
-              lo: 32
-              hi: 35
+          - Internal:
+              mode: None
+              type_:
+                Integer: U32
+              span:
+                lo: 32
+                hi: 35
         output_type:
           Integer: U32
         block:

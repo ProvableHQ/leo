@@ -235,7 +235,7 @@ impl<'a> CodeGenerator<'a> {
                             .insert(&input.identifier.name, register_string.clone());
 
                         let visibility = match (self.is_program_function, input.mode) {
-                            (true, Mode::None) => Mode::Private,
+                            (true, Mode::None) => Mode::Public,
                             _ => input.mode,
                         };
                         self.visit_type_with_visibility(&input.type_, visibility)
