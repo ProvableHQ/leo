@@ -314,7 +314,11 @@ impl ParserContext<'_> {
             self.eat(&Token::Record);
             span = span + self.prev_token.span;
 
-            Ok(functions::Input::External(External { external, record, span }))
+            Ok(functions::Input::External(External {
+                identifier: external,
+                record,
+                span,
+            }))
         } else {
             Ok(functions::Input::Internal(self.parse_function_input()?))
         }
@@ -347,7 +351,11 @@ impl ParserContext<'_> {
             self.eat(&Token::Record);
             span = span + self.prev_token.span;
 
-            Ok(Output::External(External { external, record, span }))
+            Ok(Output::External(External {
+                identifier: external,
+                record,
+                span,
+            }))
         } else {
             Ok(Output::Internal(self.parse_function_output()?))
         }
@@ -429,7 +437,7 @@ impl ParserContext<'_> {
                 let identifier = self.expect_identifier()?;
 
                 // Parse parameters.
-                let (input, ..) = self.parse_paren_comma_list(|p| p.parse_function_input().map(Some))?;
+                let (input, ..) = self.parse_paren_comma_list(|p| p.parse_input().map(Some))?;
 
                 // Parse return type.
                 let output = match self.eat(&Token::Arrow) {
@@ -437,8 +445,8 @@ impl ParserContext<'_> {
                     true => {
                         self.disallow_circuit_construction = true;
                         let output = match self.peek_is_left_par() {
-                            true => self.parse_paren_comma_list(|p| p.parse_function_output().map(Some))?.0,
-                            false => vec![self.parse_function_output()?],
+                            true => self.parse_paren_comma_list(|p| p.parse_output().map(Some))?.0,
+                            false => vec![self.parse_output()?],
                         };
                         self.disallow_circuit_construction = false;
                         output

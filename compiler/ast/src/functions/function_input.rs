@@ -36,6 +36,32 @@ impl fmt::Display for Input {
     }
 }
 
+impl Input {
+    pub fn type_(&self) -> Type {
+        use Input::*;
+        match self {
+            Internal(input) => input.type_.clone(),
+            External(input) => input.type_(),
+        }
+    }
+
+    pub fn identifier(&self) -> Identifier {
+        use Input::*;
+        match self {
+            Internal(input) => input.identifier,
+            External(input) => input.identifier,
+        }
+    }
+
+    pub fn mode(&self) -> Mode {
+        use Input::*;
+        match self {
+            Internal(input) => input.mode,
+            External(_) => Mode::None,
+        }
+    }
+}
+
 impl Node for Input {
     fn span(&self) -> Span {
         use Input::*;

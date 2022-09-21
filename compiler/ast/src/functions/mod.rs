@@ -81,13 +81,13 @@ impl Function {
         // Determine the output type of the function
         let get_output_type = |output: &Output| match &output {
             Output::Internal(output) => output.type_.clone(),
-            Output::External(output) => output.get_type(),
+            Output::External(output) => output.type_(),
         };
 
         let output_type = match output.len() {
             0 => Type::Unit,
             1 => get_output_type(&output[0]),
-            _ => Type::Tuple(Tuple(output.iter().map(|output| get_output_type(&output)).collect())),
+            _ => Type::Tuple(Tuple(output.iter().map(|output| get_output_type(output)).collect())),
         };
 
         Function {

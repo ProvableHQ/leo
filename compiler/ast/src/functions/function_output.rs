@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{External, Identifier, Mode, Node, Type};
+use crate::{External, Mode, Node, Type};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -24,6 +24,22 @@ use std::fmt;
 pub enum Output {
     Internal(FunctionOutput),
     External(External),
+}
+
+impl Output {
+    pub fn type_(&self) -> Type {
+        match self {
+            Output::Internal(output) => output.type_.clone(),
+            Output::External(output) => output.type_(),
+        }
+    }
+
+    pub fn mode(&self) -> Mode {
+        match self {
+            Output::Internal(output) => output.mode,
+            Output::External(_) => Mode::None,
+        }
+    }
 }
 
 impl fmt::Display for Output {

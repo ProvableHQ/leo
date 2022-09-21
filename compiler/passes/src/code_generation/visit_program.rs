@@ -197,7 +197,7 @@ impl<'a> CodeGenerator<'a> {
                     self.visit_type_with_visibility(&input.type_, visibility)
                 }
                 functions::Input::External(input) => {
-                    format!("{}.aleo/{}.record", input.external, input.record)
+                    format!("{}.aleo/{}.record", input.identifier, input.record)
                 }
             };
 
@@ -227,16 +227,23 @@ impl<'a> CodeGenerator<'a> {
                 let register_string = format!("r{}", self.next_register);
                 self.next_register += 1;
 
-                self.variable_mapping
-                    .insert(&input.identifier.name, register_string.clone());
+                // TODO: Dedup code.
+                let type_string = match input {
+                    functions::Input::Internal(input) => {
+                        self.variable_mapping
+                            .insert(&input.identifier.name, register_string.clone());
 
-                // A finalize block defaults to public visibility.
-                let visibility = match (self.is_program_function, input.mode) {
-                    (true, Mode::None) => Mode::Public,
-                    (true, mode) => mode,
-                    _ => unreachable!("Only program functions can have finalize blocks."),
+                        let visibility = match (self.is_program_function, input.mode) {
+                            (true, Mode::None) => Mode::Private,
+                            _ => input.mode,
+                        };
+                        self.visit_type_with_visibility(&input.type_, visibility)
+                    }
+                    functions::Input::External(input) => {
+                        format!("{}.aleo/{}.record", input.identifier, input.record)
+                    }
                 };
-                let type_string = self.visit_type_with_visibility(&input.type_, visibility);
+
                 writeln!(function_string, "    input {} as {};", register_string, type_string,)
                     .expect("failed to write to string");
             }

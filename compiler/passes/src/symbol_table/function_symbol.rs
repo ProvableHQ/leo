@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Function, FunctionInput, Type};
+use leo_ast::{Function, Input, Type};
 use leo_span::Span;
 
 use crate::SymbolTable;
@@ -23,7 +23,7 @@ use crate::SymbolTable;
 #[derive(Debug, Clone)]
 pub struct FinalizeData {
     /// The inputs to the finalize block.
-    pub(crate) input: Vec<FunctionInput>,
+    pub(crate) input: Vec<Input>,
     /// The output type of the finalize block.
     pub(crate) output_type: Type,
 }
@@ -38,7 +38,7 @@ pub struct FunctionSymbol {
     /// The `Span` associated with the function.
     pub(crate) span: Span,
     /// The inputs to the function.
-    pub(crate) input: Vec<FunctionInput>,
+    pub(crate) input: Vec<Input>,
     /// Metadata associated with the finalize block.
     pub(crate) finalize: Option<FinalizeData>,
 }

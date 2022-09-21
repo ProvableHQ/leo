@@ -80,7 +80,7 @@ impl<'a> CodeGenerator<'a> {
                             Output::External(output) => {
                                 format!(
                                     "    output {} as {}.aleo/{}.record;\n",
-                                    operand, output.external, output.record,
+                                    operand, output.identifier, output.record,
                                 )
                             }
                         }

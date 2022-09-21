@@ -30,7 +30,7 @@ impl FunctionConsumer for StaticSingleAssigner {
         // However, for each input, we must add each symbol to the rename table.
         for input_variable in function.input.iter() {
             self.rename_table
-                .update(input_variable.identifier.name, input_variable.identifier.name);
+                .update(input_variable.identifier().name, input_variable.identifier().name);
         }
 
         let block = Block {
@@ -49,7 +49,7 @@ impl FunctionConsumer for StaticSingleAssigner {
             // However, for each input, we must add each symbol to the rename table.
             for input_variable in finalize.input.iter() {
                 self.rename_table
-                    .update(input_variable.identifier.name, input_variable.identifier.name);
+                    .update(input_variable.identifier().name, input_variable.identifier().name);
             }
 
             let block = Block {
