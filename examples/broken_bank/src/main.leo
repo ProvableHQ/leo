@@ -28,7 +28,7 @@ function deposit(token: Token, amount: u64) -> Token {
 
     let hash: field = BHP256::hash(token.owner);
 
-    finalize(hash, amount);
+    async finalize(hash, amount);
 
     return remaining;
 }
@@ -50,7 +50,7 @@ function withdraw(recipient: address, amount: u64, rate: u64, periods: u64) -> T
         amount: total,
     };
 
-    finalize(hash, amount);
+    async finalize(hash, amount);
 
     return token;
 }
