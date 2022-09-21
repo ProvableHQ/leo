@@ -170,12 +170,17 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Type check the function's return type.
         function.output.iter().for_each(|output_type| {
-            // Check that the type of output is valid.
-            self.assert_type_is_valid(output_type.span, &output_type.type_);
+            match output_type {
+                Output::External(_) => {} // Do not type check external record function outputs.
+                Output::Internal(output_type) => {
+                    // Check that the type of output is valid.
+                    self.assert_type_is_valid(output_type.span, &output_type.type_);
 
-            // Check that the mode of the output is valid.
-            if output_type.mode == Mode::Const {
-                self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(output_type.span));
+                    // Check that the mode of the output is valid.
+                    if output_type.mode == Mode::Const {
+                        self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(output_type.span));
+                    }
+                }
             }
         });
 

@@ -303,6 +303,38 @@ impl ParserContext<'_> {
         Ok(FunctionOutput { mode, type_, span })
     }
 
+    /// Returns a [`FunctionOutput`] AST node if the next tokens represent a function output.
+    fn parse_output(&mut self) -> Result<Output> {
+        if self.peek_is_external() {
+            let external = self.expect_identifier()?;
+            let mut span = external.span;
+
+            // Parse `.leo/`.
+            self.eat(&Token::Dot);
+            self.eat(&Token::Leo);
+            self.eat(&Token::Div);
+
+            // Parse record name.
+            let record = self.expect_identifier()?;
+
+            // Parse `.record`.
+            self.eat(&Token::Dot);
+            self.eat(&Token::Record);
+            span = span + self.prev_token.span;
+
+            Ok(Output::External(FunctionOutputExternal { external, record, span }))
+        } else {
+            Ok(Output::Internal(self.parse_function_output()?))
+        }
+    }
+
+    fn peek_is_external(&self) -> bool {
+        matches!(
+            (&self.token.token, self.look_ahead(1, |t| &t.token)),
+            (Token::Identifier(_), Token::Dot)
+        )
+    }
+
     /// Returns `true` if the next token is Function or if it is a Const followed by Function.
     /// Returns `false` otherwise.
     fn peek_is_function(&self) -> bool {
@@ -350,8 +382,8 @@ impl ParserContext<'_> {
             true => {
                 self.disallow_circuit_construction = true;
                 let output = match self.peek_is_left_par() {
-                    true => self.parse_paren_comma_list(|p| p.parse_function_output().map(Some))?.0,
-                    false => vec![self.parse_function_output()?],
+                    true => self.parse_paren_comma_list(|p| p.parse_output().map(Some))?.0,
+                    false => vec![self.parse_output()?],
                 };
                 self.disallow_circuit_construction = false;
                 output
