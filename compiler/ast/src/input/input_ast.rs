@@ -21,11 +21,11 @@ use leo_errors::{AstError, Result};
 
 /// Input data which includes [`ProgramInput`].
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct Input {
+pub struct InputData {
     pub program_input: ProgramInput,
 }
 
-impl Input {
+impl InputData {
     /// Serializes the ast into a JSON string.
     pub fn to_json_string(&self) -> Result<String> {
         Ok(serde_json::to_string_pretty(&self).map_err(|e| AstError::failed_to_convert_ast_to_json_string(&e))?)

@@ -249,8 +249,8 @@ create_messages!(
 
     @formatted
     leo_imports_only {
-        args: (name: impl Display),
-        msg: format!("Invalid import call to non-leo file `{name}`."),
+        args: (),
+        msg: "Invalid import call to non-leo file.",
         help: Some("Only imports of Leo `.leo` files are currently supported.".to_string()),
     }
 

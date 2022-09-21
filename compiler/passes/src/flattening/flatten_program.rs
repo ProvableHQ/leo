@@ -30,8 +30,8 @@ impl ProgramReconstructor for Flattener<'_> {
             // Initialize `self.circuits` with the finalize's input as necessary.
             self.circuits = Default::default();
             for input in &finalize.input {
-                if let Type::Identifier(circuit_name) = input.type_ {
-                    self.circuits.insert(input.identifier.name, circuit_name.name);
+                if let Type::Identifier(circuit_name) = input.type_() {
+                    self.circuits.insert(input.identifier().name, circuit_name.name);
                 }
             }
 
@@ -71,8 +71,8 @@ impl ProgramReconstructor for Flattener<'_> {
         // Initialize `self.circuits` with the function's input as necessary.
         self.circuits = Default::default();
         for input in &function.input {
-            if let Type::Identifier(circuit_name) = input.type_ {
-                self.circuits.insert(input.identifier.name, circuit_name.name);
+            if let Type::Identifier(circuit_name) = input.type_() {
+                self.circuits.insert(input.identifier().name, circuit_name.name);
             }
         }
 

@@ -140,28 +140,28 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Type check the function's parameters.
         function.input.iter().for_each(|input_var| {
             // Check that the type of input parameter is valid.
-            self.assert_type_is_valid(input_var.span, &input_var.type_);
-            self.assert_not_tuple(input_var.span, &input_var.type_);
+            self.assert_type_is_valid(input_var.span(), &input_var.type_());
+            self.assert_not_tuple(input_var.span(), &input_var.type_());
 
             match self.is_program_function {
                 // If the function is a program function, then check that the parameter mode is not a constant.
-                true if input_var.mode == Mode::Const => self.emit_err(
-                    TypeCheckerError::program_function_inputs_cannot_be_const(input_var.span),
+                true if input_var.mode() == Mode::Const => self.emit_err(
+                    TypeCheckerError::program_function_inputs_cannot_be_const(input_var.span()),
                 ),
                 // If the function is not a program function, then check that the parameters do not have an associated mode.
-                false if input_var.mode != Mode::None => self.emit_err(
-                    TypeCheckerError::helper_function_inputs_cannot_have_modes(input_var.span),
+                false if input_var.mode() != Mode::None => self.emit_err(
+                    TypeCheckerError::helper_function_inputs_cannot_have_modes(input_var.span()),
                 ),
                 _ => {} // Do nothing.
             }
 
             // Check for conflicting variable names.
             if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                input_var.identifier.name,
+                input_var.identifier().name,
                 VariableSymbol {
-                    type_: input_var.type_.clone(),
-                    span: input_var.identifier.span(),
-                    declaration: VariableType::Input(input_var.mode),
+                    type_: input_var.type_(),
+                    span: input_var.identifier().span(),
+                    declaration: VariableType::Input(input_var.mode()),
                 },
             ) {
                 self.handler.emit_err(err);
@@ -170,12 +170,17 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Type check the function's return type.
         function.output.iter().for_each(|output_type| {
-            // Check that the type of output is valid.
-            self.assert_type_is_valid(output_type.span, &output_type.type_);
+            match output_type {
+                Output::External(_) => {} // Do not type check external record function outputs.
+                Output::Internal(output_type) => {
+                    // Check that the type of output is valid.
+                    self.assert_type_is_valid(output_type.span, &output_type.type_);
 
-            // Check that the mode of the output is valid.
-            if output_type.mode == Mode::Const {
-                self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(output_type.span));
+                    // Check that the mode of the output is valid.
+                    if output_type.mode == Mode::Const {
+                        self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(output_type.span));
+                    }
+                }
             }
         });
 
@@ -226,21 +231,21 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
             finalize.input.iter().for_each(|input_var| {
                 // Check that the type of input parameter is valid.
-                self.assert_type_is_valid(input_var.span, &input_var.type_);
-                self.assert_not_tuple(input_var.span, &input_var.type_);
+                self.assert_type_is_valid(input_var.span(), &input_var.type_());
+                self.assert_not_tuple(input_var.span(), &input_var.type_());
 
                 // Check that the input parameter is not constant or private.
-                if input_var.mode == Mode::Const || input_var.mode == Mode::Private {
-                    self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span));
+                if input_var.mode() == Mode::Const || input_var.mode() == Mode::Private {
+                    self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
                 }
 
                 // Check for conflicting variable names.
                 if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                    input_var.identifier.name,
+                    input_var.identifier().name,
                     VariableSymbol {
-                        type_: input_var.type_.clone(),
-                        span: input_var.identifier.span(),
-                        declaration: VariableType::Input(input_var.mode),
+                        type_: input_var.type_(),
+                        span: input_var.identifier().span(),
+                        declaration: VariableType::Input(input_var.mode()),
                     },
                 ) {
                     self.handler.emit_err(err);
@@ -250,11 +255,11 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             // Type check the function's return type.
             finalize.output.iter().for_each(|output_type| {
                 // Check that the type of output is valid.
-                self.assert_type_is_valid(output_type.span, &output_type.type_);
+                self.assert_type_is_valid(output_type.span(), &output_type.type_());
 
                 // Check that the mode of the output is valid.
-                if output_type.mode == Mode::Const {
-                    self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(output_type.span));
+                if output_type.mode() == Mode::Const {
+                    self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(output_type.span()));
                 }
             });
 

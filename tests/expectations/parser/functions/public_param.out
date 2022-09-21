@@ -13,27 +13,30 @@ outputs:
         annotations: []
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
         input:
-          - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-            mode: None
-            type_:
-              Integer: U32
-            span:
-              lo: 13
-              hi: 14
-          - identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":28,\\\"hi\\\":29}\"}"
-            mode: Public
-            type_:
-              Integer: I32
-            span:
-              lo: 28
-              hi: 29
+          - Internal:
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
+              mode: None
+              type_:
+                Integer: U32
+              span:
+                lo: 13
+                hi: 14
+          - Internal:
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":28,\\\"hi\\\":29}\"}"
+              mode: Public
+              type_:
+                Integer: I32
+              span:
+                lo: 28
+                hi: 29
         output:
-          - mode: None
-            type_:
-              Integer: U8
-            span:
-              lo: 39
-              hi: 41
+          - Internal:
+              mode: None
+              type_:
+                Integer: U8
+              span:
+                lo: 39
+                hi: 41
         output_type:
           Integer: U8
         block:
@@ -61,27 +64,30 @@ outputs:
         annotations: []
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":72,\\\"hi\\\":73}\"}"
         input:
-          - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":81,\\\"hi\\\":82}\"}"
-            mode: Public
-            type_:
-              Integer: U32
-            span:
-              lo: 81
-              hi: 82
-          - identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":90}\"}"
-            mode: None
-            type_:
-              Integer: I32
-            span:
-              lo: 89
-              hi: 90
+          - Internal:
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":81,\\\"hi\\\":82}\"}"
+              mode: Public
+              type_:
+                Integer: U32
+              span:
+                lo: 81
+                hi: 82
+          - Internal:
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":90}\"}"
+              mode: None
+              type_:
+                Integer: I32
+              span:
+                lo: 89
+                hi: 90
         output:
-          - mode: None
-            type_:
-              Integer: U8
-            span:
-              lo: 100
-              hi: 102
+          - Internal:
+              mode: None
+              type_:
+                Integer: U8
+              span:
+                lo: 100
+                hi: 102
         output_type:
           Integer: U8
         block:

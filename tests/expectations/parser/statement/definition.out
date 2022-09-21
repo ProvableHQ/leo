@@ -40,6 +40,7 @@ outputs:
           function:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
           arguments: []
+          external: ~
           span:
             lo: 12
             hi: 15
@@ -93,6 +94,7 @@ outputs:
           function:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
           arguments: []
+          external: ~
           span:
             lo: 14
             hi: 17
@@ -146,6 +148,7 @@ outputs:
           function:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
           arguments: []
+          external: ~
           span:
             lo: 13
             hi: 16
@@ -190,6 +193,7 @@ outputs:
           function:
             Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
           arguments: []
+          external: ~
           span:
             lo: 15
             hi: 18

@@ -18,8 +18,8 @@ use crate::CodeGenerator;
 
 use leo_ast::{
     AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
-    DefinitionStatement, Expression, FinalizeStatement, IncrementStatement, IterationStatement, Mode, ReturnStatement,
-    Statement,
+    DefinitionStatement, Expression, FinalizeStatement, IncrementStatement, IterationStatement, Mode, Output,
+    ReturnStatement, Statement,
 };
 
 use itertools::Itertools;
@@ -52,28 +52,38 @@ impl<'a> CodeGenerator<'a> {
                     .into_iter()
                     .zip(self.current_function.unwrap().output.iter())
                     .map(|(operand, output)| {
-                        let visibility = if self.is_program_function {
-                            match self.in_finalize {
-                                // If in finalize block, the default visibility is public.
-                                true => match output.mode {
-                                    Mode::None => Mode::Public,
-                                    mode => mode,
-                                },
-                                // If not in finalize block, the default visibility is private.
-                                false => match output.mode {
-                                    Mode::None => Mode::Private,
-                                    mode => mode,
-                                },
+                        match output {
+                            Output::Internal(output) => {
+                                let visibility = if self.is_program_function {
+                                    match self.in_finalize {
+                                        // If in finalize block, the default visibility is public.
+                                        true => match output.mode {
+                                            Mode::None => Mode::Public,
+                                            mode => mode,
+                                        },
+                                        // If not in finalize block, the default visibility is private.
+                                        false => match output.mode {
+                                            Mode::None => Mode::Private,
+                                            mode => mode,
+                                        },
+                                    }
+                                } else {
+                                    // Only program functions have visibilities associated with their outputs.
+                                    Mode::None
+                                };
+                                format!(
+                                    "    output {} as {};\n",
+                                    operand,
+                                    self.visit_type_with_visibility(&output.type_, visibility)
+                                )
                             }
-                        } else {
-                            // Only program functions have visibilities associated with their outputs.
-                            Mode::None
-                        };
-                        format!(
-                            "    output {} as {};\n",
-                            operand,
-                            self.visit_type_with_visibility(&output.type_, visibility)
-                        )
+                            Output::External(output) => {
+                                format!(
+                                    "    output {} as {}.aleo/{}.record;\n",
+                                    operand, output.program_name, output.record,
+                                )
+                            }
+                        }
                     })
                     .join("");
 

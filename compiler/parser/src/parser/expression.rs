@@ -364,6 +364,21 @@ impl ParserContext<'_> {
                         index,
                         span,
                     }))
+                } else if self.eat(&Token::Leo) {
+                    // Eat an external function call.
+                    self.eat(&Token::Div); // todo: Make `/` a more general token.
+
+                    // Parse function name.
+                    let name = self.expect_identifier()?;
+
+                    // Parse the function call.
+                    let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
+                    expr = Expression::Call(CallExpression {
+                        span: expr.span() + span,
+                        function: Box::new(Expression::Identifier(name)),
+                        external: Some(Box::new(expr)),
+                        arguments,
+                    });
                 } else {
                     // Parse identifier name.
                     let name = self.expect_identifier()?;
@@ -389,6 +404,7 @@ impl ParserContext<'_> {
                 expr = Expression::Call(CallExpression {
                     span: expr.span() + span,
                     function: Box::new(expr),
+                    external: None,
                     arguments,
                 });
             }

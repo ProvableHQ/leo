@@ -17,6 +17,9 @@
 pub mod annotation;
 pub use annotation::*;
 
+pub mod external;
+pub use external::*;
+
 pub mod finalize;
 pub use finalize::*;
 
@@ -43,9 +46,9 @@ pub struct Function {
     /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
     pub identifier: Identifier,
     /// The function's input parameters.
-    pub input: Vec<FunctionInput>,
+    pub input: Vec<Input>,
     /// The function's output declarations.
-    pub output: Vec<FunctionOutput>,
+    pub output: Vec<Output>,
     /// The function's output type.
     pub output_type: Type,
     /// The body of the function.
@@ -69,17 +72,22 @@ impl Function {
     pub fn new(
         annotations: Vec<Annotation>,
         identifier: Identifier,
-        input: Vec<FunctionInput>,
-        output: Vec<FunctionOutput>,
+        input: Vec<Input>,
+        output: Vec<Output>,
         block: Block,
         finalize: Option<Finalize>,
         span: Span,
     ) -> Self {
         // Determine the output type of the function
+        let get_output_type = |output: &Output| match &output {
+            Output::Internal(output) => output.type_.clone(),
+            Output::External(output) => output.type_(),
+        };
+
         let output_type = match output.len() {
             0 => Type::Unit,
-            1 => output[0].type_.clone(),
-            _ => Type::Tuple(Tuple(output.iter().map(|output| output.type_.clone()).collect())),
+            1 => get_output_type(&output[0]),
+            _ => Type::Tuple(Tuple(output.iter().map(|output| get_output_type(output)).collect())),
         };
 
         Function {

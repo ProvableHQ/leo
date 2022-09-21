@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, FunctionInput, FunctionOutput, Identifier, Node, Tuple, Type};
+use crate::{Block, Identifier, Input, Node, Output, Tuple, Type};
 
 use leo_span::Span;
 
@@ -27,9 +27,9 @@ pub struct Finalize {
     /// The finalize identifier.
     pub identifier: Identifier,
     /// The finalize block's input parameters.
-    pub input: Vec<FunctionInput>,
+    pub input: Vec<Input>,
     /// The finalize blocks's output declaration.
-    pub output: Vec<FunctionOutput>,
+    pub output: Vec<Output>,
     /// The finalize block's output type.
     pub output_type: Type,
     /// The body of the function.
@@ -40,17 +40,11 @@ pub struct Finalize {
 
 impl Finalize {
     /// Create a new finalize block.
-    pub fn new(
-        identifier: Identifier,
-        input: Vec<FunctionInput>,
-        output: Vec<FunctionOutput>,
-        block: Block,
-        span: Span,
-    ) -> Self {
+    pub fn new(identifier: Identifier, input: Vec<Input>, output: Vec<Output>, block: Block, span: Span) -> Self {
         let output_type = match output.len() {
             0 => Type::Unit,
-            1 => output[0].type_.clone(),
-            _ => Type::Tuple(Tuple(output.iter().map(|output| output.type_.clone()).collect())),
+            1 => output[0].type_(),
+            _ => Type::Tuple(Tuple(output.iter().map(|output| output.type_()).collect())),
         };
 
         Self {

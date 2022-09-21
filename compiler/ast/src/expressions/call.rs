@@ -16,7 +16,7 @@
 
 use super::*;
 
-/// A function call expression, e.g., `foo(args)` or `Foo::bar(args)`.
+/// A function call expression, e.g.`foo(args)` or `Foo::bar(args)`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CallExpression {
     /// An expression evaluating to a callable function,
@@ -24,13 +24,23 @@ pub struct CallExpression {
     pub function: Box<Expression>, // todo: make this identifier?
     /// Expressions for the arguments passed to the functions parameters.
     pub arguments: Vec<Expression>,
+    /// The name of the external program call, e.g.`bar` in `bar.leo`.
+    pub external: Option<Box<Expression>>,
     /// Span of the entire call `function(arguments)`.
     pub span: Span,
 }
 
 impl fmt::Display for CallExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}(", self.function)?;
+        match &self.external {
+            Some(external) => {
+                write!(f, "{}.leo/{}(", external, self.function)?;
+            }
+            None => {
+                write!(f, "{}(", self.function)?;
+            }
+        }
+
         for (i, param) in self.arguments.iter().enumerate() {
             write!(f, "{}", param)?;
             if i < self.arguments.len() - 1 {
