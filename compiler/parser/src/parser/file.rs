@@ -283,18 +283,6 @@ impl ParserContext<'_> {
         }
     }
 
-    /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
-    fn parse_function_input(&mut self) -> Result<FunctionInput> {
-        let mode = self.parse_mode()?;
-        let (name, type_) = self.parse_typed_ident()?;
-        Ok(FunctionInput {
-            identifier: name,
-            mode,
-            type_,
-            span: name.span,
-        })
-    }
-
     /// Returns a [`Input`] AST node if the next tokens represent a function output.
     fn parse_input(&mut self) -> Result<functions::Input> {
         let mode = self.parse_mode()?;
