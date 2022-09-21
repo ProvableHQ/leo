@@ -23,8 +23,10 @@ use std::fmt;
 /// A function output from an external program with type record.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct External {
-    /// The name of the external program.
+    /// The name the parameter is accessible as in the function's body.
     pub identifier: Identifier,
+    /// The name of the external program.
+    pub program_name: Identifier,
     /// The name of the external record type.
     pub record: Identifier,
     /// The parameters span from any annotations to its type.
@@ -39,7 +41,11 @@ impl External {
 
 impl fmt::Display for External {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.leo/{}.record", self.identifier, self.record)
+        write!(
+            f,
+            "{}: {}.leo/{}.record",
+            self.identifier, self.program_name, self.record
+        )
     }
 }
 

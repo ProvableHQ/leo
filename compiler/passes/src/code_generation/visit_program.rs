@@ -189,7 +189,6 @@ impl<'a> CodeGenerator<'a> {
                 functions::Input::Internal(input) => {
                     self.variable_mapping
                         .insert(&input.identifier.name, register_string.clone());
-
                     let visibility = match (self.is_program_function, input.mode) {
                         (true, Mode::None) => Mode::Private,
                         _ => input.mode,
@@ -197,7 +196,9 @@ impl<'a> CodeGenerator<'a> {
                     self.visit_type_with_visibility(&input.type_, visibility)
                 }
                 functions::Input::External(input) => {
-                    format!("{}.aleo/{}.record", input.identifier, input.record)
+                    self.variable_mapping
+                        .insert(&input.identifier.name, register_string.clone());
+                    format!("{}.aleo/{}.record", input.program_name, input.record)
                 }
             };
 
@@ -240,7 +241,9 @@ impl<'a> CodeGenerator<'a> {
                         self.visit_type_with_visibility(&input.type_, visibility)
                     }
                     functions::Input::External(input) => {
-                        format!("{}.aleo/{}.record", input.identifier, input.record)
+                        self.variable_mapping
+                            .insert(&input.program_name.name, register_string.clone());
+                        format!("{}.aleo/{}.record", input.program_name, input.record)
                     }
                 };
 

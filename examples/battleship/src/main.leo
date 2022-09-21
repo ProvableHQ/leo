@@ -45,7 +45,7 @@ function initialize_board(
 @program
 function offer_battleship(
     // The board record to start a game with.
-    board: board_state,
+    board: board.leo/board_state.record,
 ) -> (board.leo/board_state.record, move.leo/move.record) {
     let state: board_state = board.leo/start_board(board);
     let dummy: move = move.leo/start_game(board.player_2);
@@ -58,9 +58,9 @@ function offer_battleship(
 @program
 function start_battleship(
     // The board record to play the game with.
-    board: board_state,
+    board: board.leo/board_state.record,
     // The move record to play to begin the game. This should be the dummy move record created from offer_battleship.
-    move_start: move,
+    move_start: move.leo/move.record,
 ) -> (board.leo/board_state.record, move.leo/move.record) {
     // Validate that the move players and board players match each other.
     console.assert_eq(board.player_1, move_start.player_1);
@@ -77,9 +77,9 @@ function start_battleship(
 @program
 function play(
     // The board record to update.
-    board: board_state,
+    board: board.leo/board_state.record,
     // The incoming move from the opponent.
-    move_incoming: move,
+    move_incoming: move.leo/move.record,
     // The u64 equivalent of the bitwise representation of the next coordinate to play on the opponent's board.
     shoot: u64,
 ) -> (board.leo/board_state.record, move.leo/move.record) {

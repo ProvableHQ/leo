@@ -18,8 +18,8 @@ use super::*;
 use crate::parse_ast;
 use leo_errors::{CompilerError, ParserError, ParserWarning, Result};
 use leo_span::source_map::FileName;
-use leo_span::sym;
 use leo_span::symbol::with_session_globals;
+use leo_span::{sym, Symbol};
 
 use std::fs;
 
@@ -297,9 +297,13 @@ impl ParserContext<'_> {
 
     /// Returns a [`Input`] AST node if the next tokens represent a function output.
     fn parse_input(&mut self) -> Result<functions::Input> {
+        let mode = self.parse_mode()?;
+        let name = self.expect_identifier()?;
+        self.expect(&Token::Colon)?;
+
         if self.peek_is_external() {
             let external = self.expect_identifier()?;
-            let mut span = external.span;
+            let mut span = name.span + external.span;
 
             // Parse `.leo/`.
             self.eat(&Token::Dot);
@@ -315,12 +319,20 @@ impl ParserContext<'_> {
             span = span + self.prev_token.span;
 
             Ok(functions::Input::External(External {
-                identifier: external,
+                identifier: name,
+                program_name: external,
                 record,
                 span,
             }))
         } else {
-            Ok(functions::Input::Internal(self.parse_function_input()?))
+            let type_ = self.parse_type()?.0;
+
+            Ok(functions::Input::Internal(FunctionInput {
+                identifier: name,
+                mode,
+                type_,
+                span: name.span,
+            }))
         }
     }
 
@@ -352,7 +364,8 @@ impl ParserContext<'_> {
             span = span + self.prev_token.span;
 
             Ok(Output::External(External {
-                identifier: external,
+                identifier: Identifier::new(Symbol::intern("dummy")),
+                program_name: external,
                 record,
                 span,
             }))
