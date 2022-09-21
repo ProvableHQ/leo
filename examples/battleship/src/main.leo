@@ -63,8 +63,8 @@ function start_battleship(
     move_start: move.leo/move.record,
 ) -> (board.leo/board_state.record, move.leo/move.record) {
     // Validate that the move players and board players match each other.
-    console.assert_eq(board.player_1, move_start.player_1);
-    console.assert_eq(board.player_2, move_start.player_2);
+    console.assert_eq(board.player_1, move_start.player_2);
+    console.assert_eq(board.player_2, move_start.player_1);
 
     let state: board_state = board.leo/start_board(board);
     let dummy: move = move.leo/start_game(board.player_2);
@@ -88,8 +88,8 @@ function play(
     console.assert(board.game_started);
 
     // Validate that the move players and board players match each other.
-    console.assert_eq(board.player_1, move_incoming.player_1);
-    console.assert_eq(board.player_2, move_incoming.player_2);
+    console.assert_eq(board.player_1, move_incoming.player_2);
+    console.assert_eq(board.player_2, move_incoming.player_1);
 
     // Play coordinate on own board. Will fail if not a valid move.
     let hit_or_miss: board_state = board.leo/update_played_tiles(board, shoot);

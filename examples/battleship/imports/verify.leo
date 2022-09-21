@@ -87,7 +87,7 @@ function validate_ship(
 ) -> bool {
     // Check bitcount -- all other validations depend on the bitcount being correct.
     let num_bits: u64 = bitcount(ship);
-    console.assert_eq(length, num_bits);
+    console.assert_eq(num_bits, length);
 
     // Check horizontal bits of ship.
     let is_adjacent: bool = adjacency_check(ship, horizontal); // True if bits are adjacent horizontally.
@@ -97,7 +97,7 @@ function validate_ship(
     // Check vertical bits of ship.
     let valid_vertical: bool = adjacency_check(ship, vertical); // True if bits are adjacent vertically.
 
-    let ship_is_valid: bool = valid_horizontal && valid_vertical; // Ship is valid if it is vertically or horizontally valid.
+    let ship_is_valid: bool = valid_horizontal || valid_vertical; // Ship is valid if it is vertically or horizontally valid.
 
     return ship_is_valid;
 }
