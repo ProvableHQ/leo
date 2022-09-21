@@ -50,5 +50,5 @@ pub fn parse(handler: &Handler, source: &str, start_pos: BytePos) -> Result<Prog
 pub fn parse_input(handler: &Handler, source: &str, start_pos: BytePos) -> Result<InputAst> {
     let mut tokens = ParserContext::new(handler, crate::tokenize(source, start_pos)?);
 
-    tokens.parse_input()
+    tokens.parse_input_file()
 }

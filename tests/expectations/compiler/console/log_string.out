@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EPAR0370009]: unexpected string: expected 'formatted static_string', found 'hello'\n    --> compiler-test:5:17\n     |\n   5 |     console.log(hello);\n     |                 ^^^^^"

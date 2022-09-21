@@ -276,7 +276,10 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_call(&mut self, input: &'a CallExpression) -> (String, String) {
-        let mut call_instruction = format!("    call {} ", input.function);
+        let mut call_instruction = match &input.external {
+            Some(external) => format!("    call {}.aleo/{} ", external, input.function),
+            None => format!("    call {} ", input.function),
+        };
         let mut instructions = String::new();
 
         for argument in input.arguments.iter() {

@@ -91,6 +91,7 @@ pub trait ExpressionReconstructor {
                     .into_iter()
                     .map(|arg| self.reconstruct_expression(arg).0)
                     .collect(),
+                external: input.external,
                 span: input.span,
             }),
             Default::default(),
@@ -362,7 +363,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
     }
 
     fn reconstruct_import(&mut self, input: Program) -> Program {
-        input
+        self.reconstruct_program(input)
     }
 
     fn reconstruct_mapping(&mut self, input: Mapping) -> Mapping {

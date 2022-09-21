@@ -50,6 +50,7 @@ impl Command for Deploy {
             .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
 
         // Call the `aleo node` command from the Aleo SDK.
+        println!();
         let command = AleoDeploy::try_parse_from([ALEO_CLI_COMMAND]).map_err(CliError::failed_to_parse_aleo_node)?;
         let res = command.parse().map_err(CliError::failed_to_execute_aleo_node)?;
 

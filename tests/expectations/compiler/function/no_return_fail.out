@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372038]: Function must return a value.\n    --> compiler-test:3:1\n     |\n   3 | function main() -> u8 {}\n     | ^^^^^^^^^^^^^^^^^^^^^^^^\n"

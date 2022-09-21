@@ -133,6 +133,7 @@ impl ExpressionConsumer for StaticSingleAssigner {
                 function: input.function,
                 // Consume the arguments.
                 arguments,
+                external: input.external,
                 span: input.span,
             }));
         statements.push(statement);

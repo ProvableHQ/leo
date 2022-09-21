@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{Circuit, CircuitMember, Function, Identifier, Mapping, Mode, Program, Type};
+use leo_ast::{functions, Circuit, CircuitMember, Function, Identifier, Mapping, Mode, Program, Type};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -185,14 +185,23 @@ impl<'a> CodeGenerator<'a> {
             let register_string = format!("r{}", self.next_register);
             self.next_register += 1;
 
-            self.variable_mapping
-                .insert(&input.identifier.name, register_string.clone());
-
-            let visibility = match (self.is_program_function, input.mode) {
-                (true, Mode::None) => Mode::Private,
-                _ => input.mode,
+            let type_string = match input {
+                functions::Input::Internal(input) => {
+                    self.variable_mapping
+                        .insert(&input.identifier.name, register_string.clone());
+                    let visibility = match (self.is_program_function, input.mode) {
+                        (true, Mode::None) => Mode::Private,
+                        _ => input.mode,
+                    };
+                    self.visit_type_with_visibility(&input.type_, visibility)
+                }
+                functions::Input::External(input) => {
+                    self.variable_mapping
+                        .insert(&input.identifier.name, register_string.clone());
+                    format!("{}.aleo/{}.record", input.program_name, input.record)
+                }
             };
-            let type_string = self.visit_type_with_visibility(&input.type_, visibility);
+
             writeln!(function_string, "    input {} as {};", register_string, type_string,)
                 .expect("failed to write to string");
         }
@@ -219,16 +228,25 @@ impl<'a> CodeGenerator<'a> {
                 let register_string = format!("r{}", self.next_register);
                 self.next_register += 1;
 
-                self.variable_mapping
-                    .insert(&input.identifier.name, register_string.clone());
+                // TODO: Dedup code.
+                let type_string = match input {
+                    functions::Input::Internal(input) => {
+                        self.variable_mapping
+                            .insert(&input.identifier.name, register_string.clone());
 
-                // A finalize block defaults to public visibility.
-                let visibility = match (self.is_program_function, input.mode) {
-                    (true, Mode::None) => Mode::Public,
-                    (true, mode) => mode,
-                    _ => unreachable!("Only program functions can have finalize blocks."),
+                        let visibility = match (self.is_program_function, input.mode) {
+                            (true, Mode::None) => Mode::Public,
+                            _ => input.mode,
+                        };
+                        self.visit_type_with_visibility(&input.type_, visibility)
+                    }
+                    functions::Input::External(input) => {
+                        self.variable_mapping
+                            .insert(&input.program_name.name, register_string.clone());
+                        format!("{}.aleo/{}.record", input.program_name, input.record)
+                    }
                 };
-                let type_string = self.visit_type_with_visibility(&input.type_, visibility);
+
                 writeln!(function_string, "    input {} as {};", register_string, type_string,)
                     .expect("failed to write to string");
             }

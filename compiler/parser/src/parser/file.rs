@@ -18,8 +18,8 @@ use super::*;
 use crate::parse_ast;
 use leo_errors::{CompilerError, ParserError, ParserWarning, Result};
 use leo_span::source_map::FileName;
-use leo_span::sym;
 use leo_span::symbol::with_session_globals;
+use leo_span::{sym, Symbol};
 
 use std::fs;
 
@@ -95,12 +95,11 @@ impl ParserContext<'_> {
 
         // Parse `.leo`.
         self.expect(&Token::Dot)?;
-        let leo_file_extension = self.expect_identifier()?;
-
-        // Throw error for non-leo files.
-        if leo_file_extension.name.ne(&sym::leo) {
-            return Err(ParserError::leo_imports_only(leo_file_extension, self.token.span).into());
+        if !self.eat(&Token::Leo) {
+            // Throw error for non-leo files.
+            return Err(ParserError::leo_imports_only(self.token.span).into());
         }
+
         let _end = self.expect(&Token::Semicolon)?;
 
         // Tokenize and parse import file.
@@ -284,16 +283,45 @@ impl ParserContext<'_> {
         }
     }
 
-    /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
-    fn parse_function_input(&mut self) -> Result<FunctionInput> {
+    /// Returns a [`Input`] AST node if the next tokens represent a function output.
+    fn parse_input(&mut self) -> Result<functions::Input> {
         let mode = self.parse_mode()?;
-        let (name, type_) = self.parse_typed_ident()?;
-        Ok(FunctionInput {
-            identifier: name,
-            mode,
-            type_,
-            span: name.span,
-        })
+        let name = self.expect_identifier()?;
+        self.expect(&Token::Colon)?;
+
+        if self.peek_is_external() {
+            let external = self.expect_identifier()?;
+            let mut span = name.span + external.span;
+
+            // Parse `.leo/`.
+            self.eat(&Token::Dot);
+            self.eat(&Token::Leo);
+            self.eat(&Token::Div);
+
+            // Parse record name.
+            let record = self.expect_identifier()?;
+
+            // Parse `.record`.
+            self.eat(&Token::Dot);
+            self.eat(&Token::Record);
+            span = span + self.prev_token.span;
+
+            Ok(functions::Input::External(External {
+                identifier: name,
+                program_name: external,
+                record,
+                span,
+            }))
+        } else {
+            let type_ = self.parse_type()?.0;
+
+            Ok(functions::Input::Internal(FunctionInput {
+                identifier: name,
+                mode,
+                type_,
+                span: name.span,
+            }))
+        }
     }
 
     /// Returns a [`FunctionOutput`] AST node if the next tokens represent a function output.
@@ -302,6 +330,43 @@ impl ParserContext<'_> {
         let mode = self.parse_mode()?;
         let (type_, span) = self.parse_type()?;
         Ok(FunctionOutput { mode, type_, span })
+    }
+
+    /// Returns a [`Output`] AST node if the next tokens represent a function output.
+    fn parse_output(&mut self) -> Result<Output> {
+        if self.peek_is_external() {
+            let external = self.expect_identifier()?;
+            let mut span = external.span;
+
+            // Parse `.leo/`.
+            self.eat(&Token::Dot);
+            self.eat(&Token::Leo);
+            self.eat(&Token::Div);
+
+            // Parse record name.
+            let record = self.expect_identifier()?;
+
+            // Parse `.record`.
+            self.eat(&Token::Dot);
+            self.eat(&Token::Record);
+            span = span + self.prev_token.span;
+
+            Ok(Output::External(External {
+                identifier: Identifier::new(Symbol::intern("dummy")),
+                program_name: external,
+                record,
+                span,
+            }))
+        } else {
+            Ok(Output::Internal(self.parse_function_output()?))
+        }
+    }
+
+    fn peek_is_external(&self) -> bool {
+        matches!(
+            (&self.token.token, self.look_ahead(1, |t| &t.token)),
+            (Token::Identifier(_), Token::Dot)
+        )
     }
 
     /// Returns `true` if the next token is Function or if it is a Const followed by Function.
@@ -343,7 +408,7 @@ impl ParserContext<'_> {
         let name = self.expect_identifier()?;
 
         // Parse parameters.
-        let (inputs, ..) = self.parse_paren_comma_list(|p| p.parse_function_input().map(Some))?;
+        let (inputs, ..) = self.parse_paren_comma_list(|p| p.parse_input().map(Some))?;
 
         // Parse return type.
         let output = match self.eat(&Token::Arrow) {
@@ -351,8 +416,8 @@ impl ParserContext<'_> {
             true => {
                 self.disallow_circuit_construction = true;
                 let output = match self.peek_is_left_par() {
-                    true => self.parse_paren_comma_list(|p| p.parse_function_output().map(Some))?.0,
-                    false => vec![self.parse_function_output()?],
+                    true => self.parse_paren_comma_list(|p| p.parse_output().map(Some))?.0,
+                    false => vec![self.parse_output()?],
                 };
                 self.disallow_circuit_construction = false;
                 output
@@ -373,7 +438,7 @@ impl ParserContext<'_> {
                 let identifier = self.expect_identifier()?;
 
                 // Parse parameters.
-                let (input, ..) = self.parse_paren_comma_list(|p| p.parse_function_input().map(Some))?;
+                let (input, ..) = self.parse_paren_comma_list(|p| p.parse_input().map(Some))?;
 
                 // Parse return type.
                 let output = match self.eat(&Token::Arrow) {
@@ -381,8 +446,8 @@ impl ParserContext<'_> {
                     true => {
                         self.disallow_circuit_construction = true;
                         let output = match self.peek_is_left_par() {
-                            true => self.parse_paren_comma_list(|p| p.parse_function_output().map(Some))?.0,
-                            false => vec![self.parse_function_output()?],
+                            true => self.parse_paren_comma_list(|p| p.parse_output().map(Some))?.0,
+                            false => vec![self.parse_output()?],
                         };
                         self.disallow_circuit_construction = false;
                         output

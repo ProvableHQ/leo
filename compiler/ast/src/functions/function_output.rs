@@ -14,14 +14,64 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Mode, Node, Type};
+use crate::{External, Mode, Node, Type};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// A function parameter.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Output {
+    Internal(FunctionOutput),
+    External(External),
+}
+
+impl Output {
+    pub fn type_(&self) -> Type {
+        match self {
+            Output::Internal(output) => output.type_.clone(),
+            Output::External(output) => output.type_(),
+        }
+    }
+
+    pub fn mode(&self) -> Mode {
+        match self {
+            Output::Internal(output) => output.mode,
+            Output::External(_) => Mode::None,
+        }
+    }
+}
+
+impl fmt::Display for Output {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use Output::*;
+        match self {
+            Internal(output) => output.fmt(f),
+            External(output) => output.fmt(f),
+        }
+    }
+}
+
+impl Node for Output {
+    fn span(&self) -> Span {
+        use Output::*;
+        match self {
+            Internal(output) => output.span(),
+            External(output) => output.span(),
+        }
+    }
+
+    fn set_span(&mut self, span: Span) {
+        use Output::*;
+        match self {
+            Internal(output) => output.set_span(span),
+            External(output) => output.set_span(span),
+        }
+    }
+}
+
+/// A function output.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FunctionOutput {
     /// The mode of the function output.
     pub mode: Mode,

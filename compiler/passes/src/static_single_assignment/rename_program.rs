@@ -30,7 +30,7 @@ impl FunctionConsumer for StaticSingleAssigner {
         // However, for each input, we must add each symbol to the rename table.
         for input_variable in function.input.iter() {
             self.rename_table
-                .update(input_variable.identifier.name, input_variable.identifier.name);
+                .update(input_variable.identifier().name, input_variable.identifier().name);
         }
 
         let block = Block {
@@ -49,7 +49,7 @@ impl FunctionConsumer for StaticSingleAssigner {
             // However, for each input, we must add each symbol to the rename table.
             for input_variable in finalize.input.iter() {
                 self.rename_table
-                    .update(input_variable.identifier.name, input_variable.identifier.name);
+                    .update(input_variable.identifier().name, input_variable.identifier().name);
             }
 
             let block = Block {
@@ -92,7 +92,11 @@ impl ProgramConsumer for StaticSingleAssigner {
             network: input.network,
             expected_input: input.expected_input,
             // TODO: Do inputs need to be processed? They are not processed in the existing compiler.
-            imports: input.imports,
+            imports: input
+                .imports
+                .into_iter()
+                .map(|(name, import)| (name, self.consume_program(import)))
+                .collect(),
             functions: input
                 .functions
                 .into_iter()

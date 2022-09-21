@@ -214,7 +214,7 @@ impl Namespace for InputNamespace {
     }
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
-        create_session_if_not_set_then(|s| with_handler(tokenize(test, s)?, |p| p.parse_input()).map(yaml_or_fail))
+        create_session_if_not_set_then(|s| with_handler(tokenize(test, s)?, |p| p.parse_input_file()).map(yaml_or_fail))
     }
 }
 

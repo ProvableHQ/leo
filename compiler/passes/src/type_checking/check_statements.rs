@@ -239,7 +239,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                     .iter()
                     .zip(input.arguments.iter())
                     .for_each(|(expected, argument)| {
-                        self.visit_expression(argument, &Some(expected.type_.clone()));
+                        self.visit_expression(argument, &Some(expected.type_()));
                     });
             }
         }
