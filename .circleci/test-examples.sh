@@ -1,3 +1,17 @@
+#!/bin/bash
+# First check that Leo is installed.
+if ! command -v leo &> /dev/null
+then
+    echo "leo is not installed."
+    exit
+fi
+
+# Clone the 'leo' repository, or pull if it already exists.
+git clone https://github.com/AleoHQ/leo.git leo 2> /dev/null || (cd leo ; git pull)
+
+# Install 'leo'.
+cd leo && cargo install --path . && cd ..
+
 # Build and run the auction Leo program.
 (
   cd ./project/examples/auction || exit
