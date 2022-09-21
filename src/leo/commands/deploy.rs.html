@@ -65,6 +65,7 @@
 <span id="59">59</span>
 <span id="60">60</span>
 <span id="61">61</span>
+<span id="62">62</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -117,6 +118,7 @@
             .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">PackageError::failed_to_set_cwd</span>(<span class="ident">build_directory</span>.<span class="ident">display</span>(), <span class="ident">err</span>))<span class="question-mark">?</span>;
 
         <span class="comment">// Call the `aleo node` command from the Aleo SDK.</span>
+        <span class="macro">println!</span>();
         <span class="kw">let</span> <span class="ident">command</span> <span class="op">=</span> <span class="ident">AleoDeploy::try_parse_from</span>([<span class="ident">ALEO_CLI_COMMAND</span>]).<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_parse_aleo_node</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">command</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_execute_aleo_node</span>)<span class="question-mark">?</span>;
 

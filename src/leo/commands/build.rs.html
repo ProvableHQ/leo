@@ -288,10 +288,6 @@
 <span id="282">282</span>
 <span id="283">283</span>
 <span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -321,7 +317,6 @@
 <span class="kw">use</span> <span class="ident">aleo::commands::Build</span> <span class="kw">as</span> <span class="ident">AleoBuild</span>;
 
 <span class="kw">use</span> <span class="ident">clap::StructOpt</span>;
-<span class="kw">use</span> <span class="ident">colored::Colorize</span>;
 <span class="kw">use</span> <span class="ident">indexmap::IndexMap</span>;
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 <span class="kw">use</span> <span class="ident">std::path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>};
@@ -477,6 +472,7 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">compiler_options</span>.<span class="ident">offline</span> {
             <span class="ident">args</span>.<span class="ident">push</span>(<span class="string">&quot;--offline&quot;</span>);
         }
+        <span class="macro">println!</span>();
         <span class="kw">let</span> <span class="ident">command</span> <span class="op">=</span> <span class="ident">AleoBuild::try_parse_from</span>(<span class="kw-2">&amp;</span><span class="ident">args</span>).<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_execute_aleo_build</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">command</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_execute_aleo_build</span>)<span class="question-mark">?</span>;
 
@@ -569,14 +565,10 @@
         .<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_load_instructions</span>)<span class="question-mark">?</span>;
 
     <span class="comment">// Prepare the path string.</span>
-    <span class="kw">let</span> <span class="ident">path_string</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;(in \&quot;{}\&quot;)&quot;</span>, <span class="ident">aleo_file_path</span>.<span class="ident">display</span>());
+    <span class="kw">let</span> <span class="ident">_path_string</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;(in \&quot;{}\&quot;)&quot;</span>, <span class="ident">aleo_file_path</span>.<span class="ident">display</span>());
 
     <span class="comment">// Log the build as successful.</span>
-    <span class="macro">tracing::info!</span>(
-        <span class="string">&quot;compiled &#39;{}&#39; into Aleo instructions {}&quot;</span>,
-        <span class="ident">file_name</span>,
-        <span class="ident">path_string</span>.<span class="ident">dimmed</span>()
-    );
+    <span class="macro">tracing::info!</span>(<span class="string">&quot;Compiled &#39;{}&#39; into Aleo instructions&quot;</span>, <span class="ident">file_name</span>,);
 
     <span class="prelude-val">Ok</span>(<span class="ident">symbol_table</span>.<span class="ident">circuits</span>)
 }

@@ -86,6 +86,7 @@
 <span id="80">80</span>
 <span id="81">81</span>
 <span id="82">82</span>
+<span id="83">83</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -159,6 +160,7 @@
         }
 
         <span class="comment">// Call the `aleo node` command from the Aleo SDK.</span>
+        <span class="macro">println!</span>();
         <span class="kw">let</span> <span class="ident">command</span> <span class="op">=</span> <span class="ident">AleoNode::try_parse_from</span>(<span class="kw-2">&amp;</span><span class="ident">arguments</span>).<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_parse_aleo_node</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">command</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_execute_aleo_node</span>)<span class="question-mark">?</span>;
 
