@@ -295,6 +295,31 @@ impl ParserContext<'_> {
         })
     }
 
+    /// Returns a [`Input`] AST node if the next tokens represent a function output.
+    fn parse_input(&mut self) -> Result<functions::Input> {
+        if self.peek_is_external() {
+            let external = self.expect_identifier()?;
+            let mut span = external.span;
+
+            // Parse `.leo/`.
+            self.eat(&Token::Dot);
+            self.eat(&Token::Leo);
+            self.eat(&Token::Div);
+
+            // Parse record name.
+            let record = self.expect_identifier()?;
+
+            // Parse `.record`.
+            self.eat(&Token::Dot);
+            self.eat(&Token::Record);
+            span = span + self.prev_token.span;
+
+            Ok(functions::Input::External(External { external, record, span }))
+        } else {
+            Ok(functions::Input::Internal(self.parse_function_input()?))
+        }
+    }
+
     /// Returns a [`FunctionOutput`] AST node if the next tokens represent a function output.
     fn parse_function_output(&mut self) -> Result<FunctionOutput> {
         // TODO: Could this span be made more accurate?
@@ -303,7 +328,7 @@ impl ParserContext<'_> {
         Ok(FunctionOutput { mode, type_, span })
     }
 
-    /// Returns a [`FunctionOutput`] AST node if the next tokens represent a function output.
+    /// Returns a [`Output`] AST node if the next tokens represent a function output.
     fn parse_output(&mut self) -> Result<Output> {
         if self.peek_is_external() {
             let external = self.expect_identifier()?;
@@ -322,7 +347,7 @@ impl ParserContext<'_> {
             self.eat(&Token::Record);
             span = span + self.prev_token.span;
 
-            Ok(Output::External(FunctionOutputExternal { external, record, span }))
+            Ok(Output::External(External { external, record, span }))
         } else {
             Ok(Output::Internal(self.parse_function_output()?))
         }
@@ -374,7 +399,7 @@ impl ParserContext<'_> {
         let name = self.expect_identifier()?;
 
         // Parse parameters.
-        let (inputs, ..) = self.parse_paren_comma_list(|p| p.parse_function_input().map(Some))?;
+        let (inputs, ..) = self.parse_paren_comma_list(|p| p.parse_input().map(Some))?;
 
         // Parse return type.
         let output = match self.eat(&Token::Arrow) {

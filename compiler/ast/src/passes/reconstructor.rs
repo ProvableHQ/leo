@@ -363,7 +363,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
     }
 
     fn reconstruct_import(&mut self, input: Program) -> Program {
-        input
+        self.reconstruct_program(input)
     }
 
     fn reconstruct_mapping(&mut self, input: Mapping) -> Mapping {

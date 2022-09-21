@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Mode, Node, Type};
+use crate::{External, Identifier, Mode, Node, Type};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -23,7 +23,7 @@ use std::fmt;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Output {
     Internal(FunctionOutput),
-    External(FunctionOutputExternal),
+    External(External),
 }
 
 impl fmt::Display for Output {
@@ -72,28 +72,3 @@ impl fmt::Display for FunctionOutput {
 }
 
 crate::simple_node_impl!(FunctionOutput);
-
-/// A function output from an external program with type record.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct FunctionOutputExternal {
-    /// The name of the external program.
-    pub external: Identifier,
-    /// The name of the external record type.
-    pub record: Identifier,
-    /// The parameters span from any annotations to its type.
-    pub span: Span,
-}
-
-impl FunctionOutputExternal {
-    pub fn get_type(&self) -> Type {
-        Type::Identifier(self.record.clone())
-    }
-}
-
-impl fmt::Display for FunctionOutputExternal {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.leo/{}.record", self.external, self.record)
-    }
-}
-
-crate::simple_node_impl!(FunctionOutputExternal);

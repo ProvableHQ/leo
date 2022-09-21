@@ -14,14 +14,48 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Mode, Node, Type};
+use crate::{External, Identifier, Mode, Node, Type};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Input {
+    Internal(FunctionInput),
+    External(External),
+}
+
+impl fmt::Display for Input {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use Input::*;
+        match self {
+            Internal(input) => input.fmt(f),
+            External(input) => input.fmt(f),
+        }
+    }
+}
+
+impl Node for Input {
+    fn span(&self) -> Span {
+        use Input::*;
+        match self {
+            Internal(input) => input.span(),
+            External(input) => input.span(),
+        }
+    }
+
+    fn set_span(&mut self, span: Span) {
+        use Input::*;
+        match self {
+            Internal(input) => input.set_span(span),
+            External(input) => input.set_span(span),
+        }
+    }
+}
+
 /// A function parameter.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FunctionInput {
     /// The name the parameter is accessible as in the function's body.
     pub identifier: Identifier,

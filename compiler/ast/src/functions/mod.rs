@@ -17,6 +17,9 @@
 pub mod annotation;
 pub use annotation::*;
 
+pub mod external;
+pub use external::*;
+
 pub mod finalize;
 pub use finalize::*;
 
@@ -43,7 +46,7 @@ pub struct Function {
     /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
     pub identifier: Identifier,
     /// The function's input parameters.
-    pub input: Vec<FunctionInput>,
+    pub input: Vec<Input>,
     /// The function's output declarations.
     pub output: Vec<Output>,
     /// The function's output type.
@@ -69,7 +72,7 @@ impl Function {
     pub fn new(
         annotations: Vec<Annotation>,
         identifier: Identifier,
-        input: Vec<FunctionInput>,
+        input: Vec<Input>,
         output: Vec<Output>,
         block: Block,
         finalize: Option<Finalize>,

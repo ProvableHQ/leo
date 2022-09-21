@@ -16,7 +16,7 @@ function initialize_board(
     destroyer: u64,
     // The address of the opponent.
     player: address,
-) -> board_state {
+) -> board.leo/board_state.record {
     // Verify that each individual ship placement bitstring is valid.
     let valid_carrier: bool = verify.leo/validate_ship(carrier, 5u64, 31u64, 4311810305u64);
     console.assert(valid_carrier);
@@ -31,10 +31,10 @@ function initialize_board(
     console.assert(valid_destroyer);
 
     // Create the board with all the ship placements combined.
-    let board: u64 = board.leo/create_board(carrier, battleship, cruiser, destroyer);
+    let board: u64 = verify.leo/create_board(carrier, battleship, cruiser, destroyer);
 
     // Initialize the board state record.
-    let state: board_state = verify.leo/new_board_state(board, player);
+    let state: board_state = board.leo/new_board_state(board, player);
 
     return state;
 }
@@ -46,7 +46,7 @@ function initialize_board(
 function offer_battleship(
     // The board record to start a game with.
     board: board_state,
-) -> (board_state, move) {
+) -> (board.leo/board_state.record, move.leo/move.record) {
     let state: board_state = board.leo/start_board(board);
     let dummy: move = move.leo/start_game(board.player_2);
 
@@ -61,7 +61,7 @@ function start_battleship(
     board: board_state,
     // The move record to play to begin the game. This should be the dummy move record created from offer_battleship.
     move_start: move,
-) -> (board_state, move) {
+) -> (board.leo/board_state.record, move.leo/move.record) {
     // Validate that the move players and board players match each other.
     console.assert_eq(board.player_1, move_start.player_1);
     console.assert_eq(board.player_2, move_start.player_2);
@@ -82,7 +82,7 @@ function play(
     move_incoming: move,
     // The u64 equivalent of the bitwise representation of the next coordinate to play on the opponent's board.
     shoot: u64,
-) -> (board_state, move) {
+) -> (board.leo/board_state.record, move.leo/move.record) {
     // Verify the board has been started. This prevents players from starting a game and then creating
     // a brand new board to play with.
     console.assert(board.game_started);
