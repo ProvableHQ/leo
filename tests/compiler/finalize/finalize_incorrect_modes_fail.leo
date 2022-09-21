@@ -7,7 +7,7 @@ mapping account: address => u64;
 
 @program
 function mint_public(public receiver: address, public amount: u64) {
-    finalize(receiver, amount);
+    async finalize(receiver, amount);
 }
 
 finalize mint_public (public receiver: address, constant amount: u64) -> constant u64 {
@@ -16,7 +16,7 @@ finalize mint_public (public receiver: address, constant amount: u64) -> constan
 
 @program
 function mint_public2(public receiver: address, public amount: u64) {
-    finalize(receiver, amount);
+    async finalize(receiver, amount);
 }
 
 finalize mint_public2(public receiver: address, amount: u64) -> u64 {

@@ -8,3 +8,9 @@ finalize(;
 finalize(foo, ,);
 
 finalize(foo, bar)
+
+async async finalize(foo);
+
+finalize;
+
+asyn finalize(foo);

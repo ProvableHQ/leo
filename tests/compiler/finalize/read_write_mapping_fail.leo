@@ -22,7 +22,7 @@ finalize read_in_finalize(public addr: address) -> public u128 {
 }
 
 function write_in_finalize(public addr: address, public amount: u128) {
-    finalize(addr, amount);
+    async finalize(addr, amount);
 }
 
 finalize write_in_finalize(public: addr: address, public amount: u128) {

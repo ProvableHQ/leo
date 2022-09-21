@@ -8,7 +8,7 @@ mapping values: u8 => u8;
 
 @program
 function mint_public(public receiver: address, public amount: u64) {
-    finalize(receiver, amount);
+    async finalize(receiver, amount);
 }
 
 finalize mint_private (public receiver: address, public amount: u64) {

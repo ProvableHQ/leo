@@ -8,7 +8,7 @@ mapping values: u8 => u8;
 
 @program
 function mint_public(public receiver: address, public amount: u64) {
-    finalize(receiver, amount);
+    async finalize(receiver, amount);
 }
 
 finalize mint_public (public receiver: address, public amount: u64) {
@@ -17,14 +17,14 @@ finalize mint_public (public receiver: address, public amount: u64) {
 
 @program
 function public_adder(public a: u8, public b: u8) {
-    finalize(a, b);
+    async finalize(a, b);
 } finalize public_adder(a: u8, b: u8) -> public u8 {
     return a + b;
 }
 
 @program
 function finalize_no_params() {
-    finalize();
+    async finalize();
 }
 
 finalize finalize_no_params() {

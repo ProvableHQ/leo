@@ -3,8 +3,8 @@ namespace: ParseStatement
 expectation: Pass
 */
 
-finalize();
+async finalize();
 
-finalize(foo);
+async finalize(foo);
 
-finalize(foo, bar);
+async finalize(foo, bar);
