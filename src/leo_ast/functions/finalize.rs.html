@@ -84,12 +84,6 @@
 <span id="78">78</span>
 <span id="79">79</span>
 <span id="80">80</span>
-<span id="81">81</span>
-<span id="82">82</span>
-<span id="83">83</span>
-<span id="84">84</span>
-<span id="85">85</span>
-<span id="86">86</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -106,7 +100,7 @@
 <span class="comment">// You should have received a copy of the GNU General Public License</span>
 <span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Block</span>, <span class="ident">FunctionInput</span>, <span class="ident">FunctionOutput</span>, <span class="ident">Identifier</span>, <span class="ident">Node</span>, <span class="ident">Tuple</span>, <span class="ident">Type</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Block</span>, <span class="ident">Identifier</span>, <span class="ident">Input</span>, <span class="ident">Node</span>, <span class="ident">Output</span>, <span class="ident">Tuple</span>, <span class="ident">Type</span>};
 
 <span class="kw">use</span> <span class="ident">leo_span::Span</span>;
 
@@ -119,9 +113,9 @@
     <span class="doccomment">/// The finalize identifier.</span>
     <span class="kw">pub</span> <span class="ident">identifier</span>: <span class="ident">Identifier</span>,
     <span class="doccomment">/// The finalize block&#39;s input parameters.</span>
-    <span class="kw">pub</span> <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FunctionInput</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Input</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The finalize blocks&#39;s output declaration.</span>
-    <span class="kw">pub</span> <span class="ident">output</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FunctionOutput</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">output</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Output</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The finalize block&#39;s output type.</span>
     <span class="kw">pub</span> <span class="ident">output_type</span>: <span class="ident">Type</span>,
     <span class="doccomment">/// The body of the function.</span>
@@ -132,17 +126,11 @@
 
 <span class="kw">impl</span> <span class="ident">Finalize</span> {
     <span class="doccomment">/// Create a new finalize block.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">identifier</span>: <span class="ident">Identifier</span>,
-        <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FunctionInput</span><span class="op">&gt;</span>,
-        <span class="ident">output</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FunctionOutput</span><span class="op">&gt;</span>,
-        <span class="ident">block</span>: <span class="ident">Block</span>,
-        <span class="ident">span</span>: <span class="ident">Span</span>,
-    ) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">identifier</span>: <span class="ident">Identifier</span>, <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Input</span><span class="op">&gt;</span>, <span class="ident">output</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Output</span><span class="op">&gt;</span>, <span class="ident">block</span>: <span class="ident">Block</span>, <span class="ident">span</span>: <span class="ident">Span</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">output_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">output</span>.<span class="ident">len</span>() {
             <span class="number">0</span> =&gt; <span class="ident">Type::Unit</span>,
-            <span class="number">1</span> =&gt; <span class="ident">output</span>[<span class="number">0</span>].<span class="ident">type_</span>.<span class="ident">clone</span>(),
-            <span class="kw">_</span> =&gt; <span class="ident">Type::Tuple</span>(<span class="ident">Tuple</span>(<span class="ident">output</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">output</span><span class="op">|</span> <span class="ident">output</span>.<span class="ident">type_</span>.<span class="ident">clone</span>()).<span class="ident">collect</span>())),
+            <span class="number">1</span> =&gt; <span class="ident">output</span>[<span class="number">0</span>].<span class="ident">type_</span>(),
+            <span class="kw">_</span> =&gt; <span class="ident">Type::Tuple</span>(<span class="ident">Tuple</span>(<span class="ident">output</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">output</span><span class="op">|</span> <span class="ident">output</span>.<span class="ident">type_</span>()).<span class="ident">collect</span>())),
         };
 
         <span class="self">Self</span> {

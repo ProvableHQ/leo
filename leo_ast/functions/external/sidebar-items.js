@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["External","A function output from an external program with type record."]]};

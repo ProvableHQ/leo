@@ -135,11 +135,11 @@
 
 <span class="doccomment">/// Input data which includes [`ProgramInput`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Default</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Input</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InputData</span> {
     <span class="kw">pub</span> <span class="ident">program_input</span>: <span class="ident">ProgramInput</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">Input</span> {
+<span class="kw">impl</span> <span class="ident">InputData</span> {
     <span class="doccomment">/// Serializes the ast into a JSON string.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_json_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">serde_json::to_string_pretty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">AstError::failed_to_convert_ast_to_json_string</span>(<span class="kw-2">&amp;</span><span class="ident">e</span>))<span class="question-mark">?</span>)

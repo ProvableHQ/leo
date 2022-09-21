@@ -364,6 +364,10 @@
 <span id="358">358</span>
 <span id="359">359</span>
 <span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -496,6 +500,8 @@
     <span class="ident">Return</span>,
     <span class="ident">SelfLower</span>,
     <span class="ident">Static</span>,
+    <span class="comment">// For imports.</span>
+    <span class="ident">Leo</span>,
 
     <span class="comment">// Meta Tokens</span>
     <span class="ident">Eof</span>,
@@ -579,6 +585,7 @@
             <span class="ident">Token::Increment</span> =&gt; <span class="ident">sym::increment</span>,
             <span class="ident">Token::Import</span> =&gt; <span class="ident">sym::import</span>,
             <span class="ident">Token::Let</span> =&gt; <span class="ident">sym::Let</span>,
+            <span class="ident">Token::Leo</span> =&gt; <span class="ident">sym::leo</span>,
             <span class="ident">Token::Mapping</span> =&gt; <span class="ident">sym::mapping</span>,
             <span class="ident">Token::Public</span> =&gt; <span class="ident">sym::Public</span>,
             <span class="ident">Token::Record</span> =&gt; <span class="ident">sym::record</span>,
@@ -701,6 +708,7 @@
             <span class="ident">Public</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;public&quot;</span>),
             <span class="ident">Return</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;return&quot;</span>),
             <span class="ident">Static</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;static&quot;</span>),
+            <span class="ident">Leo</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;leo&quot;</span>),
             <span class="ident">Eof</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;eof&gt;&quot;</span>),
         }
     }

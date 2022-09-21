@@ -518,8 +518,8 @@
 
     @<span class="ident">formatted</span>
     <span class="ident">leo_imports_only</span> {
-        <span class="ident">args</span>: (<span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Invalid import call to non-leo file `{name}`.&quot;</span>),
+        <span class="ident">args</span>: (),
+        <span class="ident">msg</span>: <span class="string">&quot;Invalid import call to non-leo file.&quot;</span>,
         <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Only imports of Leo `.leo` files are currently supported.&quot;</span>.<span class="ident">to_string</span>()),
     }
 

@@ -184,6 +184,16 @@
 <span id="178">178</span>
 <span id="179">179</span>
 <span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -204,8 +214,8 @@
 
 <span class="kw">use</span> <span class="ident">leo_ast</span>::{
     <span class="ident">AssignStatement</span>, <span class="ident">Block</span>, <span class="ident">ConditionalStatement</span>, <span class="ident">ConsoleFunction</span>, <span class="ident">ConsoleStatement</span>, <span class="ident">DecrementStatement</span>,
-    <span class="ident">DefinitionStatement</span>, <span class="ident">Expression</span>, <span class="ident">FinalizeStatement</span>, <span class="ident">IncrementStatement</span>, <span class="ident">IterationStatement</span>, <span class="ident">Mode</span>, <span class="ident">ReturnStatement</span>,
-    <span class="ident">Statement</span>,
+    <span class="ident">DefinitionStatement</span>, <span class="ident">Expression</span>, <span class="ident">FinalizeStatement</span>, <span class="ident">IncrementStatement</span>, <span class="ident">IterationStatement</span>, <span class="ident">Mode</span>, <span class="ident">Output</span>,
+    <span class="ident">ReturnStatement</span>, <span class="ident">Statement</span>,
 };
 
 <span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
@@ -238,28 +248,38 @@
                     .<span class="ident">into_iter</span>()
                     .<span class="ident">zip</span>(<span class="self">self</span>.<span class="ident">current_function</span>.<span class="ident">unwrap</span>().<span class="ident">output</span>.<span class="ident">iter</span>())
                     .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">operand</span>, <span class="ident">output</span>)<span class="op">|</span> {
-                        <span class="kw">let</span> <span class="ident">visibility</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_program_function</span> {
-                            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">in_finalize</span> {
-                                <span class="comment">// If in finalize block, the default visibility is public.</span>
-                                <span class="bool-val">true</span> =&gt; <span class="kw">match</span> <span class="ident">output</span>.<span class="ident">mode</span> {
-                                    <span class="ident">Mode::None</span> =&gt; <span class="ident">Mode::Public</span>,
-                                    <span class="ident">mode</span> =&gt; <span class="ident">mode</span>,
-                                },
-                                <span class="comment">// If not in finalize block, the default visibility is private.</span>
-                                <span class="bool-val">false</span> =&gt; <span class="kw">match</span> <span class="ident">output</span>.<span class="ident">mode</span> {
-                                    <span class="ident">Mode::None</span> =&gt; <span class="ident">Mode::Private</span>,
-                                    <span class="ident">mode</span> =&gt; <span class="ident">mode</span>,
-                                },
+                        <span class="kw">match</span> <span class="ident">output</span> {
+                            <span class="ident">Output::Internal</span>(<span class="ident">output</span>) =&gt; {
+                                <span class="kw">let</span> <span class="ident">visibility</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_program_function</span> {
+                                    <span class="kw">match</span> <span class="self">self</span>.<span class="ident">in_finalize</span> {
+                                        <span class="comment">// If in finalize block, the default visibility is public.</span>
+                                        <span class="bool-val">true</span> =&gt; <span class="kw">match</span> <span class="ident">output</span>.<span class="ident">mode</span> {
+                                            <span class="ident">Mode::None</span> =&gt; <span class="ident">Mode::Public</span>,
+                                            <span class="ident">mode</span> =&gt; <span class="ident">mode</span>,
+                                        },
+                                        <span class="comment">// If not in finalize block, the default visibility is private.</span>
+                                        <span class="bool-val">false</span> =&gt; <span class="kw">match</span> <span class="ident">output</span>.<span class="ident">mode</span> {
+                                            <span class="ident">Mode::None</span> =&gt; <span class="ident">Mode::Private</span>,
+                                            <span class="ident">mode</span> =&gt; <span class="ident">mode</span>,
+                                        },
+                                    }
+                                } <span class="kw">else</span> {
+                                    <span class="comment">// Only program functions have visibilities associated with their outputs.</span>
+                                    <span class="ident">Mode::None</span>
+                                };
+                                <span class="macro">format!</span>(
+                                    <span class="string">&quot;    output {} as {};\n&quot;</span>,
+                                    <span class="ident">operand</span>,
+                                    <span class="self">self</span>.<span class="ident">visit_type_with_visibility</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>.<span class="ident">type_</span>, <span class="ident">visibility</span>)
+                                )
                             }
-                        } <span class="kw">else</span> {
-                            <span class="comment">// Only program functions have visibilities associated with their outputs.</span>
-                            <span class="ident">Mode::None</span>
-                        };
-                        <span class="macro">format!</span>(
-                            <span class="string">&quot;    output {} as {};\n&quot;</span>,
-                            <span class="ident">operand</span>,
-                            <span class="self">self</span>.<span class="ident">visit_type_with_visibility</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>.<span class="ident">type_</span>, <span class="ident">visibility</span>)
-                        )
+                            <span class="ident">Output::External</span>(<span class="ident">output</span>) =&gt; {
+                                <span class="macro">format!</span>(
+                                    <span class="string">&quot;    output {} as {}.aleo/{}.record;\n&quot;</span>,
+                                    <span class="ident">operand</span>, <span class="ident">output</span>.<span class="ident">program_name</span>, <span class="ident">output</span>.<span class="ident">record</span>,
+                                )
+                            }
+                        }
                     })
                     .<span class="ident">join</span>(<span class="string">&quot;&quot;</span>);
 

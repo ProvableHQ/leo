@@ -79,7 +79,7 @@
 <span class="comment">// You should have received a copy of the GNU General Public License</span>
 <span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 
-<span class="kw">use</span> <span class="ident">leo_ast</span>::{<span class="ident">Function</span>, <span class="ident">FunctionInput</span>, <span class="ident">Type</span>};
+<span class="kw">use</span> <span class="ident">leo_ast</span>::{<span class="ident">Function</span>, <span class="ident">Input</span>, <span class="ident">Type</span>};
 <span class="kw">use</span> <span class="ident">leo_span::Span</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::SymbolTable</span>;
@@ -88,7 +88,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FinalizeData</span> {
     <span class="doccomment">/// The inputs to the finalize block.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FunctionInput</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Input</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The output type of the finalize block.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">output_type</span>: <span class="ident">Type</span>,
 }
@@ -103,7 +103,7 @@
     <span class="doccomment">/// The `Span` associated with the function.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">span</span>: <span class="ident">Span</span>,
     <span class="doccomment">/// The inputs to the function.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FunctionInput</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Input</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Metadata associated with the finalize block.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">finalize</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">FinalizeData</span><span class="op">&gt;</span>,
 }

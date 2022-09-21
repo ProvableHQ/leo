@@ -48,6 +48,16 @@
 <span id="42">42</span>
 <span id="43">43</span>
 <span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -66,7 +76,7 @@
 
 <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-<span class="doccomment">/// A function call expression, e.g., `foo(args)` or `Foo::bar(args)`.</span>
+<span class="doccomment">/// A function call expression, e.g.`foo(args)` or `Foo::bar(args)`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CallExpression</span> {
     <span class="doccomment">/// An expression evaluating to a callable function,</span>
@@ -74,13 +84,23 @@
     <span class="kw">pub</span> <span class="ident">function</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>, <span class="comment">// todo: make this identifier?</span>
     <span class="doccomment">/// Expressions for the arguments passed to the functions parameters.</span>
     <span class="kw">pub</span> <span class="ident">arguments</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The name of the external program call, e.g.`bar` in `bar.leo`.</span>
+    <span class="kw">pub</span> <span class="ident">external</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Span of the entire call `function(arguments)`.</span>
     <span class="kw">pub</span> <span class="ident">span</span>: <span class="ident">Span</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">CallExpression</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}(&quot;</span>, <span class="self">self</span>.<span class="ident">function</span>)<span class="question-mark">?</span>;
+        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">external</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">external</span>) =&gt; {
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}.leo/{}(&quot;</span>, <span class="ident">external</span>, <span class="self">self</span>.<span class="ident">function</span>)<span class="question-mark">?</span>;
+            }
+            <span class="prelude-val">None</span> =&gt; {
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}(&quot;</span>, <span class="self">self</span>.<span class="ident">function</span>)<span class="question-mark">?</span>;
+            }
+        }
+
         <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">param</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">arguments</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">param</span>)<span class="question-mark">?</span>;
             <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">arguments</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {

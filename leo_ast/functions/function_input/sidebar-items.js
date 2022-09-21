@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["FunctionInput","A function parameter."]]};
+window.SIDEBAR_ITEMS = {"enum":[["Input",""]],"struct":[["FunctionInput","A function parameter."]]};
