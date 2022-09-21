@@ -194,7 +194,7 @@ impl Token {
     pub fn keyword_to_symbol(&self) -> Option<Symbol> {
         Some(match self {
             Token::Address => sym::address,
-            Token::Async => sym::async,
+            Token::Async => sym::Async,
             Token::Bool => sym::bool,
             Token::Circuit => sym::circuit,
             Token::Console => sym::console,

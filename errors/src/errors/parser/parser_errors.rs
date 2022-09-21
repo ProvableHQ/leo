@@ -260,4 +260,11 @@ create_messages!(
         msg: "Illegal spacing in the annotation declaration.",
         help: Some("Remove whitespace between the `@` symbol and the identifier.".to_string()),
     }
+
+    @formatted
+    finalize_without_async {
+        args: (),
+        msg: "A finalize statement must be preceded by the `async` keyword.",
+        help: Some("Add the `async` keyword before the `finalize` keyword.".to_string()),
+    }
 );

@@ -181,7 +181,7 @@ symbols! {
     // general keywords
     AlwaysConst,
     assert,
-    async,
+    Async: "async",
     caller,
     circuit,
     Class: "class",
