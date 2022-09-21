@@ -309,6 +309,9 @@
 <span id="303">303</span>
 <span id="304">304</span>
 <span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -352,7 +355,9 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span> {
             <span class="ident">Token::Return</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Return</span>(<span class="self">self</span>.<span class="ident">parse_return_statement</span>()<span class="question-mark">?</span>)),
-            <span class="ident">Token::Finalize</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Finalize</span>(<span class="self">self</span>.<span class="ident">parse_finalize_statement</span>()<span class="question-mark">?</span>)),
+            <span class="ident">Token::Async</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Finalize</span>(<span class="self">self</span>.<span class="ident">parse_finalize_statement</span>()<span class="question-mark">?</span>)),
+            <span class="comment">// If a finalize token is found without a preceding async token, return an error.</span>
+            <span class="ident">Token::Finalize</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ParserError::finalize_without_async</span>(<span class="self">self</span>.<span class="ident">token</span>.<span class="ident">span</span>).<span class="ident">into</span>()),
             <span class="ident">Token::Increment</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Increment</span>(<span class="self">self</span>.<span class="ident">parse_increment_statement</span>()<span class="question-mark">?</span>)),
             <span class="ident">Token::Decrement</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Decrement</span>(<span class="self">self</span>.<span class="ident">parse_decrement_statement</span>()<span class="question-mark">?</span>)),
             <span class="ident">Token::If</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Conditional</span>(<span class="self">self</span>.<span class="ident">parse_conditional_statement</span>()<span class="question-mark">?</span>)),
@@ -433,6 +438,7 @@
 
     <span class="doccomment">/// Returns a [`FinalizeStatement`] AST node if the next tokens represent a finalize statement.</span>
     <span class="kw">fn</span> <span class="ident">parse_finalize_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">FinalizeStatement</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Async</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Finalize</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> (<span class="ident">arguments</span>, <span class="kw">_</span>, <span class="ident">span</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_paren_comma_list</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">parse_expression</span>().<span class="ident">map</span>(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semicolon</span>)<span class="question-mark">?</span>;

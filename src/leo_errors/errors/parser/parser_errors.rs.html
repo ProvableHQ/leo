@@ -267,6 +267,13 @@
 <span id="261">261</span>
 <span id="262">262</span>
 <span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -528,6 +535,13 @@
         <span class="ident">args</span>: (),
         <span class="ident">msg</span>: <span class="string">&quot;Illegal spacing in the annotation declaration.&quot;</span>,
         <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Remove whitespace between the `@` symbol and the identifier.&quot;</span>.<span class="ident">to_string</span>()),
+    }
+
+    @<span class="ident">formatted</span>
+    <span class="ident">finalize_without_async</span> {
+        <span class="ident">args</span>: (),
+        <span class="ident">msg</span>: <span class="string">&quot;A finalize statement must be preceded by the `async` keyword.&quot;</span>,
+        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Add the `async` keyword before the `finalize` keyword.&quot;</span>.<span class="ident">to_string</span>()),
     }
 );
 </code></pre></div>

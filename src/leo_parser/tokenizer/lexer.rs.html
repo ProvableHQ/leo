@@ -479,6 +479,7 @@
 <span id="473">473</span>
 <span id="474">474</span>
 <span id="475">475</span>
+<span id="476">476</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -875,6 +876,7 @@
                 <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">identifier</span> {
                     <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">starts_with</span>(<span class="string">&quot;aleo1&quot;</span>) =&gt; <span class="ident">Token::AddressLit</span>(<span class="ident">identifier</span>),
                     <span class="string">&quot;address&quot;</span> =&gt; <span class="ident">Token::Address</span>,
+                    <span class="string">&quot;async&quot;</span> =&gt; <span class="ident">Token::Async</span>,
                     <span class="string">&quot;bool&quot;</span> =&gt; <span class="ident">Token::Bool</span>,
                     <span class="string">&quot;circuit&quot;</span> =&gt; <span class="ident">Token::Circuit</span>,
                     <span class="string">&quot;console&quot;</span> =&gt; <span class="ident">Token::Console</span>,
