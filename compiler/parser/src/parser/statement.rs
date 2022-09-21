@@ -41,7 +41,9 @@ impl ParserContext<'_> {
     pub(crate) fn parse_statement(&mut self) -> Result<Statement> {
         match &self.token.token {
             Token::Return => Ok(Statement::Return(self.parse_return_statement()?)),
-            Token::Finalize => Ok(Statement::Finalize(self.parse_finalize_statement()?)),
+            Token::Async => Ok(Statement::Finalize(self.parse_finalize_statement()?)),
+            // If a finalize token is found without a preceding async token, return an error.
+            Token::Finalize => Err(ParserError::finalize_without_async(self.token.span).into()),
             Token::Increment => Ok(Statement::Increment(self.parse_increment_statement()?)),
             Token::Decrement => Ok(Statement::Decrement(self.parse_decrement_statement()?)),
             Token::If => Ok(Statement::Conditional(self.parse_conditional_statement()?)),
@@ -122,6 +124,7 @@ impl ParserContext<'_> {
 
     /// Returns a [`FinalizeStatement`] AST node if the next tokens represent a finalize statement.
     fn parse_finalize_statement(&mut self) -> Result<FinalizeStatement> {
+        self.expect(&Token::Async)?;
         let start = self.expect(&Token::Finalize)?;
         let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
         self.expect(&Token::Semicolon)?;

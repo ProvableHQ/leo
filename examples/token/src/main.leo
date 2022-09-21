@@ -17,7 +17,7 @@ record token {
 @program
 function mint_public(public receiver: address, public amount: u64) {
     // Mint the tokens publicly by invoking the computation on-chain.
-    finalize(receiver, amount);
+    async finalize(receiver, amount);
 }
 
 finalize mint_public(public receiver: address, public amount: u64) {
@@ -41,7 +41,7 @@ function mint_private(receiver: address, amount: u64) -> token {
 @program
 function transfer_public(public receiver: address, public amount: u64) {
     // Transfer the tokens publicly, by invoking the computation on-chain.
-    finalize(self.caller, receiver, amount);
+    async finalize(self.caller, receiver, amount);
 }
 
 finalize transfer_public(public sender: address, public receiver: address, public amount: u64) {
@@ -98,7 +98,7 @@ function transfer_private_to_public(sender: token, public receiver: address, pub
     };
 
     // Increment the token amount publicly for the token receiver.
-    finalize(receiver, amount);
+    async finalize(receiver, amount);
 
     // Output the sender's change record.
     return remaining;
@@ -123,7 +123,7 @@ function transfer_public_to_private(public receiver: address, public amount: u64
     };
 
     // Decrement the token amount of the caller publicly.
-    finalize(self.caller, amount);
+    async finalize(self.caller, amount);
 
     // Output the receiver's record.
     return transferred;

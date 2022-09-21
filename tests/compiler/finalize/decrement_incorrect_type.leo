@@ -14,7 +14,7 @@ mapping tokens: address => Token;
 
 @program
 function decrease_self(amount: u128) {
-    finalize(self.caller, amount);
+    async finalize(self.caller, amount);
 }
 
 finalize decrease_self(addr: address, amount: u128) {

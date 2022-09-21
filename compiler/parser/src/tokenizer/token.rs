@@ -108,6 +108,7 @@ pub enum Token {
     Record,
 
     // Regular Keywords
+    Async,
     Circuit,
     Console,
     // Const variable and a const function.
@@ -143,6 +144,7 @@ pub enum Token {
 /// because true and false are also boolean literals, which are different tokens from keywords
 pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Address,
+    Token::Async,
     Token::Bool,
     Token::Circuit,
     Token::Console,
@@ -192,6 +194,7 @@ impl Token {
     pub fn keyword_to_symbol(&self) -> Option<Symbol> {
         Some(match self {
             Token::Address => sym::address,
+            Token::Async => sym::Async,
             Token::Bool => sym::bool,
             Token::Circuit => sym::circuit,
             Token::Console => sym::console,
@@ -319,6 +322,7 @@ impl fmt::Display for Token {
             U128 => write!(f, "u128"),
             Record => write!(f, "record"),
 
+            Async => write!(f, "async"),
             Circuit => write!(f, "circuit"),
             Console => write!(f, "console"),
             Const => write!(f, "const"),

@@ -2,6 +2,9 @@
 namespace: ParseStatement
 expectation: Fail
 outputs:
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found ';'\n    --> test:1:10\n     |\n   1 | finalize(;\n     |          ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found ','\n    --> test:1:15\n     |\n   1 | finalize(foo, ,);\n     |               ^"
-  - "Error [EPAR0370005]: expected ; -- found '<eof>'\n    --> test:1:18\n     |\n   1 | finalize(foo, bar)\n     |                  ^"
+  - "Error [EPAR0370029]: A finalize statement must be preceded by the `async` keyword.\n    --> test:1:1\n     |\n   1 | finalize(;\n     | ^^^^^^^^\n     |\n     = Add the `async` keyword before the `finalize` keyword."
+  - "Error [EPAR0370029]: A finalize statement must be preceded by the `async` keyword.\n    --> test:1:1\n     |\n   1 | finalize(foo, ,);\n     | ^^^^^^^^\n     |\n     = Add the `async` keyword before the `finalize` keyword."
+  - "Error [EPAR0370029]: A finalize statement must be preceded by the `async` keyword.\n    --> test:1:1\n     |\n   1 | finalize(foo, bar)\n     | ^^^^^^^^\n     |\n     = Add the `async` keyword before the `finalize` keyword."
+  - "Error [EPAR0370005]: expected finalize -- found 'async'\n    --> test:1:7\n     |\n   1 | async async finalize(foo);\n     |       ^^^^^"
+  - "Error [EPAR0370029]: A finalize statement must be preceded by the `async` keyword.\n    --> test:1:1\n     |\n   1 | finalize;\n     | ^^^^^^^^\n     |\n     = Add the `async` keyword before the `finalize` keyword."
+  - "Error [EPAR0370005]: expected ; -- found 'finalize'\n    --> test:1:6\n     |\n   1 | asyn finalize(foo);\n     |      ^^^^^^^^"

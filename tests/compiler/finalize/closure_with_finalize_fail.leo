@@ -4,7 +4,7 @@ expectation: Fail
 */
 
 function foo(a: u8, b: u8) -> u8 {
-    finalize(a, b);
+    async finalize(a, b);
     return a + b;
 }
 
@@ -18,7 +18,7 @@ finalize bar(a: u8, b: u8) -> u8 {
 
 
 function mint_public(receiver: address, amount: u64) {
-    finalize(receiver, amount);
+    async finalize(receiver, amount);
 }
 
 finalize mint_public(receiver: address, amount: u64) {

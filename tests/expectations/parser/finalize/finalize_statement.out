@@ -5,18 +5,18 @@ outputs:
   - Finalize:
       arguments: []
       span:
-        lo: 0
-        hi: 10
+        lo: 6
+        hi: 16
   - Finalize:
       arguments:
-        - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":12}\"}"
+        - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":18}\"}"
       span:
-        lo: 0
-        hi: 13
+        lo: 6
+        hi: 19
   - Finalize:
       arguments:
-        - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":12}\"}"
-        - Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":17}\"}"
+        - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":18}\"}"
+        - Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":23}\"}"
       span:
-        lo: 0
-        hi: 18
+        lo: 6
+        hi: 24
