@@ -18,7 +18,7 @@ fi
 
 # Swap in the private key and address of the bank to program.json.
 echo "{
-  \"program\": \"bank.aleo\",
+  \"program\": \"broken_bank.aleo\",
   \"version\": \"0.0.0\",
   \"description\": \"\",
   \"development\": {
@@ -37,7 +37,7 @@ leo run issue aleo1zeklp6dd8e764spe74xez6f8w27dlua3w7hl4z2uln03re52egpsv46ngg 10
 
 # Swap in the private key and address of the user to program.json.
 echo "{
-  \"program\": \"bank.aleo\",
+  \"program\": \"broken_bank.aleo\",
   \"version\": \"0.0.0\",
   \"description\": \"\",
   \"development\": {
@@ -61,7 +61,7 @@ leo run deposit "{
 
 # Swap in the private key and address of the bank to program.json.
 echo "{
-  \"program\": \"bank.aleo\",
+  \"program\": \"broken_bank.aleo\",
   \"version\": \"0.0.0\",
   \"description\": \"\",
   \"development\": {

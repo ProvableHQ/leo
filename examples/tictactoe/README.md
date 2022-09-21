@@ -31,3 +31,9 @@ See `./run.sh` for an example.
 ```bash
 leo run <function_name>
 ```
+For example,
+```bash
+leo run new
+leo run make_move
+
+```

@@ -40,13 +40,14 @@ Users may either specify input values via the command line or provide an input f
 The `program.json` file contains a private key and address. 
 This is the account that will be used to sign transactions and is checked for record ownership.
 When executing programs as different parties, be sure to set the `private_key` and `address` fields in `program.json` to the appropriate values.
+
 See `./run.sh` for an example of how to run the program as different parties.
 
 
 The [Aleo SDK](https://github.com/AleoHQ/leo/tree/testnet3) provides a command line interface for generating new accounts.
 To generate a new account, run 
 ```
-leo account new
+aleo account new
 ```
 
 
@@ -63,4 +64,10 @@ See `./run.sh` for an example.
 2. Run
 ```bash
 leo run <function_name>
+```
+For example, 
+```bash
+leo run place_bid
+leo run resolve
+leo run finish
 ```
