@@ -278,11 +278,7 @@ fn compile_leo_file(
     let path_string = format!("(in \"{}\")", aleo_file_path.display());
 
     // Log the build as successful.
-    tracing::info!(
-        "compiled '{}' into Aleo instructions {}",
-        file_name,
-        path_string.dimmed()
-    );
+    tracing::info!("Compiled '{}' into Aleo instructions", file_name,);
 
     Ok(symbol_table.circuits)
 }
