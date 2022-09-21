@@ -1,8 +1,11 @@
-# token.aleo
+<!-- # 🪙 Token -->
+<img alt="workshop/token" width="1412" src="../.resources/token.png">
 
-## Build Guide
+A transparent & shielded custom token in Leo.
 
-To compile this Aleo program, run:
+## How to Build
+
+To compile this Leo program, run:
 ```bash
-aleo build
+leo build
 ```

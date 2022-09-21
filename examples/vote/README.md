@@ -1,4 +1,5 @@
-# Leo Vote
+<!-- # 🗳️ Vote -->
+<img alt="workshop/vote" width="1412" src="../.resources/vote.png">
 
 ## Summary
 
@@ -61,7 +62,7 @@ and can only be used(voted) by the ticket `owner`.
 Run `new_ticket`:
 
 ```
-aleo run new_ticket
+leo run new_ticket
 ```
 
 Output sample:

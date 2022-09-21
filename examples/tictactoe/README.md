@@ -1,6 +1,17 @@
-# Tic Tac Toe
+<!-- # ⭕ Tic-Tac-Toe -->
+<img alt="workshop/tictactoe" width="1412" src="../.resources/tictactoe.png">
 
-A simple Tic Tac Toe game written in Leo.
+A standard game of Tic-Tac-Toe in Leo.
+
+⭕ ❕ ⭕ ❕ ❌
+
+➖ ➕ ➖ ➕ ➖
+
+⭕ ❕ ⁣❌ ❕ ⭕
+
+➖ ➕ ➖ ➕ ➖
+
+❌ ❕ ❌ ❕ ⭕
 
 ## Representing State
 Leo allows users to define composite data types with the `circuit` keyword. 
@@ -30,10 +41,4 @@ See `./run.sh` for an example.
 2. Run
 ```bash
 leo run <function_name>
-```
-For example,
-```bash
-leo run new
-leo run make_move
-
 ```

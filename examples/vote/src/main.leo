@@ -77,20 +77,24 @@ finalize new_ticket(public pid: field) {
     increment(tickets, pid, 1u64);
 }
 
-// Vote to agree with a proposal.
+// Vote privately to agree with a proposal.
 @program
-function agree(ticket: Ticket) {// Privately cast the vote.
+function agree(ticket: Ticket) {
+    // Finalize this vote.
     async finalize(ticket.pid);
 }
-finalize agree(public pid: field) {// Publicly increment the number of agree votes.
+finalize agree(public pid: field) {
+    // Publicly increment the number of agree votes.
     increment(agree_votes, pid, 1u64);
 }
 
-// Vote to disagree with a proposal.
+// Vote privately to disagree with a proposal.
 @program
-function disagree(ticket: Ticket) {// Privately cast the vote.
+function disagree(ticket: Ticket) {
+    // Finalize this vote.
     async finalize(ticket.pid);
 }
-finalize disagree(pid: field) {// Publicly increment the number of disagree votes.
+finalize disagree(pid: field) {
+    // Publicly increment the number of disagree votes.
     increment(disagree_votes, pid, 1u64);
 }
