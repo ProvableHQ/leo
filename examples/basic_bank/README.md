@@ -1,11 +1,11 @@
-# Broken Bank
+<!-- # 🏦 Basic Bank -->
+<img alt="workshop/basic_bank" width="1412" src="../.resources/basic_bank.png">
 
-A "broken" bank written in Leo.
+A simple-interest yielding bank account in Leo.
 
 ## Summary
 
-This application implements a bank that issues tokens to users and allows users to deposit tokens and accrue interest on their deposits.
-
+This program implements a bank that issues tokens to users and allows users to deposit tokens to accrue simple interest on their deposits.
 
 ### User Flow
 1. The bank issues users tokens via the `issue` function.

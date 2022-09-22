@@ -1,5 +1,5 @@
 {
-  "program": "broken_bank.aleo",
+  "program": "basic_bank.aleo",
   "version": "0.0.0",
   "description": "",
   "development": {
