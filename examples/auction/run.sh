@@ -21,6 +21,20 @@ fi
 # "private_key": "APrivateKey1zkp5wvamYgK3WCAdpBQxZqQX8XnuN2u11Y6QprZTriVwZVc",
 # "address": "aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh"
 
+
+echo "
+###############################################################################
+########                                                               ########
+########            STEP 0: Initialize a new 2-party auction           ########
+########                                                               ########
+########                -------------------------------                ########
+########                |  OPEN   |    A    |    B    |                ########
+########                -------------------------------                ########
+########                |   Bid   |         |         |                ########
+########                -------------------------------                ########
+########                                                               ########
+###############################################################################
+"
 # Swap in the private key and address of the first bidder to program.json.
 echo "{
   \"program\": \"auction.aleo\",
@@ -35,9 +49,18 @@ echo "{
 
 # Have the first bidder place a bid of 10.
 echo "
-
-
-The first bidder is placing a bid of 10."
+###############################################################################
+########                                                               ########
+########          STEP 1: The first bidder places a bid of 10          ########
+########                                                               ########
+########                -------------------------------                ########
+########                |  OPEN   |    A    |    B    |                ########
+########                -------------------------------                ########
+########                |   Bid   |   10    |         |                ########
+########                -------------------------------                ########
+########                                                               ########
+###############################################################################
+"
 leo run place_bid aleo1yzlta2q5h8t0fqe0v6dyh9mtv4aggd53fgzr068jvplqhvqsnvzq7pj2ke 10u64
 
 # Swap in the private key and address of the second bidder to program.json.
@@ -55,9 +78,18 @@ echo "{
 
 # Have the second bidder place a bid of 90.
 echo "
-
-
-The second bidder is placing a bid of 90."
+###############################################################################
+########                                                               ########
+########         STEP 2: The second bidder places a bid of 90          ########
+########                                                               ########
+########                -------------------------------                ########
+########                |  OPEN   |    A    |    B    |                ########
+########                -------------------------------                ########
+########                |   Bid   |   10    |   90    |                ########
+########                -------------------------------                ########
+########                                                               ########
+###############################################################################
+"
 leo run place_bid aleo1esqchvevwn7n5p84e735w4dtwt2hdtu4dpguwgwy94tsxm2p7qpqmlrta4 90u64
 
 # Swap in the private key and address of the auctioneer to program.json.
@@ -73,11 +105,19 @@ echo "{
 }" > program.json
 
 # Have the auctioneer select the winning bid.
-
 echo "
-
-
-The auctioneer is selecting the winning bid."
+###############################################################################
+########                                                               ########
+########       STEP 3: The auctioneer selects the winning bidder       ########
+########                                                               ########
+########                -------------------------------                ########
+########                |  OPEN   |    A    |  → B ←  |                ########
+########                -------------------------------                ########
+########                |   Bid   |   10    |  → 90 ← |                ########
+########                -------------------------------                ########
+########                                                               ########
+###############################################################################
+"
 leo run resolve "{
         owner: aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh.private,
         gates: 0u64.private,
@@ -96,9 +136,18 @@ leo run resolve "{
 
 # Have the auctioneer finish the auction.
 echo "
-
-
-The auctioneer is finishing the auction."
+###############################################################################
+########                                                               ########
+########         STEP 3: The auctioneer completes the auction.         ########
+########                                                               ########
+########                -------------------------------                ########
+########                |  CLOSE  |    A    |  → B ←  |                ########
+########                -------------------------------                ########
+########                |   Bid   |   10    |  → 90 ← |                ########
+########                -------------------------------                ########
+########                                                               ########
+###############################################################################
+"
 leo run finish "{
         owner: aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh.private,
         gates: 0u64.private,

@@ -1,6 +1,7 @@
-# Blind Auction
+<!-- # 🏛️ Blind Auction -->
+<img alt="workshop/auction" width="1412" src="../.resources/auction.png">
 
-An auction application written in Leo.
+A first-price sealed-bid auction in Leo.
 
 ## Summary
 
@@ -12,7 +13,7 @@ In this model, there are two parties: the auctioneer and the bidders.
 - **Auctioneer**: The party responsible for conducting the auction.
 
 We make following assumptions about the auction:
-- The auctioneer is honest. That is, the auctioneer will resolve **all** bids in the order they are received. The auctioneer will not tamper with the bids. The auctioneer will not reveal the bids to any other party.
+- The auctioneer is honest. That is, the auctioneer will resolve **all** bids in the order they are received. The auctioneer will not tamper with the bids.
 - There is no limit to the number of bids.
 - The auctioneer knows the identity of all bidders, but bidders do not necessarily know the identity of other bidders.
 
@@ -40,14 +41,13 @@ Users may either specify input values via the command line or provide an input f
 The `program.json` file contains a private key and address. 
 This is the account that will be used to sign transactions and is checked for record ownership.
 When executing programs as different parties, be sure to set the `private_key` and `address` fields in `program.json` to the appropriate values.
-
 See `./run.sh` for an example of how to run the program as different parties.
 
 
 The [Aleo SDK](https://github.com/AleoHQ/leo/tree/testnet3) provides a command line interface for generating new accounts.
 To generate a new account, run 
 ```
-aleo account new
+leo account new
 ```
 
 
@@ -64,10 +64,4 @@ See `./run.sh` for an example.
 2. Run
 ```bash
 leo run <function_name>
-```
-For example, 
-```bash
-leo run place_bid
-leo run resolve
-leo run finish
 ```
