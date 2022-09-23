@@ -5,7 +5,7 @@
 <h1 align="center">The Leo Programming Language</h1>
 
 <p align="center">
-    <a href="https://github.com/AleoHQ/leo/actions"><img src="https://github.com/AleoHQ/leo/workflows/CI/badge.svg"></a>
+    <a href="https://circleci.com/gh/AleoHQ/leo"><img src="https://circleci.com/gh/AleoHQ/leo.svg?style=svg&circle-token=6e9ad6d39d95350544f352d34e0e5c62ef54db26"></a>
     <a href="https://codecov.io/gh/AleoHQ/leo"><img src="https://codecov.io/gh/AleoHQ/leo/branch/testnet3/graph/badge.svg?token=S6MWO60SYL"/></a>
     <a href="https://discord.gg/5v2ynrw2ds"><img src="https://img.shields.io/discord/700454073459015690?logo=discord"/></a>
 </p>
