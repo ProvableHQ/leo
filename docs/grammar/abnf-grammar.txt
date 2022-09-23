@@ -77,6 +77,7 @@ rest-of-block-comment-after-star =
 line-comment = "//" *not-line-feed-or-carriage-return
 
 keyword = %s"address"
+        / %s"async"
         / %s"bool"
         / %s"circuit"
         / %s"console"
@@ -418,7 +419,7 @@ assert-equal-call = %s"assert_eq" "(" expression "," expression [ "," ] ")"
 
 assert-not-equal-call = %s"assert_neq" "(" expression "," expression [ "," ] ")"
 
-finalize-statement = %s"finalize" function-arguments ";"
+finalize-statement = %s"async" %s"finalize" function-arguments ";"
 
 increment-statement =
     %s"increment" "(" identifier "," expression "," expression [ "," ] ")" ";"
