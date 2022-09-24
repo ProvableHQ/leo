@@ -538,7 +538,7 @@ they have won the game.
 
 ### Graphical Representation
 
-The following diagram depicts the records and transitions a game.
+The following diagram depicts the records and transitions in a game.
 
 ![diagram](./diagram.png)
 
