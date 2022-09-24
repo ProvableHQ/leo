@@ -535,6 +535,13 @@ leo run play '{
 Play continues back and forth between Player 1 and Player 2.
 When one player has a total of 14 flipped bits in their `hits_and_misses` component on their `board_state` record,
 they have won the game.
+
+### Graphical Representation
+
+The following diagram depicts the records and transitions a game.
+
+![diagram](./diagram.png)
+
 </details>
 
 ## ZK Battleship Privacy
