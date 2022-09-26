@@ -13,6 +13,7 @@
   - [8: Player 1 Takes The 3rd Turn](#8-player-1-takes-the-3rd-turn)
   - [9: Player 2 Takes The 4th Turn](#9-player-2-takes-the-4th-turn)
   - [10. Who Wins?](#10-who-wins)
+  - [Graphical Representation](#graphical-representation)
 - [ZK Battleship Privacy](#zk-battleship-privacy)
 - [Modeling the Boards and Ships](#modeling-the-board-and-ships)
 - [Validating a Single Ship](#validating-a-single-ship-at-a-time)
@@ -535,6 +536,13 @@ leo run play '{
 Play continues back and forth between Player 1 and Player 2.
 When one player has a total of 14 flipped bits in their `hits_and_misses` component on their `board_state` record,
 they have won the game.
+
+### Graphical Representation
+
+The following diagram depicts the records and transitions in a game.
+
+![diagram](./diagram.png)
+
 </details>
 
 ## ZK Battleship Privacy
