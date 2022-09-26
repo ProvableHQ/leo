@@ -13,6 +13,7 @@
   - [8: Player 1 Takes The 3rd Turn](#8-player-1-takes-the-3rd-turn)
   - [9: Player 2 Takes The 4th Turn](#9-player-2-takes-the-4th-turn)
   - [10. Who Wins?](#10-who-wins)
+  - [Graphical Representation](#graphical-representation)
 - [ZK Battleship Privacy](#zk-battleship-privacy)
 - [Modeling the Boards and Ships](#modeling-the-board-and-ships)
 - [Validating a Single Ship](#validating-a-single-ship-at-a-time)
