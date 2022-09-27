@@ -17,9 +17,9 @@
 use crate::Flattener;
 
 use leo_ast::{
-    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement,
-    DefinitionStatement, Expression, ExpressionReconstructor, FinalizeStatement, IterationStatement, Node,
-    ReturnStatement, Statement, StatementReconstructor, UnaryExpression, UnaryOperation,
+    AssignStatement, Block, ConditionalStatement, DefinitionStatement, Expression, ExpressionReconstructor,
+    FinalizeStatement, IterationStatement, Node, ReturnStatement, Statement, StatementReconstructor, UnaryExpression,
+    UnaryOperation,
 };
 
 impl StatementReconstructor for Flattener<'_> {
@@ -36,6 +36,12 @@ impl StatementReconstructor for Flattener<'_> {
         let (value, statements) = match assign.value {
             // If the rhs of the assignment is ternary expression, reconstruct it.
             Expression::Ternary(ternary) => self.reconstruct_ternary(ternary),
+            // If the rhs is a tuple, add it to `self.tuples`.
+            Expression::Tuple(tuple) => {
+                self.tuples.insert(lhs.name, tuple.elements);
+                // Tuple assignments are removed from the AST.
+                return (Statement::dummy(Default::default()), Default::default());
+            }
             // Otherwise return the original statement.
             value => (value, Default::default()),
         };
@@ -214,6 +220,7 @@ impl StatementReconstructor for Flattener<'_> {
         // For each finalize argument, add it and its associated guard to the appropriate list of finalize arguments.
         // Note that type checking guarantees that the number of arguments in a finalize statement is equal to the number of arguments in to the finalize block.
         for (i, argument) in input.arguments.into_iter().enumerate() {
+            // Note that the argument is not reconstructed.
             // Note that this unwrap is safe since we initialize `self.finalizes` with a number of vectors equal to the number of finalize arguments.
             self.finalizes.get_mut(i).unwrap().push((guard.clone(), argument));
         }
@@ -232,7 +239,8 @@ impl StatementReconstructor for Flattener<'_> {
         // Construct the associated guard.
         let guard = self.construct_guard();
 
-        // Add it to the list of return statements.
+        // Add it to `self.returns`.
+        // Note that `input.expression` is not rewritten.
         self.returns.push((guard, input.expression));
 
         (Statement::dummy(Default::default()), Default::default())

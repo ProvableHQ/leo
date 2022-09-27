@@ -15,8 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::StaticSingleAssigner;
-use indexmap::IndexMap;
-use std::borrow::Borrow;
 
 use leo_ast::{
     AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, Expression, ExpressionConsumer, Identifier,
@@ -24,6 +22,9 @@ use leo_ast::{
     TupleAccess, TupleExpression, UnaryExpression,
 };
 use leo_span::{sym, Symbol};
+
+use indexmap::IndexMap;
+use std::borrow::Borrow;
 
 impl ExpressionConsumer for StaticSingleAssigner<'_> {
     type Output = (Expression, Vec<Statement>);
@@ -171,6 +172,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             })
             .collect();
 
+
         // Reorder the members to match that of the struct definition.
 
         // Lookup the struct definition.
@@ -301,7 +303,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             }));
         statements.push(statement);
 
-        (place, statements)
+        (Expression::Identifier(place), statements)
     }
 
     /// Consumes a unary expression, accumulating any statements that are generated.
