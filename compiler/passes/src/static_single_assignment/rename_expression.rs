@@ -15,15 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::StaticSingleAssigner;
+use indexmap::IndexMap;
 
-use leo_ast::{
-    AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, Expression, ExpressionConsumer, Identifier,
-    Literal, MemberAccess, Statement, StructExpression, StructVariableInitializer, TernaryExpression, TupleAccess,
-    TupleExpression, UnaryExpression,
-};
+use leo_ast::{HEAD, AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, Expression, ExpressionConsumer, Identifier, Literal, MemberAccess, Statement, StructExpression, StructVariableInitializer, TernaryExpression, TupleAccess, TupleExpression, UnaryExpression, Circuit, CircuitExpression, CircuitVariableInitializer, c06fba2d5, WIP, Struct};
 use leo_span::sym;
 
-impl ExpressionConsumer for StaticSingleAssigner {
+impl ExpressionConsumer for StaticSingleAssigner<'_> {
     type Output = (Expression, Vec<Statement>);
 
     /// Consumes an access expression, accumulating any statements that are generated.
@@ -146,28 +143,37 @@ impl ExpressionConsumer for StaticSingleAssigner {
         let mut statements = Vec::new();
 
         // Process the members, accumulating any statements produced.
-        let members = input
-            .members
-            .into_iter()
-            .map(|arg| {
-                let (expression, mut stmts) = match &arg.expression.is_some() {
-                    // If the expression is None, then `arg` is a `StructVariableInitializer` of the form `<id>,`.
-                    // In this case, we must consume the identifier and produce an initializer of the form `<id>: <renamed_id>`.
-                    false => self.consume_identifier(arg.identifier),
-                    // If expression is `Some(..)`, then `arg is a `StructVariableInitializer` of the form `<id>: <expr>,`.
-                    // In this case, we must consume the expression.
-                    true => self.consume_expression(arg.expression.unwrap()),
-                };
-                // Accumulate any statements produced.
-                statements.append(&mut stmts);
+        let mut member_map = IndexMap::new();
+        input.members.into_iter().for_each(|arg| {
+            let (expression, mut stmts) = match &arg.expression.is_some() {
+                // If the expression is None, then `arg` is a `StructVariableInitializer` of the form `<id>,`.
+                // In this case, we must consume the identifier and produce an initializer of the form `<id>: <renamed_id>`.
+                false => self.consume_identifier(arg.identifier),
+                // If expression is `Some(..)`, then `arg is a `StructVariableInitializer` of the form `<id>: <expr>,`.
+                // In this case, we must consume the expression.
+                true => self.consume_expression(arg.expression.unwrap()),
+            };
+            // Accumulate any statements produced.
+            statements.append(&mut stmts);
 
-                // Return the new member.
+            // Add the new member to the map.
+            member_map.insert(
+                arg.identifier.name,
                 StructVariableInitializer {
                     identifier: arg.identifier,
                     expression: Some(expression),
-                }
-            })
-            .collect();
+                },
+            );
+        });
+
+        // Reorder the members in the same order as the struct definition.
+        // Note that this unwrap is safe since TYC guarantees that the circuit definition exists.
+        let mut members = Vec::with_capacity(member_map.len());
+        let struct_:  &Struct = self.symbol_table.circuits.get(&input.name.name).unwrap();
+        for member in struct_.members.iter() {
+            // Note that this unwrap is safe since TYC guarantees that the struct member exists
+            members.push(member_map.remove(&member.name()).unwrap());
+        }
 
         // Construct and accumulate a new assignment statement for the struct expression.
         let (place, statement) = self
@@ -263,7 +269,7 @@ impl ExpressionConsumer for StaticSingleAssigner {
             }));
         statements.push(statement);
 
-        (place, statements)
+        (Expression::Identifier(place), statements)
     }
 
     /// Consumes a unary expression, accumulating any statements that are generated.
