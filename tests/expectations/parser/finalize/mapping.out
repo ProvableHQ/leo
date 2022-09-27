@@ -8,16 +8,7 @@ outputs:
     imports: {}
     circuits: {}
     mappings:
-      "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":13}\"}":
-        identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":13}\"}"
-        key_type:
-          Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":18}\"}"
-        value_type:
-          Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":22,\\\"hi\\\":25}\"}"
-        span:
-          lo: 2
-          hi: 26
-      "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":36,\\\"hi\\\":39}\"}":
+      foo:
         identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":36,\\\"hi\\\":39}\"}"
         key_type:
           Integer: U8

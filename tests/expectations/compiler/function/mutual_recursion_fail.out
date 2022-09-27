@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372034]: Recursive function calls are not allowed.\n     |\n     = Remove the recursive call.\n"
+  - "Error [ETYC0372033]: Recursive function calls are not allowed.\n     |\n     = Remove the recursive call.\nWarning [WTYC0372000]: Unknown annotation: `@inline`.\n    --> compiler-test:3:1\n     |\n   3 | @inline\n     | ^^^^^^^\n     |\n     = Use a valid annotation. The Leo compiler supports: `@inline` and `@program`\nWarning [WTYC0372000]: Unknown annotation: `@inline`.\n    --> compiler-test:8:1\n     |\n   8 | @inline\n     | ^^^^^^^\n     |\n     = Use a valid annotation. The Leo compiler supports: `@inline` and `@program`"

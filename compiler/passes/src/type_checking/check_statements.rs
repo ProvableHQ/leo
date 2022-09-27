@@ -217,7 +217,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let finalize = self
             .symbol_table
             .borrow()
-            .lookup_fn_symbol(self.function.unwrap())
+            .lookup_fn_symbol(self.function.unwrap().0)
             .unwrap()
             .finalize
             .clone();
@@ -339,7 +339,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let return_type = &self
             .symbol_table
             .borrow()
-            .lookup_fn_symbol(parent)
+            .lookup_fn_symbol(parent.0)
             .map(|f| match self.is_finalize {
                 // TODO: Check this.
                 // Note that this `unwrap()` is safe since we checked that the function has a finalize block.

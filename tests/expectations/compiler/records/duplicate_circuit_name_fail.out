@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372010]: record `Token` shadowed by\n    --> compiler-test:12:1\n     |\n  12 | circuit Token { // This circuit cannot have the same name as the record defined above it.\n  13 |     x: u32,\n  14 | }\n     | ^\n"
+  - "Failed to parse string. Remaining invalid string is: \"closure main:\n    output true as boolean;\n\n\n\"Warning [WTYC0372001]: The function `main` is never called by a program function.\n    --> compiler-test:16:1\n     |\n  16 | function main() -> bool {\n  17 |     return true;\n  18 | }\n     | ^"

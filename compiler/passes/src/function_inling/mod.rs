@@ -38,7 +38,7 @@ impl<'a> Pass for Inliner<'a> {
     type Output = Result<Ast>;
 
     fn do_pass((ast, handler, st, call_graph): Self::Input) -> Self::Output {
-        let mut reconstructor = Self::new(handler, st, call_graph);
+        let mut reconstructor = Self::new(st, handler, call_graph);
         let program = reconstructor.reconstruct_program(ast.into_repr());
         handler.last_err()?;
 

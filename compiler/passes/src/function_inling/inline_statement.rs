@@ -16,22 +16,13 @@
 
 use crate::Inliner;
 
-use leo_ast::{AssignStatement, Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression, ExpressionReconstructor, IterationStatement, ReturnStatement, Statement, StatementReconstructor};
+use leo_ast::{
+    AssignStatement, Block, DefinitionStatement, Expression, ExpressionReconstructor,
+    IterationStatement, Statement, StatementReconstructor,
+};
 
 impl StatementReconstructor for Inliner<'_> {
-    fn reconstruct_definition(&mut self, _input: DefinitionStatement) -> Statement {
-        unreachable!("Definition statements cannot exist in the SSA form.")
-    }
-
-    fn reconstruct_conditional(&mut self, _input: ConditionalStatement) -> Statement {
-        unreachable!("Conditional statements cannot exist in the SSA form.")
-    }
-
-    fn reconstruct_iteration(&mut self, _input: IterationStatement) -> Statement {
-        unreachable!("Iteration statements cannot exist in the SSA form.")
-    }
-
-    fn reconstruct_block(&mut self, input: Block) -> Block {
+    fn reconstruct_block(&mut self, input: Block) -> (Block, Self::AdditionalOutput) {
         let mut statements = Vec::with_capacity(input.statements.len());
 
         // SSA form guarantees that complex expressions have been flattened,
@@ -39,7 +30,7 @@ impl StatementReconstructor for Inliner<'_> {
         // For example, an expression of the form `foo(a + b, bar(c))` will be
         // flattened to `let $expr$0 = a + b; $expr$1 = bar(c); foo($expr$0, $expr$1)`.
         // Therefore, we only need to check if the rhs of an assign statement is a call expression to determine if we need to inline it.
-        for statement in statements {
+        for statement in input.statements {
             match statement {
                 Statement::Assign(assign_statement) if matches!(assign_statement.value, Expression::Call(_)) => {
                     // Reconstruct the call expression, getting the new expression and additional statements.
@@ -50,17 +41,27 @@ impl StatementReconstructor for Inliner<'_> {
                     statements.push(Statement::Assign(Box::new(AssignStatement {
                         place: assign_statement.place,
                         value,
-                        span: assign_statement.span
+                        span: assign_statement.span,
                     })))
                 }
-                _ => statements.push(self.reconstruct_statement(statement)),
+                _ => statements.push(self.reconstruct_statement(statement).0),
             }
-
         }
 
-        Block {
-            statements,
-            span: input.span,
-        }
+        (
+            Block {
+                statements,
+                span: input.span,
+            },
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_definition(&mut self, _input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
+        unreachable!("Definition statements cannot exist in the SSA form.")
+    }
+
+    fn reconstruct_iteration(&mut self, _input: IterationStatement) -> (Statement, Self::AdditionalOutput) {
+        unreachable!("Iteration statements cannot exist in the SSA form.")
     }
 }

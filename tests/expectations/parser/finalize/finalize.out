@@ -9,40 +9,7 @@ outputs:
     circuits: {}
     mappings: {}
     functions:
-      "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":15}\"}":
-        annotations: []
-        identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":15}\"}"
-        input: []
-        output:
-          - Internal:
-              mode: None
-              type_: Boolean
-              span:
-                lo: 21
-                hi: 25
-        output_type: Boolean
-        block:
-          statements: []
-          span:
-            lo: 26
-            hi: 30
-        finalize:
-          identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":41,\\\"hi\\\":45}\"}"
-          input: []
-          output: []
-          output_type: Unit
-          block:
-            statements: []
-            span:
-              lo: 48
-              hi: 52
-          span:
-            lo: 32
-            hi: 52
-        span:
-          lo: 2
-          hi: 30
-      "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":63,\\\"hi\\\":67}\"}":
+      main:
         annotations: []
         identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":63,\\\"hi\\\":67}\"}"
         input: []

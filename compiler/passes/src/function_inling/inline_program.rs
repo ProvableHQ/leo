@@ -55,6 +55,7 @@ impl ProgramReconstructor for Inliner<'_> {
             expected_input: program.expected_input,
             imports: program.imports,
             circuits: program.circuits,
+            mappings: program.mappings,
             functions,
         }
     }

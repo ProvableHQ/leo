@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CallType, SymbolTable};
+use crate::{CallType, SymbolTable, VariableSymbol, VariableType};
 
 use leo_ast::*;
 use leo_errors::emitter::Handler;
@@ -58,6 +58,34 @@ impl<'a> ExpressionVisitor<'a> for SymbolTableCreator<'a> {
 impl<'a> StatementVisitor<'a> for SymbolTableCreator<'a> {}
 
 impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
+    fn visit_import(&mut self, input: &'a Program) {
+        self.visit_program(input)
+    }
+
+    fn visit_circuit(&mut self, input: &'a Circuit) {
+        if let Err(err) = self.symbol_table.insert_circuit(input.name(), input) {
+            self.handler.emit_err(err);
+        }
+    }
+
+     fn visit_mapping(&mut self, input: &'a Mapping) {
+         // Add the variable associated with the mapping to the symbol table.
+         if let Err(err) = self.symbol_table.insert_variable(
+             input.identifier.name,
+             VariableSymbol {
+                 type_: Type::Mapping(MappingType {
+                     key: Box::new(input.key_type.clone()),
+                     value: Box::new(input.value_type.clone()),
+                 }),
+                 span: input.span,
+                 declaration: VariableType::Mut,
+             },
+         ) {
+             self.handler.emit_err(err);
+         }
+     }
+
+
     fn visit_function(&mut self, func: &'a Function) {
         // Is the function a program function?
         let mut is_program_function = false;
@@ -97,15 +125,5 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
         if let Err(err) = self.symbol_table.insert_fn(func.name(), func, call_type) {
             self.handler.emit_err(err);
         }
-    }
-
-    fn visit_circuit(&mut self, input: &'a Circuit) {
-        if let Err(err) = self.symbol_table.insert_circuit(input.name(), input) {
-            self.handler.emit_err(err);
-        }
-    }
-
-    fn visit_import(&mut self, input: &'a Program) {
-        self.visit_program(input)
     }
 }

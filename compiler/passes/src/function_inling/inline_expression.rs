@@ -34,7 +34,8 @@ impl ExpressionReconstructor for Inliner<'_> {
         let expression = match inline {
             false => input,
             true => {
-                todo!()
+                // TODO
+                input
             }
         };
 

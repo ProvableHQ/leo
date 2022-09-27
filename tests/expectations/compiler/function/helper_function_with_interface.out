@@ -2,9 +2,11 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - output:
+  - warnings: "Warning [WTYC0372001]: The function `win` is never called by a program function.\n    --> compiler-test:13:1\n     |\n  13 | function win(b: Board, p: u8) -> bool {\n  14 | \treturn false & true;\n  15 | }\n     | ^"
+    output:
       - initial_input_ast: no input
-    initial_ast: 9ba8e38f07e0d133ee261029fee8cd25de5f96266aafc0818331c32005811270
-    unrolled_ast: 9ba8e38f07e0d133ee261029fee8cd25de5f96266aafc0818331c32005811270
-    ssa_ast: fac7c287e7a169ee00ffcb5c2595baaa83f3a278f56b916a326689fc28c13fef
-    flattened_ast: 79f8da1f08d9a0ef53d222eac163d59eaf9a0d54d3c72f7dc75a0bc7947ce16c
+    initial_ast: cde52e5d8fc4179883a653e555675047963e14133470f1eb26e4969cef5eb29f
+    inlined_ast: 7cb6bf186d1704b67dc45c6ebbe58e8fa4a46697642b24be79c96e9223fab677
+    unrolled_ast: cde52e5d8fc4179883a653e555675047963e14133470f1eb26e4969cef5eb29f
+    ssa_ast: 7cb6bf186d1704b67dc45c6ebbe58e8fa4a46697642b24be79c96e9223fab677
+    flattened_ast: 57260c3b6d11684cf5dfe90f84190c0d7e2528c35bb6c65536cb2184a0357b13

@@ -2,9 +2,11 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - warnings: "Warning [WTYC0372000]: Unknown annotation: `@invalid_annotation`.\n    --> compiler-test:5:1\n     |\n   5 | @invalid_annotation\n     | ^^^^^^^^^^^^^^^^^^^\n     |\n     = Use a valid annotation. The Leo compiler supports: `@inline` and `@program`\nWarning [WTYC0372001]: The function `main` is never called by a program function.\n    --> compiler-test:6:1\n     |\n   6 | function main(a: u32) -> u32 {\n   7 |     if a == 2u32 {\n   8 |         return 3u32;\n   9 |     } else {\n  10 |         return 4u32;\n  11 |     } \n  12 | }\n     | ^"
+  - warnings: "Warning [WTYC0372000]: Unknown annotation: `@invalid_annotation`.\n    --> compiler-test:5:1\n     |\n   5 | @invalid_annotation\n     | ^^^^^^^^^^^^^^^^^^^\n     |\n     = Use a valid annotation. The Leo compiler supports: `@inline` and `@program`\nWarning [WTYC0372000]: Unknown annotation: `@invalid_annotation`.\n    --> compiler-test:5:1\n     |\n   5 | @invalid_annotation\n     | ^^^^^^^^^^^^^^^^^^^\n     |\n     = Use a valid annotation. The Leo compiler supports: `@inline` and `@program`\nWarning [WTYC0372001]: The function `main` is never called by a program function.\n    --> compiler-test:6:1\n     |\n   6 | function main(a: u32) -> u32 {\n   7 |     if a == 2u32 {\n   8 |         return 3u32;\n   9 |     } else {\n  10 |         return 4u32;\n  11 |     } \n  12 | }\n     | ^"
     output:
       - initial_input_ast: 43fdde49c067658e1424f0b04b3022e344d8aa98bcbb43621e953bd365a06487
-    initial_ast: fc60f413b95cb7c86bd47df11e944dbc2401801e83fbe201ef641d9d20e76ed8
-    unrolled_ast: fc60f413b95cb7c86bd47df11e944dbc2401801e83fbe201ef641d9d20e76ed8
-    ssa_ast: 16ce785be8b65f14a0a9b3e58a7ed59252435fe0ef9625bd623f2cd759a3c499
+    initial_ast: a574aa40ad5004b8c597078c1e8a0e9707cf4225958938996f1f022340a1a379
+    inlined_ast: 723f5125b214a42657859a730cdcd774f59e8f3ee1b3e6613c464a794920dc5e
+    unrolled_ast: a574aa40ad5004b8c597078c1e8a0e9707cf4225958938996f1f022340a1a379
+    ssa_ast: 723f5125b214a42657859a730cdcd774f59e8f3ee1b3e6613c464a794920dc5e
+    flattened_ast: a5eb1d72233ca3d854b4c85ca5fa137211a908b498791069e16aa8f82c34df89

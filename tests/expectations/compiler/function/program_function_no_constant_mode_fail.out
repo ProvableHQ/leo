@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372008]: function `foo` shadowed by\n    --> compiler-test:8:1\n     |\n   8 | function foo(a: u8) -> constant u8 {\n   9 |     return a + a;\n  10 | }\n     | ^\n"
+  - "Error [ETYC0372044]: A returned value cannot be a constant.\n    --> compiler-test:8:33\n     |\n   8 | function foo(a: u8) -> constant u8 {\n     |                                 ^^\n"

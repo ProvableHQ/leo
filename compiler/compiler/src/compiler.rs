@@ -154,8 +154,8 @@ impl<'a> Compiler<'a> {
     }
 
     /// Runs the function inlining pass.
-    pub fn function_inlining_pass(&mut self, call_graph: &DiGraph<Symbol>) -> Result<()> {
-        self.ast = Inliner::do_pass((std::mem::take(&mut self.ast), self.handler, call_graph))?;
+    pub fn function_inlining_pass(&mut self, symbol_table: &SymbolTable, call_graph: &DiGraph<Symbol>) -> Result<()> {
+        self.ast = Inliner::do_pass((std::mem::take(&mut self.ast), self.handler, symbol_table, call_graph))?;
 
         if self.output_options.inlined_ast {
             self.write_ast_to_json("inlined_ast.json")?;
@@ -210,10 +210,10 @@ impl<'a> Compiler<'a> {
         // TODO: Make this pass optional.
         let assigner = self.static_single_assignment_pass()?;
 
-        self.flattening_pass(&st, assigner)?;
-
         // TODO: Make this pass optional.
-        self.function_inlining_pass(&call_graph)?;
+        self.function_inlining_pass(&st, &call_graph)?;
+
+        self.flattening_pass(&st, assigner)?;
 
         Ok(st)
     }
