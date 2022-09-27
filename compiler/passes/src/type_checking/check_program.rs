@@ -24,17 +24,23 @@ use leo_span::sym;
 use std::collections::HashSet;
 
 // TODO: Generally, cleanup tyc logic.
+// TODO: Cleanup logic for tuples.
 
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_struct(&mut self, input: &'a Struct) {
         // Check for conflicting struct/record member names.
         let mut used = HashSet::new();
-        if !input.members.iter().all(|Member { identifier, type_ }| {
-            // TODO: Better spans.
-            // Check that the member types are valid.
-            self.assert_type_is_valid(input.span, type_);
-            used.insert(identifier.name)
-        }) {
+        if !input
+            .members
+            .iter()
+            .all(|Member { identifier, type_} | {
+                // TODO: Better spans.
+                // Check that the member types are valid.
+                self.assert_type_is_defined(type_, ident.span);
+                self.assert_valid_declaration_or_parameter_type(type_, ident.span);
+                used.insert(ident.name)
+            })
+        {
             self.emit_err(if input.is_record {
                 TypeCheckerError::duplicate_record_variable(input.name(), input.span())
             } else {
@@ -79,7 +85,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
     fn visit_mapping(&mut self, input: &'a Mapping) {
         // Check that a mapping's key type is valid.
-        self.assert_type_is_valid(input.span, &input.key_type);
+        self.assert_type_is_defined(&input.key_type, input.span);
         // Check that a mapping's key type is not tuple types or mapping types.
         match input.key_type {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span)),
@@ -89,7 +95,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
 
         // Check that a mapping's value type is valid.
-        self.assert_type_is_valid(input.span, &input.value_type);
+        self.assert_type_is_defined(&input.value_type, input.span);
         // Check that a mapping's value type is not tuple types or mapping types.
         match input.value_type {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span)),
@@ -134,9 +140,10 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Type check the function's parameters.
         function.input.iter().for_each(|input_var| {
-            // Check that the type of input parameter is valid.
-            self.assert_type_is_valid(input_var.span(), &input_var.type_());
-            self.assert_not_tuple(input_var.span(), &input_var.type_());
+            // Check that the type of input parameter is defined.
+            self.assert_type_is_defined(&input_var.type_(), input_var.span());
+            // Check that type of the input parameter is valid.
+            self.assert_valid_declaration_or_parameter_type(&input_var.type_(), input_var.span());
 
             match self.is_transition_function {
                 // If the function is a transition function, then check that the parameter mode is not a constant.
@@ -168,8 +175,10 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             match output_type {
                 Output::External(_) => {} // Do not type check external record function outputs.
                 Output::Internal(output_type) => {
+                    // Check that the type of output is defined.
+                    self.assert_type_is_defined(&output_type.type_, output_type.span);
                     // Check that the type of output is valid.
-                    self.assert_type_is_valid(output_type.span, &output_type.type_);
+                    self.assert_valid_declaration_or_parameter_type(&output_type.type_, output_type.span);
 
                     // Check that the mode of the output is valid.
                     if output_type.mode == Mode::Const {
@@ -181,8 +190,10 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         self.visit_block(&function.block);
 
+        // Check that the return type is defined.
+        self.assert_type_is_defined(&function.output_type, function.span);
         // Check that the return type is valid.
-        self.assert_type_is_valid(function.span, &function.output_type);
+        self.assert_valid_declaration_or_parameter_type(&function.output_type, function.span);
 
         // If the function has a return type, then check that it has a return.
         if function.output_type != Type::Unit && !self.has_return {
@@ -225,9 +236,10 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             let scope_index = self.create_child_scope();
 
             finalize.input.iter().for_each(|input_var| {
+                // Check that the type of input parameter is defined.
+                self.assert_type_is_defined(&input_var.type_(), input_var.span());
                 // Check that the type of input parameter is valid.
-                self.assert_type_is_valid(input_var.span(), &input_var.type_());
-                self.assert_not_tuple(input_var.span(), &input_var.type_());
+                self.assert_valid_declaration_or_parameter_type(&input_var.type_(), input_var.span());
 
                 // Check that the input parameter is not constant or private.
                 if input_var.mode() == Mode::Const || input_var.mode() == Mode::Private {
@@ -249,8 +261,10 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
             // Type check the function's return type.
             finalize.output.iter().for_each(|output_type| {
+                // Check that the type of output is defined.
+                self.assert_type_is_defined(&output_type.type_(), output_type.span());
                 // Check that the type of output is valid.
-                self.assert_type_is_valid(output_type.span(), &output_type.type_());
+                self.assert_valid_declaration_or_parameter_type(&output_type.type_(), output_type.span());
 
                 // Check that the mode of the output is valid.
                 if output_type.mode() == Mode::Const {
@@ -267,8 +281,10 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             // Type check the finalize block.
             self.visit_block(&finalize.block);
 
+            // Check that the return type is defined.
+            self.assert_type_is_defined(&finalize.output_type, finalize.span);
             // Check that the return type is valid.
-            self.assert_type_is_valid(finalize.span, &finalize.output_type);
+            self.assert_valid_declaration_or_parameter_type(&finalize.output_type, finalize.span);
 
             // If the function has a return type, then check that it has a return.
             if finalize.output_type != Type::Unit && !self.has_return {
