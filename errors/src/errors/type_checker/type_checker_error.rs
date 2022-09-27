@@ -432,19 +432,19 @@ create_messages!(
         help: None,
     }
 
-    // TODO: Eventually update to warnings.
+    // TODO: Better error messages for each tuple case. e.g tuple in function parameter, tuple in assignment, tuple in return, etc.
+
     @formatted
     singleton_tuple {
         args: (),
-        msg: format!("Tuples of a single element are not allowed."),
+        msg: format!("Singleton tuple expressions and tuple types are not allowed."),
         help: None,
     }
 
-    // TODO: Eventually update to warnings.
     @formatted
     unit_tuple {
         args: (),
-        msg: format!("Tuples of a zero elements are not allowed."),
+        msg: format!("Empty tuple expressions and tuple types are not allowed."),
         help: None,
     }
 );

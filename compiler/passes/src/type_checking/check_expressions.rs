@@ -636,11 +636,16 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
     fn visit_tuple(&mut self, input: &'a TupleExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match input.elements.len() {
-            0 => Some(self.assert_and_return_type(Type::Unit, expected, input.span())),
-            1 => self.visit_expression(&input.elements[0], expected),
+            0 => {
+                self.emit_err(TypeCheckerError::unit_tuple(input.span()));
+                None
+            }
+            1 => {
+                self.emit_err(TypeCheckerError::singleton_tuple(input.span()));
+                None
+            }
             _ => {
                 // Check the expected tuple types if they are known.
-
                 if let Some(Type::Tuple(expected_types)) = expected {
                     // Check actual length is equal to expected length.
                     if expected_types.len() != input.elements.len() {
