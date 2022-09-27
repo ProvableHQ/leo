@@ -20,7 +20,7 @@ use leo_errors::{ParserError, Result};
 
 impl ParserContext<'_> {
     /// Returns a [`ParsedInputFile`] struct filled with the data acquired in the file.
-    pub(crate) fn parse_input(&mut self) -> Result<InputAst> {
+    pub(crate) fn parse_input_file(&mut self) -> Result<InputAst> {
         // Allow underscores in identifiers for input record declarations.
         self.allow_identifier_underscores = true;
         let mut sections = Vec::new();
@@ -66,7 +66,7 @@ impl ParserContext<'_> {
     /// `<identifier> : <type> = <expression>;`
     /// Returns [`Definition`].
     fn parse_input_definition(&mut self) -> Result<Definition> {
-        let mode = self.parse_function_parameter_mode()?;
+        let mode = self.parse_mode()?;
 
         let name = self.expect_identifier()?;
         self.expect(&Token::Colon)?;

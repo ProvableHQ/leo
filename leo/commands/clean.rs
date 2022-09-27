@@ -32,7 +32,7 @@ impl Command for Clean {
     type Output = ();
 
     fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Cleaning")
+        tracing::span!(tracing::Level::INFO, "Leo")
     }
 
     fn prelude(&self, _: Context) -> Result<Self::Input> {
@@ -44,35 +44,11 @@ impl Command for Clean {
 
         // Removes the outputs/ directory.
         let outputs_path = OutputsDirectory::remove(&path)?;
-        tracing::info!("✅ Cleaned the outputs directory {}", outputs_path.dimmed());
+        tracing::info!("cleaned the outputs directory {}", outputs_path.dimmed());
 
         // Removes the build/ directory.
         let build_path = BuildDirectory::remove(&path)?;
-        tracing::info!("✅ Cleaned the build directory {}", build_path.dimmed());
-
-        // Remove the checksum from the output directory
-        // ChecksumFile::new(&package_name).remove(&path)?;
-
-        // // Remove the serialized circuit from the output directory
-        // CircuitFile::new(&package_name).remove(&path)?;
-
-        // // Remove the program output file from the output directory
-        // OutputFile::new(&package_name).remove(&path)?;
-
-        // // Remove the proving key from the output directory
-        // ProvingKeyFile::new(&package_name).remove(&path)?;
-
-        // // Remove the verification key from the output directory
-        // VerificationKeyFile::new(&package_name).remove(&path)?;
-
-        // // Remove the proof from the output directory
-        // ProofFile::new(&package_name).remove(&path)?;
-
-        // Remove AST snapshots from the output directory
-        // SnapshotFile::new(&package_name, Snapshot::Initial).remove(&path)?;
-        // SnapshotFile::new(&package_name, Snapshot::ImportsResolved).remove(&path)?;
-        // SnapshotFile::new(&package_name, Snapshot::TypeInference).remove(&path)?;
-        // SnapshotFile::new(&package_name, Snapshot::Canonicalization).remove(&path)?;
+        tracing::info!("cleaned the build directory {}", build_path.dimmed());
 
         Ok(())
     }

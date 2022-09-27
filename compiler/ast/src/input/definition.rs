@@ -15,13 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::{Expression, Identifier, ParamMode, Type};
+use crate::{Expression, Identifier, Mode, Type};
 
 /// A single definition inside a section in a state or an input file.
 /// Definitions should be structured as: `<name>: <type_> = <value>;`
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Definition {
-    pub mode: ParamMode,
+    pub mode: Mode,
     pub type_: Type,
     pub name: Identifier,
     pub value: Expression,

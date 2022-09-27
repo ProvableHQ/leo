@@ -1,0 +1,22 @@
+// Inputs for the `issue` function.
+[issue]
+owner: address = aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a;
+amount: u64 = 1234u64;
+
+// Inputs for the `deposit` function.
+[deposit]
+token: Token = Token {
+    owner: aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a,
+    gates: 0u64,
+    amount: 1234u64,
+    _nonce: 0group,
+};
+amount: u64 = 321u64;
+
+// Inputs for the `withdraw` function.
+[withdraw]
+recipient: address = aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a;
+amount: u64 = 321u64;
+rate: u64 = 1500u64;
+periods: u64 = 10u64;
+

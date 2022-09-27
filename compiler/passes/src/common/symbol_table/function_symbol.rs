@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Function, FunctionInput, Type};
+use leo_ast::{Function, Input, Type};
 use leo_span::Span;
 use std::fmt::Display;
 
@@ -42,29 +42,44 @@ impl Display for CallType {
     }
 }
 
+/// Metadata associated with the finalize block.
+#[derive(Debug, Clone)]
+pub struct FinalizeData {
+    /// The inputs to the finalize block.
+    pub(crate) input: Vec<Input>,
+    /// The output type of the finalize block.
+    pub(crate) output_type: Type,
+}
+
 /// An entry for a function in the symbol table.
 #[derive(Clone, Debug)]
 pub struct FunctionSymbol {
     /// The index associated with the scope in the parent symbol table.
     pub(crate) id: usize,
     /// The output type of the function.
-    pub(crate) output: Type,
+    pub(crate) output_type: Type,
     /// The `Span` associated with the function.
     pub(crate) span: Span,
     /// The inputs to the function.
-    pub(crate) input: Vec<FunctionInput>,
-    /// The type of the function.
+    pub(crate) input: Vec<Input>,
+    /// The call type of the function.
     pub(crate) call_type: CallType,
+    /// Metadata associated with the finalize block.
+    pub(crate) finalize: Option<FinalizeData>,
 }
 
 impl SymbolTable {
     pub(crate) fn new_function_symbol(id: usize, func: &Function, call_type: CallType) -> FunctionSymbol {
         FunctionSymbol {
             id,
-            output: func.output.clone(),
+            output_type: func.output_type.clone(),
             span: func.span,
             input: func.input.clone(),
             call_type,
+            finalize: func.finalize.as_ref().map(|finalize| FinalizeData {
+                input: finalize.input.clone(),
+                output_type: finalize.output_type.clone(),
+            }),
         }
     }
 }

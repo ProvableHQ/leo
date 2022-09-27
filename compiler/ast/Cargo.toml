@@ -16,7 +16,7 @@ categories = [ "cryptography::cryptocurrencies", "web-programming" ]
 include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2021"
-rust-version = "1.56"
+rust-version = "1.63"
 
 [dependencies.leo-errors]
 path = "../../errors"
@@ -43,7 +43,7 @@ version = "1.8.0"
 features = ["serde"]
 
 [dev-dependencies.criterion]
-version = "0.3"
+version = "0.4"
 
 [features]
 default = [ ]

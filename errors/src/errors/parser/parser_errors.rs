@@ -249,8 +249,8 @@ create_messages!(
 
     @formatted
     leo_imports_only {
-        args: (name: impl Display),
-        msg: format!("Invalid import call to non-leo file `{name}`."),
+        args: (),
+        msg: "Invalid import call to non-leo file.",
         help: Some("Only imports of Leo `.leo` files are currently supported.".to_string()),
     }
 
@@ -259,5 +259,12 @@ create_messages!(
         args: (),
         msg: "Illegal spacing in the annotation declaration.",
         help: Some("Remove whitespace between the `@` symbol and the identifier.".to_string()),
+    }
+
+    @formatted
+    finalize_without_async {
+        args: (),
+        msg: "A finalize statement must be preceded by the `async` keyword.",
+        help: Some("Add the `async` keyword before the `finalize` keyword.".to_string()),
     }
 );

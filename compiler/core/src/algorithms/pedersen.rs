@@ -14,16 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::algorithms::{CoreFunction, BOOL_INT64_STRING_TYPES, BOOL_INT_STRING_TYPES};
-use leo_ast::Type;
+use crate::algorithms::CoreFunction;
+use leo_ast::{IntegerType, Type};
 
 pub struct Pedersen64Hash;
 
 impl CoreFunction for Pedersen64Hash {
     const NUM_ARGS: usize = 1;
 
-    fn first_arg_types() -> &'static [Type] {
-        &BOOL_INT64_STRING_TYPES
+    fn first_arg_is_allowed_type(type_: &Type) -> bool {
+        matches!(
+            type_,
+            Type::Boolean
+                | Type::Integer(IntegerType::I8)
+                | Type::Integer(IntegerType::I16)
+                | Type::Integer(IntegerType::I32)
+                | Type::Integer(IntegerType::I64)
+                | Type::Integer(IntegerType::U8)
+                | Type::Integer(IntegerType::U16)
+                | Type::Integer(IntegerType::U32)
+                | Type::Integer(IntegerType::U64)
+                | Type::String
+        )
     }
 
     fn return_type() -> Type {
@@ -36,12 +48,24 @@ pub struct Pedersen64Commit;
 impl CoreFunction for Pedersen64Commit {
     const NUM_ARGS: usize = 2;
 
-    fn first_arg_types() -> &'static [Type] {
-        &BOOL_INT64_STRING_TYPES
+    fn first_arg_is_allowed_type(type_: &Type) -> bool {
+        matches!(
+            type_,
+            Type::Boolean
+                | Type::Integer(IntegerType::I8)
+                | Type::Integer(IntegerType::I16)
+                | Type::Integer(IntegerType::I32)
+                | Type::Integer(IntegerType::I64)
+                | Type::Integer(IntegerType::U8)
+                | Type::Integer(IntegerType::U16)
+                | Type::Integer(IntegerType::U32)
+                | Type::Integer(IntegerType::U64)
+                | Type::String
+        )
     }
 
-    fn second_arg_types() -> &'static [Type] {
-        &[Type::Scalar]
+    fn second_arg_is_allowed_type(type_: &Type) -> bool {
+        matches!(type_, Type::Scalar)
     }
 
     fn return_type() -> Type {
@@ -54,8 +78,8 @@ pub struct Pedersen128Hash;
 impl CoreFunction for Pedersen128Hash {
     const NUM_ARGS: usize = 1;
 
-    fn first_arg_types() -> &'static [Type] {
-        &BOOL_INT_STRING_TYPES
+    fn first_arg_is_allowed_type(type_: &Type) -> bool {
+        matches!(type_, Type::Boolean | Type::Integer(_) | Type::String)
     }
 
     fn return_type() -> Type {
@@ -68,12 +92,12 @@ pub struct Pedersen128Commit;
 impl CoreFunction for Pedersen128Commit {
     const NUM_ARGS: usize = 2;
 
-    fn first_arg_types() -> &'static [Type] {
-        &BOOL_INT_STRING_TYPES
+    fn first_arg_is_allowed_type(type_: &Type) -> bool {
+        matches!(type_, Type::Boolean | Type::Integer(_) | Type::String)
     }
 
-    fn second_arg_types() -> &'static [Type] {
-        &[Type::Scalar]
+    fn second_arg_is_allowed_type(type_: &Type) -> bool {
+        matches!(type_, Type::Scalar)
     }
 
     fn return_type() -> Type {

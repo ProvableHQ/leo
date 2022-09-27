@@ -9,10 +9,10 @@ leo build
 
 To run this program, run:
 ```bash
-leo run main
+leo run bubble_sort
 ```
 
-## Overview 
+## Overview
 
 This example shows how to sort an array.
 

@@ -5,7 +5,7 @@
 <h1 align="center">The Leo Programming Language</h1>
 
 <p align="center">
-    <a href="https://github.com/AleoHQ/leo/actions"><img src="https://github.com/AleoHQ/leo/workflows/CI/badge.svg"></a>
+    <a href="https://circleci.com/gh/AleoHQ/leo"><img src="https://circleci.com/gh/AleoHQ/leo.svg?style=svg&circle-token=6e9ad6d39d95350544f352d34e0e5c62ef54db26"></a>
     <a href="https://codecov.io/gh/AleoHQ/leo"><img src="https://codecov.io/gh/AleoHQ/leo/branch/testnet3/graph/badge.svg?token=S6MWO60SYL"/></a>
     <a href="https://discord.gg/5v2ynrw2ds"><img src="https://img.shields.io/discord/700454073459015690?logo=discord"/></a>
 </p>
@@ -17,8 +17,7 @@ Leo is a functional, statically-typed programming language built for writing pri
 * [1. Overview](#1-overview)
 * [2. Build Guide](#2-build-guide)
     * [2.1 Install Rust](#21-install-rust)
-    * [2.2a Build from Crates.io](#22a-build-from-cratesio)
-    * [2.2b Build from Source Code](#22b-build-from-source-code)
+    * [2.2 Build from Source Code](#22-build-from-source-code)
 * [3. Quick Start](#3-quick-start)
 * [4. Documentation](#4-documentation)
 * [5. Contributing](#5-contributing)
@@ -66,13 +65,13 @@ We recommend installing Leo by building from the source code as follows:
 git clone https://github.com/AleoHQ/leo
 cd leo
 
-# Build in release mode
-$ cargo build --release
+# Install 'leo'
+$ cargo install --path .
 ```
 
-This will generate an executable under the `./target/release` directory. To run Leo, run the following command:
+Now to use leo, in your terminal, run:
 ```bash
-./target/release/leo
+leo
 ```
 
 ## 3. Quick Start
@@ -96,14 +95,14 @@ Congratulations! You've just run your first Leo program.
 
 ## 4. Documentation
 
-* [Hello World - Next Steps](https://developer.aleo.org/developer/getting_started/hello_world)
-* [Leo Language Documentation](https://developer.aleo.org/developer/language/layout)
+* [Hello World - Next Steps](https://developer.aleo.org/leo/getting_started/hello_world)
+* [Leo Language Documentation](https://developer.aleo.org/leo/getting_started/overview)
 * [Leo ABNF Grammar](./docs/grammar/abnf-grammar.txt)
-* [Homepage](https://developer.aleo.org/developer/getting_started/overview)
+* [Homepage](https://developer.aleo.org/overview/)
 
 ## 5. Contributing
  
-Please see our guidelines in the [developer documentation](https://developer.aleo.org/developer/additional_material/contributing)
+Please see our guidelines in the [developer documentation](./CONTRIBUTING.md)
 
 Thank you for helping make Leo better!
 

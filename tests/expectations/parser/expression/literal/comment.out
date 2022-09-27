@@ -7,4 +7,5 @@ outputs:
     expected_input: []
     imports: {}
     circuits: {}
+    mappings: {}
     functions: {}

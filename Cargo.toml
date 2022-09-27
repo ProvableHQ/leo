@@ -16,7 +16,7 @@ categories = [ "cryptography::cryptocurrencies", "web-programming" ]
 include = [ "Cargo.toml", "leo", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2021"
-rust-version = "1.56.1"
+rust-version = "1.63"
 
 [lib]
 path = "leo/lib.rs"
@@ -29,7 +29,10 @@ path = "leo/main.rs"
 members = [
   "compiler/ast",
   "compiler/compiler",
+  "compiler/core",
   "compiler/parser",
+  "compiler/passes",
+  "compiler/span",
   "docs/grammar",
   "errors",
   "leo/package",
@@ -62,11 +65,12 @@ version = "1.5.3"
 
 [dependencies.aleo]
 git = "https://github.com/AleoHQ/aleo.git"
-rev = "d781ee4"
+rev = "ddbb647"
 
 [dependencies.snarkvm]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "45a6f01"
+version = "0.9.0"
+#git = "https://github.com/AleoHQ/snarkVM.git"
+#rev = "69cf3bd"
 features = ["aleo-cli", "circuit", "console", "parallel"]
 
 [dependencies.backtrace]
@@ -99,14 +103,14 @@ version = "1.4.0"
 version = "0.8"
 
 [dependencies.rand_core]
-version = "0.6.3"
+version = "0.6.4"
 
 [dependencies.reqwest]
-version = "0.11.11"
+version = "0.11.12"
 features = [ "blocking", "json", "multipart" ]
 
 [dependencies.self_update]
-version = "0.30.0"
+version = "0.32.0"
 features = [ "archive-zip" ]
 
 [dependencies.serde]

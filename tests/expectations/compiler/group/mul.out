@@ -5,6 +5,8 @@ outputs:
   - warnings: ""
     output:
       - initial_input_ast: c4cd9adb78c217713c55b0c703a5feb71bcf57bf4f08a7bc8f194ac04f2ccb2d
-    initial_ast: 7ec97c9f2f014464af6705f184664d8293ceab1a309b92e002588b912416f7e8
-    unrolled_ast: 7ec97c9f2f014464af6705f184664d8293ceab1a309b92e002588b912416f7e8
-    ssa_ast: 2aa4a847cef5489392c9c2e2f9a1bc02fd3952d501262c7f0ea816c02adee273
+    initial_ast: d4cb5f777d9bc4aaf52fa590da8a6926e0dc734fe49e43672e9eb6e2f1e9242d
+    inlined_ast: 6257a21f6ba701eae677015ad5f2789f1aa5f127c3bddd1511761bf151b00d68
+    unrolled_ast: d4cb5f777d9bc4aaf52fa590da8a6926e0dc734fe49e43672e9eb6e2f1e9242d
+    ssa_ast: 6257a21f6ba701eae677015ad5f2789f1aa5f127c3bddd1511761bf151b00d68
+    flattened_ast: 39123dc1649955af58fc8e70103b1b9f3136e1475fb1c2f82c5cddc61829742b

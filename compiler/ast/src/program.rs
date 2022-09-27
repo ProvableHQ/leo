@@ -17,10 +17,11 @@
 //! A Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of ast statements and expressions.
 
-use crate::{Circuit, Function, FunctionInput};
+use crate::{Circuit, Function, FunctionInput, Mapping};
+
+use leo_span::Symbol;
 
 use indexmap::IndexMap;
-use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -38,6 +39,8 @@ pub struct Program {
     pub imports: IndexMap<Symbol, Program>,
     /// A map from circuit names to circuit definitions.
     pub circuits: IndexMap<Symbol, Circuit>,
+    /// A map from mapping names to mapping definitions.
+    pub mappings: IndexMap<Symbol, Mapping>,
     /// A map from function names to function definitions.
     pub functions: IndexMap<Symbol, Function>,
 }
@@ -47,14 +50,19 @@ impl fmt::Display for Program {
         for (id, _import) in self.imports.iter() {
             writeln!(f, "import {}.leo;", id)?;
         }
-        for (_, function) in self.functions.iter() {
-            function.fmt(f)?;
-            writeln!(f,)?;
-        }
         for (_, circuit) in self.circuits.iter() {
             circuit.fmt(f)?;
             writeln!(f,)?;
         }
+        for (_, mapping) in self.mappings.iter() {
+            mapping.fmt(f)?;
+            writeln!(f,)?;
+        }
+        for (_, function) in self.functions.iter() {
+            function.fmt(f)?;
+            writeln!(f,)?;
+        }
+
         write!(f, "")
     }
 }
@@ -67,8 +75,9 @@ impl Default for Program {
             network: String::new(),
             expected_input: vec![],
             imports: IndexMap::new(),
-            functions: IndexMap::new(),
             circuits: IndexMap::new(),
+            mappings: IndexMap::new(),
+            functions: IndexMap::new(),
         }
     }
 }

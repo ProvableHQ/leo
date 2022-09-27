@@ -41,7 +41,7 @@ impl Command for New {
     type Output = ();
 
     fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "New")
+        tracing::span!(tracing::Level::INFO, "Leo")
     }
 
     fn prelude(&self, _: Context) -> Result<Self::Input> {
@@ -51,7 +51,7 @@ impl Command for New {
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Call the `aleo new` command from the Aleo SDK.
         let command =
-            AleoNew::try_parse_from(&[ALEO_CLI_COMMAND, &self.name]).map_err(CliError::failed_to_parse_aleo_new)?;
+            AleoNew::try_parse_from([ALEO_CLI_COMMAND, &self.name]).map_err(CliError::failed_to_parse_aleo_new)?;
         let result = command.parse().map_err(CliError::failed_to_execute_aleo_new)?;
 
         // todo: modify the readme file to recommend building with `leo build`.

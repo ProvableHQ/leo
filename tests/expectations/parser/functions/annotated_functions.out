@@ -7,8 +7,9 @@ outputs:
     expected_input: []
     imports: {}
     circuits: {}
+    mappings: {}
     functions:
-      "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":29}\"}":
+      foo:
         annotations:
           - identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":6}\"}"
             span:
@@ -25,17 +26,25 @@ outputs:
         identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":29}\"}"
         input: []
         output:
+          - Internal:
+              mode: None
+              type_:
+                Integer: U8
+              span:
+                lo: 35
+                hi: 37
+        output_type:
           Integer: U8
-        core_mapping: ~
         block:
           statements: []
           span:
             lo: 38
             hi: 40
+        finalize: ~
         span:
           lo: 17
           hi: 40
-      "{\"name\":\"mint\",\"span\":\"{\\\"lo\\\":68,\\\"hi\\\":72}\"}":
+      mint:
         annotations:
           - identifier: "{\"name\":\"program\",\"span\":\"{\\\"lo\\\":43,\\\"hi\\\":50}\"}"
             span:
@@ -48,17 +57,25 @@ outputs:
         identifier: "{\"name\":\"mint\",\"span\":\"{\\\"lo\\\":68,\\\"hi\\\":72}\"}"
         input: []
         output:
+          - Internal:
+              mode: None
+              type_:
+                Integer: U8
+              span:
+                lo: 78
+                hi: 80
+        output_type:
           Integer: U8
-        core_mapping: ~
         block:
           statements: []
           span:
             lo: 81
             hi: 83
+        finalize: ~
         span:
           lo: 59
           hi: 83
-      "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":100,\\\"hi\\\":104}\"}":
+      test:
         annotations:
           - identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":86,\\\"hi\\\":90}\"}"
             span:
@@ -67,13 +84,21 @@ outputs:
         identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":100,\\\"hi\\\":104}\"}"
         input: []
         output:
+          - Internal:
+              mode: None
+              type_:
+                Integer: U8
+              span:
+                lo: 110
+                hi: 112
+        output_type:
           Integer: U8
-        core_mapping: ~
         block:
           statements: []
           span:
             lo: 113
             hi: 115
+        finalize: ~
         span:
           lo: 91
           hi: 115

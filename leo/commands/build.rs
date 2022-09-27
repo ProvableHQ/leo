@@ -27,7 +27,6 @@ use leo_span::symbol::with_session_globals;
 use aleo::commands::Build as AleoBuild;
 
 use clap::StructOpt;
-use colored::Colorize;
 use indexmap::IndexMap;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -58,12 +57,8 @@ pub struct BuildOptions {
     pub enable_unrolled_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot of the SSA AST.")]
     pub enable_ssa_ast_snapshot: bool,
-    // Note: This is currently made optional since code generation is just a prototype.
-    #[structopt(
-        long,
-        help = "Runs the code generation stage of the compiler and prints the resulting bytecode."
-    )]
-    pub enable_code_generation: bool,
+    #[structopt(long, help = "Writes AST snapshot of the flattened AST.")]
+    pub enable_flattened_ast_snapshot: bool,
 }
 
 impl From<BuildOptions> for OutputOptions {
@@ -75,6 +70,7 @@ impl From<BuildOptions> for OutputOptions {
             inlined_ast: options.enable_inlined_ast_snapshot,
             unrolled_ast: options.enable_unrolled_ast_snapshot,
             ssa_ast: options.enable_ssa_ast_snapshot,
+            flattened_ast: options.enable_flattened_ast_snapshot,
         };
         if options.enable_all_ast_snapshots {
             out_options.initial_input_ast = true;
@@ -82,6 +78,7 @@ impl From<BuildOptions> for OutputOptions {
             out_options.inlined_ast = true;
             out_options.unrolled_ast = true;
             out_options.ssa_ast = true;
+            out_options.flattened_ast = true;
         }
 
         out_options
@@ -100,7 +97,7 @@ impl Command for Build {
     type Output = (Option<InputAst>, IndexMap<Symbol, Circuit>);
 
     fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Build")
+        tracing::span!(tracing::Level::INFO, "Leo")
     }
 
     fn prelude(&self, _: Context) -> Result<Self::Input> {
@@ -281,15 +278,10 @@ fn compile_leo_file(
         .map_err(CliError::failed_to_load_instructions)?;
 
     // Prepare the path string.
-    let path_string = format!("(in \"{}\")", aleo_file_path.display());
+    let _path_string = format!("(in \"{}\")", aleo_file_path.display());
 
     // Log the build as successful.
-    tracing::info!(
-        "✅ Compiled '{}' into Aleo instructions {}",
-        file_name,
-        path_string.dimmed()
-    );
-    // }
+    tracing::info!("Compiled '{}' into Aleo instructions", file_name,);
 
     Ok(symbol_table.circuits)
 }

@@ -25,9 +25,11 @@ use itertools::Itertools;
 use std::cell::RefCell;
 
 pub struct TypeChecker<'a> {
+    /// The symbol table for the program.
     pub(crate) symbol_table: RefCell<SymbolTable>,
+    /// The error handler.
     pub(crate) handler: &'a Handler,
-    pub(crate) parent: Option<Symbol>,
+    /// Whether or not the function that we are currently traversing has a return statement.
     pub(crate) has_return: bool,
     /// Are we traversing a function, if so, what is its call type?
     /// Is it a program function, helper function, or inlined function?
@@ -40,6 +42,13 @@ pub struct TypeChecker<'a> {
     /// A node corresponds to named composite type, either a circuit or record.
     /// A directed edge of the form `a --> b` corresponds to a dependency of composite type `b` on composite type `a`.
     pub(crate) type_graph: DiGraph<Symbol>,
+    /// Whether or not the function that we are currently traversing has a finalize statement.
+    pub(crate) has_finalize: bool,
+    /// Whether or not we are currently traversing a program function.
+    /// A "program function" is a function that can be invoked by a user or another program.
+    pub(crate) is_program_function: bool,
+    /// Whether or not we are currently traversing a finalize block.
+    pub(crate) is_finalize: bool,
 }
 
 const BOOLEAN_TYPE: Type = Type::Boolean;
@@ -104,12 +113,40 @@ impl<'a> TypeChecker<'a> {
         Self {
             symbol_table: RefCell::new(symbol_table),
             handler,
-            parent: None,
             has_return: false,
             function: None,
             call_graph: DiGraph::new(function_names),
             type_graph: DiGraph::new(circuit_names),
+            has_finalize: false,
+            is_program_function: false,
+            is_finalize: false,
         }
+    }
+
+    /// Enters a child scope.
+    pub(crate) fn enter_scope(&mut self, index: usize) {
+        let previous_symbol_table = std::mem::take(&mut self.symbol_table);
+        self.symbol_table
+            .swap(previous_symbol_table.borrow().lookup_scope_by_index(index).unwrap());
+        self.symbol_table.borrow_mut().parent = Some(Box::new(previous_symbol_table.into_inner()));
+    }
+
+    /// Creates a new child scope.
+    pub(crate) fn create_child_scope(&mut self) -> usize {
+        // Creates a new child scope.
+        let scope_index = self.symbol_table.borrow_mut().insert_block();
+        // Enter the new scope.
+        self.enter_scope(scope_index);
+        // Return the index of the new scope.
+        scope_index
+    }
+
+    /// Exits the current scope.
+    pub(crate) fn exit_scope(&mut self, index: usize) {
+        let previous_symbol_table = *self.symbol_table.borrow_mut().parent.take().unwrap();
+        self.symbol_table
+            .swap(previous_symbol_table.lookup_scope_by_index(index).unwrap());
+        self.symbol_table = RefCell::new(previous_symbol_table);
     }
 
     /// Emits a type checker error.
@@ -161,16 +198,6 @@ impl<'a> TypeChecker<'a> {
         self.check_type(
             |actual: &Type| actual.eq_flat(expected),
             expected.to_string(),
-            actual,
-            span,
-        )
-    }
-
-    /// Emits an error to the error handler if the actual type is not equal to any of the expected types.
-    pub(crate) fn assert_one_of_types(&self, actual: &Option<Type>, expected: &[Type], span: Span) {
-        self.check_type(
-            |actual: &Type| expected.iter().any(|t: &Type| t == actual),
-            types_to_string(expected),
             actual,
             span,
         )
@@ -333,7 +360,7 @@ impl<'a> TypeChecker<'a> {
                 None => {
                     // Not a core library circuit.
                     self.emit_err(TypeCheckerError::invalid_core_instruction(
-                        &ident.name,
+                        ident.name,
                         function.name,
                         ident.span(),
                     ));
@@ -394,14 +421,29 @@ impl<'a> TypeChecker<'a> {
             Type::Identifier(identifier) if self.symbol_table.borrow().lookup_circuit(identifier.name).is_none() => {
                 self.emit_err(TypeCheckerError::undefined_type(identifier.name, span));
             }
-            // Check that the constituent types are valid.
+            // Check that the constituent types of the tuple are valid.
             Type::Tuple(tuple_type) => {
                 for type_ in tuple_type.iter() {
                     self.assert_type_is_valid(span, type_)
                 }
             }
+            // Check that the constituent types of mapping are valid.
+            Type::Mapping(mapping_type) => {
+                self.assert_type_is_valid(span, &mapping_type.key);
+                self.assert_type_is_valid(span, &mapping_type.value);
+            }
             _ => {} // Do nothing.
         }
+    }
+
+    /// Emits an error if the type is not a mapping.
+    pub(crate) fn assert_mapping_type(&self, type_: &Option<Type>, span: Span) {
+        self.check_type(
+            |type_| matches!(type_, Type::Mapping(_)),
+            "mapping".to_string(),
+            type_,
+            span,
+        )
     }
 }
 

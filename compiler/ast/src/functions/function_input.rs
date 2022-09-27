@@ -14,40 +14,79 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node, Type};
+use crate::{External, Identifier, Mode, Node, Type};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ParamMode {
-    None,
-    Const,
-    Private,
-    Public,
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Input {
+    Internal(FunctionInput),
+    External(External),
 }
 
-impl fmt::Display for ParamMode {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use ParamMode::*;
-
+impl fmt::Display for Input {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use Input::*;
         match self {
-            None => write!(f, ""),
-            Const => write!(f, "const"),
-            Private => write!(f, "private"),
-            Public => write!(f, "public"),
+            Internal(input) => input.fmt(f),
+            External(input) => input.fmt(f),
+        }
+    }
+}
+
+impl Input {
+    pub fn type_(&self) -> Type {
+        use Input::*;
+        match self {
+            Internal(input) => input.type_.clone(),
+            External(input) => input.type_(),
+        }
+    }
+
+    pub fn identifier(&self) -> Identifier {
+        use Input::*;
+        match self {
+            Internal(input) => input.identifier,
+            External(input) => input.identifier,
+        }
+    }
+
+    pub fn mode(&self) -> Mode {
+        use Input::*;
+        match self {
+            Internal(input) => input.mode,
+            External(_) => Mode::None,
+        }
+    }
+}
+
+impl Node for Input {
+    fn span(&self) -> Span {
+        use Input::*;
+        match self {
+            Internal(input) => input.span(),
+            External(input) => input.span(),
+        }
+    }
+
+    fn set_span(&mut self, span: Span) {
+        use Input::*;
+        match self {
+            Internal(input) => input.set_span(span),
+            External(input) => input.set_span(span),
         }
     }
 }
 
 /// A function parameter.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FunctionInput {
     /// The name the parameter is accessible as in the function's body.
     pub identifier: Identifier,
     /// The mode of the function parameter.
-    mode: ParamMode,
+    pub mode: Mode,
     /// What's the parameter's type?
     pub type_: Type,
     /// The parameters span from any annotations to its type.
@@ -55,35 +94,12 @@ pub struct FunctionInput {
 }
 
 impl FunctionInput {
-    pub fn new(identifier: Identifier, mode: ParamMode, type_: Type, span: Span) -> Self {
-        Self {
-            identifier,
-            mode,
-            type_,
-            span,
-        }
-    }
-
-    pub fn mode(&self) -> ParamMode {
-        self.mode
-    }
-}
-
-impl FunctionInput {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} ", self.mode)?;
-        write!(f, "{}: ", self.identifier)?;
-        write!(f, "{}", self.type_)
+        write!(f, "{} {}: {}", self.mode, self.identifier, self.type_)
     }
 }
 
 impl fmt::Display for FunctionInput {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.format(f)
-    }
-}
-
-impl fmt::Debug for FunctionInput {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }

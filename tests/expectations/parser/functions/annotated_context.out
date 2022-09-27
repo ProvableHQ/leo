@@ -7,8 +7,9 @@ outputs:
     expected_input: []
     imports: {}
     circuits: {}
+    mappings: {}
     functions:
-      "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}":
+      f:
         annotations:
           - identifier: "{\"name\":\"context\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":10}\"}"
             span:
@@ -17,8 +18,15 @@ outputs:
         identifier: "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
         input: []
         output:
+          - Internal:
+              mode: None
+              type_:
+                Integer: U8
+              span:
+                lo: 27
+                hi: 29
+        output_type:
           Integer: U8
-        core_mapping: ~
         block:
           statements:
             - Return:
@@ -36,10 +44,11 @@ outputs:
           span:
             lo: 30
             hi: 49
+        finalize: ~
         span:
           lo: 11
           hi: 49
-      "{\"name\":\"g\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":90}\"}":
+      g:
         annotations:
           - identifier: "{\"name\":\"context\",\"span\":\"{\\\"lo\\\":52,\\\"hi\\\":59}\"}"
             span:
@@ -48,8 +57,15 @@ outputs:
         identifier: "{\"name\":\"g\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":90}\"}"
         input: []
         output:
+          - Internal:
+              mode: None
+              type_:
+                Integer: U8
+              span:
+                lo: 96
+                hi: 98
+        output_type:
           Integer: U8
-        core_mapping: ~
         block:
           statements:
             - Return:
@@ -67,6 +83,7 @@ outputs:
           span:
             lo: 99
             hi: 118
+        finalize: ~
         span:
           lo: 80
           hi: 118

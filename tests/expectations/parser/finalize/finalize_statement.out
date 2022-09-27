@@ -1,0 +1,22 @@
+---
+namespace: ParseStatement
+expectation: Pass
+outputs:
+  - Finalize:
+      arguments: []
+      span:
+        lo: 6
+        hi: 16
+  - Finalize:
+      arguments:
+        - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":18}\"}"
+      span:
+        lo: 6
+        hi: 19
+  - Finalize:
+      arguments:
+        - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":18}\"}"
+        - Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":23}\"}"
+      span:
+        lo: 6
+        hi: 24

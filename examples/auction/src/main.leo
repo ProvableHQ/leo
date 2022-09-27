@@ -1,54 +1,70 @@
-// This example is suggestive of an auction smart contract,
-// but it is much simpler of a full auction smart contract.
-
-// This is a record that contains the current state of the auction,
-// which in this example just consists of
-// the address of the currently winning bidder
-// and the currently winning amount.
-// The owner and gates fields are required in a record;
-// the owner address in general differs from the curent auction winner:
-// the owner is the one running the auction itself.
-
-record Auction {
+// A bid in an auction.
+// - `owner`     : The address of the account that owns the record associated with this bid.
+//                 This is separate from the address of the account that placed the bid.
+// - `gates`     : The value associated with the record (always zero).
+// - `bidder`    : The address of the account that placed the bid.
+// - `amount`    : The amount of the bid.
+// - `is_winner` : Whether the bid is the winning bid.
+record Bid {
     owner: address,
     gates: u64,
-    winning_bidder: address,
-    winning_bid: u64
+    bidder: address,
+    amount: u64,
+    is_winner: bool,
 }
 
-// This function realizes the checking and possible incorporation of a new bid.
-// Unlike a traditional auction, where the currently winning bid is known,
-// and only higher bids would be normally brought up in the room,
-// in a zero-knowledge context presumably bidding is blind,
-// i.e. a bidder does not know the currently highest bid.
-// Thus, this function represents a possible update of the auction state
-// with a new bid:
-// if the amount exceeds the currently winning one,
-// the record is updated with the new bid and the new bidder's address;
-// the latter is also passed as input.
-// Again, this is just a simple example;
-// in a serious auction smart contract,
-// there will be some additional checks,
-// and presumably ways to tie bidder and amount (e.g. commitments).
-//
-// In order to run this function, an Auction record must be passed to it.
-// This is done in the input file, inputs/auction.in.
-// Note that, when building that record,
-// the owner address must be the same as the one in the program.json file.
-
+// Returns a new bid.
+// - `bidder` : The address of the account that placed the bid.
+// - `amount` : The amount of the bid.
+// Requires that `bidder` matches the function caller.
+// The owner of the record is set to the entity responsible for running the auction (auction runner).
+// The address of the auction runner is aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh.
 @program
-function main(current: Auction, bidder: address, bid: u64) -> Auction {
-    let winning_bidder: address = current.winning_bidder;
-    let winning_bid: u64 = current.winning_bid;
-    if bid > current.winning_bid {
-        winning_bidder = bidder;
-        winning_bid = bid;
-    }
-    let new: Auction = Auction {
-        owner: current.owner,
-        gates: current.gates,
-        winning_bidder: winning_bidder,
-        winning_bid: winning_bid
+function place_bid(bidder: address, amount: u64) -> Bid {
+    // Ensure the caller is the auction bidder.
+    console.assert_eq(self.caller, bidder);
+    // Return a new 'Bid' record for the auction bidder.
+    return Bid {
+        owner: aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh,
+        gates: 0u64,
+        bidder: bidder,
+        amount: amount,
+        is_winner: false,
     };
-    return new;
+}
+
+// Returns the winning bid.
+// - `first`  : The first bid.
+// - `second` : The second bid.
+// Requires that the function caller is the auction runner.
+// Assumes that the function is invoked only after the bidding period has ended.
+// In the event of a tie, the first bid is selected.
+@program
+function resolve(first: Bid, second: Bid) -> Bid {
+    // Ensure the caller is the auctioneer.
+    console.assert_eq(self.caller, aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh);
+    // Resolve the winner of the auction.
+    if (first.amount >= second.amount) {
+        return first;
+    } else {
+        return second;
+    }
+}
+
+// Returns ownership of the bid to bidder.
+// - `bid` : The winning bid.
+// Requires that the function caller is the auction runner.
+// Assumes that the function is invoked only after all bids have been resolved.
+@program
+function finish(bid: Bid) -> Bid {
+    // Ensure the caller is the auctioneer.
+    console.assert_eq(self.caller, aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh);
+    // Return 'is_winner' as 'true' in the winning 'Bid'. 
+    return Bid {
+        owner: bid.bidder,
+        gates: bid.gates,
+        bidder: bid.bidder,
+        amount: bid.amount,
+        is_winner: true,
+    };
 }

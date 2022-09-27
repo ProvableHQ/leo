@@ -17,7 +17,7 @@
 use super::*;
 use leo_errors::{ParserError, Result};
 
-use leo_span::Symbol;
+use leo_span::{sym, Symbol};
 use snarkvm_console::{account::Address, network::Testnet3};
 
 const INT_TYPES: &[Token] = &[
@@ -364,6 +364,21 @@ impl ParserContext<'_> {
                         index,
                         span,
                     }))
+                } else if self.eat(&Token::Leo) {
+                    // Eat an external function call.
+                    self.eat(&Token::Div); // todo: Make `/` a more general token.
+
+                    // Parse function name.
+                    let name = self.expect_identifier()?;
+
+                    // Parse the function call.
+                    let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
+                    expr = Expression::Call(CallExpression {
+                        span: expr.span() + span,
+                        function: Box::new(Expression::Identifier(name)),
+                        external: Some(Box::new(expr)),
+                        arguments,
+                    });
                 } else {
                     // Parse identifier name.
                     let name = self.expect_identifier()?;
@@ -389,6 +404,7 @@ impl ParserContext<'_> {
                 expr = Expression::Call(CallExpression {
                     span: expr.span() + span,
                     function: Box::new(expr),
+                    external: None,
                     arguments,
                 });
             }
@@ -443,7 +459,7 @@ impl ParserContext<'_> {
         let mut dist = 1; // 0th is `(` so 1st is first gc's start.
         let first_gc = self.peek_group_coordinate(&mut dist)?;
 
-        let check_ahead = |d, token: &_| self.look_ahead(d, |t| (&t.token == token).then(|| t.span));
+        let check_ahead = |d, token: &_| self.look_ahead(d, |t| (&t.token == token).then_some(t.span));
 
         // Peek at `,`.
         check_ahead(dist, &Token::Comma)?;
@@ -532,7 +548,7 @@ impl ParserContext<'_> {
                 let suffix_span = self.token.span;
                 let full_span = span + suffix_span;
                 let assert_no_whitespace = |x| assert_no_whitespace(span, suffix_span, &value, x);
-                match self.eat_any(INT_TYPES).then(|| &self.prev_token.token) {
+                match self.eat_any(INT_TYPES).then_some(&self.prev_token.token) {
                     // Literal followed by `field`, e.g., `42field`.
                     Some(Token::Field) => {
                         assert_no_whitespace("field")?;
@@ -576,6 +592,10 @@ impl ParserContext<'_> {
                     Expression::Identifier(ident)
                 }
             }
+            Token::SelfLower => Expression::Identifier(Identifier {
+                name: sym::SelfLower,
+                span,
+            }),
             t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
                 name: t.keyword_to_symbol().unwrap(),
                 span,

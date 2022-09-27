@@ -8,6 +8,8 @@ outputs:
       - initial_input_ast: 6da90d928d023c26a92106b9ef3bbf3d6e1ee2fcf67b16aa9c8477477cb4b064
       - initial_input_ast: d82ff0fb53ab27ed095ea5bbb4e118fbde50d4508caed65cb8029ad7441ef0fd
       - initial_input_ast: 07a295a1403e9020a1fb03ddcaf92b18a3237d1d4ad70b1549db77f1e2d1e6b0
-    initial_ast: 9b4289df2d58eac4fe274d26e05a008221dfac677781e23be7ced5c1882e86b3
-    unrolled_ast: 9b4289df2d58eac4fe274d26e05a008221dfac677781e23be7ced5c1882e86b3
-    ssa_ast: 60090e2a02f7f714ee2a005baa3046ed65acb3505b361dd1e97ca76eece9c05c
+    initial_ast: e4258b60a665f89ba2feea35f91fc5f94116a0def0bb7e61bb513fd74b6d6d34
+    inlined_ast: 390c2e1f941c643a93f47d37f0af6e2fbe96eea5157affbf318a831db8cd7984
+    unrolled_ast: e4258b60a665f89ba2feea35f91fc5f94116a0def0bb7e61bb513fd74b6d6d34
+    ssa_ast: 390c2e1f941c643a93f47d37f0af6e2fbe96eea5157affbf318a831db8cd7984
+    flattened_ast: 8a86b8b6e29dbc762e80c443b8759318712aa9cb03f6d994f5da6887c28d1fc3

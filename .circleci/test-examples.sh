@@ -1,7 +1,45 @@
+#!/bin/bash
+# First check that Leo is installed.
+if ! command -v leo &> /dev/null
+then
+    echo "leo is not installed."
+    exit
+fi
+
+# Clone the 'leo' repository, or pull if it already exists.
+git clone https://github.com/AleoHQ/leo.git leo 2> /dev/null || (cd leo ; git pull)
+
+# Install 'leo'.
+cd leo && cargo install --path . && cd ..
+
 # Build and run the auction Leo program.
 (
   cd ./project/examples/auction || exit
-  $LEO run main
+  $LEO run place_bid
+  $LEO run resolve
+  $LEO run finish
+
+  chmod +x ./run.sh
+  ./run.sh
+)
+
+# Build and run the basic_bank Leo program.
+(
+  cd ./project/examples/basic_bank || exit
+  $LEO run issue
+  $LEO run deposit
+  $LEO run withdraw
+
+  chmod +x ./run.sh
+  ./run.sh
+)
+
+# Build and run the battleship Leo program.
+(
+  cd ./project/examples/battleship || exit
+
+  chmod +x ./run.sh
+  ./run.sh
 )
 
 # Build and run the bubblesort Leo program.
@@ -20,6 +58,54 @@
 (
   cd ./project/examples/groups || exit
   $LEO run main
+)
+
+# Build and run the hackers-delight/ntzdebruijin program.
+(
+  cd ./project/examples/hackers-delight/ntzdebruijin || exit
+  $LEO run
+)
+
+# Build and run the hackers-delight/ntzgaudet program.
+(
+  cd ./project/examples/hackers-delight/ntzgaudet || exit
+  $LEO run
+)
+
+# Build and run the hackers-delight/ntzloops program.
+(
+  cd ./project/examples/hackers-delight/ntzloops || exit
+  $LEO run
+)
+
+# Build and run the hackers-delight/ntzmasks program.
+(
+  cd ./project/examples/hackers-delight/ntzmasks || exit
+  $LEO run
+)
+
+# Build and run the hackers-delight/ntzreisers program.
+(
+  cd ./project/examples/hackers-delight/ntzreisers || exit
+  $LEO run
+)
+
+# Build and run the hackers-delight/ntzseals program.
+(
+  cd ./project/examples/hackers-delight/ntzseals || exit
+  $LEO run
+)
+
+# Build and run the hackers-delight/ntzsearchtree program.
+(
+  cd ./project/examples/hackers-delight/ntzsearchtree || exit
+  $LEO run
+)
+
+# Build and run the hackers-delight/ntzsmallvals program.
+(
+  cd ./project/examples/hackers-delight/ntzsmallvals || exit
+  $LEO run
 )
 
 # Build and run the helloworld Leo program.
@@ -54,12 +140,16 @@
 # Build and run the tic tac toe example Leo program.
 (
   cd ./project/examples/tictactoe || exit
-  $LEO run main
+  $LEO run new
+  $LEO run make_move
+
+  chmod +x ./run.sh
+  ./run.sh
 )
 
-# Build and run the token example programs.
+# Build and run the simple token example programs.
 (
-  cd ./project/examples/token || exit
+  cd ./project/examples/simple_token || exit
 
   # Run the mint program.
   $LEO run mint
@@ -68,8 +158,39 @@
   $LEO run transfer
 )
 
+# Build and run the token example program.
+(
+  cd ./project/examples/token || exit
+
+  # Run the mint_public function.
+  $LEO run mint_public
+
+  # Run the mint_private function.
+  $LEO run mint_private
+
+  # Run the transfer_public function.
+  $LEO run transfer_public
+
+  # Run the transfer_private function.
+  $LEO run transfer_private
+
+  # Run the transfer_private_to_public function.
+  $LEO run transfer_private_to_public
+
+  # Run the transfer_public_to_private function.
+  $LEO run transfer_public_to_private
+)
+
 # Build and run the two-adicity program.
 (
   cd ./project/examples/twoadicity || exit
   $LEO run main
+)
+
+# Build and run the vote Leo program.
+(
+  cd ./project/examples/vote || exit
+
+  chmod +x ./run.sh
+  ./run.sh
 )

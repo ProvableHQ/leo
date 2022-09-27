@@ -7,69 +7,38 @@ outputs:
     expected_input: []
     imports: {}
     circuits: {}
+    mappings: {}
     functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
-        annotations: []
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
-        input:
-          - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-            mode: None
-            type_:
-              Integer: U32
-            span:
-              lo: 13
-              hi: 14
-          - identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":28,\\\"hi\\\":29}\"}"
-            mode: Public
-            type_:
-              Integer: I32
-            span:
-              lo: 28
-              hi: 29
-        output:
-          Integer: U8
-        core_mapping: ~
-        block:
-          statements:
-            - Return:
-                expression:
-                  Literal:
-                    Integer:
-                      - U8
-                      - "0"
-                      - span:
-                          lo: 55
-                          hi: 58
-                span:
-                  lo: 48
-                  hi: 58
-          span:
-            lo: 42
-            hi: 61
-        span:
-          lo: 2
-          hi: 61
-      "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":72,\\\"hi\\\":73}\"}":
+      x:
         annotations: []
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":72,\\\"hi\\\":73}\"}"
         input:
-          - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":81,\\\"hi\\\":82}\"}"
-            mode: Public
-            type_:
-              Integer: U32
-            span:
-              lo: 81
-              hi: 82
-          - identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":90}\"}"
-            mode: None
-            type_:
-              Integer: I32
-            span:
-              lo: 89
-              hi: 90
+          - Internal:
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":81,\\\"hi\\\":82}\"}"
+              mode: Public
+              type_:
+                Integer: U32
+              span:
+                lo: 81
+                hi: 82
+          - Internal:
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":90}\"}"
+              mode: None
+              type_:
+                Integer: I32
+              span:
+                lo: 89
+                hi: 90
         output:
+          - Internal:
+              mode: None
+              type_:
+                Integer: U8
+              span:
+                lo: 100
+                hi: 102
+        output_type:
           Integer: U8
-        core_mapping: ~
         block:
           statements:
             - Return:
@@ -87,6 +56,7 @@ outputs:
           span:
             lo: 103
             hi: 122
+        finalize: ~
         span:
           lo: 63
           hi: 122

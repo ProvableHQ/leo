@@ -1,0 +1,10 @@
+{
+    "program": "ntzreisers.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkp8vHN4i62UxNKK9pqPZNYpWwUXdXayAzoLfFJQrQtEBFM",
+        "address": "aleo1wkd43twmdc95qag68rt6wyuhdvws9ux2rzjszm3eazz7wkhp75zsjazdcs"
+    },
+    "license": "MIT"
+}

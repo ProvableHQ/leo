@@ -1,0 +1,10 @@
+{
+  "program": "basic_bank.aleo",
+  "version": "0.0.0",
+  "description": "",
+  "development": {
+      "private_key": "APrivateKey1zkpHtqVWT6fSHgUMNxsuVf7eaR6id2cj7TieKY1Z8CP5rCD",
+      "address": "aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a"
+  },
+  "license": "MIT"
+}

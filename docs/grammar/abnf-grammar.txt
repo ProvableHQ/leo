@@ -21,7 +21,7 @@
 
 ascii = %x0-7F
 
-safe-nonascii = %x80-2029 / %x202F-2065 / %x2070-D7FF / %xE000-10FFFF
+safe-nonascii = %x80-2029 / %x202F-2065 / %x206A-D7FF / %xE000-10FFFF
                 ; excludes bidi embeddings/overrides/isolates
                 ; and excludes high/low surrogates
 
@@ -59,7 +59,7 @@ not-double-quote-or-backslash-or-line-feed-or-carriage-return =
     %x0-9 / %xB-C / %xE-21 / %x23-5B / %x5D-7F / safe-nonascii
     ; anything but " or \ or <LF> or <CR>
 
-comment = block-comment / end-of-line-comment
+comment = block-comment / line-comment
 
 block-comment = "/*" rest-of-block-comment
 
@@ -74,16 +74,19 @@ rest-of-block-comment-after-star =
     / not-star-or-slash-or-line-feed-or-carriage-return rest-of-block-comment
     / line-terminator rest-of-block-comment
 
-end-of-line-comment = "//" *not-line-feed-or-carriage-return
+line-comment = "//" *not-line-feed-or-carriage-return
 
 keyword = %s"address"
+        / %s"async"
         / %s"bool"
         / %s"circuit"
         / %s"console"
         / %s"const"
         / %s"constant"
+        / %s"decrement"
         / %s"else"
         / %s"field"
+        / %s"finalize"
         / %s"for"
         / %s"function"
         / %s"group"
@@ -94,7 +97,9 @@ keyword = %s"address"
         / %s"i128"
         / %s"if"
         / %s"in"
+        / %s"increment"
         / %s"let"
+        / %s"mapping"
         / %s"public"
         / %s"record"
         / %s"return"
@@ -202,7 +207,7 @@ symbol = "!"
        / "[" / "]"
        / "{" / "}"
        / "," / "." / ".." / ";" / ":" / "::" / "?"
-       / "->" / "_"
+       / "->" / "=>" / "_"
        / %s")group"
 
 token = keyword
@@ -362,6 +367,9 @@ statement = return-statement
           / loop-statement
           / assignment-statement
           / console-statement
+          / finalize-statement
+          / increment-statement
+          / decrement-statement
           / block
 
 block = "{" *statement "}"
@@ -411,9 +419,21 @@ assert-equal-call = %s"assert_eq" "(" expression "," expression [ "," ] ")"
 
 assert-not-equal-call = %s"assert_neq" "(" expression "," expression [ "," ] ")"
 
+finalize-statement = %s"async" %s"finalize" function-arguments ";"
+
+increment-statement =
+    %s"increment" "(" identifier "," expression "," expression [ "," ] ")" ";"
+
+decrement-statement =
+    %s"decrement" "(" identifier "," expression "," expression [ "," ] ")" ";"
+
 function-declaration = *annotation %s"function" identifier
                        "(" [ function-parameters ] ")" "->" type
-                       block
+                       block [ finalizer ]
+
+finalizer = %s"finalize" identifier
+            "(" [ function-parameters ] ")" "->" type
+            block
 
 function-parameters = function-parameter *( "," function-parameter ) [ "," ]
 
@@ -432,9 +452,12 @@ circuit-component-declaration = identifier ":" type
 record-declaration = %s"record" identifier
                      "{" circuit-component-declarations "}"
 
+mapping-declaration = %s"mapping" identifier ":" type "=>" type ";"
+
 declaration = function-declaration
             / circuit-declaration
             / record-declaration
+            / mapping-declaration
 
 file = *declaration
 

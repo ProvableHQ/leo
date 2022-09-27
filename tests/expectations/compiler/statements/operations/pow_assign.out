@@ -5,6 +5,8 @@ outputs:
   - warnings: "Warning [WTYC0372001]: The function `signed` is never called by a program function.\n    --> compiler-test:12:1\n     |\n  12 | function signed(a: i8, b: u8, c: u16, d: u32) -> i8 {\n  13 |     a **= b;\n  14 |     a **= c;\n  15 |     a **= d;\n  16 | \n  17 |     return a;\n  18 | }\n     | ^"
     output:
       - initial_input_ast: no input
-    initial_ast: e398b833b6adc0c88153768ef1de22b2313626799b0d1f1eb39a118b5677861e
-    unrolled_ast: e398b833b6adc0c88153768ef1de22b2313626799b0d1f1eb39a118b5677861e
-    ssa_ast: f502a547503d17a79450c45fbac446a43c591cb7dda3af5e10c934c1d6322456
+    initial_ast: e16953e67dcba0c1772bdcd250e744947a9f9fb78e6b5e46ee2e634c370ba8e5
+    inlined_ast: a6da1ac8991b073a41d6749bd8a8ae2639ab3617aa4e854a7309b97172d205d2
+    unrolled_ast: e16953e67dcba0c1772bdcd250e744947a9f9fb78e6b5e46ee2e634c370ba8e5
+    ssa_ast: a6da1ac8991b073a41d6749bd8a8ae2639ab3617aa4e854a7309b97172d205d2
+    flattened_ast: b038edd82f21c68178f074d61c9ba911474af5f8ebb84ce093154f52975ab3e3

@@ -28,4 +28,6 @@ pub struct OutputOptions {
     pub unrolled_ast: bool,
     /// If enabled writes the AST after static single assignment.
     pub ssa_ast: bool,
+    /// If enabled writes the AST after flattening.
+    pub flattened_ast: bool,
 }

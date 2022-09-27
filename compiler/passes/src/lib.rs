@@ -23,14 +23,17 @@ pub use common::*;
 pub mod code_generation;
 pub use code_generation::*;
 
+pub mod flattening;
+pub use flattening::*;
+
 pub mod function_inling;
 pub use function_inling::*;
 
-pub mod pass;
-pub use self::pass::*;
-
 pub mod loop_unrolling;
 pub use self::loop_unrolling::*;
+
+pub mod pass;
+pub use self::pass::*;
 
 pub mod static_single_assignment;
 pub use static_single_assignment::*;

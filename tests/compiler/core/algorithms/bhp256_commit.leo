@@ -4,6 +4,11 @@ expectation: Pass
 input_file: inputs/int64.in
 */
 
+circuit Foo {
+    a: u128,
+    b: u128,
+}
+
 @program
 function main(
     i8_value: i8,
@@ -41,6 +46,7 @@ function main(
     let n: field = BHP256::commit(u128_value, 1scalar);
     let o: field = BHP256::commit(scalar_value, 1scalar);
     // let p: field = BHP256::commit(string_value, 1scalar);
+    let q: field = BHP256::commit(Foo { a: 1u128, b: 2u128 }, 1scalar);
 
     return a + o;
 }

@@ -22,11 +22,13 @@
 
 #![forbid(unsafe_code)]
 #![doc = include_str!("../README.md")]
+extern crate core;
+
 pub mod access;
 pub use self::access::*;
 
-pub mod circuits;
-pub use self::circuits::*;
+pub mod circuit;
+pub use self::circuit::*;
 
 pub mod common;
 pub use self::common::*;
@@ -43,14 +45,17 @@ pub use self::groups::*;
 pub mod input;
 pub use self::input::*;
 
+pub mod mapping;
+pub use self::mapping::*;
+
 pub mod passes;
 pub use self::passes::*;
 
 pub mod program;
 pub use self::program::*;
 
-pub mod statements;
-pub use self::statements::*;
+pub mod statement;
+pub use self::statement::*;
 
 pub mod types;
 pub use self::types::*;

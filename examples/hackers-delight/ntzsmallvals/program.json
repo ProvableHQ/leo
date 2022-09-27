@@ -1,0 +1,10 @@
+{
+    "program": "ntzsmallvals.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkpHnXXtt92EZ16W2bb7oF8t263qNHagg6apVVV6nJqbFiL",
+        "address": "aleo1jzancywu7pksrmj2r9ydzqfds49dehzyrxtvvqu0djrcw6ysrszq8c8rgz"
+    },
+    "license": "MIT"
+}
