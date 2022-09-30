@@ -72,11 +72,7 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_struct_init(
-        &mut self,
-        _input: &'a StructExpression,
-        _additional: &Self::AdditionalInput,
-    ) -> Self::Output {
+    fn visit_struct_init(&mut self, _input: &'a StructExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
 
@@ -199,10 +195,7 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
     fn visit_program(&mut self, input: &'a Program) {
         input.imports.values().for_each(|import| self.visit_import(import));
 
-        input
-            .structs
-            .values()
-            .for_each(|function| self.visit_struct(function));
+        input.structs.values().for_each(|function| self.visit_struct(function));
 
         input.mappings.values().for_each(|mapping| self.visit_mapping(mapping));
 

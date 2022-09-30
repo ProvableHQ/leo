@@ -16,9 +16,9 @@
 
 use crate::CodeGenerator;
 use leo_ast::{
-    AccessExpression, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, StructExpression,
-    ErrExpression, Expression, Identifier, Literal, MemberAccess, TernaryExpression, TupleExpression, Type,
-    UnaryExpression, UnaryOperation,
+    AccessExpression, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, ErrExpression, Expression,
+    Identifier, Literal, MemberAccess, StructExpression, TernaryExpression, TupleExpression, Type, UnaryExpression,
+    UnaryOperation,
 };
 use leo_span::sym;
 

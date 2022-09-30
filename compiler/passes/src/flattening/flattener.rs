@@ -17,8 +17,7 @@
 use crate::{Assigner, SymbolTable};
 
 use leo_ast::{
-    AccessExpression, Member, Expression, ExpressionReconstructor, Identifier, Statement, TernaryExpression,
-    Type,
+    AccessExpression, Expression, ExpressionReconstructor, Identifier, Member, Statement, TernaryExpression, Type,
 };
 use leo_span::Symbol;
 

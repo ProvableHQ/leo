@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{normalize_json_value, remove_key_from_json, Struct, Expression, Type};
+use crate::{normalize_json_value, remove_key_from_json, Expression, Struct, Type};
 
 use super::*;
 use leo_errors::{AstError, Result};

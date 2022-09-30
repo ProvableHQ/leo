@@ -17,7 +17,7 @@
 //! A Leo program consists of import, struct, and function definitions.
 //! Each defined type consists of ast statements and expressions.
 
-use crate::{Struct, Function, FunctionInput, Identifier, Mapping};
+use crate::{Function, FunctionInput, Identifier, Mapping, Struct};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};

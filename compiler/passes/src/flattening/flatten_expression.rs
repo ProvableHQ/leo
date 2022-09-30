@@ -18,8 +18,8 @@ use crate::Flattener;
 use itertools::Itertools;
 
 use leo_ast::{
-    AccessExpression, StructExpression, Member, StructVariableInitializer, Expression,
-    ExpressionReconstructor, MemberAccess, Statement, TernaryExpression, TupleExpression,
+    AccessExpression, Expression, ExpressionReconstructor, Member, MemberAccess, Statement, StructExpression,
+    StructVariableInitializer, TernaryExpression, TupleExpression,
 };
 
 // TODO: Clean up logic. To be done in a follow-up PR (feat/tuples)

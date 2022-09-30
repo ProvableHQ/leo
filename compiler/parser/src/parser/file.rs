@@ -171,7 +171,6 @@ impl ParserContext<'_> {
         Ok((name, type_))
     }
 
-
     /// Returns a [`Member`] AST node if the next tokens represent a struct member variable.
     fn parse_member_variable_declaration(&mut self) -> Result<Member> {
         let (name, type_) = self.parse_typed_ident()?;

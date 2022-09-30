@@ -16,7 +16,7 @@
 
 use std::cell::RefCell;
 
-use leo_ast::{Struct, Function};
+use leo_ast::{Function, Struct};
 use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 

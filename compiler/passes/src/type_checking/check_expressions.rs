@@ -141,11 +141,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                 let struct_ = self.symbol_table.borrow().lookup_struct(identifier.name).cloned();
                                 if let Some(struct_) = struct_ {
                                     // Check that `access.name` is a member of the struct.
-                                    match struct_
-                                        .members
-                                        .iter()
-                                        .find(|member| member.name() == access.name.name)
-                                    {
+                                    match struct_.members.iter().find(|member| member.name() == access.name.name) {
                                         // Case where `access.name` is a member of the struct.
                                         Some(Member::StructVariable(_, type_)) => return Some(type_.clone()),
                                         // Case where `access.name` is not a member of the struct.
@@ -486,22 +482,20 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
 
             // Check struct member types.
-            struct_.members
-                .iter()
-                .for_each(|Member::StructVariable(name, ty)| {
-                    // Lookup struct variable name.
-                    if let Some(actual) = input.members.iter().find(|member| member.identifier.name == name.name) {
-                        if let Some(expr) = &actual.expression {
-                            self.visit_expression(expr, &Some(ty.clone()));
-                        }
-                    } else {
-                        self.emit_err(TypeCheckerError::missing_struct_member(
-                            struct_.identifier,
-                            name,
-                            input.span(),
-                        ));
-                    };
-                });
+            struct_.members.iter().for_each(|Member::StructVariable(name, ty)| {
+                // Lookup struct variable name.
+                if let Some(actual) = input.members.iter().find(|member| member.identifier.name == name.name) {
+                    if let Some(expr) = &actual.expression {
+                        self.visit_expression(expr, &Some(ty.clone()));
+                    }
+                } else {
+                    self.emit_err(TypeCheckerError::missing_struct_member(
+                        struct_.identifier,
+                        name,
+                        input.span(),
+                    ));
+                };
+            });
 
             Some(ret)
         } else {

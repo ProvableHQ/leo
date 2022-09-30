@@ -17,9 +17,9 @@
 use crate::StaticSingleAssigner;
 
 use leo_ast::{
-    AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, StructExpression,
-    StructVariableInitializer, Expression, ExpressionConsumer, Identifier, Literal, MemberAccess, Statement,
-    TernaryExpression, TupleAccess, TupleExpression, UnaryExpression,
+    AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, Expression, ExpressionConsumer, Identifier,
+    Literal, MemberAccess, Statement, StructExpression, StructVariableInitializer, TernaryExpression, TupleAccess,
+    TupleExpression, UnaryExpression,
 };
 use leo_span::sym;
 
