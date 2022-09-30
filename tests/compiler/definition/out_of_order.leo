@@ -12,4 +12,4 @@ function main(y: bool) -> bool {
     return y == true;
 }
 
-// circuit Foo {}
+// struct Foo {}

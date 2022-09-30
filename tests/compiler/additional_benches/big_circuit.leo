@@ -10,7 +10,7 @@ function main() {
     return foo.x0 + bar.x255;
 }
 
-circuit Foo {
+struct Foo {
     x0: u8;
     x1: u8;
     x2: u8;

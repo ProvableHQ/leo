@@ -22,6 +22,6 @@ function baz(a: u8) -> u8 {
     return bar;
 }
 
-circuit bar {
+struct bar {
     a: u64;
 }

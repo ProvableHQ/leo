@@ -3,7 +3,7 @@ namespace: Compile
 expectation: Fail
 */
 
-circuit Foo {
+struct Foo {
     a: u8,
     bar: Bar,
 }

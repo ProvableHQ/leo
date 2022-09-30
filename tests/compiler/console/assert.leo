@@ -4,7 +4,7 @@ expectation: Pass
 input_file: inputs/true.in
 */
 
-circuit Foo {
+struct Foo {
     a: u8;
 }
 

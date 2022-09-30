@@ -21,7 +21,7 @@ const xfK1Q: u8 = 211u8;
 const xQ3fN: u32 = 2283742765u32;
 
 
-circuit JFjRt {
+struct JFjRt {
     P08i: i8,
     JVRV: [char; 3],
     FCVt: [u16; 4],

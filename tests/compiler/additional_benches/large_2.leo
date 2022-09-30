@@ -63,7 +63,7 @@ function Tw0p (jCQc: char) -> (
     return (6810u16, 122075245384760587708883454153053778463i128, 11162326899970246285u64, (15111u16, t5RQ {}));
 }
 
-circuit t5RQ {
+struct t5RQ {
 }
 
 
@@ -80,7 +80,7 @@ function fGeK (const YKvX: i8) -> u8 {
     return 199u8;
 }
 
-circuit q2USj {
+struct q2USj {
     GoGV: bool,
     aLCN: i32,
     E_t6: bool,
@@ -182,7 +182,7 @@ function mH2Y9 (iEfoy: u8) -> (
     return (11817726415298897201781763882612161235674380541753244883813987091658618975514747358698825992261995321821959028187112813486614880508876689770337142994146408field, '\u{105181}', 212u8);
 }
 
-circuit VdqTF {
+struct VdqTF {
     vNAMH: bool,
     JkBcA: address,
     qQtCF: i16,

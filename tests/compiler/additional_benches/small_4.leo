@@ -43,5 +43,5 @@ function uaKPx (const QNzSh: i128) -> (
     return (1055028656, MsgN[1..][0u32]);
 }
 
-circuit PANW {
+struct PANW {
 }

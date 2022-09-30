@@ -3,106 +3,106 @@ namespace: Parse
 expectation: Fail
 */
 
-circuit ;
+struct ;
 
-circuit .
+struct .
 
-circuit import
+struct import
 
-circuit ,
+struct ,
 
-circuit *
+struct *
 
-circuit +
+struct +
 
-circuit -
+struct -
 
-circuit /
+struct /
 
-circuit [
+struct [
 
-circuit ]
+struct ]
 
-circuit {
+struct {
 
-circuit }
+struct }
 
-circuit (
+struct (
 
-circuit )
+struct )
 
-circuit :
+struct :
 
-circuit ::
+struct ::
 
-circuit ?
+struct ?
 
-circuit _
+struct _
 
-circuit =
+struct =
 
-circuit ==
+struct ==
 
-circuit !
+struct !
 
-circuit !=
+struct !=
 
-circuit >
+struct >
 
-circuit >=
+struct >=
 
-circuit <
+struct <
 
-circuit <=
+struct <=
 
-circuit >
+struct >
 
-circuit ..
+struct ..
 
-circuit as
+struct as
 
-circuit console
+struct console
 
-circuit const
+struct const
 
-circuit let
+struct let
 
-circuit for
+struct for
 
-circuit if
+struct if
 
-circuit else
+struct else
 
-circuit i8
+struct i8
 
-circuit i16
+struct i16
 
-circuit i32
+struct i32
 
-circuit i64
+struct i64
 
-circuit i128
+struct i128
 
-circuit u8
+struct u8
 
-circuit u16
+struct u16
 
-circuit u32
+struct u32
 
-circuit u64
+struct u64
 
-circuit u128
+struct u128
 
-circuit &
+struct &
 
-circuit return
+struct return
 
-circuit self
+struct self
 
-circuit Self
+struct Self
 
-circuit true
+struct true
 
-circuit false
+struct false
 
-circuit 0
+struct 0

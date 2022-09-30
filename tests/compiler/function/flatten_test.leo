@@ -3,13 +3,13 @@ namespace: Compile
 expectation: Pass
 */
 
-circuit Row {
+struct Row {
     e1: u8,
     e2: u8,
     e3: u8
 }
 
-circuit Board {
+struct Board {
     r1: Row,
     r2: Row,
     r3: Row,

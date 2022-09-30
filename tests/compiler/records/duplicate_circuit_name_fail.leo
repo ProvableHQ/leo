@@ -12,7 +12,7 @@ record Token {
     amount: u64,
 }
 
-circuit Token { // This circuit cannot have the same name as the record defined above it.
+struct Token { // This struct cannot have the same name as the record defined above it.
     x: u32,
 }
 

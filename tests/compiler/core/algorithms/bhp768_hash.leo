@@ -4,7 +4,7 @@ expectation: Pass
 input_file: inputs/int64.in
 */
 
-circuit Foo {
+struct Foo {
     a: u128,
     b: u128,
 }

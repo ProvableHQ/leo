@@ -4,7 +4,7 @@ expectation: Fail
 input_file: input/dummy.in
 */
 
-circuit Bar {
+struct Bar {
     b2: u32
 }
 

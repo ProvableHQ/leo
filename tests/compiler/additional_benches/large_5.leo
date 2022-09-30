@@ -39,7 +39,7 @@ function main () -> (
     return ('\x6a', -32246, '\x0f', (false, -78, 134482078048524008i64, 54), woTZ.0);
 }
 
-circuit XzVq {
+struct XzVq {
     amVgA: [i64; 2],
 
     function m0NjV (self) {
@@ -67,7 +67,7 @@ function yJ9T (
     //RETURN
 }
 
-circuit M6Cza {
+struct M6Cza {
 
     function JYvIz (
         self,
@@ -311,5 +311,5 @@ function nKDZF (
         } 
 }
 
-circuit FjCxy {
+struct FjCxy {
 }

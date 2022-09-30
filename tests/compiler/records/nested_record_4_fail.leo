@@ -9,7 +9,7 @@ record Token3 {
     bar: (Bar, Bar),
 }
 
-circuit Bar {
+struct Bar {
     bar: (Token, Token),
 }
 

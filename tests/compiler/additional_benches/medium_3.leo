@@ -59,7 +59,7 @@ function main (
     //RETURN
 }
 
-circuit HeJTD {
+struct HeJTD {
 
     function sxOgu (self, const kksQi: i128) -> (
         u8,
@@ -95,7 +95,7 @@ circuit HeJTD {
 }
 
 
-circuit gtQV {
+struct gtQV {
     L6gU: i16,
     hC3az: u128,
     j7uL: i64,

@@ -790,7 +790,7 @@ function Y8vwD () -> (
     return ('\x49', 0618428222752580929025744011017473243663188325800434593874052200field);
 }
 
-circuit ch4X {
+struct ch4X {
     u4M_f: u8,
 
     function zxMYt (
@@ -1135,7 +1135,7 @@ function kUOeO (
     } 
 }
 
-circuit K9Bs {
+struct K9Bs {
     loESr: ((i128, address, i128), bool),
 
     function LjoKc () {
@@ -1574,7 +1574,7 @@ function XKP9 (
     LdsOq[..2u32][1] = LdsOq[0u32..][KCR4 * KCR4 ** 0 - 3187832772u32];
 }
 
-circuit bmU5 {
+struct bmU5 {
     Ym93w: RKDY,
     QtiNX: [i16; 3],
     bPmuq: RKDY,

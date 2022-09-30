@@ -3,7 +3,7 @@ namespace: Compile
 expectation: Fail
 */
 
-circuit Foo {
+struct Foo {
     // The token amount.
     token: Token,
 }

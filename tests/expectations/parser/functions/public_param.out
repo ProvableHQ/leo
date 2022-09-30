@@ -6,7 +6,7 @@ outputs:
     network: ""
     expected_input: []
     imports: {}
-    circuits: {}
+    structs: {}
     mappings: {}
     functions:
       "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":

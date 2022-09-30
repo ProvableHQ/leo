@@ -20,6 +20,6 @@ function baz() -> u8 {
     return 0u8;
 }
 
-circuit A {
+struct A {
     mem: (u8, u16)
 }

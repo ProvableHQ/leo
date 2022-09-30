@@ -20,7 +20,7 @@ const f2Tb9: i128 = 45051584313652375601764187183414341445;
 const V5kfY: i16 = -8790i16;
 
 
-circuit Sjme {
+struct Sjme {
     hmJC: i16,
     CcHF: [u128; 2],
     ZoZp: char,

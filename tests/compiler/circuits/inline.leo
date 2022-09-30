@@ -10,7 +10,7 @@ inputs:
     r0: u32 = 0;
 */
 
-circuit Foo {
+struct Foo {
     x: u32
 }
 

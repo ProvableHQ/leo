@@ -6,7 +6,7 @@ outputs:
     network: ""
     expected_input: []
     imports: {}
-    circuits: {}
+    structs: {}
     mappings:
       "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":13}\"}":
         identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":13}\"}"

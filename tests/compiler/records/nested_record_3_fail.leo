@@ -10,7 +10,7 @@ record Token {
 }
 
 
-circuit Bar {
+struct Bar {
     bar: Foo,
 }
 

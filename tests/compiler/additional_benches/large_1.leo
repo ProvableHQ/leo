@@ -10,7 +10,7 @@ type V8fkp = u128;
 const vxlan = 13658i16;
 
 
-circuit sylcl {
+struct sylcl {
     bTxd7: bool,
     tfTQr: bool,
     l_Dfk: u32,
@@ -100,7 +100,7 @@ function xGEs (
     return eLHo5;
 }
 
-circuit L9Snz {
+struct L9Snz {
 
     function PC0R (
         const jevo: address,
@@ -234,7 +234,7 @@ function BHZjx (
     return WUY_d.0.2.2;
 }
 
-circuit GzzO {
+struct GzzO {
     RAyvy: char,
     SGgTI: i16,
     AWm8P: char,

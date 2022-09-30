@@ -13,7 +13,7 @@ inputs:
     r0: bool = false;  
 */
 
-circuit Foo {
+struct Foo {
     x: u8
 }
 

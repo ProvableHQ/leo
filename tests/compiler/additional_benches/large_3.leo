@@ -65,7 +65,7 @@ function FCIe (
         } 
 }
 
-circuit x4x07 {
+struct x4x07 {
     Gg_UX: u16,
     CFmyP: bool,
     QdLo: u64,
@@ -231,7 +231,7 @@ function uocd () -> (
     return (679694547190221403116537244681951121754919771791350316747287453042032902862057226918548953516602842317380963297974405319599274158746187816329125707432325field, 83083990534768452705048990419652926759, 21119u16);
 }
 
-circuit c0q0D {
+struct c0q0D {
     K4OKX: u64,
     sWaX: address,
     BEMu: char,
@@ -293,7 +293,7 @@ circuit c0q0D {
 }
 
 
-circuit yoi2 {
+struct yoi2 {
     Q9XX: address,
     PeYO: char,
 

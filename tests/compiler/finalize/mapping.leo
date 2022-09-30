@@ -5,18 +5,18 @@ expectation: Pass
 
 mapping balances: address => u128;
 
-circuit Token {
+struct Token {
     owner: address;
     balance: u128;
 }
 
 mapping tokens: address => Token;
 
-circuit Bar {
+struct Bar {
     a: u128;
 }
 
-circuit Baz {
+struct Baz {
     a: u128;
 }
 

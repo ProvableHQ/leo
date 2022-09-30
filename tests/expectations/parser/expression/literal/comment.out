@@ -6,6 +6,6 @@ outputs:
     network: ""
     expected_input: []
     imports: {}
-    circuits: {}
+    structs: {}
     mappings: {}
     functions: {}

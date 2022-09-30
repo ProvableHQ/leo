@@ -13,7 +13,7 @@ type zyIj = [gwqG; 3];
 
 type nyaT0 = KMjk;
 
-circuit ud9u {
+struct ud9u {
 
     function OA2a (self, const PQSm: i64) -> (
         [[u8; 1]; 2],
@@ -50,7 +50,7 @@ circuit ud9u {
 }
 
 
-circuit QIdG {
+struct QIdG {
     mOJx: u128,
     ats6: i32,
     QJg2: u32,
@@ -96,7 +96,7 @@ function main (elXa: i128) -> (
     return (aleo1fl2jl3jyphgprzcmj78j88s93fu3clx47uskj0508y5r7z6fncyq8706c6, (183u8 ** 0u8 + (true? 67 : 65u8) * 0u8 + 195u8 / 203u8) * 60u8 ** 1u8 - 0u8 * 0u8 ** (61u8 - 32u8 - 13u8 - 23u8 / 65u8 / 84u8));
 }
 
-circuit gwqG {
+struct gwqG {
     KWE2: (i64, i128, [i32; 2], (([address; 1], i64, address, i128), TESjC)),
     PtPCd: u64,
     P4SG: (i32, [(u32, bool, TESjC); 2], i32, i16),

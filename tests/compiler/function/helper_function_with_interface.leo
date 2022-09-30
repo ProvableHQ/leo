@@ -9,7 +9,7 @@ function main(public a: u32, b: u32) -> u32 {
     return c;
 }
 
-circuit Board {
+struct Board {
    foo: u8,
 }
 

@@ -20,7 +20,7 @@ const AWye: xs1w = 115i8;
 const NyOSS: i64 = -9112024196555249712i64;
 
 
-circuit UaAlp {
+struct UaAlp {
     Lq72: xs1w,
 }
 
@@ -90,7 +90,7 @@ function gLeR (const ltYE: (char, char)) -> (
     return (74, 3906516312311027547u64);
 }
 
-circuit KAjg {
+struct KAjg {
 }
 
 

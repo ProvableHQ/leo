@@ -3,7 +3,7 @@ namespace: Compile
 expectation: Pass
 */
 
-circuit Amount {
+struct Amount {
     amount: u64,
     amt: u64,
 }

@@ -47,7 +47,7 @@ function cD4r (const Ef4DK: u8) -> bool {
     return 4170085385614217102u64 > 2900170916628410432u64 && (8859831151384150600u64, 9584u16, 64997411429767251474068675400579704411u128, 51394u16) != (8694497216948073522u64, 12295u16, Rjka, 26950u16) || aleo1j3c7r67xcd5qd9hyc03jnsazss4thwsdckeun24sggvxcgyaxuxq5sexds == aleo1jupcxnkqw94s8es4342man4ggx964l5cuct6p47u6w7zh99z9u8qshynps;
 }
 
-circuit FKmZ {
+struct FKmZ {
     M8qe: i32,
     D73jn: bool,
     zqD4: u64,
