@@ -74,7 +74,7 @@ version = "0.2.0"
 source = "git+https://github.com/AleoHQ/aleo.git?rev=ddbb647#ddbb647cfd822e58c718c603b7db53b3b59fe0ef"
 dependencies = [
  "anyhow",
- "clap",
+ "clap 3.2.22",
  "colored",
  "indexmap",
  "once_cell",
@@ -445,13 +445,28 @@ checksum = "86447ad904c7fb335a790c9d7fe3d0d971dc523b8ccd1561a520de9a85302750"
 dependencies = [
  "atty",
  "bitflags",
- "clap_derive",
- "clap_lex",
+ "clap_derive 3.2.18",
+ "clap_lex 0.2.4",
  "indexmap",
  "once_cell",
  "strsim",
  "termcolor",
  "textwrap",
+]
+
+[[package]]
+name = "clap"
+version = "4.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7f78ad8e84aa8e8aa3e821857be40eb4b925ff232de430d4dd2ae6aa058cbd92"
+dependencies = [
+ "atty",
+ "bitflags",
+ "clap_derive 4.0.1",
+ "clap_lex 0.3.0",
+ "once_cell",
+ "strsim",
+ "termcolor",
 ]
 
 [[package]]
@@ -468,10 +483,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "clap_derive"
+version = "4.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ca689d7434ce44517a12a89456b2be4d1ea1cafcd8f581978c03d45f5a5c12a7"
+dependencies = [
+ "heck",
+ "proc-macro-error",
+ "proc-macro2 1.0.43",
+ "quote 1.0.21",
+ "syn 1.0.99",
+]
+
+[[package]]
 name = "clap_lex"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2850f2f5a82cbf437dd5af4d49848fbdfc27c157c3d010345776f952765261c5"
+dependencies = [
+ "os_str_bytes",
+]
+
+[[package]]
+name = "clap_lex"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0d4198f73e42b4936b35b5bb248d81d2b595ecb170da0bac7655c54eedfa8da8"
 dependencies = [
  "os_str_bytes",
 ]
@@ -562,7 +599,7 @@ dependencies = [
  "atty",
  "cast",
  "ciborium",
- "clap",
+ "clap 3.2.22",
  "criterion-plot",
  "itertools",
  "lazy_static",
@@ -1261,7 +1298,7 @@ dependencies = [
  "ansi_term",
  "assert_cmd",
  "backtrace",
- "clap",
+ "clap 4.0.4",
  "color-backtrace",
  "colored",
  "console",
@@ -1307,7 +1344,7 @@ dependencies = [
 name = "leo-parser"
 version = "1.5.3"
 dependencies = [
- "clap",
+ "clap 4.0.4",
  "indexmap",
  "lazy_static",
  "leo-ast",
@@ -1351,7 +1388,7 @@ name = "leo-test-framework"
 version = "1.5.3"
 dependencies = [
  "backtrace",
- "clap",
+ "clap 4.0.4",
  "criterion",
  "leo-compiler",
  "leo-errors",
@@ -2358,7 +2395,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e5b279f770bcda283e2cfbe263856f3c0e59f61a3b5d6e28535c21f5db8b4684"
 dependencies = [
  "anyhow",
- "clap",
+ "clap 3.2.22",
  "colored",
  "indexmap",
  "once_cell",
@@ -2384,7 +2421,7 @@ version = "0.9.0"
 source = "git+https://github.com/AleoHQ/snarkVM.git?rev=69cf3bd#69cf3bd1120f9a7e488ecf8379ff07785ccd2215"
 dependencies = [
  "anyhow",
- "clap",
+ "clap 3.2.22",
  "colored",
  "indexmap",
  "once_cell",
