@@ -138,7 +138,7 @@ symbols! {
     sub_wrapped,
     xor,
 
-    // core circuits
+    // core functions
     BHP256,
     BHP512,
     BHP768,

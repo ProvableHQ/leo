@@ -131,6 +131,7 @@ pub enum Token {
     Return,
     SelfLower,
     Static,
+    Struct,
     // For imports.
     Leo,
 
@@ -146,7 +147,6 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Address,
     Token::Async,
     Token::Bool,
-    Token::Circuit,
     Token::Console,
     Token::Const,
     Token::Constant,
@@ -176,6 +176,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Scalar,
     Token::Static,
     Token::String,
+    Token::Struct,
     Token::True,
     Token::U8,
     Token::U16,
@@ -196,7 +197,6 @@ impl Token {
             Token::Address => sym::address,
             Token::Async => sym::Async,
             Token::Bool => sym::bool,
-            Token::Circuit => sym::circuit,
             Token::Console => sym::console,
             Token::Const => sym::Const,
             Token::Constant => sym::Constant,
@@ -227,6 +227,7 @@ impl Token {
             Token::SelfLower => sym::SelfLower,
             Token::Static => sym::Static,
             Token::String => sym::string,
+            Token::Struct => sym::Struct,
             Token::True => sym::True,
             Token::U8 => sym::u8,
             Token::U16 => sym::u16,
@@ -323,7 +324,6 @@ impl fmt::Display for Token {
             Record => write!(f, "record"),
 
             Async => write!(f, "async"),
-            Circuit => write!(f, "circuit"),
             Console => write!(f, "console"),
             Const => write!(f, "const"),
             Constant => write!(f, "constant"),
@@ -342,6 +342,7 @@ impl fmt::Display for Token {
             Public => write!(f, "public"),
             Return => write!(f, "return"),
             Static => write!(f, "static"),
+            Struct => write!(f, "struct"),
             Leo => write!(f, "leo"),
             Eof => write!(f, "<eof>"),
         }

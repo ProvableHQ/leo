@@ -24,8 +24,8 @@ use leo_ast::{
 
 impl StatementReconstructor for Flattener<'_> {
     /// Flattens an assign statement, if necessary.
-    /// Marks variables as circuits as necessary.
-    /// Note that new statements are only produced if the right hand side is a ternary expression over circuits.
+    /// Marks variables as structs as necessary.
+    /// Note that new statements are only produced if the right hand side is a ternary expression over structs.
     /// Otherwise, the statement is returned as is.
     fn reconstruct_assign(&mut self, assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
         let lhs = match assign.place {
@@ -40,8 +40,8 @@ impl StatementReconstructor for Flattener<'_> {
             value => (value, Default::default()),
         };
 
-        // Update the `self.circuits` if the rhs is a circuit.
-        self.update_circuits(&lhs, &value);
+        // Update the `self.structs` if the rhs is a struct.
+        self.update_structs(&lhs, &value);
 
         (
             Statement::Assign(Box::new(AssignStatement {

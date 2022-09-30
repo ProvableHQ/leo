@@ -38,25 +38,25 @@ const INT_TYPES: &[Token] = &[
 
 impl ParserContext<'_> {
     /// Returns an [`Expression`] AST node if the next token is an expression.
-    /// Includes circuit init expressions.
+    /// Includes struct init expressions.
     pub(crate) fn parse_expression(&mut self) -> Result<Expression> {
         // Store current parser state.
-        let prior_fuzzy_state = self.disallow_circuit_construction;
+        let prior_fuzzy_state = self.disallow_struct_construction;
 
-        // Allow circuit init expressions.
-        self.disallow_circuit_construction = false;
+        // Allow struct init expressions.
+        self.disallow_struct_construction = false;
 
         // Parse expression.
         let result = self.parse_conditional_expression();
 
         // Restore prior parser state.
-        self.disallow_circuit_construction = prior_fuzzy_state;
+        self.disallow_struct_construction = prior_fuzzy_state;
 
         result
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent
-    /// a ternary expression. May or may not include circuit init expressions.
+    /// a ternary expression. May or may not include struct init expressions.
     ///
     /// Otherwise, tries to parse the next token using [`parse_boolean_or_expression`].
     pub(super) fn parse_conditional_expression(&mut self) -> Result<Expression> {
@@ -307,15 +307,15 @@ impl ParserContext<'_> {
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// static access expression.
-    fn parse_associated_access_expression(&mut self, circuit_name: Expression) -> Result<Expression> {
-        // Parse circuit name expression into circuit type.
-        let circuit_type = if let Expression::Identifier(ident) = circuit_name {
+    fn parse_associated_access_expression(&mut self, module_name: Expression) -> Result<Expression> {
+        // Parse struct name expression into struct type.
+        let type_ = if let Expression::Identifier(ident) = module_name {
             Type::Identifier(ident)
         } else {
-            return Err(ParserError::invalid_associated_access(&circuit_name, circuit_name.span()).into());
+            return Err(ParserError::invalid_associated_access(&module_name, module_name.span()).into());
         };
 
-        // Parse the circuit member name (can be variable or function name).
+        // Parse the struct member name (can be variable or function name).
         let member_name = self.expect_identifier()?;
 
         // Check if there are arguments.
@@ -323,18 +323,18 @@ impl ParserContext<'_> {
             // Parse the arguments
             let (args, _, end) = self.parse_expr_tuple()?;
 
-            // Return the circuit function.
+            // Return the struct function.
             AccessExpression::AssociatedFunction(AssociatedFunction {
-                span: circuit_name.span() + end,
-                ty: circuit_type,
+                span: module_name.span() + end,
+                ty: type_,
                 name: member_name,
                 args,
             })
         } else {
-            // Return the circuit constant.
+            // Return the struct constant.
             AccessExpression::AssociatedConstant(AssociatedConstant {
-                span: circuit_name.span() + member_name.span(),
-                ty: circuit_type,
+                span: module_name.span() + member_name.span(),
+                ty: type_,
                 name: member_name,
             })
         }))
@@ -346,7 +346,7 @@ impl ParserContext<'_> {
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent an
-    /// array access, circuit member access, function call, or static function call expression.
+    /// array access, struct member access, function call, or static function call expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_primary_expression`].
     fn parse_postfix_expression(&mut self) -> Result<Expression> {
@@ -387,7 +387,7 @@ impl ParserContext<'_> {
                         // Eat a method call on a type
                         expr = self.parse_method_call_expression(expr, name)?
                     } else {
-                        // Eat a circuit member access.
+                        // Eat a struct member access.
                         expr = Expression::Access(AccessExpression::Member(MemberAccess {
                             span: expr.span(),
                             inner: Box::new(expr),
@@ -396,7 +396,7 @@ impl ParserContext<'_> {
                     }
                 }
             } else if self.eat(&Token::DoubleColon) {
-                // Eat a core circuit constant or core circuit function call.
+                // Eat a core struct constant or core struct function call.
                 expr = self.parse_associated_access_expression(expr)?;
             } else if self.check(&Token::LeftParen) {
                 // Parse a function call that's by itself.
@@ -494,9 +494,9 @@ impl ParserContext<'_> {
         Some(Ok(gt))
     }
 
-    fn parse_circuit_member(&mut self) -> Result<CircuitVariableInitializer> {
+    fn parse_struct_member(&mut self) -> Result<StructVariableInitializer> {
         let identifier = if self.allow_identifier_underscores && self.eat(&Token::Underscore) {
-            // Allow `_nonce` for circuit records.
+            // Allow `_nonce` for struct records.
             let identifier_without_underscore = self.expect_identifier()?;
             Identifier::new(Symbol::intern(&format!("_{}", identifier_without_underscore.name)))
         } else {
@@ -504,24 +504,24 @@ impl ParserContext<'_> {
         };
 
         let expression = if self.eat(&Token::Colon) {
-            // Parse individual circuit variable declarations.
+            // Parse individual struct variable declarations.
             Some(self.parse_expression()?)
         } else {
             None
         };
 
-        Ok(CircuitVariableInitializer { identifier, expression })
+        Ok(StructVariableInitializer { identifier, expression })
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
-    /// circuit initialization expression.
+    /// struct initialization expression.
     /// let foo = Foo { x: 1u8 };
-    pub fn parse_circuit_init_expression(&mut self, identifier: Identifier) -> Result<Expression> {
+    pub fn parse_struct_init_expression(&mut self, identifier: Identifier) -> Result<Expression> {
         let (members, _, end) = self.parse_list(Delimiter::Brace, Some(Token::Comma), |p| {
-            p.parse_circuit_member().map(Some)
+            p.parse_struct_member().map(Some)
         })?;
 
-        Ok(Expression::Circuit(CircuitExpression {
+        Ok(Expression::Struct(StructExpression {
             span: identifier.span + end,
             name: identifier,
             members,
@@ -584,10 +584,10 @@ impl ParserContext<'_> {
             Token::StaticString(value) => Expression::Literal(Literal::String(value, span)),
             Token::Identifier(name) => {
                 let ident = Identifier { name, span };
-                if !self.disallow_circuit_construction && self.check(&Token::LeftCurly) {
-                    // Parse circuit and records inits as circuit expressions.
-                    // Enforce circuit or record type later at type checking.
-                    self.parse_circuit_init_expression(ident)?
+                if !self.disallow_struct_construction && self.check(&Token::LeftCurly) {
+                    // Parse struct and records inits as struct expressions.
+                    // Enforce struct or record type later at type checking.
+                    self.parse_struct_init_expression(ident)?
                 } else {
                     Expression::Identifier(ident)
                 }

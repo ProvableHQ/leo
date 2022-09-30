@@ -26,13 +26,13 @@ use std::collections::HashSet;
 // TODO: Generally, cleanup tyc logic.
 
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
-    fn visit_circuit(&mut self, input: &'a Circuit) {
-        // Check for conflicting circuit/record member names.
+    fn visit_struct(&mut self, input: &'a Struct) {
+        // Check for conflicting struct/record member names.
         let mut used = HashSet::new();
         if !input
             .members
             .iter()
-            .all(|CircuitMember::CircuitVariable(ident, type_)| {
+            .all(|Member::StructVariable(ident, type_)| {
                 // TODO: Better spans.
                 // Check that the member types are valid.
                 self.assert_type_is_valid(input.span, type_);
@@ -42,7 +42,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.emit_err(if input.is_record {
                 TypeCheckerError::duplicate_record_variable(input.name(), input.span())
             } else {
-                TypeCheckerError::duplicate_circuit_member(input.name(), input.span())
+                TypeCheckerError::duplicate_struct_member(input.name(), input.span())
             });
         }
 
@@ -51,7 +51,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             let check_has_field = |need, expected_ty: Type| match input
                 .members
                 .iter()
-                .find_map(|CircuitMember::CircuitVariable(v, t)| (v.name == need).then_some((v, t)))
+                .find_map(|Member::StructVariable(v, t)| (v.name == need).then_some((v, t)))
             {
                 Some((_, actual_ty)) if expected_ty.eq_flat(actual_ty) => {} // All good, found + right type!
                 Some((field, _)) => {
@@ -73,7 +73,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             check_has_field(sym::gates, Type::Integer(IntegerType::U64));
         }
 
-        for CircuitMember::CircuitVariable(v, type_) in input.members.iter() {
+        for Member::StructVariable(v, type_) in input.members.iter() {
             // Ensure there are no tuple typed members.
             self.assert_not_tuple(v.span, type_);
             // Ensure that there are no record members.

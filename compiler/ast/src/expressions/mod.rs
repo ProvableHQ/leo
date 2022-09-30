@@ -29,8 +29,8 @@ pub use binary::*;
 mod call;
 pub use call::*;
 
-mod circuit_init;
-pub use circuit_init::*;
+mod struct_init;
+pub use struct_init::*;
 
 mod err;
 pub use err::*;
@@ -50,14 +50,14 @@ pub use literal::*;
 /// Expression that evaluates to a value.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Expression {
-    /// A circuit access expression, e.g., `Foo.bar`.
+    /// A struct access expression, e.g., `Foo.bar`.
     Access(AccessExpression),
     /// A binary expression, e.g., `42 + 24`.
     Binary(BinaryExpression),
     /// A call expression, e.g., `my_fun(args)`.
     Call(CallExpression),
-    /// An expression constructing a circuit like `Foo { bar: 42, baz }`.
-    Circuit(CircuitExpression),
+    /// An expression constructing a struct like `Foo { bar: 42, baz }`.
+    Struct(StructExpression),
     /// An expression of type "error".
     /// Will result in a compile error eventually.
     Err(ErrExpression),
@@ -80,7 +80,7 @@ impl Node for Expression {
             Access(n) => n.span(),
             Binary(n) => n.span(),
             Call(n) => n.span(),
-            Circuit(n) => n.span(),
+            Struct(n) => n.span(),
             Err(n) => n.span(),
             Identifier(n) => n.span(),
             Literal(n) => n.span(),
@@ -96,7 +96,7 @@ impl Node for Expression {
             Access(n) => n.set_span(span),
             Binary(n) => n.set_span(span),
             Call(n) => n.set_span(span),
-            Circuit(n) => n.set_span(span),
+            Struct(n) => n.set_span(span),
             Identifier(n) => n.set_span(span),
             Literal(n) => n.set_span(span),
             Err(n) => n.set_span(span),
@@ -114,7 +114,7 @@ impl fmt::Display for Expression {
             Access(n) => n.fmt(f),
             Binary(n) => n.fmt(f),
             Call(n) => n.fmt(f),
-            Circuit(n) => n.fmt(f),
+            Struct(n) => n.fmt(f),
             Err(n) => n.fmt(f),
             Identifier(n) => n.fmt(f),
             Literal(n) => n.fmt(f),

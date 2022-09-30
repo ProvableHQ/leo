@@ -27,8 +27,8 @@ extern crate core;
 pub mod access;
 pub use self::access::*;
 
-pub mod circuit;
-pub use self::circuit::*;
+pub mod r#struct;
+pub use self::r#struct::*;
 
 pub mod common;
 pub use self::common::*;

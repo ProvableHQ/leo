@@ -27,11 +27,11 @@ pub enum AccessExpression {
     // Array(ArrayAccess),
     // /// An expression accessing a range of an array.
     // ArrayRange(ArrayRangeAccess),
-    /// Access to an associated variable of a circuit e.g `u8::MAX`.
+    /// Access to an associated variable of a struct e.g `u8::MAX`.
     AssociatedConstant(AssociatedConstant),
-    /// Access to an associated function of a circuit e.g `Pedersen64::hash()`.
+    /// Access to an associated function of a struct e.g `Pedersen64::hash()`.
     AssociatedFunction(AssociatedFunction),
-    /// An expression accessing a field in a structure, e.g., `circuit_var.field`.
+    /// An expression accessing a field in a structure, e.g., `struct_var.field`.
     Member(MemberAccess),
     /// Access to a tuple field using its position, e.g., `tuple.1`.
     Tuple(TupleAccess),

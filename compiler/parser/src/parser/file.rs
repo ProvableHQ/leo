@@ -28,7 +28,7 @@ impl ParserContext<'_> {
     pub fn parse_program(&mut self) -> Result<Program> {
         let mut imports = IndexMap::new();
         let mut functions = IndexMap::new();
-        let mut circuits = IndexMap::new();
+        let mut structs = IndexMap::new();
         let mut mappings = IndexMap::new();
 
         // TODO: Condense logic
@@ -38,9 +38,10 @@ impl ParserContext<'_> {
                     let (id, import) = self.parse_import()?;
                     imports.insert(id, import);
                 }
-                Token::Circuit | Token::Record => {
-                    let (id, circuit) = self.parse_circuit()?;
-                    circuits.insert(id, circuit);
+                // TODO: Error for circuit token
+                Token::Struct | Token::Record => {
+                    let (id, struct_) = self.parse_struct()?;
+                    structs.insert(id, struct_);
                 }
                 Token::Mapping => {
                     let (id, mapping) = self.parse_mapping()?;
@@ -68,7 +69,7 @@ impl ParserContext<'_> {
             expected_input: Vec::new(),
             imports,
             functions,
-            circuits,
+            structs,
             mappings,
         })
     }
@@ -76,7 +77,7 @@ impl ParserContext<'_> {
     fn unexpected_item(token: &SpannedToken) -> ParserError {
         ParserError::unexpected(
             &token.token,
-            [Token::Function, Token::Circuit, Token::Identifier(sym::test)]
+            [Token::Function, Token::Struct, Token::Identifier(sym::test)]
                 .iter()
                 .map(|x| format!("'{}'", x))
                 .collect::<Vec<_>>()
@@ -131,40 +132,30 @@ impl ParserContext<'_> {
         Ok((import_name, program_ast.into_repr()))
     }
 
-    /// Returns a [`Vec<CircuitMember>`] AST node if the next tokens represent a circuit member variable
-    /// or circuit member function or circuit member constant.
-    fn parse_circuit_members(&mut self) -> Result<(Vec<CircuitMember>, Span)> {
+    /// Returns a [`Vec<Member>`] AST node if the next tokens represent a struct member.
+    fn parse_struct_members(&mut self) -> Result<(Vec<Member>, Span)> {
         let mut members = Vec::new();
 
         let (mut semi_colons, mut commas) = (false, false);
 
         while !self.check(&Token::RightCurly) {
-            members.push(if self.peek_is_function() {
-                // function
-                self.parse_member_function_declaration()?
-            } else if self.eat(&Token::Static) {
-                // static const
-                self.parse_const_member_variable_declaration()?
-            } else {
-                // variable
-                let variable = self.parse_member_variable_declaration()?;
+            let variable = self.parse_member_variable_declaration()?;
 
-                if self.eat(&Token::Semicolon) {
-                    if commas {
-                        self.emit_err(ParserError::mixed_commas_and_semicolons(self.token.span));
-                    }
-                    semi_colons = true;
+            if self.eat(&Token::Semicolon) {
+                if commas {
+                    self.emit_err(ParserError::mixed_commas_and_semicolons(self.token.span));
                 }
+                semi_colons = true;
+            }
 
-                if self.eat(&Token::Comma) {
-                    if semi_colons {
-                        self.emit_err(ParserError::mixed_commas_and_semicolons(self.token.span));
-                    }
-                    commas = true;
+            if self.eat(&Token::Comma) {
+                if semi_colons {
+                    self.emit_err(ParserError::mixed_commas_and_semicolons(self.token.span));
                 }
+                commas = true;
+            }
 
-                variable
-            });
+            members.push(variable);
         }
         let span = self.expect(&Token::RightCurly)?;
 
@@ -180,57 +171,27 @@ impl ParserContext<'_> {
         Ok((name, type_))
     }
 
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member static constant.
-    fn parse_const_member_variable_declaration(&mut self) -> Result<CircuitMember> {
-        self.expect(&Token::Static)?;
-        self.expect(&Token::Const)?;
 
-        // `IDENT: TYPE = EXPR`:
-        let (_name, _type_) = self.parse_typed_ident()?;
-        self.expect(&Token::Assign)?;
-        let expr = self.parse_expression()?;
-
-        self.expect(&Token::Semicolon)?;
-
-        // CAUTION: function members are unstable for testnet3.
-        Err(ParserError::circuit_constants_unstable(expr.span()).into())
-
-        // Ok(CircuitMember::CircuitConst(name, type_, expr))
-    }
-
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.
-    fn parse_member_variable_declaration(&mut self) -> Result<CircuitMember> {
+    /// Returns a [`Member`] AST node if the next tokens represent a struct member variable.
+    fn parse_member_variable_declaration(&mut self) -> Result<Member> {
         let (name, type_) = self.parse_typed_ident()?;
 
-        Ok(CircuitMember::CircuitVariable(name, type_))
+        Ok(Member::StructVariable(name, type_))
     }
 
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member function.
-    fn parse_member_function_declaration(&mut self) -> Result<CircuitMember> {
-        if self.peek_is_function() {
-            // CAUTION: function members are unstable for testnet3.
-            let function = self.parse_function()?;
-
-            Err(ParserError::circuit_functions_unstable(function.1.span()).into())
-            // Ok(CircuitMember::CircuitFunction(Box::new(function.1)))
-        } else {
-            Err(Self::unexpected_item(&self.token).into())
-        }
-    }
-
-    /// Parses a circuit or record definition, e.g., `circuit Foo { ... }` or `record Foo { ... }`.
-    pub(super) fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
+    /// Parses a struct or record definition, e.g., `struct Foo { ... }` or `record Foo { ... }`.
+    pub(super) fn parse_struct(&mut self) -> Result<(Identifier, Struct)> {
         let is_record = matches!(&self.token.token, Token::Record);
-        let start = self.expect_any(&[Token::Circuit, Token::Record])?;
-        let circuit_name = self.expect_identifier()?;
+        let start = self.expect_any(&[Token::Struct, Token::Record])?;
+        let struct_name = self.expect_identifier()?;
 
         self.expect(&Token::LeftCurly)?;
-        let (members, end) = self.parse_circuit_members()?;
+        let (members, end) = self.parse_struct_members()?;
 
         Ok((
-            circuit_name,
-            Circuit {
-                identifier: circuit_name,
+            struct_name,
+            Struct {
+                identifier: struct_name,
                 members,
                 is_record,
                 span: start + end,
@@ -414,12 +375,12 @@ impl ParserContext<'_> {
         let output = match self.eat(&Token::Arrow) {
             false => vec![],
             true => {
-                self.disallow_circuit_construction = true;
+                self.disallow_struct_construction = true;
                 let output = match self.peek_is_left_par() {
                     true => self.parse_paren_comma_list(|p| p.parse_output().map(Some))?.0,
                     false => vec![self.parse_output()?],
                 };
-                self.disallow_circuit_construction = false;
+                self.disallow_struct_construction = false;
                 output
             }
         };
@@ -444,12 +405,12 @@ impl ParserContext<'_> {
                 let output = match self.eat(&Token::Arrow) {
                     false => vec![],
                     true => {
-                        self.disallow_circuit_construction = true;
+                        self.disallow_struct_construction = true;
                         let output = match self.peek_is_left_par() {
                             true => self.parse_paren_comma_list(|p| p.parse_output().map(Some))?.0,
                             false => vec![self.parse_output()?],
                         };
-                        self.disallow_circuit_construction = false;
+                        self.disallow_struct_construction = false;
                         output
                     }
                 };

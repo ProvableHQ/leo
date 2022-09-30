@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod circuit_member;
-pub use circuit_member::*;
+pub mod member;
+pub use member::*;
 
 use crate::{Identifier, Node};
 use leo_span::{Span, Symbol};
@@ -23,49 +23,49 @@ use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// A circuit type definition, e.g., `circuit Foo { my_field: Bar }`.
+/// A struct type definition, e.g., `struct Foo { my_field: Bar }`.
 /// In some languages these are called `struct`s.
 ///
-/// Type identity is decided by the full path including `circuit_name`,
+/// Type identity is decided by the full path including `struct_name`,
 /// as the record is nominal, not structural.
-/// The fields are named so `circuit Foo(u8, u16)` is not allowed.
+/// The fields are named so `struct Foo(u8, u16)` is not allowed.
 #[derive(Clone, Serialize, Deserialize)]
-pub struct Circuit {
+pub struct Struct {
     /// The name of the type in the type system in this module.
     pub identifier: Identifier,
     /// The fields, constant variables, and functions of this structure.
-    pub members: Vec<CircuitMember>,
+    pub members: Vec<Member>,
     /// Was this a `record Foo { ... }`?
-    /// If so, it wasn't a circuit.
+    /// If so, it wasn't a struct.
     pub is_record: bool,
-    /// The entire span of the circuit definition.
+    /// The entire span of the struct definition.
     pub span: Span,
 }
 
-impl PartialEq for Circuit {
+impl PartialEq for Struct {
     fn eq(&self, other: &Self) -> bool {
         self.identifier == other.identifier
     }
 }
 
-impl Eq for Circuit {}
+impl Eq for Struct {}
 
-impl Circuit {
-    /// Returns the circuit name as a Symbol.
+impl Struct {
+    /// Returns the struct name as a Symbol.
     pub fn name(&self) -> Symbol {
         self.identifier.name
     }
 }
 
-impl fmt::Debug for Circuit {
+impl fmt::Debug for Struct {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         <Self as fmt::Display>::fmt(self, f)
     }
 }
 
-impl fmt::Display for Circuit {
+impl fmt::Display for Struct {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(if self.is_record { "record" } else { "circuit" })?;
+        f.write_str(if self.is_record { "record" } else { "struct" })?;
         writeln!(f, " {} {{ ", self.identifier)?;
         for field in self.members.iter() {
             writeln!(f, "    {}", field)?;
@@ -74,4 +74,4 @@ impl fmt::Display for Circuit {
     }
 }
 
-crate::simple_node_impl!(Circuit);
+crate::simple_node_impl!(Struct);

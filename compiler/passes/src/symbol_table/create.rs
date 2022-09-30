@@ -20,7 +20,7 @@ use leo_errors::emitter::Handler;
 use crate::{SymbolTable, VariableSymbol, VariableType};
 
 /// A compiler pass during which the `SymbolTable` is created.
-/// Note that this pass only creates the initial entries for functions and circuits.
+/// Note that this pass only creates the initial entries for functions, structs, and records.
 /// The table is populated further during the type checking pass.
 pub struct CreateSymbolTable<'a> {
     /// The `SymbolTable` constructed by this compiler pass.
@@ -50,8 +50,8 @@ impl<'a> ProgramVisitor<'a> for CreateSymbolTable<'a> {
         self.visit_program(input)
     }
 
-    fn visit_circuit(&mut self, input: &'a Circuit) {
-        if let Err(err) = self.symbol_table.insert_circuit(input.name(), input) {
+    fn visit_struct(&mut self, input: &'a Struct) {
+        if let Err(err) = self.symbol_table.insert_struct(input.name(), input) {
             self.handler.emit_err(err);
         }
     }

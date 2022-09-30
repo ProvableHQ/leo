@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! The serialized circuit output file.
+//! The serialized struct output file.
 
 use crate::outputs::OUTPUTS_DIRECTORY_NAME;
 use leo_errors::{PackageError, Result};
@@ -48,7 +48,7 @@ impl CircuitFile {
         path.exists()
     }
 
-    /// Reads the serialized circuit from the given file path if it exists.
+    /// Reads the serialized struct from the given file path if it exists.
     pub fn read_from(&self, path: &Path) -> Result<String> {
         let path = self.setup_file_path(path);
 
@@ -57,7 +57,7 @@ impl CircuitFile {
         Ok(string)
     }
 
-    /// Writes the given serialized circuit to a file.
+    /// Writes the given serialized struct to a file.
     pub fn write_to(&self, path: &Path, circuit: String) -> Result<()> {
         let path = self.setup_file_path(path);
         let mut file = File::create(&path).map_err(PackageError::io_error_circuit_file)?;
@@ -67,7 +67,7 @@ impl CircuitFile {
         Ok(())
     }
 
-    /// Removes the serialized circuit at the given path if it exists. Returns `true` on success,
+    /// Removes the serialized struct at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
     pub fn remove(&self, path: &Path) -> Result<bool> {
         let path = self.setup_file_path(path);

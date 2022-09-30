@@ -47,8 +47,8 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     fn visit_access(&mut self, input: &'a AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match input {
             AccessExpression::AssociatedFunction(access) => {
-                // Check core circuit name and function.
-                if let Some(core_instruction) = self.check_core_circuit_call(&access.ty, &access.name) {
+                // Check core struct name and function.
+                if let Some(core_instruction) = self.check_core_function_call(&access.ty, &access.name) {
                     // Check num input arguments.
                     if core_instruction.num_args() != access.args.len() {
                         // TODO: Better error messages.
@@ -88,7 +88,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     // Check return type.
                     return Some(self.assert_and_return_type(core_instruction.return_type(), expected, access.span()));
                 } else {
-                    self.emit_err(TypeCheckerError::invalid_core_circuit_call(access, access.span()));
+                    self.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));
                 }
             }
             AccessExpression::Tuple(access) => {
@@ -121,7 +121,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             self.emit_err(TypeCheckerError::type_should_be(type_, "tuple", access.span()));
                         }
                     }
-                    self.emit_err(TypeCheckerError::invalid_core_circuit_call(access, access.span()));
+                    self.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));
                 }
             }
             AccessExpression::Member(access) => {
@@ -134,25 +134,25 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         }
                     },
                     _ => {
-                        // Check that the type of `inner` in `inner.name` is a circuit.
+                        // Check that the type of `inner` in `inner.name` is a struct.
                         match self.visit_expression(&access.inner, &None) {
                             Some(Type::Identifier(identifier)) => {
-                                // Retrieve the circuit definition associated with `identifier`.
-                                let circ = self.symbol_table.borrow().lookup_circuit(identifier.name).cloned();
-                                if let Some(circ) = circ {
-                                    // Check that `access.name` is a member of the circuit.
-                                    match circ
+                                // Retrieve the struct definition associated with `identifier`.
+                                let struct_ = self.symbol_table.borrow().lookup_struct(identifier.name).cloned();
+                                if let Some(struct_) = struct_ {
+                                    // Check that `access.name` is a member of the struct.
+                                    match struct_
                                         .members
                                         .iter()
-                                        .find(|circuit_member| circuit_member.name() == access.name.name)
+                                        .find(|member| member.name() == access.name.name)
                                     {
-                                        // Case where `access.name` is a member of the circuit.
-                                        Some(CircuitMember::CircuitVariable(_, type_)) => return Some(type_.clone()),
-                                        // Case where `access.name` is not a member of the circuit.
+                                        // Case where `access.name` is a member of the struct.
+                                        Some(Member::StructVariable(_, type_)) => return Some(type_.clone()),
+                                        // Case where `access.name` is not a member of the struct.
                                         None => {
-                                            self.emit_err(TypeCheckerError::invalid_circuit_variable(
+                                            self.emit_err(TypeCheckerError::invalid_struct_variable(
                                                 access.name,
-                                                &circ,
+                                                &struct_,
                                                 access.name.span(),
                                             ));
                                         }
@@ -162,7 +162,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                 }
                             }
                             Some(type_) => {
-                                self.emit_err(TypeCheckerError::type_should_be(type_, "circuit", access.inner.span()));
+                                self.emit_err(TypeCheckerError::type_should_be(type_, "struct", access.inner.span()));
                             }
                             None => {
                                 self.emit_err(TypeCheckerError::could_not_determine_type(
@@ -470,33 +470,33 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_circuit_init(&mut self, input: &'a CircuitExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        let circ = self.symbol_table.borrow().lookup_circuit(input.name.name).cloned();
-        if let Some(circ) = circ {
-            // Check circuit type name.
-            let ret = self.check_expected_circuit(circ.identifier, additional, input.name.span());
+    fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        let struct_ = self.symbol_table.borrow().lookup_struct(input.name.name).cloned();
+        if let Some(struct_) = struct_ {
+            // Check struct type name.
+            let ret = self.check_expected_struct(struct_.identifier, additional, input.name.span());
 
-            // Check number of circuit members.
-            if circ.members.len() != input.members.len() {
-                self.emit_err(TypeCheckerError::incorrect_num_circuit_members(
-                    circ.members.len(),
+            // Check number of struct members.
+            if struct_.members.len() != input.members.len() {
+                self.emit_err(TypeCheckerError::incorrect_num_struct_members(
+                    struct_.members.len(),
                     input.members.len(),
                     input.span(),
                 ));
             }
 
-            // Check circuit member types.
-            circ.members
+            // Check struct member types.
+            struct_.members
                 .iter()
-                .for_each(|CircuitMember::CircuitVariable(name, ty)| {
-                    // Lookup circuit variable name.
+                .for_each(|Member::StructVariable(name, ty)| {
+                    // Lookup struct variable name.
                     if let Some(actual) = input.members.iter().find(|member| member.identifier.name == name.name) {
                         if let Some(expr) = &actual.expression {
                             self.visit_expression(expr, &Some(ty.clone()));
                         }
                     } else {
-                        self.emit_err(TypeCheckerError::missing_circuit_member(
-                            circ.identifier,
+                        self.emit_err(TypeCheckerError::missing_struct_member(
+                            struct_.identifier,
                             name,
                             input.span(),
                         ));
@@ -506,7 +506,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             Some(ret)
         } else {
             self.emit_err(TypeCheckerError::unknown_sym(
-                "circuit",
+                "struct",
                 input.name.name,
                 input.name.span(),
             ));

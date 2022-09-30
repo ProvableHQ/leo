@@ -322,35 +322,35 @@ impl<'a> TypeChecker<'a> {
         )
     }
 
-    /// Emits an error if the `circuit` is not a core library circuit.
-    /// Emits an error if the `function` is not supported by the circuit.
-    pub(crate) fn check_core_circuit_call(&self, circuit: &Type, function: &Identifier) -> Option<CoreInstruction> {
-        if let Type::Identifier(ident) = circuit {
-            // Lookup core circuit
+    /// Emits an error if the `struct` is not a core library struct.
+    /// Emits an error if the `function` is not supported by the struct.
+    pub(crate) fn check_core_function_call(&self, struct_: &Type, function: &Identifier) -> Option<CoreInstruction> {
+        if let Type::Identifier(ident) = struct_ {
+            // Lookup core struct
             match CoreInstruction::from_symbols(ident.name, function.name) {
                 None => {
-                    // Not a core library circuit.
-                    self.emit_err(TypeCheckerError::invalid_core_instruction(
+                    // Not a core library struct.
+                    self.emit_err(TypeCheckerError::invalid_core_function(
                         ident.name,
                         function.name,
                         ident.span(),
                     ));
                 }
-                Some(core_circuit) => return Some(core_circuit),
+                Some(core_instruction) => return Some(core_instruction),
             }
         }
         None
     }
 
-    /// Returns the `circuit` type and emits an error if the `expected` type does not match.
-    pub(crate) fn check_expected_circuit(&mut self, circuit: Identifier, expected: &Option<Type>, span: Span) -> Type {
+    /// Returns the `struct` type and emits an error if the `expected` type does not match.
+    pub(crate) fn check_expected_struct(&mut self, struct_: Identifier, expected: &Option<Type>, span: Span) -> Type {
         if let Some(Type::Identifier(expected)) = expected {
-            if !circuit.matches(expected) {
-                self.emit_err(TypeCheckerError::type_should_be(circuit.name, expected.name, span));
+            if !struct_.matches(expected) {
+                self.emit_err(TypeCheckerError::type_should_be(struct_.name, expected.name, span));
             }
         }
 
-        Type::Identifier(circuit)
+        Type::Identifier(struct_)
     }
 
     /// Emits an error if the type is a tuple.
@@ -360,17 +360,17 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
-    /// Emits an error if the circuit member is a record type.
+    /// Emits an error if the struct member is a record type.
     pub(crate) fn assert_member_is_not_record(&self, span: Span, parent: Symbol, type_: &Type) {
         match type_ {
             Type::Identifier(identifier)
                 if self
                     .symbol_table
                     .borrow()
-                    .lookup_circuit(identifier.name)
-                    .map_or(false, |circuit| circuit.is_record) =>
+                    .lookup_struct(identifier.name)
+                    .map_or(false, |struct_| struct_.is_record) =>
             {
-                self.emit_err(TypeCheckerError::circuit_or_record_cannot_contain_record(
+                self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(
                     parent,
                     identifier.name,
                     span,
@@ -389,7 +389,7 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn assert_type_is_valid(&self, span: Span, type_: &Type) {
         match type_ {
             // Check that the named composite type has been defined.
-            Type::Identifier(identifier) if self.symbol_table.borrow().lookup_circuit(identifier.name).is_none() => {
+            Type::Identifier(identifier) if self.symbol_table.borrow().lookup_struct(identifier.name).is_none() => {
                 self.emit_err(TypeCheckerError::undefined_type(identifier.name, span));
             }
             // Check that the constituent types of the tuple are valid.

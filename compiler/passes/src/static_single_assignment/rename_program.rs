@@ -102,7 +102,7 @@ impl ProgramConsumer for StaticSingleAssigner {
                 .into_iter()
                 .map(|(i, f)| (i, self.consume_function(f)))
                 .collect(),
-            circuits: input.circuits,
+            structs: input.structs,
             mappings: input.mappings,
         }
     }

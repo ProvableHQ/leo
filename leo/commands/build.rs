@@ -17,7 +17,7 @@
 use crate::commands::ALEO_CLI_COMMAND;
 use crate::{commands::Command, context::Context};
 
-use leo_ast::Circuit;
+use leo_ast::Struct;
 use leo_compiler::{Compiler, InputAst, OutputOptions};
 use leo_errors::{CliError, CompilerError, PackageError, Result};
 use leo_package::source::{SourceDirectory, MAIN_FILENAME};
@@ -90,7 +90,7 @@ pub struct Build {
 
 impl Command for Build {
     type Input = ();
-    type Output = (Option<InputAst>, IndexMap<Symbol, Circuit>);
+    type Output = (Option<InputAst>, IndexMap<Symbol, Struct>);
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Leo")
@@ -119,12 +119,12 @@ impl Command for Build {
         // Fetch paths to all .leo files in the source directory.
         let source_files = SourceDirectory::files(&package_path)?;
 
-        // Store all circuits declarations made in the source files.
-        let mut circuits = IndexMap::new();
+        // Store all struct declarations made in the source files.
+        let mut structs = IndexMap::new();
 
         // Compile all .leo files into .aleo files.
         for file_path in source_files.into_iter() {
-            circuits.extend(compile_leo_file(
+            structs.extend(compile_leo_file(
                 file_path,
                 &package_path,
                 &package_name,
@@ -144,7 +144,7 @@ impl Command for Build {
 
             // Compile all .leo files into .aleo files.
             for file_path in import_files.into_iter() {
-                circuits.extend(compile_leo_file(
+                structs.extend(compile_leo_file(
                     file_path,
                     &package_path,
                     &package_name,
@@ -188,7 +188,7 @@ impl Command for Build {
         // Log the result of the build
         tracing::info!("{}", result);
 
-        Ok((input_ast, circuits))
+        Ok((input_ast, structs))
     }
 }
 
@@ -200,7 +200,7 @@ fn compile_leo_file(
     build: &Path,
     handler: &Handler,
     options: BuildOptions,
-) -> Result<IndexMap<Symbol, Circuit>> {
+) -> Result<IndexMap<Symbol, Struct>> {
     // Construct the Leo file name with extension `foo.leo`.
     let file_name = file_path
         .file_name()
@@ -279,5 +279,5 @@ fn compile_leo_file(
     // Log the build as successful.
     tracing::info!("Compiled '{}' into Aleo instructions", file_name,);
 
-    Ok(symbol_table.circuits)
+    Ok(symbol_table.structs)
 }

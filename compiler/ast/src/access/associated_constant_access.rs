@@ -20,12 +20,12 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// An access expression to an circuit constant., e.g. `u8::MAX`.
+/// An access expression to an struct constant., e.g. `u8::MAX`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AssociatedConstant {
-    /// The inner circuit type.
+    /// The inner struct type.
     pub ty: Type,
-    /// The circuit constant that is being accessed.
+    /// The struct constant that is being accessed.
     pub name: Identifier,
     /// The span for the entire expression `Foo::bar()`.
     pub span: Span,

@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! A Leo program consists of import, circuit, and function definitions.
+//! A Leo program consists of import, struct, and function definitions.
 //! Each defined type consists of ast statements and expressions.
 
-use crate::{Circuit, Function, FunctionInput, Identifier, Mapping};
+use crate::{Struct, Function, FunctionInput, Identifier, Mapping};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -35,8 +35,8 @@ pub struct Program {
     pub expected_input: Vec<FunctionInput>,
     /// A map from import names to import definitions.
     pub imports: IndexMap<Identifier, Program>,
-    /// A map from circuit names to circuit definitions.
-    pub circuits: IndexMap<Identifier, Circuit>,
+    /// A map from struct names to struct definitions.
+    pub structs: IndexMap<Identifier, Struct>,
     /// A map from mapping names to mapping definitions.
     pub mappings: IndexMap<Identifier, Mapping>,
     /// A map from function names to function definitions.
@@ -48,8 +48,8 @@ impl fmt::Display for Program {
         for (id, _import) in self.imports.iter() {
             writeln!(f, "import {}.leo;", id)?;
         }
-        for (_, circuit) in self.circuits.iter() {
-            circuit.fmt(f)?;
+        for (_, struct_) in self.structs.iter() {
+            struct_.fmt(f)?;
             writeln!(f,)?;
         }
         for (_, mapping) in self.mappings.iter() {
@@ -73,7 +73,7 @@ impl Default for Program {
             network: String::new(),
             expected_input: vec![],
             imports: IndexMap::new(),
-            circuits: IndexMap::new(),
+            structs: IndexMap::new(),
             mappings: IndexMap::new(),
             functions: IndexMap::new(),
         }
