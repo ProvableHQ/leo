@@ -396,6 +396,7 @@ impl Token {
                     "address" => Token::Address,
                     "async" => Token::Async,
                     "bool" => Token::Bool,
+                    "circuit" => Token::Circuit,
                     "console" => Token::Console,
                     "const" => Token::Const,
                     "constant" => Token::Constant,

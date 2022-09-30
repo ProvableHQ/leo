@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{functions, Function, Identifier, Mapping, Member, Mode, Program, Struct, Type};
+use leo_ast::{functions, Function, Identifier, Mapping, Mode, Program, Struct, Type};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -131,11 +131,7 @@ impl<'a> CodeGenerator<'a> {
 
         // Construct and append the record variables.
         for var in struct_.members.iter() {
-            let (name, type_) = match var {
-                Member::StructVariable(name, type_) => (name, type_),
-            };
-
-            writeln!(output_string, "    {} as {};", name, type_,).expect("failed to write to string");
+            writeln!(output_string, "    {} as {};", var.identifier, var.type_,).expect("failed to write to string");
         }
 
         output_string
@@ -150,14 +146,10 @@ impl<'a> CodeGenerator<'a> {
 
         // Construct and append the record variables.
         for var in record.members.iter() {
-            let (name, type_) = match var {
-                Member::StructVariable(name, type_) => (name, type_),
-            };
-
             writeln!(
                 output_string,
                 "    {} as {}.private;", // todo: CAUTION private record variables only.
-                name, type_,
+                var.identifier, var.type_,
             )
             .expect("failed to write to string");
         }

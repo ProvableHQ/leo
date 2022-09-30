@@ -108,18 +108,18 @@ impl ExpressionReconstructor for Flattener<'_> {
                         let members = first_member_struct
                             .members
                             .iter()
-                            .map(|Member::StructVariable(id, _)| {
+                            .map(|Member { identifier, .. }| {
                                 // Construct a new ternary expression for the struct member.
                                 let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
                                     condition: input.condition.clone(),
                                     if_true: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
                                         inner: Box::new(Expression::Access(AccessExpression::Member(first.clone()))),
-                                        name: *id,
+                                        name: *identifier,
                                         span: Default::default(),
                                     }))),
                                     if_false: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
                                         inner: Box::new(Expression::Access(AccessExpression::Member(second.clone()))),
-                                        name: *id,
+                                        name: *identifier,
                                         span: Default::default(),
                                     }))),
                                     span: Default::default(),
@@ -133,7 +133,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                                 statements.push(statement);
 
                                 StructVariableInitializer {
-                                    identifier: *id,
+                                    identifier,
                                     expression: Some(Expression::Identifier(identifier)),
                                 }
                             })
@@ -204,18 +204,18 @@ impl ExpressionReconstructor for Flattener<'_> {
                 let members = first_struct
                     .members
                     .iter()
-                    .map(|Member::StructVariable(id, _)| {
+                    .map(|Member { identifier, .. }| {
                         // Construct a new ternary expression for the struct member.
                         let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
                             condition: input.condition.clone(),
                             if_true: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
                                 inner: Box::new(Expression::Identifier(first)),
-                                name: *id,
+                                name: *identifier,
                                 span: Default::default(),
                             }))),
                             if_false: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
                                 inner: Box::new(Expression::Identifier(second)),
-                                name: *id,
+                                name: *identifier,
                                 span: Default::default(),
                             }))),
                             span: Default::default(),
@@ -229,7 +229,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                         statements.push(statement);
 
                         StructVariableInitializer {
-                            identifier: *id,
+                            identifier,
                             expression: Some(Expression::Identifier(identifier)),
                         }
                     })

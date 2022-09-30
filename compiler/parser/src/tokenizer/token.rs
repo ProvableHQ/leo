@@ -324,6 +324,7 @@ impl fmt::Display for Token {
             Record => write!(f, "record"),
 
             Async => write!(f, "async"),
+            Circuit => write!(f, "circuit"),
             Console => write!(f, "console"),
             Const => write!(f, "const"),
             Constant => write!(f, "constant"),

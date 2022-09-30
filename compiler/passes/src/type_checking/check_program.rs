@@ -29,11 +29,11 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_struct(&mut self, input: &'a Struct) {
         // Check for conflicting struct/record member names.
         let mut used = HashSet::new();
-        if !input.members.iter().all(|Member::StructVariable(ident, type_)| {
+        if !input.members.iter().all(|Member { identifier, type_ }| {
             // TODO: Better spans.
             // Check that the member types are valid.
             self.assert_type_is_valid(input.span, type_);
-            used.insert(ident.name)
+            used.insert(identifier.name)
         }) {
             self.emit_err(if input.is_record {
                 TypeCheckerError::duplicate_record_variable(input.name(), input.span())
@@ -47,7 +47,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             let check_has_field = |need, expected_ty: Type| match input
                 .members
                 .iter()
-                .find_map(|Member::StructVariable(v, t)| (v.name == need).then_some((v, t)))
+                .find_map(|Member { identifier, type_ }| (identifier.name == need).then_some((identifier, type_)))
             {
                 Some((_, actual_ty)) if expected_ty.eq_flat(actual_ty) => {} // All good, found + right type!
                 Some((field, _)) => {
@@ -69,11 +69,11 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             check_has_field(sym::gates, Type::Integer(IntegerType::U64));
         }
 
-        for Member::StructVariable(v, type_) in input.members.iter() {
+        for Member { identifier, type_ } in input.members.iter() {
             // Ensure there are no tuple typed members.
-            self.assert_not_tuple(v.span, type_);
+            self.assert_not_tuple(identifier.span, type_);
             // Ensure that there are no record members.
-            self.assert_member_is_not_record(v.span, input.identifier.name, type_);
+            self.assert_member_is_not_record(identifier.span, input.identifier.name, type_);
         }
     }
 

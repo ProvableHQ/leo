@@ -60,6 +60,7 @@ impl ParserContext<'_> {
                     let (id, function) = self.parse_function()?;
                     functions.insert(id, function);
                 }
+                Token::Circuit => return Err(ParserError::circuit_is_deprecated(self.token.span).into()),
                 _ => return Err(Self::unexpected_item(&self.token).into()),
             }
         }
@@ -173,9 +174,9 @@ impl ParserContext<'_> {
 
     /// Returns a [`Member`] AST node if the next tokens represent a struct member variable.
     fn parse_member_variable_declaration(&mut self) -> Result<Member> {
-        let (name, type_) = self.parse_typed_ident()?;
+        let (identifier, type_) = self.parse_typed_ident()?;
 
-        Ok(Member::StructVariable(name, type_))
+        Ok(Member { identifier, type_ })
     }
 
     /// Parses a struct or record definition, e.g., `struct Foo { ... }` or `record Foo { ... }`.

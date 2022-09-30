@@ -251,4 +251,11 @@ create_messages!(
         msg: "A finalize statement must be preceded by the `async` keyword.",
         help: Some("Add the `async` keyword before the `finalize` keyword.".to_string()),
     }
+
+    @formatted
+    circuit_is_deprecated {
+        args: (),
+        msg: "The keyword `circuit` is deprecated.",
+        help: Some("Use `struct` instead.".to_string()),
+    }
 );
