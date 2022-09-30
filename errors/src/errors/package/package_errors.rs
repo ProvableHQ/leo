@@ -59,11 +59,11 @@ create_messages!(
         help: None,
     }
 
-    /// For when reading the circuit file failed.
+    /// For when reading the struct file failed.
     @backtraced
     failed_to_read_circuit_file {
         args: (path: impl Debug),
-        msg: format!("Cannot read circuit file from the provided file path - {:?}", path),
+        msg: format!("Cannot read struct file from the provided file path - {:?}", path),
         help: None,
     }
 
@@ -99,11 +99,11 @@ create_messages!(
         help: None,
     }
 
-    /// For when the circuit file has an IO error.
+    /// For when the struct file has an IO error.
     @backtraced
     io_error_circuit_file {
         args: (error: impl ErrorArg),
-        msg: format!("IO error circuit file from the provided file path - {}", error),
+        msg: format!("IO error struct file from the provided file path - {}", error),
         help: None,
     }
 
@@ -123,11 +123,11 @@ create_messages!(
         help: None,
     }
 
-    /// For when removing the circuit file failed.
+    /// For when removing the struct file failed.
     @backtraced
     failed_to_remove_circuit_file {
         args: (path: impl Debug),
-        msg: format!("failed removing circuit file from the provided file path - {:?}", path),
+        msg: format!("failed removing struct file from the provided file path - {:?}", path),
         help: None,
     }
 

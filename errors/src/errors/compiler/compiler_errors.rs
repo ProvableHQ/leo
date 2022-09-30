@@ -35,7 +35,7 @@ create_messages!(
         help: None,
     }
 
-    /// For when a user tries to assign to a circuit static member.
+    /// For when a user tries to assign to a struct static member.
     @formatted
     illegal_static_member_assignment {
         args: (member: impl Display),

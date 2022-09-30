@@ -17,10 +17,10 @@
 use super::*;
 use leo_span::sym;
 
-/// An initializer for a single field / variable of a circuit initializer expression.
+/// An initializer for a single field / variable of a struct initializer expression.
 /// That is, in `Foo { bar: 42, baz }`, this is either `bar: 42`, or `baz`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CircuitVariableInitializer {
+pub struct StructVariableInitializer {
     /// The name of the field / variable to be initialized.
     pub identifier: Identifier,
     /// The expression to initialize the field with.
@@ -28,7 +28,7 @@ pub struct CircuitVariableInitializer {
     pub expression: Option<Expression>,
 }
 
-impl fmt::Display for CircuitVariableInitializer {
+impl fmt::Display for StructVariableInitializer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(expr) = &self.expression {
             write!(f, "{}: {}", self.identifier, expr)
@@ -38,21 +38,21 @@ impl fmt::Display for CircuitVariableInitializer {
     }
 }
 
-/// A circuit initialization expression, e.g., `Foo { bar: 42, baz }`.
+/// A struct initialization expression, e.g., `Foo { bar: 42, baz }`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CircuitExpression {
+pub struct StructExpression {
     /// The name of the structure type to initialize.
     pub name: Identifier,
-    /// Initializer expressions for each of the fields in the circuit.
+    /// Initializer expressions for each of the fields in the struct.
     ///
-    /// N.B. Any functions or member constants in the circuit definition
+    /// N.B. Any functions or member constants in the struct definition
     /// are excluded from this list.
-    pub members: Vec<CircuitVariableInitializer>,
+    pub members: Vec<StructVariableInitializer>,
     /// A span from `name` to `}`.
     pub span: Span,
 }
 
-impl CircuitExpression {
+impl StructExpression {
     /// Returns true if the record has all required fields and visibility.
     pub fn check_record(&self) -> bool {
         let has_member = |symbol| self.members.iter().any(|variable| variable.identifier.name == symbol);
@@ -60,7 +60,7 @@ impl CircuitExpression {
         has_member(sym::owner) && has_member(sym::gates) && has_member(sym::_nonce)
     }
 
-    /// Returns the circuit as a record interface with visibility.
+    /// Returns the struct as a record interface with visibility.
     pub fn to_record_string(&self) -> String {
         format!(
             "{{{}}}",
@@ -80,7 +80,7 @@ impl CircuitExpression {
     }
 }
 
-impl fmt::Display for CircuitExpression {
+impl fmt::Display for StructExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -94,4 +94,4 @@ impl fmt::Display for CircuitExpression {
     }
 }
 
-crate::simple_node_impl!(CircuitExpression);
+crate::simple_node_impl!(StructExpression);

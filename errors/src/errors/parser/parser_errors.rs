@@ -72,11 +72,11 @@ create_messages!(
         help: None,
     }
 
-    /// For when the parser encountered a mix of commas and semi-colons in circuit member variables.
+    /// For when the parser encountered a mix of commas and semi-colons in struct member variables.
     @formatted
     mixed_commas_and_semicolons {
         args: (),
-        msg: "Cannot mix use of commas and semi-colons for circuit member variable declarations.",
+        msg: "Cannot mix use of commas and semi-colons for struct member variable declarations.",
         help: None,
     }
 
@@ -224,27 +224,11 @@ create_messages!(
         help: None,
     }
 
-    /// Circuit functions are unstable in testnet3.
-    @formatted
-    circuit_functions_unstable {
-        args: (),
-        msg: "Circuit functions are currently an unstable feature and are disabled in Leo for testnet3.",
-        help: None,
-    }
-
-    /// Circuit constants are unstable in testnet3.
-    @formatted
-    circuit_constants_unstable {
-        args: (),
-        msg: "Circuit constants are currently an unstable feature and are disabled in Leo for testnet3.",
-        help: None,
-    }
-
     @formatted
     invalid_associated_access {
         args: (name: impl Display),
-        msg: format!("Invalid associated access call to circuit {name}."),
-        help: Some("Double colon `::` syntax is only supported for core circuits in Leo for testnet3.".to_string()),
+        msg: format!("Invalid associated access call to struct {name}."),
+        help: Some("Double colon `::` syntax is only supported for core functions in Leo for testnet3.".to_string()),
     }
 
     @formatted

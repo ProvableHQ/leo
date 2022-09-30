@@ -98,11 +98,11 @@ create_messages!(
         help: None,
     }
 
-    /// For when a user shadows a circuit.
+    /// For when a user shadows a struct.
     @formatted
-    shadowed_circuit {
-        args: (circ: impl Display),
-        msg: format!("circuit `{circ}` shadowed by"),
+    shadowed_struct {
+        args: (struct_: impl Display),
+        msg: format!("struct `{struct_}` shadowed by"),
         help: None,
     }
 
