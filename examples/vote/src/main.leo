@@ -1,7 +1,7 @@
 // The 'vote.leo' program.
 
 // Proposal details
-circuit ProposalInfo {
+struct ProposalInfo {
     title: field,
     content: field,
     proposer: address,

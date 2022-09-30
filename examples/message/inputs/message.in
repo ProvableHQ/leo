@@ -1,7 +1,7 @@
 // The program input for message/src/main.leo
 // To pass "m" into the "main" function we
 // 1. Define the "Message" type.
-// 2. Use brackets `{ }` to enclose the circuit members.
-// 3. Define each circuit member `name : value`.
+// 2. Use brackets `{ }` to enclose the struct members.
+// 3. Define each struct member `name : value`.
 [main]
 m: Message = Message { first: 2field, second: 3field };

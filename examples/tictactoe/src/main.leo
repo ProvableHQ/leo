@@ -4,7 +4,7 @@
 // - `c3` : The third entry in the row.
 // A valid entry is either 0, 1, or 2, where 0 is empty, 1 corresponds to player 1, and 2 corresponds to player 2.
 // Any other values are invalid.
-circuit Row {
+struct Row {
     c1: u8,
     c2: u8,
     c3: u8
@@ -14,7 +14,7 @@ circuit Row {
 // - `r1` : The first row in the board.
 // - `r2` : The second row in the board.
 // - `r3` : The third row in the board.
-circuit Board {
+struct Board {
     r1: Row,
     r2: Row,
     r3: Row,

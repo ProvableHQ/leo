@@ -1,5 +1,5 @@
-# Leo message circuit
-A basic example showing how to declare a circuit in the Leo language.
+# Leo message struct 
+A basic example showing how to declare a struct in the Leo language.
 
 ## Build Guide
 

@@ -1,7 +1,7 @@
-// This function takes as input a field `a` and calls several core circuit functions.
-// Core circuit functions are built-in to the Leo language and call handwritten, optimized circuits in the AVM.
-// To call a core circuit function, use the correct capitalized circuit identifier followed by two colons
-// and then the function. Example: `Pedersen64::hash()`.
+// This function takes as input a field `a` and calls several core functions.
+// Core functions are built-in to the Leo language and call handwritten, optimized circuits in the AVM.
+// To call a core function, use the correct capitalized identifier followed by two colons
+// and then the function name. Example: `Pedersen64::hash()`.
 @program
 function main(a: field) -> field {
     let b: field = BHP256::hash(a);
