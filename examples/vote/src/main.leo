@@ -33,8 +33,7 @@ mapping agree_votes: field => u64;
 mapping disagree_votes: field => u64;
 
 // Propose a new proposal to vote on.
-@program
-function propose(public info: ProposalInfo) -> Proposal {
+transition propose(public info: ProposalInfo) -> Proposal {
     // Authenticate proposer.
     console.assert_eq(self.caller, info.proposer);
 
@@ -58,8 +57,7 @@ finalize propose(public id: field) {
 }
 
 // Create a new ticket to vote with.
-@program
-function new_ticket(
+transition new_ticket(
     public pid: field,
     public voter: address,
 ) -> Ticket {
@@ -78,8 +76,7 @@ finalize new_ticket(public pid: field) {
 }
 
 // Vote privately to agree with a proposal.
-@program
-function agree(ticket: Ticket) {
+transition agree(ticket: Ticket) {
     // Finalize this vote.
     async finalize(ticket.pid);
 }
@@ -89,8 +86,7 @@ finalize agree(public pid: field) {
 }
 
 // Vote privately to disagree with a proposal.
-@program
-function disagree(ticket: Ticket) {
+transition disagree(ticket: Ticket) {
     // Finalize this vote.
     async finalize(ticket.pid);
 }

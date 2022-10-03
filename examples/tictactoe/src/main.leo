@@ -21,8 +21,7 @@ struct Board {
 }
 
 // Returns an empty board.
-@program
-function new() -> Board {
+transition new() -> Board {
     return Board {
         r1: Row { c1: 0u8, c2: 0u8, c3: 0u8 },
         r2: Row { c1: 0u8, c2: 0u8, c3: 0u8 },
@@ -54,8 +53,7 @@ function check_for_win(b: Board, p: u8) -> bool {
 // Assumes that `player` is either 1 or 2.
 // Assumes that `row` and `col` are valid indices into the board.
 // If an entry is already occupied, the move is invalid and the board is returned unchanged.
-@program
-function make_move(player: u8, row: u8, col: u8, board: Board) -> (Board, u8) {
+transition make_move(player: u8, row: u8, col: u8, board: Board) -> (Board, u8) {
     // Check that inputs are valid.
     console.assert(player == 1u8 || player == 2u8);
     console.assert(1u8 <= row && row <= 3u8);

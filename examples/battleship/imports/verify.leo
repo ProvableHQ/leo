@@ -74,8 +74,7 @@ function horizontal_check(
 }
 
 // Returns `true` if the ship placement is valid.
-@program
-function validate_ship(
+transition validate_ship(
     // The u64 representation of a ship's placement in an 8x8 grid.
     ship: u64,
     // The length of the placed ship.
@@ -104,8 +103,7 @@ function validate_ship(
 
 // Returns the u64 representation of all the ships' placements in an 8x8 grid. This function will fail
 // if any of the ship placements overlap each other.
-@program
-function create_board(
+transition create_board(
     // The u64 representation of a carrier's placement in an 8x8 grid. Length = 5.
     carrier: u64,
     // The u64 representation of a battleship's placement in an 8x8 grid. Length = 4.

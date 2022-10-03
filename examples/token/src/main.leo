@@ -14,8 +14,7 @@ record token {
 /* Mint */
 
 // The function `mint_public` issues the specified token amount for the token receiver publicly on the network.
-@program
-function mint_public(public receiver: address, public amount: u64) {
+transition mint_public(public receiver: address, public amount: u64) {
     // Mint the tokens publicly by invoking the computation on-chain.
     async finalize(receiver, amount);
 }
@@ -28,8 +27,7 @@ finalize mint_public(public receiver: address, public amount: u64) {
 }
 
 // The function `mint_private` initializes a new record with the specified amount of tokens for the receiver.
-@program
-function mint_private(receiver: address, amount: u64) -> token {
+transition mint_private(receiver: address, amount: u64) -> token {
     return token {
         owner: receiver,
         gates: 0u64,
@@ -38,8 +36,7 @@ function mint_private(receiver: address, amount: u64) -> token {
 }
 
 /* Transfer */
-@program
-function transfer_public(public receiver: address, public amount: u64) {
+transition transfer_public(public receiver: address, public amount: u64) {
     // Transfer the tokens publicly, by invoking the computation on-chain.
     async finalize(self.caller, receiver, amount);
 }
@@ -56,8 +53,7 @@ finalize transfer_public(public sender: address, public receiver: address, publi
 }
 
 // The function `transfer_private` sends the specified token amount to the token receiver from the specified token record.
-@program
-function transfer_private(sender: token, receiver: address, amount: u64) -> (token, token) {
+transition transfer_private(sender: token, receiver: address, amount: u64) -> (token, token) {
     // Checks the given token record has sufficient balance.
     // This `sub` operation is safe, and the proof will fail if an overflow occurs.
     // `difference` holds the change amount to be returned to sender.
@@ -83,8 +79,7 @@ function transfer_private(sender: token, receiver: address, amount: u64) -> (tok
 
 // The function `transfer_private_to_public` turns a specified token amount from a token record into public tokens for the specified receiver.
 // This function preserves privacy for the sender's record, however it publicly reveals the token receiver and the token amount.
-@program
-function transfer_private_to_public(sender: token, public receiver: address, public amount: u64) -> token {
+transition transfer_private_to_public(sender: token, public receiver: address, public amount: u64) -> token {
     // Checks the given token record has a sufficient token amount.
     // This `sub` operation is safe, and the proof will fail if an underflow occurs.
     // `difference` holds the change amount for the caller.
@@ -113,8 +108,7 @@ finalize transfer_private_to_public(public receiver: address, public amount: u64
 
 // The function `transfer_public_to_private` turns a specified token amount from `account` into a token record for the specified receiver.
 // This function preserves privacy for the receiver's record, however it publicly reveals the caller and the specified token amount.
-@program
-function transfer_public_to_private(public receiver: address, public amount: u64) -> token {
+transition transfer_public_to_private(public receiver: address, public amount: u64) -> token {
     // Produces a token record for the token receiver.
     let transferred: token = token {
         owner: receiver,

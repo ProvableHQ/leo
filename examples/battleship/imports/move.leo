@@ -9,8 +9,7 @@ record move {
 }
 
 // Returns new move record owned by the opponent.
-@program
-function create_move(
+transition create_move(
     // The move record created by the opponent.
     move_record: move,
     // The u64 representation of incoming_fire_coordinate, the bitstring fire coordinate to send to the opponent.
@@ -34,8 +33,7 @@ function create_move(
 
 // Returns the move record owned by the opponent.
 // Note, this move record contains dummy fire coordinates and previous hit or miss.
-@program
-function start_game(player_2: address) -> move {
+transition start_game(player_2: address) -> move {
     return move {
         owner: player_2,
         gates: 0u64,

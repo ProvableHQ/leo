@@ -4,8 +4,7 @@ import move.leo;
 import verify.leo;
 
 // Returns a new record representing a new game of battleship.
-@program
-function initialize_board(
+transition initialize_board(
     // The u64 representation of a carrier's placement in an 8x8 grid. Length = 5.
     carrier: u64,
     // The u64 representation of a battleship's placement in an 8x8 grid. Length = 4.
@@ -42,8 +41,7 @@ function initialize_board(
 // Returns an updated board state record that has been started. This board cannot be used to start any other games.
 // Returns a dummy move record owned by the opponent.
 // This function commits a given board to a game with an opponent and creates the initial dummy move.
-@program
-function offer_battleship(
+transition offer_battleship(
     // The board record to start a game with.
     board: board.leo/board_state.record,
 ) -> (board.leo/board_state.record, move.leo/move.record) {
@@ -55,8 +53,7 @@ function offer_battleship(
 
 // Returns updated board_state.record that has been started and can no longer be used to join or start new games.
 // Returns dummy move record owned by the opponent.
-@program
-function start_battleship(
+transition start_battleship(
     // The board record to play the game with.
     board: board.leo/board_state.record,
     // The move record to play to begin the game. This should be the dummy move record created from offer_battleship.
@@ -74,8 +71,7 @@ function start_battleship(
 
 // Returns updated board record.
 // Returns new move record owned by opponent.
-@program
-function play(
+transition play(
     // The board record to update.
     board: board.leo/board_state.record,
     // The incoming move from the opponent.

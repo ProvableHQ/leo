@@ -1,7 +1,6 @@
 // The 'ntzreisers' main function.
 // From Hacker's Delight 2nd ed. figure 5-27
-@program
-function main(public x: u32) -> u8 {
+transition main(public x: u32) -> u8 {
     x = (x & 0u32.sub_wrapped(x)).rem_wrapped(37u32);
     return reisersTableLookup(x);
 }

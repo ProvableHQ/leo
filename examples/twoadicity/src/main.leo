@@ -1,7 +1,6 @@
 // This function calculates the number of powers of two ("twoadicity")
 // in the prime factorization of the input number `n`.
-@program
-function main(public n: field) -> u8 {
+transition main(public n: field) -> u8 {
     let remaining_n: field = n;
     let powers_of_two: u8 = 0u8;
     // Since field ints are 253 bits or fewer, any number in the field

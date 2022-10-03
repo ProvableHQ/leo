@@ -1,7 +1,6 @@
 // The 'nztseals' main function.
 // From Hacker's Delight 2nd ed. figure 5-25
-@program
-function main(public x: u32) -> u8 {
+transition main(public x: u32) -> u8 {
     // 0x0450FBAF = 72416175
     x = (x & 0u32.sub_wrapped(x)).mul_wrapped(72416175u32);
     return sealsTableLookup(x >> 26u8);

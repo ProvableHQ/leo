@@ -20,8 +20,7 @@ record board_state {
 }
 
 // Returns a new board_state.
-@program
-function new_board_state(
+transition new_board_state(
     ships: u64,
     opponent: address,
 ) -> board_state {
@@ -39,8 +38,7 @@ function new_board_state(
 
 // Returns a new board state that has been started.
 // Fails if this board has been started before.
-@program
-function start_board(
+transition start_board(
     // The record of the board to start. A board can only be started once.
     board: board_state,
 ) -> board_state {
@@ -61,8 +59,7 @@ function start_board(
 
 // Returns a new board state record that includes all the played tiles.
 // Fails if r1 has been played before.
-@program
-function update_played_tiles(
+transition update_played_tiles(
     // The record of the board to update.
     board: board_state,
     // The u64 equivalent of a bitstring fire coordinate to send to the opponent.
@@ -94,8 +91,7 @@ function update_played_tiles(
 }
 
 // Returns a new board state record that includes all the hits and misses.
-@program
-function update_hits_and_misses(
+transition update_hits_and_misses(
     // The record of the board to update.
     board: board_state,
     // The u64 equivalent of a bitstring of whether this player's previous move was a hit or miss.

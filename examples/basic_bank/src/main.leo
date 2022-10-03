@@ -17,8 +17,7 @@ mapping balances: field => u64;
 // - `amount`: The amount of tokens to issue.
 // Requires that the function caller is the bank.
 // The bank's address is aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a.
-@program
-function issue(owner: address, amount: u64) -> Token {
+transition issue(owner: address, amount: u64) -> Token {
     console.assert_eq(self.caller, aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a);
     return Token {
         owner: owner,
@@ -31,8 +30,7 @@ function issue(owner: address, amount: u64) -> Token {
 // Returns a new Token with the remaining amount of money.
 // - `token` : A record containing tokens to deposit.
 // - `amount`: The amount of tokens to deposit.
-@program
-function deposit(token: Token, amount: u64) -> Token {
+transition deposit(token: Token, amount: u64) -> Token {
     let difference: u64 = token.amount - amount;
 
     let remaining: Token = Token {
@@ -62,8 +60,7 @@ finalize deposit(hash: field, amount: u64) {
 // - `rate`     : The compound interest rate.
 // - `periods`  : The number of periods to compound the interest over.
 // Requires that the function caller is the bank.
-@program
-function withdraw(recipient: address, amount: u64, rate: u64, periods: u64) -> Token {
+transition withdraw(recipient: address, amount: u64, rate: u64, periods: u64) -> Token {
     console.assert_eq(self.caller, aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a);
     let hash: field = BHP256::hash(recipient);
 

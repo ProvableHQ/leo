@@ -12,8 +12,7 @@ record Token {
 
 // The `mint` function initializes a new record with the
 // specified number of tokens assigned to the specified receiver.
-@program
-function mint(owner: address, amount: u64) -> Token {
+transition mint(owner: address, amount: u64) -> Token {
     return Token {
         owner: owner,
         gates: 0u64,
@@ -23,8 +22,7 @@ function mint(owner: address, amount: u64) -> Token {
 
 // The `transfer` function sends the specified number of tokens
 // to the receiver from the provided token record.
-@program
-function transfer(token: Token, to: address, amount: u64) -> (Token, Token) {
+transition transfer(token: Token, to: address, amount: u64) -> (Token, Token) {
 
     // Checks the given token record has sufficient balance.
     // This `sub` operation is safe, and the proof will fail

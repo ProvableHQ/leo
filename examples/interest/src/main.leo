@@ -1,7 +1,6 @@
 // This function calculates the interest accrued
 // over ten iterations for some `capital` and `rate`.
-@program
-function fixed_iteration_interest(capital: u32, public rate: u32) -> u32 {
+transition fixed_iteration_interest(capital: u32, public rate: u32) -> u32 {
     let amount: u32 = capital;
 
     // Accrue for exactly 10 iterations.
@@ -15,8 +14,7 @@ function fixed_iteration_interest(capital: u32, public rate: u32) -> u32 {
 
 // This function calculates the interest accrued
 // over a variable number of iterations (max 50) for some `capital` and `rate`.
-@program
-function bounded_iteration_interest(capital: u32,
+transition bounded_iteration_interest(capital: u32,
                                     public rate: u32,
                                     iterations: u8) -> u32 {
     console.assert(iterations <= 50u8);
