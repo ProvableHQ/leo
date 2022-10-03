@@ -5,8 +5,7 @@ expectation: Pass
 
 mapping amounts: address => u128;
 
-@program
-function decrease_self(amount: u128) {
+transition decrease_self(amount: u128) {
     async finalize(self.caller, amount);
 }
 

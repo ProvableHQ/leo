@@ -5,8 +5,7 @@ input_file: inputs/branch.in
 */
 
 
-@program
-function main (x: address, y: bool) -> bool {
+transition main (x: address, y: bool) -> bool {
     let z: address = aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx;
     if y {
         z = aleo16s003g206rjms5pm4ak48340f7y4z4dsskuqfrd2gvqz6umh2qfq7lajfp;

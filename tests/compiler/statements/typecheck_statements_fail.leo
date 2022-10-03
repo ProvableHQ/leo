@@ -3,8 +3,7 @@ namespace: Compile
 expectation: Fail
 */
 
-@program
-function main() -> bool {
+transition main() -> bool {
     let c1 : u32 = 123i16 * 123i32;
     let c2 : u32 = "123i32" * 123i16 * "sss";
     let c3 : u32 = "123i32" * "sss";

@@ -4,7 +4,6 @@ expectation: Pass
 input_file: inputs/add.in
 */
 
-@program
-function main(a: u32, b: u32) -> u32 {
+transition main(a: u32, b: u32) -> u32 {
     return a ^ b;
 }

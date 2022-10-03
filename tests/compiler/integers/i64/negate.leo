@@ -6,7 +6,6 @@ input_file:
  - inputs/neg_rev.in
 */
 
-@program
-function main(a: i64, b: i64) -> bool {
+transition main(a: i64, b: i64) -> bool {
     return -a == b;
 }

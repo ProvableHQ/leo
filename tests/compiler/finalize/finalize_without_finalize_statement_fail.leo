@@ -5,8 +5,7 @@ expectation: Fail
 
 mapping account: address => u64;
 
-@program
-function mint_public(public receiver: address, public amount: u64) {
+transition mint_public(public receiver: address, public amount: u64) {
 
 }
 

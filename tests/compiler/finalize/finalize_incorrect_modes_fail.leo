@@ -5,8 +5,7 @@ expectation: Fail
 
 mapping account: address => u64;
 
-@program
-function mint_public(public receiver: address, public amount: u64) {
+transition mint_public(public receiver: address, public amount: u64) {
     async finalize(receiver, amount);
 }
 
@@ -14,8 +13,7 @@ finalize mint_public (public receiver: address, constant amount: u64) -> constan
     increment(account, receiver, amount);
 }
 
-@program
-function mint_public2(public receiver: address, public amount: u64) {
+transition mint_public2(public receiver: address, public amount: u64) {
     async finalize(receiver, amount);
 }
 

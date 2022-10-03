@@ -4,7 +4,6 @@ expectation: Pass
 input_file: inputs/add.in
 */
 
-@program
-function main(a: u32, b: u32, c: u32) -> bool {
+transition main(a: u32, b: u32, c: u32) -> bool {
     return a | b == c;
 }

@@ -6,7 +6,6 @@ input_file:
  - inputs/ge.in
 */
 
-@program
-function main(a: u128, b: u128, c: bool) -> bool {
+transition main(a: u128, b: u128, c: bool) -> bool {
     return a >= b == c;
 }

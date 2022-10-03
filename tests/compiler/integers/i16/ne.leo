@@ -6,7 +6,6 @@ input_file:
  - inputs/ne.in
 */
 
-@program
-function main(a: i16, b: i16, c: bool) -> bool{
+transition main(a: i16, b: i16, c: bool) -> bool{
     return (a != b) == c;
 }

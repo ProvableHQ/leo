@@ -13,7 +13,6 @@ record Token {
     amount: u64,
 }
 
-@program
-function main(a: u8, b:u8) -> u8 {
+transition main(a: u8, b:u8) -> u8 {
     return a + b;
 }

@@ -8,8 +8,7 @@ expectation: Pass
 @baz
 function foo() -> u8 {}
 
-@program
-function mint() -> u8 {}
+transition mint() -> u8 {}
 
 @test
 function test() -> u8 {}

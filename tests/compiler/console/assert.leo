@@ -18,8 +18,7 @@ record Token {
 }
 
 
-@program
-function main(a: bool, foo: Foo, token: Token) -> bool {
+transition main(a: bool, foo: Foo, token: Token) -> bool {
     console.assert_eq(a, true);
     console.assert_neq(a, false);
     console.assert(a);

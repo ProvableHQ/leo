@@ -12,8 +12,7 @@ record Token {
 mapping amounts: address => u128;
 mapping tokens: address => Token;
 
-@program
-function increase_self(amount: u128) {
+transition increase_self(amount: u128) {
     async finalize(self.caller, amount);
 }
 

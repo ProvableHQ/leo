@@ -6,7 +6,6 @@ input_file:
  - inputs/le.in
 */
 
-@program
-function main(a: i64, b: i64, c: bool) -> bool {
+transition main(a: i64, b: i64, c: bool) -> bool {
     return a <= b == c;
 }

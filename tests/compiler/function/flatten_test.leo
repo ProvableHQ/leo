@@ -27,8 +27,7 @@ function win(b: Board, p: u8) -> bool {
         (b.r1.e3 == p && b.r2.e2 == p && b.r3.e1 == p); // other diagonal
 }
 
-@program
-function main(public player: u8, row: u8, col: u8, board: Board) -> (Board, u8) {
+transition main(public player: u8, row: u8, col: u8, board: Board) -> (Board, u8) {
     let updated: Board = board;
     if row == 1u8 && col == 1u8 && updated.r1.e1 == 0u8 {
         updated = Board {

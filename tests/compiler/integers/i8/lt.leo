@@ -6,7 +6,6 @@ input_file:
  - inputs/lt.in
 */
 
-@program
-function main(a: i8, b: i8, c: bool) -> bool{
+transition main(a: i8, b: i8, c: bool) -> bool{
     return a < b == c;
 }

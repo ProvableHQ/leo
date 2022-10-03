@@ -4,8 +4,7 @@ expectation: Pass
 input_file: inputs/u32_3.in
 */
 
-@program
-function main(x: u32) -> u32 {
+transition main(x: u32) -> u32 {
     let y: u32 = x;
 
     for i: u32 in 0u32..2u32 {

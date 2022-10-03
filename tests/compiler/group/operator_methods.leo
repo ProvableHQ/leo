@@ -4,8 +4,7 @@ expectation: Pass
 input_file: inputs/three.in
 */
 
-@program
-function main(a: group, b: group) -> bool {
+transition main(a: group, b: group) -> bool {
     // unary
     let e: group = a.double();
     let g: group = a.neg();

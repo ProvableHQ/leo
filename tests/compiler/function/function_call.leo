@@ -4,8 +4,7 @@ expectation: Pass
 input_file: inputs/dummy.in
 */
 
-@program
-function main(a: u32, b: u32, y: bool) -> u32 {
+transition main(a: u32, b: u32, y: bool) -> u32 {
     if y {
        return adder(a, b);
     } else {

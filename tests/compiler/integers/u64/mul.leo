@@ -6,7 +6,6 @@ input_file:
     
 */
 
-@program
-function main(a: u64, b: u64, c: u64) -> bool {
+transition main(a: u64, b: u64, c: u64) -> bool {
     return a * b == c;
 }

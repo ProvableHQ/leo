@@ -4,8 +4,7 @@ expectation: Fail
 */
 
 
-@program
-function mint_public(public receiver: address, public amount: u64) {
+transition mint_public(public receiver: address, public amount: u64) {
     async finalize(receiver, amount);
 }
 

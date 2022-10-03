@@ -8,7 +8,6 @@ struct Foo {
     bar: Bar,
 }
 
-@program
-function main(a: u8) -> u8 {
+transition main(a: u8) -> u8 {
     return a + 1u8;
 }

@@ -4,8 +4,7 @@ expectation: Pass
 input_file: inputs/add.in
 */
 
-@program
-function main(a: i128, b: i128) -> bool {
+transition main(a: i128, b: i128) -> bool {
     // unary
     let c: i128 = a.abs();
     let d: i128 = a.abs_wrapped();

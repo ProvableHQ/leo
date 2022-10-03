@@ -5,7 +5,6 @@ input_file:
  - inputs/fields.in
 */
 
-@program
-function main(a: field, b: field) -> bool {
+transition main(a: field, b: field) -> bool {
    return -a == -b;
 }

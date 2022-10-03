@@ -6,8 +6,7 @@ expectation: Fail
 mapping account: address => u64;
 mapping values: u8 => u8;
 
-@program
-function mint_public(public receiver: address, public amount: u64) {
+transition mint_public(public receiver: address, public amount: u64) {
     async finalize(receiver, amount);
 }
 

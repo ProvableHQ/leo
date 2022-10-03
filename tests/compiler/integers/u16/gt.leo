@@ -6,7 +6,6 @@ input_file:
  - inputs/gt.in
 */
 
-@program
-function main(a: u16, b: u16, c: bool) -> bool {
+transition main(a: u16, b: u16, c: bool) -> bool {
     return a > b == c;
 }

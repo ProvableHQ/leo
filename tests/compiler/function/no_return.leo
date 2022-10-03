@@ -3,5 +3,4 @@ namespace: Compile
 expectation: Fail
 */
 
-@program
-function main() -> u8 {}
+transition main() -> u8 {}

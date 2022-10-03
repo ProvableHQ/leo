@@ -5,8 +5,7 @@ input_file:
  - inputs/scalars.in
 */
 
-@program
-function main(a: scalar, b: scalar) -> bool {
+transition main(a: scalar, b: scalar) -> bool {
    // binary
    let j: scalar = a.add(b);
    let o: bool = a.eq(b);

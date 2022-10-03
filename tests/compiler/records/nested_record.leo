@@ -17,8 +17,7 @@ record Token {
     amount: Amount,
 }
 
-@program
-function mint(r0: address, r1: u64) -> Token {
+transition mint(r0: address, r1: u64) -> Token {
     return Token {
         owner: r0,
         gates: 0u64,
@@ -26,8 +25,7 @@ function mint(r0: address, r1: u64) -> Token {
     };
 }
 
-@program
-function main(x: address) -> u64 {
+transition main(x: address) -> u64 {
     const c: u64 = 1u64;
     let t: Token = Token { owner: x, gates: 0u64, amount: Amount { amount: c, amt: c } };
 
