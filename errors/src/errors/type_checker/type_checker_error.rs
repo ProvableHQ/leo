@@ -409,4 +409,18 @@ create_messages!(
         msg: format!("Invalid type `{type_}`"),
         help: None,
     }
+
+    @formatted
+    cannot_invoke_call_from_standard_function {
+        args: (),
+        msg: format!("Cannot call another function from a standard function."),
+        help: None,
+    }
+
+    @formatted
+    cannot_invoke_call_to_local_transition_function {
+        args: (),
+        msg: format!("Cannot call a local transition function from a transition function."),
+        help: None,
+    }
 );

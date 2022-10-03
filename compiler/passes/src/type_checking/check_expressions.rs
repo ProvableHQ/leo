@@ -431,11 +431,29 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
     fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match &*input.function {
+            // Note that the parser guarantees that `input.function` is always an identifier.
             Expression::Identifier(ident) => {
                 // Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
                 // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table` alive for the entire block and will be very memory inefficient!
                 let func = self.symbol_table.borrow().lookup_fn_symbol(ident.name).cloned();
+
                 if let Some(func) = func {
+                    // Check that the call is valid.
+                    match self.is_transition_function {
+                        // If the function is not a transition function, it cannot call any other functions.
+                        false => {
+                            self.emit_err(TypeCheckerError::cannot_invoke_call_from_standard_function(input.span));
+                        }
+                        // If the function is a transition function, then check that the call is not to another local transition function.
+                        true => {
+                            if matches!(func.call_type, CallType::Transition) && input.external.is_none() {
+                                self.emit_err(TypeCheckerError::cannot_invoke_call_to_local_transition_function(
+                                    input.span,
+                                ));
+                            }
+                        }
+                    }
+
                     let ret = self.assert_and_return_type(func.output_type, expected, func.span);
 
                     // Check number of function arguments.
@@ -461,8 +479,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     None
                 }
             }
-            // TODO: Is this case sufficient?
-            expr => self.visit_expression(expr, expected),
+            _ => unreachable!("Parser guarantees that `input.function` is always an identifier."),
         }
     }
 

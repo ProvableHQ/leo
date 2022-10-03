@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 /// A transition function is permitted the ability to manipulate records.
 /// A regular function is not permitted to manipulate records.
 /// An inline function is directly copied at the call site.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub enum CallType {
     Inline,
     Standard,
