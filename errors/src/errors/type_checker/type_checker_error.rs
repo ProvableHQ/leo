@@ -279,14 +279,14 @@ create_messages!(
     unknown_annotation {
         args: (annotation: impl Display),
         msg: format!("Unknown annotation: `{annotation}`."),
-        help: Some("Use a valid annotation. The Leo compiler supports: `@program`".to_string()),
+        help: None,
     }
 
     @formatted
-    helper_function_inputs_cannot_have_modes {
+    regular_function_inputs_cannot_have_modes {
         args: (),
-        msg: format!("Helper functions cannot have modes associated with their inputs."),
-        help: Some("Consider removing the mode or adding a `@program` annotation to the function.".to_string()),
+        msg: format!("Standard functions cannot have modes associated with their inputs."),
+        help: Some("Consider removing the mode or using the keyword `transition` instead of `function`.".to_string()),
     }
 
     @formatted
@@ -304,10 +304,10 @@ create_messages!(
     }
 
     @formatted
-    only_program_functions_can_have_finalize {
+    only_transition_functions_can_have_finalize {
         args: (),
-        msg: format!("Only program functions can have a `finalize` block."),
-        help: Some("Remove the `finalize` block or add a `@program` annotation to the function.".to_string()),
+        msg: format!("Only transition functions can have a `finalize` block."),
+        help: Some("Remove the `finalize` block or use the keyword `transition` instead of `function`.".to_string()),
     }
 
     @formatted
@@ -367,9 +367,9 @@ create_messages!(
     }
 
     @formatted
-    program_function_inputs_cannot_be_const {
+    transition_function_inputs_cannot_be_const {
         args: (),
-        msg: format!("Program functions cannot have constant inputs."),
+        msg: format!("Transition functions cannot have constant inputs."),
         help: None,
     }
 

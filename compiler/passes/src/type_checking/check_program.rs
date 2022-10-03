@@ -101,13 +101,12 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
     fn visit_function(&mut self, function: &'a Function) {
         // Check that the function's annotations are valid.
+        // Note that Leo does not natively support any specific annotations.
         for annotation in function.annotations.iter() {
-            match annotation.identifier.name {
-                // Set `is_program_function` to true if the corresponding annotation is found.
-                sym::program => self.is_program_function = true,
-                _ => self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span)),
-            }
+            self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
         }
+
+        self.is_transition_function = matches!(function.call_type, CallType::Transition);
 
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
@@ -139,14 +138,14 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.assert_type_is_valid(input_var.span(), &input_var.type_());
             self.assert_not_tuple(input_var.span(), &input_var.type_());
 
-            match self.is_program_function {
-                // If the function is a program function, then check that the parameter mode is not a constant.
+            match self.is_transition_function {
+                // If the function is a transition function, then check that the parameter mode is not a constant.
                 true if input_var.mode() == Mode::Const => self.emit_err(
-                    TypeCheckerError::program_function_inputs_cannot_be_const(input_var.span()),
+                    TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()),
                 ),
                 // If the function is not a program function, then check that the parameters do not have an associated mode.
                 false if input_var.mode() != Mode::None => self.emit_err(
-                    TypeCheckerError::helper_function_inputs_cannot_have_modes(input_var.span()),
+                    TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()),
                 ),
                 _ => {} // Do nothing.
             }
@@ -206,9 +205,9 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             // The function;s finalize block does not have a finalize statement.
             self.has_finalize = false;
 
-            // Check that the function is a program function.
-            if !self.is_program_function {
-                self.emit_err(TypeCheckerError::only_program_functions_can_have_finalize(
+            // Check that the function is a transition function.
+            if !self.is_transition_function {
+                self.emit_err(TypeCheckerError::only_transition_functions_can_have_finalize(
                     finalize.span,
                 ));
             }
@@ -285,7 +284,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Exit the function's scope.
         self.exit_scope(function_index);
 
-        // Unset `is_program_function` flag.
-        self.is_program_function = false;
+        // Unset `is_transition_function` flag.
+        self.is_transition_function = false;
     }
 }

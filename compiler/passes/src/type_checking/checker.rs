@@ -35,9 +35,8 @@ pub struct TypeChecker<'a> {
     pub(crate) has_return: bool,
     /// Whether or not the function that we are currently traversing has a finalize statement.
     pub(crate) has_finalize: bool,
-    /// Whether or not we are currently traversing a program function.
-    /// A "program function" is a function that can be invoked by a user or another program.
-    pub(crate) is_program_function: bool,
+    /// Whether or not we are currently traversing a transition function.
+    pub(crate) is_transition_function: bool,
     /// Whether or not we are currently traversing a finalize block.
     pub(crate) is_finalize: bool,
 }
@@ -89,7 +88,7 @@ impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
     pub fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
         Self {
-            is_program_function: false,
+            is_transition_function: false,
             symbol_table: RefCell::new(symbol_table),
             handler,
             function: None,
