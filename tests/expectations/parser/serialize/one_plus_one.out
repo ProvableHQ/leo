@@ -11,6 +11,7 @@ outputs:
     functions:
       "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":15}\"}":
         annotations: []
+        call_type: Standard
         identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":15}\"}"
         input: []
         output:

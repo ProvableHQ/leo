@@ -23,6 +23,7 @@ outputs:
             span:
               lo: 12
               hi: 16
+        call_type: Standard
         identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":29}\"}"
         input: []
         output:
@@ -44,13 +45,10 @@ outputs:
         span:
           lo: 17
           hi: 40
-      "{\"name\":\"mint\",\"span\":\"{\\\"lo\\\":60,\\\"hi\\\":64}\"}":
-        annotations:
-          - identifier: "{\"name\":\"program\",\"span\":\"{\\\"lo\\\":43,\\\"hi\\\":50}\"}"
-            span:
-              lo: 42
-              hi: 50
-        identifier: "{\"name\":\"mint\",\"span\":\"{\\\"lo\\\":60,\\\"hi\\\":64}\"}"
+      "{\"name\":\"mint\",\"span\":\"{\\\"lo\\\":53,\\\"hi\\\":57}\"}":
+        annotations: []
+        call_type: Transition
+        identifier: "{\"name\":\"mint\",\"span\":\"{\\\"lo\\\":53,\\\"hi\\\":57}\"}"
         input: []
         output:
           - Internal:
@@ -58,26 +56,27 @@ outputs:
               type_:
                 Integer: U8
               span:
-                lo: 70
-                hi: 72
+                lo: 63
+                hi: 65
         output_type:
           Integer: U8
         block:
           statements: []
           span:
-            lo: 73
-            hi: 75
+            lo: 66
+            hi: 68
         finalize: ~
         span:
-          lo: 51
-          hi: 75
-      "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}":
+          lo: 42
+          hi: 68
+      "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":85,\\\"hi\\\":89}\"}":
         annotations:
-          - identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":78,\\\"hi\\\":82}\"}"
+          - identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":71,\\\"hi\\\":75}\"}"
             span:
-              lo: 77
-              hi: 82
-        identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}"
+              lo: 70
+              hi: 75
+        call_type: Standard
+        identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":85,\\\"hi\\\":89}\"}"
         input: []
         output:
           - Internal:
@@ -85,16 +84,16 @@ outputs:
               type_:
                 Integer: U8
               span:
-                lo: 102
-                hi: 104
+                lo: 95
+                hi: 97
         output_type:
           Integer: U8
         block:
           statements: []
           span:
-            lo: 105
-            hi: 107
+            lo: 98
+            hi: 100
         finalize: ~
         span:
-          lo: 83
-          hi: 107
+          lo: 76
+          hi: 100
