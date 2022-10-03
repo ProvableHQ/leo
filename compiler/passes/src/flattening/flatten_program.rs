@@ -131,6 +131,7 @@ impl ProgramReconstructor for Flattener<'_> {
 
         Function {
             annotations: function.annotations,
+            call_type: function.call_type,
             identifier: function.identifier,
             input: function.input,
             output: function.output,

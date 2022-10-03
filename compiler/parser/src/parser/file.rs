@@ -51,12 +51,8 @@ impl ParserContext<'_> {
                     let (id, function) = self.parse_function()?;
                     functions.insert(id, function);
                 }
-                Token::Const if self.peek_is_function() => {
-                    let (id, function) = self.parse_function()?;
-                    functions.insert(id, function);
-                }
                 Token::Identifier(sym::test) => return Err(ParserError::test_function(self.token.span).into()),
-                Token::Function => {
+                Token::Function | Token::Transition => {
                     let (id, function) = self.parse_function()?;
                     functions.insert(id, function);
                 }
@@ -330,15 +326,6 @@ impl ParserContext<'_> {
         )
     }
 
-    /// Returns `true` if the next token is Function or if it is a Const followed by Function.
-    /// Returns `false` otherwise.
-    fn peek_is_function(&self) -> bool {
-        matches!(
-            (&self.token.token, self.look_ahead(1, |t| &t.token)),
-            (Token::Function, _) | (Token::Const, Token::Function)
-        )
-    }
-
     /// Returns an [`Annotation`] AST node if the next tokens represent an annotation.
     fn parse_annotation(&mut self) -> Result<Annotation> {
         // Parse the `@` symbol and identifier.
@@ -364,8 +351,12 @@ impl ParserContext<'_> {
         while self.look_ahead(0, |t| &t.token) == &Token::At {
             annotations.push(self.parse_annotation()?)
         }
-        // Parse `function IDENT`.
-        let start = self.expect(&Token::Function)?;
+        // Parse `<call_type> IDENT`, where `<call_type>` is `function` or `transition`.
+        let (call_type, start) = match self.token.token {
+            Token::Function => (CallType::Standard, self.expect(&Token::Function)?),
+            Token::Transition => (CallType::Transition, self.expect(&Token::Transition)?),
+            _ => self.unexpected("'function', 'transition'")?,
+        };
         let name = self.expect_identifier()?;
 
         // Parse parameters.
@@ -426,7 +417,7 @@ impl ParserContext<'_> {
         let span = start + block.span;
         Ok((
             name,
-            Function::new(annotations, name, inputs, output, block, finalize, span),
+            Function::new(annotations, call_type, name, inputs, output, block, finalize, span),
         ))
     }
 }

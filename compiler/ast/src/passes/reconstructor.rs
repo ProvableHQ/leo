@@ -341,6 +341,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
     fn reconstruct_function(&mut self, input: Function) -> Function {
         Function {
             annotations: input.annotations,
+            call_type: input.call_type,
             identifier: input.identifier,
             input: input.input,
             output: input.output,

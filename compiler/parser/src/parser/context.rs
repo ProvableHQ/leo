@@ -177,7 +177,7 @@ impl<'a> ParserContext<'a> {
     }
 
     /// Returns an unexpected error at the current token.
-    fn unexpected<T>(&self, expected: impl Display) -> Result<T> {
+    pub(super) fn unexpected<T>(&self, expected: impl Display) -> Result<T> {
         Err(ParserError::unexpected(&self.token.token, expected, self.token.span).into())
     }
 
