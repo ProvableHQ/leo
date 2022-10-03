@@ -97,3 +97,31 @@ outputs:
         span:
           lo: 76
           hi: 100
+      "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":120,\\\"hi\\\":123}\"}":
+        annotations:
+          - identifier: "{\"name\":\"program\",\"span\":\"{\\\"lo\\\":103,\\\"hi\\\":110}\"}"
+            span:
+              lo: 102
+              hi: 110
+        call_type: Standard
+        identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":120,\\\"hi\\\":123}\"}"
+        input: []
+        output:
+          - Internal:
+              mode: None
+              type_:
+                Integer: U8
+              span:
+                lo: 129
+                hi: 131
+        output_type:
+          Integer: U8
+        block:
+          statements: []
+          span:
+            lo: 132
+            hi: 134
+        finalize: ~
+        span:
+          lo: 111
+          hi: 134

@@ -12,3 +12,6 @@ transition mint() -> u8 {}
 
 @test
 function test() -> u8 {}
+
+@program
+function foo() -> u8 {}
