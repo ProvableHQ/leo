@@ -54,7 +54,7 @@ impl<'a> CodeGenerator<'a> {
                     .map(|(operand, output)| {
                         match output {
                             Output::Internal(output) => {
-                                let visibility = if self.is_program_function {
+                                let visibility = if self.is_transition_function {
                                     match self.in_finalize {
                                         // If in finalize block, the default visibility is public.
                                         true => match output.mode {

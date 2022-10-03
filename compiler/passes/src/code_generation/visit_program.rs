@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{functions, Function, Identifier, Mapping, Mode, Program, Struct, Type};
+use leo_ast::{functions, CallType, Function, Identifier, Mapping, Mode, Program, Struct, Type};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -76,16 +76,11 @@ impl<'a> CodeGenerator<'a> {
 
         // Visit each `Function` in the Leo AST and produce Aleo instructions.
         input.functions.values().for_each(|function| {
-            // If the function is annotated with `@program`, then it is a program function.
-            for annotation in function.annotations.iter() {
-                if annotation.identifier.name == sym::program {
-                    self.is_program_function = true;
-                }
-            }
+            self.is_transition_function = matches!(function.call_type, CallType::Transition);
 
             let function_string = self.visit_function(function);
 
-            if self.is_program_function {
+            if self.is_transition_function {
                 functions.push_str(&function_string);
                 functions.push('\n');
             } else {
@@ -93,8 +88,8 @@ impl<'a> CodeGenerator<'a> {
                 closures.push('\n');
             }
 
-            // Unset the `is_program_function` flag.
-            self.is_program_function = false;
+            // Unset the `is_transition_function` flag.
+            self.is_transition_function = false;
         });
 
         // Closures must precede functions in the Aleo program.
@@ -167,7 +162,7 @@ impl<'a> CodeGenerator<'a> {
 
         // Construct the header of the function.
         // If a function is a program function, generate an Aleo `function`, otherwise generate an Aleo `closure`.
-        let mut function_string = match self.is_program_function {
+        let mut function_string = match self.is_transition_function {
             true => format!("function {}:\n", function.identifier),
             false => format!("closure {}:\n", function.identifier),
         };
@@ -181,7 +176,7 @@ impl<'a> CodeGenerator<'a> {
                 functions::Input::Internal(input) => {
                     self.variable_mapping
                         .insert(&input.identifier.name, register_string.clone());
-                    let visibility = match (self.is_program_function, input.mode) {
+                    let visibility = match (self.is_transition_function, input.mode) {
                         (true, Mode::None) => Mode::Private,
                         _ => input.mode,
                     };
@@ -226,7 +221,7 @@ impl<'a> CodeGenerator<'a> {
                         self.variable_mapping
                             .insert(&input.identifier.name, register_string.clone());
 
-                        let visibility = match (self.is_program_function, input.mode) {
+                        let visibility = match (self.is_transition_function, input.mode) {
                             (true, Mode::None) => Mode::Public,
                             _ => input.mode,
                         };
