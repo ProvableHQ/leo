@@ -215,6 +215,7 @@ symbols! {
     std,
     Struct: "struct",
     test,
+    transition,
     Type: "type",
 
     public,

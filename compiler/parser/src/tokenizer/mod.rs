@@ -109,6 +109,7 @@ mod tests {
     string
     struct
     test
+    transition
     true
     u128
     u64
@@ -159,7 +160,7 @@ mod tests {
 
             assert_eq!(
                 output,
-                r#""test" "test{}test" "test{}" "{}test" "test{" "test}" "test{test" "test}test" "te{{}}" test_ident 12345 address async bool const else false field finalize for function group i128 i64 i32 i16 i8 if in input let mut return scalar self string struct test true u128 u64 u32 u16 u8 console ! != && ( ) * ** + , - -> => _ . .. / : ; < <= = == > >= [ ] { { } } || ? @ // test
+                r#""test" "test{}test" "test{}" "{}test" "test{" "test}" "test{test" "test}test" "te{{}}" test_ident 12345 address async bool const else false field finalize for function group i128 i64 i32 i16 i8 if in input let mut return scalar self string struct test transition true u128 u64 u32 u16 u8 console ! != && ( ) * ** + , - -> => _ . .. / : ; < <= = == > >= [ ] { { } } || ? @ // test
  /* test */ // "#
             );
         });

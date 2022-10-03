@@ -132,6 +132,7 @@ pub enum Token {
     SelfLower,
     Static,
     Struct,
+    Transition,
     // For imports.
     Leo,
 
@@ -177,6 +178,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Static,
     Token::String,
     Token::Struct,
+    Token::Transition,
     Token::True,
     Token::U8,
     Token::U16,
@@ -228,6 +230,7 @@ impl Token {
             Token::Static => sym::Static,
             Token::String => sym::string,
             Token::Struct => sym::Struct,
+            Token::Transition => sym::transition,
             Token::True => sym::True,
             Token::U8 => sym::u8,
             Token::U16 => sym::u16,
@@ -344,6 +347,7 @@ impl fmt::Display for Token {
             Return => write!(f, "return"),
             Static => write!(f, "static"),
             Struct => write!(f, "struct"),
+            Transition => write!(f, "transition"),
             Leo => write!(f, "leo"),
             Eof => write!(f, "<eof>"),
         }

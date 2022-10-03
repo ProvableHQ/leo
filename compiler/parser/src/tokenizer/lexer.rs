@@ -427,6 +427,7 @@ impl Token {
                     "self" => Token::SelfLower,
                     "string" => Token::String,
                     "struct" => Token::Struct,
+                    "transition" => Token::Transition,
                     "true" => Token::True,
                     "u8" => Token::U8,
                     "u16" => Token::U16,
