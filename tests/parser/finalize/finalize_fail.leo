@@ -3,28 +3,30 @@ namespace: Parse
 expectation: Fail
 */
 
-function main() -> bool {
-
-} finalize {
-
+program test.aleo {    
+    function main() -> bool {
+    
+    } finalize {
+    
+    }
+    
+    function main() -> bool {
+    
+    } finalize() {
+    
+    }
+    
+    function main() -> bool {
+    
+    } finalie() {
+    
+    }
+    
+    function main() -> bool {
+    
+    } finalize main() floo {
+    
+    }
+    
+    
 }
-
-function main() -> bool {
-
-} finalize() {
-
-}
-
-function main() -> bool {
-
-} finalie() {
-
-}
-
-function main() -> bool {
-
-} finalize main() floo {
-
-}
-
-

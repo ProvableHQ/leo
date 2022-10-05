@@ -3,7 +3,8 @@ namespace: Parse
 expectation: Fail
 */
 
-
-circuit Foo {
-    a: u8;
-}
+program test.aleo {    
+    
+    circuit Foo {
+        a: u8;
+    }}
