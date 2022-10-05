@@ -218,6 +218,7 @@ symbols! {
     transition,
     Type: "type",
 
+    aleo,
     public,
     private,
     owner,

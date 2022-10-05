@@ -19,7 +19,6 @@ use crate::parse_ast;
 use leo_errors::{CompilerError, ParserError, ParserWarning, Result};
 use leo_span::source_map::FileName;
 use leo_span::symbol::with_session_globals;
-use leo_span::{sym, Symbol};
 
 use std::fs;
 
@@ -27,9 +26,7 @@ impl ParserContext<'_> {
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     pub fn parse_program(&mut self) -> Result<Program> {
         let mut imports = IndexMap::new();
-        let mut functions = IndexMap::new();
-        let mut structs = IndexMap::new();
-        let mut mappings = IndexMap::new();
+        let mut program_scopes = IndexMap::new();
 
         // TODO: Condense logic
         while self.has_next() {
@@ -38,36 +35,16 @@ impl ParserContext<'_> {
                     let (id, import) = self.parse_import()?;
                     imports.insert(id, import);
                 }
-                // TODO: Error for circuit token
-                Token::Struct | Token::Record => {
-                    let (id, struct_) = self.parse_struct()?;
-                    structs.insert(id, struct_);
+                Token::Program => {
+                    let program_scope = self.parse_program_scope()?;
+                    program_scopes.insert((program_scope.name, program_scope.network), program_scope);
                 }
-                Token::Mapping => {
-                    let (id, mapping) = self.parse_mapping()?;
-                    mappings.insert(id, mapping);
-                }
-                Token::At => {
-                    let (id, function) = self.parse_function()?;
-                    functions.insert(id, function);
-                }
-                Token::Identifier(sym::test) => return Err(ParserError::test_function(self.token.span).into()),
-                Token::Function | Token::Transition => {
-                    let (id, function) = self.parse_function()?;
-                    functions.insert(id, function);
-                }
-                Token::Circuit => return Err(ParserError::circuit_is_deprecated(self.token.span).into()),
                 _ => return Err(Self::unexpected_item(&self.token).into()),
             }
         }
         Ok(Program {
-            name: String::new(),
-            network: String::new(),
-            expected_input: Vec::new(),
             imports,
-            functions,
-            structs,
-            mappings,
+            program_scopes,
         })
     }
 
@@ -127,6 +104,59 @@ impl ParserContext<'_> {
         let program_ast = parse_ast(self.handler, &prg_sf.src, prg_sf.start_pos)?;
 
         Ok((import_name, program_ast.into_repr()))
+    }
+
+    /// Parsers a program scope `program foo.aleo { ... }`.
+    fn parse_program_scope(&mut self) -> Result<ProgramScope> {
+        // Parse `program` keyword.
+        let _start = self.expect(&Token::Program)?;
+
+        // Parse the program name.
+        let name = self.expect_identifier()?;
+
+        // Parse the program network.
+        self.expect(&Token::Dot)?;
+
+        let network = self.expect_identifier()?;
+
+        // Parse `{`.
+        let _open = self.expect(&Token::OpenBrace)?;
+
+        // Parse the body of the program scope.
+        let mut functions = IndexMap::new();
+        let mut structs = IndexMap::new();
+        let mut mappings = IndexMap::new();
+
+        while self.has_next() {
+            match &self.token.token {
+                Token::Struct | Token::Record => {
+                    let (id, struct_) = self.parse_struct()?;
+                    structs.insert(id, struct_);
+                }
+                Token::Mapping => {
+                    let (id, mapping) = self.parse_mapping()?;
+                    mappings.insert(id, mapping);
+                }
+                Token::At | Token::Function | Token::Transition => {
+                    let (id, function) = self.parse_function()?;
+                    functions.insert(id, function);
+                }
+                Token::Circuit => return Err(ParserError::circuit_is_deprecated(self.token.span).into()),
+                Token::CloseBrace => break,
+                _ => return Err(Self::unexpected_item(&self.token).into()),
+            }
+        }
+
+        // Parse `}`.
+        let _close = self.expect(&Token::CloseBrace)?;
+
+        Ok(ProgramScope {
+            name,
+            network,
+            functions,
+            structs,
+            mappings,
+        })
     }
 
     /// Returns a [`Vec<Member>`] AST node if the next tokens represent a struct member.
@@ -421,3 +451,5 @@ impl ParserContext<'_> {
         ))
     }
 }
+
+use leo_span::{sym, Symbol};

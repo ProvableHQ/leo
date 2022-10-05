@@ -420,6 +420,7 @@ impl Token {
                     "let" => Token::Let,
                     "leo" => Token::Leo,
                     "mapping" => Token::Mapping,
+                    "program" => Token::Program,
                     "public" => Token::Public,
                     "record" => Token::Record,
                     "return" => Token::Return,
