@@ -312,13 +312,27 @@ pub trait StatementReconstructor: ExpressionReconstructor {
 pub trait ProgramReconstructor: StatementReconstructor {
     fn reconstruct_program(&mut self, input: Program) -> Program {
         Program {
-            name: input.name,
-            network: input.network,
-            expected_input: input.expected_input,
             imports: input
                 .imports
                 .into_iter()
                 .map(|(id, import)| (id, self.reconstruct_import(import)))
+                .collect(),
+            program_scopes: input
+                .program_scopes
+                .into_iter()
+                .map(|(id, scope)| (id, self.reconstruct_program_scope(scope)))
+                .collect(),
+        }
+    }
+
+    fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
+        ProgramScope {
+            name: input.name,
+            network: input.network,
+            structs: input
+                .structs
+                .into_iter()
+                .map(|(i, c)| (i, self.reconstruct_struct(c)))
                 .collect(),
             mappings: input
                 .mappings
@@ -329,11 +343,6 @@ pub trait ProgramReconstructor: StatementReconstructor {
                 .functions
                 .into_iter()
                 .map(|(i, f)| (i, self.reconstruct_function(f)))
-                .collect(),
-            structs: input
-                .structs
-                .into_iter()
-                .map(|(i, c)| (i, self.reconstruct_struct(c)))
                 .collect(),
         }
     }

@@ -195,6 +195,13 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
     fn visit_program(&mut self, input: &'a Program) {
         input.imports.values().for_each(|import| self.visit_import(import));
 
+        input
+            .program_scopes
+            .values()
+            .for_each(|scope| self.visit_program_scope(scope));
+    }
+
+    fn visit_program_scope(&mut self, input: &'a ProgramScope) {
         input.structs.values().for_each(|function| self.visit_struct(function));
 
         input.mappings.values().for_each(|mapping| self.visit_mapping(mapping));

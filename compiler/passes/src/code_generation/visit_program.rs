@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{functions, CallType, Function, Identifier, Mapping, Mode, Program, Struct, Type};
+use leo_ast::{functions, CallType, Function, Identifier, Mapping, Mode, Program, ProgramScope, Struct, Type};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -42,16 +42,24 @@ impl<'a> CodeGenerator<'a> {
             program_string.push('\n');
         }
 
+        // Retrieve the program scope.
+        // Note that type checking guarantees that there is exactly one program scope.
+        let program_scope: &ProgramScope = input.program_scopes.values().next().unwrap();
+
         // Print the program id.
-        writeln!(program_string, "program {}.{};", input.name, input.network)
-            .expect("Failed to write program id to string.");
+        writeln!(
+            program_string,
+            "program {}.{};",
+            program_scope.name, program_scope.network
+        )
+        .expect("Failed to write program id to string.");
 
         // Newline separator.
         program_string.push('\n');
 
         // Visit each `Struct` or `Record` in the Leo AST and produce a Aleo interface instruction.
         program_string.push_str(
-            &input
+            &program_scope
                 .structs
                 .values()
                 .map(|struct_| self.visit_struct_or_record(struct_))
@@ -63,7 +71,7 @@ impl<'a> CodeGenerator<'a> {
 
         // Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
         program_string.push_str(
-            &input
+            &program_scope
                 .mappings
                 .values()
                 .map(|mapping| self.visit_mapping(mapping))
@@ -75,7 +83,7 @@ impl<'a> CodeGenerator<'a> {
         let mut functions = String::new();
 
         // Visit each `Function` in the Leo AST and produce Aleo instructions.
-        input.functions.values().for_each(|function| {
+        program_scope.functions.values().for_each(|function| {
             self.is_transition_function = matches!(function.call_type, CallType::Transition);
 
             let function_string = self.visit_function(function);

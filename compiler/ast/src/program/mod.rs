@@ -19,7 +19,7 @@
 pub mod program_scope;
 pub use program_scope::*;
 
-use crate::{Identifier};
+use crate::Identifier;
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -39,7 +39,7 @@ impl fmt::Display for Program {
         for (id, _import) in self.imports.iter() {
             writeln!(f, "import {}.leo;", id)?;
         }
-        for (_, program_scope) in self.structs.iter() {
+        for (_, program_scope) in self.program_scopes.iter() {
             program_scope.fmt(f)?;
             writeln!(f,)?;
         }

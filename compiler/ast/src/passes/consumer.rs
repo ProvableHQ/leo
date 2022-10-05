@@ -129,6 +129,13 @@ pub trait MappingConsumer {
     fn consume_mapping(&mut self, input: Mapping) -> Self::Output;
 }
 
+/// A Consumer trait for program scopes in the AST.
+pub trait ProgramScopeConsumer {
+    type Output;
+
+    fn consume_program_scope(&mut self, input: ProgramScope) -> Self::Output;
+}
+
 /// A Consumer trait for the program represented by the AST.
 pub trait ProgramConsumer {
     type Output;

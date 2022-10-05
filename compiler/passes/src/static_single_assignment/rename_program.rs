@@ -16,7 +16,10 @@
 
 use crate::StaticSingleAssigner;
 
-use leo_ast::{Block, Finalize, Function, FunctionConsumer, Program, ProgramConsumer, StatementConsumer};
+use leo_ast::{
+    Block, Finalize, Function, FunctionConsumer, Program, ProgramConsumer, ProgramScope, ProgramScopeConsumer,
+    StatementConsumer,
+};
 
 impl FunctionConsumer for StaticSingleAssigner {
     type Output = Function;
@@ -84,27 +87,39 @@ impl FunctionConsumer for StaticSingleAssigner {
     }
 }
 
-impl ProgramConsumer for StaticSingleAssigner {
-    type Output = Program;
+impl ProgramScopeConsumer for StaticSingleAssigner {
+    type Output = ProgramScope;
 
-    fn consume_program(&mut self, input: Program) -> Self::Output {
-        Program {
+    fn consume_program_scope(&mut self, input: ProgramScope) -> Self::Output {
+        ProgramScope {
             name: input.name,
             network: input.network,
-            expected_input: input.expected_input,
-            // TODO: Do inputs need to be processed? They are not processed in the existing compiler.
-            imports: input
-                .imports
-                .into_iter()
-                .map(|(name, import)| (name, self.consume_program(import)))
-                .collect(),
+            structs: input.structs,
+            mappings: input.mappings,
             functions: input
                 .functions
                 .into_iter()
                 .map(|(i, f)| (i, self.consume_function(f)))
                 .collect(),
-            structs: input.structs,
-            mappings: input.mappings,
+        }
+    }
+}
+
+impl ProgramConsumer for StaticSingleAssigner {
+    type Output = Program;
+
+    fn consume_program(&mut self, input: Program) -> Self::Output {
+        Program {
+            imports: input
+                .imports
+                .into_iter()
+                .map(|(name, import)| (name, self.consume_program(import)))
+                .collect(),
+            program_scopes: input
+                .program_scopes
+                .into_iter()
+                .map(|(name, scope)| (name, self.consume_program_scope(scope)))
+                .collect(),
         }
     }
 }

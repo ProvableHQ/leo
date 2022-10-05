@@ -120,7 +120,7 @@ impl ParserContext<'_> {
         let network = self.expect_identifier()?;
 
         // Parse `{`.
-        let _open = self.expect(&Token::OpenBrace)?;
+        let _open = self.expect(&Token::LeftCurly)?;
 
         // Parse the body of the program scope.
         let mut functions = IndexMap::new();
@@ -142,13 +142,13 @@ impl ParserContext<'_> {
                     functions.insert(id, function);
                 }
                 Token::Circuit => return Err(ParserError::circuit_is_deprecated(self.token.span).into()),
-                Token::CloseBrace => break,
+                Token::RightCurly => break,
                 _ => return Err(Self::unexpected_item(&self.token).into()),
             }
         }
 
         // Parse `}`.
-        let _close = self.expect(&Token::CloseBrace)?;
+        let _close = self.expect(&Token::RightCurly)?;
 
         Ok(ProgramScope {
             name,

@@ -120,14 +120,6 @@ create_messages!(
         help: None,
     }
 
-    /// For when the parser encountered a deprecated `test function`.
-    @formatted
-    test_function {
-        args: (),
-        msg: "\"test function...\" is deprecated. Did you mean @test annotation?",
-        help: None,
-    }
-
     /// When more input was expected but not found.
     @backtraced
     lexer_empty_input {
