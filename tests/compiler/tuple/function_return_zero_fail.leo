@@ -5,6 +5,7 @@ input_file:
  - inputs/bool_bool.in
 */
 
-function main(a: bool, b: bool) -> () {
-    return ();
-}
+program test.aleo {    
+    function main(a: bool, b: bool) -> () {
+        return ();
+    }}

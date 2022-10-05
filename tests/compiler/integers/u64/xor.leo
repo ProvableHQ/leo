@@ -4,6 +4,7 @@ expectation: Pass
 input_file: inputs/add.in
 */
 
-transition main(a: u64, b: u64) -> u64 {
-    return a ^ b;
-}
+program test.aleo {    
+    transition main(a: u64, b: u64) -> u64 {
+        return a ^ b;
+    }}

@@ -3,4 +3,6 @@ namespace: Compile
 expectation: Pass
 */
 
-transition foo(a: u8, b: u8) {}
+program test.aleo {    
+    transition foo(a: u8, b: u8) {}
+}

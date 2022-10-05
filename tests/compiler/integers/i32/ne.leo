@@ -6,6 +6,8 @@ input_file:
  - inputs/ne.in
 */
 
-transition main(a: i32, b: i32, c: bool) -> bool{
-    return (a != b) == c;
+program test.aleo {    
+    transition main(a: i32, b: i32, c: bool) -> bool{
+        return (a != b) == c;
+    }
 }

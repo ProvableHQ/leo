@@ -4,7 +4,9 @@ expectation: Pass
 input_file: ../inputs/dummy.in
 */
 
-transition main(y: bool) -> bool {
-    const a: u128 = 340282366920938463463374607431768211455u128;
-    return y == true;
+program test.aleo {    
+    transition main(y: bool) -> bool {
+        const a: u128 = 340282366920938463463374607431768211455u128;
+        return y == true;
+    }
 }

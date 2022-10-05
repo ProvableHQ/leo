@@ -6,6 +6,8 @@ input_file:
  - inputs/neg_rev.in
 */
 
-transition main(a: i16, b: i16) -> bool {
-    return -a == b;
+program test.aleo {    
+    transition main(a: i16, b: i16) -> bool {
+        return -a == b;
+    }
 }

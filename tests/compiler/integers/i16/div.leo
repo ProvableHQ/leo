@@ -4,6 +4,8 @@ expectation: Pass
 input_file: inputs/div.in
 */
 
-transition main(a: i16, b: i16, c: i16) -> bool {
-    return a / b == c;
+program test.aleo {    
+    transition main(a: i16, b: i16, c: i16) -> bool {
+        return a / b == c;
+    }
 }

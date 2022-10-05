@@ -5,6 +5,7 @@ input_file:
  - inputs/fields.in
 */
 
-transition main(a: field, b: field) -> bool {
-   return -a == -b;
-}
+program test.aleo {    
+    transition main(a: field, b: field) -> bool {
+       return -a == -b;
+    }}

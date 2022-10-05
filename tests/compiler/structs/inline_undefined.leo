@@ -3,6 +3,8 @@ namespace: Compile
 expectation: Fail
 */
 
-function main() {
-    const a: Foo = Foo { };
+program test.aleo {    
+    function main() {
+        const a: Foo = Foo { };
+    }
 }

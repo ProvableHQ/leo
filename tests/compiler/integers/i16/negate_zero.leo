@@ -5,8 +5,10 @@ input_file:
  - ../inputs/dummy.in
 */
 
-transition main(y: bool) -> bool {
-    const a: i16 = 0i16;
-
-    return (-a == 0i16) == y;
+program test.aleo {    
+    transition main(y: bool) -> bool {
+        const a: i16 = 0i16;
+    
+        return (-a == 0i16) == y;
+    }
 }
