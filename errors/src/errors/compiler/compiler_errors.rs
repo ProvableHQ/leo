@@ -56,4 +56,11 @@ create_messages!(
         msg: format!("Failed to open current working directory. Error: {err}"),
         help: None,
     }
+
+    @formatted
+    program_name_should_match_file_name {
+        args: (program_name: impl Display, file_name: impl Display),
+        msg: format!("Program name `{program_name}` should match file name `{file_name}`"),
+        help: None,
+    }
 );

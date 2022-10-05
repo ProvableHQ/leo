@@ -74,7 +74,7 @@ use leo_errors::{AstError, Result};
 /// These data types form a tree that begins from a [`Program`] type root.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Ast {
-    ast: Program,
+    pub ast: Program,
 }
 
 impl Ast {

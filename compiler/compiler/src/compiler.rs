@@ -17,7 +17,7 @@
 //! The compiler for Leo programs.
 //!
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
-use leo_ast::Program;
+use leo_ast::{Node, Program};
 pub use leo_ast::{Ast, InputAst};
 use leo_errors::emitter::Handler;
 use leo_errors::{CompilerError, Result};
@@ -96,6 +96,16 @@ impl<'a> Compiler<'a> {
 
         // Use the parser to construct the abstract syntax tree (ast).
         self.ast = leo_parser::parse_ast(self.handler, &prg_sf.src, prg_sf.start_pos)?;
+
+        // Check that the name associated with the program scope matches file name.
+        if with_session_globals(|s| self.ast.ast.name.name.as_str(s, |s| s != &self.program_name)) {
+            return Err(CompilerError::program_name_should_match_file_name(
+                &self.ast.ast.name,
+                &self.program_name,
+                self.ast.ast.name.span(),
+            )
+            .into());
+        }
 
         if self.output_options.initial_ast {
             self.write_ast_to_json("initial_ast.json")?;
