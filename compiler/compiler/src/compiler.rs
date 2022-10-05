@@ -95,9 +95,7 @@ impl<'a> Compiler<'a> {
         let prg_sf = with_session_globals(|s| s.source_map.new_source(program_string, name));
 
         // Use the parser to construct the abstract syntax tree (ast).
-        let mut ast: Ast = leo_parser::parse_ast(self.handler, &prg_sf.src, prg_sf.start_pos)?;
-        ast = ast.set_program_name(self.program_name.clone());
-        self.ast = ast.set_network(self.network.clone());
+        self.ast = leo_parser::parse_ast(self.handler, &prg_sf.src, prg_sf.start_pos)?;
 
         if self.output_options.initial_ast {
             self.write_ast_to_json("initial_ast.json")?;

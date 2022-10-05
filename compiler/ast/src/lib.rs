@@ -83,18 +83,6 @@ impl Ast {
         Self { ast: program }
     }
 
-    /// Set the program name to the given string.
-    pub fn set_program_name(mut self, name: String) -> Self {
-        self.ast.name = name;
-        self
-    }
-
-    /// Set the network name to the given string.
-    pub fn set_network(mut self, network: String) -> Self {
-        self.ast.network = network;
-        self
-    }
-
     /// Returns a reference to the inner program AST representation.
     pub fn as_repr(&self) -> &Program {
         &self.ast

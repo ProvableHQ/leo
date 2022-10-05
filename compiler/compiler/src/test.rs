@@ -240,7 +240,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     };
 
     // Compile the program to bytecode.
-    let program_name = format!("{}.aleo", parsed.program_name);
+    let program_name = format!("{}.{}", parsed.program_name, parsed.network);
     let bytecode = handler.extend_if_error(compile_and_process(&mut parsed, handler))?;
 
     // Run snarkvm package.
