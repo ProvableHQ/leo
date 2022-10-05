@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::parse_file_paths;
+
 use leo_errors::{PackageError, Result};
 
 use std::{
@@ -52,5 +53,14 @@ impl SourceDirectory {
         parse_file_paths(directory, &mut file_paths)?;
 
         Ok(file_paths)
+    }
+
+    /// Check that the files in the source directory are valid.
+    pub fn check_files(paths: &[PathBuf]) -> Result<()> {
+        match paths.len() {
+            0 => Err(PackageError::empty_source_directory().into()),
+            1 => Ok(()),
+            _ => Err(PackageError::source_directory_can_contain_only_one_file().into()),
+        }
     }
 }

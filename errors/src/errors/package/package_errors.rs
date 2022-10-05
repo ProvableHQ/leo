@@ -291,4 +291,18 @@ create_messages!(
         msg: format!("Failed to remove aleo file: {}.", error),
         help: None,
     }
+
+    @backtraced
+    empty_source_directory {
+        args: (),
+        msg: "The `src/` directory is empty.".to_string(),
+        help: Some("Add a `main.leo` file to the `src/` directory.".to_string()),
+    }
+
+    @backtraced
+    source_directory_can_contain_only_one_file {
+        args: (),
+        msg: "The `src/` directory can contain only one file.".to_string(),
+        help: None,
+    }
 );

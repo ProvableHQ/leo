@@ -20,7 +20,7 @@ use crate::{commands::Command, context::Context};
 use leo_ast::Struct;
 use leo_compiler::{Compiler, InputAst, OutputOptions};
 use leo_errors::{CliError, CompilerError, PackageError, Result};
-use leo_package::source::{SourceDirectory, MAIN_FILENAME};
+use leo_package::source::SourceDirectory;
 use leo_package::{inputs::InputFile, outputs::OutputsDirectory};
 use leo_span::symbol::with_session_globals;
 
@@ -28,6 +28,7 @@ use aleo::commands::Build as AleoBuild;
 
 use clap::StructOpt;
 use indexmap::IndexMap;
+use snarkvm::prelude::{ProgramID, Testnet3};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
@@ -104,8 +105,9 @@ impl Command for Build {
         // Get the package path.
         let package_path = context.dir()?;
 
-        // Get the program name.
-        let package_name = context.open_manifest()?.program_id().name().to_string();
+        // Get the program id.
+        let manifest = context.open_manifest()?;
+        let program_id = manifest.program_id();
 
         // Create the outputs directory.
         let outputs_directory = OutputsDirectory::create(&package_path)?;
@@ -119,6 +121,9 @@ impl Command for Build {
         // Fetch paths to all .leo files in the source directory.
         let source_files = SourceDirectory::files(&package_path)?;
 
+        // Check the source files.
+        SourceDirectory::check_files(&source_files)?;
+
         // Store all struct declarations made in the source files.
         let mut structs = IndexMap::new();
 
@@ -127,7 +132,7 @@ impl Command for Build {
             structs.extend(compile_leo_file(
                 file_path,
                 &package_path,
-                &package_name,
+                program_id,
                 &outputs_directory,
                 &build_directory,
                 &handler,
@@ -147,7 +152,7 @@ impl Command for Build {
                 structs.extend(compile_leo_file(
                     file_path,
                     &package_path,
-                    &package_name,
+                    program_id,
                     &outputs_directory,
                     &build_imports_directory,
                     &handler,
@@ -157,7 +162,7 @@ impl Command for Build {
         }
 
         // Load the input file at `package_name.in`
-        let input_file_path = InputFile::new(&package_name).setup_file_path(&package_path);
+        let input_file_path = InputFile::new(&manifest.program_id().name().to_string()).setup_file_path(&package_path);
 
         // Parse the input file.
         let input_ast = if input_file_path.exists() {
@@ -195,7 +200,7 @@ impl Command for Build {
 fn compile_leo_file(
     file_path: PathBuf,
     _package_path: &Path,
-    package_name: &String,
+    program_id: &ProgramID<Testnet3>,
     outputs: &Path,
     build: &Path,
     handler: &Handler,
@@ -212,18 +217,10 @@ fn compile_leo_file(
         .strip_suffix(".leo")
         .ok_or_else(PackageError::failed_to_get_file_name)?;
 
-    // Construct program id header for aleo file.
-    // Do not create a program with main.aleo as the ID.
-    let program_id_name = if file_name.eq(MAIN_FILENAME) {
-        package_name
-    } else {
-        program_name
-    };
-
     // Create a new instance of the Leo compiler.
     let mut program = Compiler::new(
-        program_id_name.to_string(),
-        String::from("aleo"), // todo: fetch this from Network::Testnet3
+        program_name.to_string(),
+        program_id.network().to_string(),
         handler,
         file_path.clone(),
         outputs.to_path_buf(),
