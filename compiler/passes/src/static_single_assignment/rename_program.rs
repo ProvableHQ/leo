@@ -101,6 +101,7 @@ impl ProgramScopeConsumer for StaticSingleAssigner {
                 .into_iter()
                 .map(|(i, f)| (i, self.consume_function(f)))
                 .collect(),
+            span: input.span,
         }
     }
 }

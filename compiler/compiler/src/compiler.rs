@@ -51,6 +51,8 @@ pub struct Compiler<'a> {
     pub input_ast: Option<InputAst>,
     /// Compiler options on some optional output files.
     output_options: OutputOptions,
+    /// Whether or not we are compiling an imported program.
+    is_import: bool,
 }
 
 impl<'a> Compiler<'a> {
@@ -62,6 +64,7 @@ impl<'a> Compiler<'a> {
         main_file_path: PathBuf,
         output_directory: PathBuf,
         output_options: Option<OutputOptions>,
+        is_import: bool,
     ) -> Self {
         Self {
             handler,
@@ -72,6 +75,7 @@ impl<'a> Compiler<'a> {
             ast: Ast::new(Program::default()),
             input_ast: None,
             output_options: output_options.unwrap_or_default(),
+            is_import,
         }
     }
 
@@ -97,7 +101,20 @@ impl<'a> Compiler<'a> {
         // Use the parser to construct the abstract syntax tree (ast).
         self.ast = leo_parser::parse_ast(self.handler, &prg_sf.src, prg_sf.start_pos)?;
 
-        // TODO: Check that the program name matches the file name.
+        // If the program is imported, then check that the name of its program scope matches the file name.
+        // Note that parsing enforces that there is exactly one program scope in a file.
+        // TODO: Clean up check.
+        let program_scope = self.ast.ast.program_scopes.values().next().unwrap();
+        let program_scope_name =
+            with_session_globals(|s| program_scope.name.name.as_str(s, |string| string.to_string()));
+        if self.is_import && program_scope_name != self.program_name {
+            return Err(CompilerError::imported_program_name_does_not_match_filename(
+                program_scope_name,
+                self.program_name.clone(),
+                program_scope.name.span,
+            )
+            .into());
+        }
 
         if self.output_options.initial_ast {
             self.write_ast_to_json("initial_ast.json")?;

@@ -344,6 +344,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
                 .into_iter()
                 .map(|(i, f)| (i, self.reconstruct_function(f)))
                 .collect(),
+            span: input.span,
         }
     }
 

@@ -18,6 +18,7 @@ use crate::parse_file_paths;
 
 use leo_errors::{PackageError, Result};
 
+use crate::source::MAIN_FILENAME;
 use std::{
     borrow::Cow,
     fs,
@@ -59,7 +60,7 @@ impl SourceDirectory {
     pub fn check_files(paths: &[PathBuf]) -> Result<()> {
         match paths.len() {
             0 => Err(PackageError::empty_source_directory().into()),
-            1 => Ok(()),
+            1 if paths[0].as_path().ends_with(MAIN_FILENAME) => Ok(()),
             _ => Err(PackageError::source_directory_can_contain_only_one_file().into()),
         }
     }

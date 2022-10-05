@@ -250,4 +250,25 @@ create_messages!(
         msg: "The keyword `circuit` is deprecated.",
         help: Some("Use `struct` instead.".to_string()),
     }
+
+    @formatted
+    only_one_program_scope_is_allowed {
+        args: (),
+        msg: "Only one program scope is allowed in a Leo file.",
+        help: None,
+    }
+
+    @formatted
+    missing_program_scope {
+        args: (),
+        msg: "Missing a program scope in a Leo file.",
+        help: Some("Add a program scope of the form: `program <name>.aleo { ... }` to the Leo file.".to_string()),
+    }
+
+    @formatted
+    invalid_network {
+        args: (),
+        msg: "Invalid network identifier. The only supported identifier is `aleo`.",
+        help: None,
+    }
 );

@@ -28,7 +28,9 @@ impl ParserContext<'_> {
         let mut imports = IndexMap::new();
         let mut program_scopes = IndexMap::new();
 
-        // TODO: Condense logic
+        // TODO: Remove restrictions on multiple program scopes
+        let mut parsed_program_scope = false;
+
         while self.has_next() {
             match &self.token.token {
                 Token::Import => {
@@ -36,12 +38,25 @@ impl ParserContext<'_> {
                     imports.insert(id, import);
                 }
                 Token::Program => {
-                    let program_scope = self.parse_program_scope()?;
-                    program_scopes.insert((program_scope.name, program_scope.network), program_scope);
+                    match parsed_program_scope {
+                        // Only one program scope is allowed per file.
+                        true => return Err(ParserError::only_one_program_scope_is_allowed(self.token.span).into()),
+                        false => {
+                            parsed_program_scope = true;
+                            let program_scope = self.parse_program_scope()?;
+                            program_scopes.insert((program_scope.name, program_scope.network), program_scope);
+                        }
+                    }
                 }
                 _ => return Err(Self::unexpected_item(&self.token).into()),
             }
         }
+
+        // Requires that at least one program scope is present.
+        if !parsed_program_scope {
+            return Err(ParserError::missing_program_scope(self.token.span).into());
+        }
+
         Ok(Program {
             imports,
             program_scopes,
@@ -109,18 +124,22 @@ impl ParserContext<'_> {
     /// Parsers a program scope `program foo.aleo { ... }`.
     fn parse_program_scope(&mut self) -> Result<ProgramScope> {
         // Parse `program` keyword.
-        let _start = self.expect(&Token::Program)?;
+        let start = self.expect(&Token::Program)?;
 
         // Parse the program name.
         let name = self.expect_identifier()?;
 
         // Parse the program network.
         self.expect(&Token::Dot)?;
-
         let network = self.expect_identifier()?;
 
+        // Check that the program network is valid.
+        if network.name != sym::aleo {
+            return Err(ParserError::invalid_network(network.span).into());
+        }
+
         // Parse `{`.
-        let _open = self.expect(&Token::LeftCurly)?;
+        self.expect(&Token::LeftCurly)?;
 
         // Parse the body of the program scope.
         let mut functions = IndexMap::new();
@@ -148,7 +167,7 @@ impl ParserContext<'_> {
         }
 
         // Parse `}`.
-        let _close = self.expect(&Token::RightCurly)?;
+        let end = self.expect(&Token::RightCurly)?;
 
         Ok(ProgramScope {
             name,
@@ -156,6 +175,7 @@ impl ParserContext<'_> {
             functions,
             structs,
             mappings,
+            span: start + end,
         })
     }
 

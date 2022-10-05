@@ -63,4 +63,11 @@ create_messages!(
         msg: format!("Program name `{program_name}` should match file name `{file_name}`"),
         help: None,
     }
+
+    @formatted
+    imported_program_name_does_not_match_filename {
+        args: (program_scope_name: impl Display, file_name: impl Display),
+        msg: format!("The program scope `{program_scope_name}` does not match its filename `{file_name}`."),
+        help: None,
+    }
 );

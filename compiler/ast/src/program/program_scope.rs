@@ -19,6 +19,7 @@
 use crate::{Function, Identifier, Mapping, Struct};
 
 use indexmap::IndexMap;
+use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -35,6 +36,8 @@ pub struct ProgramScope {
     pub mappings: IndexMap<Identifier, Mapping>,
     /// A map from function names to function definitions.
     pub functions: IndexMap<Identifier, Function>,
+    /// The span associated with the program scope.
+    pub span: Span,
 }
 
 impl fmt::Display for ProgramScope {

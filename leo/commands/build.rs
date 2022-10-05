@@ -137,6 +137,7 @@ impl Command for Build {
                 &build_directory,
                 &handler,
                 self.compiler_options.clone(),
+                false,
             )?);
         }
 
@@ -157,6 +158,7 @@ impl Command for Build {
                     &build_imports_directory,
                     &handler,
                     self.compiler_options.clone(),
+                    true,
                 )?);
             }
         }
@@ -197,6 +199,8 @@ impl Command for Build {
     }
 }
 
+/// Compiles a Leo file in the `src/` directory.
+#[allow(clippy::too_many_arguments)]
 fn compile_leo_file(
     file_path: PathBuf,
     _package_path: &Path,
@@ -205,6 +209,7 @@ fn compile_leo_file(
     build: &Path,
     handler: &Handler,
     options: BuildOptions,
+    is_import: bool,
 ) -> Result<IndexMap<Symbol, Struct>> {
     // Construct the Leo file name with extension `foo.leo`.
     let file_name = file_path
@@ -218,13 +223,14 @@ fn compile_leo_file(
         .ok_or_else(PackageError::failed_to_get_file_name)?;
 
     // Create a new instance of the Leo compiler.
-    let mut program = Compiler::new(
+    let mut compiler = Compiler::new(
         program_name.to_string(),
         program_id.network().to_string(),
         handler,
         file_path.clone(),
         outputs.to_path_buf(),
         Some(options.into()),
+        is_import,
     );
 
     // TODO: Temporarily removing checksum files. Need to redesign this scheme.
@@ -258,7 +264,7 @@ fn compile_leo_file(
 
     // if checksum_differs {
     // Compile the Leo program into Aleo instructions.
-    let (symbol_table, instructions) = program.compile_and_generate_instructions()?;
+    let (symbol_table, instructions) = compiler.compile_and_generate_instructions()?;
 
     // Create the path to the Aleo file.
     let mut aleo_file_path = build.to_path_buf();

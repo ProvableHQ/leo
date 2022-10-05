@@ -302,7 +302,7 @@ create_messages!(
     @backtraced
     source_directory_can_contain_only_one_file {
         args: (),
-        msg: "The `src/` directory can contain only one file.".to_string(),
+        msg: "The `src/` directory can contain only one file and must be named `main.leo`.".to_string(),
         help: None,
     }
 );
