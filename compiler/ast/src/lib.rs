@@ -63,8 +63,7 @@ pub use self::types::*;
 pub mod value;
 pub use self::value::*;
 
-mod node;
-pub use node::*;
+pub use common::node::*;
 
 use leo_errors::{AstError, Result};
 
