@@ -60,7 +60,6 @@ fn new_compiler(handler: &Handler, main_file_path: PathBuf) -> Compiler<'_> {
             ssa_ast: true,
             flattened_ast: true,
         }),
-        false,
     )
 }
 

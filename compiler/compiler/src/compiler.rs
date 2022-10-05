@@ -51,8 +51,6 @@ pub struct Compiler<'a> {
     pub input_ast: Option<InputAst>,
     /// Compiler options on some optional output files.
     output_options: OutputOptions,
-    /// Whether or not we are compiling an imported program.
-    is_import: bool,
 }
 
 impl<'a> Compiler<'a> {
@@ -64,7 +62,6 @@ impl<'a> Compiler<'a> {
         main_file_path: PathBuf,
         output_directory: PathBuf,
         output_options: Option<OutputOptions>,
-        is_import: bool,
     ) -> Self {
         Self {
             handler,
@@ -75,7 +72,6 @@ impl<'a> Compiler<'a> {
             ast: Ast::new(Program::default()),
             input_ast: None,
             output_options: output_options.unwrap_or_default(),
-            is_import,
         }
     }
 
@@ -107,8 +103,8 @@ impl<'a> Compiler<'a> {
         let program_scope = self.ast.ast.program_scopes.values().next().unwrap();
         let program_scope_name =
             with_session_globals(|s| program_scope.name.name.as_str(s, |string| string.to_string()));
-        if self.is_import && program_scope_name != self.program_name {
-            return Err(CompilerError::imported_program_name_does_not_match_filename(
+        if program_scope_name != self.program_name {
+            return Err(CompilerError::program_scope_name_does_not_match(
                 program_scope_name,
                 self.program_name.clone(),
                 program_scope.name.span,

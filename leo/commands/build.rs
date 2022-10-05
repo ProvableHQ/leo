@@ -217,58 +217,35 @@ fn compile_leo_file(
         .and_then(|name| name.to_str())
         .ok_or_else(PackageError::failed_to_get_file_name)?;
 
-    // Construct program name from file_path name `foo`.
-    let program_name = file_name
-        .strip_suffix(".leo")
-        .ok_or_else(PackageError::failed_to_get_file_name)?;
+    // If the program is an import, construct program name from file_path
+    // Otherwise, use the program_id found in `package.json`.
+    let program_name = match is_import {
+        false => program_id.name().to_string(),
+        true => file_name
+            .strip_suffix(".leo")
+            .ok_or_else(PackageError::failed_to_get_file_name)?
+            .to_string(),
+    };
+
+    // Create the path to the Aleo file.
+    let mut aleo_file_path = build.to_path_buf();
+    aleo_file_path.push(match is_import {
+        true => format!("{}.{}", program_name, program_id.network()),
+        false => format!("main.{}", program_id.network()),
+    });
 
     // Create a new instance of the Leo compiler.
     let mut compiler = Compiler::new(
-        program_name.to_string(),
+        program_name,
         program_id.network().to_string(),
         handler,
         file_path.clone(),
         outputs.to_path_buf(),
         Some(options.into()),
-        is_import,
     );
 
-    // TODO: Temporarily removing checksum files. Need to redesign this scheme.
-    // // Check if we need to compile the Leo program.
-    // let checksum_differs = {
-    //     // Compute the current program checksum.
-    //     let program_checksum = program.checksum()?;
-    //
-    //     // Get the current program checksum.
-    //     let checksum_file = ChecksumFile::new(program_name);
-    //
-    //     // If a checksum file exists, check if it differs from the new checksum.
-    //     let checksum_differs = if checksum_file.exists_at(package_path) {
-    //         let previous_checksum = checksum_file.read_from(package_path)?;
-    //         program_checksum != previous_checksum
-    //     } else {
-    //         // By default, the checksum differs if there is no checksum to compare against.
-    //         true
-    //     };
-    //
-    //     // If checksum differs, compile the program
-    //     if checksum_differs {
-    //         // Write the new checksum to the output directory
-    //         checksum_file.write_to(package_path, program_checksum)?;
-    //
-    //         tracing::debug!("Checksum saved ({:?})", package_path);
-    //     }
-    //
-    //     checksum_differs
-    // };
-
-    // if checksum_differs {
     // Compile the Leo program into Aleo instructions.
     let (symbol_table, instructions) = compiler.compile_and_generate_instructions()?;
-
-    // Create the path to the Aleo file.
-    let mut aleo_file_path = build.to_path_buf();
-    aleo_file_path.push(format!("{}.aleo", program_name));
 
     // Write the instructions.
     std::fs::File::create(&aleo_file_path)
