@@ -416,7 +416,6 @@ impl ParserContext<'_> {
     /// and function definition.
     fn parse_function(&mut self) -> Result<(Identifier, Function)> {
         // TODO: Handle dangling annotations.
-        // TODO: Handle duplicate annotations.
         // Parse annotations, if they exist.
         let mut annotations = Vec::new();
         while self.look_ahead(0, |t| &t.token) == &Token::At {
