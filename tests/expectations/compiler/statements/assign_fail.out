@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370017]: Could not lex the following content: `🦀`.\n"
+  - "Error [EPAR0370016]: Could not lex the following content: `🦀`.\n"

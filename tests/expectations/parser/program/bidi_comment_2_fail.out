@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error [EPAR0370021]: Unicode bidi override code point encountered."
+  - "Error [EPAR0370020]: Unicode bidi override code point encountered."

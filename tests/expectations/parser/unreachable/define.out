@@ -46,4 +46,4 @@ outputs:
   - "Error [EPAR0370005]: expected ; -- found 'x'\n    --> test:1:6\n     |\n   1 | Self x = 10u8;\n     |      ^"
   - "Error [EPAR0370005]: expected ; -- found 'x'\n    --> test:1:6\n     |\n   1 | true x = 10u8;\n     |      ^"
   - "Error [EPAR0370005]: expected ; -- found 'x'\n    --> test:1:7\n     |\n   1 | false x = 10u8;\n     |       ^"
-  - "Error [EPAR0370018]: Could not parse the implicit value: 0.\n    --> test:1:1\n     |\n   1 | 0 x = 10u8;\n     | ^"
+  - "Error [EPAR0370017]: Could not parse the implicit value: 0.\n    --> test:1:1\n     |\n   1 | 0 x = 10u8;\n     | ^"

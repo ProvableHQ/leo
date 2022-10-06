@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372007]: Expected one type from `field`, but got `scalar`\n    --> compiler-test:4:12\n     |\n   4 |     return a.square_root(); // square root not supported for scalar types.\n     |            ^^^^^^^^^^^^^^^\n"
+  - "Error [ETYC0372007]: Expected one type from `field`, but got `scalar`\n    --> compiler-test:5:16\n     |\n   5 |         return a.square_root(); // square root not supported for scalar types.\n     |                ^^^^^^^^^^^^^^^\n"

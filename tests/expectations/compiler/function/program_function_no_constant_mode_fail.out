@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372008]: function `foo` shadowed by\n    --> compiler-test:6:1\n     |\n   6 | transition foo(a: u8) -> constant u8 {\n   7 |     return a + a;\n   8 | }\n     | ^\n"
+  - "Error [EAST0372008]: function `foo` shadowed by\n    --> compiler-test:7:5\n     |\n   7 |     transition foo(a: u8) -> constant u8 {\n   8 |         return a + a;\n   9 |     }\n     |     ^\n"

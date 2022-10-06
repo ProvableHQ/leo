@@ -4,7 +4,7 @@ expectation: Fail
 outputs:
   - "Error [EPAR0370009]: unexpected string: expected 'expression', found ']'\n    --> test:1:2\n     |\n   1 | (];\n     |  ^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', found '['\n    --> test:1:1\n     |\n   1 | [);\n     | ^"
-  - "Error [EPAR0370017]: Could not lex the following content: `\\y`.\n"
+  - "Error [EPAR0370016]: Could not lex the following content: `\\y`.\n"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', found ';'\n    --> test:1:6\n     |\n   1 | (x,y|;\n     |      ^"
   - "Error [EPAR0370005]: expected ; -- found '['\n    --> test:1:2\n     |\n   1 | x[};\n     |  ^"
   - "Error [EPAR0370005]: expected ) -- found ']'\n    --> test:1:6\n     |\n   1 | (x, y];\n     |      ^"

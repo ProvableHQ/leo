@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> compiler-test:4:11\n     |\n   4 |   const f = 1 field;\n     |           ^"
+  - "Error [EPAR0370005]: expected : -- found '='\n    --> compiler-test:5:15\n     |\n   5 |       const f = 1 field;\n     |               ^"
