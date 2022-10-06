@@ -92,8 +92,7 @@ impl ProgramScopeConsumer for StaticSingleAssigner {
 
     fn consume_program_scope(&mut self, input: ProgramScope) -> Self::Output {
         ProgramScope {
-            name: input.name,
-            network: input.network,
+            program_id: input.program_id,
             structs: input.structs,
             mappings: input.mappings,
             functions: input

@@ -101,13 +101,12 @@ impl<'a> Compiler<'a> {
         // Note that parsing enforces that there is exactly one program scope in a file.
         // TODO: Clean up check.
         let program_scope = self.ast.ast.program_scopes.values().next().unwrap();
-        let program_scope_name =
-            with_session_globals(|s| program_scope.name.name.as_str(s, |string| string.to_string()));
+        let program_scope_name = format!("{}", program_scope.program_id.name);
         if program_scope_name != self.program_name {
             return Err(CompilerError::program_scope_name_does_not_match(
                 program_scope_name,
                 self.program_name.clone(),
-                program_scope.name.span,
+                program_scope.program_id.name.span,
             )
             .into());
         }

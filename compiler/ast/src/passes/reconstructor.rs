@@ -327,8 +327,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
 
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
         ProgramScope {
-            name: input.name,
-            network: input.network,
+            program_id: input.program_id,
             structs: input
                 .structs
                 .into_iter()

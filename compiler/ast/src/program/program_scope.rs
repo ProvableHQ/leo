@@ -16,7 +16,7 @@
 
 //! A Leo program scope consists of struct, function, and mapping definitions.
 
-use crate::{Function, Identifier, Mapping, Struct};
+use crate::{Function, Identifier, Mapping, ProgramId, Struct};
 
 use indexmap::IndexMap;
 use leo_span::Span;
@@ -26,10 +26,8 @@ use std::fmt;
 /// Stores the Leo program scope abstract syntax tree.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ProgramScope {
-    /// The name of the program scope.
-    pub name: Identifier,
-    /// The network of the program scope.
-    pub network: Identifier,
+    /// The program id of the program scope.
+    pub program_id: ProgramId,
     /// A map from struct names to struct definitions.
     pub structs: IndexMap<Identifier, Struct>,
     /// A map from mapping names to mapping definitions.
@@ -42,7 +40,7 @@ pub struct ProgramScope {
 
 impl fmt::Display for ProgramScope {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "program {}.{} {{", self.name, self.network)?;
+        writeln!(f, "program {} {{", self.program_id)?;
         for (_, struct_) in self.structs.iter() {
             writeln!(f, "    {}", struct_)?;
         }

@@ -44,11 +44,11 @@ impl ParserContext<'_> {
                         false => {
                             parsed_program_scope = true;
                             let program_scope = self.parse_program_scope()?;
-                            program_scopes.insert((program_scope.name, program_scope.network), program_scope);
+                            program_scopes.insert(program_scope.program_id, program_scope);
                         }
                     }
                 }
-                _ => return Err(Self::unexpected_item(&self.token).into()),
+                _ => return Err(Self::unexpected_item(&self.token, &[Token::Import, Token::Program]).into()),
             }
         }
 
@@ -63,10 +63,10 @@ impl ParserContext<'_> {
         })
     }
 
-    fn unexpected_item(token: &SpannedToken) -> ParserError {
+    fn unexpected_item(token: &SpannedToken, expected: &[Token]) -> ParserError {
         ParserError::unexpected(
             &token.token,
-            [Token::Function, Token::Struct, Token::Identifier(sym::test)]
+            expected
                 .iter()
                 .map(|x| format!("'{}'", x))
                 .collect::<Vec<_>>()
@@ -133,6 +133,9 @@ impl ParserContext<'_> {
         self.expect(&Token::Dot)?;
         let network = self.expect_identifier()?;
 
+        // Construct the program id.
+        let program_id = ProgramId { name, network };
+
         // Check that the program network is valid.
         if network.name != sym::aleo {
             return Err(ParserError::invalid_network(network.span).into());
@@ -162,7 +165,20 @@ impl ParserContext<'_> {
                 }
                 Token::Circuit => return Err(ParserError::circuit_is_deprecated(self.token.span).into()),
                 Token::RightCurly => break,
-                _ => return Err(Self::unexpected_item(&self.token).into()),
+                _ => {
+                    return Err(Self::unexpected_item(
+                        &self.token,
+                        &[
+                            Token::Struct,
+                            Token::Record,
+                            Token::Mapping,
+                            Token::At,
+                            Token::Function,
+                            Token::Transition,
+                        ],
+                    )
+                    .into())
+                }
             }
         }
 
@@ -170,8 +186,7 @@ impl ParserContext<'_> {
         let end = self.expect(&Token::RightCurly)?;
 
         Ok(ProgramScope {
-            name,
-            network,
+            program_id,
             functions,
             structs,
             mappings,
@@ -380,7 +395,13 @@ impl ParserContext<'_> {
     fn parse_annotation(&mut self) -> Result<Annotation> {
         // Parse the `@` symbol and identifier.
         let start = self.expect(&Token::At)?;
-        let identifier = self.expect_identifier()?;
+        let identifier = match self.token.token {
+            Token::Program => Identifier {
+                name: sym::program,
+                span: self.expect(&Token::Program)?,
+            },
+            _ => self.expect_identifier()?,
+        };
         let span = start + identifier.span;
 
         // TODO: Verify that this check is sound.

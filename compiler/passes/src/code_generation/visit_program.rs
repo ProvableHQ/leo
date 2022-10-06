@@ -47,12 +47,8 @@ impl<'a> CodeGenerator<'a> {
         let program_scope: &ProgramScope = input.program_scopes.values().next().unwrap();
 
         // Print the program id.
-        writeln!(
-            program_string,
-            "program {}.{};",
-            program_scope.name, program_scope.network
-        )
-        .expect("Failed to write program id to string.");
+        writeln!(program_string, "program {};", program_scope.program_id)
+            .expect("Failed to write program id to string.");
 
         // Newline separator.
         program_string.push('\n');

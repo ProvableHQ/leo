@@ -16,6 +16,9 @@
 
 //! A Leo program consists of import statements and program scopes.
 
+pub mod program_id;
+pub use program_id::*;
+
 pub mod program_scope;
 pub use program_scope::*;
 
@@ -31,7 +34,7 @@ pub struct Program {
     /// A map from import names to import definitions.
     pub imports: IndexMap<Identifier, Program>,
     /// A map from program names to program scopes.
-    pub program_scopes: IndexMap<(Identifier, Identifier), ProgramScope>,
+    pub program_scopes: IndexMap<ProgramId, ProgramScope>,
 }
 
 impl fmt::Display for Program {
