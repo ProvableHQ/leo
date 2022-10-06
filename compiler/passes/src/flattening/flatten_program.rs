@@ -27,11 +27,11 @@ impl ProgramReconstructor for Flattener<'_> {
         // First, flatten the finalize block. This allows us to initialize self.finalizes correctly.
         // Note that this is safe since the finalize block is independent of the function body.
         let finalize = function.finalize.map(|finalize| {
-            // Initialize `self.circuits` with the finalize's input as necessary.
-            self.circuits = Default::default();
+            // Initialize `self.structs` with the finalize's input as necessary.
+            self.structs = Default::default();
             for input in &finalize.input {
-                if let Type::Identifier(circuit_name) = input.type_() {
-                    self.circuits.insert(input.identifier().name, circuit_name.name);
+                if let Type::Identifier(struct_name) = input.type_() {
+                    self.structs.insert(input.identifier().name, struct_name.name);
                 }
             }
 
@@ -68,11 +68,11 @@ impl ProgramReconstructor for Flattener<'_> {
             }
         });
 
-        // Initialize `self.circuits` with the function's input as necessary.
-        self.circuits = Default::default();
+        // Initialize `self.structs` with the function's input as necessary.
+        self.structs = Default::default();
         for input in &function.input {
-            if let Type::Identifier(circuit_name) = input.type_() {
-                self.circuits.insert(input.identifier().name, circuit_name.name);
+            if let Type::Identifier(struct_name) = input.type_() {
+                self.structs.insert(input.identifier().name, struct_name.name);
             }
         }
 
@@ -131,6 +131,7 @@ impl ProgramReconstructor for Flattener<'_> {
 
         Function {
             annotations: function.annotations,
+            call_type: function.call_type,
             identifier: function.identifier,
             input: function.input,
             output: function.output,

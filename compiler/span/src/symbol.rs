@@ -138,7 +138,7 @@ symbols! {
     sub_wrapped,
     xor,
 
-    // core circuits
+    // core functions
     BHP256,
     BHP512,
     BHP768,
@@ -215,8 +215,10 @@ symbols! {
     std,
     Struct: "struct",
     test,
+    transition,
     Type: "type",
 
+    aleo,
     public,
     private,
     owner,

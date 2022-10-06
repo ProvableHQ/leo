@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372013]: Circuit initialization expression for `Token` is missing member `owner`.\n    --> compiler-test:13:12\n     |\n  13 |     return Token {\n  14 |         sender: r0, // This variable should be named `owner`.\n  15 |         gates: 0u64,\n  16 |         amount: r1,\n  17 |     };\n     |      ^^^^^^\n"
+  - "Error [ETYC0372013]: Struct initialization expression for `Token` is missing member `owner`.\n    --> compiler-test:14:16\n     |\n  14 |         return Token {\n  15 |             sender: r0, // This variable should be named `owner`.\n  16 |             gates: 0u64,\n  17 |             amount: r1,\n  18 |         };\n     |          ^^^^^^\nError [ETYC0372047]: Cannot call another function from a standard function.\n    --> compiler-test:23:24\n     |\n  23 |         let t: Token = mint(x, c);\n     |                        ^^^^^^^^^^\n"

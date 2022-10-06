@@ -3,11 +3,13 @@ namespace: Parse
 expectation: Fail
 */
 
-function inf() -> u8 {
-    inf();
-}
-
-function main(y: bool) -> bool {
-    inf();
-    return y;
+program test.aleo {    
+    function inf() -> u8 {
+        inf();
+    }
+    
+    function main(y: bool) -> bool {
+        inf();
+        return y;
+    }
 }

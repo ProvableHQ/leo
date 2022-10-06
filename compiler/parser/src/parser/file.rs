@@ -19,7 +19,6 @@ use crate::parse_ast;
 use leo_errors::{CompilerError, ParserError, ParserWarning, Result};
 use leo_span::source_map::FileName;
 use leo_span::symbol::with_session_globals;
-use leo_span::{sym, Symbol};
 
 use std::fs;
 
@@ -27,56 +26,47 @@ impl ParserContext<'_> {
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     pub fn parse_program(&mut self) -> Result<Program> {
         let mut imports = IndexMap::new();
-        let mut functions = IndexMap::new();
-        let mut circuits = IndexMap::new();
-        let mut mappings = IndexMap::new();
+        let mut program_scopes = IndexMap::new();
 
-        // TODO: Condense logic
+        // TODO: Remove restrictions on multiple program scopes
+        let mut parsed_program_scope = false;
+
         while self.has_next() {
             match &self.token.token {
                 Token::Import => {
                     let (id, import) = self.parse_import()?;
                     imports.insert(id, import);
                 }
-                Token::Circuit | Token::Record => {
-                    let (id, circuit) = self.parse_circuit()?;
-                    circuits.insert(id, circuit);
+                Token::Program => {
+                    match parsed_program_scope {
+                        // Only one program scope is allowed per file.
+                        true => return Err(ParserError::only_one_program_scope_is_allowed(self.token.span).into()),
+                        false => {
+                            parsed_program_scope = true;
+                            let program_scope = self.parse_program_scope()?;
+                            program_scopes.insert(program_scope.program_id, program_scope);
+                        }
+                    }
                 }
-                Token::Mapping => {
-                    let (id, mapping) = self.parse_mapping()?;
-                    mappings.insert(id, mapping);
-                }
-                Token::At => {
-                    let (id, function) = self.parse_function()?;
-                    functions.insert(id, function);
-                }
-                Token::Const if self.peek_is_function() => {
-                    let (id, function) = self.parse_function()?;
-                    functions.insert(id, function);
-                }
-                Token::Identifier(sym::test) => return Err(ParserError::test_function(self.token.span).into()),
-                Token::Function => {
-                    let (id, function) = self.parse_function()?;
-                    functions.insert(id, function);
-                }
-                _ => return Err(Self::unexpected_item(&self.token).into()),
+                _ => return Err(Self::unexpected_item(&self.token, &[Token::Import, Token::Program]).into()),
             }
         }
+
+        // Requires that at least one program scope is present.
+        if !parsed_program_scope {
+            return Err(ParserError::missing_program_scope(self.token.span).into());
+        }
+
         Ok(Program {
-            name: String::new(),
-            network: String::new(),
-            expected_input: Vec::new(),
             imports,
-            functions,
-            circuits,
-            mappings,
+            program_scopes,
         })
     }
 
-    fn unexpected_item(token: &SpannedToken) -> ParserError {
+    fn unexpected_item(token: &SpannedToken, expected: &[Token]) -> ParserError {
         ParserError::unexpected(
             &token.token,
-            [Token::Function, Token::Circuit, Token::Identifier(sym::test)]
+            expected
                 .iter()
                 .map(|x| format!("'{}'", x))
                 .collect::<Vec<_>>()
@@ -131,40 +121,103 @@ impl ParserContext<'_> {
         Ok((import_name, program_ast.into_repr()))
     }
 
-    /// Returns a [`Vec<CircuitMember>`] AST node if the next tokens represent a circuit member variable
-    /// or circuit member function or circuit member constant.
-    fn parse_circuit_members(&mut self) -> Result<(Vec<CircuitMember>, Span)> {
+    /// Parsers a program scope `program foo.aleo { ... }`.
+    fn parse_program_scope(&mut self) -> Result<ProgramScope> {
+        // Parse `program` keyword.
+        let start = self.expect(&Token::Program)?;
+
+        // Parse the program name.
+        let name = self.expect_identifier()?;
+
+        // Parse the program network.
+        self.expect(&Token::Dot)?;
+        let network = self.expect_identifier()?;
+
+        // Construct the program id.
+        let program_id = ProgramId { name, network };
+
+        // Check that the program network is valid.
+        if network.name != sym::aleo {
+            return Err(ParserError::invalid_network(network.span).into());
+        }
+
+        // Parse `{`.
+        self.expect(&Token::LeftCurly)?;
+
+        // Parse the body of the program scope.
+        let mut functions = IndexMap::new();
+        let mut structs = IndexMap::new();
+        let mut mappings = IndexMap::new();
+
+        while self.has_next() {
+            match &self.token.token {
+                Token::Struct | Token::Record => {
+                    let (id, struct_) = self.parse_struct()?;
+                    structs.insert(id, struct_);
+                }
+                Token::Mapping => {
+                    let (id, mapping) = self.parse_mapping()?;
+                    mappings.insert(id, mapping);
+                }
+                Token::At | Token::Function | Token::Transition => {
+                    let (id, function) = self.parse_function()?;
+                    functions.insert(id, function);
+                }
+                Token::Circuit => return Err(ParserError::circuit_is_deprecated(self.token.span).into()),
+                Token::RightCurly => break,
+                _ => {
+                    return Err(Self::unexpected_item(
+                        &self.token,
+                        &[
+                            Token::Struct,
+                            Token::Record,
+                            Token::Mapping,
+                            Token::At,
+                            Token::Function,
+                            Token::Transition,
+                        ],
+                    )
+                    .into())
+                }
+            }
+        }
+
+        // Parse `}`.
+        let end = self.expect(&Token::RightCurly)?;
+
+        Ok(ProgramScope {
+            program_id,
+            functions,
+            structs,
+            mappings,
+            span: start + end,
+        })
+    }
+
+    /// Returns a [`Vec<Member>`] AST node if the next tokens represent a struct member.
+    fn parse_struct_members(&mut self) -> Result<(Vec<Member>, Span)> {
         let mut members = Vec::new();
 
         let (mut semi_colons, mut commas) = (false, false);
 
         while !self.check(&Token::RightCurly) {
-            members.push(if self.peek_is_function() {
-                // function
-                self.parse_member_function_declaration()?
-            } else if self.eat(&Token::Static) {
-                // static const
-                self.parse_const_member_variable_declaration()?
-            } else {
-                // variable
-                let variable = self.parse_member_variable_declaration()?;
+            let variable = self.parse_member_variable_declaration()?;
 
-                if self.eat(&Token::Semicolon) {
-                    if commas {
-                        self.emit_err(ParserError::mixed_commas_and_semicolons(self.token.span));
-                    }
-                    semi_colons = true;
+            if self.eat(&Token::Semicolon) {
+                if commas {
+                    self.emit_err(ParserError::mixed_commas_and_semicolons(self.token.span));
                 }
+                semi_colons = true;
+            }
 
-                if self.eat(&Token::Comma) {
-                    if semi_colons {
-                        self.emit_err(ParserError::mixed_commas_and_semicolons(self.token.span));
-                    }
-                    commas = true;
+            if self.eat(&Token::Comma) {
+                if semi_colons {
+                    self.emit_err(ParserError::mixed_commas_and_semicolons(self.token.span));
                 }
+                commas = true;
+            }
 
-                variable
-            });
+            members.push(variable);
         }
         let span = self.expect(&Token::RightCurly)?;
 
@@ -180,57 +233,26 @@ impl ParserContext<'_> {
         Ok((name, type_))
     }
 
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member static constant.
-    fn parse_const_member_variable_declaration(&mut self) -> Result<CircuitMember> {
-        self.expect(&Token::Static)?;
-        self.expect(&Token::Const)?;
+    /// Returns a [`Member`] AST node if the next tokens represent a struct member variable.
+    fn parse_member_variable_declaration(&mut self) -> Result<Member> {
+        let (identifier, type_) = self.parse_typed_ident()?;
 
-        // `IDENT: TYPE = EXPR`:
-        let (_name, _type_) = self.parse_typed_ident()?;
-        self.expect(&Token::Assign)?;
-        let expr = self.parse_expression()?;
-
-        self.expect(&Token::Semicolon)?;
-
-        // CAUTION: function members are unstable for testnet3.
-        Err(ParserError::circuit_constants_unstable(expr.span()).into())
-
-        // Ok(CircuitMember::CircuitConst(name, type_, expr))
+        Ok(Member { identifier, type_ })
     }
 
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.
-    fn parse_member_variable_declaration(&mut self) -> Result<CircuitMember> {
-        let (name, type_) = self.parse_typed_ident()?;
-
-        Ok(CircuitMember::CircuitVariable(name, type_))
-    }
-
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member function.
-    fn parse_member_function_declaration(&mut self) -> Result<CircuitMember> {
-        if self.peek_is_function() {
-            // CAUTION: function members are unstable for testnet3.
-            let function = self.parse_function()?;
-
-            Err(ParserError::circuit_functions_unstable(function.1.span()).into())
-            // Ok(CircuitMember::CircuitFunction(Box::new(function.1)))
-        } else {
-            Err(Self::unexpected_item(&self.token).into())
-        }
-    }
-
-    /// Parses a circuit or record definition, e.g., `circuit Foo { ... }` or `record Foo { ... }`.
-    pub(super) fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
+    /// Parses a struct or record definition, e.g., `struct Foo { ... }` or `record Foo { ... }`.
+    pub(super) fn parse_struct(&mut self) -> Result<(Identifier, Struct)> {
         let is_record = matches!(&self.token.token, Token::Record);
-        let start = self.expect_any(&[Token::Circuit, Token::Record])?;
-        let circuit_name = self.expect_identifier()?;
+        let start = self.expect_any(&[Token::Struct, Token::Record])?;
+        let struct_name = self.expect_identifier()?;
 
         self.expect(&Token::LeftCurly)?;
-        let (members, end) = self.parse_circuit_members()?;
+        let (members, end) = self.parse_struct_members()?;
 
         Ok((
-            circuit_name,
-            Circuit {
-                identifier: circuit_name,
+            struct_name,
+            Struct {
+                identifier: struct_name,
                 members,
                 is_record,
                 span: start + end,
@@ -369,20 +391,17 @@ impl ParserContext<'_> {
         )
     }
 
-    /// Returns `true` if the next token is Function or if it is a Const followed by Function.
-    /// Returns `false` otherwise.
-    fn peek_is_function(&self) -> bool {
-        matches!(
-            (&self.token.token, self.look_ahead(1, |t| &t.token)),
-            (Token::Function, _) | (Token::Const, Token::Function)
-        )
-    }
-
     /// Returns an [`Annotation`] AST node if the next tokens represent an annotation.
     fn parse_annotation(&mut self) -> Result<Annotation> {
         // Parse the `@` symbol and identifier.
         let start = self.expect(&Token::At)?;
-        let identifier = self.expect_identifier()?;
+        let identifier = match self.token.token {
+            Token::Program => Identifier {
+                name: sym::program,
+                span: self.expect(&Token::Program)?,
+            },
+            _ => self.expect_identifier()?,
+        };
         let span = start + identifier.span;
 
         // TODO: Verify that this check is sound.
@@ -397,14 +416,17 @@ impl ParserContext<'_> {
     /// and function definition.
     fn parse_function(&mut self) -> Result<(Identifier, Function)> {
         // TODO: Handle dangling annotations.
-        // TODO: Handle duplicate annotations.
         // Parse annotations, if they exist.
         let mut annotations = Vec::new();
         while self.look_ahead(0, |t| &t.token) == &Token::At {
             annotations.push(self.parse_annotation()?)
         }
-        // Parse `function IDENT`.
-        let start = self.expect(&Token::Function)?;
+        // Parse `<call_type> IDENT`, where `<call_type>` is `function` or `transition`.
+        let (call_type, start) = match self.token.token {
+            Token::Function => (CallType::Standard, self.expect(&Token::Function)?),
+            Token::Transition => (CallType::Transition, self.expect(&Token::Transition)?),
+            _ => self.unexpected("'function', 'transition'")?,
+        };
         let name = self.expect_identifier()?;
 
         // Parse parameters.
@@ -414,12 +436,12 @@ impl ParserContext<'_> {
         let output = match self.eat(&Token::Arrow) {
             false => vec![],
             true => {
-                self.disallow_circuit_construction = true;
+                self.disallow_struct_construction = true;
                 let output = match self.peek_is_left_par() {
                     true => self.parse_paren_comma_list(|p| p.parse_output().map(Some))?.0,
                     false => vec![self.parse_output()?],
                 };
-                self.disallow_circuit_construction = false;
+                self.disallow_struct_construction = false;
                 output
             }
         };
@@ -444,12 +466,12 @@ impl ParserContext<'_> {
                 let output = match self.eat(&Token::Arrow) {
                     false => vec![],
                     true => {
-                        self.disallow_circuit_construction = true;
+                        self.disallow_struct_construction = true;
                         let output = match self.peek_is_left_par() {
                             true => self.parse_paren_comma_list(|p| p.parse_output().map(Some))?.0,
                             false => vec![self.parse_output()?],
                         };
-                        self.disallow_circuit_construction = false;
+                        self.disallow_struct_construction = false;
                         output
                     }
                 };
@@ -465,7 +487,9 @@ impl ParserContext<'_> {
         let span = start + block.span;
         Ok((
             name,
-            Function::new(annotations, name, inputs, output, block, finalize, span),
+            Function::new(annotations, call_type, name, inputs, output, block, finalize, span),
         ))
     }
 }
+
+use leo_span::{sym, Symbol};

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372045]: `finalize` name `mint_public` does not match function name `mint_private`\n    --> compiler-test:11:1\n     |\n  11 | finalize mint_private (public receiver: address, public amount: u64) {\n  12 |     increment(account, receiver, amount);\n  13 | }\n     | ^\n"
+  - "Error [ETYC0372045]: `finalize` name `mint_public` does not match function name `mint_private`\n    --> compiler-test:11:5\n     |\n  11 |     finalize mint_private (public receiver: address, public amount: u64) {\n  12 |         increment(account, receiver, amount);\n  13 |     }\n     |     ^\n"

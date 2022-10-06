@@ -17,6 +17,9 @@
 pub mod annotation;
 pub use annotation::*;
 
+pub mod call_type;
+pub use call_type::*;
+
 pub mod external;
 pub use external::*;
 
@@ -43,6 +46,8 @@ use std::fmt;
 pub struct Function {
     /// Annotations on the function.
     pub annotations: Vec<Annotation>,
+    /// Is this function a transition, inlined, or a regular function?.
+    pub call_type: CallType,
     /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
     pub identifier: Identifier,
     /// The function's input parameters.
@@ -69,8 +74,10 @@ impl Eq for Function {}
 
 impl Function {
     /// Initialize a new function.
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         annotations: Vec<Annotation>,
+        call_type: CallType,
         identifier: Identifier,
         input: Vec<Input>,
         output: Vec<Output>,
@@ -92,6 +99,7 @@ impl Function {
 
         Function {
             annotations,
+            call_type,
             identifier,
             input,
             output,
@@ -115,7 +123,12 @@ impl Function {
     /// Private formatting method used for optimizing [fmt::Debug] and [fmt::Display] implementations.
     ///
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "function {}", self.identifier)?;
+        match self.call_type {
+            CallType::Inline => write!(f, "inline ")?,
+            CallType::Standard => write!(f, "function ")?,
+            CallType::Transition => write!(f, "transition ")?,
+        }
+        write!(f, "{}", self.identifier)?;
 
         let parameters = self.input.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",");
         let returns = match self.output.len() {

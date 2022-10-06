@@ -17,9 +17,9 @@
 use crate::StaticSingleAssigner;
 
 use leo_ast::{
-    AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, CircuitExpression,
-    CircuitVariableInitializer, Expression, ExpressionConsumer, Identifier, Literal, MemberAccess, Statement,
-    TernaryExpression, TupleAccess, TupleExpression, UnaryExpression,
+    AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, Expression, ExpressionConsumer, Identifier,
+    Literal, MemberAccess, Statement, StructExpression, StructVariableInitializer, TernaryExpression, TupleAccess,
+    TupleExpression, UnaryExpression,
 };
 use leo_span::sym;
 
@@ -141,8 +141,8 @@ impl ExpressionConsumer for StaticSingleAssigner {
         (Expression::Identifier(place), statements)
     }
 
-    /// Consumes a circuit initialization expression with renamed variables, accumulating any statements that are generated.
-    fn consume_circuit_init(&mut self, input: CircuitExpression) -> Self::Output {
+    /// Consumes a struct initialization expression with renamed variables, accumulating any statements that are generated.
+    fn consume_struct_init(&mut self, input: StructExpression) -> Self::Output {
         let mut statements = Vec::new();
 
         // Process the members, accumulating any statements produced.
@@ -151,10 +151,10 @@ impl ExpressionConsumer for StaticSingleAssigner {
             .into_iter()
             .map(|arg| {
                 let (expression, mut stmts) = match &arg.expression.is_some() {
-                    // If the expression is None, then `arg` is a `CircuitVariableInitializer` of the form `<id>,`.
+                    // If the expression is None, then `arg` is a `StructVariableInitializer` of the form `<id>,`.
                     // In this case, we must consume the identifier and produce an initializer of the form `<id>: <renamed_id>`.
                     false => self.consume_identifier(arg.identifier),
-                    // If expression is `Some(..)`, then `arg is a `CircuitVariableInitializer` of the form `<id>: <expr>,`.
+                    // If expression is `Some(..)`, then `arg is a `StructVariableInitializer` of the form `<id>: <expr>,`.
                     // In this case, we must consume the expression.
                     true => self.consume_expression(arg.expression.unwrap()),
                 };
@@ -162,17 +162,17 @@ impl ExpressionConsumer for StaticSingleAssigner {
                 statements.append(&mut stmts);
 
                 // Return the new member.
-                CircuitVariableInitializer {
+                StructVariableInitializer {
                     identifier: arg.identifier,
                     expression: Some(expression),
                 }
             })
             .collect();
 
-        // Construct and accumulate a new assignment statement for the circuit expression.
+        // Construct and accumulate a new assignment statement for the struct expression.
         let (place, statement) = self
             .assigner
-            .unique_simple_assign_statement(Expression::Circuit(CircuitExpression {
+            .unique_simple_assign_statement(Expression::Struct(StructExpression {
                 name: input.name,
                 span: input.span,
                 members,

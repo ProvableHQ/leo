@@ -3,6 +3,7 @@ namespace: Compile
 expectation: Fail
 */
 
-function main() {
-  const f = 1 scalar;
-}
+program test.aleo {    
+    function main() {
+      const f = 1 scalar;
+    }}

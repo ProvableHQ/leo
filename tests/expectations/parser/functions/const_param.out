@@ -2,112 +2,117 @@
 namespace: Parse
 expectation: Pass
 outputs:
-  - name: ""
-    network: ""
-    expected_input: []
-    imports: {}
-    circuits: {}
-    mappings: {}
-    functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
-        annotations: []
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
-        input:
-          - Internal:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-              mode: None
-              type_:
-                Integer: U32
+  - imports: {}
+    program_scopes:
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+        structs: {}
+        mappings: {}
+        functions:
+          "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}":
+            annotations: []
+            call_type: Standard
+            identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
+            input:
+              - Internal:
+                  identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":41,\\\"hi\\\":42}\"}"
+                  mode: None
+                  type_:
+                    Integer: U32
+                  span:
+                    lo: 41
+                    hi: 42
+              - Internal:
+                  identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":58,\\\"hi\\\":59}\"}"
+                  mode: Const
+                  type_:
+                    Integer: I32
+                  span:
+                    lo: 58
+                    hi: 59
+            output:
+              - Internal:
+                  mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 69
+                    hi: 71
+            output_type:
+              Integer: U8
+            block:
+              statements:
+                - Return:
+                    expression:
+                      Literal:
+                        Integer:
+                          - U8
+                          - "0"
+                          - span:
+                              lo: 89
+                              hi: 92
+                    span:
+                      lo: 82
+                      hi: 92
               span:
-                lo: 13
-                hi: 14
-          - Internal:
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":30,\\\"hi\\\":31}\"}"
-              mode: Const
-              type_:
-                Integer: I32
+                lo: 72
+                hi: 99
+            finalize: ~
+            span:
+              lo: 30
+              hi: 99
+          "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":118,\\\"hi\\\":119}\"}":
+            annotations: []
+            call_type: Standard
+            identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":118,\\\"hi\\\":119}\"}"
+            input:
+              - Internal:
+                  identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":129,\\\"hi\\\":130}\"}"
+                  mode: Const
+                  type_:
+                    Integer: U32
+                  span:
+                    lo: 129
+                    hi: 130
+              - Internal:
+                  identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":137,\\\"hi\\\":138}\"}"
+                  mode: None
+                  type_:
+                    Integer: I32
+                  span:
+                    lo: 137
+                    hi: 138
+            output:
+              - Internal:
+                  mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 148
+                    hi: 150
+            output_type:
+              Integer: U8
+            block:
+              statements:
+                - Return:
+                    expression:
+                      Literal:
+                        Integer:
+                          - U8
+                          - "0"
+                          - span:
+                              lo: 168
+                              hi: 171
+                    span:
+                      lo: 161
+                      hi: 171
               span:
-                lo: 30
-                hi: 31
-        output:
-          - Internal:
-              mode: None
-              type_:
-                Integer: U8
-              span:
-                lo: 41
-                hi: 43
-        output_type:
-          Integer: U8
-        block:
-          statements:
-            - Return:
-                expression:
-                  Literal:
-                    Integer:
-                      - U8
-                      - "0"
-                      - span:
-                          lo: 57
-                          hi: 60
-                span:
-                  lo: 50
-                  hi: 60
-          span:
-            lo: 44
-            hi: 63
-        finalize: ~
+                lo: 151
+                hi: 178
+            finalize: ~
+            span:
+              lo: 109
+              hi: 178
         span:
           lo: 2
-          hi: 63
-      "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":74,\\\"hi\\\":75}\"}":
-        annotations: []
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":74,\\\"hi\\\":75}\"}"
-        input:
-          - Internal:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":85,\\\"hi\\\":86}\"}"
-              mode: Const
-              type_:
-                Integer: U32
-              span:
-                lo: 85
-                hi: 86
-          - Internal:
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":93,\\\"hi\\\":94}\"}"
-              mode: None
-              type_:
-                Integer: I32
-              span:
-                lo: 93
-                hi: 94
-        output:
-          - Internal:
-              mode: None
-              type_:
-                Integer: U8
-              span:
-                lo: 104
-                hi: 106
-        output_type:
-          Integer: U8
-        block:
-          statements:
-            - Return:
-                expression:
-                  Literal:
-                    Integer:
-                      - U8
-                      - "0"
-                      - span:
-                          lo: 120
-                          hi: 123
-                span:
-                  lo: 113
-                  hi: 123
-          span:
-            lo: 107
-            hi: 126
-        finalize: ~
-        span:
-          lo: 65
-          hi: 126
+          hi: 179

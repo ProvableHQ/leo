@@ -3,4 +3,5 @@ namespace: Parse
 expectation: Fail
 */
 
-test main() {}
+program test.aleo {    
+    test main() {}}

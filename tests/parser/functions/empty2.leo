@@ -3,4 +3,5 @@ namespace: Parse
 expectation: Pass
 */
 
-function x() -> u8 {}
+program test.aleo {    
+    function x() -> u8 {}}

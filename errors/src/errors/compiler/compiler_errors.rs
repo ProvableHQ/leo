@@ -35,7 +35,7 @@ create_messages!(
         help: None,
     }
 
-    /// For when a user tries to assign to a circuit static member.
+    /// For when a user tries to assign to a struct static member.
     @formatted
     illegal_static_member_assignment {
         args: (member: impl Display),
@@ -54,6 +54,20 @@ create_messages!(
     cannot_open_cwd {
         args: (err: impl ErrorArg),
         msg: format!("Failed to open current working directory. Error: {err}"),
+        help: None,
+    }
+
+    @formatted
+    program_name_should_match_file_name {
+        args: (program_name: impl Display, file_name: impl Display),
+        msg: format!("Program name `{program_name}` should match file name `{file_name}`"),
+        help: None,
+    }
+
+    @formatted
+    program_scope_name_does_not_match {
+        args: (program_scope_name: impl Display, file_name: impl Display),
+        msg: format!("The program scope name `{program_scope_name}` must match `{file_name}`."),
         help: None,
     }
 );

@@ -2,10 +2,13 @@
 namespace: Parse
 expectation: Pass
 outputs:
-  - name: ""
-    network: ""
-    expected_input: []
-    imports: {}
-    circuits: {}
-    mappings: {}
-    functions: {}
+  - imports: {}
+    program_scopes:
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":126,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":130}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":126,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":130}\\\\\\\"}\\\"\"}"
+        structs: {}
+        mappings: {}
+        functions: {}
+        span:
+          lo: 113
+          hi: 235

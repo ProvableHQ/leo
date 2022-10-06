@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372008]: The value -1 is not a valid `u32`\n    --> compiler-test:4:20\n     |\n   4 |     const a: u32 = -1u32;\n     |                    ^^^^^\n"
+  - "Error [ETYC0372008]: The value -1 is not a valid `u32`\n    --> compiler-test:5:24\n     |\n   5 |         const a: u32 = -1u32;\n     |                        ^^^^^\n"

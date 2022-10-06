@@ -111,17 +111,17 @@ create_messages!(
         help: None,
     }
 
-    /// For when an invalid core instruction is used.
+    /// For when an invalid core function is used.
     @formatted
-    invalid_core_instruction {
-        args: (circuit: impl Display, function: impl Display),
+    invalid_core_function {
+        args: (struct_: impl Display, function: impl Display),
         msg: format!(
-            "The instruction {circuit}::{function} is not a valid core instruction.",
+            "The instruction {struct_}::{function} is not a valid core function.",
         ),
         help: None,
     }
 
-    /// For when a circuit is created with the same name as a core type.
+    /// For when a struct is created with the same name as a core type.
     @formatted
     core_type_name_conflict {
         args: (type_: impl Display),
@@ -141,42 +141,42 @@ create_messages!(
         help: None,
     }
 
-    /// For when the user tries initialize a circuit with the incorrect number of args.
+    /// For when the user tries initialize a struct with the incorrect number of args.
     @formatted
-    incorrect_num_circuit_members {
+    incorrect_num_struct_members {
         args: (expected: impl Display, received: impl Display),
         msg: format!(
-            "Circuit expected `{expected}` members, but got `{received}`",
+            "Struct expected `{expected}` members, but got `{received}`",
         ),
         help: None,
     }
 
-    /// For when the user is missing a circuit member during initialization.
+    /// For when the user is missing a struct member during initialization.
     @formatted
-    missing_circuit_member {
-        args: (circuit: impl Display, member: impl Display),
+    missing_struct_member {
+        args: (struct_: impl Display, member: impl Display),
         msg: format!(
-            "Circuit initialization expression for `{circuit}` is missing member `{member}`.",
+            "Struct initialization expression for `{struct_}` is missing member `{member}`.",
         ),
         help: None,
     }
 
     /// An invalid access call is made e.g., `bool::MAX`
     @formatted
-    invalid_core_circuit_call {
+    invalid_core_function_call {
         args: (expr: impl Display),
         msg: format!(
-            "{expr} is not a valid core circuit call."
+            "{expr} is not a valid core function call."
         ),
         help: None,
     }
 
-    /// Attempted to define more that one circuit member with the same name.
+    /// Attempted to define more that one struct member with the same name.
     @formatted
-    duplicate_circuit_member {
-        args: (circuit: impl Display),
+    duplicate_struct_member {
+        args: (struct_: impl Display),
         msg: format!(
-            "Circuit {circuit} defined with more than one member with the same name."
+            "Struct {struct_} defined with more than one member with the same name."
         ),
         help: None,
     }
@@ -191,7 +191,7 @@ create_messages!(
         help: None,
     }
 
-    /// Attempted to access an invalid circuit.
+    /// Attempted to access an invalid struct.
     @formatted
     undefined_type {
         args: (type_: impl Display),
@@ -201,12 +201,12 @@ create_messages!(
         help: None,
     }
 
-    /// Attempted to access an invalid circuit variable.
+    /// Attempted to access an invalid struct variable.
     @formatted
-    invalid_circuit_variable {
-        args: (variable: impl Display, circuit: impl Display),
+    invalid_struct_variable {
+        args: (variable: impl Display, struct_: impl Display),
         msg: format!(
-            "Circuit variable {variable} is not a member of circuit {circuit}."
+            "Variable {variable} is not a member of struct {struct_}."
         ),
         help: None,
     }
@@ -279,20 +279,20 @@ create_messages!(
     unknown_annotation {
         args: (annotation: impl Display),
         msg: format!("Unknown annotation: `{annotation}`."),
-        help: Some("Use a valid annotation. The Leo compiler supports: `@program`".to_string()),
+        help: None,
     }
 
     @formatted
-    helper_function_inputs_cannot_have_modes {
+    regular_function_inputs_cannot_have_modes {
         args: (),
-        msg: format!("Helper functions cannot have modes associated with their inputs."),
-        help: Some("Consider removing the mode or adding a `@program` annotation to the function.".to_string()),
+        msg: format!("Standard functions cannot have modes associated with their inputs."),
+        help: Some("Consider removing the mode or using the keyword `transition` instead of `function`.".to_string()),
     }
 
     @formatted
-    circuit_or_record_cannot_contain_record {
+    struct_or_record_cannot_contain_record {
         args: (parent: impl Display, child: impl Display),
-        msg: format!("A circuit or record cannot contain another record."),
+        msg: format!("A struct or record cannot contain another record."),
         help: Some(format!("Remove the record `{child}` from `{parent}`.")),
     }
 
@@ -304,10 +304,10 @@ create_messages!(
     }
 
     @formatted
-    only_program_functions_can_have_finalize {
+    only_transition_functions_can_have_finalize {
         args: (),
-        msg: format!("Only program functions can have a `finalize` block."),
-        help: Some("Remove the `finalize` block or add a `@program` annotation to the function.".to_string()),
+        msg: format!("Only transition functions can have a `finalize` block."),
+        help: Some("Remove the `finalize` block or use the keyword `transition` instead of `function`.".to_string()),
     }
 
     @formatted
@@ -367,9 +367,9 @@ create_messages!(
     }
 
     @formatted
-    program_function_inputs_cannot_be_const {
+    transition_function_inputs_cannot_be_const {
         args: (),
-        msg: format!("Program functions cannot have constant inputs."),
+        msg: format!("Transition functions cannot have constant inputs."),
         help: None,
     }
 
@@ -407,6 +407,20 @@ create_messages!(
     invalid_type {
         args: (type_: impl Display),
         msg: format!("Invalid type `{type_}`"),
+        help: None,
+    }
+
+    @formatted
+    cannot_invoke_call_from_standard_function {
+        args: (),
+        msg: format!("Cannot call another function from a standard function."),
+        help: None,
+    }
+
+    @formatted
+    cannot_invoke_call_to_local_transition_function {
+        args: (),
+        msg: format!("Cannot call a local transition function from a transition function."),
         help: None,
     }
 );

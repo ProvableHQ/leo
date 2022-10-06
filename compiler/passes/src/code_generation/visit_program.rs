@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{functions, Circuit, CircuitMember, Function, Identifier, Mapping, Mode, Program, Type};
+use leo_ast::{functions, CallType, Function, Identifier, Mapping, Mode, Program, ProgramScope, Struct, Type};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -42,19 +42,23 @@ impl<'a> CodeGenerator<'a> {
             program_string.push('\n');
         }
 
+        // Retrieve the program scope.
+        // Note that type checking guarantees that there is exactly one program scope.
+        let program_scope: &ProgramScope = input.program_scopes.values().next().unwrap();
+
         // Print the program id.
-        writeln!(program_string, "program {}.{};", input.name, input.network)
+        writeln!(program_string, "program {};", program_scope.program_id)
             .expect("Failed to write program id to string.");
 
         // Newline separator.
         program_string.push('\n');
 
-        // Visit each `Circuit` or `Record` in the Leo AST and produce a Aleo interface instruction.
+        // Visit each `Struct` or `Record` in the Leo AST and produce a Aleo interface instruction.
         program_string.push_str(
-            &input
-                .circuits
+            &program_scope
+                .structs
                 .values()
-                .map(|circuit| self.visit_circuit_or_record(circuit))
+                .map(|struct_| self.visit_struct_or_record(struct_))
                 .join("\n"),
         );
 
@@ -63,7 +67,7 @@ impl<'a> CodeGenerator<'a> {
 
         // Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
         program_string.push_str(
-            &input
+            &program_scope
                 .mappings
                 .values()
                 .map(|mapping| self.visit_mapping(mapping))
@@ -75,17 +79,12 @@ impl<'a> CodeGenerator<'a> {
         let mut functions = String::new();
 
         // Visit each `Function` in the Leo AST and produce Aleo instructions.
-        input.functions.values().for_each(|function| {
-            // If the function is annotated with `@program`, then it is a program function.
-            for annotation in function.annotations.iter() {
-                if annotation.identifier.name == sym::program {
-                    self.is_program_function = true;
-                }
-            }
+        program_scope.functions.values().for_each(|function| {
+            self.is_transition_function = matches!(function.call_type, CallType::Transition);
 
             let function_string = self.visit_function(function);
 
-            if self.is_program_function {
+            if self.is_transition_function {
                 functions.push_str(&function_string);
                 functions.push('\n');
             } else {
@@ -93,8 +92,8 @@ impl<'a> CodeGenerator<'a> {
                 closures.push('\n');
             }
 
-            // Unset the `is_program_function` flag.
-            self.is_program_function = false;
+            // Unset the `is_transition_function` flag.
+            self.is_transition_function = false;
         });
 
         // Closures must precede functions in the Aleo program.
@@ -114,34 +113,30 @@ impl<'a> CodeGenerator<'a> {
         format!("import {}.aleo;", import_name)
     }
 
-    fn visit_circuit_or_record(&mut self, circuit: &'a Circuit) -> String {
-        if circuit.is_record {
-            self.visit_record(circuit)
+    fn visit_struct_or_record(&mut self, struct_: &'a Struct) -> String {
+        if struct_.is_record {
+            self.visit_record(struct_)
         } else {
-            self.visit_circuit(circuit)
+            self.visit_struct(struct_)
         }
     }
 
-    fn visit_circuit(&mut self, circuit: &'a Circuit) -> String {
+    fn visit_struct(&mut self, struct_: &'a Struct) -> String {
         // Add private symbol to composite types.
         self.composite_mapping
-            .insert(&circuit.identifier.name, (false, String::from("private"))); // todo: private by default here.
+            .insert(&struct_.identifier.name, (false, String::from("private"))); // todo: private by default here.
 
-        let mut output_string = format!("interface {}:\n", circuit.identifier); // todo: check if this is safe from name conflicts.
+        let mut output_string = format!("interface {}:\n", struct_.identifier); // todo: check if this is safe from name conflicts.
 
         // Construct and append the record variables.
-        for var in circuit.members.iter() {
-            let (name, type_) = match var {
-                CircuitMember::CircuitVariable(name, type_) => (name, type_),
-            };
-
-            writeln!(output_string, "    {} as {};", name, type_,).expect("failed to write to string");
+        for var in struct_.members.iter() {
+            writeln!(output_string, "    {} as {};", var.identifier, var.type_,).expect("failed to write to string");
         }
 
         output_string
     }
 
-    fn visit_record(&mut self, record: &'a Circuit) -> String {
+    fn visit_record(&mut self, record: &'a Struct) -> String {
         // Add record symbol to composite types.
         let mut output_string = String::from("record");
         self.composite_mapping
@@ -150,14 +145,10 @@ impl<'a> CodeGenerator<'a> {
 
         // Construct and append the record variables.
         for var in record.members.iter() {
-            let (name, type_) = match var {
-                CircuitMember::CircuitVariable(name, type_) => (name, type_),
-            };
-
             writeln!(
                 output_string,
                 "    {} as {}.private;", // todo: CAUTION private record variables only.
-                name, type_,
+                var.identifier, var.type_,
             )
             .expect("failed to write to string");
         }
@@ -175,7 +166,7 @@ impl<'a> CodeGenerator<'a> {
 
         // Construct the header of the function.
         // If a function is a program function, generate an Aleo `function`, otherwise generate an Aleo `closure`.
-        let mut function_string = match self.is_program_function {
+        let mut function_string = match self.is_transition_function {
             true => format!("function {}:\n", function.identifier),
             false => format!("closure {}:\n", function.identifier),
         };
@@ -189,7 +180,7 @@ impl<'a> CodeGenerator<'a> {
                 functions::Input::Internal(input) => {
                     self.variable_mapping
                         .insert(&input.identifier.name, register_string.clone());
-                    let visibility = match (self.is_program_function, input.mode) {
+                    let visibility = match (self.is_transition_function, input.mode) {
                         (true, Mode::None) => Mode::Private,
                         _ => input.mode,
                     };
@@ -234,7 +225,7 @@ impl<'a> CodeGenerator<'a> {
                         self.variable_mapping
                             .insert(&input.identifier.name, register_string.clone());
 
-                        let visibility = match (self.is_program_function, input.mode) {
+                        let visibility = match (self.is_transition_function, input.mode) {
                             (true, Mode::None) => Mode::Public,
                             _ => input.mode,
                         };
@@ -270,12 +261,12 @@ impl<'a> CodeGenerator<'a> {
                 Type::Mapping(_) | Type::Tuple(_) => unreachable!("Mappings cannot contain mappings or tuples."),
                 Type::Identifier(identifier) => {
                     // Lookup the type in the composite mapping.
-                    // Note that this unwrap is safe since all circuit and records have been added to the composite mapping.
+                    // Note that this unwrap is safe since all struct and records have been added to the composite mapping.
                     let (is_record, _) = self.composite_mapping.get(&identifier.name).unwrap();
                     match is_record {
                         // If the type is a record, then declare the type as is.
                         true => format!("{}.record", identifier),
-                        // If the type is a circuit, then add the public modifier.
+                        // If the type is a struct, then add the public modifier.
                         false => format!("{}.public", identifier),
                     }
                 }

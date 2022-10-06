@@ -2,33 +2,37 @@
 namespace: Parse
 expectation: Pass
 outputs:
-  - name: ""
-    network: ""
-    expected_input: []
-    imports: {}
-    circuits: {}
-    mappings: {}
-    functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
-        annotations: []
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
-        input: []
-        output:
-          - Internal:
-              mode: None
-              type_:
-                Integer: U8
+  - imports: {}
+    program_scopes:
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+        structs: {}
+        mappings: {}
+        functions:
+          "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}":
+            annotations: []
+            call_type: Standard
+            identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
+            input: []
+            output:
+              - Internal:
+                  mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 46
+                    hi: 48
+            output_type:
+              Integer: U8
+            block:
+              statements: []
               span:
-                lo: 18
-                hi: 20
-        output_type:
-          Integer: U8
-        block:
-          statements: []
-          span:
-            lo: 21
-            hi: 23
-        finalize: ~
+                lo: 49
+                hi: 51
+            finalize: ~
+            span:
+              lo: 30
+              hi: 51
         span:
           lo: 2
-          hi: 23
+          hi: 52

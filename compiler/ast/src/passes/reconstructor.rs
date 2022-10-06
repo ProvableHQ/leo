@@ -29,7 +29,7 @@ pub trait ExpressionReconstructor {
             Expression::Access(access) => self.reconstruct_access(access),
             Expression::Binary(binary) => self.reconstruct_binary(binary),
             Expression::Call(call) => self.reconstruct_call(call),
-            Expression::Circuit(circuit) => self.reconstruct_circuit_init(circuit),
+            Expression::Struct(struct_) => self.reconstruct_struct_init(struct_),
             Expression::Err(err) => self.reconstruct_err(err),
             Expression::Identifier(identifier) => self.reconstruct_identifier(identifier),
             Expression::Literal(value) => self.reconstruct_literal(value),
@@ -98,8 +98,8 @@ pub trait ExpressionReconstructor {
         )
     }
 
-    fn reconstruct_circuit_init(&mut self, input: CircuitExpression) -> (Expression, Self::AdditionalOutput) {
-        (Expression::Circuit(input), Default::default())
+    fn reconstruct_struct_init(&mut self, input: StructExpression) -> (Expression, Self::AdditionalOutput) {
+        (Expression::Struct(input), Default::default())
     }
 
     fn reconstruct_err(&mut self, _input: ErrExpression) -> (Expression, Self::AdditionalOutput) {
@@ -312,13 +312,26 @@ pub trait StatementReconstructor: ExpressionReconstructor {
 pub trait ProgramReconstructor: StatementReconstructor {
     fn reconstruct_program(&mut self, input: Program) -> Program {
         Program {
-            name: input.name,
-            network: input.network,
-            expected_input: input.expected_input,
             imports: input
                 .imports
                 .into_iter()
                 .map(|(id, import)| (id, self.reconstruct_import(import)))
+                .collect(),
+            program_scopes: input
+                .program_scopes
+                .into_iter()
+                .map(|(id, scope)| (id, self.reconstruct_program_scope(scope)))
+                .collect(),
+        }
+    }
+
+    fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
+        ProgramScope {
+            program_id: input.program_id,
+            structs: input
+                .structs
+                .into_iter()
+                .map(|(i, c)| (i, self.reconstruct_struct(c)))
                 .collect(),
             mappings: input
                 .mappings
@@ -330,17 +343,14 @@ pub trait ProgramReconstructor: StatementReconstructor {
                 .into_iter()
                 .map(|(i, f)| (i, self.reconstruct_function(f)))
                 .collect(),
-            circuits: input
-                .circuits
-                .into_iter()
-                .map(|(i, c)| (i, self.reconstruct_circuit(c)))
-                .collect(),
+            span: input.span,
         }
     }
 
     fn reconstruct_function(&mut self, input: Function) -> Function {
         Function {
             annotations: input.annotations,
+            call_type: input.call_type,
             identifier: input.identifier,
             input: input.input,
             output: input.output,
@@ -358,7 +368,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
         }
     }
 
-    fn reconstruct_circuit(&mut self, input: Circuit) -> Circuit {
+    fn reconstruct_struct(&mut self, input: Struct) -> Struct {
         input
     }
 

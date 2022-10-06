@@ -37,8 +37,8 @@ pub(crate) struct ParserContext<'a> {
     /// The previous token, i.e., if `p.tokens = ['3', *, '4']`,
     /// then after two `p.bump()`s, we'll have `p.token = '*'` and `p.prev_token = '3'`.
     pub(crate) prev_token: SpannedToken,
-    /// true if parsing an expression for if and loop statements -- means circuit inits are not legal
-    pub(crate) disallow_circuit_construction: bool,
+    /// true if parsing an expression for if and loop statements -- means struct inits are not legal
+    pub(crate) disallow_struct_construction: bool,
     /// true if parsing an identifier inside an input file.
     pub(crate) allow_identifier_underscores: bool,
 }
@@ -60,7 +60,7 @@ impl<'a> ParserContext<'a> {
         let token = SpannedToken::dummy();
         let mut p = Self {
             handler,
-            disallow_circuit_construction: false,
+            disallow_struct_construction: false,
             allow_identifier_underscores: false,
             prev_token: token.clone(),
             token,
@@ -177,7 +177,7 @@ impl<'a> ParserContext<'a> {
     }
 
     /// Returns an unexpected error at the current token.
-    fn unexpected<T>(&self, expected: impl Display) -> Result<T> {
+    pub(super) fn unexpected<T>(&self, expected: impl Display) -> Result<T> {
         Err(ParserError::unexpected(&self.token.token, expected, self.token.span).into())
     }
 

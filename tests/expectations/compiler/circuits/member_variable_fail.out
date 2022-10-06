@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> compiler-test:9:15\n     |\n   9 |     const err = a.y;\n     |               ^"

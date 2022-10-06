@@ -3,6 +3,8 @@ namespace: Compile
 expectation: Fail
 */
 
-function main() {
-    const a: u8 = -1u8;
+program test.aleo {    
+    function main() {
+        const a: u8 = -1u8;
+    }
 }

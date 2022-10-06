@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372042]: `finalize` expected `2` args, but got `3`\n    --> compiler-test:8:11\n     |\n   8 |     async finalize(receiver, amount, amount);\n     |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+  - "Error [ETYC0372042]: `finalize` expected `2` args, but got `3`\n    --> compiler-test:8:15\n     |\n   8 |         async finalize(receiver, amount, amount);\n     |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"

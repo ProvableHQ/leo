@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:4:11\n     |\n   4 |     let x = 1u8;\n     |           ^"
+  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:5:15\n     |\n   5 |         let x = 1u8;\n     |               ^"

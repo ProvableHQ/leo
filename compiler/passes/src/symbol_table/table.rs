@@ -16,7 +16,7 @@
 
 use std::cell::RefCell;
 
-use leo_ast::{Circuit, Function};
+use leo_ast::{Function, Struct};
 use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
@@ -32,9 +32,9 @@ pub struct SymbolTable {
     /// Functions represents the name of each function mapped to the AST's function definition.
     /// This field is populated at a first pass.
     pub functions: IndexMap<Symbol, FunctionSymbol>,
-    /// Maps circuit names to circuit definitions.
+    /// Maps struct names to struct definitions.
     /// This field is populated at a first pass.
-    pub circuits: IndexMap<Symbol, Circuit>,
+    pub structs: IndexMap<Symbol, Struct>,
     /// The variables defined in a scope.
     /// This field is populated as necessary.
     pub(crate) variables: IndexMap<Symbol, VariableSymbol>,
@@ -52,10 +52,10 @@ impl SymbolTable {
             Err(AstError::shadowed_variable(symbol, span).into())
         } else if self.functions.contains_key(&symbol) {
             Err(AstError::shadowed_function(symbol, span).into())
-        } else if let Some(existing) = self.circuits.get(&symbol) {
+        } else if let Some(existing) = self.structs.get(&symbol) {
             match existing.is_record {
                 true => Err(AstError::shadowed_record(symbol, span).into()),
-                false => Err(AstError::shadowed_circuit(symbol, span).into()),
+                false => Err(AstError::shadowed_struct(symbol, span).into()),
             }
         } else if let Some(parent) = self.parent.as_ref() {
             parent.check_shadowing(symbol, span)
@@ -81,10 +81,10 @@ impl SymbolTable {
         Ok(())
     }
 
-    /// Inserts a circuit into the symbol table.
-    pub fn insert_circuit(&mut self, symbol: Symbol, insert: &Circuit) -> Result<()> {
+    /// Inserts a struct into the symbol table.
+    pub fn insert_struct(&mut self, symbol: Symbol, insert: &Struct) -> Result<()> {
         self.check_shadowing(symbol, insert.span)?;
-        self.circuits.insert(symbol, insert.clone());
+        self.structs.insert(symbol, insert.clone());
         Ok(())
     }
 
@@ -112,12 +112,12 @@ impl SymbolTable {
         }
     }
 
-    /// Attempts to lookup a circuit in the symbol table.
-    pub fn lookup_circuit(&self, symbol: Symbol) -> Option<&Circuit> {
-        if let Some(circ) = self.circuits.get(&symbol) {
-            Some(circ)
+    /// Attempts to lookup a struct in the symbol table.
+    pub fn lookup_struct(&self, symbol: Symbol) -> Option<&Struct> {
+        if let Some(struct_) = self.structs.get(&symbol) {
+            Some(struct_)
         } else if let Some(parent) = self.parent.as_ref() {
-            parent.lookup_circuit(symbol)
+            parent.lookup_struct(symbol)
         } else {
             None
         }

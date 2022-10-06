@@ -4,7 +4,8 @@ expectation: Fail
 input_file: inputs/dummy.in
 */
 
-function main(y: bool) -> bool {
-	let b: u8 = b;
-    return y == true;
-}
+program test.aleo {    
+    function main(y: bool) -> bool {
+    	let b: u8 = b;
+        return y == true;
+    }}

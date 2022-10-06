@@ -28,7 +28,7 @@ pub trait ExpressionConsumer {
             Expression::Access(access) => self.consume_access(access),
             Expression::Binary(binary) => self.consume_binary(binary),
             Expression::Call(call) => self.consume_call(call),
-            Expression::Circuit(circuit) => self.consume_circuit_init(circuit),
+            Expression::Struct(struct_) => self.consume_struct_init(struct_),
             Expression::Err(err) => self.consume_err(err),
             Expression::Identifier(identifier) => self.consume_identifier(identifier),
             Expression::Literal(value) => self.consume_literal(value),
@@ -44,7 +44,7 @@ pub trait ExpressionConsumer {
 
     fn consume_call(&mut self, _input: CallExpression) -> Self::Output;
 
-    fn consume_circuit_init(&mut self, _input: CircuitExpression) -> Self::Output;
+    fn consume_struct_init(&mut self, _input: StructExpression) -> Self::Output;
 
     fn consume_err(&mut self, _input: ErrExpression) -> Self::Output {
         unreachable!("`ErrExpression`s should not be in the AST at this phase of compilation.")
@@ -108,11 +108,11 @@ pub trait FunctionConsumer {
     fn consume_function(&mut self, input: Function) -> Self::Output;
 }
 
-/// A Consumer trait for circuits in the AST.
-pub trait CircuitConsumer {
+/// A Consumer trait for structs in the AST.
+pub trait StructConsumer {
     type Output;
 
-    fn consume_circuit(&mut self, input: Circuit) -> Self::Output;
+    fn consume_struct(&mut self, input: Struct) -> Self::Output;
 }
 
 /// A Consumer trait for imported programs in the AST.
@@ -127,6 +127,13 @@ pub trait MappingConsumer {
     type Output;
 
     fn consume_mapping(&mut self, input: Mapping) -> Self::Output;
+}
+
+/// A Consumer trait for program scopes in the AST.
+pub trait ProgramScopeConsumer {
+    type Output;
+
+    fn consume_program_scope(&mut self, input: ProgramScope) -> Self::Output;
 }
 
 /// A Consumer trait for the program represented by the AST.

@@ -18,8 +18,8 @@ use crate::Flattener;
 use itertools::Itertools;
 
 use leo_ast::{
-    AccessExpression, CircuitExpression, CircuitMember, CircuitVariableInitializer, Expression,
-    ExpressionReconstructor, MemberAccess, Statement, TernaryExpression, TupleExpression,
+    AccessExpression, Expression, ExpressionReconstructor, Member, MemberAccess, Statement, StructExpression,
+    StructVariableInitializer, TernaryExpression, TupleExpression,
 };
 
 // TODO: Clean up logic. To be done in a follow-up PR (feat/tuples)
@@ -27,7 +27,7 @@ use leo_ast::{
 impl ExpressionReconstructor for Flattener<'_> {
     type AdditionalOutput = Vec<Statement>;
 
-    /// Reconstructs ternary expressions over tuples and circuits, accumulating any statements that are generated.
+    /// Reconstructs ternary expressions over tuples and structs, accumulating any statements that are generated.
     /// This is necessary because Aleo instructions does not support ternary expressions over composite data types.
     /// For example, the ternary expression `cond ? (a, b) : (c, d)` is flattened into the following:
     /// ```leo
@@ -35,7 +35,7 @@ impl ExpressionReconstructor for Flattener<'_> {
     /// let var$1 = cond ? b : d;
     /// (var$0, var$1)
     /// ```
-    /// For circuits, the ternary expression `cond ? a : b`, where `a` and `b` are both circuits `Foo { bar: u8, baz: u8 }`, is flattened into the following:
+    /// For structs, the ternary expression `cond ? a : b`, where `a` and `b` are both structs `Foo { bar: u8, baz: u8 }`, is flattened into the following:
     /// ```leo
     /// let var$0 = cond ? a.bar : b.bar;
     /// let var$1 = cond ? a.baz : b.baz;
@@ -85,41 +85,41 @@ impl ExpressionReconstructor for Flattener<'_> {
                 });
                 (tuple, statements)
             }
-            // If both expressions are access expressions which themselves are circuits, construct ternary expression for nested circuit member.
+            // If both expressions are access expressions which themselves are structs, construct ternary expression for nested struct member.
             (
                 Expression::Access(AccessExpression::Member(first)),
                 Expression::Access(AccessExpression::Member(second)),
             ) => {
-                // Lookup the circuit symbols associated with the expressions.
+                // Lookup the struct symbols associated with the expressions.
                 // TODO: Remove clones
-                let first_circuit_symbol =
-                    self.lookup_circuit_symbol(&Expression::Access(AccessExpression::Member(first.clone())));
-                let second_circuit_symbol =
-                    self.lookup_circuit_symbol(&Expression::Access(AccessExpression::Member(second.clone())));
+                let first_struct_symbol =
+                    self.lookup_struct_symbol(&Expression::Access(AccessExpression::Member(first.clone())));
+                let second_struct_symbol =
+                    self.lookup_struct_symbol(&Expression::Access(AccessExpression::Member(second.clone())));
 
-                match (first_circuit_symbol, second_circuit_symbol) {
-                    (Some(first_circuit_symbol), Some(second_circuit_symbol)) => {
-                        let first_member_circuit = self.symbol_table.lookup_circuit(first_circuit_symbol).unwrap();
-                        let second_member_circuit = self.symbol_table.lookup_circuit(second_circuit_symbol).unwrap();
+                match (first_struct_symbol, second_struct_symbol) {
+                    (Some(first_struct_symbol), Some(second_struct_symbol)) => {
+                        let first_member_struct = self.symbol_table.lookup_struct(first_struct_symbol).unwrap();
+                        let second_member_struct = self.symbol_table.lookup_struct(second_struct_symbol).unwrap();
                         // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
-                        assert_eq!(first_member_circuit, second_member_circuit);
+                        assert_eq!(first_member_struct, second_member_struct);
 
-                        // For each circuit member, construct a new ternary expression.
-                        let members = first_member_circuit
+                        // For each struct member, construct a new ternary expression.
+                        let members = first_member_struct
                             .members
                             .iter()
-                            .map(|CircuitMember::CircuitVariable(id, _)| {
-                                // Construct a new ternary expression for the circuit member.
+                            .map(|Member { identifier, .. }| {
+                                // Construct a new ternary expression for the struct member.
                                 let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
                                     condition: input.condition.clone(),
                                     if_true: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
                                         inner: Box::new(Expression::Access(AccessExpression::Member(first.clone()))),
-                                        name: *id,
+                                        name: *identifier,
                                         span: Default::default(),
                                     }))),
                                     if_false: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
                                         inner: Box::new(Expression::Access(AccessExpression::Member(second.clone()))),
-                                        name: *id,
+                                        name: *identifier,
                                         span: Default::default(),
                                     }))),
                                     span: Default::default(),
@@ -128,19 +128,19 @@ impl ExpressionReconstructor for Flattener<'_> {
                                 // Accumulate any statements generated.
                                 statements.extend(stmts);
 
-                                // Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the circuit member.
+                                // Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the struct member.
                                 let (identifier, statement) = self.unique_simple_assign_statement(expression);
                                 statements.push(statement);
 
-                                CircuitVariableInitializer {
-                                    identifier: *id,
+                                StructVariableInitializer {
+                                    identifier,
                                     expression: Some(Expression::Identifier(identifier)),
                                 }
                             })
                             .collect();
 
-                        let (expr, stmts) = self.reconstruct_circuit_init(CircuitExpression {
-                            name: first_member_circuit.identifier,
+                        let (expr, stmts) = self.reconstruct_struct_init(StructExpression {
+                            name: first_member_struct.identifier,
                             members,
                             span: Default::default(),
                         });
@@ -148,12 +148,12 @@ impl ExpressionReconstructor for Flattener<'_> {
                         // Accumulate any statements generated.
                         statements.extend(stmts);
 
-                        // Create a new assignment statement for the circuit expression.
+                        // Create a new assignment statement for the struct expression.
                         let (identifier, statement) = self.unique_simple_assign_statement(expr);
 
-                        // Mark the lhs of the assignment as a circuit.
-                        self.circuits
-                            .insert(identifier.name, first_member_circuit.identifier.name);
+                        // Mark the lhs of the assignment as a struct.
+                        self.structs
+                            .insert(identifier.name, first_member_struct.identifier.name);
 
                         statements.push(statement);
 
@@ -185,37 +185,37 @@ impl ExpressionReconstructor for Flattener<'_> {
                     }
                 }
             }
-            // If both expressions are identifiers which are circuits, construct ternary expression for each of the members and a circuit expression for the result.
+            // If both expressions are identifiers which are structs, construct ternary expression for each of the members and a struct expression for the result.
             (Expression::Identifier(first), Expression::Identifier(second))
-                if self.circuits.contains_key(&first.name) && self.circuits.contains_key(&second.name) =>
+                if self.structs.contains_key(&first.name) && self.structs.contains_key(&second.name) =>
             {
-                let first_circuit = self
+                let first_struct = self
                     .symbol_table
-                    .lookup_circuit(*self.circuits.get(&first.name).unwrap())
+                    .lookup_struct(*self.structs.get(&first.name).unwrap())
                     .unwrap();
-                let second_circuit = self
+                let second_struct = self
                     .symbol_table
-                    .lookup_circuit(*self.circuits.get(&second.name).unwrap())
+                    .lookup_struct(*self.structs.get(&second.name).unwrap())
                     .unwrap();
                 // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
-                assert_eq!(first_circuit, second_circuit);
+                assert_eq!(first_struct, second_struct);
 
-                // For each circuit member, construct a new ternary expression.
-                let members = first_circuit
+                // For each struct member, construct a new ternary expression.
+                let members = first_struct
                     .members
                     .iter()
-                    .map(|CircuitMember::CircuitVariable(id, _)| {
-                        // Construct a new ternary expression for the circuit member.
+                    .map(|Member { identifier, .. }| {
+                        // Construct a new ternary expression for the struct member.
                         let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
                             condition: input.condition.clone(),
                             if_true: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
                                 inner: Box::new(Expression::Identifier(first)),
-                                name: *id,
+                                name: *identifier,
                                 span: Default::default(),
                             }))),
                             if_false: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
                                 inner: Box::new(Expression::Identifier(second)),
-                                name: *id,
+                                name: *identifier,
                                 span: Default::default(),
                             }))),
                             span: Default::default(),
@@ -224,19 +224,19 @@ impl ExpressionReconstructor for Flattener<'_> {
                         // Accumulate any statements generated.
                         statements.extend(stmts);
 
-                        // Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the circuit member.
+                        // Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the struct member.
                         let (identifier, statement) = self.unique_simple_assign_statement(expression);
                         statements.push(statement);
 
-                        CircuitVariableInitializer {
-                            identifier: *id,
+                        StructVariableInitializer {
+                            identifier,
                             expression: Some(Expression::Identifier(identifier)),
                         }
                     })
                     .collect();
 
-                let (expr, stmts) = self.reconstruct_circuit_init(CircuitExpression {
-                    name: first_circuit.identifier,
+                let (expr, stmts) = self.reconstruct_struct_init(StructExpression {
+                    name: first_struct.identifier,
                     members,
                     span: Default::default(),
                 });
@@ -244,11 +244,11 @@ impl ExpressionReconstructor for Flattener<'_> {
                 // Accumulate any statements generated.
                 statements.extend(stmts);
 
-                // Create a new assignment statement for the circuit expression.
+                // Create a new assignment statement for the struct expression.
                 let (identifier, statement) = self.unique_simple_assign_statement(expr);
 
-                // Mark the lhs of the assignment as a circuit.
-                self.circuits.insert(identifier.name, first_circuit.identifier.name);
+                // Mark the lhs of the assignment as a struct.
+                self.structs.insert(identifier.name, first_struct.identifier.name);
 
                 statements.push(statement);
 

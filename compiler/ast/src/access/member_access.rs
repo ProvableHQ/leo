@@ -20,12 +20,12 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// A circuit member access expression `inner.name` to some structure with *named members*.
+/// A struct member access expression `inner.name` to some structure with *named members*.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MemberAccess {
-    /// The inner circuit that is being accessed.
+    /// The inner struct that is being accessed.
     pub inner: Box<Expression>,
-    /// The name of the circuit member to access.
+    /// The name of the struct member to access.
     pub name: Identifier,
     /// The span covering all of `inner.name`.
     pub span: Span,

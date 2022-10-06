@@ -13,7 +13,7 @@ outputs:
   - Console:
       function:
         AssertEq:
-          - Circuit:
+          - Struct:
               name: "{\"name\":\"Foo\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":21}\"}"
               members:
                 - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":24,\\\"hi\\\":25}\"}"
@@ -22,7 +22,7 @@ outputs:
               span:
                 lo: 18
                 hi: 30
-          - Circuit:
+          - Struct:
               name: "{\"name\":\"Foo\",\"span\":\"{\\\"lo\\\":32,\\\"hi\\\":35}\"}"
               members:
                 - identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":38,\\\"hi\\\":39}\"}"

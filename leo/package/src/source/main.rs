@@ -66,16 +66,18 @@ impl MainFile {
             .map_err(PackageError::io_error_main_file)?)
     }
 
+    // TODO: Generalize to other networks.
     fn template(&self) -> String {
         format!(
             r#"// The '{}' main function.
-@program
-function main(public a: u32, b: u32) -> u32 {{
-    let c: u32 = a + b;
-    return c;
+program {}.aleo {{
+    transition main(public a: u32, b: u32) -> u32 {{
+        let c: u32 = a + b;
+        return c;
+    }}
 }}
 "#,
-            self.package_name
+            self.package_name, self.package_name
         )
     }
 }

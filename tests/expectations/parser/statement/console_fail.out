@@ -2,7 +2,7 @@
 namespace: ParseStatement
 expectation: Fail
 outputs:
-  - "Error [EPAR0370021]: Unicode bidi override code point encountered."
+  - "Error [EPAR0370020]: Unicode bidi override code point encountered."
   - "Error [EPAR0370007]: unexpected identifier: expected 'assert', 'assert_eq', 'assert_neq' -- found 'log'\n    --> test:1:9\n     |\n   1 | console.log(1);\n     |         ^^^\nError [EPAR0370005]: expected ; -- found '('\n    --> test:1:12\n     |\n   1 | console.log(1);\n     |            ^"
   - "Error [EPAR0370007]: unexpected identifier: expected 'assert', 'assert_eq', 'assert_neq' -- found 'test'\n    --> test:1:9\n     |\n   1 | console.test();\n     |         ^^^^\nError [EPAR0370005]: expected ; -- found '('\n    --> test:1:13\n     |\n   1 | console.test();\n     |             ^"
   - "Error [EPAR0370007]: unexpected identifier: expected 'assert', 'assert_eq', 'assert_neq' -- found 'error'\n    --> test:1:9\n     |\n   1 | console.error(\"{}\", x);\n     |         ^^^^^\nError [EPAR0370005]: expected ; -- found '('\n    --> test:1:14\n     |\n   1 | console.error(\"{}\", x);\n     |              ^"

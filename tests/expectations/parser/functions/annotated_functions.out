@@ -2,99 +2,129 @@
 namespace: Parse
 expectation: Pass
 outputs:
-  - name: ""
-    network: ""
-    expected_input: []
-    imports: {}
-    circuits: {}
-    mappings: {}
-    functions:
-      "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":29}\"}":
-        annotations:
-          - identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":6}\"}"
-            span:
-              lo: 2
-              hi: 6
-          - identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":11}\"}"
-            span:
-              lo: 7
-              hi: 11
-          - identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":16}\"}"
-            span:
-              lo: 12
-              hi: 16
-        identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":29}\"}"
-        input: []
-        output:
-          - Internal:
-              mode: None
-              type_:
-                Integer: U8
+  - imports: {}
+    program_scopes:
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+        structs: {}
+        mappings: {}
+        functions:
+          "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":66,\\\"hi\\\":69}\"}":
+            annotations:
+              - identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":31,\\\"hi\\\":34}\"}"
+                span:
+                  lo: 30
+                  hi: 34
+              - identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":40,\\\"hi\\\":43}\"}"
+                span:
+                  lo: 39
+                  hi: 43
+              - identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":49,\\\"hi\\\":52}\"}"
+                span:
+                  lo: 48
+                  hi: 52
+            call_type: Standard
+            identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":66,\\\"hi\\\":69}\"}"
+            input: []
+            output:
+              - Internal:
+                  mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 75
+                    hi: 77
+            output_type:
+              Integer: U8
+            block:
+              statements: []
               span:
-                lo: 35
-                hi: 37
-        output_type:
-          Integer: U8
-        block:
-          statements: []
-          span:
-            lo: 38
-            hi: 40
-        finalize: ~
-        span:
-          lo: 17
-          hi: 40
-      "{\"name\":\"mint\",\"span\":\"{\\\"lo\\\":60,\\\"hi\\\":64}\"}":
-        annotations:
-          - identifier: "{\"name\":\"program\",\"span\":\"{\\\"lo\\\":43,\\\"hi\\\":50}\"}"
+                lo: 78
+                hi: 80
+            finalize: ~
             span:
-              lo: 42
-              hi: 50
-        identifier: "{\"name\":\"mint\",\"span\":\"{\\\"lo\\\":60,\\\"hi\\\":64}\"}"
-        input: []
-        output:
-          - Internal:
-              mode: None
-              type_:
-                Integer: U8
+              lo: 57
+              hi: 80
+          "{\"name\":\"mint\",\"span\":\"{\\\"lo\\\":101,\\\"hi\\\":105}\"}":
+            annotations: []
+            call_type: Transition
+            identifier: "{\"name\":\"mint\",\"span\":\"{\\\"lo\\\":101,\\\"hi\\\":105}\"}"
+            input: []
+            output:
+              - Internal:
+                  mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 111
+                    hi: 113
+            output_type:
+              Integer: U8
+            block:
+              statements: []
               span:
-                lo: 70
-                hi: 72
-        output_type:
-          Integer: U8
-        block:
-          statements: []
-          span:
-            lo: 73
-            hi: 75
-        finalize: ~
-        span:
-          lo: 51
-          hi: 75
-      "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}":
-        annotations:
-          - identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":78,\\\"hi\\\":82}\"}"
+                lo: 114
+                hi: 116
+            finalize: ~
             span:
-              lo: 77
-              hi: 82
-        identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}"
-        input: []
-        output:
-          - Internal:
-              mode: None
-              type_:
-                Integer: U8
+              lo: 90
+              hi: 116
+          "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":145,\\\"hi\\\":149}\"}":
+            annotations:
+              - identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":127,\\\"hi\\\":131}\"}"
+                span:
+                  lo: 126
+                  hi: 131
+            call_type: Standard
+            identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":145,\\\"hi\\\":149}\"}"
+            input: []
+            output:
+              - Internal:
+                  mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 155
+                    hi: 157
+            output_type:
+              Integer: U8
+            block:
+              statements: []
               span:
-                lo: 102
-                hi: 104
-        output_type:
-          Integer: U8
-        block:
-          statements: []
-          span:
-            lo: 105
-            hi: 107
-        finalize: ~
+                lo: 158
+                hi: 160
+            finalize: ~
+            span:
+              lo: 136
+              hi: 160
+          "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":192,\\\"hi\\\":195}\"}":
+            annotations:
+              - identifier: "{\"name\":\"program\",\"span\":\"{\\\"lo\\\":171,\\\"hi\\\":178}\"}"
+                span:
+                  lo: 170
+                  hi: 178
+            call_type: Standard
+            identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":192,\\\"hi\\\":195}\"}"
+            input: []
+            output:
+              - Internal:
+                  mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 201
+                    hi: 203
+            output_type:
+              Integer: U8
+            block:
+              statements: []
+              span:
+                lo: 204
+                hi: 206
+            finalize: ~
+            span:
+              lo: 183
+              hi: 206
         span:
-          lo: 83
-          hi: 107
+          lo: 2
+          hi: 208

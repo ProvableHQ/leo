@@ -2,38 +2,39 @@
 namespace: Serialize
 expectation: Pass
 outputs:
-  - name: ""
-    network: ""
-    expected_input: []
-    imports: {}
-    circuits: {}
-    mappings: {}
-    functions:
-      "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":15}\"}":
-        annotations: []
-        identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":15}\"}"
-        input: []
-        output:
-          - Internal:
-              mode: None
-              type_:
-                Integer: U8
-        output_type:
-          Integer: U8
-        block:
-          statements:
-            - Return:
-                expression:
-                  Binary:
-                    left:
-                      Literal:
-                        Integer:
-                          - U8
-                          - "1"
-                    right:
-                      Literal:
-                        Integer:
-                          - U8
-                          - "1"
-                    op: Add
-        finalize: ~
+  - imports: {}
+    program_scopes:
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+        structs: {}
+        mappings: {}
+        functions:
+          "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":35,\\\"hi\\\":39}\"}":
+            annotations: []
+            call_type: Standard
+            identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":35,\\\"hi\\\":39}\"}"
+            input: []
+            output:
+              - Internal:
+                  mode: None
+                  type_:
+                    Integer: U8
+            output_type:
+              Integer: U8
+            block:
+              statements:
+                - Return:
+                    expression:
+                      Binary:
+                        left:
+                          Literal:
+                            Integer:
+                              - U8
+                              - "1"
+                        right:
+                          Literal:
+                            Integer:
+                              - U8
+                              - "1"
+                        op: Add
+            finalize: ~

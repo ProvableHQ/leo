@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '('\n    --> compiler-test:4:12\n     |\n   4 |     let t: (bool, bool) = (a, 1u64); // We should be declaring to a boolean, not a u64.\n     |            ^"
+  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '('\n    --> compiler-test:5:16\n     |\n   5 |         let t: (bool, bool) = (a, 1u64); // We should be declaring to a boolean, not a u64.\n     |                ^"

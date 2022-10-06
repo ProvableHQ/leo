@@ -3,5 +3,6 @@ namespace: Compile
 expectation: Fail
 */
 
-@program
-function main() -> u8 {}
+program test.aleo {    
+    transition main() -> u8 {}
+}

@@ -17,8 +17,7 @@
 use crate::{Assigner, SymbolTable};
 
 use leo_ast::{
-    AccessExpression, CircuitMember, Expression, ExpressionReconstructor, Identifier, Statement, TernaryExpression,
-    Type,
+    AccessExpression, Expression, ExpressionReconstructor, Identifier, Member, Statement, TernaryExpression, Type,
 };
 use leo_span::Symbol;
 
@@ -26,12 +25,12 @@ use indexmap::IndexMap;
 
 pub struct Flattener<'a> {
     /// The symbol table associated with the program.
-    /// This table is used to lookup circuit definitions, when they are folded.
+    /// This table is used to lookup struct definitions, when they are folded.
     pub(crate) symbol_table: &'a SymbolTable,
     /// An struct used to construct (unique) assignment statements.
     pub(crate) assigner: Assigner,
-    /// The set of variables that are circuits.
-    pub(crate) circuits: IndexMap<Symbol, Symbol>,
+    /// The set of variables that are structs.
+    pub(crate) structs: IndexMap<Symbol, Symbol>,
     /// A stack of condition `Expression`s visited up to the current point in the AST.
     pub(crate) condition_stack: Vec<Expression>,
     /// A list containing tuples of guards and expressions associated `ReturnStatement`s.
@@ -51,7 +50,7 @@ impl<'a> Flattener<'a> {
         Self {
             symbol_table,
             assigner,
-            circuits: IndexMap::new(),
+            structs: IndexMap::new(),
             condition_stack: Vec::new(),
             returns: Vec::new(),
             finalizes: Vec::new(),
@@ -119,20 +118,20 @@ impl<'a> Flattener<'a> {
         (expression, statements)
     }
 
-    /// Looks up the name of the circuit associated with an identifier or access expression, if it exists.
-    pub(crate) fn lookup_circuit_symbol(&self, expression: &Expression) -> Option<Symbol> {
+    /// Looks up the name of the struct associated with an identifier or access expression, if it exists.
+    pub(crate) fn lookup_struct_symbol(&self, expression: &Expression) -> Option<Symbol> {
         match expression {
-            Expression::Identifier(identifier) => self.circuits.get(&identifier.name).copied(),
+            Expression::Identifier(identifier) => self.structs.get(&identifier.name).copied(),
             Expression::Access(AccessExpression::Member(access)) => {
                 // The inner expression of an access expression is either an identifier or another access expression.
-                let name = self.lookup_circuit_symbol(&access.inner).unwrap();
-                let circuit = self.symbol_table.lookup_circuit(name).unwrap();
-                let CircuitMember::CircuitVariable(_, member_type) = circuit
+                let name = self.lookup_struct_symbol(&access.inner).unwrap();
+                let struct_ = self.symbol_table.lookup_struct(name).unwrap();
+                let Member { type_, .. } = struct_
                     .members
                     .iter()
                     .find(|member| member.name() == access.name.name)
                     .unwrap();
-                match member_type {
+                match type_ {
                     Type::Identifier(identifier) => Some(identifier.name),
                     _ => None,
                 }
@@ -141,38 +140,38 @@ impl<'a> Flattener<'a> {
         }
     }
 
-    /// Updates `self.circuits` for new assignment statements.
+    /// Updates `self.structs` for new assignment statements.
     /// Expects the left hand side of the assignment to be an identifier.
-    pub(crate) fn update_circuits(&mut self, lhs: &Identifier, rhs: &Expression) {
+    pub(crate) fn update_structs(&mut self, lhs: &Identifier, rhs: &Expression) {
         match rhs {
-            Expression::Circuit(rhs) => {
-                self.circuits.insert(lhs.name, rhs.name.name);
+            Expression::Struct(rhs) => {
+                self.structs.insert(lhs.name, rhs.name.name);
             }
-            // If the rhs of the assignment is an identifier that is a circuit, add it to `self.circuits`.
-            Expression::Identifier(rhs) if self.circuits.contains_key(&rhs.name) => {
+            // If the rhs of the assignment is an identifier that is a struct, add it to `self.structs`.
+            Expression::Identifier(rhs) if self.structs.contains_key(&rhs.name) => {
                 // Note that this unwrap is safe because we just checked that the key exists.
-                self.circuits.insert(lhs.name, *self.circuits.get(&rhs.name).unwrap());
+                self.structs.insert(lhs.name, *self.structs.get(&rhs.name).unwrap());
             }
             // Otherwise, do nothing.
             _ => (),
         }
     }
 
-    /// A wrapper around `assigner.unique_simple_assign_statement` that updates `self.circuits`.
+    /// A wrapper around `assigner.unique_simple_assign_statement` that updates `self.structs`.
     pub(crate) fn unique_simple_assign_statement(&mut self, expr: Expression) -> (Identifier, Statement) {
         let (place, statement) = self.assigner.unique_simple_assign_statement(expr);
         match &statement {
             Statement::Assign(assign) => {
-                self.update_circuits(&place, &assign.value);
+                self.update_structs(&place, &assign.value);
             }
             _ => unreachable!("`assigner.unique_simple_assign_statement` always returns an assignment statement."),
         }
         (place, statement)
     }
 
-    /// A wrapper around `assigner.simple_assign_statement` that updates `self.circuits`.
+    /// A wrapper around `assigner.simple_assign_statement` that updates `self.structs`.
     pub(crate) fn simple_assign_statement(&mut self, lhs: Identifier, rhs: Expression) -> Statement {
-        self.update_circuits(&lhs, &rhs);
+        self.update_structs(&lhs, &rhs);
         self.assigner.simple_assign_statement(lhs, rhs)
     }
 }

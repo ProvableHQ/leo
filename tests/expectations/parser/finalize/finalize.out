@@ -2,100 +2,105 @@
 namespace: Parse
 expectation: Pass
 outputs:
-  - name: ""
-    network: ""
-    expected_input: []
-    imports: {}
-    circuits: {}
-    mappings: {}
-    functions:
-      "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":15}\"}":
-        annotations: []
-        identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":15}\"}"
-        input: []
-        output:
-          - Internal:
-              mode: None
-              type_: Boolean
+  - imports: {}
+    program_scopes:
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+        structs: {}
+        mappings: {}
+        functions:
+          "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":43}\"}":
+            annotations: []
+            call_type: Standard
+            identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":43}\"}"
+            input: []
+            output:
+              - Internal:
+                  mode: None
+                  type_: Boolean
+                  span:
+                    lo: 49
+                    hi: 53
+            output_type: Boolean
+            block:
+              statements: []
               span:
-                lo: 21
-                hi: 25
-        output_type: Boolean
-        block:
-          statements: []
-          span:
-            lo: 26
-            hi: 30
-        finalize:
-          identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":41,\\\"hi\\\":45}\"}"
-          input: []
-          output: []
-          output_type: Unit
-          block:
-            statements: []
+                lo: 54
+                hi: 66
+            finalize:
+              identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":85,\\\"hi\\\":89}\"}"
+              input: []
+              output: []
+              output_type: Unit
+              block:
+                statements: []
+                span:
+                  lo: 92
+                  hi: 104
+              span:
+                lo: 76
+                hi: 104
             span:
-              lo: 48
-              hi: 52
-          span:
-            lo: 32
-            hi: 52
+              lo: 30
+              hi: 66
+          "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":123,\\\"hi\\\":127}\"}":
+            annotations: []
+            call_type: Standard
+            identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":123,\\\"hi\\\":127}\"}"
+            input: []
+            output:
+              - Internal:
+                  mode: None
+                  type_: Boolean
+                  span:
+                    lo: 133
+                    hi: 137
+            output_type: Boolean
+            block:
+              statements: []
+              span:
+                lo: 138
+                hi: 150
+            finalize:
+              identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":160,\\\"hi\\\":164}\"}"
+              input:
+                - Internal:
+                    identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":165,\\\"hi\\\":166}\"}"
+                    mode: None
+                    type_:
+                      Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":168,\\\"hi\\\":171}\"}"
+                    span:
+                      lo: 165
+                      hi: 166
+                - Internal:
+                    identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":173,\\\"hi\\\":174}\"}"
+                    mode: None
+                    type_:
+                      Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":176,\\\"hi\\\":179}\"}"
+                    span:
+                      lo: 173
+                      hi: 174
+              output:
+                - Internal:
+                    mode: None
+                    type_:
+                      Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":184,\\\"hi\\\":187}\"}"
+                    span:
+                      lo: 184
+                      hi: 187
+              output_type:
+                Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":184,\\\"hi\\\":187}\"}"
+              block:
+                statements: []
+                span:
+                  lo: 188
+                  hi: 200
+              span:
+                lo: 151
+                hi: 200
+            span:
+              lo: 114
+              hi: 150
         span:
           lo: 2
-          hi: 30
-      "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":63,\\\"hi\\\":67}\"}":
-        annotations: []
-        identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":63,\\\"hi\\\":67}\"}"
-        input: []
-        output:
-          - Internal:
-              mode: None
-              type_: Boolean
-              span:
-                lo: 73
-                hi: 77
-        output_type: Boolean
-        block:
-          statements: []
-          span:
-            lo: 78
-            hi: 82
-        finalize:
-          identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}"
-          input:
-            - Internal:
-                identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":97,\\\"hi\\\":98}\"}"
-                mode: None
-                type_:
-                  Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":100,\\\"hi\\\":103}\"}"
-                span:
-                  lo: 97
-                  hi: 98
-            - Internal:
-                identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":105,\\\"hi\\\":106}\"}"
-                mode: None
-                type_:
-                  Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":108,\\\"hi\\\":111}\"}"
-                span:
-                  lo: 105
-                  hi: 106
-          output:
-            - Internal:
-                mode: None
-                type_:
-                  Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":116,\\\"hi\\\":119}\"}"
-                span:
-                  lo: 116
-                  hi: 119
-          output_type:
-            Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":116,\\\"hi\\\":119}\"}"
-          block:
-            statements: []
-            span:
-              lo: 120
-              hi: 124
-          span:
-            lo: 83
-            hi: 124
-        span:
-          lo: 54
-          hi: 82
+          hi: 212

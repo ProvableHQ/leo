@@ -2,45 +2,49 @@
 namespace: Parse
 expectation: Pass
 outputs:
-  - name: ""
-    network: ""
-    expected_input: []
-    imports: {}
-    circuits: {}
-    mappings: {}
-    functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}":
-        annotations: []
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
-        input: []
-        output:
-          - Internal:
-              mode: None
-              type_:
-                Integer: U32
+  - imports: {}
+    program_scopes:
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+        structs: {}
+        mappings: {}
+        functions:
+          "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}":
+            annotations: []
+            call_type: Standard
+            identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
+            input: []
+            output:
+              - Internal:
+                  mode: None
+                  type_:
+                    Integer: U32
+                  span:
+                    lo: 46
+                    hi: 49
+            output_type:
+              Integer: U32
+            block:
+              statements:
+                - Return:
+                    expression:
+                      Literal:
+                        Integer:
+                          - U8
+                          - "0"
+                          - span:
+                              lo: 67
+                              hi: 70
+                    span:
+                      lo: 60
+                      hi: 70
               span:
-                lo: 18
-                hi: 21
-        output_type:
-          Integer: U32
-        block:
-          statements:
-            - Return:
-                expression:
-                  Literal:
-                    Integer:
-                      - U8
-                      - "0"
-                      - span:
-                          lo: 35
-                          hi: 38
-                span:
-                  lo: 28
-                  hi: 38
-          span:
-            lo: 22
-            hi: 41
-        finalize: ~
+                lo: 50
+                hi: 77
+            finalize: ~
+            span:
+              lo: 30
+              hi: 77
         span:
           lo: 2
-          hi: 41
+          hi: 78

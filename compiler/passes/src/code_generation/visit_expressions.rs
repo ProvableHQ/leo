@@ -16,9 +16,9 @@
 
 use crate::CodeGenerator;
 use leo_ast::{
-    AccessExpression, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, CircuitExpression,
-    ErrExpression, Expression, Identifier, Literal, MemberAccess, TernaryExpression, TupleExpression, Type,
-    UnaryExpression, UnaryOperation,
+    AccessExpression, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, ErrExpression, Expression,
+    Identifier, Literal, MemberAccess, StructExpression, TernaryExpression, TupleExpression, Type, UnaryExpression,
+    UnaryOperation,
 };
 use leo_span::sym;
 
@@ -34,7 +34,7 @@ impl<'a> CodeGenerator<'a> {
             Expression::Access(expr) => self.visit_access(expr),
             Expression::Binary(expr) => self.visit_binary(expr),
             Expression::Call(expr) => self.visit_call(expr),
-            Expression::Circuit(expr) => self.visit_circuit_init(expr),
+            Expression::Struct(expr) => self.visit_struct_init(expr),
             Expression::Err(expr) => self.visit_err(expr),
             Expression::Identifier(expr) => self.visit_identifier(expr),
             Expression::Literal(expr) => self.visit_value(expr),
@@ -160,8 +160,8 @@ impl<'a> CodeGenerator<'a> {
         (destination_register, instructions)
     }
 
-    fn visit_circuit_init(&mut self, input: &'a CircuitExpression) -> (String, String) {
-        // Lookup circuit or record.
+    fn visit_struct_init(&mut self, input: &'a StructExpression) -> (String, String) {
+        // Lookup struct or record.
         let name = if let Some((is_record, type_)) = self.composite_mapping.get(&input.name.name) {
             if *is_record {
                 // record.private;
@@ -176,9 +176,9 @@ impl<'a> CodeGenerator<'a> {
 
         // Initialize instruction builder strings.
         let mut instructions = String::new();
-        let mut circuit_init_instruction = String::from("    cast ");
+        let mut struct_init_instruction = String::from("    cast ");
 
-        // Visit each circuit member and accumulate instructions from expressions.
+        // Visit each struct member and accumulate instructions from expressions.
         for member in input.members.iter() {
             let operand = if let Some(expr) = member.expression.as_ref() {
                 // Visit variable expression.
@@ -194,21 +194,21 @@ impl<'a> CodeGenerator<'a> {
                 ident_operand
             };
 
-            // Push operand name to circuit init instruction.
-            write!(circuit_init_instruction, "{} ", operand).expect("failed to write to string");
+            // Push operand name to struct init instruction.
+            write!(struct_init_instruction, "{} ", operand).expect("failed to write to string");
         }
 
-        // Push destination register to circuit init instruction.
+        // Push destination register to struct init instruction.
         let destination_register = format!("r{}", self.next_register);
         writeln!(
-            circuit_init_instruction,
+            struct_init_instruction,
             "into {dest} as {name};",
             dest = destination_register,
             name = name,
         )
         .expect("failed to write to string");
 
-        instructions.push_str(&circuit_init_instruction);
+        instructions.push_str(&struct_init_instruction);
 
         // Increment the register counter.
         self.next_register += 1;
@@ -217,8 +217,8 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_member_access(&mut self, input: &'a MemberAccess) -> (String, String) {
-        let (inner_circuit, _inner_instructions) = self.visit_expression(&input.inner);
-        let member_access_instruction = format!("{}.{}", inner_circuit, input.name);
+        let (inner_struct, _inner_instructions) = self.visit_expression(&input.inner);
+        let member_access_instruction = format!("{}.{}", inner_struct, input.name);
 
         (member_access_instruction, String::new())
     }
@@ -237,10 +237,10 @@ impl<'a> CodeGenerator<'a> {
                 sym::Poseidon2 => "psd2",
                 sym::Poseidon4 => "psd4",
                 sym::Poseidon8 => "psd8",
-                _ => unreachable!("All core circuit function calls should be known at this time."),
+                _ => unreachable!("All core function calls should be known at this time."),
             }
         } else {
-            unreachable!("All core circuits should be known at this time.")
+            unreachable!("All core function should be known at this time.")
         };
 
         // Construct associated function call.

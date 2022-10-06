@@ -6,7 +6,8 @@ input_file:
  - inputs/le.in
 */
 
-@program
-function main(a: u16, b: u16, c: bool) -> bool {
-    return a <= b == c;
+program test.aleo {    
+    transition main(a: u16, b: u16, c: bool) -> bool {
+        return a <= b == c;
+    }
 }

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected ; -- found '}'\n    --> compiler-test:16:1\n     |\n  16 | }\n     | ^"
+  - "Error [EPAR0370005]: expected ; -- found '}'\n    --> compiler-test:17:5\n     |\n  17 |     }}\n     |     ^"

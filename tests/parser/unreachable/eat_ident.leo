@@ -2,107 +2,108 @@
 namespace: Parse
 expectation: Fail
 */
+struct import
 
-circuit ;
-
-circuit .
-
-circuit import
-
-circuit ,
-
-circuit *
-
-circuit +
-
-circuit -
-
-circuit /
-
-circuit [
-
-circuit ]
-
-circuit {
-
-circuit }
-
-circuit (
-
-circuit )
-
-circuit :
-
-circuit ::
-
-circuit ?
-
-circuit _
-
-circuit =
-
-circuit ==
-
-circuit !
-
-circuit !=
-
-circuit >
-
-circuit >=
-
-circuit <
-
-circuit <=
-
-circuit >
-
-circuit ..
-
-circuit as
-
-circuit console
-
-circuit const
-
-circuit let
-
-circuit for
-
-circuit if
-
-circuit else
-
-circuit i8
-
-circuit i16
-
-circuit i32
-
-circuit i64
-
-circuit i128
-
-circuit u8
-
-circuit u16
-
-circuit u32
-
-circuit u64
-
-circuit u128
-
-circuit &
-
-circuit return
-
-circuit self
-
-circuit Self
-
-circuit true
-
-circuit false
-
-circuit 0
+program test.aleo {    
+    struct ;
+    
+    struct .
+    
+    
+    struct ,
+    
+    struct *
+    
+    struct +
+    
+    struct -
+    
+    struct /
+    
+    struct [
+    
+    struct ]
+    
+    struct {
+    
+    struct }
+    
+    struct (
+    
+    struct )
+    
+    struct :
+    
+    struct ::
+    
+    struct ?
+    
+    struct _
+    
+    struct =
+    
+    struct ==
+    
+    struct !
+    
+    struct !=
+    
+    struct >
+    
+    struct >=
+    
+    struct <
+    
+    struct <=
+    
+    struct >
+    
+    struct ..
+    
+    struct as
+    
+    struct console
+    
+    struct const
+    
+    struct let
+    
+    struct for
+    
+    struct if
+    
+    struct else
+    
+    struct i8
+    
+    struct i16
+    
+    struct i32
+    
+    struct i64
+    
+    struct i128
+    
+    struct u8
+    
+    struct u16
+    
+    struct u32
+    
+    struct u64
+    
+    struct u128
+    
+    struct &
+    
+    struct return
+    
+    struct self
+    
+    struct Self
+    
+    struct true
+    
+    struct false
+    
+    struct 0}

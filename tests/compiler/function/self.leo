@@ -3,10 +3,11 @@ namespace: Compile
 expectation: Pass
 */
 
-@program
-function matches(addr: address) -> bool {
-    async finalize(self.caller);
-    return self.caller == addr;
-} finalize matches(addr: address) -> bool {
-    return addr == self.caller;
+program test.aleo {    
+    transition matches(addr: address) -> bool {
+        async finalize(self.caller);
+        return self.caller == addr;
+    } finalize matches(addr: address) -> bool {
+        return addr == self.caller;
+    }
 }

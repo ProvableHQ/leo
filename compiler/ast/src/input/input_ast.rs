@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{normalize_json_value, remove_key_from_json, Circuit, Expression, Type};
+use crate::{normalize_json_value, remove_key_from_json, Expression, Struct, Type};
 
 use super::*;
 use leo_errors::{AstError, Result};
@@ -41,7 +41,7 @@ pub struct InputAst {
 
 impl InputAst {
     /// Returns all values of the input AST for execution with `leo run`.
-    pub fn program_inputs(&self, program_name: &str, circuits: IndexMap<Symbol, Circuit>) -> Vec<String> {
+    pub fn program_inputs(&self, program_name: &str, structs: IndexMap<Symbol, Struct>) -> Vec<String> {
         self.sections
             .iter()
             .filter(|section| section.name() == program_name)
@@ -49,18 +49,18 @@ impl InputAst {
                 section.definitions.iter().map(|definition| match &definition.type_ {
                     // Handle case where the input may be record.
                     Type::Identifier(identifier) => {
-                        match circuits.get(&identifier.name) {
+                        match structs.get(&identifier.name) {
                             // TODO: Better error handling.
                             None => panic!(
-                                "Input error: A circuit or record declaration does not exist for {}.",
+                                "Input error: A struct or record declaration does not exist for {}.",
                                 identifier.name
                             ),
-                            Some(circuit) => match circuit.is_record {
+                            Some(struct_) => match struct_.is_record {
                                 false => definition.value.to_string(),
                                 true => match &definition.value {
                                     // Print out the record interface with visibility.
-                                    Expression::Circuit(circuit_expression) => circuit_expression.to_record_string(),
-                                    _ => panic!("Input error: Expected a circuit expression."),
+                                    Expression::Struct(struct_expression) => struct_expression.to_record_string(),
+                                    _ => panic!("Input error: Expected a struct expression."),
                                 },
                             },
                         }

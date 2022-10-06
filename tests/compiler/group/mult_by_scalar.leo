@@ -4,7 +4,7 @@ expectation: Pass
 input_file: inputs/point.in
 */
 
-@program
-function main(a: group) -> group {
-    return 1scalar * a;
-}
+program test.aleo {    
+    transition main(a: group) -> group {
+        return 1scalar * a;
+    }}

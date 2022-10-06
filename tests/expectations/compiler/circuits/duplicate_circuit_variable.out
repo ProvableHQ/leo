@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372015]: Circuit Bar defined with more than one member with the same name.\n    --> compiler-test:3:1\n     |\n   3 | circuit Bar {\n   4 |     x: u32,\n   5 |     x: u32,\n   6 | }\n     | ^\n"

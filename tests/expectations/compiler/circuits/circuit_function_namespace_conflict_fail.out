@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EAST0372009]: circuit `Foo` shadowed by\n    --> compiler-test:7:1\n     |\n   7 | function Foo() {}\n     | ^^^^^^^^^^^^^^^^^\n"

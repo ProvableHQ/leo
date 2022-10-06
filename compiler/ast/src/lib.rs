@@ -27,8 +27,8 @@ extern crate core;
 pub mod access;
 pub use self::access::*;
 
-pub mod circuit;
-pub use self::circuit::*;
+pub mod r#struct;
+pub use self::r#struct::*;
 
 pub mod common;
 pub use self::common::*;
@@ -63,8 +63,7 @@ pub use self::types::*;
 pub mod value;
 pub use self::value::*;
 
-mod node;
-pub use node::*;
+pub use common::node::*;
 
 use leo_errors::{AstError, Result};
 
@@ -74,25 +73,13 @@ use leo_errors::{AstError, Result};
 /// These data types form a tree that begins from a [`Program`] type root.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Ast {
-    ast: Program,
+    pub ast: Program,
 }
 
 impl Ast {
     /// Creates a new AST from a given program tree.
     pub fn new(program: Program) -> Self {
         Self { ast: program }
-    }
-
-    /// Set the program name to the given string.
-    pub fn set_program_name(mut self, name: String) -> Self {
-        self.ast.name = name;
-        self
-    }
-
-    /// Set the network name to the given string.
-    pub fn set_network(mut self, network: String) -> Self {
-        self.ast.network = network;
-        self
     }
 
     /// Returns a reference to the inner program AST representation.

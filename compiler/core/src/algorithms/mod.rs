@@ -48,9 +48,9 @@ pub enum CoreInstruction {
 }
 
 impl CoreInstruction {
-    /// Returns a `CoreInstruction` from the given circuit and method symbols.
-    pub fn from_symbols(circuit: Symbol, function: Symbol) -> Option<Self> {
-        Some(match (circuit, function) {
+    /// Returns a `CoreInstruction` from the given module and method symbols.
+    pub fn from_symbols(module: Symbol, function: Symbol) -> Option<Self> {
+        Some(match (module, function) {
             (sym::BHP256, sym::commit) => Self::BHP256Commit,
             (sym::BHP256, sym::hash) => Self::BHP256Hash,
             (sym::BHP512, sym::commit) => Self::BHP512Commit,
@@ -161,7 +161,7 @@ impl CoreInstruction {
     }
 }
 
-/// A core function of a core circuit, e.g. `hash` or `commit`
+/// A core function of a core struct, e.g. `hash` or `commit`
 /// Provides required type information to the type checker.
 trait CoreFunction {
     const NUM_ARGS: usize;

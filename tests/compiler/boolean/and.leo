@@ -8,7 +8,7 @@ input_file:
  - inputs/true_true.in
 */
 
-@program
-function main(a: bool, b: bool) -> bool {
-    return a && b;
-}
+program test.aleo {    
+    transition main(a: bool, b: bool) -> bool {
+        return a && b;
+    }}

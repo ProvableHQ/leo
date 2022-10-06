@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372017]: The type `Bar` is not found in the current scope.\n    --> compiler-test:4:5\n     |\n   4 |     struct Foo {\n   5 |         a: u8,\n   6 |         bar: Bar,\n   7 |     }\n     |     ^\n"

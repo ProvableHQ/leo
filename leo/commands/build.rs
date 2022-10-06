@@ -17,10 +17,10 @@
 use crate::commands::ALEO_CLI_COMMAND;
 use crate::{commands::Command, context::Context};
 
-use leo_ast::Circuit;
+use leo_ast::Struct;
 use leo_compiler::{Compiler, InputAst, OutputOptions};
 use leo_errors::{CliError, CompilerError, PackageError, Result};
-use leo_package::source::{SourceDirectory, MAIN_FILENAME};
+use leo_package::source::SourceDirectory;
 use leo_package::{inputs::InputFile, outputs::OutputsDirectory};
 use leo_span::symbol::with_session_globals;
 
@@ -28,6 +28,7 @@ use aleo::commands::Build as AleoBuild;
 
 use clap::StructOpt;
 use indexmap::IndexMap;
+use snarkvm::prelude::{ProgramID, Testnet3};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
@@ -90,7 +91,7 @@ pub struct Build {
 
 impl Command for Build {
     type Input = ();
-    type Output = (Option<InputAst>, IndexMap<Symbol, Circuit>);
+    type Output = (Option<InputAst>, IndexMap<Symbol, Struct>);
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Leo")
@@ -104,8 +105,9 @@ impl Command for Build {
         // Get the package path.
         let package_path = context.dir()?;
 
-        // Get the program name.
-        let package_name = context.open_manifest()?.program_id().name().to_string();
+        // Get the program id.
+        let manifest = context.open_manifest()?;
+        let program_id = manifest.program_id();
 
         // Create the outputs directory.
         let outputs_directory = OutputsDirectory::create(&package_path)?;
@@ -119,19 +121,23 @@ impl Command for Build {
         // Fetch paths to all .leo files in the source directory.
         let source_files = SourceDirectory::files(&package_path)?;
 
-        // Store all circuits declarations made in the source files.
-        let mut circuits = IndexMap::new();
+        // Check the source files.
+        SourceDirectory::check_files(&source_files)?;
+
+        // Store all struct declarations made in the source files.
+        let mut structs = IndexMap::new();
 
         // Compile all .leo files into .aleo files.
         for file_path in source_files.into_iter() {
-            circuits.extend(compile_leo_file(
+            structs.extend(compile_leo_file(
                 file_path,
                 &package_path,
-                &package_name,
+                program_id,
                 &outputs_directory,
                 &build_directory,
                 &handler,
                 self.compiler_options.clone(),
+                false,
             )?);
         }
 
@@ -144,20 +150,21 @@ impl Command for Build {
 
             // Compile all .leo files into .aleo files.
             for file_path in import_files.into_iter() {
-                circuits.extend(compile_leo_file(
+                structs.extend(compile_leo_file(
                     file_path,
                     &package_path,
-                    &package_name,
+                    program_id,
                     &outputs_directory,
                     &build_imports_directory,
                     &handler,
                     self.compiler_options.clone(),
+                    true,
                 )?);
             }
         }
 
         // Load the input file at `package_name.in`
-        let input_file_path = InputFile::new(&package_name).setup_file_path(&package_path);
+        let input_file_path = InputFile::new(&manifest.program_id().name().to_string()).setup_file_path(&package_path);
 
         // Parse the input file.
         let input_ast = if input_file_path.exists() {
@@ -188,84 +195,57 @@ impl Command for Build {
         // Log the result of the build
         tracing::info!("{}", result);
 
-        Ok((input_ast, circuits))
+        Ok((input_ast, structs))
     }
 }
 
+/// Compiles a Leo file in the `src/` directory.
+#[allow(clippy::too_many_arguments)]
 fn compile_leo_file(
     file_path: PathBuf,
     _package_path: &Path,
-    package_name: &String,
+    program_id: &ProgramID<Testnet3>,
     outputs: &Path,
     build: &Path,
     handler: &Handler,
     options: BuildOptions,
-) -> Result<IndexMap<Symbol, Circuit>> {
+    is_import: bool,
+) -> Result<IndexMap<Symbol, Struct>> {
     // Construct the Leo file name with extension `foo.leo`.
     let file_name = file_path
         .file_name()
         .and_then(|name| name.to_str())
         .ok_or_else(PackageError::failed_to_get_file_name)?;
 
-    // Construct program name from file_path name `foo`.
-    let program_name = file_name
-        .strip_suffix(".leo")
-        .ok_or_else(PackageError::failed_to_get_file_name)?;
-
-    // Construct program id header for aleo file.
-    // Do not create a program with main.aleo as the ID.
-    let program_id_name = if file_name.eq(MAIN_FILENAME) {
-        package_name
-    } else {
-        program_name
+    // If the program is an import, construct program name from file_path
+    // Otherwise, use the program_id found in `package.json`.
+    let program_name = match is_import {
+        false => program_id.name().to_string(),
+        true => file_name
+            .strip_suffix(".leo")
+            .ok_or_else(PackageError::failed_to_get_file_name)?
+            .to_string(),
     };
 
+    // Create the path to the Aleo file.
+    let mut aleo_file_path = build.to_path_buf();
+    aleo_file_path.push(match is_import {
+        true => format!("{}.{}", program_name, program_id.network()),
+        false => format!("main.{}", program_id.network()),
+    });
+
     // Create a new instance of the Leo compiler.
-    let mut program = Compiler::new(
-        program_id_name.to_string(),
-        String::from("aleo"), // todo: fetch this from Network::Testnet3
+    let mut compiler = Compiler::new(
+        program_name,
+        program_id.network().to_string(),
         handler,
         file_path.clone(),
         outputs.to_path_buf(),
         Some(options.into()),
     );
 
-    // TODO: Temporarily removing checksum files. Need to redesign this scheme.
-    // // Check if we need to compile the Leo program.
-    // let checksum_differs = {
-    //     // Compute the current program checksum.
-    //     let program_checksum = program.checksum()?;
-    //
-    //     // Get the current program checksum.
-    //     let checksum_file = ChecksumFile::new(program_name);
-    //
-    //     // If a checksum file exists, check if it differs from the new checksum.
-    //     let checksum_differs = if checksum_file.exists_at(package_path) {
-    //         let previous_checksum = checksum_file.read_from(package_path)?;
-    //         program_checksum != previous_checksum
-    //     } else {
-    //         // By default, the checksum differs if there is no checksum to compare against.
-    //         true
-    //     };
-    //
-    //     // If checksum differs, compile the program
-    //     if checksum_differs {
-    //         // Write the new checksum to the output directory
-    //         checksum_file.write_to(package_path, program_checksum)?;
-    //
-    //         tracing::debug!("Checksum saved ({:?})", package_path);
-    //     }
-    //
-    //     checksum_differs
-    // };
-
-    // if checksum_differs {
     // Compile the Leo program into Aleo instructions.
-    let (symbol_table, instructions) = program.compile_and_generate_instructions()?;
-
-    // Create the path to the Aleo file.
-    let mut aleo_file_path = build.to_path_buf();
-    aleo_file_path.push(format!("{}.aleo", program_name));
+    let (symbol_table, instructions) = compiler.compile_and_generate_instructions()?;
 
     // Write the instructions.
     std::fs::File::create(&aleo_file_path)
@@ -279,5 +259,5 @@ fn compile_leo_file(
     // Log the build as successful.
     tracing::info!("Compiled '{}' into Aleo instructions", file_name,);
 
-    Ok(symbol_table.circuits)
+    Ok(symbol_table.structs)
 }

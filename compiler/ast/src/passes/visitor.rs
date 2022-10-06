@@ -30,7 +30,7 @@ pub trait ExpressionVisitor<'a> {
             Expression::Access(access) => self.visit_access(access, additional),
             Expression::Binary(binary) => self.visit_binary(binary, additional),
             Expression::Call(call) => self.visit_call(call, additional),
-            Expression::Circuit(circuit) => self.visit_circuit_init(circuit, additional),
+            Expression::Struct(struct_) => self.visit_struct_init(struct_, additional),
             Expression::Err(err) => self.visit_err(err, additional),
             Expression::Identifier(identifier) => self.visit_identifier(identifier, additional),
             Expression::Literal(literal) => self.visit_literal(literal, additional),
@@ -72,11 +72,7 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_circuit_init(
-        &mut self,
-        _input: &'a CircuitExpression,
-        _additional: &Self::AdditionalInput,
-    ) -> Self::Output {
+    fn visit_struct_init(&mut self, _input: &'a StructExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
 
@@ -200,9 +196,13 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
         input.imports.values().for_each(|import| self.visit_import(import));
 
         input
-            .circuits
+            .program_scopes
             .values()
-            .for_each(|function| self.visit_circuit(function));
+            .for_each(|scope| self.visit_program_scope(scope));
+    }
+
+    fn visit_program_scope(&mut self, input: &'a ProgramScope) {
+        input.structs.values().for_each(|function| self.visit_struct(function));
 
         input.mappings.values().for_each(|mapping| self.visit_mapping(mapping));
 
@@ -216,7 +216,7 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
         self.visit_program(input)
     }
 
-    fn visit_circuit(&mut self, _input: &'a Circuit) {}
+    fn visit_struct(&mut self, _input: &'a Struct) {}
 
     fn visit_mapping(&mut self, _input: &'a Mapping) {}
 

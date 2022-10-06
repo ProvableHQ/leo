@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372003]: Expected type `address` but type `u64` was found\n    --> compiler-test:12:28\n     |\n  12 | function mint(r0: address, r1: u64) -> Token {\n     |                            ^^\nError [ETYC0372003]: Expected type `u64` but type `address` was found\n    --> compiler-test:12:15\n     |\n  12 | function mint(r0: address, r1: u64) -> Token {\n     |               ^^\n"
+  - "Error [ETYC0372003]: Expected type `address` but type `u64` was found\n    --> compiler-test:13:32\n     |\n  13 |     function mint(r0: address, r1: u64) -> Token {\n     |                                ^^\nError [ETYC0372003]: Expected type `u64` but type `address` was found\n    --> compiler-test:13:19\n     |\n  13 |     function mint(r0: address, r1: u64) -> Token {\n     |                   ^^\nError [ETYC0372047]: Cannot call another function from a standard function.\n    --> compiler-test:23:24\n     |\n  23 |         let t: Token = mint(x, c);\n     |                        ^^^^^^^^^^\n"

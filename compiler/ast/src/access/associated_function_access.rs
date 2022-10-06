@@ -20,12 +20,12 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// An access expression to an associated function in a circuit, e.g.`Pedersen64::hash()`.
+/// An access expression to an associated function in a struct, e.g.`Pedersen64::hash()`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AssociatedFunction {
-    /// The inner circuit type.
+    /// The inner struct type.
     pub ty: Type,
-    /// The static circuit member function that is being accessed.
+    /// The static struct member function that is being accessed.
     pub name: Identifier,
     /// The arguments passed to the function `name`.
     pub args: Vec<Expression>,

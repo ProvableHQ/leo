@@ -4,10 +4,10 @@ This directory includes the following Leo code examples:
 
 1. Hello World -> Basic Sum of two u32
 2. Groups -> Basic operations over groups
-3. Core -> Core circuits functions over a field type
+3. Core -> Core functions over a field type
 4. Bubblesort -> Sorting algorithms over a tuple
-5. Import point -> Import code from an other file 
-6. Message -> Initialization of a circuit type 
+5. Import point -> Import code from another file 
+6. Message -> Initialization of a struct 
 7. Token -> Record example
 
 ## Build Guide
@@ -16,7 +16,7 @@ To compile each example, run:
 ```bash
 leo build
 ```
-When you run this command for the first time the snarkvm parameters (universal setup) will be downloaded, these are necessary to run the circuits.
+When you run this command for the first time the snarkvm parameters (universal setup) will be downloaded, these are necessary to run the programs.
 
 To run each program, run:
 ```bash

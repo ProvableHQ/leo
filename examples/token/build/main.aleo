@@ -1,4 +1,4 @@
-program token.aleo;
+program token.aleo
 
 record token:
     owner as address.private;

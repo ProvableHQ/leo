@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected 'function', 'circuit', 'test' -- found '1'\n    --> test:3:1\n     |\n   3 | 1 main() {}\n     | ^"
+  - "Error [EPAR0370005]: expected 'struct', 'record', 'mapping', '@', 'function', 'transition' -- found '1'\n    --> test:4:5\n     |\n   4 |     1 main() {}}\n     |     ^"

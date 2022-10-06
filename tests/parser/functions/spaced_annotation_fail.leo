@@ -3,5 +3,7 @@ namespace: Parse
 expectation: Fail
 */
 
-@ test
-function test() -> u8 {}
+program test.aleo {    
+    @ test
+    function test() -> u8 {}
+}

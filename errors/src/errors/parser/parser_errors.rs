@@ -72,11 +72,11 @@ create_messages!(
         help: None,
     }
 
-    /// For when the parser encountered a mix of commas and semi-colons in circuit member variables.
+    /// For when the parser encountered a mix of commas and semi-colons in struct member variables.
     @formatted
     mixed_commas_and_semicolons {
         args: (),
-        msg: "Cannot mix use of commas and semi-colons for circuit member variable declarations.",
+        msg: "Cannot mix use of commas and semi-colons for struct member variable declarations.",
         help: None,
     }
 
@@ -117,14 +117,6 @@ create_messages!(
     spread_in_array_init {
         args: (),
         msg: "illegal spread in array initializer",
-        help: None,
-    }
-
-    /// For when the parser encountered a deprecated `test function`.
-    @formatted
-    test_function {
-        args: (),
-        msg: "\"test function...\" is deprecated. Did you mean @test annotation?",
         help: None,
     }
 
@@ -224,27 +216,11 @@ create_messages!(
         help: None,
     }
 
-    /// Circuit functions are unstable in testnet3.
-    @formatted
-    circuit_functions_unstable {
-        args: (),
-        msg: "Circuit functions are currently an unstable feature and are disabled in Leo for testnet3.",
-        help: None,
-    }
-
-    /// Circuit constants are unstable in testnet3.
-    @formatted
-    circuit_constants_unstable {
-        args: (),
-        msg: "Circuit constants are currently an unstable feature and are disabled in Leo for testnet3.",
-        help: None,
-    }
-
     @formatted
     invalid_associated_access {
         args: (name: impl Display),
-        msg: format!("Invalid associated access call to circuit {name}."),
-        help: Some("Double colon `::` syntax is only supported for core circuits in Leo for testnet3.".to_string()),
+        msg: format!("Invalid associated access call to struct {name}."),
+        help: Some("Double colon `::` syntax is only supported for core functions in Leo for testnet3.".to_string()),
     }
 
     @formatted
@@ -266,5 +242,33 @@ create_messages!(
         args: (),
         msg: "A finalize statement must be preceded by the `async` keyword.",
         help: Some("Add the `async` keyword before the `finalize` keyword.".to_string()),
+    }
+
+    @formatted
+    circuit_is_deprecated {
+        args: (),
+        msg: "The keyword `circuit` is deprecated.",
+        help: Some("Use `struct` instead.".to_string()),
+    }
+
+    @formatted
+    only_one_program_scope_is_allowed {
+        args: (),
+        msg: "Only one program scope is allowed in a Leo file.",
+        help: None,
+    }
+
+    @formatted
+    missing_program_scope {
+        args: (),
+        msg: "Missing a program scope in a Leo file.",
+        help: Some("Add a program scope of the form: `program <name>.aleo { ... }` to the Leo file.".to_string()),
+    }
+
+    @formatted
+    invalid_network {
+        args: (),
+        msg: "Invalid network identifier. The only supported identifier is `aleo`.",
+        help: None,
     }
 );
