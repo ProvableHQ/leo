@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["Member","A member of a struct definition, e.g `foobar: u8`."]]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["ProgramScope","Stores the Leo program scope abstract syntax tree."]]};

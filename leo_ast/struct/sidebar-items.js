@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":[["member",""]],"struct":[["Struct","A struct type definition, e.g., `struct Foo { my_field: Bar }`. In some languages these are called `struct`s."]]};

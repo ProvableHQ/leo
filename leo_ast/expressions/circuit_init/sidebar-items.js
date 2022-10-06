@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":[["CircuitExpression","A circuit initialization expression, e.g., `Foo { bar: 42, baz }`."],["CircuitVariableInitializer","An initializer for a single field / variable of a circuit initializer expression. That is, in `Foo { bar: 42, baz }`, this is either `bar: 42`, or `baz`."]]};

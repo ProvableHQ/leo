@@ -155,8 +155,8 @@
 <span class="kw">mod</span> <span class="ident">call</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">call</span>::<span class="kw-2">*</span>;
 
-<span class="kw">mod</span> <span class="ident">circuit_init</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">circuit_init</span>::<span class="kw-2">*</span>;
+<span class="kw">mod</span> <span class="ident">struct_init</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">struct_init</span>::<span class="kw-2">*</span>;
 
 <span class="kw">mod</span> <span class="ident">err</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">err</span>::<span class="kw-2">*</span>;
@@ -176,14 +176,14 @@
 <span class="doccomment">/// Expression that evaluates to a value.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Expression</span> {
-    <span class="doccomment">/// A circuit access expression, e.g., `Foo.bar`.</span>
+    <span class="doccomment">/// A struct access expression, e.g., `Foo.bar`.</span>
     <span class="ident">Access</span>(<span class="ident">AccessExpression</span>),
     <span class="doccomment">/// A binary expression, e.g., `42 + 24`.</span>
     <span class="ident">Binary</span>(<span class="ident">BinaryExpression</span>),
     <span class="doccomment">/// A call expression, e.g., `my_fun(args)`.</span>
     <span class="ident">Call</span>(<span class="ident">CallExpression</span>),
-    <span class="doccomment">/// An expression constructing a circuit like `Foo { bar: 42, baz }`.</span>
-    <span class="ident">Circuit</span>(<span class="ident">CircuitExpression</span>),
+    <span class="doccomment">/// An expression constructing a struct like `Foo { bar: 42, baz }`.</span>
+    <span class="ident">Struct</span>(<span class="ident">StructExpression</span>),
     <span class="doccomment">/// An expression of type &quot;error&quot;.</span>
     <span class="doccomment">/// Will result in a compile error eventually.</span>
     <span class="prelude-val">Err</span>(<span class="ident">ErrExpression</span>),
@@ -206,7 +206,7 @@
             <span class="ident">Access</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
             <span class="ident">Binary</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
             <span class="ident">Call</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
-            <span class="ident">Circuit</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
+            <span class="ident">Struct</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
             <span class="prelude-val">Err</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
             <span class="ident">Identifier</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
             <span class="ident">Literal</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
@@ -222,7 +222,7 @@
             <span class="ident">Access</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
             <span class="ident">Binary</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
             <span class="ident">Call</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
-            <span class="ident">Circuit</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
+            <span class="ident">Struct</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
             <span class="ident">Identifier</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
             <span class="ident">Literal</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
             <span class="prelude-val">Err</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
@@ -240,7 +240,7 @@
             <span class="ident">Access</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
             <span class="ident">Binary</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
             <span class="ident">Call</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
-            <span class="ident">Circuit</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
+            <span class="ident">Struct</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
             <span class="prelude-val">Err</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
             <span class="ident">Identifier</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
             <span class="ident">Literal</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),

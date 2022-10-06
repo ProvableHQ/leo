@@ -420,7 +420,6 @@
 <span id="420">420</span>
 <span id="421">421</span>
 <span id="422">422</span>
-<span id="423">423</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -458,9 +457,8 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">has_return</span>: <span class="ident">bool</span>,
     <span class="doccomment">/// Whether or not the function that we are currently traversing has a finalize statement.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">has_finalize</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Whether or not we are currently traversing a program function.</span>
-    <span class="doccomment">/// A &quot;program function&quot; is a function that can be invoked by a user or another program.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">is_program_function</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Whether or not we are currently traversing a transition function.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">is_transition_function</span>: <span class="ident">bool</span>,
     <span class="doccomment">/// Whether or not we are currently traversing a finalize block.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">is_finalize</span>: <span class="ident">bool</span>,
 }
@@ -512,7 +510,7 @@
     <span class="doccomment">/// Returns a new type checker given a symbol table and error handler.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">symbol_table</span>: <span class="ident">SymbolTable</span>, <span class="ident">handler</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Handler</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">is_program_function</span>: <span class="bool-val">false</span>,
+            <span class="ident">is_transition_function</span>: <span class="bool-val">false</span>,
             <span class="ident">symbol_table</span>: <span class="ident">RefCell::new</span>(<span class="ident">symbol_table</span>),
             <span class="ident">handler</span>,
             <span class="ident">function</span>: <span class="prelude-val">None</span>,
@@ -745,35 +743,35 @@
         )
     }
 
-    <span class="doccomment">/// Emits an error if the `circuit` is not a core library circuit.</span>
-    <span class="doccomment">/// Emits an error if the `function` is not supported by the circuit.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">check_core_circuit_call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">circuit</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>, <span class="ident">function</span>: <span class="kw-2">&amp;</span><span class="ident">Identifier</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CoreInstruction</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Type::Identifier</span>(<span class="ident">ident</span>) <span class="op">=</span> <span class="ident">circuit</span> {
-            <span class="comment">// Lookup core circuit</span>
+    <span class="doccomment">/// Emits an error if the `struct` is not a core library struct.</span>
+    <span class="doccomment">/// Emits an error if the `function` is not supported by the struct.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">check_core_function_call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">struct_</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>, <span class="ident">function</span>: <span class="kw-2">&amp;</span><span class="ident">Identifier</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CoreInstruction</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Type::Identifier</span>(<span class="ident">ident</span>) <span class="op">=</span> <span class="ident">struct_</span> {
+            <span class="comment">// Lookup core struct</span>
             <span class="kw">match</span> <span class="ident">CoreInstruction::from_symbols</span>(<span class="ident">ident</span>.<span class="ident">name</span>, <span class="ident">function</span>.<span class="ident">name</span>) {
                 <span class="prelude-val">None</span> =&gt; {
-                    <span class="comment">// Not a core library circuit.</span>
-                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::invalid_core_instruction</span>(
+                    <span class="comment">// Not a core library struct.</span>
+                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::invalid_core_function</span>(
                         <span class="ident">ident</span>.<span class="ident">name</span>,
                         <span class="ident">function</span>.<span class="ident">name</span>,
                         <span class="ident">ident</span>.<span class="ident">span</span>(),
                     ));
                 }
-                <span class="prelude-val">Some</span>(<span class="ident">core_circuit</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">core_circuit</span>),
+                <span class="prelude-val">Some</span>(<span class="ident">core_instruction</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">core_instruction</span>),
             }
         }
         <span class="prelude-val">None</span>
     }
 
-    <span class="doccomment">/// Returns the `circuit` type and emits an error if the `expected` type does not match.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">check_expected_circuit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">circuit</span>: <span class="ident">Identifier</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>, <span class="ident">span</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Type</span> {
+    <span class="doccomment">/// Returns the `struct` type and emits an error if the `expected` type does not match.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">check_expected_struct</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">struct_</span>: <span class="ident">Identifier</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>, <span class="ident">span</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Type</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">Type::Identifier</span>(<span class="ident">expected</span>)) <span class="op">=</span> <span class="ident">expected</span> {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">circuit</span>.<span class="ident">matches</span>(<span class="ident">expected</span>) {
-                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::type_should_be</span>(<span class="ident">circuit</span>.<span class="ident">name</span>, <span class="ident">expected</span>.<span class="ident">name</span>, <span class="ident">span</span>));
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">struct_</span>.<span class="ident">matches</span>(<span class="ident">expected</span>) {
+                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::type_should_be</span>(<span class="ident">struct_</span>.<span class="ident">name</span>, <span class="ident">expected</span>.<span class="ident">name</span>, <span class="ident">span</span>));
             }
         }
 
-        <span class="ident">Type::Identifier</span>(<span class="ident">circuit</span>)
+        <span class="ident">Type::Identifier</span>(<span class="ident">struct_</span>)
     }
 
     <span class="doccomment">/// Emits an error if the type is a tuple.</span>
@@ -783,17 +781,17 @@
         }
     }
 
-    <span class="doccomment">/// Emits an error if the circuit member is a record type.</span>
+    <span class="doccomment">/// Emits an error if the struct member is a record type.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">assert_member_is_not_record</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">span</span>: <span class="ident">Span</span>, <span class="ident">parent</span>: <span class="ident">Symbol</span>, <span class="ident">type_</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) {
         <span class="kw">match</span> <span class="ident">type_</span> {
             <span class="ident">Type::Identifier</span>(<span class="ident">identifier</span>)
                 <span class="kw">if</span> <span class="self">self</span>
                     .<span class="ident">symbol_table</span>
                     .<span class="ident">borrow</span>()
-                    .<span class="ident">lookup_circuit</span>(<span class="ident">identifier</span>.<span class="ident">name</span>)
-                    .<span class="ident">map_or</span>(<span class="bool-val">false</span>, <span class="op">|</span><span class="ident">circuit</span><span class="op">|</span> <span class="ident">circuit</span>.<span class="ident">is_record</span>) =&gt;
+                    .<span class="ident">lookup_struct</span>(<span class="ident">identifier</span>.<span class="ident">name</span>)
+                    .<span class="ident">map_or</span>(<span class="bool-val">false</span>, <span class="op">|</span><span class="ident">struct_</span><span class="op">|</span> <span class="ident">struct_</span>.<span class="ident">is_record</span>) =&gt;
             {
-                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::circuit_or_record_cannot_contain_record</span>(
+                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::struct_or_record_cannot_contain_record</span>(
                     <span class="ident">parent</span>,
                     <span class="ident">identifier</span>.<span class="ident">name</span>,
                     <span class="ident">span</span>,
@@ -812,7 +810,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">assert_type_is_valid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">span</span>: <span class="ident">Span</span>, <span class="ident">type_</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) {
         <span class="kw">match</span> <span class="ident">type_</span> {
             <span class="comment">// Check that the named composite type has been defined.</span>
-            <span class="ident">Type::Identifier</span>(<span class="ident">identifier</span>) <span class="kw">if</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow</span>().<span class="ident">lookup_circuit</span>(<span class="ident">identifier</span>.<span class="ident">name</span>).<span class="ident">is_none</span>() =&gt; {
+            <span class="ident">Type::Identifier</span>(<span class="ident">identifier</span>) <span class="kw">if</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow</span>().<span class="ident">lookup_struct</span>(<span class="ident">identifier</span>.<span class="ident">name</span>).<span class="ident">is_none</span>() =&gt; {
                 <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::undefined_type</span>(<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">span</span>));
             }
             <span class="comment">// Check that the constituent types of the tuple are valid.</span>

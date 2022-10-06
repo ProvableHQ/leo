@@ -200,8 +200,8 @@
 
 <span class="kw">impl</span> <span class="ident">StatementReconstructor</span> <span class="kw">for</span> <span class="ident">Flattener</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Flattens an assign statement, if necessary.</span>
-    <span class="doccomment">/// Marks variables as circuits as necessary.</span>
-    <span class="doccomment">/// Note that new statements are only produced if the right hand side is a ternary expression over circuits.</span>
+    <span class="doccomment">/// Marks variables as structs as necessary.</span>
+    <span class="doccomment">/// Note that new statements are only produced if the right hand side is a ternary expression over structs.</span>
     <span class="doccomment">/// Otherwise, the statement is returned as is.</span>
     <span class="kw">fn</span> <span class="ident">reconstruct_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">assign</span>: <span class="ident">AssignStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
         <span class="kw">let</span> <span class="ident">lhs</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">assign</span>.<span class="ident">place</span> {
@@ -216,8 +216,8 @@
             <span class="ident">value</span> =&gt; (<span class="ident">value</span>, <span class="ident">Default::default</span>()),
         };
 
-        <span class="comment">// Update the `self.circuits` if the rhs is a circuit.</span>
-        <span class="self">self</span>.<span class="ident">update_circuits</span>(<span class="kw-2">&amp;</span><span class="ident">lhs</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>);
+        <span class="comment">// Update the `self.structs` if the rhs is a struct.</span>
+        <span class="self">self</span>.<span class="ident">update_structs</span>(<span class="kw-2">&amp;</span><span class="ident">lhs</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>);
 
         (
             <span class="ident">Statement::Assign</span>(<span class="ident">Box::new</span>(<span class="ident">AssignStatement</span> {

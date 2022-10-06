@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":[["circuit_member",""]],"struct":[["Circuit","A circuit type definition, e.g., `circuit Foo { my_field: Bar }`. In some languages these are called `struct`s."]]};

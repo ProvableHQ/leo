@@ -107,6 +107,22 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -125,7 +141,10 @@
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::StaticSingleAssigner</span>;
 
-<span class="kw">use</span> <span class="ident">leo_ast</span>::{<span class="ident">Block</span>, <span class="ident">Finalize</span>, <span class="ident">Function</span>, <span class="ident">FunctionConsumer</span>, <span class="ident">Program</span>, <span class="ident">ProgramConsumer</span>, <span class="ident">StatementConsumer</span>};
+<span class="kw">use</span> <span class="ident">leo_ast</span>::{
+    <span class="ident">Block</span>, <span class="ident">Finalize</span>, <span class="ident">Function</span>, <span class="ident">FunctionConsumer</span>, <span class="ident">Program</span>, <span class="ident">ProgramConsumer</span>, <span class="ident">ProgramScope</span>, <span class="ident">ProgramScopeConsumer</span>,
+    <span class="ident">StatementConsumer</span>,
+};
 
 <span class="kw">impl</span> <span class="ident">FunctionConsumer</span> <span class="kw">for</span> <span class="ident">StaticSingleAssigner</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Function</span>;
@@ -181,6 +200,7 @@
 
         <span class="ident">Function</span> {
             <span class="ident">annotations</span>: <span class="ident">function</span>.<span class="ident">annotations</span>,
+            <span class="ident">call_type</span>: <span class="ident">function</span>.<span class="ident">call_type</span>,
             <span class="ident">identifier</span>: <span class="ident">function</span>.<span class="ident">identifier</span>,
             <span class="ident">input</span>: <span class="ident">function</span>.<span class="ident">input</span>,
             <span class="ident">output</span>: <span class="ident">function</span>.<span class="ident">output</span>,
@@ -192,27 +212,39 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ProgramConsumer</span> <span class="kw">for</span> <span class="ident">StaticSingleAssigner</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Program</span>;
+<span class="kw">impl</span> <span class="ident">ProgramScopeConsumer</span> <span class="kw">for</span> <span class="ident">StaticSingleAssigner</span> {
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">ProgramScope</span>;
 
-    <span class="kw">fn</span> <span class="ident">consume_program</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Program</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="ident">Program</span> {
-            <span class="ident">name</span>: <span class="ident">input</span>.<span class="ident">name</span>,
-            <span class="ident">network</span>: <span class="ident">input</span>.<span class="ident">network</span>,
-            <span class="ident">expected_input</span>: <span class="ident">input</span>.<span class="ident">expected_input</span>,
-            <span class="comment">// TODO: Do inputs need to be processed? They are not processed in the existing compiler.</span>
-            <span class="ident">imports</span>: <span class="ident">input</span>
-                .<span class="ident">imports</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">name</span>, <span class="ident">import</span>)<span class="op">|</span> (<span class="ident">name</span>, <span class="self">self</span>.<span class="ident">consume_program</span>(<span class="ident">import</span>)))
-                .<span class="ident">collect</span>(),
+    <span class="kw">fn</span> <span class="ident">consume_program_scope</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ProgramScope</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
+        <span class="ident">ProgramScope</span> {
+            <span class="ident">program_id</span>: <span class="ident">input</span>.<span class="ident">program_id</span>,
+            <span class="ident">structs</span>: <span class="ident">input</span>.<span class="ident">structs</span>,
+            <span class="ident">mappings</span>: <span class="ident">input</span>.<span class="ident">mappings</span>,
             <span class="ident">functions</span>: <span class="ident">input</span>
                 .<span class="ident">functions</span>
                 .<span class="ident">into_iter</span>()
                 .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">f</span>)<span class="op">|</span> (<span class="ident">i</span>, <span class="self">self</span>.<span class="ident">consume_function</span>(<span class="ident">f</span>)))
                 .<span class="ident">collect</span>(),
-            <span class="ident">circuits</span>: <span class="ident">input</span>.<span class="ident">circuits</span>,
-            <span class="ident">mappings</span>: <span class="ident">input</span>.<span class="ident">mappings</span>,
+            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">ProgramConsumer</span> <span class="kw">for</span> <span class="ident">StaticSingleAssigner</span> {
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Program</span>;
+
+    <span class="kw">fn</span> <span class="ident">consume_program</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Program</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
+        <span class="ident">Program</span> {
+            <span class="ident">imports</span>: <span class="ident">input</span>
+                .<span class="ident">imports</span>
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">name</span>, <span class="ident">import</span>)<span class="op">|</span> (<span class="ident">name</span>, <span class="self">self</span>.<span class="ident">consume_program</span>(<span class="ident">import</span>)))
+                .<span class="ident">collect</span>(),
+            <span class="ident">program_scopes</span>: <span class="ident">input</span>
+                .<span class="ident">program_scopes</span>
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">name</span>, <span class="ident">scope</span>)<span class="op">|</span> (<span class="ident">name</span>, <span class="self">self</span>.<span class="ident">consume_program_scope</span>(<span class="ident">scope</span>)))
+                .<span class="ident">collect</span>(),
         }
     }
 }

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["annotation",""],["external",""],["finalize",""],["function_input",""],["function_output",""],["mode",""]],"struct":[["Function","A function definition."]]};
+window.SIDEBAR_ITEMS = {"mod":[["annotation",""],["call_type",""],["external",""],["finalize",""],["function_input",""],["function_output",""],["mode",""]],"struct":[["Function","A function definition."]]};

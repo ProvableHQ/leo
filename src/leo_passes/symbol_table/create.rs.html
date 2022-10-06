@@ -101,7 +101,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">SymbolTable</span>, <span class="ident">VariableSymbol</span>, <span class="ident">VariableType</span>};
 
 <span class="doccomment">/// A compiler pass during which the `SymbolTable` is created.</span>
-<span class="doccomment">/// Note that this pass only creates the initial entries for functions and circuits.</span>
+<span class="doccomment">/// Note that this pass only creates the initial entries for functions, structs, and records.</span>
 <span class="doccomment">/// The table is populated further during the type checking pass.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CreateSymbolTable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The `SymbolTable` constructed by this compiler pass.</span>
@@ -131,8 +131,8 @@
         <span class="self">self</span>.<span class="ident">visit_program</span>(<span class="ident">input</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_circuit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Circuit</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">insert_circuit</span>(<span class="ident">input</span>.<span class="ident">name</span>(), <span class="ident">input</span>) {
+    <span class="kw">fn</span> <span class="ident">visit_struct</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Struct</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">insert_struct</span>(<span class="ident">input</span>.<span class="ident">name</span>(), <span class="ident">input</span>) {
             <span class="self">self</span>.<span class="ident">handler</span>.<span class="ident">emit_err</span>(<span class="ident">err</span>);
         }
     }

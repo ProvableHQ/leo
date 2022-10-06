@@ -469,6 +469,30 @@
 <span id="469">469</span>
 <span id="470">470</span>
 <span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -490,7 +514,6 @@
 <span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">CompilerError</span>, <span class="ident">ParserError</span>, <span class="ident">ParserWarning</span>, <span class="prelude-ty">Result</span>};
 <span class="kw">use</span> <span class="ident">leo_span::source_map::FileName</span>;
 <span class="kw">use</span> <span class="ident">leo_span::symbol::with_session_globals</span>;
-<span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">sym</span>, <span class="ident">Symbol</span>};
 
 <span class="kw">use</span> <span class="ident">std::fs</span>;
 
@@ -498,56 +521,47 @@
     <span class="doccomment">/// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_program</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Program</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">imports</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">functions</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">circuits</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mappings</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">program_scopes</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
 
-        <span class="comment">// TODO: Condense logic</span>
+        <span class="comment">// TODO: Remove restrictions on multiple program scopes</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parsed_program_scope</span> <span class="op">=</span> <span class="bool-val">false</span>;
+
         <span class="kw">while</span> <span class="self">self</span>.<span class="ident">has_next</span>() {
             <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span> {
                 <span class="ident">Token::Import</span> =&gt; {
                     <span class="kw">let</span> (<span class="ident">id</span>, <span class="ident">import</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_import</span>()<span class="question-mark">?</span>;
                     <span class="ident">imports</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">import</span>);
                 }
-                <span class="ident">Token::Circuit</span> <span class="op">|</span> <span class="ident">Token::Record</span> =&gt; {
-                    <span class="kw">let</span> (<span class="ident">id</span>, <span class="ident">circuit</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_circuit</span>()<span class="question-mark">?</span>;
-                    <span class="ident">circuits</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">circuit</span>);
+                <span class="ident">Token::Program</span> =&gt; {
+                    <span class="kw">match</span> <span class="ident">parsed_program_scope</span> {
+                        <span class="comment">// Only one program scope is allowed per file.</span>
+                        <span class="bool-val">true</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::only_one_program_scope_is_allowed</span>(<span class="self">self</span>.<span class="ident">token</span>.<span class="ident">span</span>).<span class="ident">into</span>()),
+                        <span class="bool-val">false</span> =&gt; {
+                            <span class="ident">parsed_program_scope</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                            <span class="kw">let</span> <span class="ident">program_scope</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_program_scope</span>()<span class="question-mark">?</span>;
+                            <span class="ident">program_scopes</span>.<span class="ident">insert</span>(<span class="ident">program_scope</span>.<span class="ident">program_id</span>, <span class="ident">program_scope</span>);
+                        }
+                    }
                 }
-                <span class="ident">Token::Mapping</span> =&gt; {
-                    <span class="kw">let</span> (<span class="ident">id</span>, <span class="ident">mapping</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_mapping</span>()<span class="question-mark">?</span>;
-                    <span class="ident">mappings</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">mapping</span>);
-                }
-                <span class="ident">Token::At</span> =&gt; {
-                    <span class="kw">let</span> (<span class="ident">id</span>, <span class="ident">function</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_function</span>()<span class="question-mark">?</span>;
-                    <span class="ident">functions</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">function</span>);
-                }
-                <span class="ident">Token::Const</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">peek_is_function</span>() =&gt; {
-                    <span class="kw">let</span> (<span class="ident">id</span>, <span class="ident">function</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_function</span>()<span class="question-mark">?</span>;
-                    <span class="ident">functions</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">function</span>);
-                }
-                <span class="ident">Token::Identifier</span>(<span class="ident">sym::test</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::test_function</span>(<span class="self">self</span>.<span class="ident">token</span>.<span class="ident">span</span>).<span class="ident">into</span>()),
-                <span class="ident">Token::Function</span> =&gt; {
-                    <span class="kw">let</span> (<span class="ident">id</span>, <span class="ident">function</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_function</span>()<span class="question-mark">?</span>;
-                    <span class="ident">functions</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">function</span>);
-                }
-                <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="self">Self</span>::unexpected_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>).<span class="ident">into</span>()),
+                <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="self">Self</span>::unexpected_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>, <span class="kw-2">&amp;</span>[<span class="ident">Token::Import</span>, <span class="ident">Token::Program</span>]).<span class="ident">into</span>()),
             }
         }
+
+        <span class="comment">// Requires that at least one program scope is present.</span>
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">parsed_program_scope</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::missing_program_scope</span>(<span class="self">self</span>.<span class="ident">token</span>.<span class="ident">span</span>).<span class="ident">into</span>());
+        }
+
         <span class="prelude-val">Ok</span>(<span class="ident">Program</span> {
-            <span class="ident">name</span>: <span class="ident">String::new</span>(),
-            <span class="ident">network</span>: <span class="ident">String::new</span>(),
-            <span class="ident">expected_input</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">imports</span>,
-            <span class="ident">functions</span>,
-            <span class="ident">circuits</span>,
-            <span class="ident">mappings</span>,
+            <span class="ident">program_scopes</span>,
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">unexpected_item</span>(<span class="ident">token</span>: <span class="kw-2">&amp;</span><span class="ident">SpannedToken</span>) -&gt; <span class="ident">ParserError</span> {
+    <span class="kw">fn</span> <span class="ident">unexpected_item</span>(<span class="ident">token</span>: <span class="kw-2">&amp;</span><span class="ident">SpannedToken</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span>[<span class="ident">Token</span>]) -&gt; <span class="ident">ParserError</span> {
         <span class="ident">ParserError::unexpected</span>(
             <span class="kw-2">&amp;</span><span class="ident">token</span>.<span class="ident">token</span>,
-            [<span class="ident">Token::Function</span>, <span class="ident">Token::Circuit</span>, <span class="ident">Token::Identifier</span>(<span class="ident">sym::test</span>)]
+            <span class="ident">expected</span>
                 .<span class="ident">iter</span>()
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">x</span>))
                 .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
@@ -602,40 +616,103 @@
         <span class="prelude-val">Ok</span>((<span class="ident">import_name</span>, <span class="ident">program_ast</span>.<span class="ident">into_repr</span>()))
     }
 
-    <span class="doccomment">/// Returns a [`Vec&lt;CircuitMember&gt;`] AST node if the next tokens represent a circuit member variable</span>
-    <span class="doccomment">/// or circuit member function or circuit member constant.</span>
-    <span class="kw">fn</span> <span class="ident">parse_circuit_members</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CircuitMember</span><span class="op">&gt;</span>, <span class="ident">Span</span>)<span class="op">&gt;</span> {
+    <span class="doccomment">/// Parsers a program scope `program foo.aleo { ... }`.</span>
+    <span class="kw">fn</span> <span class="ident">parse_program_scope</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ProgramScope</span><span class="op">&gt;</span> {
+        <span class="comment">// Parse `program` keyword.</span>
+        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Program</span>)<span class="question-mark">?</span>;
+
+        <span class="comment">// Parse the program name.</span>
+        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>;
+
+        <span class="comment">// Parse the program network.</span>
+        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Dot</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">network</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>;
+
+        <span class="comment">// Construct the program id.</span>
+        <span class="kw">let</span> <span class="ident">program_id</span> <span class="op">=</span> <span class="ident">ProgramId</span> { <span class="ident">name</span>, <span class="ident">network</span> };
+
+        <span class="comment">// Check that the program network is valid.</span>
+        <span class="kw">if</span> <span class="ident">network</span>.<span class="ident">name</span> <span class="op">!</span><span class="op">=</span> <span class="ident">sym::aleo</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::invalid_network</span>(<span class="ident">network</span>.<span class="ident">span</span>).<span class="ident">into</span>());
+        }
+
+        <span class="comment">// Parse `{`.</span>
+        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::LeftCurly</span>)<span class="question-mark">?</span>;
+
+        <span class="comment">// Parse the body of the program scope.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">functions</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">structs</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mappings</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
+
+        <span class="kw">while</span> <span class="self">self</span>.<span class="ident">has_next</span>() {
+            <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span> {
+                <span class="ident">Token::Struct</span> <span class="op">|</span> <span class="ident">Token::Record</span> =&gt; {
+                    <span class="kw">let</span> (<span class="ident">id</span>, <span class="ident">struct_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_struct</span>()<span class="question-mark">?</span>;
+                    <span class="ident">structs</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">struct_</span>);
+                }
+                <span class="ident">Token::Mapping</span> =&gt; {
+                    <span class="kw">let</span> (<span class="ident">id</span>, <span class="ident">mapping</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_mapping</span>()<span class="question-mark">?</span>;
+                    <span class="ident">mappings</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">mapping</span>);
+                }
+                <span class="ident">Token::At</span> <span class="op">|</span> <span class="ident">Token::Function</span> <span class="op">|</span> <span class="ident">Token::Transition</span> =&gt; {
+                    <span class="kw">let</span> (<span class="ident">id</span>, <span class="ident">function</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_function</span>()<span class="question-mark">?</span>;
+                    <span class="ident">functions</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">function</span>);
+                }
+                <span class="ident">Token::Circuit</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::circuit_is_deprecated</span>(<span class="self">self</span>.<span class="ident">token</span>.<span class="ident">span</span>).<span class="ident">into</span>()),
+                <span class="ident">Token::RightCurly</span> =&gt; <span class="kw">break</span>,
+                <span class="kw">_</span> =&gt; {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="self">Self</span>::unexpected_item</span>(
+                        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>,
+                        <span class="kw-2">&amp;</span>[
+                            <span class="ident">Token::Struct</span>,
+                            <span class="ident">Token::Record</span>,
+                            <span class="ident">Token::Mapping</span>,
+                            <span class="ident">Token::At</span>,
+                            <span class="ident">Token::Function</span>,
+                            <span class="ident">Token::Transition</span>,
+                        ],
+                    )
+                    .<span class="ident">into</span>())
+                }
+            }
+        }
+
+        <span class="comment">// Parse `}`.</span>
+        <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::RightCurly</span>)<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(<span class="ident">ProgramScope</span> {
+            <span class="ident">program_id</span>,
+            <span class="ident">functions</span>,
+            <span class="ident">structs</span>,
+            <span class="ident">mappings</span>,
+            <span class="ident">span</span>: <span class="ident">start</span> <span class="op">+</span> <span class="ident">end</span>,
+        })
+    }
+
+    <span class="doccomment">/// Returns a [`Vec&lt;Member&gt;`] AST node if the next tokens represent a struct member.</span>
+    <span class="kw">fn</span> <span class="ident">parse_struct_members</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Member</span><span class="op">&gt;</span>, <span class="ident">Span</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">members</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
         <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">semi_colons</span>, <span class="kw-2">mut</span> <span class="ident">commas</span>) <span class="op">=</span> (<span class="bool-val">false</span>, <span class="bool-val">false</span>);
 
         <span class="kw">while</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">Token::RightCurly</span>) {
-            <span class="ident">members</span>.<span class="ident">push</span>(<span class="kw">if</span> <span class="self">self</span>.<span class="ident">peek_is_function</span>() {
-                <span class="comment">// function</span>
-                <span class="self">self</span>.<span class="ident">parse_member_function_declaration</span>()<span class="question-mark">?</span>
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Static</span>) {
-                <span class="comment">// static const</span>
-                <span class="self">self</span>.<span class="ident">parse_const_member_variable_declaration</span>()<span class="question-mark">?</span>
-            } <span class="kw">else</span> {
-                <span class="comment">// variable</span>
-                <span class="kw">let</span> <span class="ident">variable</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_member_variable_declaration</span>()<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">variable</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_member_variable_declaration</span>()<span class="question-mark">?</span>;
 
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semicolon</span>) {
-                    <span class="kw">if</span> <span class="ident">commas</span> {
-                        <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">ParserError::mixed_commas_and_semicolons</span>(<span class="self">self</span>.<span class="ident">token</span>.<span class="ident">span</span>));
-                    }
-                    <span class="ident">semi_colons</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semicolon</span>) {
+                <span class="kw">if</span> <span class="ident">commas</span> {
+                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">ParserError::mixed_commas_and_semicolons</span>(<span class="self">self</span>.<span class="ident">token</span>.<span class="ident">span</span>));
                 }
+                <span class="ident">semi_colons</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            }
 
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Comma</span>) {
-                    <span class="kw">if</span> <span class="ident">semi_colons</span> {
-                        <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">ParserError::mixed_commas_and_semicolons</span>(<span class="self">self</span>.<span class="ident">token</span>.<span class="ident">span</span>));
-                    }
-                    <span class="ident">commas</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Comma</span>) {
+                <span class="kw">if</span> <span class="ident">semi_colons</span> {
+                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">ParserError::mixed_commas_and_semicolons</span>(<span class="self">self</span>.<span class="ident">token</span>.<span class="ident">span</span>));
                 }
+                <span class="ident">commas</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            }
 
-                <span class="ident">variable</span>
-            });
+            <span class="ident">members</span>.<span class="ident">push</span>(<span class="ident">variable</span>);
         }
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::RightCurly</span>)<span class="question-mark">?</span>;
 
@@ -651,57 +728,26 @@
         <span class="prelude-val">Ok</span>((<span class="ident">name</span>, <span class="ident">type_</span>))
     }
 
-    <span class="doccomment">/// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member static constant.</span>
-    <span class="kw">fn</span> <span class="ident">parse_const_member_variable_declaration</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CircuitMember</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Static</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Const</span>)<span class="question-mark">?</span>;
+    <span class="doccomment">/// Returns a [`Member`] AST node if the next tokens represent a struct member variable.</span>
+    <span class="kw">fn</span> <span class="ident">parse_member_variable_declaration</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Member</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> (<span class="ident">identifier</span>, <span class="ident">type_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_typed_ident</span>()<span class="question-mark">?</span>;
 
-        <span class="comment">// `IDENT: TYPE = EXPR`:</span>
-        <span class="kw">let</span> (<span class="ident">_name</span>, <span class="ident">_type_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_typed_ident</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Assign</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
-
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semicolon</span>)<span class="question-mark">?</span>;
-
-        <span class="comment">// CAUTION: function members are unstable for testnet3.</span>
-        <span class="prelude-val">Err</span>(<span class="ident">ParserError::circuit_constants_unstable</span>(<span class="ident">expr</span>.<span class="ident">span</span>()).<span class="ident">into</span>())
-
-        <span class="comment">// Ok(CircuitMember::CircuitConst(name, type_, expr))</span>
+        <span class="prelude-val">Ok</span>(<span class="ident">Member</span> { <span class="ident">identifier</span>, <span class="ident">type_</span> })
     }
 
-    <span class="doccomment">/// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.</span>
-    <span class="kw">fn</span> <span class="ident">parse_member_variable_declaration</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CircuitMember</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">type_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_typed_ident</span>()<span class="question-mark">?</span>;
-
-        <span class="prelude-val">Ok</span>(<span class="ident">CircuitMember::CircuitVariable</span>(<span class="ident">name</span>, <span class="ident">type_</span>))
-    }
-
-    <span class="doccomment">/// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member function.</span>
-    <span class="kw">fn</span> <span class="ident">parse_member_function_declaration</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CircuitMember</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">peek_is_function</span>() {
-            <span class="comment">// CAUTION: function members are unstable for testnet3.</span>
-            <span class="kw">let</span> <span class="ident">function</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_function</span>()<span class="question-mark">?</span>;
-
-            <span class="prelude-val">Err</span>(<span class="ident">ParserError::circuit_functions_unstable</span>(<span class="ident">function</span>.<span class="number">1</span>.<span class="ident">span</span>()).<span class="ident">into</span>())
-            <span class="comment">// Ok(CircuitMember::CircuitFunction(Box::new(function.1)))</span>
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident"><span class="self">Self</span>::unexpected_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>).<span class="ident">into</span>())
-        }
-    }
-
-    <span class="doccomment">/// Parses a circuit or record definition, e.g., `circuit Foo { ... }` or `record Foo { ... }`.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_circuit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Identifier</span>, <span class="ident">Circuit</span>)<span class="op">&gt;</span> {
+    <span class="doccomment">/// Parses a struct or record definition, e.g., `struct Foo { ... }` or `record Foo { ... }`.</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_struct</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Identifier</span>, <span class="ident">Struct</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">is_record</span> <span class="op">=</span> <span class="macro">matches!</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span>, <span class="ident">Token::Record</span>);
-        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_any</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Circuit</span>, <span class="ident">Token::Record</span>])<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">circuit_name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_any</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Struct</span>, <span class="ident">Token::Record</span>])<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">struct_name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>;
 
         <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::LeftCurly</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> (<span class="ident">members</span>, <span class="ident">end</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_circuit_members</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> (<span class="ident">members</span>, <span class="ident">end</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_struct_members</span>()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>((
-            <span class="ident">circuit_name</span>,
-            <span class="ident">Circuit</span> {
-                <span class="ident">identifier</span>: <span class="ident">circuit_name</span>,
+            <span class="ident">struct_name</span>,
+            <span class="ident">Struct</span> {
+                <span class="ident">identifier</span>: <span class="ident">struct_name</span>,
                 <span class="ident">members</span>,
                 <span class="ident">is_record</span>,
                 <span class="ident">span</span>: <span class="ident">start</span> <span class="op">+</span> <span class="ident">end</span>,
@@ -840,20 +886,17 @@
         )
     }
 
-    <span class="doccomment">/// Returns `true` if the next token is Function or if it is a Const followed by Function.</span>
-    <span class="doccomment">/// Returns `false` otherwise.</span>
-    <span class="kw">fn</span> <span class="ident">peek_is_function</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(
-            (<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span>, <span class="self">self</span>.<span class="ident">look_ahead</span>(<span class="number">1</span>, <span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">t</span>.<span class="ident">token</span>)),
-            (<span class="ident">Token::Function</span>, <span class="kw">_</span>) <span class="op">|</span> (<span class="ident">Token::Const</span>, <span class="ident">Token::Function</span>)
-        )
-    }
-
     <span class="doccomment">/// Returns an [`Annotation`] AST node if the next tokens represent an annotation.</span>
     <span class="kw">fn</span> <span class="ident">parse_annotation</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Annotation</span><span class="op">&gt;</span> {
         <span class="comment">// Parse the `@` symbol and identifier.</span>
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::At</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">identifier</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">identifier</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span> {
+            <span class="ident">Token::Program</span> =&gt; <span class="ident">Identifier</span> {
+                <span class="ident">name</span>: <span class="ident">sym::program</span>,
+                <span class="ident">span</span>: <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Program</span>)<span class="question-mark">?</span>,
+            },
+            <span class="kw">_</span> =&gt; <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>,
+        };
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">start</span> <span class="op">+</span> <span class="ident">identifier</span>.<span class="ident">span</span>;
 
         <span class="comment">// TODO: Verify that this check is sound.</span>
@@ -868,14 +911,17 @@
     <span class="doccomment">/// and function definition.</span>
     <span class="kw">fn</span> <span class="ident">parse_function</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Identifier</span>, <span class="ident">Function</span>)<span class="op">&gt;</span> {
         <span class="comment">// TODO: Handle dangling annotations.</span>
-        <span class="comment">// TODO: Handle duplicate annotations.</span>
         <span class="comment">// Parse annotations, if they exist.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">annotations</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">while</span> <span class="self">self</span>.<span class="ident">look_ahead</span>(<span class="number">0</span>, <span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">t</span>.<span class="ident">token</span>) <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">Token::At</span> {
             <span class="ident">annotations</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">parse_annotation</span>()<span class="question-mark">?</span>)
         }
-        <span class="comment">// Parse `function IDENT`.</span>
-        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Function</span>)<span class="question-mark">?</span>;
+        <span class="comment">// Parse `&lt;call_type&gt; IDENT`, where `&lt;call_type&gt;` is `function` or `transition`.</span>
+        <span class="kw">let</span> (<span class="ident">call_type</span>, <span class="ident">start</span>) <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span> {
+            <span class="ident">Token::Function</span> =&gt; (<span class="ident">CallType::Standard</span>, <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Function</span>)<span class="question-mark">?</span>),
+            <span class="ident">Token::Transition</span> =&gt; (<span class="ident">CallType::Transition</span>, <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Transition</span>)<span class="question-mark">?</span>),
+            <span class="kw">_</span> =&gt; <span class="self">self</span>.<span class="ident">unexpected</span>(<span class="string">&quot;&#39;function&#39;, &#39;transition&#39;&quot;</span>)<span class="question-mark">?</span>,
+        };
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>;
 
         <span class="comment">// Parse parameters.</span>
@@ -885,12 +931,12 @@
         <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Arrow</span>) {
             <span class="bool-val">false</span> =&gt; <span class="macro">vec!</span>[],
             <span class="bool-val">true</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">disallow_circuit_construction</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="self">self</span>.<span class="ident">disallow_struct_construction</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">peek_is_left_par</span>() {
                     <span class="bool-val">true</span> =&gt; <span class="self">self</span>.<span class="ident">parse_paren_comma_list</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">parse_output</span>().<span class="ident">map</span>(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>.<span class="number">0</span>,
                     <span class="bool-val">false</span> =&gt; <span class="macro">vec!</span>[<span class="self">self</span>.<span class="ident">parse_output</span>()<span class="question-mark">?</span>],
                 };
-                <span class="self">self</span>.<span class="ident">disallow_circuit_construction</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                <span class="self">self</span>.<span class="ident">disallow_struct_construction</span> <span class="op">=</span> <span class="bool-val">false</span>;
                 <span class="ident">output</span>
             }
         };
@@ -915,12 +961,12 @@
                 <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Arrow</span>) {
                     <span class="bool-val">false</span> =&gt; <span class="macro">vec!</span>[],
                     <span class="bool-val">true</span> =&gt; {
-                        <span class="self">self</span>.<span class="ident">disallow_circuit_construction</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                        <span class="self">self</span>.<span class="ident">disallow_struct_construction</span> <span class="op">=</span> <span class="bool-val">true</span>;
                         <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">peek_is_left_par</span>() {
                             <span class="bool-val">true</span> =&gt; <span class="self">self</span>.<span class="ident">parse_paren_comma_list</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">parse_output</span>().<span class="ident">map</span>(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>.<span class="number">0</span>,
                             <span class="bool-val">false</span> =&gt; <span class="macro">vec!</span>[<span class="self">self</span>.<span class="ident">parse_output</span>()<span class="question-mark">?</span>],
                         };
-                        <span class="self">self</span>.<span class="ident">disallow_circuit_construction</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                        <span class="self">self</span>.<span class="ident">disallow_struct_construction</span> <span class="op">=</span> <span class="bool-val">false</span>;
                         <span class="ident">output</span>
                     }
                 };
@@ -936,9 +982,11 @@
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">start</span> <span class="op">+</span> <span class="ident">block</span>.<span class="ident">span</span>;
         <span class="prelude-val">Ok</span>((
             <span class="ident">name</span>,
-            <span class="ident">Function::new</span>(<span class="ident">annotations</span>, <span class="ident">name</span>, <span class="ident">inputs</span>, <span class="ident">output</span>, <span class="ident">block</span>, <span class="ident">finalize</span>, <span class="ident">span</span>),
+            <span class="ident">Function::new</span>(<span class="ident">annotations</span>, <span class="ident">call_type</span>, <span class="ident">name</span>, <span class="ident">inputs</span>, <span class="ident">output</span>, <span class="ident">block</span>, <span class="ident">finalize</span>, <span class="ident">span</span>),
         ))
     }
 }
+
+<span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">sym</span>, <span class="ident">Symbol</span>};
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_parser" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

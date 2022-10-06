@@ -98,11 +98,11 @@
     <span class="comment">// Array(ArrayAccess),</span>
     <span class="comment">// /// An expression accessing a range of an array.</span>
     <span class="comment">// ArrayRange(ArrayRangeAccess),</span>
-    <span class="doccomment">/// Access to an associated variable of a circuit e.g `u8::MAX`.</span>
+    <span class="doccomment">/// Access to an associated variable of a struct e.g `u8::MAX`.</span>
     <span class="ident">AssociatedConstant</span>(<span class="ident">AssociatedConstant</span>),
-    <span class="doccomment">/// Access to an associated function of a circuit e.g `Pedersen64::hash()`.</span>
+    <span class="doccomment">/// Access to an associated function of a struct e.g `Pedersen64::hash()`.</span>
     <span class="ident">AssociatedFunction</span>(<span class="ident">AssociatedFunction</span>),
-    <span class="doccomment">/// An expression accessing a field in a structure, e.g., `circuit_var.field`.</span>
+    <span class="doccomment">/// An expression accessing a field in a structure, e.g., `struct_var.field`.</span>
     <span class="ident">Member</span>(<span class="ident">MemberAccess</span>),
     <span class="doccomment">/// Access to a tuple field using its position, e.g., `tuple.1`.</span>
     <span class="ident">Tuple</span>(<span class="ident">TupleAccess</span>),

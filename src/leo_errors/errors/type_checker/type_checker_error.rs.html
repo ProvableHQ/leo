@@ -410,6 +410,20 @@
 <span id="410">410</span>
 <span id="411">411</span>
 <span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -523,17 +537,17 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when an invalid core instruction is used.</span>
+    <span class="doccomment">/// For when an invalid core function is used.</span>
     @<span class="ident">formatted</span>
-    <span class="ident">invalid_core_instruction</span> {
-        <span class="ident">args</span>: (<span class="ident">circuit</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">function</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
+    <span class="ident">invalid_core_function</span> {
+        <span class="ident">args</span>: (<span class="ident">struct_</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">function</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;The instruction {circuit}::{function} is not a valid core instruction.&quot;</span>,
+            <span class="string">&quot;The instruction {struct_}::{function} is not a valid core function.&quot;</span>,
         ),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when a circuit is created with the same name as a core type.</span>
+    <span class="doccomment">/// For when a struct is created with the same name as a core type.</span>
     @<span class="ident">formatted</span>
     <span class="ident">core_type_name_conflict</span> {
         <span class="ident">args</span>: (<span class="ident">type_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
@@ -553,42 +567,42 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the user tries initialize a circuit with the incorrect number of args.</span>
+    <span class="doccomment">/// For when the user tries initialize a struct with the incorrect number of args.</span>
     @<span class="ident">formatted</span>
-    <span class="ident">incorrect_num_circuit_members</span> {
+    <span class="ident">incorrect_num_struct_members</span> {
         <span class="ident">args</span>: (<span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">received</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;Circuit expected `{expected}` members, but got `{received}`&quot;</span>,
+            <span class="string">&quot;Struct expected `{expected}` members, but got `{received}`&quot;</span>,
         ),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the user is missing a circuit member during initialization.</span>
+    <span class="doccomment">/// For when the user is missing a struct member during initialization.</span>
     @<span class="ident">formatted</span>
-    <span class="ident">missing_circuit_member</span> {
-        <span class="ident">args</span>: (<span class="ident">circuit</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">member</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
+    <span class="ident">missing_struct_member</span> {
+        <span class="ident">args</span>: (<span class="ident">struct_</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">member</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;Circuit initialization expression for `{circuit}` is missing member `{member}`.&quot;</span>,
+            <span class="string">&quot;Struct initialization expression for `{struct_}` is missing member `{member}`.&quot;</span>,
         ),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
     <span class="doccomment">/// An invalid access call is made e.g., `bool::MAX`</span>
     @<span class="ident">formatted</span>
-    <span class="ident">invalid_core_circuit_call</span> {
+    <span class="ident">invalid_core_function_call</span> {
         <span class="ident">args</span>: (<span class="ident">expr</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;{expr} is not a valid core circuit call.&quot;</span>
+            <span class="string">&quot;{expr} is not a valid core function call.&quot;</span>
         ),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// Attempted to define more that one circuit member with the same name.</span>
+    <span class="doccomment">/// Attempted to define more that one struct member with the same name.</span>
     @<span class="ident">formatted</span>
-    <span class="ident">duplicate_circuit_member</span> {
-        <span class="ident">args</span>: (<span class="ident">circuit</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
+    <span class="ident">duplicate_struct_member</span> {
+        <span class="ident">args</span>: (<span class="ident">struct_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;Circuit {circuit} defined with more than one member with the same name.&quot;</span>
+            <span class="string">&quot;Struct {struct_} defined with more than one member with the same name.&quot;</span>
         ),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
@@ -603,7 +617,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// Attempted to access an invalid circuit.</span>
+    <span class="doccomment">/// Attempted to access an invalid struct.</span>
     @<span class="ident">formatted</span>
     <span class="ident">undefined_type</span> {
         <span class="ident">args</span>: (<span class="ident">type_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
@@ -613,12 +627,12 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// Attempted to access an invalid circuit variable.</span>
+    <span class="doccomment">/// Attempted to access an invalid struct variable.</span>
     @<span class="ident">formatted</span>
-    <span class="ident">invalid_circuit_variable</span> {
-        <span class="ident">args</span>: (<span class="ident">variable</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">circuit</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
+    <span class="ident">invalid_struct_variable</span> {
+        <span class="ident">args</span>: (<span class="ident">variable</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">struct_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;Circuit variable {variable} is not a member of circuit {circuit}.&quot;</span>
+            <span class="string">&quot;Variable {variable} is not a member of struct {struct_}.&quot;</span>
         ),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
@@ -691,20 +705,20 @@
     <span class="ident">unknown_annotation</span> {
         <span class="ident">args</span>: (<span class="ident">annotation</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Unknown annotation: `{annotation}`.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Use a valid annotation. The Leo compiler supports: `@program`&quot;</span>.<span class="ident">to_string</span>()),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
     @<span class="ident">formatted</span>
-    <span class="ident">helper_function_inputs_cannot_have_modes</span> {
+    <span class="ident">regular_function_inputs_cannot_have_modes</span> {
         <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Helper functions cannot have modes associated with their inputs.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Consider removing the mode or adding a `@program` annotation to the function.&quot;</span>.<span class="ident">to_string</span>()),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Standard functions cannot have modes associated with their inputs.&quot;</span>),
+        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Consider removing the mode or using the keyword `transition` instead of `function`.&quot;</span>.<span class="ident">to_string</span>()),
     }
 
     @<span class="ident">formatted</span>
-    <span class="ident">circuit_or_record_cannot_contain_record</span> {
+    <span class="ident">struct_or_record_cannot_contain_record</span> {
         <span class="ident">args</span>: (<span class="ident">parent</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">child</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;A circuit or record cannot contain another record.&quot;</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;A struct or record cannot contain another record.&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;Remove the record `{child}` from `{parent}`.&quot;</span>)),
     }
 
@@ -716,10 +730,10 @@
     }
 
     @<span class="ident">formatted</span>
-    <span class="ident">only_program_functions_can_have_finalize</span> {
+    <span class="ident">only_transition_functions_can_have_finalize</span> {
         <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Only program functions can have a `finalize` block.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Remove the `finalize` block or add a `@program` annotation to the function.&quot;</span>.<span class="ident">to_string</span>()),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Only transition functions can have a `finalize` block.&quot;</span>),
+        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Remove the `finalize` block or use the keyword `transition` instead of `function`.&quot;</span>.<span class="ident">to_string</span>()),
     }
 
     @<span class="ident">formatted</span>
@@ -779,9 +793,9 @@
     }
 
     @<span class="ident">formatted</span>
-    <span class="ident">program_function_inputs_cannot_be_const</span> {
+    <span class="ident">transition_function_inputs_cannot_be_const</span> {
         <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Program functions cannot have constant inputs.&quot;</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Transition functions cannot have constant inputs.&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -819,6 +833,20 @@
     <span class="ident">invalid_type</span> {
         <span class="ident">args</span>: (<span class="ident">type_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Invalid type `{type_}`&quot;</span>),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    @<span class="ident">formatted</span>
+    <span class="ident">cannot_invoke_call_from_standard_function</span> {
+        <span class="ident">args</span>: (),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Cannot call another function from a standard function.&quot;</span>),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    @<span class="ident">formatted</span>
+    <span class="ident">cannot_invoke_call_to_local_transition_function</span> {
+        <span class="ident">args</span>: (),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Cannot call a local transition function from a transition function.&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 );

@@ -655,25 +655,25 @@
 
 <span class="kw">impl</span> <span class="ident">ParserContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next token is an expression.</span>
-    <span class="doccomment">/// Includes circuit init expressions.</span>
+    <span class="doccomment">/// Includes struct init expressions.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="comment">// Store current parser state.</span>
-        <span class="kw">let</span> <span class="ident">prior_fuzzy_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">disallow_circuit_construction</span>;
+        <span class="kw">let</span> <span class="ident">prior_fuzzy_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">disallow_struct_construction</span>;
 
-        <span class="comment">// Allow circuit init expressions.</span>
-        <span class="self">self</span>.<span class="ident">disallow_circuit_construction</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="comment">// Allow struct init expressions.</span>
+        <span class="self">self</span>.<span class="ident">disallow_struct_construction</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
         <span class="comment">// Parse expression.</span>
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_conditional_expression</span>();
 
         <span class="comment">// Restore prior parser state.</span>
-        <span class="self">self</span>.<span class="ident">disallow_circuit_construction</span> <span class="op">=</span> <span class="ident">prior_fuzzy_state</span>;
+        <span class="self">self</span>.<span class="ident">disallow_struct_construction</span> <span class="op">=</span> <span class="ident">prior_fuzzy_state</span>;
 
         <span class="ident">result</span>
     }
 
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent</span>
-    <span class="doccomment">/// a ternary expression. May or may not include circuit init expressions.</span>
+    <span class="doccomment">/// a ternary expression. May or may not include struct init expressions.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_boolean_or_expression`].</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_conditional_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
@@ -924,15 +924,15 @@
 
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
     <span class="doccomment">/// static access expression.</span>
-    <span class="kw">fn</span> <span class="ident">parse_associated_access_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">circuit_name</span>: <span class="ident">Expression</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="comment">// Parse circuit name expression into circuit type.</span>
-        <span class="kw">let</span> <span class="ident">circuit_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Expression::Identifier</span>(<span class="ident">ident</span>) <span class="op">=</span> <span class="ident">circuit_name</span> {
+    <span class="kw">fn</span> <span class="ident">parse_associated_access_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">module_name</span>: <span class="ident">Expression</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+        <span class="comment">// Parse struct name expression into struct type.</span>
+        <span class="kw">let</span> <span class="ident">type_</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Expression::Identifier</span>(<span class="ident">ident</span>) <span class="op">=</span> <span class="ident">module_name</span> {
             <span class="ident">Type::Identifier</span>(<span class="ident">ident</span>)
         } <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::invalid_associated_access</span>(<span class="kw-2">&amp;</span><span class="ident">circuit_name</span>, <span class="ident">circuit_name</span>.<span class="ident">span</span>()).<span class="ident">into</span>());
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::invalid_associated_access</span>(<span class="kw-2">&amp;</span><span class="ident">module_name</span>, <span class="ident">module_name</span>.<span class="ident">span</span>()).<span class="ident">into</span>());
         };
 
-        <span class="comment">// Parse the circuit member name (can be variable or function name).</span>
+        <span class="comment">// Parse the struct member name (can be variable or function name).</span>
         <span class="kw">let</span> <span class="ident">member_name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>;
 
         <span class="comment">// Check if there are arguments.</span>
@@ -940,18 +940,18 @@
             <span class="comment">// Parse the arguments</span>
             <span class="kw">let</span> (<span class="ident">args</span>, <span class="kw">_</span>, <span class="ident">end</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expr_tuple</span>()<span class="question-mark">?</span>;
 
-            <span class="comment">// Return the circuit function.</span>
+            <span class="comment">// Return the struct function.</span>
             <span class="ident">AccessExpression::AssociatedFunction</span>(<span class="ident">AssociatedFunction</span> {
-                <span class="ident">span</span>: <span class="ident">circuit_name</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="ident">end</span>,
-                <span class="ident">ty</span>: <span class="ident">circuit_type</span>,
+                <span class="ident">span</span>: <span class="ident">module_name</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="ident">end</span>,
+                <span class="ident">ty</span>: <span class="ident">type_</span>,
                 <span class="ident">name</span>: <span class="ident">member_name</span>,
                 <span class="ident">args</span>,
             })
         } <span class="kw">else</span> {
-            <span class="comment">// Return the circuit constant.</span>
+            <span class="comment">// Return the struct constant.</span>
             <span class="ident">AccessExpression::AssociatedConstant</span>(<span class="ident">AssociatedConstant</span> {
-                <span class="ident">span</span>: <span class="ident">circuit_name</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="ident">member_name</span>.<span class="ident">span</span>(),
-                <span class="ident">ty</span>: <span class="ident">circuit_type</span>,
+                <span class="ident">span</span>: <span class="ident">module_name</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="ident">member_name</span>.<span class="ident">span</span>(),
+                <span class="ident">ty</span>: <span class="ident">type_</span>,
                 <span class="ident">name</span>: <span class="ident">member_name</span>,
             })
         }))
@@ -963,7 +963,7 @@
     }
 
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent an</span>
-    <span class="doccomment">/// array access, circuit member access, function call, or static function call expression.</span>
+    <span class="doccomment">/// array access, struct member access, function call, or static function call expression.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_primary_expression`].</span>
     <span class="kw">fn</span> <span class="ident">parse_postfix_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
@@ -1004,7 +1004,7 @@
                         <span class="comment">// Eat a method call on a type</span>
                         <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_method_call_expression</span>(<span class="ident">expr</span>, <span class="ident">name</span>)<span class="question-mark">?</span>
                     } <span class="kw">else</span> {
-                        <span class="comment">// Eat a circuit member access.</span>
+                        <span class="comment">// Eat a struct member access.</span>
                         <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression::Access</span>(<span class="ident">AccessExpression::Member</span>(<span class="ident">MemberAccess</span> {
                             <span class="ident">span</span>: <span class="ident">expr</span>.<span class="ident">span</span>(),
                             <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="ident">expr</span>),
@@ -1013,7 +1013,7 @@
                     }
                 }
             } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::DoubleColon</span>) {
-                <span class="comment">// Eat a core circuit constant or core circuit function call.</span>
+                <span class="comment">// Eat a core struct constant or core struct function call.</span>
                 <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_associated_access_expression</span>(<span class="ident">expr</span>)<span class="question-mark">?</span>;
             } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">Token::LeftParen</span>) {
                 <span class="comment">// Parse a function call that&#39;s by itself.</span>
@@ -1111,9 +1111,9 @@
         <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">gt</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_circuit_member</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CircuitVariableInitializer</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_struct_member</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">StructVariableInitializer</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">identifier</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">allow_identifier_underscores</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Underscore</span>) {
-            <span class="comment">// Allow `_nonce` for circuit records.</span>
+            <span class="comment">// Allow `_nonce` for struct records.</span>
             <span class="kw">let</span> <span class="ident">identifier_without_underscore</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>;
             <span class="ident">Identifier::new</span>(<span class="ident">Symbol::intern</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;_{}&quot;</span>, <span class="ident">identifier_without_underscore</span>.<span class="ident">name</span>)))
         } <span class="kw">else</span> {
@@ -1121,24 +1121,24 @@
         };
 
         <span class="kw">let</span> <span class="ident">expression</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Colon</span>) {
-            <span class="comment">// Parse individual circuit variable declarations.</span>
+            <span class="comment">// Parse individual struct variable declarations.</span>
             <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>)
         } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         };
 
-        <span class="prelude-val">Ok</span>(<span class="ident">CircuitVariableInitializer</span> { <span class="ident">identifier</span>, <span class="ident">expression</span> })
+        <span class="prelude-val">Ok</span>(<span class="ident">StructVariableInitializer</span> { <span class="ident">identifier</span>, <span class="ident">expression</span> })
     }
 
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
-    <span class="doccomment">/// circuit initialization expression.</span>
+    <span class="doccomment">/// struct initialization expression.</span>
     <span class="doccomment">/// let foo = Foo { x: 1u8 };</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_circuit_init_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">identifier</span>: <span class="ident">Identifier</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_struct_init_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">identifier</span>: <span class="ident">Identifier</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">members</span>, <span class="kw">_</span>, <span class="ident">end</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_list</span>(<span class="ident">Delimiter::Brace</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Comma</span>), <span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
-            <span class="ident">p</span>.<span class="ident">parse_circuit_member</span>().<span class="ident">map</span>(<span class="prelude-val">Some</span>)
+            <span class="ident">p</span>.<span class="ident">parse_struct_member</span>().<span class="ident">map</span>(<span class="prelude-val">Some</span>)
         })<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">Expression::Circuit</span>(<span class="ident">CircuitExpression</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">Expression::Struct</span>(<span class="ident">StructExpression</span> {
             <span class="ident">span</span>: <span class="ident">identifier</span>.<span class="ident">span</span> <span class="op">+</span> <span class="ident">end</span>,
             <span class="ident">name</span>: <span class="ident">identifier</span>,
             <span class="ident">members</span>,
@@ -1201,10 +1201,10 @@
             <span class="ident">Token::StaticString</span>(<span class="ident">value</span>) =&gt; <span class="ident">Expression::Literal</span>(<span class="ident">Literal::String</span>(<span class="ident">value</span>, <span class="ident">span</span>)),
             <span class="ident">Token::Identifier</span>(<span class="ident">name</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">Identifier</span> { <span class="ident">name</span>, <span class="ident">span</span> };
-                <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">disallow_circuit_construction</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">Token::LeftCurly</span>) {
-                    <span class="comment">// Parse circuit and records inits as circuit expressions.</span>
-                    <span class="comment">// Enforce circuit or record type later at type checking.</span>
-                    <span class="self">self</span>.<span class="ident">parse_circuit_init_expression</span>(<span class="ident">ident</span>)<span class="question-mark">?</span>
+                <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">disallow_struct_construction</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">Token::LeftCurly</span>) {
+                    <span class="comment">// Parse struct and records inits as struct expressions.</span>
+                    <span class="comment">// Enforce struct or record type later at type checking.</span>
+                    <span class="self">self</span>.<span class="ident">parse_struct_init_expression</span>(<span class="ident">ident</span>)<span class="question-mark">?</span>
                 } <span class="kw">else</span> {
                     <span class="ident">Expression::Identifier</span>(<span class="ident">ident</span>)
                 }

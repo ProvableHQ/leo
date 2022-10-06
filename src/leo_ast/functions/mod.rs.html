@@ -140,6 +140,19 @@
 <span id="140">140</span>
 <span id="141">141</span>
 <span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -158,6 +171,9 @@
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">annotation</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">annotation</span>::<span class="kw-2">*</span>;
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">call_type</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">call_type</span>::<span class="kw-2">*</span>;
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">external</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">external</span>::<span class="kw-2">*</span>;
@@ -185,6 +201,8 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Function</span> {
     <span class="doccomment">/// Annotations on the function.</span>
     <span class="kw">pub</span> <span class="ident">annotations</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Annotation</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Is this function a transition, inlined, or a regular function?.</span>
+    <span class="kw">pub</span> <span class="ident">call_type</span>: <span class="ident">CallType</span>,
     <span class="doccomment">/// The function identifier, e.g., `foo` in `function foo(...) { ... }`.</span>
     <span class="kw">pub</span> <span class="ident">identifier</span>: <span class="ident">Identifier</span>,
     <span class="doccomment">/// The function&#39;s input parameters.</span>
@@ -211,8 +229,10 @@
 
 <span class="kw">impl</span> <span class="ident">Function</span> {
     <span class="doccomment">/// Initialize a new function.</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">annotations</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Annotation</span><span class="op">&gt;</span>,
+        <span class="ident">call_type</span>: <span class="ident">CallType</span>,
         <span class="ident">identifier</span>: <span class="ident">Identifier</span>,
         <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Input</span><span class="op">&gt;</span>,
         <span class="ident">output</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Output</span><span class="op">&gt;</span>,
@@ -234,6 +254,7 @@
 
         <span class="ident">Function</span> {
             <span class="ident">annotations</span>,
+            <span class="ident">call_type</span>,
             <span class="ident">identifier</span>,
             <span class="ident">input</span>,
             <span class="ident">output</span>,
@@ -257,7 +278,12 @@
     <span class="doccomment">/// Private formatting method used for optimizing [fmt::Debug] and [fmt::Display] implementations.</span>
     <span class="doccomment">///</span>
     <span class="kw">fn</span> <span class="ident">format</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;function {}&quot;</span>, <span class="self">self</span>.<span class="ident">identifier</span>)<span class="question-mark">?</span>;
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">call_type</span> {
+            <span class="ident">CallType::Inline</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;inline &quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">CallType::Standard</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;function &quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">CallType::Transition</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;transition &quot;</span>)<span class="question-mark">?</span>,
+        }
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">identifier</span>)<span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">parameters</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>()).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">join</span>(<span class="string">&quot;,&quot;</span>);
         <span class="kw">let</span> <span class="ident">returns</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">output</span>.<span class="ident">len</span>() {

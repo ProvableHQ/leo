@@ -197,19 +197,6 @@
 <span id="197">197</span>
 <span id="198">198</span>
 <span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -239,8 +226,8 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">access</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::access</span>::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">circuit</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::circuit</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">r#struct</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">r#struct</span>::<span class="kw-2">*</span>;
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">common</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::common</span>::<span class="kw-2">*</span>;
@@ -275,8 +262,7 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">value</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::value</span>::<span class="kw-2">*</span>;
 
-<span class="kw">mod</span> <span class="ident">node</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">node</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">common::node</span>::<span class="kw-2">*</span>;
 
 <span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">AstError</span>, <span class="prelude-ty">Result</span>};
 
@@ -286,25 +272,13 @@
 <span class="doccomment">/// These data types form a tree that begins from a [`Program`] type root.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Ast</span> {
-    <span class="ident">ast</span>: <span class="ident">Program</span>,
+    <span class="kw">pub</span> <span class="ident">ast</span>: <span class="ident">Program</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Ast</span> {
     <span class="doccomment">/// Creates a new AST from a given program tree.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">program</span>: <span class="ident">Program</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">ast</span>: <span class="ident">program</span> }
-    }
-
-    <span class="doccomment">/// Set the program name to the given string.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_program_name</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">ast</span>.<span class="ident">name</span> <span class="op">=</span> <span class="ident">name</span>;
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Set the network name to the given string.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_network</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">network</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">ast</span>.<span class="ident">network</span> <span class="op">=</span> <span class="ident">network</span>;
-        <span class="self">self</span>
     }
 
     <span class="doccomment">/// Returns a reference to the inner program AST representation.</span>

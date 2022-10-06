@@ -244,7 +244,7 @@
                     .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">operand</span>, <span class="ident">output</span>)<span class="op">|</span> {
                         <span class="kw">match</span> <span class="ident">output</span> {
                             <span class="ident">Output::Internal</span>(<span class="ident">output</span>) =&gt; {
-                                <span class="kw">let</span> <span class="ident">visibility</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_program_function</span> {
+                                <span class="kw">let</span> <span class="ident">visibility</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_transition_function</span> {
                                     <span class="kw">match</span> <span class="self">self</span>.<span class="ident">in_finalize</span> {
                                         <span class="comment">// If in finalize block, the default visibility is public.</span>
                                         <span class="bool-val">true</span> =&gt; <span class="kw">match</span> <span class="ident">output</span>.<span class="ident">mode</span> {

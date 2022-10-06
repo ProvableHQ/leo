@@ -366,6 +366,16 @@
 <span id="366">366</span>
 <span id="367">367</span>
 <span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -494,11 +504,14 @@
     <span class="ident">Increment</span>,
     <span class="ident">Let</span>,
     <span class="ident">Mapping</span>,
+    <span class="ident">Program</span>,
     <span class="comment">// For public inputs.</span>
     <span class="ident">Public</span>,
     <span class="ident">Return</span>,
     <span class="ident">SelfLower</span>,
     <span class="ident">Static</span>,
+    <span class="ident">Struct</span>,
+    <span class="ident">Transition</span>,
     <span class="comment">// For imports.</span>
     <span class="ident">Leo</span>,
 
@@ -514,7 +527,6 @@
     <span class="ident">Token::Address</span>,
     <span class="ident">Token::Async</span>,
     <span class="ident">Token::Bool</span>,
-    <span class="ident">Token::Circuit</span>,
     <span class="ident">Token::Console</span>,
     <span class="ident">Token::Const</span>,
     <span class="ident">Token::Constant</span>,
@@ -537,6 +549,7 @@
     <span class="ident">Token::Increment</span>,
     <span class="ident">Token::Let</span>,
     <span class="ident">Token::Mapping</span>,
+    <span class="ident">Token::Program</span>,
     <span class="ident">Token::Public</span>,
     <span class="ident">Token::Record</span>,
     <span class="ident">Token::Return</span>,
@@ -544,6 +557,8 @@
     <span class="ident">Token::Scalar</span>,
     <span class="ident">Token::Static</span>,
     <span class="ident">Token::String</span>,
+    <span class="ident">Token::Struct</span>,
+    <span class="ident">Token::Transition</span>,
     <span class="ident">Token::True</span>,
     <span class="ident">Token::U8</span>,
     <span class="ident">Token::U16</span>,
@@ -564,7 +579,6 @@
             <span class="ident">Token::Address</span> =&gt; <span class="ident">sym::address</span>,
             <span class="ident">Token::Async</span> =&gt; <span class="ident">sym::Async</span>,
             <span class="ident">Token::Bool</span> =&gt; <span class="ident">sym::bool</span>,
-            <span class="ident">Token::Circuit</span> =&gt; <span class="ident">sym::circuit</span>,
             <span class="ident">Token::Console</span> =&gt; <span class="ident">sym::console</span>,
             <span class="ident">Token::Const</span> =&gt; <span class="ident">sym::Const</span>,
             <span class="ident">Token::Constant</span> =&gt; <span class="ident">sym::Constant</span>,
@@ -588,6 +602,7 @@
             <span class="ident">Token::Let</span> =&gt; <span class="ident">sym::Let</span>,
             <span class="ident">Token::Leo</span> =&gt; <span class="ident">sym::leo</span>,
             <span class="ident">Token::Mapping</span> =&gt; <span class="ident">sym::mapping</span>,
+            <span class="ident">Token::Program</span> =&gt; <span class="ident">sym::program</span>,
             <span class="ident">Token::Public</span> =&gt; <span class="ident">sym::Public</span>,
             <span class="ident">Token::Record</span> =&gt; <span class="ident">sym::record</span>,
             <span class="ident">Token::Return</span> =&gt; <span class="ident">sym::Return</span>,
@@ -595,6 +610,8 @@
             <span class="ident">Token::SelfLower</span> =&gt; <span class="ident">sym::SelfLower</span>,
             <span class="ident">Token::Static</span> =&gt; <span class="ident">sym::Static</span>,
             <span class="ident">Token::String</span> =&gt; <span class="ident">sym::string</span>,
+            <span class="ident">Token::Struct</span> =&gt; <span class="ident">sym::Struct</span>,
+            <span class="ident">Token::Transition</span> =&gt; <span class="ident">sym::transition</span>,
             <span class="ident">Token::True</span> =&gt; <span class="ident">sym::True</span>,
             <span class="ident">Token::U8</span> =&gt; <span class="ident">sym::u8</span>,
             <span class="ident">Token::U16</span> =&gt; <span class="ident">sym::u16</span>,
@@ -706,10 +723,13 @@
             <span class="ident">Increment</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;increment&quot;</span>),
             <span class="ident">Let</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;let&quot;</span>),
             <span class="ident">Mapping</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;mapping&quot;</span>),
-            <span class="ident">SelfLower</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;self&quot;</span>),
+            <span class="ident">Program</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;program&quot;</span>),
             <span class="ident">Public</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;public&quot;</span>),
             <span class="ident">Return</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;return&quot;</span>),
+            <span class="ident">SelfLower</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;self&quot;</span>),
             <span class="ident">Static</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;static&quot;</span>),
+            <span class="ident">Struct</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;struct&quot;</span>),
+            <span class="ident">Transition</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;transition&quot;</span>),
             <span class="ident">Leo</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;leo&quot;</span>),
             <span class="ident">Eof</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;eof&gt;&quot;</span>),
         }

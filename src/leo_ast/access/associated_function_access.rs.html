@@ -62,12 +62,12 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
-<span class="doccomment">/// An access expression to an associated function in a circuit, e.g.`Pedersen64::hash()`.</span>
+<span class="doccomment">/// An access expression to an associated function in a struct, e.g.`Pedersen64::hash()`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AssociatedFunction</span> {
-    <span class="doccomment">/// The inner circuit type.</span>
+    <span class="doccomment">/// The inner struct type.</span>
     <span class="kw">pub</span> <span class="ident">ty</span>: <span class="ident">Type</span>,
-    <span class="doccomment">/// The static circuit member function that is being accessed.</span>
+    <span class="doccomment">/// The static struct member function that is being accessed.</span>
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">Identifier</span>,
     <span class="doccomment">/// The arguments passed to the function `name`.</span>
     <span class="kw">pub</span> <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,

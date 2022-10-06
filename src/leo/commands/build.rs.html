@@ -261,26 +261,6 @@
 <span id="261">261</span>
 <span id="262">262</span>
 <span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -300,10 +280,10 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::commands::ALEO_CLI_COMMAND</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">commands::Command</span>, <span class="ident">context::Context</span>};
 
-<span class="kw">use</span> <span class="ident">leo_ast::Circuit</span>;
+<span class="kw">use</span> <span class="ident">leo_ast::Struct</span>;
 <span class="kw">use</span> <span class="ident">leo_compiler</span>::{<span class="ident">Compiler</span>, <span class="ident">InputAst</span>, <span class="ident">OutputOptions</span>};
 <span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">CliError</span>, <span class="ident">CompilerError</span>, <span class="ident">PackageError</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">use</span> <span class="ident">leo_package::source</span>::{<span class="ident">SourceDirectory</span>, <span class="ident">MAIN_FILENAME</span>};
+<span class="kw">use</span> <span class="ident">leo_package::source::SourceDirectory</span>;
 <span class="kw">use</span> <span class="ident">leo_package</span>::{<span class="ident">inputs::InputFile</span>, <span class="ident">outputs::OutputsDirectory</span>};
 <span class="kw">use</span> <span class="ident">leo_span::symbol::with_session_globals</span>;
 
@@ -311,6 +291,7 @@
 
 <span class="kw">use</span> <span class="ident">clap::StructOpt</span>;
 <span class="kw">use</span> <span class="ident">indexmap::IndexMap</span>;
+<span class="kw">use</span> <span class="ident">snarkvm::prelude</span>::{<span class="ident">ProgramID</span>, <span class="ident">Testnet3</span>};
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 <span class="kw">use</span> <span class="ident">std::path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>};
 
@@ -373,7 +354,7 @@
 
 <span class="kw">impl</span> <span class="ident">Command</span> <span class="kw">for</span> <span class="ident">Build</span> {
     <span class="kw">type</span> <span class="ident">Input</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InputAst</span><span class="op">&gt;</span>, <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Symbol</span>, <span class="ident">Circuit</span><span class="op">&gt;</span>);
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InputAst</span><span class="op">&gt;</span>, <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Symbol</span>, <span class="ident">Struct</span><span class="op">&gt;</span>);
 
     <span class="kw">fn</span> <span class="ident">log_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
         <span class="macro">tracing::span!</span>(<span class="ident">tracing::Level::INFO</span>, <span class="string">&quot;Leo&quot;</span>)
@@ -387,8 +368,9 @@
         <span class="comment">// Get the package path.</span>
         <span class="kw">let</span> <span class="ident">package_path</span> <span class="op">=</span> <span class="ident">context</span>.<span class="ident">dir</span>()<span class="question-mark">?</span>;
 
-        <span class="comment">// Get the program name.</span>
-        <span class="kw">let</span> <span class="ident">package_name</span> <span class="op">=</span> <span class="ident">context</span>.<span class="ident">open_manifest</span>()<span class="question-mark">?</span>.<span class="ident">program_id</span>().<span class="ident">name</span>().<span class="ident">to_string</span>();
+        <span class="comment">// Get the program id.</span>
+        <span class="kw">let</span> <span class="ident">manifest</span> <span class="op">=</span> <span class="ident">context</span>.<span class="ident">open_manifest</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">program_id</span> <span class="op">=</span> <span class="ident">manifest</span>.<span class="ident">program_id</span>();
 
         <span class="comment">// Create the outputs directory.</span>
         <span class="kw">let</span> <span class="ident">outputs_directory</span> <span class="op">=</span> <span class="ident">OutputsDirectory::create</span>(<span class="kw-2">&amp;</span><span class="ident">package_path</span>)<span class="question-mark">?</span>;
@@ -402,19 +384,23 @@
         <span class="comment">// Fetch paths to all .leo files in the source directory.</span>
         <span class="kw">let</span> <span class="ident">source_files</span> <span class="op">=</span> <span class="ident">SourceDirectory::files</span>(<span class="kw-2">&amp;</span><span class="ident">package_path</span>)<span class="question-mark">?</span>;
 
-        <span class="comment">// Store all circuits declarations made in the source files.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">circuits</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
+        <span class="comment">// Check the source files.</span>
+        <span class="ident">SourceDirectory::check_files</span>(<span class="kw-2">&amp;</span><span class="ident">source_files</span>)<span class="question-mark">?</span>;
+
+        <span class="comment">// Store all struct declarations made in the source files.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">structs</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
 
         <span class="comment">// Compile all .leo files into .aleo files.</span>
         <span class="kw">for</span> <span class="ident">file_path</span> <span class="kw">in</span> <span class="ident">source_files</span>.<span class="ident">into_iter</span>() {
-            <span class="ident">circuits</span>.<span class="ident">extend</span>(<span class="ident">compile_leo_file</span>(
+            <span class="ident">structs</span>.<span class="ident">extend</span>(<span class="ident">compile_leo_file</span>(
                 <span class="ident">file_path</span>,
                 <span class="kw-2">&amp;</span><span class="ident">package_path</span>,
-                <span class="kw-2">&amp;</span><span class="ident">package_name</span>,
+                <span class="ident">program_id</span>,
                 <span class="kw-2">&amp;</span><span class="ident">outputs_directory</span>,
                 <span class="kw-2">&amp;</span><span class="ident">build_directory</span>,
                 <span class="kw-2">&amp;</span><span class="ident">handler</span>,
                 <span class="self">self</span>.<span class="ident">compiler_options</span>.<span class="ident">clone</span>(),
+                <span class="bool-val">false</span>,
             )<span class="question-mark">?</span>);
         }
 
@@ -427,20 +413,21 @@
 
             <span class="comment">// Compile all .leo files into .aleo files.</span>
             <span class="kw">for</span> <span class="ident">file_path</span> <span class="kw">in</span> <span class="ident">import_files</span>.<span class="ident">into_iter</span>() {
-                <span class="ident">circuits</span>.<span class="ident">extend</span>(<span class="ident">compile_leo_file</span>(
+                <span class="ident">structs</span>.<span class="ident">extend</span>(<span class="ident">compile_leo_file</span>(
                     <span class="ident">file_path</span>,
                     <span class="kw-2">&amp;</span><span class="ident">package_path</span>,
-                    <span class="kw-2">&amp;</span><span class="ident">package_name</span>,
+                    <span class="ident">program_id</span>,
                     <span class="kw-2">&amp;</span><span class="ident">outputs_directory</span>,
                     <span class="kw-2">&amp;</span><span class="ident">build_imports_directory</span>,
                     <span class="kw-2">&amp;</span><span class="ident">handler</span>,
                     <span class="self">self</span>.<span class="ident">compiler_options</span>.<span class="ident">clone</span>(),
+                    <span class="bool-val">true</span>,
                 )<span class="question-mark">?</span>);
             }
         }
 
         <span class="comment">// Load the input file at `package_name.in`</span>
-        <span class="kw">let</span> <span class="ident">input_file_path</span> <span class="op">=</span> <span class="ident">InputFile::new</span>(<span class="kw-2">&amp;</span><span class="ident">package_name</span>).<span class="ident">setup_file_path</span>(<span class="kw-2">&amp;</span><span class="ident">package_path</span>);
+        <span class="kw">let</span> <span class="ident">input_file_path</span> <span class="op">=</span> <span class="ident">InputFile::new</span>(<span class="kw-2">&amp;</span><span class="ident">manifest</span>.<span class="ident">program_id</span>().<span class="ident">name</span>().<span class="ident">to_string</span>()).<span class="ident">setup_file_path</span>(<span class="kw-2">&amp;</span><span class="ident">package_path</span>);
 
         <span class="comment">// Parse the input file.</span>
         <span class="kw">let</span> <span class="ident">input_ast</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">input_file_path</span>.<span class="ident">exists</span>() {
@@ -471,84 +458,57 @@
         <span class="comment">// Log the result of the build</span>
         <span class="macro">tracing::info!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">result</span>);
 
-        <span class="prelude-val">Ok</span>((<span class="ident">input_ast</span>, <span class="ident">circuits</span>))
+        <span class="prelude-val">Ok</span>((<span class="ident">input_ast</span>, <span class="ident">structs</span>))
     }
 }
 
+<span class="doccomment">/// Compiles a Leo file in the `src/` directory.</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
 <span class="kw">fn</span> <span class="ident">compile_leo_file</span>(
     <span class="ident">file_path</span>: <span class="ident">PathBuf</span>,
     <span class="ident">_package_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
-    <span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">String</span>,
+    <span class="ident">program_id</span>: <span class="kw-2">&amp;</span><span class="ident">ProgramID</span><span class="op">&lt;</span><span class="ident">Testnet3</span><span class="op">&gt;</span>,
     <span class="ident">outputs</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
     <span class="ident">build</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
     <span class="ident">handler</span>: <span class="kw-2">&amp;</span><span class="ident">Handler</span>,
     <span class="ident">options</span>: <span class="ident">BuildOptions</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Symbol</span>, <span class="ident">Circuit</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="ident">is_import</span>: <span class="ident">bool</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Symbol</span>, <span class="ident">Struct</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="comment">// Construct the Leo file name with extension `foo.leo`.</span>
     <span class="kw">let</span> <span class="ident">file_name</span> <span class="op">=</span> <span class="ident">file_path</span>
         .<span class="ident">file_name</span>()
         .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">name</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">to_str</span>())
         .<span class="ident">ok_or_else</span>(<span class="ident">PackageError::failed_to_get_file_name</span>)<span class="question-mark">?</span>;
 
-    <span class="comment">// Construct program name from file_path name `foo`.</span>
-    <span class="kw">let</span> <span class="ident">program_name</span> <span class="op">=</span> <span class="ident">file_name</span>
-        .<span class="ident">strip_suffix</span>(<span class="string">&quot;.leo&quot;</span>)
-        .<span class="ident">ok_or_else</span>(<span class="ident">PackageError::failed_to_get_file_name</span>)<span class="question-mark">?</span>;
-
-    <span class="comment">// Construct program id header for aleo file.</span>
-    <span class="comment">// Do not create a program with main.aleo as the ID.</span>
-    <span class="kw">let</span> <span class="ident">program_id_name</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">file_name</span>.<span class="ident">eq</span>(<span class="ident">MAIN_FILENAME</span>) {
-        <span class="ident">package_name</span>
-    } <span class="kw">else</span> {
-        <span class="ident">program_name</span>
+    <span class="comment">// If the program is an import, construct program name from file_path</span>
+    <span class="comment">// Otherwise, use the program_id found in `package.json`.</span>
+    <span class="kw">let</span> <span class="ident">program_name</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">is_import</span> {
+        <span class="bool-val">false</span> =&gt; <span class="ident">program_id</span>.<span class="ident">name</span>().<span class="ident">to_string</span>(),
+        <span class="bool-val">true</span> =&gt; <span class="ident">file_name</span>
+            .<span class="ident">strip_suffix</span>(<span class="string">&quot;.leo&quot;</span>)
+            .<span class="ident">ok_or_else</span>(<span class="ident">PackageError::failed_to_get_file_name</span>)<span class="question-mark">?</span>
+            .<span class="ident">to_string</span>(),
     };
 
+    <span class="comment">// Create the path to the Aleo file.</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">aleo_file_path</span> <span class="op">=</span> <span class="ident">build</span>.<span class="ident">to_path_buf</span>();
+    <span class="ident">aleo_file_path</span>.<span class="ident">push</span>(<span class="kw">match</span> <span class="ident">is_import</span> {
+        <span class="bool-val">true</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}.{}&quot;</span>, <span class="ident">program_name</span>, <span class="ident">program_id</span>.<span class="ident">network</span>()),
+        <span class="bool-val">false</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;main.{}&quot;</span>, <span class="ident">program_id</span>.<span class="ident">network</span>()),
+    });
+
     <span class="comment">// Create a new instance of the Leo compiler.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">program</span> <span class="op">=</span> <span class="ident">Compiler::new</span>(
-        <span class="ident">program_id_name</span>.<span class="ident">to_string</span>(),
-        <span class="ident">String::from</span>(<span class="string">&quot;aleo&quot;</span>), <span class="comment">// todo: fetch this from Network::Testnet3</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">compiler</span> <span class="op">=</span> <span class="ident">Compiler::new</span>(
+        <span class="ident">program_name</span>,
+        <span class="ident">program_id</span>.<span class="ident">network</span>().<span class="ident">to_string</span>(),
         <span class="ident">handler</span>,
         <span class="ident">file_path</span>.<span class="ident">clone</span>(),
         <span class="ident">outputs</span>.<span class="ident">to_path_buf</span>(),
         <span class="prelude-val">Some</span>(<span class="ident">options</span>.<span class="ident">into</span>()),
     );
 
-    <span class="comment">// TODO: Temporarily removing checksum files. Need to redesign this scheme.</span>
-    <span class="comment">// // Check if we need to compile the Leo program.</span>
-    <span class="comment">// let checksum_differs = {</span>
-    <span class="comment">//     // Compute the current program checksum.</span>
-    <span class="comment">//     let program_checksum = program.checksum()?;</span>
-    <span class="comment">//</span>
-    <span class="comment">//     // Get the current program checksum.</span>
-    <span class="comment">//     let checksum_file = ChecksumFile::new(program_name);</span>
-    <span class="comment">//</span>
-    <span class="comment">//     // If a checksum file exists, check if it differs from the new checksum.</span>
-    <span class="comment">//     let checksum_differs = if checksum_file.exists_at(package_path) {</span>
-    <span class="comment">//         let previous_checksum = checksum_file.read_from(package_path)?;</span>
-    <span class="comment">//         program_checksum != previous_checksum</span>
-    <span class="comment">//     } else {</span>
-    <span class="comment">//         // By default, the checksum differs if there is no checksum to compare against.</span>
-    <span class="comment">//         true</span>
-    <span class="comment">//     };</span>
-    <span class="comment">//</span>
-    <span class="comment">//     // If checksum differs, compile the program</span>
-    <span class="comment">//     if checksum_differs {</span>
-    <span class="comment">//         // Write the new checksum to the output directory</span>
-    <span class="comment">//         checksum_file.write_to(package_path, program_checksum)?;</span>
-    <span class="comment">//</span>
-    <span class="comment">//         tracing::debug!(&quot;Checksum saved ({:?})&quot;, package_path);</span>
-    <span class="comment">//     }</span>
-    <span class="comment">//</span>
-    <span class="comment">//     checksum_differs</span>
-    <span class="comment">// };</span>
-
-    <span class="comment">// if checksum_differs {</span>
     <span class="comment">// Compile the Leo program into Aleo instructions.</span>
-    <span class="kw">let</span> (<span class="ident">symbol_table</span>, <span class="ident">instructions</span>) <span class="op">=</span> <span class="ident">program</span>.<span class="ident">compile_and_generate_instructions</span>()<span class="question-mark">?</span>;
-
-    <span class="comment">// Create the path to the Aleo file.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">aleo_file_path</span> <span class="op">=</span> <span class="ident">build</span>.<span class="ident">to_path_buf</span>();
-    <span class="ident">aleo_file_path</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;{}.aleo&quot;</span>, <span class="ident">program_name</span>));
+    <span class="kw">let</span> (<span class="ident">symbol_table</span>, <span class="ident">instructions</span>) <span class="op">=</span> <span class="ident">compiler</span>.<span class="ident">compile_and_generate_instructions</span>()<span class="question-mark">?</span>;
 
     <span class="comment">// Write the instructions.</span>
     <span class="ident">std::fs::File::create</span>(<span class="kw-2">&amp;</span><span class="ident">aleo_file_path</span>)
@@ -562,7 +522,7 @@
     <span class="comment">// Log the build as successful.</span>
     <span class="macro">tracing::info!</span>(<span class="string">&quot;Compiled &#39;{}&#39; into Aleo instructions&quot;</span>, <span class="ident">file_name</span>,);
 
-    <span class="prelude-val">Ok</span>(<span class="ident">symbol_table</span>.<span class="ident">circuits</span>)
+    <span class="prelude-val">Ok</span>(<span class="ident">symbol_table</span>.<span class="ident">structs</span>)
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

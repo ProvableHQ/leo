@@ -302,9 +302,9 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::StaticSingleAssigner</span>;
 
 <span class="kw">use</span> <span class="ident">leo_ast</span>::{
-    <span class="ident">AccessExpression</span>, <span class="ident">AssociatedFunction</span>, <span class="ident">BinaryExpression</span>, <span class="ident">CallExpression</span>, <span class="ident">CircuitExpression</span>,
-    <span class="ident">CircuitVariableInitializer</span>, <span class="ident">Expression</span>, <span class="ident">ExpressionConsumer</span>, <span class="ident">Identifier</span>, <span class="ident">Literal</span>, <span class="ident">MemberAccess</span>, <span class="ident">Statement</span>,
-    <span class="ident">TernaryExpression</span>, <span class="ident">TupleAccess</span>, <span class="ident">TupleExpression</span>, <span class="ident">UnaryExpression</span>,
+    <span class="ident">AccessExpression</span>, <span class="ident">AssociatedFunction</span>, <span class="ident">BinaryExpression</span>, <span class="ident">CallExpression</span>, <span class="ident">Expression</span>, <span class="ident">ExpressionConsumer</span>, <span class="ident">Identifier</span>,
+    <span class="ident">Literal</span>, <span class="ident">MemberAccess</span>, <span class="ident">Statement</span>, <span class="ident">StructExpression</span>, <span class="ident">StructVariableInitializer</span>, <span class="ident">TernaryExpression</span>, <span class="ident">TupleAccess</span>,
+    <span class="ident">TupleExpression</span>, <span class="ident">UnaryExpression</span>,
 };
 <span class="kw">use</span> <span class="ident">leo_span::sym</span>;
 
@@ -426,8 +426,8 @@
         (<span class="ident">Expression::Identifier</span>(<span class="ident">place</span>), <span class="ident">statements</span>)
     }
 
-    <span class="doccomment">/// Consumes a circuit initialization expression with renamed variables, accumulating any statements that are generated.</span>
-    <span class="kw">fn</span> <span class="ident">consume_circuit_init</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">CircuitExpression</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
+    <span class="doccomment">/// Consumes a struct initialization expression with renamed variables, accumulating any statements that are generated.</span>
+    <span class="kw">fn</span> <span class="ident">consume_struct_init</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">StructExpression</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statements</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
         <span class="comment">// Process the members, accumulating any statements produced.</span>
@@ -436,10 +436,10 @@
             .<span class="ident">into_iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> {
                 <span class="kw">let</span> (<span class="ident">expression</span>, <span class="kw-2">mut</span> <span class="ident">stmts</span>) <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">arg</span>.<span class="ident">expression</span>.<span class="ident">is_some</span>() {
-                    <span class="comment">// If the expression is None, then `arg` is a `CircuitVariableInitializer` of the form `&lt;id&gt;,`.</span>
+                    <span class="comment">// If the expression is None, then `arg` is a `StructVariableInitializer` of the form `&lt;id&gt;,`.</span>
                     <span class="comment">// In this case, we must consume the identifier and produce an initializer of the form `&lt;id&gt;: &lt;renamed_id&gt;`.</span>
                     <span class="bool-val">false</span> =&gt; <span class="self">self</span>.<span class="ident">consume_identifier</span>(<span class="ident">arg</span>.<span class="ident">identifier</span>),
-                    <span class="comment">// If expression is `Some(..)`, then `arg is a `CircuitVariableInitializer` of the form `&lt;id&gt;: &lt;expr&gt;,`.</span>
+                    <span class="comment">// If expression is `Some(..)`, then `arg is a `StructVariableInitializer` of the form `&lt;id&gt;: &lt;expr&gt;,`.</span>
                     <span class="comment">// In this case, we must consume the expression.</span>
                     <span class="bool-val">true</span> =&gt; <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">arg</span>.<span class="ident">expression</span>.<span class="ident">unwrap</span>()),
                 };
@@ -447,17 +447,17 @@
                 <span class="ident">statements</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">stmts</span>);
 
                 <span class="comment">// Return the new member.</span>
-                <span class="ident">CircuitVariableInitializer</span> {
+                <span class="ident">StructVariableInitializer</span> {
                     <span class="ident">identifier</span>: <span class="ident">arg</span>.<span class="ident">identifier</span>,
                     <span class="ident">expression</span>: <span class="prelude-val">Some</span>(<span class="ident">expression</span>),
                 }
             })
             .<span class="ident">collect</span>();
 
-        <span class="comment">// Construct and accumulate a new assignment statement for the circuit expression.</span>
+        <span class="comment">// Construct and accumulate a new assignment statement for the struct expression.</span>
         <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">assigner</span>
-            .<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Circuit</span>(<span class="ident">CircuitExpression</span> {
+            .<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Struct</span>(<span class="ident">StructExpression</span> {
                 <span class="ident">name</span>: <span class="ident">input</span>.<span class="ident">name</span>,
                 <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
                 <span class="ident">members</span>,

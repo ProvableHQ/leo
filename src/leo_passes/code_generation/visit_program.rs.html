@@ -283,15 +283,6 @@
 <span id="283">283</span>
 <span id="284">284</span>
 <span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -310,7 +301,7 @@
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::CodeGenerator</span>;
 
-<span class="kw">use</span> <span class="ident">leo_ast</span>::{<span class="ident">functions</span>, <span class="ident">Circuit</span>, <span class="ident">CircuitMember</span>, <span class="ident">Function</span>, <span class="ident">Identifier</span>, <span class="ident">Mapping</span>, <span class="ident">Mode</span>, <span class="ident">Program</span>, <span class="ident">Type</span>};
+<span class="kw">use</span> <span class="ident">leo_ast</span>::{<span class="ident">functions</span>, <span class="ident">CallType</span>, <span class="ident">Function</span>, <span class="ident">Identifier</span>, <span class="ident">Mapping</span>, <span class="ident">Mode</span>, <span class="ident">Program</span>, <span class="ident">ProgramScope</span>, <span class="ident">Struct</span>, <span class="ident">Type</span>};
 
 <span class="kw">use</span> <span class="ident">indexmap::IndexMap</span>;
 <span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
@@ -336,19 +327,23 @@
             <span class="ident">program_string</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>);
         }
 
+        <span class="comment">// Retrieve the program scope.</span>
+        <span class="comment">// Note that type checking guarantees that there is exactly one program scope.</span>
+        <span class="kw">let</span> <span class="ident">program_scope</span>: <span class="kw-2">&amp;</span><span class="ident">ProgramScope</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">program_scopes</span>.<span class="ident">values</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>();
+
         <span class="comment">// Print the program id.</span>
-        <span class="macro">writeln!</span>(<span class="ident">program_string</span>, <span class="string">&quot;program {}.{};&quot;</span>, <span class="ident">input</span>.<span class="ident">name</span>, <span class="ident">input</span>.<span class="ident">network</span>)
+        <span class="macro">writeln!</span>(<span class="ident">program_string</span>, <span class="string">&quot;program {};&quot;</span>, <span class="ident">program_scope</span>.<span class="ident">program_id</span>)
             .<span class="ident">expect</span>(<span class="string">&quot;Failed to write program id to string.&quot;</span>);
 
         <span class="comment">// Newline separator.</span>
         <span class="ident">program_string</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>);
 
-        <span class="comment">// Visit each `Circuit` or `Record` in the Leo AST and produce a Aleo interface instruction.</span>
+        <span class="comment">// Visit each `Struct` or `Record` in the Leo AST and produce a Aleo interface instruction.</span>
         <span class="ident">program_string</span>.<span class="ident">push_str</span>(
-            <span class="kw-2">&amp;</span><span class="ident">input</span>
-                .<span class="ident">circuits</span>
+            <span class="kw-2">&amp;</span><span class="ident">program_scope</span>
+                .<span class="ident">structs</span>
                 .<span class="ident">values</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">circuit</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_circuit_or_record</span>(<span class="ident">circuit</span>))
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">struct_</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_struct_or_record</span>(<span class="ident">struct_</span>))
                 .<span class="ident">join</span>(<span class="string">&quot;\n&quot;</span>),
         );
 
@@ -357,7 +352,7 @@
 
         <span class="comment">// Visit each mapping in the Leo AST and produce an Aleo mapping declaration.</span>
         <span class="ident">program_string</span>.<span class="ident">push_str</span>(
-            <span class="kw-2">&amp;</span><span class="ident">input</span>
+            <span class="kw-2">&amp;</span><span class="ident">program_scope</span>
                 .<span class="ident">mappings</span>
                 .<span class="ident">values</span>()
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">mapping</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_mapping</span>(<span class="ident">mapping</span>))
@@ -369,17 +364,12 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">functions</span> <span class="op">=</span> <span class="ident">String::new</span>();
 
         <span class="comment">// Visit each `Function` in the Leo AST and produce Aleo instructions.</span>
-        <span class="ident">input</span>.<span class="ident">functions</span>.<span class="ident">values</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">function</span><span class="op">|</span> {
-            <span class="comment">// If the function is annotated with `@program`, then it is a program function.</span>
-            <span class="kw">for</span> <span class="ident">annotation</span> <span class="kw">in</span> <span class="ident">function</span>.<span class="ident">annotations</span>.<span class="ident">iter</span>() {
-                <span class="kw">if</span> <span class="ident">annotation</span>.<span class="ident">identifier</span>.<span class="ident">name</span> <span class="op">==</span> <span class="ident">sym::program</span> {
-                    <span class="self">self</span>.<span class="ident">is_program_function</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                }
-            }
+        <span class="ident">program_scope</span>.<span class="ident">functions</span>.<span class="ident">values</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">function</span><span class="op">|</span> {
+            <span class="self">self</span>.<span class="ident">is_transition_function</span> <span class="op">=</span> <span class="macro">matches!</span>(<span class="ident">function</span>.<span class="ident">call_type</span>, <span class="ident">CallType::Transition</span>);
 
             <span class="kw">let</span> <span class="ident">function_string</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_function</span>(<span class="ident">function</span>);
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_program_function</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_transition_function</span> {
                 <span class="ident">functions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">function_string</span>);
                 <span class="ident">functions</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>);
             } <span class="kw">else</span> {
@@ -387,8 +377,8 @@
                 <span class="ident">closures</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>);
             }
 
-            <span class="comment">// Unset the `is_program_function` flag.</span>
-            <span class="self">self</span>.<span class="ident">is_program_function</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="comment">// Unset the `is_transition_function` flag.</span>
+            <span class="self">self</span>.<span class="ident">is_transition_function</span> <span class="op">=</span> <span class="bool-val">false</span>;
         });
 
         <span class="comment">// Closures must precede functions in the Aleo program.</span>
@@ -408,34 +398,30 @@
         <span class="macro">format!</span>(<span class="string">&quot;import {}.aleo;&quot;</span>, <span class="ident">import_name</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_circuit_or_record</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">circuit</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Circuit</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">if</span> <span class="ident">circuit</span>.<span class="ident">is_record</span> {
-            <span class="self">self</span>.<span class="ident">visit_record</span>(<span class="ident">circuit</span>)
+    <span class="kw">fn</span> <span class="ident">visit_struct_or_record</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">struct_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Struct</span>) -&gt; <span class="ident">String</span> {
+        <span class="kw">if</span> <span class="ident">struct_</span>.<span class="ident">is_record</span> {
+            <span class="self">self</span>.<span class="ident">visit_record</span>(<span class="ident">struct_</span>)
         } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">visit_circuit</span>(<span class="ident">circuit</span>)
+            <span class="self">self</span>.<span class="ident">visit_struct</span>(<span class="ident">struct_</span>)
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_circuit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">circuit</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Circuit</span>) -&gt; <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">visit_struct</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">struct_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Struct</span>) -&gt; <span class="ident">String</span> {
         <span class="comment">// Add private symbol to composite types.</span>
         <span class="self">self</span>.<span class="ident">composite_mapping</span>
-            .<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">circuit</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, (<span class="bool-val">false</span>, <span class="ident">String::from</span>(<span class="string">&quot;private&quot;</span>))); <span class="comment">// todo: private by default here.</span>
+            .<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">struct_</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, (<span class="bool-val">false</span>, <span class="ident">String::from</span>(<span class="string">&quot;private&quot;</span>))); <span class="comment">// todo: private by default here.</span>
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_string</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;interface {}:\n&quot;</span>, <span class="ident">circuit</span>.<span class="ident">identifier</span>); <span class="comment">// todo: check if this is safe from name conflicts.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_string</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;interface {}:\n&quot;</span>, <span class="ident">struct_</span>.<span class="ident">identifier</span>); <span class="comment">// todo: check if this is safe from name conflicts.</span>
 
         <span class="comment">// Construct and append the record variables.</span>
-        <span class="kw">for</span> <span class="ident">var</span> <span class="kw">in</span> <span class="ident">circuit</span>.<span class="ident">members</span>.<span class="ident">iter</span>() {
-            <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">type_</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">var</span> {
-                <span class="ident">CircuitMember::CircuitVariable</span>(<span class="ident">name</span>, <span class="ident">type_</span>) =&gt; (<span class="ident">name</span>, <span class="ident">type_</span>),
-            };
-
-            <span class="macro">writeln!</span>(<span class="ident">output_string</span>, <span class="string">&quot;    {} as {};&quot;</span>, <span class="ident">name</span>, <span class="ident">type_</span>,).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
+        <span class="kw">for</span> <span class="ident">var</span> <span class="kw">in</span> <span class="ident">struct_</span>.<span class="ident">members</span>.<span class="ident">iter</span>() {
+            <span class="macro">writeln!</span>(<span class="ident">output_string</span>, <span class="string">&quot;    {} as {};&quot;</span>, <span class="ident">var</span>.<span class="ident">identifier</span>, <span class="ident">var</span>.<span class="ident">type_</span>,).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
         }
 
         <span class="ident">output_string</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_record</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">record</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Circuit</span>) -&gt; <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">visit_record</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">record</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Struct</span>) -&gt; <span class="ident">String</span> {
         <span class="comment">// Add record symbol to composite types.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_string</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="string">&quot;record&quot;</span>);
         <span class="self">self</span>.<span class="ident">composite_mapping</span>
@@ -444,14 +430,10 @@
 
         <span class="comment">// Construct and append the record variables.</span>
         <span class="kw">for</span> <span class="ident">var</span> <span class="kw">in</span> <span class="ident">record</span>.<span class="ident">members</span>.<span class="ident">iter</span>() {
-            <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">type_</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">var</span> {
-                <span class="ident">CircuitMember::CircuitVariable</span>(<span class="ident">name</span>, <span class="ident">type_</span>) =&gt; (<span class="ident">name</span>, <span class="ident">type_</span>),
-            };
-
             <span class="macro">writeln!</span>(
                 <span class="ident">output_string</span>,
                 <span class="string">&quot;    {} as {}.private;&quot;</span>, <span class="comment">// todo: CAUTION private record variables only.</span>
-                <span class="ident">name</span>, <span class="ident">type_</span>,
+                <span class="ident">var</span>.<span class="ident">identifier</span>, <span class="ident">var</span>.<span class="ident">type_</span>,
             )
             .<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
         }
@@ -469,7 +451,7 @@
 
         <span class="comment">// Construct the header of the function.</span>
         <span class="comment">// If a function is a program function, generate an Aleo `function`, otherwise generate an Aleo `closure`.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">function_string</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">is_program_function</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">function_string</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">is_transition_function</span> {
             <span class="bool-val">true</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;function {}:\n&quot;</span>, <span class="ident">function</span>.<span class="ident">identifier</span>),
             <span class="bool-val">false</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;closure {}:\n&quot;</span>, <span class="ident">function</span>.<span class="ident">identifier</span>),
         };
@@ -483,7 +465,7 @@
                 <span class="ident">functions::Input::Internal</span>(<span class="ident">input</span>) =&gt; {
                     <span class="self">self</span>.<span class="ident">variable_mapping</span>
                         .<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">register_string</span>.<span class="ident">clone</span>());
-                    <span class="kw">let</span> <span class="ident">visibility</span> <span class="op">=</span> <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">is_program_function</span>, <span class="ident">input</span>.<span class="ident">mode</span>) {
+                    <span class="kw">let</span> <span class="ident">visibility</span> <span class="op">=</span> <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">is_transition_function</span>, <span class="ident">input</span>.<span class="ident">mode</span>) {
                         (<span class="bool-val">true</span>, <span class="ident">Mode::None</span>) =&gt; <span class="ident">Mode::Private</span>,
                         <span class="kw">_</span> =&gt; <span class="ident">input</span>.<span class="ident">mode</span>,
                     };
@@ -528,7 +510,7 @@
                         <span class="self">self</span>.<span class="ident">variable_mapping</span>
                             .<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">register_string</span>.<span class="ident">clone</span>());
 
-                        <span class="kw">let</span> <span class="ident">visibility</span> <span class="op">=</span> <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">is_program_function</span>, <span class="ident">input</span>.<span class="ident">mode</span>) {
+                        <span class="kw">let</span> <span class="ident">visibility</span> <span class="op">=</span> <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">is_transition_function</span>, <span class="ident">input</span>.<span class="ident">mode</span>) {
                             (<span class="bool-val">true</span>, <span class="ident">Mode::None</span>) =&gt; <span class="ident">Mode::Public</span>,
                             <span class="kw">_</span> =&gt; <span class="ident">input</span>.<span class="ident">mode</span>,
                         };
@@ -564,12 +546,12 @@
                 <span class="ident">Type::Mapping</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">Type::Tuple</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Mappings cannot contain mappings or tuples.&quot;</span>),
                 <span class="ident">Type::Identifier</span>(<span class="ident">identifier</span>) =&gt; {
                     <span class="comment">// Lookup the type in the composite mapping.</span>
-                    <span class="comment">// Note that this unwrap is safe since all circuit and records have been added to the composite mapping.</span>
+                    <span class="comment">// Note that this unwrap is safe since all struct and records have been added to the composite mapping.</span>
                     <span class="kw">let</span> (<span class="ident">is_record</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">composite_mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">identifier</span>.<span class="ident">name</span>).<span class="ident">unwrap</span>();
                     <span class="kw">match</span> <span class="ident">is_record</span> {
                         <span class="comment">// If the type is a record, then declare the type as is.</span>
                         <span class="bool-val">true</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}.record&quot;</span>, <span class="ident">identifier</span>),
-                        <span class="comment">// If the type is a circuit, then add the public modifier.</span>
+                        <span class="comment">// If the type is a struct, then add the public modifier.</span>
                         <span class="bool-val">false</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}.public&quot;</span>, <span class="ident">identifier</span>),
                     }
                 }

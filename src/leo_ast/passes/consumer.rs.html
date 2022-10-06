@@ -134,6 +134,13 @@
 <span id="134">134</span>
 <span id="135">135</span>
 <span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -164,7 +171,7 @@
             <span class="ident">Expression::Access</span>(<span class="ident">access</span>) =&gt; <span class="self">self</span>.<span class="ident">consume_access</span>(<span class="ident">access</span>),
             <span class="ident">Expression::Binary</span>(<span class="ident">binary</span>) =&gt; <span class="self">self</span>.<span class="ident">consume_binary</span>(<span class="ident">binary</span>),
             <span class="ident">Expression::Call</span>(<span class="ident">call</span>) =&gt; <span class="self">self</span>.<span class="ident">consume_call</span>(<span class="ident">call</span>),
-            <span class="ident">Expression::Circuit</span>(<span class="ident">circuit</span>) =&gt; <span class="self">self</span>.<span class="ident">consume_circuit_init</span>(<span class="ident">circuit</span>),
+            <span class="ident">Expression::Struct</span>(<span class="ident">struct_</span>) =&gt; <span class="self">self</span>.<span class="ident">consume_struct_init</span>(<span class="ident">struct_</span>),
             <span class="ident">Expression::Err</span>(<span class="ident">err</span>) =&gt; <span class="self">self</span>.<span class="ident">consume_err</span>(<span class="ident">err</span>),
             <span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>) =&gt; <span class="self">self</span>.<span class="ident">consume_identifier</span>(<span class="ident">identifier</span>),
             <span class="ident">Expression::Literal</span>(<span class="ident">value</span>) =&gt; <span class="self">self</span>.<span class="ident">consume_literal</span>(<span class="ident">value</span>),
@@ -180,7 +187,7 @@
 
     <span class="kw">fn</span> <span class="ident">consume_call</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="ident">CallExpression</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span>;
 
-    <span class="kw">fn</span> <span class="ident">consume_circuit_init</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="ident">CircuitExpression</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span>;
+    <span class="kw">fn</span> <span class="ident">consume_struct_init</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="ident">StructExpression</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span>;
 
     <span class="kw">fn</span> <span class="ident">consume_err</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="ident">ErrExpression</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="macro">unreachable!</span>(<span class="string">&quot;`ErrExpression`s should not be in the AST at this phase of compilation.&quot;</span>)
@@ -244,11 +251,11 @@
     <span class="kw">fn</span> <span class="ident">consume_function</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Function</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span>;
 }
 
-<span class="doccomment">/// A Consumer trait for circuits in the AST.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">CircuitConsumer</span> {
+<span class="doccomment">/// A Consumer trait for structs in the AST.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">StructConsumer</span> {
     <span class="kw">type</span> <span class="ident">Output</span>;
 
-    <span class="kw">fn</span> <span class="ident">consume_circuit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Circuit</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span>;
+    <span class="kw">fn</span> <span class="ident">consume_struct</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Struct</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span>;
 }
 
 <span class="doccomment">/// A Consumer trait for imported programs in the AST.</span>
@@ -263,6 +270,13 @@
     <span class="kw">type</span> <span class="ident">Output</span>;
 
     <span class="kw">fn</span> <span class="ident">consume_mapping</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Mapping</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span>;
+}
+
+<span class="doccomment">/// A Consumer trait for program scopes in the AST.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ProgramScopeConsumer</span> {
+    <span class="kw">type</span> <span class="ident">Output</span>;
+
+    <span class="kw">fn</span> <span class="ident">consume_program_scope</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ProgramScope</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span>;
 }
 
 <span class="doccomment">/// A Consumer trait for the program represented by the AST.</span>

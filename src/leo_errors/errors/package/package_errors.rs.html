@@ -292,6 +292,20 @@
 <span id="292">292</span>
 <span id="293">293</span>
 <span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -353,11 +367,11 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when reading the circuit file failed.</span>
+    <span class="doccomment">/// For when reading the struct file failed.</span>
     @<span class="ident">backtraced</span>
     <span class="ident">failed_to_read_circuit_file</span> {
         <span class="ident">args</span>: (<span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">Debug</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Cannot read circuit file from the provided file path - {:?}&quot;</span>, <span class="ident">path</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Cannot read struct file from the provided file path - {:?}&quot;</span>, <span class="ident">path</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -393,11 +407,11 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the circuit file has an IO error.</span>
+    <span class="doccomment">/// For when the struct file has an IO error.</span>
     @<span class="ident">backtraced</span>
     <span class="ident">io_error_circuit_file</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;IO error circuit file from the provided file path - {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;IO error struct file from the provided file path - {}&quot;</span>, <span class="ident">error</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -417,11 +431,11 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when removing the circuit file failed.</span>
+    <span class="doccomment">/// For when removing the struct file failed.</span>
     @<span class="ident">backtraced</span>
     <span class="ident">failed_to_remove_circuit_file</span> {
         <span class="ident">args</span>: (<span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">Debug</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed removing circuit file from the provided file path - {:?}&quot;</span>, <span class="ident">path</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed removing struct file from the provided file path - {:?}&quot;</span>, <span class="ident">path</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -583,6 +597,20 @@
     <span class="ident">failed_to_remove_aleo_file</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to remove aleo file: {}.&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    @<span class="ident">backtraced</span>
+    <span class="ident">empty_source_directory</span> {
+        <span class="ident">args</span>: (),
+        <span class="ident">msg</span>: <span class="string">&quot;The `src/` directory is empty.&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Add a `main.leo` file to the `src/` directory.&quot;</span>.<span class="ident">to_string</span>()),
+    }
+
+    @<span class="ident">backtraced</span>
+    <span class="ident">source_directory_can_contain_only_one_file</span> {
+        <span class="ident">args</span>: (),
+        <span class="ident">msg</span>: <span class="string">&quot;The `src/` directory can contain only one file and must be named `main.leo`.&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 );

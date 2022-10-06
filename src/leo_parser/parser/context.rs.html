@@ -288,8 +288,8 @@
     <span class="doccomment">/// The previous token, i.e., if `p.tokens = [&#39;3&#39;, *, &#39;4&#39;]`,</span>
     <span class="doccomment">/// then after two `p.bump()`s, we&#39;ll have `p.token = &#39;*&#39;` and `p.prev_token = &#39;3&#39;`.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">prev_token</span>: <span class="ident">SpannedToken</span>,
-    <span class="doccomment">/// true if parsing an expression for if and loop statements -- means circuit inits are not legal</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">disallow_circuit_construction</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// true if parsing an expression for if and loop statements -- means struct inits are not legal</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">disallow_struct_construction</span>: <span class="ident">bool</span>,
     <span class="doccomment">/// true if parsing an identifier inside an input file.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">allow_identifier_underscores</span>: <span class="ident">bool</span>,
 }
@@ -311,7 +311,7 @@
         <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">SpannedToken::dummy</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="self">Self</span> {
             <span class="ident">handler</span>,
-            <span class="ident">disallow_circuit_construction</span>: <span class="bool-val">false</span>,
+            <span class="ident">disallow_struct_construction</span>: <span class="bool-val">false</span>,
             <span class="ident">allow_identifier_underscores</span>: <span class="bool-val">false</span>,
             <span class="ident">prev_token</span>: <span class="ident">token</span>.<span class="ident">clone</span>(),
             <span class="ident">token</span>,
@@ -428,7 +428,7 @@
     }
 
     <span class="doccomment">/// Returns an unexpected error at the current token.</span>
-    <span class="kw">fn</span> <span class="ident">unexpected</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">unexpected</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="prelude-val">Err</span>(<span class="ident">ParserError::unexpected</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span>, <span class="ident">expected</span>, <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">span</span>).<span class="ident">into</span>())
     }
 

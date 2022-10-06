@@ -60,12 +60,12 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
-<span class="doccomment">/// A circuit member access expression `inner.name` to some structure with *named members*.</span>
+<span class="doccomment">/// A struct member access expression `inner.name` to some structure with *named members*.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MemberAccess</span> {
-    <span class="doccomment">/// The inner circuit that is being accessed.</span>
+    <span class="doccomment">/// The inner struct that is being accessed.</span>
     <span class="kw">pub</span> <span class="ident">inner</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The name of the circuit member to access.</span>
+    <span class="doccomment">/// The name of the struct member to access.</span>
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">Identifier</span>,
     <span class="doccomment">/// The span covering all of `inner.name`.</span>
     <span class="kw">pub</span> <span class="ident">span</span>: <span class="ident">Span</span>,

@@ -370,6 +370,16 @@
 <span id="370">370</span>
 <span id="371">371</span>
 <span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -401,7 +411,7 @@
             <span class="ident">Expression::Access</span>(<span class="ident">access</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_access</span>(<span class="ident">access</span>),
             <span class="ident">Expression::Binary</span>(<span class="ident">binary</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_binary</span>(<span class="ident">binary</span>),
             <span class="ident">Expression::Call</span>(<span class="ident">call</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_call</span>(<span class="ident">call</span>),
-            <span class="ident">Expression::Circuit</span>(<span class="ident">circuit</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_circuit_init</span>(<span class="ident">circuit</span>),
+            <span class="ident">Expression::Struct</span>(<span class="ident">struct_</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_struct_init</span>(<span class="ident">struct_</span>),
             <span class="ident">Expression::Err</span>(<span class="ident">err</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_err</span>(<span class="ident">err</span>),
             <span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_identifier</span>(<span class="ident">identifier</span>),
             <span class="ident">Expression::Literal</span>(<span class="ident">value</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_literal</span>(<span class="ident">value</span>),
@@ -470,8 +480,8 @@
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_circuit_init</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">CircuitExpression</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
-        (<span class="ident">Expression::Circuit</span>(<span class="ident">input</span>), <span class="ident">Default::default</span>())
+    <span class="kw">fn</span> <span class="ident">reconstruct_struct_init</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">StructExpression</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+        (<span class="ident">Expression::Struct</span>(<span class="ident">input</span>), <span class="ident">Default::default</span>())
     }
 
     <span class="kw">fn</span> <span class="ident">reconstruct_err</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="ident">ErrExpression</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
@@ -684,13 +694,26 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ProgramReconstructor</span>: <span class="ident">StatementReconstructor</span> {
     <span class="kw">fn</span> <span class="ident">reconstruct_program</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Program</span>) -&gt; <span class="ident">Program</span> {
         <span class="ident">Program</span> {
-            <span class="ident">name</span>: <span class="ident">input</span>.<span class="ident">name</span>,
-            <span class="ident">network</span>: <span class="ident">input</span>.<span class="ident">network</span>,
-            <span class="ident">expected_input</span>: <span class="ident">input</span>.<span class="ident">expected_input</span>,
             <span class="ident">imports</span>: <span class="ident">input</span>
                 .<span class="ident">imports</span>
                 .<span class="ident">into_iter</span>()
                 .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="ident">import</span>)<span class="op">|</span> (<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">reconstruct_import</span>(<span class="ident">import</span>)))
+                .<span class="ident">collect</span>(),
+            <span class="ident">program_scopes</span>: <span class="ident">input</span>
+                .<span class="ident">program_scopes</span>
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="ident">scope</span>)<span class="op">|</span> (<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">reconstruct_program_scope</span>(<span class="ident">scope</span>)))
+                .<span class="ident">collect</span>(),
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">reconstruct_program_scope</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ProgramScope</span>) -&gt; <span class="ident">ProgramScope</span> {
+        <span class="ident">ProgramScope</span> {
+            <span class="ident">program_id</span>: <span class="ident">input</span>.<span class="ident">program_id</span>,
+            <span class="ident">structs</span>: <span class="ident">input</span>
+                .<span class="ident">structs</span>
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">c</span>)<span class="op">|</span> (<span class="ident">i</span>, <span class="self">self</span>.<span class="ident">reconstruct_struct</span>(<span class="ident">c</span>)))
                 .<span class="ident">collect</span>(),
             <span class="ident">mappings</span>: <span class="ident">input</span>
                 .<span class="ident">mappings</span>
@@ -702,17 +725,14 @@
                 .<span class="ident">into_iter</span>()
                 .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">f</span>)<span class="op">|</span> (<span class="ident">i</span>, <span class="self">self</span>.<span class="ident">reconstruct_function</span>(<span class="ident">f</span>)))
                 .<span class="ident">collect</span>(),
-            <span class="ident">circuits</span>: <span class="ident">input</span>
-                .<span class="ident">circuits</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">c</span>)<span class="op">|</span> (<span class="ident">i</span>, <span class="self">self</span>.<span class="ident">reconstruct_circuit</span>(<span class="ident">c</span>)))
-                .<span class="ident">collect</span>(),
+            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
         }
     }
 
     <span class="kw">fn</span> <span class="ident">reconstruct_function</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Function</span>) -&gt; <span class="ident">Function</span> {
         <span class="ident">Function</span> {
             <span class="ident">annotations</span>: <span class="ident">input</span>.<span class="ident">annotations</span>,
+            <span class="ident">call_type</span>: <span class="ident">input</span>.<span class="ident">call_type</span>,
             <span class="ident">identifier</span>: <span class="ident">input</span>.<span class="ident">identifier</span>,
             <span class="ident">input</span>: <span class="ident">input</span>.<span class="ident">input</span>,
             <span class="ident">output</span>: <span class="ident">input</span>.<span class="ident">output</span>,
@@ -730,7 +750,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_circuit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Circuit</span>) -&gt; <span class="ident">Circuit</span> {
+    <span class="kw">fn</span> <span class="ident">reconstruct_struct</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Struct</span>) -&gt; <span class="ident">Struct</span> {
         <span class="ident">input</span>
     }
 

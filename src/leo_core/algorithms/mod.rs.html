@@ -229,9 +229,9 @@
 }
 
 <span class="kw">impl</span> <span class="ident">CoreInstruction</span> {
-    <span class="doccomment">/// Returns a `CoreInstruction` from the given circuit and method symbols.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_symbols</span>(<span class="ident">circuit</span>: <span class="ident">Symbol</span>, <span class="ident">function</span>: <span class="ident">Symbol</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="kw">match</span> (<span class="ident">circuit</span>, <span class="ident">function</span>) {
+    <span class="doccomment">/// Returns a `CoreInstruction` from the given module and method symbols.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_symbols</span>(<span class="ident">module</span>: <span class="ident">Symbol</span>, <span class="ident">function</span>: <span class="ident">Symbol</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="kw">match</span> (<span class="ident">module</span>, <span class="ident">function</span>) {
             (<span class="ident">sym::BHP256</span>, <span class="ident">sym::commit</span>) =&gt; <span class="ident"><span class="self">Self</span>::BHP256Commit</span>,
             (<span class="ident">sym::BHP256</span>, <span class="ident">sym::hash</span>) =&gt; <span class="ident"><span class="self">Self</span>::BHP256Hash</span>,
             (<span class="ident">sym::BHP512</span>, <span class="ident">sym::commit</span>) =&gt; <span class="ident"><span class="self">Self</span>::BHP512Commit</span>,
@@ -342,7 +342,7 @@
     }
 }
 
-<span class="doccomment">/// A core function of a core circuit, e.g. `hash` or `commit`</span>
+<span class="doccomment">/// A core function of a core struct, e.g. `hash` or `commit`</span>
 <span class="doccomment">/// Provides required type information to the type checker.</span>
 <span class="kw">trait</span> <span class="ident">CoreFunction</span> {
     <span class="kw">const</span> <span class="ident">NUM_ARGS</span>: <span class="ident">usize</span>;

@@ -268,6 +268,10 @@
 <span id="268">268</span>
 <span id="269">269</span>
 <span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -342,11 +346,11 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the parser encountered a mix of commas and semi-colons in circuit member variables.</span>
+    <span class="doccomment">/// For when the parser encountered a mix of commas and semi-colons in struct member variables.</span>
     @<span class="ident">formatted</span>
     <span class="ident">mixed_commas_and_semicolons</span> {
         <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="string">&quot;Cannot mix use of commas and semi-colons for circuit member variable declarations.&quot;</span>,
+        <span class="ident">msg</span>: <span class="string">&quot;Cannot mix use of commas and semi-colons for struct member variable declarations.&quot;</span>,
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -387,14 +391,6 @@
     <span class="ident">spread_in_array_init</span> {
         <span class="ident">args</span>: (),
         <span class="ident">msg</span>: <span class="string">&quot;illegal spread in array initializer&quot;</span>,
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
-    }
-
-    <span class="doccomment">/// For when the parser encountered a deprecated `test function`.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">test_function</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="string">&quot;\&quot;test function...\&quot; is deprecated. Did you mean @test annotation?&quot;</span>,
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -494,27 +490,11 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// Circuit functions are unstable in testnet3.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">circuit_functions_unstable</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="string">&quot;Circuit functions are currently an unstable feature and are disabled in Leo for testnet3.&quot;</span>,
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
-    }
-
-    <span class="doccomment">/// Circuit constants are unstable in testnet3.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">circuit_constants_unstable</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="string">&quot;Circuit constants are currently an unstable feature and are disabled in Leo for testnet3.&quot;</span>,
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
-    }
-
     @<span class="ident">formatted</span>
     <span class="ident">invalid_associated_access</span> {
         <span class="ident">args</span>: (<span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Invalid associated access call to circuit {name}.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Double colon `::` syntax is only supported for core circuits in Leo for testnet3.&quot;</span>.<span class="ident">to_string</span>()),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Invalid associated access call to struct {name}.&quot;</span>),
+        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Double colon `::` syntax is only supported for core functions in Leo for testnet3.&quot;</span>.<span class="ident">to_string</span>()),
     }
 
     @<span class="ident">formatted</span>
@@ -536,6 +516,34 @@
         <span class="ident">args</span>: (),
         <span class="ident">msg</span>: <span class="string">&quot;A finalize statement must be preceded by the `async` keyword.&quot;</span>,
         <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Add the `async` keyword before the `finalize` keyword.&quot;</span>.<span class="ident">to_string</span>()),
+    }
+
+    @<span class="ident">formatted</span>
+    <span class="ident">circuit_is_deprecated</span> {
+        <span class="ident">args</span>: (),
+        <span class="ident">msg</span>: <span class="string">&quot;The keyword `circuit` is deprecated.&quot;</span>,
+        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Use `struct` instead.&quot;</span>.<span class="ident">to_string</span>()),
+    }
+
+    @<span class="ident">formatted</span>
+    <span class="ident">only_one_program_scope_is_allowed</span> {
+        <span class="ident">args</span>: (),
+        <span class="ident">msg</span>: <span class="string">&quot;Only one program scope is allowed in a Leo file.&quot;</span>,
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    @<span class="ident">formatted</span>
+    <span class="ident">missing_program_scope</span> {
+        <span class="ident">args</span>: (),
+        <span class="ident">msg</span>: <span class="string">&quot;Missing a program scope in a Leo file.&quot;</span>,
+        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Add a program scope of the form: `program &lt;name&gt;.aleo { ... }` to the Leo file.&quot;</span>.<span class="ident">to_string</span>()),
+    }
+
+    @<span class="ident">formatted</span>
+    <span class="ident">invalid_network</span> {
+        <span class="ident">args</span>: (),
+        <span class="ident">msg</span>: <span class="string">&quot;Invalid network identifier. The only supported identifier is `aleo`.&quot;</span>,
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 );
 </code></pre></div>

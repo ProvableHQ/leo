@@ -222,11 +222,11 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when a user shadows a circuit.</span>
+    <span class="doccomment">/// For when a user shadows a struct.</span>
     @<span class="ident">formatted</span>
-    <span class="ident">shadowed_circuit</span> {
-        <span class="ident">args</span>: (<span class="ident">circ</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;circuit `{circ}` shadowed by&quot;</span>),
+    <span class="ident">shadowed_struct</span> {
+        <span class="ident">args</span>: (<span class="ident">struct_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;struct `{struct_}` shadowed by&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 

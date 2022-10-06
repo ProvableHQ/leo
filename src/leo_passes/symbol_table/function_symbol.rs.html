@@ -57,6 +57,9 @@
 <span id="57">57</span>
 <span id="58">58</span>
 <span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -73,7 +76,7 @@
 <span class="comment">// You should have received a copy of the GNU General Public License</span>
 <span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 
-<span class="kw">use</span> <span class="ident">leo_ast</span>::{<span class="ident">Function</span>, <span class="ident">Input</span>, <span class="ident">Type</span>};
+<span class="kw">use</span> <span class="ident">leo_ast</span>::{<span class="ident">CallType</span>, <span class="ident">Function</span>, <span class="ident">Input</span>, <span class="ident">Type</span>};
 <span class="kw">use</span> <span class="ident">leo_span::Span</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::SymbolTable</span>;
@@ -94,6 +97,8 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">id</span>: <span class="ident">usize</span>,
     <span class="doccomment">/// The output type of the function.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">output_type</span>: <span class="ident">Type</span>,
+    <span class="doccomment">/// Is this function a transition, inlined, or a regular function?.</span>
+    <span class="kw">pub</span> <span class="ident">call_type</span>: <span class="ident">CallType</span>,
     <span class="doccomment">/// The `Span` associated with the function.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">span</span>: <span class="ident">Span</span>,
     <span class="doccomment">/// The inputs to the function.</span>
@@ -107,6 +112,7 @@
         <span class="ident">FunctionSymbol</span> {
             <span class="ident">id</span>,
             <span class="ident">output_type</span>: <span class="ident">func</span>.<span class="ident">output_type</span>.<span class="ident">clone</span>(),
+            <span class="ident">call_type</span>: <span class="ident">func</span>.<span class="ident">call_type</span>,
             <span class="ident">span</span>: <span class="ident">func</span>.<span class="ident">span</span>,
             <span class="ident">input</span>: <span class="ident">func</span>.<span class="ident">input</span>.<span class="ident">clone</span>(),
             <span class="ident">finalize</span>: <span class="ident">func</span>.<span class="ident">finalize</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">finalize</span><span class="op">|</span> <span class="ident">FinalizeData</span> {

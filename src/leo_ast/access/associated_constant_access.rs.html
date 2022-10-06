@@ -60,12 +60,12 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
-<span class="doccomment">/// An access expression to an circuit constant., e.g. `u8::MAX`.</span>
+<span class="doccomment">/// An access expression to an struct constant., e.g. `u8::MAX`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AssociatedConstant</span> {
-    <span class="doccomment">/// The inner circuit type.</span>
+    <span class="doccomment">/// The inner struct type.</span>
     <span class="kw">pub</span> <span class="ident">ty</span>: <span class="ident">Type</span>,
-    <span class="doccomment">/// The circuit constant that is being accessed.</span>
+    <span class="doccomment">/// The struct constant that is being accessed.</span>
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">Identifier</span>,
     <span class="doccomment">/// The span for the entire expression `Foo::bar()`.</span>
     <span class="kw">pub</span> <span class="ident">span</span>: <span class="ident">Span</span>,
