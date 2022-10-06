@@ -65,12 +65,12 @@ version = "1.5.3"
 
 [dependencies.aleo]
 git = "https://github.com/AleoHQ/aleo.git"
-rev = "ddbb647"
+rev = "28cc7f5"
 
 [dependencies.snarkvm]
-version = "0.9.0"
-#git = "https://github.com/AleoHQ/snarkVM.git"
-#rev = "69cf3bd"
+#version = "0.9.0"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "ea14990"
 features = ["aleo-cli", "circuit", "console", "parallel"]
 
 [dependencies.backtrace]
@@ -134,7 +134,7 @@ version = "0.3.15"
 features = [ "fmt" ]
 
 [dependencies.zip]
-version = "0.6"
+version = "^0.6"
 
 [target."cfg(windows)".dependencies.ansi_term]
 version = "0.12.1"
