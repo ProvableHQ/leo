@@ -1,4 +1,4 @@
-program ntzdebrujin.aleo {
+program ntzdebruijn.aleo {
     // The 'ntzdebruijn' main function.
     // From Hacker's Delight 2nd ed. figure 5-26
     transition main(public x: u32) -> u8 {
