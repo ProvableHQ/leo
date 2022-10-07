@@ -25,7 +25,7 @@ use leo_span::Symbol;
 
 use indexmap::IndexSet;
 
-impl StatementConsumer for StaticSingleAssigner {
+impl StatementConsumer for StaticSingleAssigner<'_> {
     type Output = Vec<Statement>;
 
     /// Consume all `AssignStatement`s, renaming as necessary.

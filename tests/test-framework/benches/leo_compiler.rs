@@ -187,11 +187,11 @@ impl Sample {
             let symbol_table = compiler
                 .type_checker_pass(symbol_table)
                 .expect("failed to run type check pass");
-            compiler
+            let symbol_table = compiler
                 .loop_unrolling_pass(symbol_table)
                 .expect("failed to run loop unrolling pass");
             let start = Instant::now();
-            let out = compiler.static_single_assignment_pass();
+            let out = compiler.static_single_assignment_pass(&symbol_table);
             let time = start.elapsed();
             out.expect("failed to run ssa pass");
             time
@@ -208,7 +208,7 @@ impl Sample {
                 .loop_unrolling_pass(symbol_table)
                 .expect("failed to run loop unrolling pass");
             let assigner = compiler
-                .static_single_assignment_pass()
+                .static_single_assignment_pass(&symbol_table)
                 .expect("failed to run ssa pass");
             let start = Instant::now();
             let out = compiler.flattening_pass(&symbol_table, assigner);
@@ -233,7 +233,7 @@ impl Sample {
                 .loop_unrolling_pass(symbol_table)
                 .expect("failed to run loop unrolling pass");
             let assigner = compiler
-                .static_single_assignment_pass()
+                .static_single_assignment_pass(&symbol_table)
                 .expect("failed to run ssa pass");
             compiler
                 .flattening_pass(&symbol_table, assigner)

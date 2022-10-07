@@ -196,7 +196,7 @@ fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>, handler: &Handler) -> R
     let st = parsed.symbol_table_pass()?;
     let st = parsed.type_checker_pass(st)?;
     let st = parsed.loop_unrolling_pass(st)?;
-    let assigner = parsed.static_single_assignment_pass()?;
+    let assigner = parsed.static_single_assignment_pass(&st)?;
 
     parsed.flattening_pass(&st, assigner)?;
 

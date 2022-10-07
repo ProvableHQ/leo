@@ -24,7 +24,7 @@ use leo_span::{sym, Symbol};
 
 use indexmap::IndexMap;
 
-impl StructConsumer for StaticSingleAssigner {
+impl StructConsumer for StaticSingleAssigner<'_> {
     type Output = Struct;
 
     /// Reconstructs records in the program, ordering its fields such that `owner` and `gates` are the first and second fields, respectively.
@@ -56,7 +56,7 @@ impl StructConsumer for StaticSingleAssigner {
     }
 }
 
-impl FunctionConsumer for StaticSingleAssigner {
+impl FunctionConsumer for StaticSingleAssigner<'_> {
     type Output = Function;
 
     /// Reconstructs the `Function`s in the `Program`, while allocating the appropriate `RenameTable`s.
@@ -122,7 +122,7 @@ impl FunctionConsumer for StaticSingleAssigner {
     }
 }
 
-impl ProgramScopeConsumer for StaticSingleAssigner {
+impl ProgramScopeConsumer for StaticSingleAssigner<'_> {
     type Output = ProgramScope;
 
     fn consume_program_scope(&mut self, input: ProgramScope) -> Self::Output {
@@ -144,7 +144,7 @@ impl ProgramScopeConsumer for StaticSingleAssigner {
     }
 }
 
-impl ProgramConsumer for StaticSingleAssigner {
+impl ProgramConsumer for StaticSingleAssigner<'_> {
     type Output = Program;
 
     fn consume_program(&mut self, input: Program) -> Self::Output {
