@@ -69,7 +69,7 @@ impl MainFile {
     // TODO: Generalize to other networks.
     fn template(&self) -> String {
         format!(
-            r#"// The '{}' main function.
+            r#"// The '{}' program.
 program {}.aleo {{
     transition main(public a: u32, b: u32) -> u32 {{
         let c: u32 = a + b;
