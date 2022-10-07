@@ -74,9 +74,9 @@ impl<'a> CodeGenerator<'a> {
                 .join("\n"),
         );
 
-        // Store closures and functions in separate strings.
-        let mut closures = String::new();
+        // Store functions and transitions in separate strings.
         let mut functions = String::new();
+        let mut transitions = String::new();
 
         // Visit each `Function` in the Leo AST and produce Aleo instructions.
         program_scope.functions.values().for_each(|function| {
@@ -85,11 +85,11 @@ impl<'a> CodeGenerator<'a> {
             let function_string = self.visit_function(function);
 
             if self.is_transition_function {
+                transitions.push_str(&function_string);
+                transitions.push('\n');
+            } else {
                 functions.push_str(&function_string);
                 functions.push('\n');
-            } else {
-                closures.push_str(&function_string);
-                closures.push('\n');
             }
 
             // Unset the `is_transition_function` flag.
@@ -97,9 +97,9 @@ impl<'a> CodeGenerator<'a> {
         });
 
         // Closures must precede functions in the Aleo program.
-        program_string.push_str(&closures);
-        program_string.push('\n');
         program_string.push_str(&functions);
+        program_string.push('\n');
+        program_string.push_str(&transitions);
 
         program_string
     }
@@ -126,7 +126,7 @@ impl<'a> CodeGenerator<'a> {
         self.composite_mapping
             .insert(&struct_.identifier.name, (false, String::from("private"))); // todo: private by default here.
 
-        let mut output_string = format!("interface {}:\n", struct_.identifier); // todo: check if this is safe from name conflicts.
+        let mut output_string = format!("struct {}:\n", struct_.identifier); // todo: check if this is safe from name conflicts.
 
         // Construct and append the record variables.
         for var in struct_.members.iter() {
@@ -165,10 +165,10 @@ impl<'a> CodeGenerator<'a> {
         self.current_function = Some(function);
 
         // Construct the header of the function.
-        // If a function is a program function, generate an Aleo `function`, otherwise generate an Aleo `closure`.
+        // If a function is a transition function, generate an Aleo `transition`, otherwise generate an Aleo `function`.
         let mut function_string = match self.is_transition_function {
-            true => format!("function {}:\n", function.identifier),
-            false => format!("closure {}:\n", function.identifier),
+            true => format!("transition {}:\n", function.identifier),
+            false => format!("function {}:\n", function.identifier),
         };
 
         // Construct and append the input declarations of the function.
