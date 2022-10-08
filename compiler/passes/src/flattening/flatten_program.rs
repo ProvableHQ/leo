@@ -17,8 +17,8 @@
 use crate::Flattener;
 
 use leo_ast::{
-    Circuit, CircuitMember, Finalize, FinalizeStatement, Function, Identifier, ProgramReconstructor, Statement,
-    StatementReconstructor, Type,
+    Finalize, FinalizeStatement, Function, Identifier, Member, ProgramReconstructor, Statement, StatementReconstructor,
+    Struct, Type,
 };
 use leo_span::Symbol;
 
@@ -124,36 +124,36 @@ impl ProgramReconstructor for Flattener<'_> {
         }
     }
 
-    /// Flattens the circuit definitions in the program, flattening any tuples in the definitions.
-    /// For example, the follow circuit definitions:
+    /// Flattens the struct definitions in the program, flattening any tuples in the definitions.
+    /// For example, the follow struct definitions:
     /// ```leo
-    /// circuit Bar {
+    /// struct Bar {
     ///   a: u8,
     ///   b: (u16, u32),
     /// }
     ///
-    /// circuit Foo {
+    /// struct Foo {
     ///   c: u8,
     ///   d: (Bar, (Bar, Bar)),
     /// }
     /// ```
     /// are flattened in the following way.
     /// ```leo
-    /// circuit Bar {
+    /// struct Bar {
     ///   a_0: u8,
     ///   b_0: u16,
     ///   b_1: u32,
     /// }
     ///
-    /// circuit Foo {
+    /// struct Foo {
     ///   c_0: u8,
     ///   d_0: Bar,
     ///   d_1_0: Bar,
     ///   d_1_1: Bar,
     /// }
-    fn reconstruct_circuit(&mut self, input: Circuit) -> Circuit {
-        // Helper to rename and flatten a circuit member.
-        fn rename_member(identifier: Identifier, type_: Type, index: usize) -> Vec<CircuitMember> {
+    fn reconstruct_struct(&mut self, input: Struct) -> Struct {
+        // Helper to rename and flatten a struct member.
+        fn rename_member(identifier: Identifier, type_: Type, index: usize) -> Vec<Member> {
             // Construct the new name for the identifier.
             let identifier = Identifier::new(Symbol::intern(&format!("{}_{}", identifier.name, index)));
             match type_ {
@@ -166,7 +166,7 @@ impl ProgramReconstructor for Flattener<'_> {
                     members
                 }
                 // Otherwise, rename the member and return it as a singleton list.
-                type_ => vec![CircuitMember::CircuitVariable(identifier, type_)],
+                type_ => vec![Member { identifier, type_ }],
             }
         }
 
@@ -176,22 +176,22 @@ impl ProgramReconstructor for Flattener<'_> {
             .members
             .into_iter()
             .enumerate()
-            .for_each(|(i, CircuitMember::CircuitVariable(identifier, type_))| {
+            .for_each(|(i, Member { identifier, type_ })| {
                 members.extend(rename_member(identifier, type_, i));
             });
 
-        // Construct the flattened circuit.
-        let circuit = Circuit {
+        // Construct the flattened struct.
+        let struct_ = Struct {
             identifier: input.identifier,
             members,
             is_record: input.is_record,
             span: input.span,
         };
 
-        // Add the flattened circuit to the circuit map.
-        self.flattened_structs.insert(circuit.identifier.name, circuit.clone());
+        // Add the flattened struct to the struct map.
+        self.flattened_structs.insert(struct_.identifier.name, struct_.clone());
 
-        // Return the flattened circuit.
-        circuit
+        // Return the flattened struct.
+        struct_
     }
 }

@@ -17,7 +17,11 @@
 use crate::StaticSingleAssigner;
 use indexmap::IndexMap;
 
-use leo_ast::{HEAD, AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, Expression, ExpressionConsumer, Identifier, Literal, MemberAccess, Statement, StructExpression, StructVariableInitializer, TernaryExpression, TupleAccess, TupleExpression, UnaryExpression, Circuit, CircuitExpression, CircuitVariableInitializer, c06fba2d5, WIP, Struct};
+use leo_ast::{
+    AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, Expression, ExpressionConsumer, Identifier,
+    Literal, MemberAccess, Statement, Struct, StructExpression, StructVariableInitializer, TernaryExpression,
+    TupleAccess, TupleExpression, UnaryExpression,
+};
 use leo_span::sym;
 
 impl ExpressionConsumer for StaticSingleAssigner<'_> {
@@ -169,7 +173,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         // Reorder the members in the same order as the struct definition.
         // Note that this unwrap is safe since TYC guarantees that the circuit definition exists.
         let mut members = Vec::with_capacity(member_map.len());
-        let struct_:  &Struct = self.symbol_table.circuits.get(&input.name.name).unwrap();
+        let struct_: &Struct = self.symbol_table.structs.get(&input.name.name).unwrap();
         for member in struct_.members.iter() {
             // Note that this unwrap is safe since TYC guarantees that the struct member exists
             members.push(member_map.remove(&member.name()).unwrap());

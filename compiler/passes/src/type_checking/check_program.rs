@@ -30,17 +30,13 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_struct(&mut self, input: &'a Struct) {
         // Check for conflicting struct/record member names.
         let mut used = HashSet::new();
-        if !input
-            .members
-            .iter()
-            .all(|Member { identifier, type_} | {
-                // TODO: Better spans.
-                // Check that the member types are valid.
-                self.assert_type_is_defined(type_, ident.span);
-                self.assert_valid_declaration_or_parameter_type(type_, ident.span);
-                used.insert(ident.name)
-            })
-        {
+        if !input.members.iter().all(|Member { identifier, type_ }| {
+            // TODO: Better spans.
+            // Check that the member types are valid.
+            self.assert_type_is_defined(type_, identifier.span);
+            self.assert_valid_declaration_or_parameter_type(type_, identifier.span);
+            used.insert(identifier.name)
+        }) {
             self.emit_err(if input.is_record {
                 TypeCheckerError::duplicate_record_variable(input.name(), input.span())
             } else {

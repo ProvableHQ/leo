@@ -17,7 +17,10 @@
 use crate::Flattener;
 use itertools::Itertools;
 
-use leo_ast::{HEAD, AccessExpression, Expression, ExpressionReconstructor, Member, MemberAccess, Statement, StructExpression, StructVariableInitializer, TernaryExpression, TupleExpression, AssociatedFunction, Circuit, CircuitExpression, CircuitMember, CircuitVariableInitializer, c06fba2d5, WIP, Struct};
+use leo_ast::{
+    AccessExpression, AssociatedFunction, Expression, ExpressionReconstructor, Member, MemberAccess, Statement, Struct,
+    StructExpression, StructVariableInitializer, TernaryExpression, TupleExpression,
+};
 
 // TODO: Clean up logic. To be done in a follow-up PR (feat/tuples)
 
@@ -70,7 +73,7 @@ impl ExpressionReconstructor for Flattener<'_> {
     }
 
     /// Reconstructs a struct init expression, flattening any tuples in the expression.
-    fn reconstruct_struct_init(&mut self, input: CircuitExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_struct_init(&mut self, input: StructExpression) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();
         let mut flattened_expressions = Vec::with_capacity(input.members.len());
 

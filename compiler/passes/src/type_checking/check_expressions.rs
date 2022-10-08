@@ -49,7 +49,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             Expression::Access(access) => self.visit_access(access, additional),
             Expression::Binary(binary) => self.visit_binary(binary, additional),
             Expression::Call(call) => self.visit_call(call, additional),
-            Expression::Circuit(circuit) => self.visit_circuit_init(circuit, additional),
+            Expression::Struct(struct_) => self.visit_struct_init(struct_, additional),
             Expression::Err(err) => self.visit_err(err, additional),
             Expression::Identifier(identifier) => self.visit_identifier(identifier, additional),
             Expression::Literal(literal) => self.visit_literal(literal, additional),
