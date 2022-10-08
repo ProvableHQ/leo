@@ -17,9 +17,9 @@
 use crate::Flattener;
 
 use leo_ast::{
-    AssignStatement, Block, ConditionalStatement, DefinitionStatement, Expression, ExpressionReconstructor,
-    FinalizeStatement, IterationStatement, Node, ReturnStatement, Statement, StatementReconstructor, UnaryExpression,
-    UnaryOperation,
+    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement,
+    DefinitionStatement, Expression, ExpressionReconstructor, FinalizeStatement, IterationStatement, Node,
+    ReturnStatement, Statement, StatementReconstructor, UnaryExpression, UnaryOperation,
 };
 
 impl StatementReconstructor for Flattener<'_> {

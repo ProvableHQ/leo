@@ -172,7 +172,6 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             })
             .collect();
 
-
         // Reorder the members to match that of the struct definition.
 
         // Lookup the struct definition.
