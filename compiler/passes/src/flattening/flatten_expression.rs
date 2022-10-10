@@ -18,7 +18,7 @@ use crate::Flattener;
 use itertools::Itertools;
 
 use leo_ast::{
-    AccessExpression, AssociatedFunction, Expression, ExpressionReconstructor, Member, MemberAccess, Statement, Struct,
+    AccessExpression, AssociatedFunction, Expression, ExpressionReconstructor, Member, MemberAccess, Statement,
     StructExpression, StructVariableInitializer, TernaryExpression, TupleExpression,
 };
 
@@ -75,7 +75,7 @@ impl ExpressionReconstructor for Flattener<'_> {
     /// Reconstructs a struct init expression, flattening any tuples in the expression.
     fn reconstruct_struct_init(&mut self, input: StructExpression) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();
-        let mut flattened_expressions = Vec::with_capacity(input.members.len());
+        let mut members = Vec::with_capacity(input.members.len());
 
         // Reconstruct and flatten the argument expressions.
         for member in input.members.into_iter() {
@@ -83,33 +83,17 @@ impl ExpressionReconstructor for Flattener<'_> {
             let (expr, stmts) = self.reconstruct_expression(member.expression.unwrap());
             // Accumulate any statements produced.
             statements.extend(stmts);
-            // Flatten the expression.
-            flattened_expressions.extend(self.flatten_subexpression(expr));
+            // Accunulate the struct members.
+            members.push(StructVariableInitializer {
+                identifier: member.identifier,
+                expression: Some(expr),
+            });
         }
-
-        // Lookup the flattened definition of the struct.
-        // Note that this unwrap is safe since TYC guarantees that all struct are declared.
-        let struct_: &Struct = self.flattened_structs.get(&input.name.name).unwrap();
-
-        // Collect the names of the flattened struct members.
-        let names = struct_
-            .members
-            .iter()
-            .map(|Member { identifier, .. }| identifier)
-            .cloned();
-
-        let flattened_members = names
-            .zip_eq(flattened_expressions)
-            .map(|(identifier, expression)| StructVariableInitializer {
-                identifier,
-                expression: Some(expression),
-            })
-            .collect();
 
         (
             Expression::Struct(StructExpression {
                 name: input.name,
-                members: flattened_members,
+                members,
                 span: input.span,
             }),
             statements,

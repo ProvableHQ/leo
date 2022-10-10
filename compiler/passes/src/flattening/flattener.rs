@@ -18,7 +18,7 @@ use crate::{Assigner, SymbolTable};
 
 use leo_ast::{
     AccessExpression, BinaryExpression, BinaryOperation, Block, Expression, ExpressionReconstructor, Identifier,
-    Member, ReturnStatement, Statement, Struct, TernaryExpression, Type,
+    Member, ReturnStatement, Statement, TernaryExpression, Type,
 };
 use leo_span::Symbol;
 
@@ -43,8 +43,6 @@ pub struct Flattener<'a> {
     /// Note that finalizes are inserted in the order they are encountered during a pre-order traversal of the AST.
     /// Note that type checking guarantees that there is at most one finalize in a basic block.
     pub(crate) finalizes: Vec<Vec<(Option<Expression>, Expression)>>,
-    /// A mapping between struct names and flattened struct declarations.
-    pub(crate) flattened_structs: IndexMap<Symbol, Struct>,
     /// A mapping between variables and flattened tuple expressions.
     pub(crate) tuples: IndexMap<Symbol, Vec<Expression>>,
 }
@@ -58,7 +56,6 @@ impl<'a> Flattener<'a> {
             condition_stack: Vec::new(),
             returns: Vec::new(),
             finalizes: Vec::new(),
-            flattened_structs: IndexMap::new(),
             tuples: IndexMap::new(),
         }
     }
@@ -214,17 +211,6 @@ impl<'a> Flattener<'a> {
                 expression,
                 span: Default::default(),
             }));
-        }
-    }
-
-    /// Flattens a sub-expression, returning a vector of expressions (if we a flattening a tuple).
-    pub(crate) fn flatten_subexpression(&self, expression: Expression) -> Vec<Expression> {
-        match expression {
-            Expression::Literal(literal) => vec![Expression::Literal(literal)],
-            Expression::Identifier(_identifier) => {
-                todo!()
-            }
-            _ => unreachable!("SSA guarantees that all sub-expressions are either literals or identifiers."),
         }
     }
 }

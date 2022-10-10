@@ -16,11 +16,7 @@
 
 use crate::Flattener;
 
-use leo_ast::{
-    Finalize, FinalizeStatement, Function, Identifier, Member, ProgramReconstructor, Statement, StatementReconstructor,
-    Struct, Type,
-};
-use leo_span::Symbol;
+use leo_ast::{Finalize, FinalizeStatement, Function, ProgramReconstructor, Statement, StatementReconstructor, Type};
 
 impl ProgramReconstructor for Flattener<'_> {
     /// Flattens a function's body and finalize block, if it exists.
@@ -102,8 +98,6 @@ impl ProgramReconstructor for Flattener<'_> {
                 }
             };
 
-            // TODO: Flatten any tuples in the produced finalize statement.
-
             // Add the `FinalizeStatement` to the end of the block.
             block.statements.push(Statement::Finalize(FinalizeStatement {
                 arguments,
@@ -122,76 +116,5 @@ impl ProgramReconstructor for Flattener<'_> {
             finalize,
             span: function.span,
         }
-    }
-
-    /// Flattens the struct definitions in the program, flattening any tuples in the definitions.
-    /// For example, the follow struct definitions:
-    /// ```leo
-    /// struct Bar {
-    ///   a: u8,
-    ///   b: (u16, u32),
-    /// }
-    ///
-    /// struct Foo {
-    ///   c: u8,
-    ///   d: (Bar, (Bar, Bar)),
-    /// }
-    /// ```
-    /// are flattened in the following way.
-    /// ```leo
-    /// struct Bar {
-    ///   a_0: u8,
-    ///   b_0: u16,
-    ///   b_1: u32,
-    /// }
-    ///
-    /// struct Foo {
-    ///   c_0: u8,
-    ///   d_0: Bar,
-    ///   d_1_0: Bar,
-    ///   d_1_1: Bar,
-    /// }
-    fn reconstruct_struct(&mut self, input: Struct) -> Struct {
-        // Helper to rename and flatten a struct member.
-        fn rename_member(identifier: Identifier, type_: Type, index: usize) -> Vec<Member> {
-            // Construct the new name for the identifier.
-            let identifier = Identifier::new(Symbol::intern(&format!("{}_{}", identifier.name, index)));
-            match type_ {
-                // If the member is a tuple, then it must be flattened.
-                Type::Tuple(tuple) => {
-                    let mut members = Vec::with_capacity(tuple.0.len());
-                    tuple.0.into_iter().enumerate().for_each(|(i, element_type)| {
-                        members.extend(rename_member(identifier, element_type, i));
-                    });
-                    members
-                }
-                // Otherwise, rename the member and return it as a singleton list.
-                type_ => vec![Member { identifier, type_ }],
-            }
-        }
-
-        // Flatten the circuit members.
-        let mut members = Vec::with_capacity(input.members.len());
-        input
-            .members
-            .into_iter()
-            .enumerate()
-            .for_each(|(i, Member { identifier, type_ })| {
-                members.extend(rename_member(identifier, type_, i));
-            });
-
-        // Construct the flattened struct.
-        let struct_ = Struct {
-            identifier: input.identifier,
-            members,
-            is_record: input.is_record,
-            span: input.span,
-        };
-
-        // Add the flattened struct to the struct map.
-        self.flattened_structs.insert(struct_.identifier.name, struct_.clone());
-
-        // Return the flattened struct.
-        struct_
     }
 }
