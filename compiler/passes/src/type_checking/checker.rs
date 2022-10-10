@@ -355,13 +355,6 @@ impl<'a> TypeChecker<'a> {
         Type::Identifier(struct_)
     }
 
-    /// Emits an error if the type is a tuple.
-    pub(crate) fn assert_not_tuple(&self, span: Span, type_: &Type) {
-        if matches!(type_, Type::Tuple(_)) {
-            self.emit_err(TypeCheckerError::tuple_not_allowed(span))
-        }
-    }
-
     /// Emits an error if the struct member is a record type.
     pub(crate) fn assert_member_is_not_record(&self, span: Span, parent: Symbol, type_: &Type) {
         match type_ {

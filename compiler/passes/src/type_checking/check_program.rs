@@ -31,10 +31,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Check for conflicting struct/record member names.
         let mut used = HashSet::new();
         if !input.members.iter().all(|Member { identifier, type_ }| {
-            // TODO: Better spans.
-            // Check that the member types are valid.
+            // Check that the member types are defined.
             self.assert_type_is_defined(type_, identifier.span);
-            self.assert_valid_declaration_or_parameter_type(type_, identifier.span);
             used.insert(identifier.name)
         }) {
             self.emit_err(if input.is_record {
@@ -72,8 +70,14 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
 
         for Member { identifier, type_ } in input.members.iter() {
-            // Ensure there are no tuple typed members.
-            self.assert_not_tuple(identifier.span, type_);
+            // Check that the member type is not a tuple.
+            if matches!(type_, Type::Tuple(_)) {
+                self.emit_err(if input.is_record {
+                    TypeCheckerError::record_cannot_contain_tuple(identifier.span)
+                } else {
+                    TypeCheckerError::struct_cannot_contain_tuple(identifier.span)
+                });
+            }
             // Ensure that there are no record members.
             self.assert_member_is_not_record(identifier.span, input.identifier.name, type_);
         }
