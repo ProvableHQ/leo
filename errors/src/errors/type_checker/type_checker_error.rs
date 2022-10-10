@@ -254,13 +254,6 @@ create_messages!(
     }
 
     @formatted
-    tuple_not_allowed {
-        args: (),
-        msg: format!("Tuples are only allowed as function return types."),
-        help: None,
-    }
-
-    @formatted
     unreachable_code_after_return {
         args: (),
         msg: format!("Cannot reach the following statement."),
@@ -445,6 +438,27 @@ create_messages!(
     unit_tuple {
         args: (),
         msg: format!("Empty tuple expressions and tuple types are not allowed."),
+        help: None,
+    }
+
+    @formatted
+    nested_tuple {
+        args: (),
+        msg: format!("Nested tuples are not supported."),
+        help: None,
+    }
+
+    @formatted
+    struct_cannot_contain_tuple {
+        args: (),
+        msg: format!("A struct cannot contain a tuple."),
+        help: None,
+    }
+
+    @formatted
+    record_cannot_contain_tuple {
+        args: (),
+        msg: format!("A record cannot contain a tuple."),
         help: None,
     }
 );

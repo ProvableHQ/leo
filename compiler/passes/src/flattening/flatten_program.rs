@@ -31,8 +31,6 @@ impl ProgramReconstructor for Flattener<'_> {
                     self.structs.insert(input.identifier().name, struct_name.name);
                 }
             }
-            // TODO: Flatten the function arguments.
-
             // Flatten the finalize block.
             let mut block = self.reconstruct_block(finalize.block).0;
 
