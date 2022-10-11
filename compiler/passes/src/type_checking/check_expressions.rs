@@ -660,6 +660,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         .iter()
                         .zip(input.elements.iter())
                         .for_each(|(expected, expr)| {
+                            // Check that the component expression is not a tuple.
+                            if matches!(expr, Expression::Tuple(_)) {
+                                self.emit_err(TypeCheckerError::nested_tuple_expression(expr.span()))
+                            }
                             self.visit_expression(expr, &Some(expected.clone()));
                         });
 

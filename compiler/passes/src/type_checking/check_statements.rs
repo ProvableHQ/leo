@@ -189,8 +189,24 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Check that the type of the definition is defined.
         self.assert_type_is_defined(&input.type_, input.span);
 
-        // Check that the type of the definition is valid.
-        self.assert_valid_declaration_or_parameter_type(&input.type_, input.span);
+        // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
+        match &input.type_ {
+            // If the type is an empty tuple, return an error.
+            Type::Unit => self.emit_err(TypeCheckerError::unit_tuple(input.span)),
+            // If the type is a singleton tuple, return an error.
+            Type::Tuple(tuple) => match tuple.len() {
+                0 => unreachable!("Tuples must have a length of at least one."),
+                1 => self.emit_err(TypeCheckerError::singleton_tuple(input.span)),
+                _ => {
+                    if tuple.iter().any(|type_| matches!(type_, Type::Tuple(_))) {
+                        self.emit_err(TypeCheckerError::nested_tuple_type(input.span))
+                    }
+                }
+            },
+            Type::Mapping(_) | Type::Err => unreachable!(),
+            // Otherwise, the type is valid.
+            _ => (), // Do nothing
+        }
 
         // Check the expression on the left-hand side.
         self.visit_expression(&input.value, &Some(input.type_.clone()));
@@ -244,6 +260,12 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                     .iter()
                     .zip(input.arguments.iter())
                     .for_each(|(expected, argument)| {
+                        // Check that none of the arguments are tuple expressions.
+                        if matches!(argument, Expression::Tuple(_)) {
+                            self.emit_err(TypeCheckerError::finalize_statement_cannot_contain_tuples(
+                                argument.span(),
+                            ));
+                        }
                         self.visit_expression(argument, &Some(expected.type_()));
                     });
             }
@@ -353,6 +375,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             });
 
         self.has_return = true;
+
+        // Check that the return expression is not a tuple.
+        if matches!(&input.expression, Expression::Tuple(_)) {
+            self.emit_err(TypeCheckerError::finalize_statement_cannot_contain_tuples(
+                input.expression.span(),
+            ))
+        }
 
         self.visit_expression(&input.expression, return_type);
     }
