@@ -30,6 +30,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_struct(&mut self, input: &'a Struct) {
         // Check for conflicting struct/record member names.
         let mut used = HashSet::new();
+        // TODO: Better span to target duplicate member.
         if !input.members.iter().all(|Member { identifier, type_ }| {
             // Check that the member types are defined.
             self.assert_type_is_defined(type_, identifier.span);
@@ -109,6 +110,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Check that the function's annotations are valid.
         // Note that Leo does not natively support any specific annotations.
         for annotation in function.annotations.iter() {
+            // TODO: Change to compiler warning.
             self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
         }
 
@@ -146,7 +148,6 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             if matches!(input_var.type_(), Type::Tuple(_)) {
                 self.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
             }
-            self.assert_valid_declaration_or_parameter_type(&input_var.type_(), input_var.span());
 
             match self.is_transition_function {
                 // If the function is a transition function, then check that the parameter mode is not a constant.
@@ -174,8 +175,10 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         });
 
         // Type check the function's return type.
+        // Note that checking that each of the component types are defined is sufficient to check that `output_type` is defined.
         function.output.iter().for_each(|output_type| {
             match output_type {
+                // TODO: Verify that this is not needed when the import system is updated.
                 Output::External(_) => {} // Do not type check external record function outputs.
                 Output::Internal(output_type) => {
                     // Check that the type of output is defined.
@@ -184,9 +187,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                     if matches!(&output_type.type_, Type::Tuple(_)) {
                         self.emit_err(TypeCheckerError::nested_tuple_type(output_type.span))
                     }
-                    self.assert_valid_declaration_or_parameter_type(&output_type.type_, output_type.span);
-
                     // Check that the mode of the output is valid.
+                    // For functions, only public and private outputs are allowed
                     if output_type.mode == Mode::Const {
                         self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(output_type.span));
                     }
@@ -195,9 +197,6 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         });
 
         self.visit_block(&function.block);
-
-        // Check that the return type is defined. Note that the component types are already checked.
-        self.assert_type_is_defined(&function.output_type, function.span);
 
         // If the function has a return type, then check that it has a return.
         if function.output_type != Type::Unit && !self.has_return {
@@ -250,7 +249,6 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 if input_var.mode() == Mode::Const || input_var.mode() == Mode::Private {
                     self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
                 }
-
                 // Check for conflicting variable names.
                 if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
                     input_var.identifier().name,
@@ -265,6 +263,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             });
 
             // Type check the function's return type.
+            // Note that checking that each of the component types are defined is sufficient to guarantee that the `output_type` is defined.
             finalize.output.iter().for_each(|output_type| {
                 // Check that the type of output is defined.
                 self.assert_type_is_defined(&output_type.type_(), output_type.span());
@@ -272,14 +271,16 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 if matches!(&output_type.type_(), Type::Tuple(_)) {
                     self.emit_err(TypeCheckerError::nested_tuple_type(output_type.span()))
                 }
-
                 // Check that the mode of the output is valid.
-                if output_type.mode() == Mode::Const {
-                    self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(output_type.span()));
+                // Note that a finalize block can have only public outputs.
+                if matches!(output_type.mode(), Mode::Const | Mode::Private) {
+                    self.emit_err(TypeCheckerError::finalize_output_mode_must_be_public(
+                        output_type.span(),
+                    ));
                 }
             });
 
-            // TODO: Remove when this restriction is removed.
+            // TODO: Remove if this restriction is relaxed at Aleo instructions level.
             // Check that the finalize block is not empty.
             if finalize.block.statements.is_empty() {
                 self.emit_err(TypeCheckerError::finalize_block_must_not_be_empty(finalize.span));

@@ -415,22 +415,6 @@ impl<'a> TypeChecker<'a> {
             span,
         )
     }
-
-    // TODO: Fuse with defined check
-    // TODO: Do we need to check that an identifier does not correspond to a mapping type?
-    /// Emits an error if the type on the left-hand side of the assignment is invalid.
-    pub(crate) fn assert_valid_declaration_or_parameter_type(&self, type_: &Type, span: Span) {
-        match type_ {
-            // If the type is an empty tuple, return an error.
-            Type::Unit => self.emit_err(TypeCheckerError::unit_tuple(span)),
-            // If the type is a singleton tuple, return an error.
-            Type::Tuple(tuple) if tuple.len() == 1 => self.emit_err(TypeCheckerError::singleton_tuple(span)),
-            // The type can never be a mapping or error type.
-            Type::Mapping(_) | Type::Err => unreachable!(),
-            // Otherwise, the type is valid.
-            _ => (), // Do nothing
-        }
-    }
 }
 
 fn types_to_string(types: &[Type]) -> String {

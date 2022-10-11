@@ -313,6 +313,13 @@ create_messages!(
     }
 
     @formatted
+    finalize_output_mode_must_be_public {
+        args: (),
+        msg: format!("An output of a finalize block must be public."),
+        help: Some("Add a `public` modifier to the output type declaration or remove the visibility modifier entirely.".to_string()),
+    }
+
+    @formatted
     finalize_in_finalize {
         args: (),
         msg: format!("A finalize block cannot contain a finalize statement."),
@@ -467,7 +474,7 @@ create_messages!(
     @formatted
     nested_tuple_type {
         args: (),
-        msg: format!("Nested tuple types are not supported."),
+        msg: format!("A tuple type cannot contain a tuple."),
         help: None,
     }
 
@@ -496,6 +503,20 @@ create_messages!(
     finalize_cannot_take_tuple_as_input {
         args: (),
         msg: format!("A finalize block cannot take in a tuple as input."),
+        help: None,
+    }
+
+    @formatted
+    nested_tuple_expression {
+        args: (),
+        msg: format!("A tuple expression cannot contain another tuple expression."),
+        help: None,
+    }
+
+    @formatted
+    finalize_statement_cannot_contain_tuples {
+        args: (),
+        msg: format!("A finalize statement cannot contain tuple expressions."),
         help: None,
     }
 );
