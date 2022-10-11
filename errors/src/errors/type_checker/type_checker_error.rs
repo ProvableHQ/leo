@@ -17,6 +17,8 @@
 use crate::create_messages;
 use std::fmt::{Debug, Display};
 
+// TODO: Consolidate errors.
+
 create_messages!(
     /// InputError enum that represents all the errors for the inputs part of `leo-ast` crate.
     TypeCheckerError,
@@ -442,9 +444,9 @@ create_messages!(
     }
 
     @formatted
-    nested_tuple {
+    nested_tuple_type {
         args: (),
-        msg: format!("Nested tuples are not supported."),
+        msg: format!("Nested tuple types are not supported."),
         help: None,
     }
 
@@ -459,6 +461,20 @@ create_messages!(
     record_cannot_contain_tuple {
         args: (),
         msg: format!("A record cannot contain a tuple."),
+        help: None,
+    }
+
+    @formatted
+    function_cannot_take_tuple_as_input {
+        args: (),
+        msg: format!("A function cannot take in tuples as input."),
+        help: None,
+    }
+
+    @formatted
+    finalize_cannot_take_tuple_as_input {
+        args: (),
+        msg: format!("A finalize block cannot take in a tuple as input."),
         help: None,
     }
 );
