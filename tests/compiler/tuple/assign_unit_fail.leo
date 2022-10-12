@@ -4,17 +4,18 @@ expectation: Fail
 */
 
 // TODO: Compilation should pass, but warnings should be emitted.
+program test.aleo {
 
-@program
-function foo(a: u8) -> u8 {
-    let b: () = ();
-    return a + a;
+    transition foo(a: u8) -> u8 {
+        let b: () = ();
+        return a + a;
+    }
+
+    transition baz(a: u8) -> u8 {
+        let b: () = bar();
+        return a + a;
+    }
+
+    transition bar(a: u8) -> () {}
 }
 
-@program
-function baz(a: u8) -> u8 {
-    let b: () = bar();
-    return a + a;
-}
-
-function bar(a: u8) -> () {}

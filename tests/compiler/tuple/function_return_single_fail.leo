@@ -6,6 +6,7 @@ input_file:
 */
 
 program test.aleo {    
-    function main(a: bool, b: bool) -> (bool) {
+    transition main(a: bool, b: bool) -> (bool) {
         return (a);
-    }}
+    }
+}
