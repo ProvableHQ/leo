@@ -45,6 +45,7 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_identifier(&mut self, input: &'a Identifier) -> (String, String) {
+        println!("Codegen|visit_identifier|input: {:?}", input);
         (self.variable_mapping.get(&input.name).unwrap().clone(), String::new())
     }
 

@@ -376,11 +376,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         self.has_return = true;
 
-        // Check that the return expression is not a tuple.
-        if matches!(&input.expression, Expression::Tuple(_)) {
-            self.emit_err(TypeCheckerError::finalize_statement_cannot_contain_tuples(
-                input.expression.span(),
-            ))
+        // Check that the return expression is not a nested tuple.
+        if let Expression::Tuple(TupleExpression { elements, .. }) = &input.expression {
+            for element in elements {
+                if matches!(element, Expression::Tuple(_)) {
+                    self.emit_err(TypeCheckerError::nested_tuple_expression(element.span()));
+                }
+            }
         }
 
         self.visit_expression(&input.expression, return_type);

@@ -80,8 +80,12 @@ impl ParserContext<'_> {
             Ok((Type::Identifier(ident), ident.span))
         } else if self.token.token == Token::LeftParen {
             let (types, _, span) = self.parse_paren_comma_list(|p| p.parse_type().map(Some))?;
-
-            Ok((Type::Tuple(Tuple(types.into_iter().map(|t| t.0).collect())), span))
+            match types.len() {
+                // If the parenthetical block is empty, e.g. `()` or `( )`, it should be parsed into `Unit` types.
+                0 => Ok((Type::Unit, span)),
+                // Otherwise, parse it into a `Tuple` type.
+                _ => Ok((Type::Tuple(Tuple(types.into_iter().map(|t| t.0).collect())), span)),
+            }
         } else {
             self.parse_primitive_type()
         }
