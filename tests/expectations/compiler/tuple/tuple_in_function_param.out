@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372055]: A function cannot take in tuples as input.\n    --> compiler-test:4:20\n     |\n   4 |     transition foo(a: (u8, u16)) -> (u8, u16) {\n     |                    ^\nError [ETYC0372055]: A function cannot take in tuples as input.\n    --> compiler-test:10:20\n     |\n  10 |     transition bar(a: (u8, (u8, u8))) -> (u8, (u8, u8)) {\n     |                    ^\nError [ETYC0372052]: A tuple type cannot contain a tuple.\n    --> compiler-test:10:47\n     |\n  10 |     transition bar(a: (u8, (u8, u8))) -> (u8, (u8, u8)) {\n     |                                               ^^^^^^^^\n"
