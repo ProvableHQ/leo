@@ -198,10 +198,16 @@ fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>, handler: &Handler) -> R
     let st = parsed.loop_unrolling_pass(st)?;
     let assigner = parsed.static_single_assignment_pass(&st)?;
 
+    println!("Before ssa:\n{:?}", parsed.ast);
+
     parsed.flattening_pass(&st, assigner)?;
+
+    println!("Before codegen:\n{:?}", parsed.ast);
 
     // Compile Leo program to bytecode.
     let bytecode = CodeGenerator::do_pass((&parsed.ast, handler))?;
+
+    println!("After codegen:\n{:?}", bytecode);
 
     Ok(bytecode)
 }
