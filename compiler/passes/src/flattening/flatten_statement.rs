@@ -38,7 +38,16 @@ impl StatementReconstructor for Flattener<'_> {
             Expression::Ternary(ternary) => self.reconstruct_ternary(ternary),
             // If the rhs is a tuple, add it to `self.tuples`.
             Expression::Tuple(tuple) => {
-                self.tuples.insert(lhs.name, tuple.elements);
+                self.tuples.insert(lhs.name, tuple);
+                // Tuple assignments are removed from the AST.
+                return (Statement::dummy(Default::default()), Default::default());
+            }
+            // If the rhs is an identifier that maps to a tuple, add it to `self.tuples`.
+            Expression::Identifier(identifier) if self.tuples.contains_key(&identifier.name) => {
+                // Lookup the entry in `self.tuples` and add it for the lhs of the assignment.
+                // Note that the `unwrap` is safe since the match arm checks that the entry exists.
+                let tuple = self.tuples.get(&identifier.name).unwrap().clone();
+                self.tuples.insert(lhs.name, tuple);
                 // Tuple assignments are removed from the AST.
                 return (Statement::dummy(Default::default()), Default::default());
             }
@@ -150,8 +159,17 @@ impl StatementReconstructor for Flattener<'_> {
         let guard = self.construct_guard();
 
         // Add it to `self.returns`.
-        // Note that `input.expression` is not rewritten.
-        self.returns.push((guard, input.expression));
+        // Note that SSA guarantees that `input.expression` is either a literal or identifier.
+        match input.expression {
+            // If the input is an identifier that maps to a tuple, add the corresponding tuple to `self.returns`
+            Expression::Identifier(identifier) if self.tuples.contains_key(&identifier.name) => {
+                // Note that the `unwrap` is safe since the match arm checks that the entry exists in `self.tuples`.
+                let tuple = self.tuples.get(&identifier.name).unwrap().clone();
+                self.returns.push((guard, Expression::Tuple(tuple)))
+            }
+            // Otherwise, add the expression directly.
+            _ => self.returns.push((guard, input.expression)),
+        };
 
         (Statement::dummy(Default::default()), Default::default())
     }
