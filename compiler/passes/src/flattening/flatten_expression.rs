@@ -61,7 +61,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                         Expression::Identifier(identifier) => {
                             // Note that this unwrap is safe since TYC guarantees that all tuples are declared and indices are valid.
                             // In this pass, we add all tuple assignments to `self.tuples`.
-                            self.tuples.get(&identifier.name).unwrap()[tuple.index.to_usize()].clone()
+                            self.tuples.get(&identifier.name).unwrap().elements[tuple.index.to_usize()].clone()
                         }
                         _ => unreachable!("SSA guarantees that subexpressions are identifiers or literals."),
                     }

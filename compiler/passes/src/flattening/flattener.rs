@@ -18,7 +18,7 @@ use crate::{Assigner, SymbolTable};
 
 use leo_ast::{
     AccessExpression, BinaryExpression, BinaryOperation, Block, Expression, ExpressionReconstructor, Identifier,
-    Member, ReturnStatement, Statement, TernaryExpression, Type,
+    Member, ReturnStatement, Statement, TernaryExpression, TupleExpression, Type,
 };
 use leo_span::Symbol;
 
@@ -44,7 +44,7 @@ pub struct Flattener<'a> {
     /// Note that type checking guarantees that there is at most one finalize in a basic block.
     pub(crate) finalizes: Vec<Vec<(Option<Expression>, Expression)>>,
     /// A mapping between variables and flattened tuple expressions.
-    pub(crate) tuples: IndexMap<Symbol, Vec<Expression>>,
+    pub(crate) tuples: IndexMap<Symbol, TupleExpression>,
 }
 
 impl<'a> Flattener<'a> {
