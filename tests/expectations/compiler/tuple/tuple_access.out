@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372058]: A function cannot take in tuples as input.\n    --> compiler-test:5:20\n     |\n   5 |     transition baz(a: (u8, u8)) -> u8 {\n     |                    ^\n"
