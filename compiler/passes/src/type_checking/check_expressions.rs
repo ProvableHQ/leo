@@ -506,9 +506,12 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     .iter()
                     .find(|member| member.identifier.name == identifier.name)
                 {
-                    if let Some(expr) = &actual.expression {
-                        self.visit_expression(expr, &Some(type_.clone()));
-                    }
+                    match &actual.expression {
+                        // If `expression` is None, then the member uses the identifier shorthand, e.g. `Foo { a }`
+                        None => self.visit_identifier(&actual.identifier, &Some(type_.clone())),
+                        // Otherwise, visit the associated expression.
+                        Some(expr) => self.visit_expression(expr, &Some(type_.clone())),
+                    };
                 } else {
                     self.emit_err(TypeCheckerError::missing_struct_member(
                         struct_.identifier,
