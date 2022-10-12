@@ -1,14 +1,14 @@
 /*
 namespace: Compile
-expectation: Pass
+expectation: Fail
 */
 
 program test.aleo {
-    circuit A {
+    struct A {
         mem: (u8, u16)
     }
 
-    circuit B {
+    struct B {
         mems: (A, A)
     }
 
