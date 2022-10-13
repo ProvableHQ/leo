@@ -51,8 +51,7 @@ impl Package {
 
     /// Returns `true` if the package name is valid.
     ///
-    /// Package names must be composed solely of ASCII alphanumeric characters,
-    /// and may be word-separated by a single underscore '_'.
+    /// Package names can only contain ASCII alphanumeric characters and underscores.
     pub fn is_package_name_valid(package_name: &str) -> bool {
         // Check that the package name is nonempty.
         if package_name.is_empty() {
@@ -62,7 +61,7 @@ impl Package {
 
         let first = package_name.chars().next().unwrap();
 
-        // Check that the first character is not a dash.
+        // Check that the first character is not an underscore.
         if first == '_' {
             tracing::error!("Project names cannot begin with an underscore");
             return false;
