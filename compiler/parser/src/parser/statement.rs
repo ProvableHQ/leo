@@ -116,8 +116,13 @@ impl ParserContext<'_> {
     /// Returns a [`ReturnStatement`] AST node if the next tokens represent a return statement.
     fn parse_return_statement(&mut self) -> Result<ReturnStatement> {
         let start = self.expect(&Token::Return)?;
-        let expression = self.parse_expression()?;
-        self.expect(&Token::Semicolon)?;
+        let expression = match self.token.token {
+            Token::Semicolon => {
+                let span = self.expect(&Token::Semicolon)?;
+                Expression::Unit(UnitExpression { span })
+            }
+            _ => self.parse_expression()?,
+        };
         let span = start + expression.span();
         Ok(ReturnStatement { span, expression })
     }
