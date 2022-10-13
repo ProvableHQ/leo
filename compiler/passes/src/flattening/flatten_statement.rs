@@ -28,6 +28,7 @@ impl StatementReconstructor for Flattener<'_> {
     /// Note that new statements are only produced if the right hand side is a ternary expression over structs.
     /// Otherwise, the statement is returned as is.
     fn reconstruct_assign(&mut self, assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
+        println!("Reconstructing assign: {:?}", assign);
         let lhs = match assign.place {
             Expression::Identifier(identifier) => identifier,
             _ => unreachable!("`AssignStatement`s can only have `Identifier`s on the left hand side."),
@@ -52,7 +53,7 @@ impl StatementReconstructor for Flattener<'_> {
                 return (Statement::dummy(Default::default()), Default::default());
             }
             // Otherwise return the original statement.
-            value => (value, Default::default()),
+            value => self.reconstruct_expression(value),
         };
 
         // Update the `self.structs` if the rhs is a struct.
