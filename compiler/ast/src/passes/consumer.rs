@@ -35,6 +35,7 @@ pub trait ExpressionConsumer {
             Expression::Ternary(ternary) => self.consume_ternary(ternary),
             Expression::Tuple(tuple) => self.consume_tuple(tuple),
             Expression::Unary(unary) => self.consume_unary(unary),
+            Expression::Unit(unit) => self.consume_unit(unit),
         }
     }
 
@@ -59,6 +60,10 @@ pub trait ExpressionConsumer {
     fn consume_tuple(&mut self, _input: TupleExpression) -> Self::Output;
 
     fn consume_unary(&mut self, _input: UnaryExpression) -> Self::Output;
+
+    fn consume_unit(&mut self, _input: UnitExpression) -> Self::Output {
+        unreachable!("`UnitExpression`s should not be in the AST at this phase of compilation.")
+    }
 }
 
 /// A Consumer trait for statements in the AST.
