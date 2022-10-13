@@ -1,6 +1,6 @@
 /*
 namespace: Compile
-expectation: Fail
+expectation: Pass
 input_file:
  - inputs/bool_bool.in
 */

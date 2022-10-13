@@ -61,9 +61,7 @@ pub trait ExpressionConsumer {
 
     fn consume_unary(&mut self, _input: UnaryExpression) -> Self::Output;
 
-    fn consume_unit(&mut self, _input: UnitExpression) -> Self::Output {
-        unreachable!("`UnitExpression`s should not be in the AST at this phase of compilation.")
-    }
+    fn consume_unit(&mut self, _input: UnitExpression) -> Self::Output;
 }
 
 /// A Consumer trait for statements in the AST.

@@ -117,12 +117,10 @@ impl ParserContext<'_> {
     fn parse_return_statement(&mut self) -> Result<ReturnStatement> {
         let start = self.expect(&Token::Return)?;
         let expression = match self.token.token {
-            Token::Semicolon => {
-                let span = self.expect(&Token::Semicolon)?;
-                Expression::Unit(UnitExpression { span })
-            }
+            Token::Semicolon => Expression::Unit(UnitExpression { span: self.token.span }),
             _ => self.parse_expression()?,
         };
+        self.expect(&Token::Semicolon)?;
         let span = start + expression.span();
         Ok(ReturnStatement { span, expression })
     }

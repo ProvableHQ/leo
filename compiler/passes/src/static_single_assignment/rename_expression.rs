@@ -20,7 +20,7 @@ use indexmap::IndexMap;
 use leo_ast::{
     AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, Expression, ExpressionConsumer, Identifier,
     Literal, MemberAccess, Statement, Struct, StructExpression, StructVariableInitializer, TernaryExpression,
-    TupleAccess, TupleExpression, UnaryExpression,
+    TupleAccess, TupleExpression, UnaryExpression, UnitExpression,
 };
 use leo_span::sym;
 
@@ -292,5 +292,9 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
+    }
+
+    fn consume_unit(&mut self, input: UnitExpression) -> Self::Output {
+        (Expression::Unit(input), Default::default())
     }
 }
