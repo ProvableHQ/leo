@@ -36,6 +36,7 @@ pub trait ExpressionReconstructor {
             Expression::Ternary(ternary) => self.reconstruct_ternary(ternary),
             Expression::Tuple(tuple) => self.reconstruct_tuple(tuple),
             Expression::Unary(unary) => self.reconstruct_unary(unary),
+            Expression::Unit(unit) => self.reconstruct_unit(unit),
         }
     }
 
@@ -149,6 +150,10 @@ pub trait ExpressionReconstructor {
             }),
             Default::default(),
         )
+    }
+
+    fn reconstruct_unit(&mut self, input: UnitExpression) -> (Expression, Self::AdditionalOutput) {
+        (Expression::Unit(input), Default::default())
     }
 }
 

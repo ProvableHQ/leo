@@ -44,6 +44,9 @@ pub use tuple::*;
 mod unary;
 pub use unary::*;
 
+mod unit;
+pub use unit::*;
+
 mod literal;
 pub use literal::*;
 
@@ -71,7 +74,8 @@ pub enum Expression {
     Tuple(TupleExpression),
     /// An unary expression.
     Unary(UnaryExpression),
-    // TODO: Consider Unit expressions.
+    /// A unit expression e.g. `()`
+    Unit(UnitExpression),
 }
 
 impl Node for Expression {
@@ -88,6 +92,7 @@ impl Node for Expression {
             Ternary(n) => n.span(),
             Tuple(n) => n.span(),
             Unary(n) => n.span(),
+            Unit(n) => n.span(),
         }
     }
 
@@ -104,6 +109,7 @@ impl Node for Expression {
             Ternary(n) => n.set_span(span),
             Tuple(n) => n.set_span(span),
             Unary(n) => n.set_span(span),
+            Unit(n) => n.set_span(span),
         }
     }
 }
@@ -122,6 +128,7 @@ impl fmt::Display for Expression {
             Ternary(n) => n.fmt(f),
             Tuple(n) => n.fmt(f),
             Unary(n) => n.fmt(f),
+            Unit(n) => n.fmt(f),
         }
     }
 }

@@ -63,7 +63,8 @@ impl ExpressionReconstructor for Flattener<'_> {
                         Expression::Identifier(identifier) => {
                             // Note that this unwrap is safe since TYC guarantees that all tuples are declared and indices are valid.
                             // In this pass, we add all tuple assignments to `self.tuples`.
-                            let res = self.tuples.get(&identifier.name).unwrap().elements[tuple.index.to_usize()].clone();
+                            let res =
+                                self.tuples.get(&identifier.name).unwrap().elements[tuple.index.to_usize()].clone();
                             println!("Res: {:?}", res);
                             res
                         }

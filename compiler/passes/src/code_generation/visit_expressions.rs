@@ -18,7 +18,7 @@ use crate::CodeGenerator;
 use leo_ast::{
     AccessExpression, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, ErrExpression, Expression,
     Identifier, Literal, MemberAccess, StructExpression, TernaryExpression, TupleExpression, Type, UnaryExpression,
-    UnaryOperation,
+    UnaryOperation, UnitExpression,
 };
 use leo_span::sym;
 
@@ -41,6 +41,7 @@ impl<'a> CodeGenerator<'a> {
             Expression::Ternary(expr) => self.visit_ternary(expr),
             Expression::Tuple(expr) => self.visit_tuple(expr),
             Expression::Unary(expr) => self.visit_unary(expr),
+            Expression::Unit(expr) => self.visit_unit(expr),
         }
     }
 
@@ -314,5 +315,9 @@ impl<'a> CodeGenerator<'a> {
 
         // CAUTION: does not return the destination_register.
         (tuple_elements.join("\n"), instructions)
+    }
+
+    fn visit_unit(&mut self, _input: &'a UnitExpression) -> (String, String) {
+        unreachable!("`UnitExpression`s should not exist in the AST at this phase of compilation.")
     }
 }

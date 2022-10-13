@@ -37,6 +37,7 @@ pub trait ExpressionVisitor<'a> {
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
             Expression::Unary(unary) => self.visit_unary(unary, additional),
+            Expression::Unit(unit) => self.visit_unit(unit, additional),
         }
     }
 
@@ -104,6 +105,10 @@ pub trait ExpressionVisitor<'a> {
 
     fn visit_unary(&mut self, input: &'a UnaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.receiver, additional);
+        Default::default()
+    }
+
+    fn visit_unit(&mut self, _input: &'a UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
 }
