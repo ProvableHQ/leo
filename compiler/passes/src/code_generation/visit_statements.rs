@@ -44,7 +44,7 @@ impl<'a> CodeGenerator<'a> {
     fn visit_return(&mut self, input: &'a ReturnStatement) -> String {
         match input.expression {
             // Skip empty return statements.
-            Expression::Tuple(ref tuple) if tuple.elements.is_empty() => String::new(),
+            Expression::Unit(_) => String::new(),
             _ => {
                 let (operand, mut expression_instructions) = self.visit_expression(&input.expression);
                 // Get the output type of the function.

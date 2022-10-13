@@ -2,4 +2,9 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - "Error [ETYC0372058]: A function cannot take in tuples as input.\n    --> compiler-test:5:20\n     |\n   5 |     transition baz(a: (u8, u8)) -> u8 {\n     |                    ^\n"
+  - output:
+      - initial_input_ast: no input
+    initial_ast: a81aefbb2dc5b4c4bf25415c244be3c753794f27878087e513caf99a62eb2b6e
+    unrolled_ast: a81aefbb2dc5b4c4bf25415c244be3c753794f27878087e513caf99a62eb2b6e
+    ssa_ast: 3ef50f2cfca9dd0d0af10810aa4f7767f3adf8fd4c3f54f6d1c503901510a6b7
+    flattened_ast: 50f5304628172ecd7e6d19c53f4fc57a4df3f4e76df18152804f34f42ac81e7d
