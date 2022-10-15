@@ -108,7 +108,6 @@ pub enum Token {
     Record,
 
     // Regular Keywords
-    Async,
     Circuit,
     Console,
     // Const variable and a const function.
@@ -133,6 +132,7 @@ pub enum Token {
     SelfLower,
     Static,
     Struct,
+    Then,
     Transition,
     // For imports.
     Leo,
@@ -147,7 +147,6 @@ pub enum Token {
 /// because true and false are also boolean literals, which are different tokens from keywords
 pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Address,
-    Token::Async,
     Token::Bool,
     Token::Console,
     Token::Const,
@@ -180,6 +179,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Static,
     Token::String,
     Token::Struct,
+    Token::Then,
     Token::Transition,
     Token::True,
     Token::U8,
@@ -199,7 +199,6 @@ impl Token {
     pub fn keyword_to_symbol(&self) -> Option<Symbol> {
         Some(match self {
             Token::Address => sym::address,
-            Token::Async => sym::Async,
             Token::Bool => sym::bool,
             Token::Console => sym::console,
             Token::Const => sym::Const,
@@ -233,6 +232,7 @@ impl Token {
             Token::Static => sym::Static,
             Token::String => sym::string,
             Token::Struct => sym::Struct,
+            Token::Then => sym::then,
             Token::Transition => sym::transition,
             Token::True => sym::True,
             Token::U8 => sym::u8,
@@ -329,7 +329,6 @@ impl fmt::Display for Token {
             U128 => write!(f, "u128"),
             Record => write!(f, "record"),
 
-            Async => write!(f, "async"),
             Circuit => write!(f, "circuit"),
             Console => write!(f, "console"),
             Const => write!(f, "const"),
@@ -351,6 +350,7 @@ impl fmt::Display for Token {
             SelfLower => write!(f, "self"),
             Static => write!(f, "static"),
             Struct => write!(f, "struct"),
+            Then => write!(f, "then"),
             Transition => write!(f, "transition"),
             Leo => write!(f, "leo"),
             Eof => write!(f, "<eof>"),

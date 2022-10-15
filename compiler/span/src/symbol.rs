@@ -181,7 +181,6 @@ symbols! {
     // general keywords
     AlwaysConst,
     assert,
-    Async: "async",
     caller,
     circuit,
     Class: "class",
@@ -215,6 +214,7 @@ symbols! {
     std,
     Struct: "struct",
     test,
+    then,
     transition,
     Type: "type",
 
