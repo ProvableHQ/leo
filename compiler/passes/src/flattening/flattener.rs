@@ -38,8 +38,8 @@ pub struct Flattener<'a> {
     /// Note that returns are inserted in the order they are encountered during a pre-order traversal of the AST.
     /// Note that type checking guarantees that there is at most one return in a basic block.
     pub(crate) returns: Vec<(Option<Expression>, Expression)>,
-    /// A list containing tuples of guards and expressions associated with `FinalizeStatement`s.
-    /// A guard is an expression that evaluates to true on the execution path of the `FinalizeStatement`.
+    /// A list containing tuples of guards and expressions associated with finalize arguments.
+    /// A guard is an expression that evaluates to true on the execution path of the finalize argument.
     /// Note that finalizes are inserted in the order they are encountered during a pre-order traversal of the AST.
     /// Note that type checking guarantees that there is at most one finalize in a basic block.
     pub(crate) finalizes: Vec<Vec<(Option<Expression>, Expression)>>,
@@ -201,7 +201,7 @@ impl<'a> Flattener<'a> {
         if !returns.is_empty() {
             let (expression, stmts) = self.fold_guards("ret$", returns);
 
-            // TODO: Flatten tuples in the return statements.
+            // TODO: Flatten tuples in the return statements once they are allowed.
 
             // Add all of the accumulated statements to the end of the block.
             block.statements.extend(stmts);

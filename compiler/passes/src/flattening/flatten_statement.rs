@@ -19,9 +19,9 @@ use itertools::Itertools;
 use std::borrow::Borrow;
 
 use leo_ast::{
-    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement,
-    DefinitionStatement, Expression, ExpressionReconstructor, FinalizeStatement, Identifier, IterationStatement, Node,
-    ReturnStatement, Statement, StatementReconstructor, TupleExpression, Type, UnaryExpression, UnaryOperation,
+    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, DefinitionStatement, Expression,
+    ExpressionReconstructor, IterationStatement, Node, ReturnStatement, Statement, StatementReconstructor,
+    UnaryExpression, UnaryOperation,
 };
 
 impl StatementReconstructor for Flattener<'_> {
@@ -367,23 +367,6 @@ impl StatementReconstructor for Flattener<'_> {
         unreachable!("`DefinitionStatement`s should not exist in the AST at this phase of compilation.")
     }
 
-    /// Replaces a finalize statement with an empty block statement.
-    /// Stores the arguments to the finalize statement, which are later folded into a single finalize statement at the end of the function.
-    fn reconstruct_finalize(&mut self, input: FinalizeStatement) -> (Statement, Self::AdditionalOutput) {
-        // Construct the associated guard.
-        let guard = self.construct_guard();
-
-        // For each finalize argument, add it and its associated guard to the appropriate list of finalize arguments.
-        // Note that type checking guarantees that the number of arguments in a finalize statement is equal to the number of arguments in to the finalize block.
-        for (i, argument) in input.arguments.into_iter().enumerate() {
-            // Note that the argument is not reconstructed.
-            // Note that this unwrap is safe since we initialize `self.finalizes` with a number of vectors equal to the number of finalize arguments.
-            self.finalizes.get_mut(i).unwrap().push((guard.clone(), argument));
-        }
-
-        (Statement::dummy(Default::default()), Default::default())
-    }
-
     // TODO: Error message requesting the user to enable loop-unrolling.
     fn reconstruct_iteration(&mut self, _input: IterationStatement) -> (Statement, Self::AdditionalOutput) {
         unreachable!("`IterationStatement`s should not be in the AST at this phase of compilation.");
@@ -402,11 +385,21 @@ impl StatementReconstructor for Flattener<'_> {
             Expression::Identifier(identifier) if self.tuples.contains_key(&identifier.name) => {
                 // Note that the `unwrap` is safe since the match arm checks that the entry exists in `self.tuples`.
                 let tuple = self.tuples.get(&identifier.name).unwrap().clone();
-                self.returns.push((guard, Expression::Tuple(tuple)))
+                self.returns.push((guard.clone(), Expression::Tuple(tuple)))
             }
             // Otherwise, add the expression directly.
-            _ => self.returns.push((guard, input.expression)),
+            _ => self.returns.push((guard.clone(), input.expression)),
         };
+
+        // Add each finalize argument to the list of finalize arguments.
+        if let Some(arguments) = input.finalize_args {
+            // For each finalize argument, add it and its associated guard to the appropriate list of finalize arguments.
+            // Note that type checking guarantees that the number of arguments in a finalize statement is equal to the number of arguments in to the finalize block.
+            for (i, argument) in arguments.into_iter().enumerate() {
+                // Note that this unwrap is safe since we initialize `self.finalizes` with a number of vectors equal to the number of finalize arguments.
+                self.finalizes.get_mut(i).unwrap().push((guard.clone(), argument));
+            }
+        }
 
         (Statement::dummy(Default::default()), Default::default())
     }
