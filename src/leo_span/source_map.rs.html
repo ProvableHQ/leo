@@ -866,7 +866,7 @@
     <span class="kw">let</span> <span class="ident">src_bytes</span> <span class="op">=</span> <span class="ident">src</span>.<span class="ident">as_bytes</span>();
 
     <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">src</span>.<span class="ident">len</span>() {
-        <span class="kw">let</span> <span class="ident">i_usize</span> <span class="op">=</span> <span class="ident">i</span> <span class="kw">as</span> <span class="ident">usize</span>;
+        <span class="kw">let</span> <span class="ident">i_usize</span> <span class="op">=</span> <span class="ident">i</span>;
         <span class="kw">let</span> <span class="ident">byte</span> <span class="op">=</span> <span class="ident">src_bytes</span>[<span class="ident">i_usize</span>];
 
         <span class="comment">// How much to advance to get to the next UTF-8 char in the string.</span>

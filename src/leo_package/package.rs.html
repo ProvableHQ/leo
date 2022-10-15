@@ -201,26 +201,6 @@
 <span id="201">201</span>
 <span id="202">202</span>
 <span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -274,9 +254,7 @@
 
     <span class="doccomment">/// Returns `true` if the package name is valid.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Package names must be lowercase and composed solely</span>
-    <span class="doccomment">/// of ASCII alphanumeric characters, and may be word-separated</span>
-    <span class="doccomment">/// by a single dash &#39;-&#39;.</span>
+    <span class="doccomment">/// Package names can only contain ASCII alphanumeric characters and underscores.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_package_name_valid</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
         <span class="comment">// Check that the package name is nonempty.</span>
         <span class="kw">if</span> <span class="ident">package_name</span>.<span class="ident">is_empty</span>() {
@@ -284,47 +262,27 @@
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">previous</span> <span class="op">=</span> <span class="ident">package_name</span>.<span class="ident">chars</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">first</span> <span class="op">=</span> <span class="ident">package_name</span>.<span class="ident">chars</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>();
 
-        <span class="comment">// Check that the first character is not a dash.</span>
-        <span class="kw">if</span> <span class="ident">previous</span> <span class="op">==</span> <span class="string">&#39;-&#39;</span> {
-            <span class="macro">tracing::error!</span>(<span class="string">&quot;Project names cannot begin with a dash&quot;</span>);
+        <span class="comment">// Check that the first character is not an underscore.</span>
+        <span class="kw">if</span> <span class="ident">first</span> <span class="op">==</span> <span class="string">&#39;_&#39;</span> {
+            <span class="macro">tracing::error!</span>(<span class="string">&quot;Project names cannot begin with an underscore&quot;</span>);
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
 
         <span class="comment">// Check that the first character is not a number.</span>
-        <span class="kw">if</span> <span class="ident">previous</span>.<span class="ident">is_numeric</span>() {
+        <span class="kw">if</span> <span class="ident">first</span>.<span class="ident">is_numeric</span>() {
             <span class="macro">tracing::error!</span>(<span class="string">&quot;Project names cannot begin with a number&quot;</span>);
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
 
         <span class="comment">// Iterate and check that the package name is valid.</span>
         <span class="kw">for</span> <span class="ident">current</span> <span class="kw">in</span> <span class="ident">package_name</span>.<span class="ident">chars</span>() {
-            <span class="comment">// Check that the package name is lowercase.</span>
-            <span class="kw">if</span> <span class="ident">current</span>.<span class="ident">is_ascii_uppercase</span>() <span class="op">&amp;&amp;</span> <span class="ident">current</span> <span class="op">!</span><span class="op">=</span> <span class="string">&#39;-&#39;</span> {
-                <span class="macro">tracing::error!</span>(<span class="string">&quot;Project names must be all lowercase&quot;</span>);
+            <span class="comment">// Check that the package name contains only ASCII alphanumeric or underscores.</span>
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">current</span>.<span class="ident">is_ascii_alphanumeric</span>() <span class="op">&amp;&amp;</span> <span class="ident">current</span> <span class="op">!</span><span class="op">=</span> <span class="string">&#39;_&#39;</span> {
+                <span class="macro">tracing::error!</span>(<span class="string">&quot;Project names must can only contain ASCII alphanumeric characters and underscores.&quot;</span>);
                 <span class="kw">return</span> <span class="bool-val">false</span>;
             }
-
-            <span class="comment">// Check that the package name is only ASCII alphanumeric or a dash.</span>
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">current</span>.<span class="ident">is_ascii_alphanumeric</span>() <span class="op">&amp;&amp;</span> <span class="ident">current</span> <span class="op">!</span><span class="op">=</span> <span class="string">&#39;-&#39;</span> {
-                <span class="macro">tracing::error!</span>(<span class="string">&quot;Project names must be ASCII alphanumeric, and may be word-separated with a dash&quot;</span>);
-                <span class="kw">return</span> <span class="bool-val">false</span>;
-            }
-
-            <span class="comment">// If the previous character was a dash, check that the current character is not a dash.</span>
-            <span class="kw">if</span> <span class="ident">previous</span> <span class="op">==</span> <span class="string">&#39;-&#39;</span> <span class="op">&amp;&amp;</span> <span class="ident">current</span> <span class="op">==</span> <span class="string">&#39;-&#39;</span> {
-                <span class="macro">tracing::error!</span>(<span class="string">&quot;Project names may only be word-separated by one dash&quot;</span>);
-                <span class="kw">return</span> <span class="bool-val">false</span>;
-            }
-
-            <span class="ident">previous</span> <span class="op">=</span> <span class="ident">current</span>;
-        }
-
-        <span class="comment">// Check that the last character is not a dash.</span>
-        <span class="kw">if</span> <span class="ident">previous</span> <span class="op">==</span> <span class="string">&#39;-&#39;</span> {
-            <span class="macro">tracing::error!</span>(<span class="string">&quot;Project names cannot end with a dash&quot;</span>);
-            <span class="kw">return</span> <span class="bool-val">false</span>;
         }
 
         <span class="bool-val">true</span>
@@ -425,22 +383,24 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_is_package_name_valid</span>() {
         <span class="macro">assert!</span>(<span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo-bar&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo-bar-baz&quot;</span>));
+        <span class="macro">assert!</span>(<span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo_bar&quot;</span>));
         <span class="macro">assert!</span>(<span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo1&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo-1&quot;</span>));
+        <span class="macro">assert!</span>(<span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo_bar___baz_&quot;</span>));
 
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo-bar&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo-bar-baz&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo-1&quot;</span>));
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;&quot;</span>));
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;-&quot;</span>));
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;-foo&quot;</span>));
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;-foo-&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;_foo&quot;</span>));
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo--bar&quot;</span>));
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo---bar&quot;</span>));
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo--bar--baz&quot;</span>));
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo---bar---baz&quot;</span>));
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo*bar&quot;</span>));
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo,bar&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo_bar&quot;</span>));
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;1-foo&quot;</span>));
     }
 }
