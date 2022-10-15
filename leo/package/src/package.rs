@@ -51,9 +51,7 @@ impl Package {
 
     /// Returns `true` if the package name is valid.
     ///
-    /// Package names must be lowercase and composed solely
-    /// of ASCII alphanumeric characters, and may be word-separated
-    /// by a single dash '-'.
+    /// Package names can only contain ASCII alphanumeric characters and underscores.
     pub fn is_package_name_valid(package_name: &str) -> bool {
         // Check that the package name is nonempty.
         if package_name.is_empty() {
@@ -61,47 +59,27 @@ impl Package {
             return false;
         }
 
-        let mut previous = package_name.chars().next().unwrap();
+        let first = package_name.chars().next().unwrap();
 
-        // Check that the first character is not a dash.
-        if previous == '-' {
-            tracing::error!("Project names cannot begin with a dash");
+        // Check that the first character is not an underscore.
+        if first == '_' {
+            tracing::error!("Project names cannot begin with an underscore");
             return false;
         }
 
         // Check that the first character is not a number.
-        if previous.is_numeric() {
+        if first.is_numeric() {
             tracing::error!("Project names cannot begin with a number");
             return false;
         }
 
         // Iterate and check that the package name is valid.
         for current in package_name.chars() {
-            // Check that the package name is lowercase.
-            if current.is_ascii_uppercase() && current != '-' {
-                tracing::error!("Project names must be all lowercase");
+            // Check that the package name contains only ASCII alphanumeric or underscores.
+            if !current.is_ascii_alphanumeric() && current != '_' {
+                tracing::error!("Project names must can only contain ASCII alphanumeric characters and underscores.");
                 return false;
             }
-
-            // Check that the package name is only ASCII alphanumeric or a dash.
-            if !current.is_ascii_alphanumeric() && current != '-' {
-                tracing::error!("Project names must be ASCII alphanumeric, and may be word-separated with a dash");
-                return false;
-            }
-
-            // If the previous character was a dash, check that the current character is not a dash.
-            if previous == '-' && current == '-' {
-                tracing::error!("Project names may only be word-separated by one dash");
-                return false;
-            }
-
-            previous = current;
-        }
-
-        // Check that the last character is not a dash.
-        if previous == '-' {
-            tracing::error!("Project names cannot end with a dash");
-            return false;
         }
 
         true
@@ -202,22 +180,24 @@ mod tests {
     #[test]
     fn test_is_package_name_valid() {
         assert!(Package::is_package_name_valid("foo"));
-        assert!(Package::is_package_name_valid("foo-bar"));
-        assert!(Package::is_package_name_valid("foo-bar-baz"));
+        assert!(Package::is_package_name_valid("foo_bar"));
         assert!(Package::is_package_name_valid("foo1"));
-        assert!(Package::is_package_name_valid("foo-1"));
+        assert!(Package::is_package_name_valid("foo_bar___baz_"));
 
+        assert!(!Package::is_package_name_valid("foo-bar"));
+        assert!(!Package::is_package_name_valid("foo-bar-baz"));
+        assert!(!Package::is_package_name_valid("foo-1"));
         assert!(!Package::is_package_name_valid(""));
         assert!(!Package::is_package_name_valid("-"));
         assert!(!Package::is_package_name_valid("-foo"));
         assert!(!Package::is_package_name_valid("-foo-"));
+        assert!(!Package::is_package_name_valid("_foo"));
         assert!(!Package::is_package_name_valid("foo--bar"));
         assert!(!Package::is_package_name_valid("foo---bar"));
         assert!(!Package::is_package_name_valid("foo--bar--baz"));
         assert!(!Package::is_package_name_valid("foo---bar---baz"));
         assert!(!Package::is_package_name_valid("foo*bar"));
         assert!(!Package::is_package_name_valid("foo,bar"));
-        assert!(!Package::is_package_name_valid("foo_bar"));
         assert!(!Package::is_package_name_valid("1-foo"));
     }
 }
