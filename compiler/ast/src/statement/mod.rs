@@ -35,9 +35,6 @@ pub use definition::*;
 pub mod expression;
 pub use expression::*;
 
-pub mod finalize;
-pub use finalize::*;
-
 pub mod increment;
 pub use increment::*;
 
@@ -71,8 +68,6 @@ pub enum Statement {
     Definition(DefinitionStatement),
     /// An expression statement
     Expression(ExpressionStatement),
-    /// A finalize statement.
-    Finalize(FinalizeStatement),
     /// An increment statement.
     Increment(IncrementStatement),
     /// A `for` statement.
@@ -101,7 +96,6 @@ impl fmt::Display for Statement {
             Statement::Decrement(x) => x.fmt(f),
             Statement::Definition(x) => x.fmt(f),
             Statement::Expression(x) => x.fmt(f),
-            Statement::Finalize(x) => x.fmt(f),
             Statement::Increment(x) => x.fmt(f),
             Statement::Iteration(x) => x.fmt(f),
             Statement::Return(x) => x.fmt(f),
@@ -120,7 +114,6 @@ impl Node for Statement {
             Decrement(n) => n.span(),
             Definition(n) => n.span(),
             Expression(n) => n.span(),
-            Finalize(n) => n.span(),
             Increment(n) => n.span(),
             Iteration(n) => n.span(),
             Return(n) => n.span(),
@@ -137,7 +130,6 @@ impl Node for Statement {
             Decrement(n) => n.set_span(span),
             Definition(n) => n.set_span(span),
             Expression(n) => n.set_span(span),
-            Finalize(n) => n.set_span(span),
             Increment(n) => n.set_span(span),
             Iteration(n) => n.set_span(span),
             Return(n) => n.set_span(span),

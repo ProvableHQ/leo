@@ -77,7 +77,6 @@ pub trait StatementConsumer {
             Statement::Decrement(stmt) => self.consume_decrement(stmt),
             Statement::Definition(stmt) => self.consume_definition(stmt),
             Statement::Expression(stmt) => self.consume_expression_statement(stmt),
-            Statement::Finalize(stmt) => self.consume_finalize(stmt),
             Statement::Increment(stmt) => self.consume_increment(stmt),
             Statement::Iteration(stmt) => self.consume_iteration(*stmt),
             Statement::Return(stmt) => self.consume_return(stmt),
@@ -97,8 +96,6 @@ pub trait StatementConsumer {
     fn consume_definition(&mut self, input: DefinitionStatement) -> Self::Output;
 
     fn consume_expression_statement(&mut self, input: ExpressionStatement) -> Self::Output;
-
-    fn consume_finalize(&mut self, input: FinalizeStatement) -> Self::Output;
 
     fn consume_increment(&mut self, input: IncrementStatement) -> Self::Output;
 
