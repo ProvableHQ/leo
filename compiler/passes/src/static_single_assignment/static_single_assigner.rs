@@ -14,9 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Assigner, RenameTable};
+use crate::{Assigner, RenameTable, SymbolTable};
 
-pub struct StaticSingleAssigner {
+pub struct StaticSingleAssigner<'a> {
+    /// The `SymbolTable` of the program.
+    pub(crate) symbol_table: &'a SymbolTable,
     /// The `RenameTable` for the current basic block in the AST
     pub(crate) rename_table: RenameTable,
     /// A flag to determine whether or not the traversal is on the left-hand side of a definition or an assignment.
@@ -25,10 +27,11 @@ pub struct StaticSingleAssigner {
     pub(crate) assigner: Assigner,
 }
 
-impl StaticSingleAssigner {
+impl<'a> StaticSingleAssigner<'a> {
     /// Initializes a new `StaticSingleAssigner` with an empty `RenameTable`.
-    pub(crate) fn new() -> Self {
+    pub(crate) fn new(symbol_table: &'a SymbolTable) -> Self {
         Self {
+            symbol_table,
             rename_table: RenameTable::new(None),
             is_lhs: false,
             assigner: Assigner::default(),

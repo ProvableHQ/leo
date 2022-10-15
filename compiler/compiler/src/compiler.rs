@@ -177,8 +177,8 @@ impl<'a> Compiler<'a> {
     }
 
     /// Runs the static single assignment pass.
-    pub fn static_single_assignment_pass(&mut self) -> Result<Assigner> {
-        let (ast, assigner) = StaticSingleAssigner::do_pass(std::mem::take(&mut self.ast))?;
+    pub fn static_single_assignment_pass(&mut self, symbol_table: &SymbolTable) -> Result<Assigner> {
+        let (ast, assigner) = StaticSingleAssigner::do_pass((std::mem::take(&mut self.ast), symbol_table))?;
         self.ast = ast;
 
         if self.output_options.ssa_ast {
@@ -208,7 +208,7 @@ impl<'a> Compiler<'a> {
         let st = self.loop_unrolling_pass(st)?;
 
         // TODO: Make this pass optional.
-        let assigner = self.static_single_assignment_pass()?;
+        let assigner = self.static_single_assignment_pass(&st)?;
 
         self.flattening_pass(&st, assigner)?;
 

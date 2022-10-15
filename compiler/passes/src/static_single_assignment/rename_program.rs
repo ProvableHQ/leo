@@ -17,11 +17,46 @@
 use crate::StaticSingleAssigner;
 
 use leo_ast::{
-    Block, Finalize, Function, FunctionConsumer, Program, ProgramConsumer, ProgramScope, ProgramScopeConsumer,
-    StatementConsumer,
+    Block, Finalize, Function, FunctionConsumer, Member, Program, ProgramConsumer, ProgramScope, ProgramScopeConsumer,
+    StatementConsumer, Struct, StructConsumer,
 };
+use leo_span::{sym, Symbol};
 
-impl FunctionConsumer for StaticSingleAssigner {
+use indexmap::IndexMap;
+
+impl StructConsumer for StaticSingleAssigner<'_> {
+    type Output = Struct;
+
+    /// Reconstructs records in the program, ordering its fields such that `owner` and `gates` are the first and second fields, respectively.
+    fn consume_struct(&mut self, struct_: Struct) -> Self::Output {
+        match struct_.is_record {
+            false => struct_,
+            true => {
+                let mut members = Vec::with_capacity(struct_.members.len());
+                let mut member_map: IndexMap<Symbol, Member> = struct_
+                    .members
+                    .into_iter()
+                    .map(|member| (member.identifier.name, member))
+                    .collect();
+
+                // Add the owner field to the beginning of the members list.
+                // Note that type checking ensures that the owner field exists.
+                members.push(member_map.remove(&sym::owner).unwrap());
+
+                // Add the gates field to the beginning of the members list.
+                // Note that type checking ensures that the gates field exists.
+                members.push(member_map.remove(&sym::gates).unwrap());
+
+                // Add the remaining fields to the members list.
+                members.extend(member_map.into_iter().map(|(_, member)| member));
+
+                Struct { members, ..struct_ }
+            }
+        }
+    }
+}
+
+impl FunctionConsumer for StaticSingleAssigner<'_> {
     type Output = Function;
 
     /// Reconstructs the `Function`s in the `Program`, while allocating the appropriate `RenameTable`s.
@@ -87,13 +122,17 @@ impl FunctionConsumer for StaticSingleAssigner {
     }
 }
 
-impl ProgramScopeConsumer for StaticSingleAssigner {
+impl ProgramScopeConsumer for StaticSingleAssigner<'_> {
     type Output = ProgramScope;
 
     fn consume_program_scope(&mut self, input: ProgramScope) -> Self::Output {
         ProgramScope {
             program_id: input.program_id,
-            structs: input.structs,
+            structs: input
+                .structs
+                .into_iter()
+                .map(|(i, s)| (i, self.consume_struct(s)))
+                .collect(),
             mappings: input.mappings,
             functions: input
                 .functions
@@ -105,7 +144,7 @@ impl ProgramScopeConsumer for StaticSingleAssigner {
     }
 }
 
-impl ProgramConsumer for StaticSingleAssigner {
+impl ProgramConsumer for StaticSingleAssigner<'_> {
     type Output = Program;
 
     fn consume_program(&mut self, input: Program) -> Self::Output {

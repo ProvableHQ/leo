@@ -15,15 +15,17 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::StaticSingleAssigner;
+use indexmap::IndexMap;
+use std::borrow::Borrow;
 
 use leo_ast::{
     AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, Expression, ExpressionConsumer, Identifier,
-    Literal, MemberAccess, Statement, StructExpression, StructVariableInitializer, TernaryExpression, TupleAccess,
-    TupleExpression, UnaryExpression,
+    Literal, MemberAccess, Statement, Struct, StructExpression, StructVariableInitializer, TernaryExpression,
+    TupleAccess, TupleExpression, UnaryExpression,
 };
-use leo_span::sym;
+use leo_span::{sym, Symbol};
 
-impl ExpressionConsumer for StaticSingleAssigner {
+impl ExpressionConsumer for StaticSingleAssigner<'_> {
     type Output = (Expression, Vec<Statement>);
 
     /// Consumes an access expression, accumulating any statements that are generated.
@@ -146,7 +148,7 @@ impl ExpressionConsumer for StaticSingleAssigner {
         let mut statements = Vec::new();
 
         // Process the members, accumulating any statements produced.
-        let members = input
+        let members: Vec<StructVariableInitializer> = input
             .members
             .into_iter()
             .map(|arg| {
@@ -169,13 +171,49 @@ impl ExpressionConsumer for StaticSingleAssigner {
             })
             .collect();
 
+        // Reorder the members to match that of the struct definition.
+
+        // Lookup the struct definition.
+        // Note that type checking guarantees that the correct struct definition exists.
+        let struct_definition: &Struct = self.symbol_table.borrow().structs.get(&input.name.name).unwrap();
+
+        // Initialize the list of reordered members.
+        let mut reordered_members = Vec::with_capacity(members.len());
+
+        // Collect the members of the init expression into a map.
+        let mut member_map: IndexMap<Symbol, StructVariableInitializer> = members
+            .into_iter()
+            .map(|member| (member.identifier.name, member))
+            .collect();
+
+        // If we are initializing a record, add the `owner` and `gates` fields, first and second respectively.
+        // Note that type checking guarantees that the above fields exist.
+        if struct_definition.is_record {
+            // Add the `owner` field.
+            // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
+            reordered_members.push(member_map.remove(&sym::owner).unwrap());
+            // Add the `gates` field.
+            // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
+            reordered_members.push(member_map.remove(&sym::gates).unwrap());
+        }
+
+        // For each member of the struct definition, push the corresponding member of the init expression.
+        for member in &struct_definition.members {
+            // If the member is part of a record and it is `owner` or `gates`, then we have already added it.
+            if !(struct_definition.is_record && matches!(member.identifier.name, sym::owner | sym::gates)) {
+                // Lookup and push the member of the init expression.
+                // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
+                reordered_members.push(member_map.remove(&member.identifier.name).unwrap());
+            }
+        }
+
         // Construct and accumulate a new assignment statement for the struct expression.
         let (place, statement) = self
             .assigner
             .unique_simple_assign_statement(Expression::Struct(StructExpression {
                 name: input.name,
                 span: input.span,
-                members,
+                members: reordered_members,
             }));
         statements.push(statement);
 
