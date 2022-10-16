@@ -14,3 +14,5 @@ async async finalize(foo);
 finalize;
 
 asyn finalize(foo);
+
+return then fin;

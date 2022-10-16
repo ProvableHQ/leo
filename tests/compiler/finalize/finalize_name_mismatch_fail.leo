@@ -8,7 +8,7 @@ program test.aleo {
     mapping values: u8 => u8;
     
     transition mint_public(public receiver: address, public amount: u64) {
-        async finalize(receiver, amount);
+        return then finalize(receiver, amount);
     }
     
     finalize mint_private (public receiver: address, public amount: u64) {

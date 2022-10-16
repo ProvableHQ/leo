@@ -5,8 +5,7 @@ expectation: Fail
 
 program test.aleo {    
     function foo(a: u8, b: u8) -> u8 {
-        async finalize(a, b);
-        return a + b;
+        return a + b then finalize(a, b);
     }
     
     function bar(a: u8, b: u8) -> u8 {
@@ -19,7 +18,7 @@ program test.aleo {
     
     
     function mint_public(receiver: address, amount: u64) {
-        async finalize(receiver, amount);
+        return then finalize(receiver, amount);
     }
     
     finalize mint_public(receiver: address, amount: u64) {
