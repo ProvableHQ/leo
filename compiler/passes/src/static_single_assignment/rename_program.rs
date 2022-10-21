@@ -41,11 +41,11 @@ impl StructConsumer for StaticSingleAssigner<'_> {
 
                 // Add the owner field to the beginning of the members list.
                 // Note that type checking ensures that the owner field exists.
-                members.push(member_map.remove(&sym::owner).unwrap());
+                members.push(member_map.shift_remove(&sym::owner).unwrap());
 
                 // Add the gates field to the beginning of the members list.
                 // Note that type checking ensures that the gates field exists.
-                members.push(member_map.remove(&sym::gates).unwrap());
+                members.push(member_map.shift_remove(&sym::gates).unwrap());
 
                 // Add the remaining fields to the members list.
                 members.extend(member_map.into_iter().map(|(_, member)| member));
