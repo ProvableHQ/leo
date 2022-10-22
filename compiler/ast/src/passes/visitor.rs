@@ -123,6 +123,7 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
             Statement::Console(stmt) => self.visit_console(stmt),
             Statement::Decrement(stmt) => self.visit_decrement(stmt),
             Statement::Definition(stmt) => self.visit_definition(stmt),
+            Statement::Expression(stmt) => self.visit_expression_statement(stmt),
             Statement::Finalize(stmt) => self.visit_finalize(stmt),
             Statement::Increment(stmt) => self.visit_increment(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
@@ -170,6 +171,10 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
 
     fn visit_definition(&mut self, input: &'a DefinitionStatement) {
         self.visit_expression(&input.value, &Default::default());
+    }
+
+    fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) {
+        self.visit_expression(&input.expression, &Default::default());
     }
 
     fn visit_finalize(&mut self, input: &'a FinalizeStatement) {
