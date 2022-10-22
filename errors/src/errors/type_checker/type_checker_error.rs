@@ -479,16 +479,9 @@ create_messages!(
     }
 
     @formatted
-    struct_cannot_contain_tuple {
-        args: (),
-        msg: format!("A struct cannot contain a tuple."),
-        help: None,
-    }
-
-    @formatted
-    record_cannot_contain_tuple {
-        args: (),
-        msg: format!("A record cannot contain a tuple."),
+    composite_data_type_cannot_contain_tuple {
+        args: (data_type: impl Display),
+        msg: format!("A {data_type} cannot contain a tuple."),
         help: None,
     }
 

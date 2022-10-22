@@ -73,11 +73,10 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         for Member { identifier, type_ } in input.members.iter() {
             // Check that the member type is not a tuple.
             if matches!(type_, Type::Tuple(_)) {
-                self.emit_err(if input.is_record {
-                    TypeCheckerError::record_cannot_contain_tuple(identifier.span)
-                } else {
-                    TypeCheckerError::struct_cannot_contain_tuple(identifier.span)
-                });
+                self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(
+                    if input.is_record { "record" } else { "struct" },
+                    identifier.span,
+                ));
             }
             // Ensure that there are no record members.
             self.assert_member_is_not_record(identifier.span, input.identifier.name, type_);

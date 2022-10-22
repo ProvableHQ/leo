@@ -378,6 +378,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 false => f.output_type.clone(),
             });
 
+        // Set the `has_return` flag.
         self.has_return = true;
 
         // Check that the return expression is not a nested tuple.
@@ -389,6 +390,11 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
         }
 
+        // Set the `is_return` flag.
+        self.is_return = true;
+        // Type check the associated expression.
         self.visit_expression(&input.expression, return_type);
+        // Unset the `is_return` flag.
+        self.is_return = false;
     }
 }

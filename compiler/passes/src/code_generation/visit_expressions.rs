@@ -318,6 +318,6 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_unit(&mut self, _input: &'a UnitExpression) -> (String, String) {
-        unreachable!("`UnitExpression`s should not exist in the AST at this phase of compilation.")
+        unreachable!("`UnitExpression`s should not be visited during code generation.")
     }
 }

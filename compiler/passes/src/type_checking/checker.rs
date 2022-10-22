@@ -41,6 +41,8 @@ pub struct TypeChecker<'a> {
     pub(crate) is_finalize: bool,
     /// Whether or not we are currently traversing an imported program.
     pub(crate) is_imported: bool,
+    /// Whether or not we are currently traversing a return statement.
+    pub(crate) is_return: bool,
 }
 
 const BOOLEAN_TYPE: Type = Type::Boolean;
@@ -98,6 +100,7 @@ impl<'a> TypeChecker<'a> {
             has_finalize: false,
             is_finalize: false,
             is_imported: false,
+            is_return: false,
         }
     }
 
