@@ -99,11 +99,12 @@ impl ParserContext<'_> {
 
             Ok(Statement::Assign(Box::new(AssignStatement { span, place, value })))
         } else {
-            // Error on `expr;` but recover as an empty block `{}`.
-            self.expect(&Token::Semicolon)?;
-            let span = place.span() + self.prev_token.span;
-            self.emit_err(ParserError::expr_stmts_disallowed(span));
-            Ok(Statement::dummy(span))
+            // Parse the expression as a statement.
+            let end = self.expect(&Token::Semicolon)?;
+            Ok(Statement::Expression(ExpressionStatement {
+                span: place.span() + end,
+                expression: place,
+            }))
         }
     }
 

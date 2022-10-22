@@ -199,14 +199,6 @@ create_messages!(
         help: None,
     }
 
-    /// Parsed an expression statement.
-    @formatted
-    expr_stmts_disallowed {
-        args: (),
-        msg: "Expression statements are not supported.",
-        help: None,
-    }
-
     /// Parsed an unknown method call on the type of an expression.
     @formatted
     invalid_method_call {
