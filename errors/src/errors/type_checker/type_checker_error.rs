@@ -512,4 +512,11 @@ create_messages!(
         msg: format!("A finalize statement cannot contain tuple expressions."),
         help: None,
     }
+
+    @formatted
+    expression_statement_must_be_function_call {
+        args: (),
+        msg: format!("An expression statement must be a function call."),
+        help: None,
+    }
 );

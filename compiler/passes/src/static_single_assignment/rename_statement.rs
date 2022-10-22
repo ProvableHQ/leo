@@ -18,8 +18,8 @@ use crate::{RenameTable, StaticSingleAssigner};
 
 use leo_ast::{
     AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
-    DefinitionStatement, Expression, ExpressionConsumer, FinalizeStatement, Identifier, IncrementStatement,
-    IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
+    DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement, FinalizeStatement, Identifier,
+    IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
 };
 use leo_span::Symbol;
 
@@ -230,6 +230,20 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         self.is_lhs = false;
 
         statements.push(self.assigner.simple_assign_statement(identifier, value));
+
+        statements
+    }
+
+    /// Consumes the expressions associated with `ExpressionStatement`, returning the simplified `ExpressionStatement`.
+    fn consume_expression_statement(&mut self, input: ExpressionStatement) -> Self::Output {
+        // Process the expression associated with the `ExpressionStatement`.
+        let (expression, mut statements) = self.consume_expression(input.expression);
+
+        // Add the `ExpressionStatement` to the list of produced statements.
+        statements.push(Statement::Expression(ExpressionStatement {
+            expression,
+            span: input.span,
+        }));
 
         statements
     }

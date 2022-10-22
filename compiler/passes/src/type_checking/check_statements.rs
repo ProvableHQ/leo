@@ -34,6 +34,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             Statement::Console(stmt) => self.visit_console(stmt),
             Statement::Decrement(stmt) => self.visit_decrement(stmt),
             Statement::Definition(stmt) => self.visit_definition(stmt),
+            Statement::Expression(stmt) => self.visit_expression_statement(stmt),
             Statement::Finalize(stmt) => self.visit_finalize(stmt),
             Statement::Increment(stmt) => self.visit_increment(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
@@ -221,6 +222,19 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             },
         ) {
             self.handler.emit_err(err);
+        }
+    }
+
+    fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) {
+        // Expression statements can only be function calls.
+        if !matches!(input.expression, Expression::Call(_)) {
+            self.emit_err(TypeCheckerError::expression_statement_must_be_function_call(
+                input.span(),
+            ));
+        } else {
+            // Check the expression.
+            // TODO: Should the output type be restricted to unit types?
+            self.visit_expression(&input.expression, &None);
         }
     }
 

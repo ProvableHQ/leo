@@ -18,8 +18,8 @@ use crate::CodeGenerator;
 
 use leo_ast::{
     AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
-    DefinitionStatement, Expression, FinalizeStatement, IncrementStatement, IterationStatement, Mode, Output,
-    ReturnStatement, Statement,
+    DefinitionStatement, Expression, ExpressionStatement, FinalizeStatement, IncrementStatement, IterationStatement,
+    Mode, Output, ReturnStatement, Statement,
 };
 
 use itertools::Itertools;
@@ -34,6 +34,7 @@ impl<'a> CodeGenerator<'a> {
             Statement::Console(stmt) => self.visit_console(stmt),
             Statement::Decrement(stmt) => self.visit_decrement(stmt),
             Statement::Definition(stmt) => self.visit_definition(stmt),
+            Statement::Expression(stmt) => self.visit_expression_statement(stmt),
             Statement::Finalize(stmt) => self.visit_finalize(stmt),
             Statement::Increment(stmt) => self.visit_increment(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
@@ -108,6 +109,13 @@ impl<'a> CodeGenerator<'a> {
         // self.variable_mapping.insert(&input.variable_name.name, operand);
         // expression_instructions
         unreachable!("DefinitionStatement's should not exist in SSA form.")
+    }
+
+    fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) -> String {
+        match input.expression {
+            Expression::Call(_) => self.visit_expression(&input.expression).1,
+            _ => unreachable!("ExpressionStatement's can only contain CallExpression's."),
+        }
     }
 
     fn visit_increment(&mut self, input: &'a IncrementStatement) -> String {

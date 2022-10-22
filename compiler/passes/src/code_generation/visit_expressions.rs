@@ -276,6 +276,7 @@ impl<'a> CodeGenerator<'a> {
         }
     }
 
+    // TODO: Fix to allow zero or multiple outputs.
     fn visit_call(&mut self, input: &'a CallExpression) -> (String, String) {
         let mut call_instruction = match &input.external {
             Some(external) => format!("    call {external}.aleo/{} ", input.function),
