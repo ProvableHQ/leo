@@ -22,4 +22,4 @@ rust-version = "1.63"
 version = "1.0"
 
 [dependencies.abnf]
-version = "0.12.0"
+version = "0.13.0"
