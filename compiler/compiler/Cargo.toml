@@ -52,7 +52,7 @@ rev = "ea14990"
 features = ["aleo-cli", "circuit", "console", "parallel"]
 
 [dev-dependencies.serde]
-version = "1.0.146"
+version = "1.0.147"
 features = ["derive"]
 
 [dev-dependencies.serde_yaml]
