@@ -47,10 +47,20 @@ impl<'a> CodeGenerator<'a> {
             Expression::Tuple(ref tuple) if tuple.elements.is_empty() => String::new(),
             _ => {
                 let (operand, mut expression_instructions) = self.visit_expression(&input.expression);
+                // Get the output type of the function.
+                let output = if self.in_finalize {
+                    // Note that the first unwrap is safe, since `current_function` is set in `visit_function`.
+                    self.current_function.unwrap().finalize.as_ref().unwrap().output.iter()
+                } else {
+                    // Note that this unwrap is safe, since `current_function` is set in `visit_function`.
+                    self.current_function.unwrap().output.iter()
+                };
+                println!("\noperand: {:?}", operand.split('\n').collect::<Vec<_>>());
+                println!("output: {:?}\n", output.clone().collect::<Vec<_>>());
                 let instructions = operand
                     .split('\n')
                     .into_iter()
-                    .zip(self.current_function.unwrap().output.iter())
+                    .zip_eq(output)
                     .map(|(operand, output)| {
                         match output {
                             Output::Internal(output) => {
