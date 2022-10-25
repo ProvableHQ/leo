@@ -17,7 +17,7 @@
 use crate::Flattener;
 
 use leo_ast::{
-    AssignStatement, Block, ConditionalStatement, ConsoleStatement,
+    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement,
     DefinitionStatement, Expression, ExpressionReconstructor, FinalizeStatement, IterationStatement, Node,
     ReturnStatement, Statement, StatementReconstructor, UnaryExpression, UnaryOperation,
 };
@@ -112,7 +112,69 @@ impl StatementReconstructor for Flattener<'_> {
 
     /// Rewrites a console statement into a flattened form.
     fn reconstruct_console(&mut self, input: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
-        todo!()
+        let mut statements = Vec::new();
+
+        // Flatten the arguments of the console statement.
+        let console = ConsoleStatement {
+            span: input.span,
+            function: match input.function {
+                ConsoleFunction::Assert(expression) => {
+                    let (expression, additional_statements) = self.reconstruct_expression(expression);
+                    statements.extend(additional_statements);
+                    ConsoleFunction::Assert(expression)
+                }
+                ConsoleFunction::AssertEq(left, right) => {
+                    let (left, additional_statements) = self.reconstruct_expression(left);
+                    statements.extend(additional_statements);
+                    let (right, additional_statements) = self.reconstruct_expression(right);
+                    statements.extend(additional_statements);
+                    ConsoleFunction::AssertEq(left, right)
+                }
+                ConsoleFunction::AssertNeq(left, right) => {
+                    let (left, additional_statements) = self.reconstruct_expression(left);
+                    statements.extend(additional_statements);
+                    let (right, additional_statements) = self.reconstruct_expression(right);
+                    statements.extend(additional_statements);
+                    ConsoleFunction::AssertNeq(left, right)
+                }
+            },
+        };
+
+        // Add the appropriate guards.
+        match self.construct_guard() {
+            // If the condition stack is empty, we can return the flattened console statement.
+            None => (Statement::Console(console), statements),
+            // Otherwise, we need to join the guard with the expression in the flattened console statement.
+            Some(guard) => (
+                Statement::Console(ConsoleStatement {
+                    span: input.span,
+                    function: ConsoleFunction::Assert(Expression::Binary(BinaryExpression {
+                        left: Box::new(guard),
+                        op: BinaryOperation::And,
+                        span: Default::default(),
+                        right: Box::new(match console.function {
+                            // If the console statement is an `assert`, use the expression as is.
+                            ConsoleFunction::Assert(expression) => expression,
+                            // If the console statement is an `assert_eq`, construct a new equality expression.
+                            ConsoleFunction::AssertEq(left, right) => Expression::Binary(BinaryExpression {
+                                left: Box::new(left),
+                                op: BinaryOperation::Eq,
+                                right: Box::new(right),
+                                span: Default::default(),
+                            }),
+                            // If the console statement is an `assert_ne`, construct a new inequality expression.
+                            ConsoleFunction::AssertNeq(left, right) => Expression::Binary(BinaryExpression {
+                                left: Box::new(left),
+                                op: BinaryOperation::Neq,
+                                right: Box::new(right),
+                                span: Default::default(),
+                            }),
+                        }),
+                    })),
+                }),
+                statements,
+            ),
+        }
     }
 
     /// Static single assignment converts definition statements into assignment statements.
