@@ -55,8 +55,6 @@ impl<'a> CodeGenerator<'a> {
                     // Note that this unwrap is safe, since `current_function` is set in `visit_function`.
                     self.current_function.unwrap().output.iter()
                 };
-                println!("\noperand: {:?}", operand.split('\n').collect::<Vec<_>>());
-                println!("output: {:?}\n", output.clone().collect::<Vec<_>>());
                 let instructions = operand
                     .split('\n')
                     .into_iter()
