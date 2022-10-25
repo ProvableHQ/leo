@@ -68,7 +68,7 @@ impl ParserContext<'_> {
             &token.token,
             expected
                 .iter()
-                .map(|x| format!("'{}'", x))
+                .map(|x| format!("'{x}'"))
                 .collect::<Vec<_>>()
                 .join(", "),
             token.span,

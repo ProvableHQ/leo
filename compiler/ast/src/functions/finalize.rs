@@ -71,8 +71,8 @@ impl fmt::Display for Finalize {
         };
         write!(
             f,
-            " finalize {}({}) -> {} {}",
-            self.identifier, parameters, returns, self.block
+            " finalize {}({parameters}) -> {returns} {}",
+            self.identifier, self.block
         )
     }
 }

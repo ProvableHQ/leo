@@ -141,7 +141,7 @@ impl fmt::Display for Formatted {
                 write!(f, "{}", message.bold().yellow())?;
             }
         } else {
-            write!(f, "{}", message)?;
+            write!(f, "{message}")?;
         };
 
         write!(
@@ -190,7 +190,7 @@ impl fmt::Display for Formatted {
                 let trace = printer
                     .format_trace_to_string(&self.backtrace.backtrace)
                     .map_err(|_| fmt::Error)?;
-                write!(f, "\n{}", trace)?;
+                write!(f, "\n{trace}")?;
             }
             "full" => {
                 let mut printer = BacktracePrinter::default();
@@ -199,7 +199,7 @@ impl fmt::Display for Formatted {
                 let trace = printer
                     .format_trace_to_string(&self.backtrace.backtrace)
                     .map_err(|_| fmt::Error)?;
-                write!(f, "\n{}", trace)?;
+                write!(f, "\n{trace}")?;
             }
             _ => {}
         }

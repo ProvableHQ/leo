@@ -34,7 +34,7 @@ impl fmt::Display for CallExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match &self.external {
             Some(external) => {
-                write!(f, "{}.leo/{}(", external, self.function)?;
+                write!(f, "{external}.leo/{}(", self.function)?;
             }
             None => {
                 write!(f, "{}(", self.function)?;
@@ -42,7 +42,7 @@ impl fmt::Display for CallExpression {
         }
 
         for (i, param) in self.arguments.iter().enumerate() {
-            write!(f, "{}", param)?;
+            write!(f, "{param}")?;
             if i < self.arguments.len() - 1 {
                 write!(f, ", ")?;
             }

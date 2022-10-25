@@ -63,7 +63,7 @@ impl fmt::Display for TestError {
             if test.len() > 50 {
                 String::new()
             } else {
-                format!("\n\n{}\n\n", test)
+                format!("\n\n{test}\n\n")
             }
         };
         match self {

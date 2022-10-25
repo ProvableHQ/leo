@@ -37,7 +37,7 @@ impl fmt::Display for Block {
         } else {
             self.statements
                 .iter()
-                .try_for_each(|statement| writeln!(f, "\t{}", statement))?;
+                .try_for_each(|statement| writeln!(f, "\t{statement}"))?;
         }
         write!(f, "}}")
     }

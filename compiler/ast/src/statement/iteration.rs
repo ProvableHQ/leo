@@ -53,8 +53,8 @@ impl fmt::Display for IterationStatement {
         let eq = if self.inclusive { "=" } else { "" };
         write!(
             f,
-            "for {} in {}..{}{} {}",
-            self.variable, self.start, eq, self.stop, self.block
+            "for {} in {}..{eq}{} {}",
+            self.variable, self.start, self.stop, self.block
         )
     }
 }

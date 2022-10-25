@@ -45,7 +45,7 @@ impl InputFile {
     }
 
     pub fn filename(&self) -> String {
-        format!("{}{}{}", INPUTS_DIRECTORY_NAME, self.package_name, INPUT_FILE_EXTENSION)
+        format!("{INPUTS_DIRECTORY_NAME}{}{INPUT_FILE_EXTENSION}", self.package_name)
     }
 
     pub fn exists_at(&self, path: &Path) -> bool {
@@ -65,7 +65,7 @@ impl InputFile {
     /// Writes the standard input format to a file.
     pub fn write_to(self, path: &Path) -> Result<()> {
         let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(PackageError::io_error_input_file)?;
+        let mut file = File::create(path).map_err(PackageError::io_error_input_file)?;
 
         file.write_all(self.template().as_bytes())
             .map_err(PackageError::io_error_input_file)?;
@@ -90,7 +90,7 @@ b: u32 = 2u32;
                 path.to_mut().push(INPUTS_DIRECTORY_NAME);
             }
             path.to_mut()
-                .push(format!("{}{}", self.package_name, INPUT_FILE_EXTENSION));
+                .push(format!("{}{INPUT_FILE_EXTENSION}", self.package_name));
         }
         path
     }

@@ -36,7 +36,7 @@ create_messages!(
     @formatted
     invalid_address_lit {
         args: (token: impl Display),
-        msg: format!("invalid address literal: '{}'", token),
+        msg: format!("invalid address literal: '{token}'"),
         help: None,
     }
 
@@ -60,7 +60,7 @@ create_messages!(
     @formatted
     unexpected_whitespace {
         args: (left: impl Display, right: impl Display),
-        msg: format!("Unexpected white space between terms {} and {}", left, right),
+        msg: format!("Unexpected white space between terms {left} and {right}"),
         help: None,
     }
 
@@ -68,7 +68,7 @@ create_messages!(
     @formatted
     unexpected {
         args: (found: impl Display, expected: impl Display),
-        msg: format!("expected {} -- found '{}'", expected, found),
+        msg: format!("expected {expected} -- found '{found}'"),
         help: None,
     }
 
@@ -85,13 +85,12 @@ create_messages!(
     unexpected_ident {
         args: (found: impl Display, expected: &[impl Display]),
         msg: format!(
-            "unexpected identifier: expected {} -- found '{}'",
+            "unexpected identifier: expected {} -- found '{found}'",
             expected
                 .iter()
-                .map(|x| format!("'{}'", x))
+                .map(|x| format!("'{x}'"))
                 .collect::<Vec<_>>()
                 .join(", "),
-            found
         ),
         help: None,
     }
@@ -100,7 +99,7 @@ create_messages!(
     @formatted
     unexpected_statement {
         args: (found: impl Display, expected: impl Display),
-        msg: format!("unexpected statement: expected '{}', found '{}'", expected, found),
+        msg: format!("unexpected statement: expected '{expected}', found '{found}'"),
         help: None,
     }
 
@@ -108,7 +107,7 @@ create_messages!(
     @formatted
     unexpected_str {
         args: (found: impl Display, expected: impl Display),
-        msg: format!("unexpected string: expected '{}', found '{}'", expected, found),
+        msg: format!("unexpected string: expected '{expected}', found '{found}'"),
         help: None,
     }
 
@@ -132,7 +131,7 @@ create_messages!(
     @backtraced
     lexer_expected_valid_escaped_char {
     args: (input: impl Display),
-    msg: format!("Expected a valid escape character but found `{}`.", input),
+    msg: format!("Expected a valid escape character but found `{input}`."),
     help: None,
     }
 
@@ -140,7 +139,7 @@ create_messages!(
     @backtraced
     lexer_string_not_closed {
     args: (input: impl Display),
-    msg: format!("Expected a closed string but found `{}`.", input),
+    msg: format!("Expected a closed string but found `{input}`."),
     help: None,
     }
 
@@ -156,7 +155,7 @@ create_messages!(
     @backtraced
     lexer_block_comment_does_not_close_before_eof {
     args: (input: impl Display),
-    msg: format!("Block comment does not close with content: `{}`.", input),
+    msg: format!("Block comment does not close with content: `{input}`."),
     help: None,
     }
 
@@ -164,7 +163,7 @@ create_messages!(
     @backtraced
     could_not_lex {
     args: (input: impl Display),
-    msg: format!("Could not lex the following content: `{}`.\n", input),
+    msg: format!("Could not lex the following content: `{input}`.\n"),
     help: None,
     }
 
@@ -172,7 +171,7 @@ create_messages!(
     @formatted
     implicit_values_not_allowed {
         args: (input: impl Display),
-        msg: format!("Could not parse the implicit value: {}.", input),
+        msg: format!("Could not parse the implicit value: {input}."),
         help: None,
     }
 
@@ -180,7 +179,7 @@ create_messages!(
     @backtraced
     lexer_hex_number_provided {
         args: (input: impl Display),
-        msg: format!("A hex number `{}..` was provided but hex is not allowed.", input),
+        msg: format!("A hex number `{input}..` was provided but hex is not allowed."),
         help: None,
     }
 

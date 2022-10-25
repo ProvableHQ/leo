@@ -195,7 +195,7 @@ impl<'a> ParserContext<'a> {
         if self.eat_any(tokens) {
             Ok(self.prev_token.span)
         } else {
-            self.unexpected(tokens.iter().map(|x| format!("'{}'", x)).collect::<Vec<_>>().join(", "))
+            self.unexpected(tokens.iter().map(|x| format!("'{x}'")).collect::<Vec<_>>().join(", "))
         }
     }
 

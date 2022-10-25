@@ -60,7 +60,7 @@ fn main() -> Result<(), String> {
     })?;
 
     if opt.print_stdout {
-        println!("{}", input_tree);
+        println!("{input_tree}");
     }
 
     let out_path = if let Some(out_dir) = opt.out_dir_path {

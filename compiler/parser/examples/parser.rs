@@ -51,14 +51,14 @@ fn main() -> Result<(), String> {
         Handler::with(|h| {
             let ast = leo_parser::parse_ast(h, &code.src, code.start_pos)?;
             let json = Ast::to_json_string(&ast)?;
-            println!("{}", json);
+            println!("{json}");
             Ok(json)
         })
         .map_err(|b| b.to_string())
     })?;
 
     if opt.print_stdout {
-        println!("{}", serialized_leo_tree);
+        println!("{serialized_leo_tree}");
     }
 
     let out_path = if let Some(out_dir) = opt.out_dir_path {

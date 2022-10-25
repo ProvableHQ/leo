@@ -29,7 +29,7 @@ impl Assigner {
     /// Return a new unique `Symbol` from a `&str`.
     pub(crate) fn unique_symbol(&mut self, arg: impl Display) -> Symbol {
         self.counter += 1;
-        Symbol::intern(&format!("{}${}", arg, self.counter - 1))
+        Symbol::intern(&format!("{arg}${}", self.counter - 1))
     }
 
     /// Constructs the assignment statement `place = expr;`.

@@ -40,7 +40,7 @@ pub struct Program {
 impl fmt::Display for Program {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (id, _import) in self.imports.iter() {
-            writeln!(f, "import {}.leo;", id)?;
+            writeln!(f, "import {id}.leo;")?;
         }
         for (_, program_scope) in self.program_scopes.iter() {
             program_scope.fmt(f)?;

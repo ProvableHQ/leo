@@ -31,7 +31,7 @@ pub struct StructVariableInitializer {
 impl fmt::Display for StructVariableInitializer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(expr) = &self.expression {
-            write!(f, "{}: {}", self.identifier, expr)
+            write!(f, "{}: {expr}", self.identifier)
         } else {
             write!(f, "{}", self.identifier)
         }
@@ -69,9 +69,9 @@ impl StructExpression {
                 .map(|variable| {
                     // Write default visibility.
                     if variable.identifier.name == sym::_nonce {
-                        format!("{}.public", variable)
+                        format!("{variable}.public")
                     } else {
-                        format!("{}.private", variable)
+                        format!("{variable}.private")
                     }
                 })
                 .collect::<Vec<_>>()

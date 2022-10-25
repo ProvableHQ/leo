@@ -112,7 +112,7 @@ impl Sample {
 
     /// Benchmarks `logic(compiler)` where `compiler` is provided.
     fn bencher(&self, c: &mut Criterion, mode: &str, mut logic: impl FnMut(Compiler) -> Duration) {
-        c.bench_function(&format!("{} {}", mode, self.name), |b| {
+        c.bench_function(&format!("{mode} {}", self.name), |b| {
             // Iter custom is used so we can use custom timings around the compiler stages.
             // This way we can only time the necessary stage.
             b.iter_custom(|iters| {

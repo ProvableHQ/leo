@@ -27,8 +27,8 @@ impl<'a> CodeGenerator<'a> {
             | Type::Group
             | Type::Scalar
             | Type::String
-            | Type::Integer(..) => format!("{}", input),
-            Type::Identifier(ident) => format!("{}", ident),
+            | Type::Integer(..) => format!("{input}"),
+            Type::Identifier(ident) => format!("{ident}"),
             Type::Mapping(_) => {
                 unreachable!("Mapping types are not supported at this phase of compilation")
             }
@@ -45,11 +45,11 @@ impl<'a> CodeGenerator<'a> {
             // When the type is a record.
             // Note that this unwrap is safe because all composite types have been added to the mapping.
             Type::Identifier(identifier) if self.composite_mapping.get(&identifier.name).unwrap().0 => {
-                format!("{}.record", identifier)
+                format!("{identifier}.record")
             }
             _ => match visibility {
                 Mode::None => self.visit_type(type_),
-                _ => format!("{}.{}", self.visit_type(type_), visibility),
+                _ => format!("{}.{visibility}", self.visit_type(type_)),
             },
         }
     }

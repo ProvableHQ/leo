@@ -119,7 +119,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 let create_phi_argument = |table: &RenameTable, symbol: Symbol| {
                     let name = *table
                         .lookup(symbol)
-                        .unwrap_or_else(|| panic!("Symbol {} should exist in the program.", symbol));
+                        .unwrap_or_else(|| panic!("Symbol {symbol} should exist in the program."));
                     Box::new(Expression::Identifier(Identifier {
                         name,
                         span: Default::default(),

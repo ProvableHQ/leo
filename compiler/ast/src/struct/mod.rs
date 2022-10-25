@@ -68,7 +68,7 @@ impl fmt::Display for Struct {
         f.write_str(if self.is_record { "record" } else { "struct" })?;
         writeln!(f, " {} {{ ", self.identifier)?;
         for field in self.members.iter() {
-            writeln!(f, "    {}", field)?;
+            writeln!(f, "    {field}")?;
         }
         write!(f, "}}")
     }

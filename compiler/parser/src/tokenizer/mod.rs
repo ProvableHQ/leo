@@ -156,7 +156,7 @@ mod tests {
             let tokens = tokenize(&sf.src, sf.start_pos).unwrap();
             let mut output = String::new();
             for SpannedToken { token, .. } in tokens.iter() {
-                write!(output, "{} ", token).expect("failed to write string");
+                write!(output, "{token} ").expect("failed to write string");
             }
 
             assert_eq!(

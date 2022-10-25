@@ -31,7 +31,7 @@ create_messages!(
     @backtraced
     file_read_error {
         args: (path: impl Debug, error: impl ErrorArg),
-        msg: format!("Cannot read from the provided file path '{:?}': {}", path, error),
+        msg: format!("Cannot read from the provided file path '{path:?}': {error}"),
         help: None,
     }
 

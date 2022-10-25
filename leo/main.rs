@@ -125,7 +125,7 @@ pub fn handle_error<T>(res: Result<T>) -> T {
     match res {
         Ok(t) => t,
         Err(err) => {
-            eprintln!("{}", err);
+            eprintln!("{err}");
             exit(err.exit_code());
         }
     }

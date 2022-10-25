@@ -30,7 +30,7 @@ create_messages!(
     @backtraced
     failed_to_convert_ast_to_json_string {
         args: (error: impl ErrorArg),
-        msg: format!("failed to convert ast to a json string {}", error),
+        msg: format!("failed to convert ast to a json string {error}"),
         help: None,
     }
 
@@ -38,7 +38,7 @@ create_messages!(
     @backtraced
     failed_to_create_ast_json_file {
         args: (path: impl Debug, error: impl ErrorArg),
-        msg: format!("failed to create ast json file `{:?}` {}", path, error),
+        msg: format!("failed to create ast json file `{path:?}` {error}"),
         help: None,
     }
 
@@ -46,7 +46,7 @@ create_messages!(
     @backtraced
     failed_to_write_ast_to_json_file {
         args: (path: impl Debug, error: impl ErrorArg),
-        msg: format!("failed to write ast to a json file `{:?}` {}", path, error),
+        msg: format!("failed to write ast to a json file `{path:?}` {error}"),
         help: None,
     }
 
@@ -54,7 +54,7 @@ create_messages!(
     @backtraced
     failed_to_read_json_string_to_ast {
         args: (error: impl ErrorArg),
-        msg: format!("failed to convert json string to an ast {}", error),
+        msg: format!("failed to convert json string to an ast {error}"),
         help: None,
     }
 
@@ -62,7 +62,7 @@ create_messages!(
     @backtraced
     failed_to_read_json_file {
         args: (path: impl Debug, error: impl ErrorArg),
-        msg: format!("failed to convert json file `{:?}` to an ast {}", path, error),
+        msg: format!("failed to convert json file `{path:?}` to an ast {error}"),
         help: None,
     }
 
@@ -70,7 +70,7 @@ create_messages!(
     @backtraced
     failed_to_convert_ast_to_json_value {
         args: (error: impl ErrorArg),
-        msg: format!("failed to convert ast to a json value {}", error),
+        msg: format!("failed to convert ast to a json value {error}"),
         help: None,
     }
 
