@@ -111,6 +111,22 @@ impl StatementReconstructor for Flattener<'_> {
     }
 
     /// Rewrites a console statement into a flattened form.
+    /// Console statements at the top level only have their arguments flattened.
+    /// Console statements inside a conditional statement are flattened to such that the check is conditional on
+    /// the execution path being valid.
+    /// For example, the following snippet:
+    /// ```leo
+    /// if condition1 {
+    ///    if condition2 {
+    ///        console.assert(foo);
+    ///    }
+    /// }
+    /// ```
+    /// is flattened to:
+    /// ```leo
+    /// console.assert(!(condition1 && condition2) || foo);
+    /// ```
+    /// which is equivalent to the logical formula `(condition1 ^ condition2) ==> foo`.
     fn reconstruct_console(&mut self, input: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
         let mut statements = Vec::new();
 
@@ -145,12 +161,19 @@ impl StatementReconstructor for Flattener<'_> {
             // If the condition stack is empty, we can return the flattened console statement.
             None => (Statement::Console(console), statements),
             // Otherwise, we need to join the guard with the expression in the flattened console statement.
+            // Note given the guard and the expression, we construct the logical formula `guard => expression`,
+            // which is equivalent to `!guard || expression`.
             Some(guard) => (
                 Statement::Console(ConsoleStatement {
                     span: input.span,
                     function: ConsoleFunction::Assert(Expression::Binary(BinaryExpression {
-                        left: Box::new(guard),
-                        op: BinaryOperation::And,
+                        // Take the logical negation of the guard.
+                        left: Box::new(Expression::Unary(UnaryExpression {
+                            op: UnaryOperation::Not,
+                            receiver: Box::new(guard),
+                            span: Default::default(),
+                        })),
+                        op: BinaryOperation::Or,
                         span: Default::default(),
                         right: Box::new(match console.function {
                             // If the console statement is an `assert`, use the expression as is.
