@@ -233,7 +233,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         for input in inputs {
             let mut parsed = parsed.clone();
             handler.extend_if_error(parsed.parse_input(input))?;
-            let initial_input_ast = hash_file("/tmp/output/initial_input_ast.json");
+            let initial_input_ast = hash_file("/tmp/output/test.initial_input_ast.json");
 
             output_items.push(OutputItem { initial_input_ast });
         }
@@ -271,10 +271,10 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         // handler.extend_if_error(package.get_process().map_err(LeoError::Anyhow))?;
     }
 
-    let initial_ast = hash_file("/tmp/output/initial_ast.json");
-    let unrolled_ast = hash_file("/tmp/output/unrolled_ast.json");
-    let ssa_ast = hash_file("/tmp/output/ssa_ast.json");
-    let flattened_ast = hash_file("/tmp/output/flattened_ast.json");
+    let initial_ast = hash_file("/tmp/output/test.initial_ast.json");
+    let unrolled_ast = hash_file("/tmp/output/test.unrolled_ast.json");
+    let ssa_ast = hash_file("/tmp/output/test.ssa_ast.json");
+    let flattened_ast = hash_file("/tmp/output/test.flattened_ast.json");
 
     if fs::read_dir("/tmp/output").is_ok() {
         fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");

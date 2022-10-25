@@ -139,11 +139,14 @@ impl<'a> Compiler<'a> {
             if self.output_options.initial_ast {
                 // Write the input AST snapshot post parsing.
                 if self.output_options.spans_enabled {
-                    input_ast.to_json_file(self.output_directory.clone(), "initial_input_ast.json")?;
+                    input_ast.to_json_file(
+                        self.output_directory.clone(),
+                        &format!("{}.initial_input_ast.json", self.program_name),
+                    )?;
                 } else {
                     input_ast.to_json_file_without_keys(
                         self.output_directory.clone(),
-                        "initial_input_ast.json",
+                        &format!("{}.initial_input_ast.json", self.program_name),
                         &["span"],
                     )?;
                 }
@@ -233,13 +236,19 @@ impl<'a> Compiler<'a> {
     }
 
     /// Writes the AST to a JSON file.
-    fn write_ast_to_json(&self, file_name: &str) -> Result<()> {
+    fn write_ast_to_json(&self, file_suffix: &str) -> Result<()> {
         // Remove `Span`s if they are not enabled.
         if self.output_options.spans_enabled {
-            self.ast.to_json_file(self.output_directory.clone(), file_name)?;
+            self.ast.to_json_file(
+                self.output_directory.clone(),
+                &format!("{}.{file_suffix}", self.program_name),
+            )?;
         } else {
-            self.ast
-                .to_json_file_without_keys(self.output_directory.clone(), file_name, &["span"])?;
+            self.ast.to_json_file_without_keys(
+                self.output_directory.clone(),
+                &format!("{}.{file_suffix}", self.program_name),
+                &["span"],
+            )?;
         }
         Ok(())
     }
