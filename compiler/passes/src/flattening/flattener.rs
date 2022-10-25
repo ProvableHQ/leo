@@ -17,7 +17,8 @@
 use crate::{Assigner, SymbolTable};
 
 use leo_ast::{
-    AccessExpression, Expression, ExpressionReconstructor, Identifier, Member, Statement, TernaryExpression, Type,
+    AccessExpression, BinaryExpression, BinaryOperation, Expression, ExpressionReconstructor, Identifier, Member,
+    Statement, TernaryExpression, Type,
 };
 use leo_span::Symbol;
 
@@ -173,5 +174,23 @@ impl<'a> Flattener<'a> {
     pub(crate) fn simple_assign_statement(&mut self, lhs: Identifier, rhs: Expression) -> Statement {
         self.update_structs(&lhs, &rhs);
         self.assigner.simple_assign_statement(lhs, rhs)
+    }
+
+    /// Constructs a conjunction of all the conditions in the stack.
+    pub(crate) fn construct_guard(&self) -> Option<Expression> {
+        match self.condition_stack.is_empty() {
+            true => None,
+            false => {
+                let (first, rest) = self.condition_stack.split_first().unwrap();
+                Some(rest.iter().cloned().fold(first.clone(), |acc, condition| {
+                    Expression::Binary(BinaryExpression {
+                        op: BinaryOperation::And,
+                        left: Box::new(acc),
+                        right: Box::new(condition),
+                        span: Default::default(),
+                    })
+                }))
+            }
+        }
     }
 }
