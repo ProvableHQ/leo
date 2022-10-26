@@ -126,7 +126,7 @@ impl StatementReconstructor for Flattener<'_> {
     /// ```leo
     /// console.assert(!(condition1 && condition2) || foo);
     /// ```
-    /// which is equivalent to the logical formula `(condition1 ^ condition2) ==> foo`.
+    /// which is equivalent to the logical formula `(condition1 /\ condition2) ==> foo`.
     fn reconstruct_console(&mut self, input: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
         let mut statements = Vec::new();
 
