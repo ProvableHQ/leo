@@ -519,4 +519,18 @@ create_messages!(
         msg: format!("An expression statement must be a function call."),
         help: None,
     }
+
+    @formatted
+    lhs_tuple_element_must_be_an_identifier {
+        args: (),
+        msg: format!("Tuples on the left-hand side of a `DefinitionStatement` can only contain identifiers."),
+        help: None,
+    }
+
+    @formatted
+    lhs_must_be_identifier_or_tuple {
+        args: (),
+        msg: format!("The left-hand side of a `DefinitionStatement` can only be a tuple or identifier."),
+        help: None,
+    }
 );

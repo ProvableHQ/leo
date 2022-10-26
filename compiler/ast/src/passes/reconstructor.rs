@@ -251,7 +251,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
         (
             Statement::Definition(DefinitionStatement {
                 declaration_type: input.declaration_type,
-                variable_name: input.variable_name,
+                place: input.place,
                 type_: input.type_,
                 value: self.reconstruct_expression(input.value).0,
                 span: input.span,

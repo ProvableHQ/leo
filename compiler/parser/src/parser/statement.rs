@@ -297,7 +297,9 @@ impl ParserContext<'_> {
         };
 
         // Parse variable name and type.
-        let (variable_name, type_) = self.parse_typed_ident()?;
+        let place = self.parse_expression()?;
+        self.expect(&Token::Colon)?;
+        let type_ = self.parse_type()?.0;
 
         self.expect(&Token::Assign)?;
         let value = self.parse_expression()?;
@@ -306,7 +308,7 @@ impl ParserContext<'_> {
         Ok(DefinitionStatement {
             span: decl_span + value.span(),
             declaration_type: decl_type,
-            variable_name,
+            place,
             type_,
             value,
         })

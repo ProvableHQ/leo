@@ -222,8 +222,9 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
 
         // Then assign a new unique name to the left-hand-side of the definition.
         // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
+        // TODO: Remove identifier assumption.
         self.is_lhs = true;
-        let identifier = match self.consume_identifier(definition.variable_name).0 {
+        let identifier = match self.consume_expression(definition.place).0 {
             Expression::Identifier(identifier) => identifier,
             _ => unreachable!("`self.consume_identifier` will always return an `Identifier`."),
         };

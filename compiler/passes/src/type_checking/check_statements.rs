@@ -15,9 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{TypeChecker, VariableSymbol, VariableType};
+use itertools::Itertools;
 
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
+use leo_span::{Span, Symbol};
 
 impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_statement(&mut self, input: &'a Statement) {
@@ -212,16 +214,50 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Check the expression on the left-hand side.
         self.visit_expression(&input.value, &Some(input.type_.clone()));
 
-        // Insert the variable into the symbol table.
-        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-            input.variable_name.name,
-            VariableSymbol {
-                type_: input.type_.clone(),
-                span: input.span(),
-                declaration,
-            },
-        ) {
-            self.handler.emit_err(err);
+        // TODO: Dedup with unrolling pass.
+        // Helper to insert the variables into the symbol table.
+        let insert_variable = |symbol: Symbol, type_: Type, span: Span, declaration: VariableType| {
+            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+                symbol,
+                VariableSymbol {
+                    type_,
+                    span,
+                    declaration,
+                },
+            ) {
+                self.handler.emit_err(err);
+            }
+        };
+
+        // Insert the variables in the into the symbol table.
+        match &input.place {
+            Expression::Identifier(identifier) => {
+                insert_variable(identifier.name, input.type_.clone(), identifier.span, declaration)
+            }
+            Expression::Tuple(tuple_expression) => {
+                let tuple_type = match &input.type_ {
+                    Type::Tuple(tuple_type) => tuple_type,
+                    _ => unreachable!(
+                        "Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple."
+                    ),
+                };
+                tuple_expression
+                    .elements
+                    .iter()
+                    .zip_eq(tuple_type.0.iter())
+                    .for_each(|(expression, type_)| {
+                        let identifier = match expression {
+                            Expression::Identifier(identifier) => identifier,
+                            _ => {
+                                return self.emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(
+                                    expression.span(),
+                                ))
+                            }
+                        };
+                        insert_variable(identifier.name, type_.clone(), identifier.span, declaration)
+                    });
+            }
+            _ => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),
         }
     }
 

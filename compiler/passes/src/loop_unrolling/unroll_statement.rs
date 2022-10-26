@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use itertools::Itertools;
 use leo_ast::*;
+use leo_span::{Span, Symbol};
 
 use crate::unroller::Unroller;
 use crate::{VariableSymbol, VariableType};
@@ -50,15 +52,37 @@ impl StatementReconstructor for Unroller<'_> {
                 VariableType::Mut
             };
 
-            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                input.variable_name.name,
-                VariableSymbol {
-                    type_: input.type_.clone(),
-                    span: input.span(),
-                    declaration,
+            let insert_variable = |symbol: Symbol, type_: Type, span: Span, declaration: VariableType| {
+                if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+                    symbol,
+                    VariableSymbol {
+                        type_,
+                        span,
+                        declaration,
+                    },
+                ) {
+                    self.handler.emit_err(err);
+                }
+            };
+
+            // Insert the variables in the into the symbol table.
+            match &input.place {
+                Expression::Identifier(identifier) => insert_variable(identifier.name, input.type_.clone(), identifier.span, declaration),
+                Expression::Tuple(tuple_expression) => {
+                    let tuple_type = match input.type_ {
+                        Type::Tuple(ref tuple_type) => tuple_type,
+                        _ => unreachable!("Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple.")
+                    };
+                    tuple_expression.elements.iter().zip_eq(tuple_type.0.iter()).for_each(|(expression, type_)| {
+                        let identifier = match expression {
+                            Expression::Identifier(identifier) => identifier,
+                            _ => unreachable!("Type checking guarantees that if the lhs is a tuple, all of its elements are identifiers.")
+                        };
+                        insert_variable(identifier.name, type_.clone(), identifier.span, declaration)
+                    });
                 },
-            ) {
-                self.handler.emit_err(err);
+                _ => unreachable!("Type checking guarantees that the lhs of a `DefinitionStatement` is either an identifier or tuple.")
+
             }
         }
         (Statement::Definition(input), Default::default())
