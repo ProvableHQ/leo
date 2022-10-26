@@ -12,5 +12,3 @@ increment();
 increment(floo)
 
 increment foo[bar] by baz;
-
-incremet(foo, bar, baz);

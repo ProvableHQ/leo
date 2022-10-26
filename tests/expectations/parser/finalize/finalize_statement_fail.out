@@ -2,9 +2,9 @@
 namespace: ParseStatement
 expectation: Fail
 outputs:
-  - "Error [EPAR0370026]: A finalize statement must be preceded by the `async` keyword.\n    --> test:1:1\n     |\n   1 | finalize(;\n     | ^^^^^^^^\n     |\n     = Add the `async` keyword before the `finalize` keyword."
-  - "Error [EPAR0370026]: A finalize statement must be preceded by the `async` keyword.\n    --> test:1:1\n     |\n   1 | finalize(foo, ,);\n     | ^^^^^^^^\n     |\n     = Add the `async` keyword before the `finalize` keyword."
-  - "Error [EPAR0370026]: A finalize statement must be preceded by the `async` keyword.\n    --> test:1:1\n     |\n   1 | finalize(foo, bar)\n     | ^^^^^^^^\n     |\n     = Add the `async` keyword before the `finalize` keyword."
+  - "Error [EPAR0370025]: A finalize statement must be preceded by the `async` keyword.\n    --> test:1:1\n     |\n   1 | finalize(;\n     | ^^^^^^^^\n     |\n     = Add the `async` keyword before the `finalize` keyword."
+  - "Error [EPAR0370025]: A finalize statement must be preceded by the `async` keyword.\n    --> test:1:1\n     |\n   1 | finalize(foo, ,);\n     | ^^^^^^^^\n     |\n     = Add the `async` keyword before the `finalize` keyword."
+  - "Error [EPAR0370025]: A finalize statement must be preceded by the `async` keyword.\n    --> test:1:1\n     |\n   1 | finalize(foo, bar)\n     | ^^^^^^^^\n     |\n     = Add the `async` keyword before the `finalize` keyword."
   - "Error [EPAR0370005]: expected finalize -- found 'async'\n    --> test:1:7\n     |\n   1 | async async finalize(foo);\n     |       ^^^^^"
-  - "Error [EPAR0370026]: A finalize statement must be preceded by the `async` keyword.\n    --> test:1:1\n     |\n   1 | finalize;\n     | ^^^^^^^^\n     |\n     = Add the `async` keyword before the `finalize` keyword."
+  - "Error [EPAR0370025]: A finalize statement must be preceded by the `async` keyword.\n    --> test:1:1\n     |\n   1 | finalize;\n     | ^^^^^^^^\n     |\n     = Add the `async` keyword before the `finalize` keyword."
   - "Error [EPAR0370005]: expected ; -- found 'finalize'\n    --> test:1:6\n     |\n   1 | asyn finalize(foo);\n     |      ^^^^^^^^"

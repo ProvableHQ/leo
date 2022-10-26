@@ -1,5 +1,155 @@
 ---
 namespace: Parse
-expectation: Fail
+expectation: Pass
 outputs:
-  - "Error [EPAR0370021]: Expression statements are not supported.\n    --> test:6:13\n     |\n   6 |             x(y+1u32);\n     |             ^^^^^^^^^^\nError [EPAR0370021]: Expression statements are not supported.\n    --> test:11:9\n     |\n  11 |         x(1u32);\n     |         ^^^^^^^^"
+  - imports: {}
+    program_scopes:
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+        structs: {}
+        mappings: {}
+        functions:
+          "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}":
+            annotations: []
+            call_type: Standard
+            identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
+            input:
+              - Internal:
+                  identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":50,\\\"hi\\\":51}\"}"
+                  mode: Const
+                  type_:
+                    Integer: U32
+                  span:
+                    lo: 50
+                    hi: 51
+            output:
+              - Internal:
+                  mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 61
+                    hi: 63
+            output_type:
+              Integer: U8
+            block:
+              statements:
+                - Conditional:
+                    condition:
+                      Binary:
+                        left:
+                          Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":77,\\\"hi\\\":78}\"}"
+                        right:
+                          Literal:
+                            Integer:
+                              - U32
+                              - "5"
+                              - span:
+                                  lo: 81
+                                  hi: 85
+                        op: Lt
+                        span:
+                          lo: 77
+                          hi: 85
+                    then:
+                      statements:
+                        - Expression:
+                            expression:
+                              Call:
+                                function:
+                                  Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":100,\\\"hi\\\":101}\"}"
+                                arguments:
+                                  - Binary:
+                                      left:
+                                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":102,\\\"hi\\\":103}\"}"
+                                      right:
+                                        Literal:
+                                          Integer:
+                                            - U32
+                                            - "1"
+                                            - span:
+                                                lo: 104
+                                                hi: 108
+                                      op: Add
+                                      span:
+                                        lo: 102
+                                        hi: 108
+                                external: ~
+                                span:
+                                  lo: 100
+                                  hi: 109
+                            span:
+                              lo: 100
+                              hi: 110
+                      span:
+                        lo: 86
+                        hi: 120
+                    otherwise: ~
+                    span:
+                      lo: 74
+                      hi: 120
+              span:
+                lo: 64
+                hi: 126
+            finalize: ~
+            span:
+              lo: 30
+              hi: 126
+          "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":145,\\\"hi\\\":149}\"}":
+            annotations: []
+            call_type: Standard
+            identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":145,\\\"hi\\\":149}\"}"
+            input:
+              - Internal:
+                  identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":150,\\\"hi\\\":151}\"}"
+                  mode: None
+                  type_: Boolean
+                  span:
+                    lo: 150
+                    hi: 151
+            output:
+              - Internal:
+                  mode: None
+                  type_: Boolean
+                  span:
+                    lo: 162
+                    hi: 166
+            output_type: Boolean
+            block:
+              statements:
+                - Expression:
+                    expression:
+                      Call:
+                        function:
+                          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":177,\\\"hi\\\":178}\"}"
+                        arguments:
+                          - Literal:
+                              Integer:
+                                - U32
+                                - "1"
+                                - span:
+                                    lo: 179
+                                    hi: 183
+                        external: ~
+                        span:
+                          lo: 177
+                          hi: 184
+                    span:
+                      lo: 177
+                      hi: 185
+                - Return:
+                    expression:
+                      Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":201,\\\"hi\\\":202}\"}"
+                    span:
+                      lo: 194
+                      hi: 202
+              span:
+                lo: 167
+                hi: 209
+            finalize: ~
+            span:
+              lo: 136
+              hi: 209
+        span:
+          lo: 2
+          hi: 211
