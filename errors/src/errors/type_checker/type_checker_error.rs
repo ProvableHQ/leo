@@ -423,4 +423,11 @@ create_messages!(
         msg: format!("Cannot call a local transition function from a transition function."),
         help: None,
     }
+
+    @formatted
+    loop_bound_must_be_a_literal {
+        args: (),
+        msg: format!("Loop bound must be a literal."),
+        help: None,
+    }
 );

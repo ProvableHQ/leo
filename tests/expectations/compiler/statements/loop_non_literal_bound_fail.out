@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372049]: Loop bound must be a literal.\n    --> compiler-test:12:28\n     |\n  12 |         for i:u64 in 0u64..amount {\n     |                            ^^^^^^\n"
