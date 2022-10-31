@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372003]: Expected type `i8` but type `u8` was found\n    --> compiler-test:16:13\n     |\n  16 |         x = f1(1u8);\n     |             ^^^^^^^\nError [ETYC0372003]: Expected type `i8` but type `u8` was found\n    --> compiler-test:20:13\n     |\n  20 |         y = f3(y, z);\n     |             ^^^^^^^^\nError [ETYC0372003]: Expected type `u8` but type `i8` was found\n    --> compiler-test:20:16\n     |\n  20 |         y = f3(y, z);\n     |                ^\n"
