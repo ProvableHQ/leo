@@ -387,6 +387,10 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error if the type is not valid.
     pub(crate) fn assert_type_is_valid(&self, span: Span, type_: &Type) {
         match type_ {
+            // String types are temporarily disabled.
+            Type::String => {
+                self.emit_err(TypeCheckerError::strings_are_not_supported(span));
+            }
             // Check that the named composite type has been defined.
             Type::Identifier(identifier) if self.symbol_table.borrow().lookup_struct(identifier.name).is_none() => {
                 self.emit_err(TypeCheckerError::undefined_type(identifier.name, span));

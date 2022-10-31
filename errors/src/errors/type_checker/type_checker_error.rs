@@ -430,4 +430,11 @@ create_messages!(
         msg: format!("Loop bound must be a literal."),
         help: None,
     }
+
+    @formatted
+    strings_are_not_supported {
+        args: (),
+        msg: format!("Strings are not yet supported."),
+        help: None,
+    }
 );
