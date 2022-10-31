@@ -389,7 +389,7 @@ impl ParserContext<'_> {
                     } else {
                         // Eat a struct member access.
                         expr = Expression::Access(AccessExpression::Member(MemberAccess {
-                            span: expr.span(),
+                            span: expr.span() + name.span(),
                             inner: Box::new(expr),
                             name,
                         }))
