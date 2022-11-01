@@ -174,6 +174,70 @@
 <span id="174">174</span>
 <span id="175">175</span>
 <span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -193,9 +257,9 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Flattener</span>;
 
 <span class="kw">use</span> <span class="ident">leo_ast</span>::{
-    <span class="ident">AssignStatement</span>, <span class="ident">BinaryExpression</span>, <span class="ident">BinaryOperation</span>, <span class="ident">Block</span>, <span class="ident">ConditionalStatement</span>, <span class="ident">DefinitionStatement</span>, <span class="ident">Expression</span>,
-    <span class="ident">ExpressionReconstructor</span>, <span class="ident">FinalizeStatement</span>, <span class="ident">IterationStatement</span>, <span class="ident">Node</span>, <span class="ident">ReturnStatement</span>, <span class="ident">Statement</span>,
-    <span class="ident">StatementReconstructor</span>, <span class="ident">UnaryExpression</span>, <span class="ident">UnaryOperation</span>,
+    <span class="ident">AssignStatement</span>, <span class="ident">BinaryExpression</span>, <span class="ident">BinaryOperation</span>, <span class="ident">Block</span>, <span class="ident">ConditionalStatement</span>, <span class="ident">ConsoleFunction</span>, <span class="ident">ConsoleStatement</span>,
+    <span class="ident">DefinitionStatement</span>, <span class="ident">Expression</span>, <span class="ident">ExpressionReconstructor</span>, <span class="ident">FinalizeStatement</span>, <span class="ident">IterationStatement</span>, <span class="ident">Node</span>,
+    <span class="ident">ReturnStatement</span>, <span class="ident">Statement</span>, <span class="ident">StatementReconstructor</span>, <span class="ident">UnaryExpression</span>, <span class="ident">UnaryOperation</span>,
 };
 
 <span class="kw">impl</span> <span class="ident">StatementReconstructor</span> <span class="kw">for</span> <span class="ident">Flattener</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
@@ -286,6 +350,96 @@
         (<span class="ident">Statement::dummy</span>(<span class="ident">Default::default</span>()), <span class="ident">statements</span>)
     }
 
+    <span class="doccomment">/// Rewrites a console statement into a flattened form.</span>
+    <span class="doccomment">/// Console statements at the top level only have their arguments flattened.</span>
+    <span class="doccomment">/// Console statements inside a conditional statement are flattened to such that the check is conditional on</span>
+    <span class="doccomment">/// the execution path being valid.</span>
+    <span class="doccomment">/// For example, the following snippet:</span>
+    <span class="doccomment">/// ```leo</span>
+    <span class="doccomment">/// if condition1 {</span>
+    <span class="doccomment">///    if condition2 {</span>
+    <span class="doccomment">///        console.assert(foo);</span>
+    <span class="doccomment">///    }</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// is flattened to:</span>
+    <span class="doccomment">/// ```leo</span>
+    <span class="doccomment">/// console.assert(!(condition1 &amp;&amp; condition2) || foo);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// which is equivalent to the logical formula `(condition1 /\ condition2) ==&gt; foo`.</span>
+    <span class="kw">fn</span> <span class="ident">reconstruct_console</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ConsoleStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statements</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+
+        <span class="comment">// Flatten the arguments of the console statement.</span>
+        <span class="kw">let</span> <span class="ident">console</span> <span class="op">=</span> <span class="ident">ConsoleStatement</span> {
+            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            <span class="ident">function</span>: <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">function</span> {
+                <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expression</span>) =&gt; {
+                    <span class="kw">let</span> (<span class="ident">expression</span>, <span class="ident">additional_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">expression</span>);
+                    <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">additional_statements</span>);
+                    <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expression</span>)
+                }
+                <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; {
+                    <span class="kw">let</span> (<span class="ident">left</span>, <span class="ident">additional_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">left</span>);
+                    <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">additional_statements</span>);
+                    <span class="kw">let</span> (<span class="ident">right</span>, <span class="ident">additional_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">right</span>);
+                    <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">additional_statements</span>);
+                    <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>)
+                }
+                <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; {
+                    <span class="kw">let</span> (<span class="ident">left</span>, <span class="ident">additional_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">left</span>);
+                    <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">additional_statements</span>);
+                    <span class="kw">let</span> (<span class="ident">right</span>, <span class="ident">additional_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">right</span>);
+                    <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">additional_statements</span>);
+                    <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>)
+                }
+            },
+        };
+
+        <span class="comment">// Add the appropriate guards.</span>
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">construct_guard</span>() {
+            <span class="comment">// If the condition stack is empty, we can return the flattened console statement.</span>
+            <span class="prelude-val">None</span> =&gt; (<span class="ident">Statement::Console</span>(<span class="ident">console</span>), <span class="ident">statements</span>),
+            <span class="comment">// Otherwise, we need to join the guard with the expression in the flattened console statement.</span>
+            <span class="comment">// Note given the guard and the expression, we construct the logical formula `guard =&gt; expression`,</span>
+            <span class="comment">// which is equivalent to `!guard || expression`.</span>
+            <span class="prelude-val">Some</span>(<span class="ident">guard</span>) =&gt; (
+                <span class="ident">Statement::Console</span>(<span class="ident">ConsoleStatement</span> {
+                    <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+                    <span class="ident">function</span>: <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
+                        <span class="comment">// Take the logical negation of the guard.</span>
+                        <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">Expression::Unary</span>(<span class="ident">UnaryExpression</span> {
+                            <span class="ident">op</span>: <span class="ident">UnaryOperation::Not</span>,
+                            <span class="ident">receiver</span>: <span class="ident">Box::new</span>(<span class="ident">guard</span>),
+                            <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                        })),
+                        <span class="ident">op</span>: <span class="ident">BinaryOperation::Or</span>,
+                        <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                        <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="kw">match</span> <span class="ident">console</span>.<span class="ident">function</span> {
+                            <span class="comment">// If the console statement is an `assert`, use the expression as is.</span>
+                            <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expression</span>) =&gt; <span class="ident">expression</span>,
+                            <span class="comment">// If the console statement is an `assert_eq`, construct a new equality expression.</span>
+                            <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; <span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
+                                <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">left</span>),
+                                <span class="ident">op</span>: <span class="ident">BinaryOperation::Eq</span>,
+                                <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="ident">right</span>),
+                                <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                            }),
+                            <span class="comment">// If the console statement is an `assert_ne`, construct a new inequality expression.</span>
+                            <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; <span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
+                                <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">left</span>),
+                                <span class="ident">op</span>: <span class="ident">BinaryOperation::Neq</span>,
+                                <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="ident">right</span>),
+                                <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                            }),
+                        }),
+                    })),
+                }),
+                <span class="ident">statements</span>,
+            ),
+        }
+    }
+
     <span class="doccomment">/// Static single assignment converts definition statements into assignment statements.</span>
     <span class="kw">fn</span> <span class="ident">reconstruct_definition</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_definition</span>: <span class="ident">DefinitionStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
         <span class="macro">unreachable!</span>(<span class="string">&quot;`DefinitionStatement`s should not exist in the AST at this phase of compilation.&quot;</span>)
@@ -295,20 +449,7 @@
     <span class="doccomment">/// Stores the arguments to the finalize statement, which are later folded into a single finalize statement at the end of the function.</span>
     <span class="kw">fn</span> <span class="ident">reconstruct_finalize</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">FinalizeStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
         <span class="comment">// Construct the associated guard.</span>
-        <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">condition_stack</span>.<span class="ident">is_empty</span>() {
-            <span class="bool-val">true</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="bool-val">false</span> =&gt; {
-                <span class="kw">let</span> (<span class="ident">first</span>, <span class="ident">rest</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">condition_stack</span>.<span class="ident">split_first</span>().<span class="ident">unwrap</span>();
-                <span class="prelude-val">Some</span>(<span class="ident">rest</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>().<span class="ident">fold</span>(<span class="ident">first</span>.<span class="ident">clone</span>(), <span class="op">|</span><span class="ident">acc</span>, <span class="ident">condition</span><span class="op">|</span> {
-                    <span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
-                        <span class="ident">op</span>: <span class="ident">BinaryOperation::And</span>,
-                        <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">acc</span>),
-                        <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="ident">condition</span>),
-                        <span class="ident">span</span>: <span class="ident">Default::default</span>(),
-                    })
-                }))
-            }
-        };
+        <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">construct_guard</span>();
 
         <span class="comment">// For each finalize argument, add it and its associated guard to the appropriate list of finalize arguments.</span>
         <span class="comment">// Note that type checking guarantees that the number of arguments in a finalize statement is equal to the number of arguments in to the finalize block.</span>
@@ -329,20 +470,7 @@
     <span class="doccomment">/// Stores the arguments to the return statement, which are later folded into a single return statement at the end of the function.</span>
     <span class="kw">fn</span> <span class="ident">reconstruct_return</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ReturnStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
         <span class="comment">// Construct the associated guard.</span>
-        <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">condition_stack</span>.<span class="ident">is_empty</span>() {
-            <span class="bool-val">true</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="bool-val">false</span> =&gt; {
-                <span class="kw">let</span> (<span class="ident">first</span>, <span class="ident">rest</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">condition_stack</span>.<span class="ident">split_first</span>().<span class="ident">unwrap</span>();
-                <span class="prelude-val">Some</span>(<span class="ident">rest</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>().<span class="ident">fold</span>(<span class="ident">first</span>.<span class="ident">clone</span>(), <span class="op">|</span><span class="ident">acc</span>, <span class="ident">condition</span><span class="op">|</span> {
-                    <span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
-                        <span class="ident">op</span>: <span class="ident">BinaryOperation::And</span>,
-                        <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">acc</span>),
-                        <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="ident">condition</span>),
-                        <span class="ident">span</span>: <span class="ident">Default::default</span>(),
-                    })
-                }))
-            }
-        };
+        <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">construct_guard</span>();
 
         <span class="comment">// Add it to the list of return statements.</span>
         <span class="self">self</span>.<span class="ident">returns</span>.<span class="ident">push</span>((<span class="ident">guard</span>, <span class="ident">input</span>.<span class="ident">expression</span>));
