@@ -263,7 +263,7 @@ impl ParserContext<'_> {
                 Expression::Literal(Literal::Integer(integer_type, string, span))
                     if op == UnaryOperation::Negate && inner_is_integer =>
                 {
-                    Expression::Literal(Literal::Integer(integer_type, format!("-{}", string), op_span + span))
+                    Expression::Literal(Literal::Integer(integer_type, format!("-{string}"), op_span + span))
                 }
                 // Otherwise, produce a unary expression.
                 _ => Expression::Unary(UnaryExpression {
@@ -438,7 +438,7 @@ impl ParserContext<'_> {
         let (advanced, gc) = self.look_ahead(*dist, |t0| match &t0.token {
             Token::Add => Some((1, GroupCoordinate::SignHigh)),
             Token::Sub => self.look_ahead(*dist + 1, |t1| match &t1.token {
-                Token::Integer(value) => Some((2, GroupCoordinate::Number(format!("-{}", value), t1.span))),
+                Token::Integer(value) => Some((2, GroupCoordinate::Number(format!("-{value}"), t1.span))),
                 _ => Some((1, GroupCoordinate::SignLow)),
             }),
             Token::Underscore => Some((1, GroupCoordinate::Inferred)),

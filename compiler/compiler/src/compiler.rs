@@ -86,7 +86,7 @@ impl<'a> Compiler<'a> {
         hasher.update(unparsed_file.as_bytes());
         let hash = hasher.finalize();
 
-        Ok(format!("{:x}", hash))
+        Ok(format!("{hash:x}"))
     }
 
     /// Parses and stores a program file content from a string, constructs a syntax tree, and generates a program.

@@ -53,7 +53,7 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_value(&mut self, input: &'a Literal) -> (String, String) {
-        (format!("{}", input), String::new())
+        (format!("{input}"), String::new())
     }
 
     fn visit_binary(&mut self, input: &'a BinaryExpression) -> (String, String) {
@@ -125,7 +125,7 @@ impl<'a> CodeGenerator<'a> {
         };
 
         let destination_register = format!("r{}", self.next_register);
-        let unary_instruction = format!("    {} {} into {};\n", opcode, expression_operand, destination_register);
+        let unary_instruction = format!("    {opcode} {expression_operand} into {destination_register};\n");
 
         // Increment the register counter.
         self.next_register += 1;
@@ -165,7 +165,7 @@ impl<'a> CodeGenerator<'a> {
         let name = if let Some((is_record, type_)) = self.composite_mapping.get(&input.name.name) {
             if *is_record {
                 // record.private;
-                format!("{}.{}", input.name, type_)
+                format!("{}.{type_}", input.name)
             } else {
                 // foo; // no visibility for interfaces
                 input.name.to_string()
@@ -195,7 +195,7 @@ impl<'a> CodeGenerator<'a> {
             };
 
             // Push operand name to struct init instruction.
-            write!(struct_init_instruction, "{} ", operand).expect("failed to write to string");
+            write!(struct_init_instruction, "{operand} ").expect("failed to write to string");
         }
 
         // Push destination register to struct init instruction.
@@ -218,7 +218,7 @@ impl<'a> CodeGenerator<'a> {
 
     fn visit_member_access(&mut self, input: &'a MemberAccess) -> (String, String) {
         let (inner_struct, _inner_instructions) = self.visit_expression(&input.inner);
-        let member_access_instruction = format!("{}.{}", inner_struct, input.name);
+        let member_access_instruction = format!("{inner_struct}.{}", input.name);
 
         (member_access_instruction, String::new())
     }
@@ -244,19 +244,19 @@ impl<'a> CodeGenerator<'a> {
         };
 
         // Construct associated function call.
-        let mut associated_function_call = format!("    {}.{} ", input.name, symbol);
+        let mut associated_function_call = format!("    {}.{symbol} ", input.name);
         let mut instructions = String::new();
 
         // Visit each function argument and accumulate instructions from expressions.
         for arg in input.args.iter() {
             let (arg_string, arg_instructions) = self.visit_expression(arg);
-            write!(associated_function_call, "{} ", arg_string).expect("failed to write associated function argument");
+            write!(associated_function_call, "{arg_string} ").expect("failed to write associated function argument");
             instructions.push_str(&arg_instructions);
         }
 
         // Push destination register to associated function call instruction.
         let destination_register = format!("r{}", self.next_register);
-        writeln!(associated_function_call, "into {};", destination_register)
+        writeln!(associated_function_call, "into {destination_register};")
             .expect("failed to write dest register for associated function");
         instructions.push_str(&associated_function_call);
 
@@ -277,20 +277,20 @@ impl<'a> CodeGenerator<'a> {
 
     fn visit_call(&mut self, input: &'a CallExpression) -> (String, String) {
         let mut call_instruction = match &input.external {
-            Some(external) => format!("    call {}.aleo/{} ", external, input.function),
+            Some(external) => format!("    call {external}.aleo/{} ", input.function),
             None => format!("    call {} ", input.function),
         };
         let mut instructions = String::new();
 
         for argument in input.arguments.iter() {
             let (argument, argument_instructions) = self.visit_expression(argument);
-            write!(call_instruction, "{} ", argument).expect("failed to write to string");
+            write!(call_instruction, "{argument} ").expect("failed to write to string");
             instructions.push_str(&argument_instructions);
         }
 
         // Push destination register to call instruction.
         let destination_register = format!("r{}", self.next_register);
-        writeln!(call_instruction, "into {};", destination_register).expect("failed to write to string");
+        writeln!(call_instruction, "into {destination_register};").expect("failed to write to string");
         instructions.push_str(&call_instruction);
 
         // Increment the register counter.
@@ -302,17 +302,17 @@ impl<'a> CodeGenerator<'a> {
     fn visit_tuple(&mut self, input: &'a TupleExpression) -> (String, String) {
         // Need to return a single string here so we will join the tuple elements with '\n'
         // and split them after this method is called.
-        let mut tuple_elements = String::new();
+        let mut tuple_elements = Vec::with_capacity(input.elements.len());
         let mut instructions = String::new();
 
         // Visit each tuple element and accumulate instructions from expressions.
         for element in input.elements.iter() {
             let (element, element_instructions) = self.visit_expression(element);
-            writeln!(tuple_elements, "{}", element).expect("failed to write tuple to string");
+            tuple_elements.push(element);
             instructions.push_str(&element_instructions);
         }
 
         // CAUTION: does not return the destination_register.
-        (tuple_elements, instructions)
+        (tuple_elements.join("\n"), instructions)
     }
 }

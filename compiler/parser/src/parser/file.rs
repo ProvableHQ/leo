@@ -66,11 +66,7 @@ impl ParserContext<'_> {
     fn unexpected_item(token: &SpannedToken, expected: &[Token]) -> ParserError {
         ParserError::unexpected(
             &token.token,
-            expected
-                .iter()
-                .map(|x| format!("'{}'", x))
-                .collect::<Vec<_>>()
-                .join(", "),
+            expected.iter().map(|x| format!("'{x}'")).collect::<Vec<_>>().join(", "),
             token.span,
         )
     }

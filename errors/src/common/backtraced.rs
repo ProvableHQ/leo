@@ -128,7 +128,7 @@ impl fmt::Display for Backtraced {
                 write!(f, "{}", message.bold().yellow())?;
             }
         } else {
-            write!(f, "{}", message)?;
+            write!(f, "{message}")?;
         };
 
         if let Some(help) = &self.help {
@@ -149,7 +149,7 @@ impl fmt::Display for Backtraced {
                 let trace = printer
                     .format_trace_to_string(&self.backtrace)
                     .map_err(|_| fmt::Error)?;
-                write!(f, "{}", trace)?;
+                write!(f, "{trace}")?;
             }
             "full" => {
                 let mut printer = BacktracePrinter::default();
@@ -157,7 +157,7 @@ impl fmt::Display for Backtraced {
                 let trace = printer
                     .format_trace_to_string(&self.backtrace)
                     .map_err(|_| fmt::Error)?;
-                write!(f, "{}", trace)?;
+                write!(f, "{trace}")?;
             }
             _ => {}
         }

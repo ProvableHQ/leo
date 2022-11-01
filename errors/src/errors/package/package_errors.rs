@@ -31,7 +31,7 @@ create_messages!(
     @backtraced
     failed_to_get_input_file_entry {
         args: (error: impl ErrorArg),
-        msg: format!("failed to get input file entry: {}", error),
+        msg: format!("failed to get input file entry: {error}"),
         help: None,
     }
 
@@ -39,7 +39,7 @@ create_messages!(
     @backtraced
     failed_to_get_input_file_type {
         args: (file: impl Debug, error: impl ErrorArg),
-        msg: format!("failed to get input file `{:?}` type: {}", file, error),
+        msg: format!("failed to get input file `{file:?}` type: {error}"),
         help: None,
     }
 
@@ -47,7 +47,7 @@ create_messages!(
     @backtraced
     invalid_input_file_type {
         args: (file: impl Debug, type_: std::fs::FileType),
-        msg: format!("input file `{:?}` has invalid type: {:?}", file, type_),
+        msg: format!("input file `{file:?}` has invalid type: {type_:?}"),
         help: None,
     }
 
@@ -55,7 +55,7 @@ create_messages!(
     @backtraced
     failed_to_create_inputs_directory {
         args: (error: impl ErrorArg),
-        msg: format!("failed creating inputs directory {}", error),
+        msg: format!("failed creating inputs directory {error}"),
         help: None,
     }
 
@@ -63,7 +63,7 @@ create_messages!(
     @backtraced
     failed_to_read_circuit_file {
         args: (path: impl Debug),
-        msg: format!("Cannot read struct file from the provided file path - {:?}", path),
+        msg: format!("Cannot read struct file from the provided file path - {path:?}"),
         help: None,
     }
 
@@ -71,7 +71,7 @@ create_messages!(
     @backtraced
     failed_to_read_inputs_directory {
         args: (error: impl ErrorArg),
-        msg: format!("failed reading inputs directory {}", error),
+        msg: format!("failed reading inputs directory {error}"),
         help: None,
     }
 
@@ -79,7 +79,7 @@ create_messages!(
     @backtraced
     failed_to_read_input_file {
         args: (path: impl Debug),
-        msg: format!("Cannot read input file from the provided file path - {:?}", path),
+        msg: format!("Cannot read input file from the provided file path - {path:?}"),
         help: None,
     }
 
@@ -87,7 +87,7 @@ create_messages!(
     @backtraced
     failed_to_read_snapshot_file {
         args: (path: impl Debug),
-        msg: format!("Cannot read snapshot file from the provided file path - {:?}", path),
+        msg: format!("Cannot read snapshot file from the provided file path - {path:?}"),
         help: None,
     }
 
@@ -95,7 +95,7 @@ create_messages!(
     @backtraced
     failed_to_read_checksum_file {
         args: (path: impl Debug),
-        msg: format!("Cannot read checksum file from the provided file path - {:?}", path),
+        msg: format!("Cannot read checksum file from the provided file path - {path:?}"),
         help: None,
     }
 
@@ -103,7 +103,7 @@ create_messages!(
     @backtraced
     io_error_circuit_file {
         args: (error: impl ErrorArg),
-        msg: format!("IO error struct file from the provided file path - {}", error),
+        msg: format!("IO error struct file from the provided file path - {error}"),
         help: None,
     }
 
@@ -111,7 +111,7 @@ create_messages!(
     @backtraced
     io_error_checksum_file {
         args: (error: impl ErrorArg),
-        msg: format!("IO error checksum file from the provided file path - {}", error),
+        msg: format!("IO error checksum file from the provided file path - {error}"),
         help: None,
     }
 
@@ -119,7 +119,7 @@ create_messages!(
     @backtraced
     io_error_main_file {
         args: (error: impl ErrorArg),
-        msg: format!("IO error main file from the provided file path - {}", error),
+        msg: format!("IO error main file from the provided file path - {error}"),
         help: None,
     }
 
@@ -127,7 +127,7 @@ create_messages!(
     @backtraced
     failed_to_remove_circuit_file {
         args: (path: impl Debug),
-        msg: format!("failed removing struct file from the provided file path - {:?}", path),
+        msg: format!("failed removing struct file from the provided file path - {path:?}"),
         help: None,
     }
 
@@ -135,7 +135,7 @@ create_messages!(
     @backtraced
     failed_to_remove_checksum_file {
         args: (path: impl Debug),
-        msg: format!("failed removing checksum file from the provided file path - {:?}", path),
+        msg: format!("failed removing checksum file from the provided file path - {path:?}"),
         help: None,
     }
 
@@ -143,7 +143,7 @@ create_messages!(
     @backtraced
     failed_to_remove_snapshot_file {
         args: (path: impl Debug),
-        msg: format!("failed removing snapshot file from the provided file path - {:?}", path),
+        msg: format!("failed removing snapshot file from the provided file path - {path:?}"),
         help: None,
     }
 
@@ -151,7 +151,7 @@ create_messages!(
     @backtraced
     io_error_input_file {
         args: (error: impl ErrorArg),
-        msg: format!("IO error input file from the provided file path - {}", error),
+        msg: format!("IO error input file from the provided file path - {error}"),
         help: None,
     }
 
@@ -159,7 +159,7 @@ create_messages!(
     @backtraced
     io_error_gitignore_file {
         args: (error: impl ErrorArg),
-        msg: format!("IO error gitignore file from the provided file path - {}", error),
+        msg: format!("IO error gitignore file from the provided file path - {error}"),
         help: None,
     }
 
@@ -167,7 +167,7 @@ create_messages!(
     @backtraced
     failed_to_create_source_directory {
         args: (error: impl ErrorArg),
-        msg: format!("Failed creating source directory {}.", error),
+        msg: format!("Failed creating source directory {error}."),
         help: None,
     }
 
@@ -175,7 +175,7 @@ create_messages!(
     @backtraced
     failed_to_get_leo_file_entry {
         args: (error: impl ErrorArg),
-        msg: format!("Failed to get Leo file entry: {}.", error),
+        msg: format!("Failed to get Leo file entry: {error}."),
         help: None,
     }
 
@@ -183,7 +183,7 @@ create_messages!(
     @backtraced
     failed_to_get_leo_file_extension {
         args: (extension: impl Debug),
-        msg: format!("Failed to get Leo file extension: {:?}.", extension),
+        msg: format!("Failed to get Leo file extension: {extension:?}."),
         help: None,
     }
 
@@ -191,7 +191,7 @@ create_messages!(
     @backtraced
     invalid_leo_file_extension {
         args: (file: impl Debug, extension: impl Debug),
-        msg: format!("Source file `{:?}` has invalid extension: {:?}.", file, extension),
+        msg: format!("Source file `{file:?}` has invalid extension: {extension:?}."),
         help: None,
     }
 
@@ -199,7 +199,7 @@ create_messages!(
     @backtraced
     failed_to_initialize_package {
         args: (package: impl Display, path: impl Debug),
-        msg: format!("failed to initialize package {} {:?}", package, path),
+        msg: format!("failed to initialize package {package} {path:?}"),
         help: None,
     }
 
@@ -207,7 +207,7 @@ create_messages!(
     @backtraced
     invalid_package_name {
         args: (package: impl Display),
-        msg: format!("invalid project name {}", package),
+        msg: format!("invalid project name {package}"),
         help: None,
     }
 
@@ -215,7 +215,7 @@ create_messages!(
     @backtraced
     directory_not_found {
         args: (dirname: impl Display, path: impl Display),
-        msg: format!("The `{}` does not exist at `{}`.", dirname, path),
+        msg: format!("The `{dirname}` does not exist at `{path}`."),
         help: None,
     }
 
@@ -223,7 +223,7 @@ create_messages!(
     @backtraced
     failed_to_create_directory {
         args: (dirname: impl Display, error: impl ErrorArg),
-        msg: format!("failed to create directory `{}`, error: {}.", dirname, error),
+        msg: format!("failed to create directory `{dirname}`, error: {error}."),
         help: None,
     }
 
@@ -231,7 +231,7 @@ create_messages!(
     @backtraced
     failed_to_remove_directory {
         args: (dirname: impl Display, error: impl ErrorArg),
-        msg: format!("failed to remove directory: {}, error: {}", dirname, error),
+        msg: format!("failed to remove directory: {dirname}, error: {error}"),
         help: None,
     }
 
@@ -239,7 +239,7 @@ create_messages!(
     @backtraced
     failed_to_read_file {
         args: (path: impl Display, error: impl ErrorArg),
-        msg: format!("failed to read file: {}, error: {}", path, error),
+        msg: format!("failed to read file: {path}, error: {error}"),
         help: None,
     }
 
@@ -253,42 +253,42 @@ create_messages!(
     @backtraced
     failed_to_set_cwd {
         args: (dir: impl Display, error: impl ErrorArg),
-        msg: format!("Failed to set current working directory to `{}`. Error: {}.", dir, error),
+        msg: format!("Failed to set current working directory to `{dir}`. Error: {error}."),
         help: None,
     }
 
     @backtraced
     failed_to_open_manifest {
         args: (error: impl Display),
-        msg: format!("Failed to open manifest file: {}", error),
+        msg: format!("Failed to open manifest file: {error}"),
         help: Some("Create a package by running `leo new`.".to_string()),
     }
 
     @backtraced
     failed_to_open_aleo_file {
         args: (error: impl Display),
-        msg: format!("Failed to open Aleo file: {}", error),
+        msg: format!("Failed to open Aleo file: {error}"),
         help: Some("Create a package by running `leo new`.".to_string()),
     }
 
     @backtraced
     failed_to_create_aleo_file {
         args: (error: impl Display),
-        msg: format!("Failed to create Aleo file: {}.", error),
+        msg: format!("Failed to create Aleo file: {error}."),
         help: None,
     }
 
     @backtraced
     failed_to_write_aleo_file {
         args: (error: impl Display),
-        msg: format!("Failed to write aleo file: {}.", error),
+        msg: format!("Failed to write aleo file: {error}."),
         help: None,
     }
 
     @backtraced
     failed_to_remove_aleo_file {
         args: (error: impl Display),
-        msg: format!("Failed to remove aleo file: {}.", error),
+        msg: format!("Failed to remove aleo file: {error}."),
         help: None,
     }
 

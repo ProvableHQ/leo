@@ -28,9 +28,7 @@ create_messages!(
     unexpected_type {
         args: (expected: impl Display, received: impl Display),
         msg: format!(
-            "unexpected type, expected: '{}', received: '{}'",
-            expected,
-            received,
+            "unexpected type, expected: '{expected}', received: '{received}'",
         ),
         help: None,
     }
@@ -39,7 +37,7 @@ create_messages!(
     @formatted
     illegal_expression {
         args: (expr: impl Display),
-        msg: format!("expression '{}' is not allowed in inputs", expr),
+        msg: format!("expression '{expr}' is not allowed in inputs"),
         help: None,
     }
 
@@ -48,13 +46,12 @@ create_messages!(
     unexpected_section {
         args: (expected: &[impl Display], received: impl Display),
         msg: format!(
-            "unexpected section: expected {} -- got '{}'",
+            "unexpected section: expected {} -- got '{received}'",
             expected
                 .iter()
-                .map(|x| format!("'{}'", x))
+                .map(|x| format!("'{x}'"))
                 .collect::<Vec<_>>()
-                .join(", "),
-            received
+                .join(", ")
         ),
         help: None,
     }

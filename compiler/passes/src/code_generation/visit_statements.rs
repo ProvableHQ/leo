@@ -47,10 +47,18 @@ impl<'a> CodeGenerator<'a> {
             Expression::Tuple(ref tuple) if tuple.elements.is_empty() => String::new(),
             _ => {
                 let (operand, mut expression_instructions) = self.visit_expression(&input.expression);
+                // Get the output type of the function.
+                let output = if self.in_finalize {
+                    // Note that the first unwrap is safe, since `current_function` is set in `visit_function`.
+                    self.current_function.unwrap().finalize.as_ref().unwrap().output.iter()
+                } else {
+                    // Note that this unwrap is safe, since `current_function` is set in `visit_function`.
+                    self.current_function.unwrap().output.iter()
+                };
                 let instructions = operand
                     .split('\n')
                     .into_iter()
-                    .zip(self.current_function.unwrap().output.iter())
+                    .zip_eq(output)
                     .map(|(operand, output)| {
                         match output {
                             Output::Internal(output) => {
@@ -106,7 +114,7 @@ impl<'a> CodeGenerator<'a> {
         let (index, mut instructions) = self.visit_expression(&input.index);
         let (amount, amount_instructions) = self.visit_expression(&input.amount);
         instructions.push_str(&amount_instructions);
-        instructions.push_str(&format!("    increment {}[{}] by {};\n", input.mapping, index, amount));
+        instructions.push_str(&format!("    increment {}[{index}] by {amount};\n", input.mapping));
 
         instructions
     }
@@ -115,7 +123,7 @@ impl<'a> CodeGenerator<'a> {
         let (index, mut instructions) = self.visit_expression(&input.index);
         let (amount, amount_instructions) = self.visit_expression(&input.amount);
         instructions.push_str(&amount_instructions);
-        instructions.push_str(&format!("    decrement {}[{}] by {};\n", input.mapping, index, amount));
+        instructions.push_str(&format!("    decrement {}[{index}] by {amount};\n", input.mapping));
 
         instructions
     }
@@ -126,7 +134,7 @@ impl<'a> CodeGenerator<'a> {
 
         for argument in input.arguments.iter() {
             let (argument, argument_instructions) = self.visit_expression(argument);
-            write!(finalize_instruction, " {}", argument).expect("failed to write to string");
+            write!(finalize_instruction, " {argument}").expect("failed to write to string");
             instructions.push_str(&argument_instructions);
         }
         writeln!(finalize_instruction, ";").expect("failed to write to string");
@@ -161,7 +169,7 @@ impl<'a> CodeGenerator<'a> {
         let mut generate_assert_instruction = |name: &str, left: &'a Expression, right: &'a Expression| {
             let (left_operand, left_instructions) = self.visit_expression(left);
             let (right_operand, right_instructions) = self.visit_expression(right);
-            let assert_instruction = format!("    {} {} {};\n", name, left_operand, right_operand);
+            let assert_instruction = format!("    {name} {left_operand} {right_operand};\n");
 
             // Concatenate the instructions.
             let mut instructions = left_instructions;
@@ -173,7 +181,7 @@ impl<'a> CodeGenerator<'a> {
         match &input.function {
             ConsoleFunction::Assert(expr) => {
                 let (operand, mut instructions) = self.visit_expression(expr);
-                let assert_instruction = format!("    assert.eq {} true;\n", operand);
+                let assert_instruction = format!("    assert.eq {operand} true;\n");
 
                 instructions.push_str(&assert_instruction);
                 instructions

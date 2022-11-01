@@ -60,7 +60,7 @@ impl CircuitFile {
     /// Writes the given serialized struct to a file.
     pub fn write_to(&self, path: &Path, circuit: String) -> Result<()> {
         let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(PackageError::io_error_circuit_file)?;
+        let mut file = File::create(path).map_err(PackageError::io_error_circuit_file)?;
 
         file.write_all(circuit.as_bytes())
             .map_err(PackageError::io_error_circuit_file)?;
@@ -86,7 +86,7 @@ impl CircuitFile {
                 path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
             }
             path.to_mut()
-                .push(format!("{}{}", self.package_name, CIRCUIT_FILE_EXTENSION));
+                .push(format!("{}{CIRCUIT_FILE_EXTENSION}", self.package_name));
         }
         path
     }

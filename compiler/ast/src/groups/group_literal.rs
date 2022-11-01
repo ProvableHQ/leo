@@ -48,7 +48,7 @@ impl GroupLiteral {
 impl fmt::Display for GroupLiteral {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Single(string, _) => write!(f, "{}", string),
+            Self::Single(string, _) => write!(f, "{string}"),
             Self::Tuple(tuple) => write!(f, "{}", tuple.x), // Temporarily emit x coordinate only.
         }
     }

@@ -249,14 +249,14 @@ impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use Token::*;
         match self {
-            CommentLine(s) => write!(f, "{}", s),
-            CommentBlock(s) => write!(f, "{}", s),
-            StaticString(s) => write!(f, "\"{}\"", s),
-            Identifier(s) => write!(f, "{}", s),
-            Integer(s) => write!(f, "{}", s),
+            CommentLine(s) => write!(f, "{s}"),
+            CommentBlock(s) => write!(f, "{s}"),
+            StaticString(s) => write!(f, "\"{s}\""),
+            Identifier(s) => write!(f, "{s}"),
+            Integer(s) => write!(f, "{s}"),
             True => write!(f, "true"),
             False => write!(f, "false"),
-            AddressLit(s) => write!(f, "{}", s),
+            AddressLit(s) => write!(f, "{s}"),
             WhiteSpace => write!(f, "whitespace"),
 
             Not => write!(f, "!"),

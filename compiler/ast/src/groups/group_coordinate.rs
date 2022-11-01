@@ -35,7 +35,7 @@ pub enum GroupCoordinate {
 impl fmt::Display for GroupCoordinate {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            GroupCoordinate::Number(number, _) => write!(f, "{}", number),
+            GroupCoordinate::Number(number, _) => write!(f, "{number}"),
             GroupCoordinate::SignHigh => write!(f, "+"),
             GroupCoordinate::SignLow => write!(f, "-"),
             GroupCoordinate::Inferred => write!(f, "_"),

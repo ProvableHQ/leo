@@ -230,7 +230,7 @@ fn compile_leo_file(
     // Create the path to the Aleo file.
     let mut aleo_file_path = build.to_path_buf();
     aleo_file_path.push(match is_import {
-        true => format!("{}.{}", program_name, program_id.network()),
+        true => format!("{program_name}.{}", program_id.network()),
         false => format!("main.{}", program_id.network()),
     });
 

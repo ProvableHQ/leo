@@ -33,9 +33,9 @@ pub enum ConsoleFunction {
 impl fmt::Display for ConsoleFunction {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ConsoleFunction::Assert(expr) => write!(f, "assert({})", expr),
-            ConsoleFunction::AssertEq(expr1, expr2) => write!(f, "assert_eq({}, {})", expr1, expr2),
-            ConsoleFunction::AssertNeq(expr1, expr2) => write!(f, "assert_neq({}, {})", expr1, expr2),
+            ConsoleFunction::Assert(expr) => write!(f, "assert({expr})"),
+            ConsoleFunction::AssertEq(expr1, expr2) => write!(f, "assert_eq({expr1}, {expr2})"),
+            ConsoleFunction::AssertNeq(expr1, expr2) => write!(f, "assert_neq({expr1}, {expr2})"),
         }
     }
 }

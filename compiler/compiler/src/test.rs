@@ -81,7 +81,7 @@ fn hash_content(content: &str) -> String {
     hasher.update(content);
     let hash = hasher.finalize();
 
-    format!("{:x}", hash)
+    format!("{hash:x}")
 }
 
 fn hash_file(path: &str) -> String {
@@ -253,7 +253,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
 
         // Write the program string to a file in the temporary directory.
         let path = directory.join("main.aleo");
-        let mut file = File::create(&path).unwrap();
+        let mut file = File::create(path).unwrap();
         file.write_all(bytecode.as_bytes()).unwrap();
 
         // Create the manifest file.
@@ -261,7 +261,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
 
         // Create the build directory.
         let build_directory = directory.join("build");
-        std::fs::create_dir_all(&build_directory).unwrap();
+        std::fs::create_dir_all(build_directory).unwrap();
 
         // Open the package at the temporary directory.
         let _package = handler.extend_if_error(Package::<Testnet3>::open(&directory).map_err(LeoError::Anyhow))?;

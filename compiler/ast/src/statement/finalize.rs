@@ -34,7 +34,7 @@ impl fmt::Display for FinalizeStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "finalize(")?;
         for (i, param) in self.arguments.iter().enumerate() {
-            write!(f, "{}", param)?;
+            write!(f, "{param}")?;
             if i < self.arguments.len() - 1 {
                 write!(f, ", ")?;
             }

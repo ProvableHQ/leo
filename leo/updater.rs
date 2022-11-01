@@ -45,7 +45,7 @@ impl Updater {
         }
 
         // Forgo using tracing to list the available versions without a log status.
-        println!("{}", output);
+        println!("{output}");
 
         Ok(())
     }
@@ -94,7 +94,7 @@ impl Updater {
         if let Ok(latest_version) = Self::update_available() {
             let mut message = "🟢 A new version is available! Run".bold().green().to_string();
             message += &" `leo update` ".bold().white();
-            message += &format!("to update to v{}.", latest_version).bold().green();
+            message += &format!("to update to v{latest_version}.").bold().green();
 
             tracing::info!("\n{}\n", message);
         }

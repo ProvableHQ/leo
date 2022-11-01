@@ -30,7 +30,7 @@ create_messages!(
     @backtraced
     cli_io_error {
         args: (error: impl ErrorArg),
-        msg: format!("cli io error {}", error),
+        msg: format!("cli io error {error}"),
         help: None,
     }
 
@@ -38,7 +38,7 @@ create_messages!(
     @backtraced
     could_not_fetch_versions {
         args: (error: impl ErrorArg),
-        msg: format!("Could not fetch versions: {}", error),
+        msg: format!("Could not fetch versions: {error}"),
         help: None,
     }
 
@@ -54,7 +54,7 @@ create_messages!(
     @backtraced
     self_update_error {
         args: (error: impl ErrorArg),
-        msg: format!("self update crate Error: {}", error),
+        msg: format!("self update crate Error: {error}"),
         help: None,
     }
 
@@ -62,7 +62,7 @@ create_messages!(
     @backtraced
     self_update_build_error {
         args: (error: impl ErrorArg),
-        msg: format!("self update crate failed to build Error: {}", error),
+        msg: format!("self update crate failed to build Error: {error}"),
         help: None,
     }
 
@@ -70,14 +70,14 @@ create_messages!(
     @backtraced
     old_release_version {
         args: (current: impl Display, latest: impl Display),
-        msg: format!("Old release version {} {}", current, latest),
+        msg: format!("Old release version {current} {latest}"),
         help: None,
     }
 
     @backtraced
     failed_to_load_instructions {
         args: (error: impl Display),
-        msg: format!("Failed to load compiled Aleo instructions into an Aleo file.\nSnarkVM Error: {}", error),
+        msg: format!("Failed to load compiled Aleo instructions into an Aleo file.\nSnarkVM Error: {error}"),
         help: Some("Generated Aleo instructions have been left in `main.aleo`".to_string()),
     }
 
@@ -91,63 +91,63 @@ create_messages!(
     @backtraced
     failed_to_execute_aleo_build {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `aleo build` command.\nSnarkVM Error: {}", error),
+        msg: format!("Failed to execute the `aleo build` command.\nSnarkVM Error: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_execute_aleo_new {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `aleo new` command.\nSnarkVM Error: {}", error),
+        msg: format!("Failed to execute the `aleo new` command.\nSnarkVM Error: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_execute_aleo_run {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `aleo run` command.\nSnarkVM Error: {}", error),
+        msg: format!("Failed to execute the `aleo run` command.\nSnarkVM Error: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_execute_aleo_node {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `aleo node` command.\nSnarkVM Error: {}", error),
+        msg: format!("Failed to execute the `aleo node` command.\nSnarkVM Error: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_execute_aleo_deploy {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `aleo deploy` command.\nSnarkVM Error: {}", error),
+        msg: format!("Failed to execute the `aleo deploy` command.\nSnarkVM Error: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_parse_aleo_new {
         args: (error: impl Display),
-        msg: format!("Failed to parse the `aleo new` command.\nSnarkVM Error: {}", error),
+        msg: format!("Failed to parse the `aleo new` command.\nSnarkVM Error: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_parse_aleo_run {
         args: (error: impl Display),
-        msg: format!("Failed to parse the `aleo run` command.\nSnarkVM Error: {}", error),
+        msg: format!("Failed to parse the `aleo run` command.\nSnarkVM Error: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_parse_aleo_node {
         args: (error: impl Display),
-        msg: format!("Failed to parse the `aleo node` command.\nSnarkVM Error: {}", error),
+        msg: format!("Failed to parse the `aleo node` command.\nSnarkVM Error: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_parse_aleo_deploy {
         args: (error: impl Display),
-        msg: format!("Failed to parse the `aleo deploy` command.\nSnarkVM Error: {}", error),
+        msg: format!("Failed to parse the `aleo deploy` command.\nSnarkVM Error: {error}"),
         help: None,
     }
 );

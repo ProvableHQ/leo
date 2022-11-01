@@ -162,14 +162,14 @@ impl<'a> Processor<'a> {
                     .into_iter()
                     .collect::<HashSet<_>>()
                     .into_iter()
-                    .map(|tag| format!("[{}](#user-content-{})", &tag, tag))
+                    .map(|tag| format!("[{}](#user-content-{tag})", &tag))
                     .collect::<Vec<String>>();
                 keyvec.sort();
                 let keys = keyvec.join(", ");
 
                 self.append_str("```");
                 if !keys.is_empty() {
-                    self.append_str(&format!("\nGo to: _{}_;\n", keys));
+                    self.append_str(&format!("\nGo to: _{keys}_;\n"));
                 }
             }
             (_, _) => (),

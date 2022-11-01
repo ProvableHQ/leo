@@ -247,7 +247,7 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn assert_bool_int_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
             |type_: &Type| BOOLEAN_TYPE.eq(type_) | INT_TYPES.contains(type_),
-            format!("{}, {}", BOOLEAN_TYPE, types_to_string(&INT_TYPES)),
+            format!("{BOOLEAN_TYPE}, {}", types_to_string(&INT_TYPES)),
             type_,
             span,
         )
@@ -257,7 +257,7 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn assert_field_int_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
             |type_: &Type| FIELD_TYPE.eq(type_) | INT_TYPES.contains(type_),
-            format!("{}, {}", FIELD_TYPE, types_to_string(&INT_TYPES)),
+            format!("{FIELD_TYPE}, {}", types_to_string(&INT_TYPES)),
             type_,
             span,
         )
@@ -267,7 +267,7 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn assert_field_group_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
             |type_: &Type| FIELD_TYPE.eq(type_) | GROUP_TYPE.eq(type_),
-            format!("{}, {}", FIELD_TYPE, GROUP_TYPE),
+            format!("{FIELD_TYPE}, {GROUP_TYPE}"),
             type_,
             span,
         )
@@ -277,7 +277,7 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn assert_field_group_int_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
             |type_: &Type| FIELD_TYPE.eq(type_) | GROUP_TYPE.eq(type_) | INT_TYPES.contains(type_),
-            format!("{}, {}, {}", FIELD_TYPE, GROUP_TYPE, types_to_string(&INT_TYPES),),
+            format!("{FIELD_TYPE}, {GROUP_TYPE}, {}", types_to_string(&INT_TYPES),),
             type_,
             span,
         )
@@ -287,7 +287,7 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn assert_field_group_signed_int_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
             |type_: &Type| FIELD_TYPE.eq(type_) | GROUP_TYPE.eq(type_) | SIGNED_INT_TYPES.contains(type_),
-            format!("{}, {}, {}", FIELD_TYPE, GROUP_TYPE, types_to_string(&SIGNED_INT_TYPES),),
+            format!("{FIELD_TYPE}, {GROUP_TYPE}, {}", types_to_string(&SIGNED_INT_TYPES),),
             type_,
             span,
         )
@@ -297,7 +297,7 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn assert_field_scalar_int_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
             |type_: &Type| FIELD_TYPE.eq(type_) | SCALAR_TYPE.eq(type_) | INT_TYPES.contains(type_),
-            format!("{}, {}, {}", FIELD_TYPE, SCALAR_TYPE, types_to_string(&INT_TYPES),),
+            format!("{FIELD_TYPE}, {SCALAR_TYPE}, {}", types_to_string(&INT_TYPES),),
             type_,
             span,
         )

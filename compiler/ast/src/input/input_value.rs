@@ -60,11 +60,11 @@ impl TryFrom<(Type, Expression)> for InputValue {
 impl fmt::Display for InputValue {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            InputValue::Address(ref address) => write!(f, "{}", address),
-            InputValue::Boolean(ref boolean) => write!(f, "{}", boolean),
-            InputValue::Group(ref group) => write!(f, "{}", group),
-            InputValue::Field(ref field) => write!(f, "{}", field),
-            InputValue::Integer(ref type_, ref number) => write!(f, "{}{:?}", number, type_),
+            InputValue::Address(ref address) => write!(f, "{address}"),
+            InputValue::Boolean(ref boolean) => write!(f, "{boolean}"),
+            InputValue::Group(ref group) => write!(f, "{group}"),
+            InputValue::Field(ref field) => write!(f, "{field}"),
+            InputValue::Integer(ref type_, ref number) => write!(f, "{number}{type_:?}"),
         }
     }
 }

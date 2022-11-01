@@ -98,7 +98,7 @@ impl SnapshotFile {
                 path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
             }
             path.to_mut()
-                .push(format!("{}{}", self.snapshot, AST_SNAPSHOT_FILE_EXTENSION));
+                .push(format!("{}{AST_SNAPSHOT_FILE_EXTENSION}", self.snapshot));
         }
         path
     }

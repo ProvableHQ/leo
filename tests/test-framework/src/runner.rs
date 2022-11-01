@@ -67,7 +67,7 @@ fn set_hook() -> Arc<Mutex<Option<String>>> {
                     *panic_buf.lock().unwrap() = Some(e.to_string());
                 }
             } else {
-                println!("{}", e)
+                println!("{e}")
             }
         })
     });
@@ -217,7 +217,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
         let mut expected_output = expectations.as_ref().map(|x| x.outputs.iter());
         for (i, test) in tests.into_iter().enumerate() {
             let expected_output = expected_output.as_mut().and_then(|x| x.next()).cloned();
-            println!("running test {} @ '{}'", test_name, path.to_str().unwrap());
+            println!("running test {test_name} @ '{}'", path.to_str().unwrap());
             let panic_buf = set_hook();
             let leo_output = panic::catch_unwind(|| {
                 namespace.run_test(Test {
@@ -271,7 +271,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
             );
             println!("File: {}", fail.path);
             for error in &fail.errors {
-                println!("{}", error);
+                println!("{error}");
             }
         }
         panic!(

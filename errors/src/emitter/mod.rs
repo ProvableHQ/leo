@@ -43,7 +43,7 @@ pub struct StderrEmitter {
 impl Emitter for StderrEmitter {
     fn emit_err(&mut self, err: LeoError) {
         self.last_error_code = Some(err.exit_code());
-        eprintln!("{}", err);
+        eprintln!("{err}");
     }
 
     fn last_emitted_err_code(&self) -> Option<i32> {
@@ -89,7 +89,7 @@ impl<T: fmt::Display> fmt::Display for Buffer<T> {
             x.fmt(f)?;
         }
         for x in iter {
-            f.write_fmt(format_args!("\n{}", x))?;
+            f.write_fmt(format_args!("\n{x}"))?;
         }
         Ok(())
     }

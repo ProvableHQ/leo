@@ -110,7 +110,7 @@ impl<'a> CodeGenerator<'a> {
         // todo: We do not need the import program string because we generate instructions for imports separately during leo build.
 
         // Generate string for import statement.
-        format!("import {}.aleo;", import_name)
+        format!("import {import_name}.aleo;")
     }
 
     fn visit_struct_or_record(&mut self, struct_: &'a Struct) -> String {
@@ -193,7 +193,7 @@ impl<'a> CodeGenerator<'a> {
                 }
             };
 
-            writeln!(function_string, "    input {} as {};", register_string, type_string,)
+            writeln!(function_string, "    input {register_string} as {type_string};",)
                 .expect("failed to write to string");
         }
 
@@ -238,7 +238,7 @@ impl<'a> CodeGenerator<'a> {
                     }
                 };
 
-                writeln!(function_string, "    input {} as {};", register_string, type_string,)
+                writeln!(function_string, "    input {register_string} as {type_string};",)
                     .expect("failed to write to string");
             }
 
@@ -265,12 +265,12 @@ impl<'a> CodeGenerator<'a> {
                     let (is_record, _) = self.composite_mapping.get(&identifier.name).unwrap();
                     match is_record {
                         // If the type is a record, then declare the type as is.
-                        true => format!("{}.record", identifier),
+                        true => format!("{identifier}.record"),
                         // If the type is a struct, then add the public modifier.
-                        false => format!("{}.public", identifier),
+                        false => format!("{identifier}.public"),
                     }
                 }
-                type_ => format!("{}.public", type_),
+                type_ => format!("{type_}.public"),
             }
         };
 

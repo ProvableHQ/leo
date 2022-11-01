@@ -42,13 +42,13 @@ impl fmt::Display for ProgramScope {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "program {} {{", self.program_id)?;
         for (_, struct_) in self.structs.iter() {
-            writeln!(f, "    {}", struct_)?;
+            writeln!(f, "    {struct_}")?;
         }
         for (_, mapping) in self.mappings.iter() {
-            writeln!(f, "    {}", mapping)?;
+            writeln!(f, "    {mapping}")?;
         }
         for (_, function) in self.functions.iter() {
-            writeln!(f, "    {}", function)?;
+            writeln!(f, "    {function}")?;
         }
         Ok(())
     }
