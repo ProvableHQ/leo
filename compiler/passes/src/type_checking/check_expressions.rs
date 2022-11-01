@@ -627,7 +627,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
     fn visit_tuple(&mut self, input: &'a TupleExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match input.elements.len() {
-            0 => unreachable!("Tuple expressions must have at least one element."),
+            0 => unreachable!("Parsing guarantees that tuple expressions have at least one element."),
             1 => {
                 self.emit_err(TypeCheckerError::singleton_tuple(input.span()));
                 None

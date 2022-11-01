@@ -20,6 +20,7 @@ use leo_ast::{
     AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
     DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement, FinalizeStatement, Identifier,
     IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
+    TupleExpression,
 };
 use leo_span::Symbol;
 
@@ -217,20 +218,46 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
 
     /// Consumes the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
     fn consume_definition(&mut self, definition: DefinitionStatement) -> Self::Output {
+        println!("Renaming definition: {:#?}", definition);
         // First consume the right-hand-side of the definition.
         let (value, mut statements) = self.consume_expression(definition.value);
 
         // Then assign a new unique name to the left-hand-side of the definition.
         // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
-        // TODO: Remove identifier assumption.
         self.is_lhs = true;
-        let identifier = match self.consume_expression(definition.place).0 {
-            Expression::Identifier(identifier) => identifier,
-            _ => unreachable!("`self.consume_identifier` will always return an `Identifier`."),
-        };
+        match definition.place {
+            Expression::Identifier(identifier) => {
+                let identifier = match self.consume_identifier(identifier).0 {
+                    Expression::Identifier(identifier) => identifier,
+                    _ => unreachable!("`self.consume_identifier` will always return an `Identifier`."),
+                };
+                statements.push(self.assigner.simple_assign_statement(identifier, value));
+            }
+            Expression::Tuple(tuple) => {
+                let elements = tuple.elements.into_iter().map(|element| {
+                    match element {
+                        Expression::Identifier(identifier) => {
+                            let identifier = match self.consume_identifier(identifier).0 {
+                                Expression::Identifier(identifier) => identifier,
+                                _ => unreachable!("`self.consume_identifier` will always return an `Identifier`."),
+                            };
+                            Expression::Identifier(identifier)
+                        }
+                        _ => unreachable!("Type checking guarantees that the tuple elements on the lhs of a `DefinitionStatement` are always be identifiers."),
+                    }
+                }).collect();
+                statements.push(Statement::Assign(Box::new(AssignStatement {
+                    place: Expression::Tuple(TupleExpression {
+                        elements,
+                        span: Default::default()
+                    }),
+                    value,
+                    span: Default::default()
+                })));
+            }
+            _ => unreachable!("Type checking guarantees that the left-hand-side of a `DefinitionStatement` is an identifier or tuple."),
+        }
         self.is_lhs = false;
-
-        statements.push(self.assigner.simple_assign_statement(identifier, value));
 
         statements
     }

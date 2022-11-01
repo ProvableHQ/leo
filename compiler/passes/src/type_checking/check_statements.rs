@@ -198,7 +198,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             Type::Unit => self.emit_err(TypeCheckerError::unit_tuple(input.span)),
             // If the type is a singleton tuple, return an error.
             Type::Tuple(tuple) => match tuple.len() {
-                0 => unreachable!("Tuples must have a length of at least one."),
+                0 => unreachable!("Parsing guarantees that tuples have a length of at least one."),
                 1 => self.emit_err(TypeCheckerError::singleton_tuple(input.span)),
                 _ => {
                     if tuple.iter().any(|type_| matches!(type_, Type::Tuple(_))) {

@@ -29,7 +29,6 @@ impl ExpressionReconstructor for Flattener<'_> {
 
     /// Replaces a tuple access expression with the appropriate expression.
     fn reconstruct_access(&mut self, input: AccessExpression) -> (Expression, Self::AdditionalOutput) {
-        println!("input access expr: {:?}", input);
         let mut statements = Vec::new();
         (
             match input {
@@ -51,7 +50,6 @@ impl ExpressionReconstructor for Flattener<'_> {
                     span: member.span,
                 })),
                 AccessExpression::Tuple(tuple) => {
-                    println!("Access expr: {:?}", tuple);
                     // Reconstruct the tuple expression.
                     let (expr, stmts) = self.reconstruct_expression(*tuple.tuple);
 
@@ -62,11 +60,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                     match expr {
                         Expression::Identifier(identifier) => {
                             // Note that this unwrap is safe since TYC guarantees that all tuples are declared and indices are valid.
-                            // In this pass, we add all tuple assignments to `self.tuples`.
-                            let res =
-                                self.tuples.get(&identifier.name).unwrap().elements[tuple.index.to_usize()].clone();
-                            println!("Res: {:?}", res);
-                            res
+                            self.tuples.get(&identifier.name).unwrap().elements[tuple.index.to_usize()].clone()
                         }
                         _ => unreachable!("SSA guarantees that subexpressions are identifiers or literals."),
                     }
@@ -88,7 +82,7 @@ impl ExpressionReconstructor for Flattener<'_> {
             let (expr, stmts) = self.reconstruct_expression(member.expression.unwrap());
             // Accumulate any statements produced.
             statements.extend(stmts);
-            // Accunulate the struct members.
+            // Accumulate the struct members.
             members.push(StructVariableInitializer {
                 identifier: member.identifier,
                 expression: Some(expr),
