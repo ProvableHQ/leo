@@ -446,7 +446,7 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat_any</span>(<span class="ident">tokens</span>) {
             <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">prev_token</span>.<span class="ident">span</span>)
         } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">unexpected</span>(<span class="ident">tokens</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">x</span>)).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>))
+            <span class="self">self</span>.<span class="ident">unexpected</span>(<span class="ident">tokens</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;&#39;{x}&#39;&quot;</span>)).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>))
         }
     }
 

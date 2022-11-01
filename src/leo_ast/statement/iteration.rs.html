@@ -115,8 +115,8 @@
         <span class="kw">let</span> <span class="ident">eq</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">inclusive</span> { <span class="string">&quot;=&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;&quot;</span> };
         <span class="macro">write!</span>(
             <span class="ident">f</span>,
-            <span class="string">&quot;for {} in {}..{}{} {}&quot;</span>,
-            <span class="self">self</span>.<span class="ident">variable</span>, <span class="self">self</span>.<span class="ident">start</span>, <span class="ident">eq</span>, <span class="self">self</span>.<span class="ident">stop</span>, <span class="self">self</span>.<span class="ident">block</span>
+            <span class="string">&quot;for {} in {}..{eq}{} {}&quot;</span>,
+            <span class="self">self</span>.<span class="ident">variable</span>, <span class="self">self</span>.<span class="ident">start</span>, <span class="self">self</span>.<span class="ident">stop</span>, <span class="self">self</span>.<span class="ident">block</span>
         )
     }
 }

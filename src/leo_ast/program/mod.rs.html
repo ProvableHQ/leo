@@ -101,7 +101,7 @@
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Program</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">_import</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">imports</span>.<span class="ident">iter</span>() {
-            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;import {}.leo;&quot;</span>, <span class="ident">id</span>)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;import {id}.leo;&quot;</span>)<span class="question-mark">?</span>;
         }
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">program_scope</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">program_scopes</span>.<span class="ident">iter</span>() {
             <span class="ident">program_scope</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)<span class="question-mark">?</span>;

@@ -97,13 +97,13 @@
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;program {} {{&quot;</span>, <span class="self">self</span>.<span class="ident">program_id</span>)<span class="question-mark">?</span>;
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">struct_</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">structs</span>.<span class="ident">iter</span>() {
-            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;    {}&quot;</span>, <span class="ident">struct_</span>)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;    {struct_}&quot;</span>)<span class="question-mark">?</span>;
         }
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">mapping</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">mappings</span>.<span class="ident">iter</span>() {
-            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;    {}&quot;</span>, <span class="ident">mapping</span>)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;    {mapping}&quot;</span>)<span class="question-mark">?</span>;
         }
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">function</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">functions</span>.<span class="ident">iter</span>() {
-            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;    {}&quot;</span>, <span class="ident">function</span>)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;    {function}&quot;</span>)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }

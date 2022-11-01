@@ -183,7 +183,7 @@
     @<span class="ident">backtraced</span>
     <span class="ident">cli_io_error</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;cli io error {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;cli io error {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -191,7 +191,7 @@
     @<span class="ident">backtraced</span>
     <span class="ident">could_not_fetch_versions</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Could not fetch versions: {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Could not fetch versions: {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -207,7 +207,7 @@
     @<span class="ident">backtraced</span>
     <span class="ident">self_update_error</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;self update crate Error: {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;self update crate Error: {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -215,7 +215,7 @@
     @<span class="ident">backtraced</span>
     <span class="ident">self_update_build_error</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;self update crate failed to build Error: {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;self update crate failed to build Error: {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -223,14 +223,14 @@
     @<span class="ident">backtraced</span>
     <span class="ident">old_release_version</span> {
         <span class="ident">args</span>: (<span class="ident">current</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">latest</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Old release version {} {}&quot;</span>, <span class="ident">current</span>, <span class="ident">latest</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Old release version {current} {latest}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
     @<span class="ident">backtraced</span>
     <span class="ident">failed_to_load_instructions</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to load compiled Aleo instructions into an Aleo file.\nSnarkVM Error: {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to load compiled Aleo instructions into an Aleo file.\nSnarkVM Error: {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Generated Aleo instructions have been left in `main.aleo`&quot;</span>.<span class="ident">to_string</span>()),
     }
 
@@ -244,63 +244,63 @@
     @<span class="ident">backtraced</span>
     <span class="ident">failed_to_execute_aleo_build</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `aleo build` command.\nSnarkVM Error: {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `aleo build` command.\nSnarkVM Error: {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
     @<span class="ident">backtraced</span>
     <span class="ident">failed_to_execute_aleo_new</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `aleo new` command.\nSnarkVM Error: {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `aleo new` command.\nSnarkVM Error: {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
     @<span class="ident">backtraced</span>
     <span class="ident">failed_to_execute_aleo_run</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `aleo run` command.\nSnarkVM Error: {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `aleo run` command.\nSnarkVM Error: {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
     @<span class="ident">backtraced</span>
     <span class="ident">failed_to_execute_aleo_node</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `aleo node` command.\nSnarkVM Error: {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `aleo node` command.\nSnarkVM Error: {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
     @<span class="ident">backtraced</span>
     <span class="ident">failed_to_execute_aleo_deploy</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `aleo deploy` command.\nSnarkVM Error: {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `aleo deploy` command.\nSnarkVM Error: {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
     @<span class="ident">backtraced</span>
     <span class="ident">failed_to_parse_aleo_new</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `aleo new` command.\nSnarkVM Error: {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `aleo new` command.\nSnarkVM Error: {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
     @<span class="ident">backtraced</span>
     <span class="ident">failed_to_parse_aleo_run</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `aleo run` command.\nSnarkVM Error: {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `aleo run` command.\nSnarkVM Error: {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
     @<span class="ident">backtraced</span>
     <span class="ident">failed_to_parse_aleo_node</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `aleo node` command.\nSnarkVM Error: {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `aleo node` command.\nSnarkVM Error: {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
     @<span class="ident">backtraced</span>
     <span class="ident">failed_to_parse_aleo_deploy</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `aleo deploy` command.\nSnarkVM Error: {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `aleo deploy` command.\nSnarkVM Error: {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 );

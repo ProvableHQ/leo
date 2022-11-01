@@ -130,11 +130,11 @@
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">InputValue</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">InputValue::Address</span>(<span class="kw-2">ref</span> <span class="ident">address</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">address</span>),
-            <span class="ident">InputValue::Boolean</span>(<span class="kw-2">ref</span> <span class="ident">boolean</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">boolean</span>),
-            <span class="ident">InputValue::Group</span>(<span class="kw-2">ref</span> <span class="ident">group</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">group</span>),
-            <span class="ident">InputValue::Field</span>(<span class="kw-2">ref</span> <span class="ident">field</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">field</span>),
-            <span class="ident">InputValue::Integer</span>(<span class="kw-2">ref</span> <span class="ident">type_</span>, <span class="kw-2">ref</span> <span class="ident">number</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}{:?}&quot;</span>, <span class="ident">number</span>, <span class="ident">type_</span>),
+            <span class="ident">InputValue::Address</span>(<span class="kw-2">ref</span> <span class="ident">address</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{address}&quot;</span>),
+            <span class="ident">InputValue::Boolean</span>(<span class="kw-2">ref</span> <span class="ident">boolean</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{boolean}&quot;</span>),
+            <span class="ident">InputValue::Group</span>(<span class="kw-2">ref</span> <span class="ident">group</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{group}&quot;</span>),
+            <span class="ident">InputValue::Field</span>(<span class="kw-2">ref</span> <span class="ident">field</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{field}&quot;</span>),
+            <span class="ident">InputValue::Integer</span>(<span class="kw-2">ref</span> <span class="ident">type_</span>, <span class="kw-2">ref</span> <span class="ident">number</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{number}{type_:?}&quot;</span>),
         }
     }
 }

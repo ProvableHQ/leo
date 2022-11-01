@@ -203,7 +203,7 @@
                 <span class="ident">path</span>.<span class="ident">to_mut</span>().<span class="ident">push</span>(<span class="ident">OUTPUTS_DIRECTORY_NAME</span>);
             }
             <span class="ident">path</span>.<span class="ident">to_mut</span>()
-                .<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="self">self</span>.<span class="ident">snapshot</span>, <span class="ident">AST_SNAPSHOT_FILE_EXTENSION</span>));
+                .<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;{}{AST_SNAPSHOT_FILE_EXTENSION}&quot;</span>, <span class="self">self</span>.<span class="ident">snapshot</span>));
         }
         <span class="ident">path</span>
     }

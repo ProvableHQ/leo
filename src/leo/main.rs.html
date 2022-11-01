@@ -289,7 +289,7 @@
     <span class="kw">match</span> <span class="ident">res</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">t</span>) =&gt; <span class="ident">t</span>,
         <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-            <span class="macro">eprintln!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>);
+            <span class="macro">eprintln!</span>(<span class="string">&quot;{err}&quot;</span>);
             <span class="ident">exit</span>(<span class="ident">err</span>.<span class="ident">exit_code</span>());
         }
     }

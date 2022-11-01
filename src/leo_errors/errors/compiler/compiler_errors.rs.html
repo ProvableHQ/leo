@@ -104,7 +104,7 @@
     @<span class="ident">backtraced</span>
     <span class="ident">file_read_error</span> {
         <span class="ident">args</span>: (<span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">Debug</span>, <span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Cannot read from the provided file path &#39;{:?}&#39;: {}&quot;</span>, <span class="ident">path</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Cannot read from the provided file path &#39;{path:?}&#39;: {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 

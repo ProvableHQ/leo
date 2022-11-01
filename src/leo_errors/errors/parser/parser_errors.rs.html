@@ -271,7 +271,6 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
-<span id="274">274</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -310,7 +309,7 @@
     @<span class="ident">formatted</span>
     <span class="ident">invalid_address_lit</span> {
         <span class="ident">args</span>: (<span class="ident">token</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;invalid address literal: &#39;{}&#39;&quot;</span>, <span class="ident">token</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;invalid address literal: &#39;{token}&#39;&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -334,7 +333,7 @@
     @<span class="ident">formatted</span>
     <span class="ident">unexpected_whitespace</span> {
         <span class="ident">args</span>: (<span class="ident">left</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">right</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Unexpected white space between terms {} and {}&quot;</span>, <span class="ident">left</span>, <span class="ident">right</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Unexpected white space between terms {left} and {right}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -342,7 +341,7 @@
     @<span class="ident">formatted</span>
     <span class="ident">unexpected</span> {
         <span class="ident">args</span>: (<span class="ident">found</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;expected {} -- found &#39;{}&#39;&quot;</span>, <span class="ident">expected</span>, <span class="ident">found</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;expected {expected} -- found &#39;{found}&#39;&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -359,13 +358,12 @@
     <span class="ident">unexpected_ident</span> {
         <span class="ident">args</span>: (<span class="ident">found</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span>[<span class="kw">impl</span> <span class="ident">Display</span>]),
         <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;unexpected identifier: expected {} -- found &#39;{}&#39;&quot;</span>,
+            <span class="string">&quot;unexpected identifier: expected {} -- found &#39;{found}&#39;&quot;</span>,
             <span class="ident">expected</span>
                 .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">x</span>))
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;&#39;{x}&#39;&quot;</span>))
                 .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
                 .<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>),
-            <span class="ident">found</span>
         ),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
@@ -374,7 +372,7 @@
     @<span class="ident">formatted</span>
     <span class="ident">unexpected_statement</span> {
         <span class="ident">args</span>: (<span class="ident">found</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;unexpected statement: expected &#39;{}&#39;, found &#39;{}&#39;&quot;</span>, <span class="ident">expected</span>, <span class="ident">found</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;unexpected statement: expected &#39;{expected}&#39;, found &#39;{found}&#39;&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -382,7 +380,7 @@
     @<span class="ident">formatted</span>
     <span class="ident">unexpected_str</span> {
         <span class="ident">args</span>: (<span class="ident">found</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;unexpected string: expected &#39;{}&#39;, found &#39;{}&#39;&quot;</span>, <span class="ident">expected</span>, <span class="ident">found</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;unexpected string: expected &#39;{expected}&#39;, found &#39;{found}&#39;&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -406,7 +404,7 @@
     @<span class="ident">backtraced</span>
     <span class="ident">lexer_expected_valid_escaped_char</span> {
     <span class="ident">args</span>: (<span class="ident">input</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-    <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Expected a valid escape character but found `{}`.&quot;</span>, <span class="ident">input</span>),
+    <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Expected a valid escape character but found `{input}`.&quot;</span>),
     <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -414,7 +412,7 @@
     @<span class="ident">backtraced</span>
     <span class="ident">lexer_string_not_closed</span> {
     <span class="ident">args</span>: (<span class="ident">input</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-    <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Expected a closed string but found `{}`.&quot;</span>, <span class="ident">input</span>),
+    <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Expected a closed string but found `{input}`.&quot;</span>),
     <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -430,7 +428,7 @@
     @<span class="ident">backtraced</span>
     <span class="ident">lexer_block_comment_does_not_close_before_eof</span> {
     <span class="ident">args</span>: (<span class="ident">input</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-    <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Block comment does not close with content: `{}`.&quot;</span>, <span class="ident">input</span>),
+    <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Block comment does not close with content: `{input}`.&quot;</span>),
     <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -438,7 +436,7 @@
     @<span class="ident">backtraced</span>
     <span class="ident">could_not_lex</span> {
     <span class="ident">args</span>: (<span class="ident">input</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-    <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Could not lex the following content: `{}`.\n&quot;</span>, <span class="ident">input</span>),
+    <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Could not lex the following content: `{input}`.\n&quot;</span>),
     <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -446,7 +444,7 @@
     @<span class="ident">formatted</span>
     <span class="ident">implicit_values_not_allowed</span> {
         <span class="ident">args</span>: (<span class="ident">input</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Could not parse the implicit value: {}.&quot;</span>, <span class="ident">input</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Could not parse the implicit value: {input}.&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -454,7 +452,7 @@
     @<span class="ident">backtraced</span>
     <span class="ident">lexer_hex_number_provided</span> {
         <span class="ident">args</span>: (<span class="ident">input</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;A hex number `{}..` was provided but hex is not allowed.&quot;</span>, <span class="ident">input</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;A hex number `{input}..` was provided but hex is not allowed.&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 

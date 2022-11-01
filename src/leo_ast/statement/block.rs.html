@@ -83,7 +83,7 @@
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">statements</span>
                 .<span class="ident">iter</span>()
-                .<span class="ident">try_for_each</span>(<span class="op">|</span><span class="ident">statement</span><span class="op">|</span> <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;\t{}&quot;</span>, <span class="ident">statement</span>))<span class="question-mark">?</span>;
+                .<span class="ident">try_for_each</span>(<span class="op">|</span><span class="ident">statement</span><span class="op">|</span> <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;\t{statement}&quot;</span>))<span class="question-mark">?</span>;
         }
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;}}&quot;</span>)
     }

@@ -74,9 +74,9 @@
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">ConsoleFunction</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;assert({})&quot;</span>, <span class="ident">expr</span>),
-            <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">expr1</span>, <span class="ident">expr2</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;assert_eq({}, {})&quot;</span>, <span class="ident">expr1</span>, <span class="ident">expr2</span>),
-            <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">expr1</span>, <span class="ident">expr2</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;assert_neq({}, {})&quot;</span>, <span class="ident">expr1</span>, <span class="ident">expr2</span>),
+            <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;assert({expr})&quot;</span>),
+            <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">expr1</span>, <span class="ident">expr2</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;assert_eq({expr1}, {expr2})&quot;</span>),
+            <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">expr1</span>, <span class="ident">expr2</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;assert_neq({expr1}, {expr2})&quot;</span>),
         }
     }
 }

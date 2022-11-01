@@ -348,7 +348,7 @@
 <span class="kw">impl</span> <span class="ident">Emitter</span> <span class="kw">for</span> <span class="ident">StderrEmitter</span> {
     <span class="kw">fn</span> <span class="ident">emit_err</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">err</span>: <span class="ident">LeoError</span>) {
         <span class="self">self</span>.<span class="ident">last_error_code</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">exit_code</span>());
-        <span class="macro">eprintln!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>);
+        <span class="macro">eprintln!</span>(<span class="string">&quot;{err}&quot;</span>);
     }
 
     <span class="kw">fn</span> <span class="ident">last_emitted_err_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
@@ -394,7 +394,7 @@
             <span class="ident">x</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)<span class="question-mark">?</span>;
         }
         <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">iter</span> {
-            <span class="ident">f</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args!</span>(<span class="string">&quot;\n{}&quot;</span>, <span class="ident">x</span>))<span class="question-mark">?</span>;
+            <span class="ident">f</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args!</span>(<span class="string">&quot;\n{x}&quot;</span>))<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }

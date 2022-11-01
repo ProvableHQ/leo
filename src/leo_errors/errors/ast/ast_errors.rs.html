@@ -154,7 +154,7 @@
     @<span class="ident">backtraced</span>
     <span class="ident">failed_to_convert_ast_to_json_string</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to convert ast to a json string {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to convert ast to a json string {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -162,7 +162,7 @@
     @<span class="ident">backtraced</span>
     <span class="ident">failed_to_create_ast_json_file</span> {
         <span class="ident">args</span>: (<span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">Debug</span>, <span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to create ast json file `{:?}` {}&quot;</span>, <span class="ident">path</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to create ast json file `{path:?}` {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -170,7 +170,7 @@
     @<span class="ident">backtraced</span>
     <span class="ident">failed_to_write_ast_to_json_file</span> {
         <span class="ident">args</span>: (<span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">Debug</span>, <span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to write ast to a json file `{:?}` {}&quot;</span>, <span class="ident">path</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to write ast to a json file `{path:?}` {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -178,7 +178,7 @@
     @<span class="ident">backtraced</span>
     <span class="ident">failed_to_read_json_string_to_ast</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to convert json string to an ast {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to convert json string to an ast {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -186,7 +186,7 @@
     @<span class="ident">backtraced</span>
     <span class="ident">failed_to_read_json_file</span> {
         <span class="ident">args</span>: (<span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">Debug</span>, <span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to convert json file `{:?}` to an ast {}&quot;</span>, <span class="ident">path</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to convert json file `{path:?}` to an ast {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -194,7 +194,7 @@
     @<span class="ident">backtraced</span>
     <span class="ident">failed_to_convert_ast_to_json_value</span> {
         <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to convert ast to a json value {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to convert ast to a json value {error}&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 

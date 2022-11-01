@@ -142,7 +142,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filename</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="macro">format!</span>(<span class="string">&quot;{}{}{}&quot;</span>, <span class="ident">INPUTS_DIRECTORY_NAME</span>, <span class="self">self</span>.<span class="ident">package_name</span>, <span class="ident">INPUT_FILE_EXTENSION</span>)
+        <span class="macro">format!</span>(<span class="string">&quot;{INPUTS_DIRECTORY_NAME}{}{INPUT_FILE_EXTENSION}&quot;</span>, <span class="self">self</span>.<span class="ident">package_name</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exists_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">bool</span> {
@@ -162,7 +162,7 @@
     <span class="doccomment">/// Writes the standard input format to a file.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_to</span>(<span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">setup_file_path</span>(<span class="ident">path</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">map_err</span>(<span class="ident">PackageError::io_error_input_file</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="ident">path</span>).<span class="ident">map_err</span>(<span class="ident">PackageError::io_error_input_file</span>)<span class="question-mark">?</span>;
 
         <span class="ident">file</span>.<span class="ident">write_all</span>(<span class="self">self</span>.<span class="ident">template</span>().<span class="ident">as_bytes</span>())
             .<span class="ident">map_err</span>(<span class="ident">PackageError::io_error_input_file</span>)<span class="question-mark">?</span>;
@@ -187,7 +187,7 @@ b: u32 = 2u32;
                 <span class="ident">path</span>.<span class="ident">to_mut</span>().<span class="ident">push</span>(<span class="ident">INPUTS_DIRECTORY_NAME</span>);
             }
             <span class="ident">path</span>.<span class="ident">to_mut</span>()
-                .<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="self">self</span>.<span class="ident">package_name</span>, <span class="ident">INPUT_FILE_EXTENSION</span>));
+                .<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;{}{INPUT_FILE_EXTENSION}&quot;</span>, <span class="self">self</span>.<span class="ident">package_name</span>));
         }
         <span class="ident">path</span>
     }

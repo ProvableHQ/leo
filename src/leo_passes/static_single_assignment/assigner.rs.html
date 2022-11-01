@@ -87,7 +87,7 @@
     <span class="doccomment">/// Return a new unique `Symbol` from a `&amp;str`.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">unique_symbol</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">arg</span>: <span class="kw">impl</span> <span class="ident">Display</span>) -&gt; <span class="ident">Symbol</span> {
         <span class="self">self</span>.<span class="ident">counter</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="ident">Symbol::intern</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}${}&quot;</span>, <span class="ident">arg</span>, <span class="self">self</span>.<span class="ident">counter</span> <span class="op">-</span> <span class="number">1</span>))
+        <span class="ident">Symbol::intern</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{arg}${}&quot;</span>, <span class="self">self</span>.<span class="ident">counter</span> <span class="op">-</span> <span class="number">1</span>))
     }
 
     <span class="doccomment">/// Constructs the assignment statement `place = expr;`.</span>

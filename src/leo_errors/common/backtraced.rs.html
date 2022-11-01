@@ -301,7 +301,7 @@
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">message</span>.<span class="ident">bold</span>().<span class="ident">yellow</span>())<span class="question-mark">?</span>;
             }
         } <span class="kw">else</span> {
-            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">message</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{message}&quot;</span>)<span class="question-mark">?</span>;
         };
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">help</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">help</span> {
@@ -322,7 +322,7 @@
                 <span class="kw">let</span> <span class="ident">trace</span> <span class="op">=</span> <span class="ident">printer</span>
                     .<span class="ident">format_trace_to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">backtrace</span>)
                     .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">fmt::Error</span>)<span class="question-mark">?</span>;
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">trace</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{trace}&quot;</span>)<span class="question-mark">?</span>;
             }
             <span class="string">&quot;full&quot;</span> =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">printer</span> <span class="op">=</span> <span class="ident">BacktracePrinter::default</span>();
@@ -330,7 +330,7 @@
                 <span class="kw">let</span> <span class="ident">trace</span> <span class="op">=</span> <span class="ident">printer</span>
                     .<span class="ident">format_trace_to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">backtrace</span>)
                     .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">fmt::Error</span>)<span class="question-mark">?</span>;
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">trace</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{trace}&quot;</span>)<span class="question-mark">?</span>;
             }
             <span class="kw">_</span> =&gt; {}
         }

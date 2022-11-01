@@ -56,9 +56,6 @@
 <span id="56">56</span>
 <span id="57">57</span>
 <span id="58">58</span>
-<span id="59">59</span>
-<span id="60">60</span>
-<span id="61">61</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -89,9 +86,7 @@
     <span class="ident">unexpected_type</span> {
         <span class="ident">args</span>: (<span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">received</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;unexpected type, expected: &#39;{}&#39;, received: &#39;{}&#39;&quot;</span>,
-            <span class="ident">expected</span>,
-            <span class="ident">received</span>,
+            <span class="string">&quot;unexpected type, expected: &#39;{expected}&#39;, received: &#39;{received}&#39;&quot;</span>,
         ),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
@@ -100,7 +95,7 @@
     @<span class="ident">formatted</span>
     <span class="ident">illegal_expression</span> {
         <span class="ident">args</span>: (<span class="ident">expr</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;expression &#39;{}&#39; is not allowed in inputs&quot;</span>, <span class="ident">expr</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;expression &#39;{expr}&#39; is not allowed in inputs&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -109,13 +104,12 @@
     <span class="ident">unexpected_section</span> {
         <span class="ident">args</span>: (<span class="ident">expected</span>: <span class="kw-2">&amp;</span>[<span class="kw">impl</span> <span class="ident">Display</span>], <span class="ident">received</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;unexpected section: expected {} -- got &#39;{}&#39;&quot;</span>,
+            <span class="string">&quot;unexpected section: expected {} -- got &#39;{received}&#39;&quot;</span>,
             <span class="ident">expected</span>
                 .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">x</span>))
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;&#39;{x}&#39;&quot;</span>))
                 .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-                .<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>),
-            <span class="ident">received</span>
+                .<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>)
         ),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }

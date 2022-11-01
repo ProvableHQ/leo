@@ -371,7 +371,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">visit_value</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Literal</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
-        (<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">input</span>), <span class="ident">String::new</span>())
+        (<span class="macro">format!</span>(<span class="string">&quot;{input}&quot;</span>), <span class="ident">String::new</span>())
     }
 
     <span class="kw">fn</span> <span class="ident">visit_binary</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">BinaryExpression</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
@@ -443,7 +443,7 @@
         };
 
         <span class="kw">let</span> <span class="ident">destination_register</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.<span class="ident">next_register</span>);
-        <span class="kw">let</span> <span class="ident">unary_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    {} {} into {};\n&quot;</span>, <span class="ident">opcode</span>, <span class="ident">expression_operand</span>, <span class="ident">destination_register</span>);
+        <span class="kw">let</span> <span class="ident">unary_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    {opcode} {expression_operand} into {destination_register};\n&quot;</span>);
 
         <span class="comment">// Increment the register counter.</span>
         <span class="self">self</span>.<span class="ident">next_register</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
@@ -483,7 +483,7 @@
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">is_record</span>, <span class="ident">type_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">composite_mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">name</span>.<span class="ident">name</span>) {
             <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">is_record</span> {
                 <span class="comment">// record.private;</span>
-                <span class="macro">format!</span>(<span class="string">&quot;{}.{}&quot;</span>, <span class="ident">input</span>.<span class="ident">name</span>, <span class="ident">type_</span>)
+                <span class="macro">format!</span>(<span class="string">&quot;{}.{type_}&quot;</span>, <span class="ident">input</span>.<span class="ident">name</span>)
             } <span class="kw">else</span> {
                 <span class="comment">// foo; // no visibility for interfaces</span>
                 <span class="ident">input</span>.<span class="ident">name</span>.<span class="ident">to_string</span>()
@@ -513,7 +513,7 @@
             };
 
             <span class="comment">// Push operand name to struct init instruction.</span>
-            <span class="macro">write!</span>(<span class="ident">struct_init_instruction</span>, <span class="string">&quot;{} &quot;</span>, <span class="ident">operand</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
+            <span class="macro">write!</span>(<span class="ident">struct_init_instruction</span>, <span class="string">&quot;{operand} &quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
         }
 
         <span class="comment">// Push destination register to struct init instruction.</span>
@@ -536,7 +536,7 @@
 
     <span class="kw">fn</span> <span class="ident">visit_member_access</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">MemberAccess</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
         <span class="kw">let</span> (<span class="ident">inner_struct</span>, <span class="ident">_inner_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">inner</span>);
-        <span class="kw">let</span> <span class="ident">member_access_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}.{}&quot;</span>, <span class="ident">inner_struct</span>, <span class="ident">input</span>.<span class="ident">name</span>);
+        <span class="kw">let</span> <span class="ident">member_access_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{inner_struct}.{}&quot;</span>, <span class="ident">input</span>.<span class="ident">name</span>);
 
         (<span class="ident">member_access_instruction</span>, <span class="ident">String::new</span>())
     }
@@ -562,19 +562,19 @@
         };
 
         <span class="comment">// Construct associated function call.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">associated_function_call</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    {}.{} &quot;</span>, <span class="ident">input</span>.<span class="ident">name</span>, <span class="ident">symbol</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">associated_function_call</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    {}.{symbol} &quot;</span>, <span class="ident">input</span>.<span class="ident">name</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">String::new</span>();
 
         <span class="comment">// Visit each function argument and accumulate instructions from expressions.</span>
         <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">args</span>.<span class="ident">iter</span>() {
             <span class="kw">let</span> (<span class="ident">arg_string</span>, <span class="ident">arg_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">arg</span>);
-            <span class="macro">write!</span>(<span class="ident">associated_function_call</span>, <span class="string">&quot;{} &quot;</span>, <span class="ident">arg_string</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write associated function argument&quot;</span>);
+            <span class="macro">write!</span>(<span class="ident">associated_function_call</span>, <span class="string">&quot;{arg_string} &quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write associated function argument&quot;</span>);
             <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">arg_instructions</span>);
         }
 
         <span class="comment">// Push destination register to associated function call instruction.</span>
         <span class="kw">let</span> <span class="ident">destination_register</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.<span class="ident">next_register</span>);
-        <span class="macro">writeln!</span>(<span class="ident">associated_function_call</span>, <span class="string">&quot;into {};&quot;</span>, <span class="ident">destination_register</span>)
+        <span class="macro">writeln!</span>(<span class="ident">associated_function_call</span>, <span class="string">&quot;into {destination_register};&quot;</span>)
             .<span class="ident">expect</span>(<span class="string">&quot;failed to write dest register for associated function&quot;</span>);
         <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">associated_function_call</span>);
 
@@ -595,20 +595,20 @@
 
     <span class="kw">fn</span> <span class="ident">visit_call</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">CallExpression</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">call_instruction</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">external</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">external</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;    call {}.aleo/{} &quot;</span>, <span class="ident">external</span>, <span class="ident">input</span>.<span class="ident">function</span>),
+            <span class="prelude-val">Some</span>(<span class="ident">external</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;    call {external}.aleo/{} &quot;</span>, <span class="ident">input</span>.<span class="ident">function</span>),
             <span class="prelude-val">None</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;    call {} &quot;</span>, <span class="ident">input</span>.<span class="ident">function</span>),
         };
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">String::new</span>();
 
         <span class="kw">for</span> <span class="ident">argument</span> <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">arguments</span>.<span class="ident">iter</span>() {
             <span class="kw">let</span> (<span class="ident">argument</span>, <span class="ident">argument_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">argument</span>);
-            <span class="macro">write!</span>(<span class="ident">call_instruction</span>, <span class="string">&quot;{} &quot;</span>, <span class="ident">argument</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
+            <span class="macro">write!</span>(<span class="ident">call_instruction</span>, <span class="string">&quot;{argument} &quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
             <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">argument_instructions</span>);
         }
 
         <span class="comment">// Push destination register to call instruction.</span>
         <span class="kw">let</span> <span class="ident">destination_register</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.<span class="ident">next_register</span>);
-        <span class="macro">writeln!</span>(<span class="ident">call_instruction</span>, <span class="string">&quot;into {};&quot;</span>, <span class="ident">destination_register</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
+        <span class="macro">writeln!</span>(<span class="ident">call_instruction</span>, <span class="string">&quot;into {destination_register};&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
         <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">call_instruction</span>);
 
         <span class="comment">// Increment the register counter.</span>
@@ -620,18 +620,18 @@
     <span class="kw">fn</span> <span class="ident">visit_tuple</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TupleExpression</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
         <span class="comment">// Need to return a single string here so we will join the tuple elements with &#39;\n&#39;</span>
         <span class="comment">// and split them after this method is called.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tuple_elements</span> <span class="op">=</span> <span class="ident">String::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tuple_elements</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">input</span>.<span class="ident">elements</span>.<span class="ident">len</span>());
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">String::new</span>();
 
         <span class="comment">// Visit each tuple element and accumulate instructions from expressions.</span>
         <span class="kw">for</span> <span class="ident">element</span> <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">elements</span>.<span class="ident">iter</span>() {
             <span class="kw">let</span> (<span class="ident">element</span>, <span class="ident">element_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">element</span>);
-            <span class="macro">writeln!</span>(<span class="ident">tuple_elements</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">element</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write tuple to string&quot;</span>);
+            <span class="ident">tuple_elements</span>.<span class="ident">push</span>(<span class="ident">element</span>);
             <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">element_instructions</span>);
         }
 
         <span class="comment">// CAUTION: does not return the destination_register.</span>
-        (<span class="ident">tuple_elements</span>, <span class="ident">instructions</span>)
+        (<span class="ident">tuple_elements</span>.<span class="ident">join</span>(<span class="string">&quot;\n&quot;</span>), <span class="ident">instructions</span>)
     }
 }
 </code></pre></div>

@@ -88,7 +88,7 @@
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">external</span> {
             <span class="prelude-val">Some</span>(<span class="ident">external</span>) =&gt; {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}.leo/{}(&quot;</span>, <span class="ident">external</span>, <span class="self">self</span>.<span class="ident">function</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{external}.leo/{}(&quot;</span>, <span class="self">self</span>.<span class="ident">function</span>)<span class="question-mark">?</span>;
             }
             <span class="prelude-val">None</span> =&gt; {
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}(&quot;</span>, <span class="self">self</span>.<span class="ident">function</span>)<span class="question-mark">?</span>;
@@ -96,7 +96,7 @@
         }
 
         <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">param</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">arguments</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">param</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{param}&quot;</span>)<span class="question-mark">?</span>;
             <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">arguments</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
             }

@@ -188,6 +188,14 @@
 <span id="188">188</span>
 <span id="189">189</span>
 <span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -237,10 +245,18 @@
             <span class="ident">Expression::Tuple</span>(<span class="kw-2">ref</span> <span class="ident">tuple</span>) <span class="kw">if</span> <span class="ident">tuple</span>.<span class="ident">elements</span>.<span class="ident">is_empty</span>() =&gt; <span class="ident">String::new</span>(),
             <span class="kw">_</span> =&gt; {
                 <span class="kw">let</span> (<span class="ident">operand</span>, <span class="kw-2">mut</span> <span class="ident">expression_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">expression</span>);
+                <span class="comment">// Get the output type of the function.</span>
+                <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">in_finalize</span> {
+                    <span class="comment">// Note that the first unwrap is safe, since `current_function` is set in `visit_function`.</span>
+                    <span class="self">self</span>.<span class="ident">current_function</span>.<span class="ident">unwrap</span>().<span class="ident">finalize</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">output</span>.<span class="ident">iter</span>()
+                } <span class="kw">else</span> {
+                    <span class="comment">// Note that this unwrap is safe, since `current_function` is set in `visit_function`.</span>
+                    <span class="self">self</span>.<span class="ident">current_function</span>.<span class="ident">unwrap</span>().<span class="ident">output</span>.<span class="ident">iter</span>()
+                };
                 <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">operand</span>
                     .<span class="ident">split</span>(<span class="string">&#39;\n&#39;</span>)
                     .<span class="ident">into_iter</span>()
-                    .<span class="ident">zip</span>(<span class="self">self</span>.<span class="ident">current_function</span>.<span class="ident">unwrap</span>().<span class="ident">output</span>.<span class="ident">iter</span>())
+                    .<span class="ident">zip_eq</span>(<span class="ident">output</span>)
                     .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">operand</span>, <span class="ident">output</span>)<span class="op">|</span> {
                         <span class="kw">match</span> <span class="ident">output</span> {
                             <span class="ident">Output::Internal</span>(<span class="ident">output</span>) =&gt; {
@@ -296,7 +312,7 @@
         <span class="kw">let</span> (<span class="ident">index</span>, <span class="kw-2">mut</span> <span class="ident">instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">index</span>);
         <span class="kw">let</span> (<span class="ident">amount</span>, <span class="ident">amount_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">amount</span>);
         <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">amount_instructions</span>);
-        <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;    increment {}[{}] by {};\n&quot;</span>, <span class="ident">input</span>.<span class="ident">mapping</span>, <span class="ident">index</span>, <span class="ident">amount</span>));
+        <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;    increment {}[{index}] by {amount};\n&quot;</span>, <span class="ident">input</span>.<span class="ident">mapping</span>));
 
         <span class="ident">instructions</span>
     }
@@ -305,7 +321,7 @@
         <span class="kw">let</span> (<span class="ident">index</span>, <span class="kw-2">mut</span> <span class="ident">instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">index</span>);
         <span class="kw">let</span> (<span class="ident">amount</span>, <span class="ident">amount_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">amount</span>);
         <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">amount_instructions</span>);
-        <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;    decrement {}[{}] by {};\n&quot;</span>, <span class="ident">input</span>.<span class="ident">mapping</span>, <span class="ident">index</span>, <span class="ident">amount</span>));
+        <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;    decrement {}[{index}] by {amount};\n&quot;</span>, <span class="ident">input</span>.<span class="ident">mapping</span>));
 
         <span class="ident">instructions</span>
     }
@@ -316,7 +332,7 @@
 
         <span class="kw">for</span> <span class="ident">argument</span> <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">arguments</span>.<span class="ident">iter</span>() {
             <span class="kw">let</span> (<span class="ident">argument</span>, <span class="ident">argument_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">argument</span>);
-            <span class="macro">write!</span>(<span class="ident">finalize_instruction</span>, <span class="string">&quot; {}&quot;</span>, <span class="ident">argument</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
+            <span class="macro">write!</span>(<span class="ident">finalize_instruction</span>, <span class="string">&quot; {argument}&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
             <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">argument_instructions</span>);
         }
         <span class="macro">writeln!</span>(<span class="ident">finalize_instruction</span>, <span class="string">&quot;;&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
@@ -351,7 +367,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">generate_assert_instruction</span> <span class="op">=</span> <span class="op">|</span><span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">left</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span>, <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span><span class="op">|</span> {
             <span class="kw">let</span> (<span class="ident">left_operand</span>, <span class="ident">left_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>);
             <span class="kw">let</span> (<span class="ident">right_operand</span>, <span class="ident">right_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">right</span>);
-            <span class="kw">let</span> <span class="ident">assert_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    {} {} {};\n&quot;</span>, <span class="ident">name</span>, <span class="ident">left_operand</span>, <span class="ident">right_operand</span>);
+            <span class="kw">let</span> <span class="ident">assert_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    {name} {left_operand} {right_operand};\n&quot;</span>);
 
             <span class="comment">// Concatenate the instructions.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">left_instructions</span>;
@@ -363,7 +379,7 @@
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">function</span> {
             <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>) =&gt; {
                 <span class="kw">let</span> (<span class="ident">operand</span>, <span class="kw-2">mut</span> <span class="ident">instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">expr</span>);
-                <span class="kw">let</span> <span class="ident">assert_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    assert.eq {} true;\n&quot;</span>, <span class="ident">operand</span>);
+                <span class="kw">let</span> <span class="ident">assert_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    assert.eq {operand} true;\n&quot;</span>);
 
                 <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">assert_instruction</span>);
                 <span class="ident">instructions</span>

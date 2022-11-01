@@ -147,7 +147,7 @@
         }
 
         <span class="comment">// Forgo using tracing to list the available versions without a log status.</span>
-        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">output</span>);
+        <span class="macro">println!</span>(<span class="string">&quot;{output}&quot;</span>);
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -196,7 +196,7 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">latest_version</span>) <span class="op">=</span> <span class="ident"><span class="self">Self</span>::update_available</span>() {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">message</span> <span class="op">=</span> <span class="string">&quot;🟢 A new version is available! Run&quot;</span>.<span class="ident">bold</span>().<span class="ident">green</span>().<span class="ident">to_string</span>();
             <span class="ident">message</span> <span class="op">+</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="string">&quot; `leo update` &quot;</span>.<span class="ident">bold</span>().<span class="ident">white</span>();
-            <span class="ident">message</span> <span class="op">+</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;to update to v{}.&quot;</span>, <span class="ident">latest_version</span>).<span class="ident">bold</span>().<span class="ident">green</span>();
+            <span class="ident">message</span> <span class="op">+</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;to update to v{latest_version}.&quot;</span>).<span class="ident">bold</span>().<span class="ident">green</span>();
 
             <span class="macro">tracing::info!</span>(<span class="string">&quot;\n{}\n&quot;</span>, <span class="ident">message</span>);
         }
