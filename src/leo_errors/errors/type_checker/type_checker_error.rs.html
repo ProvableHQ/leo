@@ -424,6 +424,13 @@
 <span id="424">424</span>
 <span id="425">425</span>
 <span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -847,6 +854,13 @@
     <span class="ident">cannot_invoke_call_to_local_transition_function</span> {
         <span class="ident">args</span>: (),
         <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Cannot call a local transition function from a transition function.&quot;</span>),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    @<span class="ident">formatted</span>
+    <span class="ident">loop_bound_must_be_a_literal</span> {
+        <span class="ident">args</span>: (),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Loop bound must be a literal.&quot;</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 );

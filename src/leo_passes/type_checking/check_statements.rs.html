@@ -352,6 +352,10 @@
 <span id="352">352</span>
 <span id="353">353</span>
 <span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -676,6 +680,8 @@
         <span class="comment">// If `input.start` is a literal, instantiate it as a value.</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Expression::Literal</span>(<span class="ident">literal</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">start</span> {
             <span class="ident">input</span>.<span class="ident">start_value</span>.<span class="ident">replace</span>(<span class="prelude-val">Some</span>(<span class="ident">Value::from</span>(<span class="ident">literal</span>)));
+        } <span class="kw">else</span> {
+            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::loop_bound_must_be_a_literal</span>(<span class="ident">input</span>.<span class="ident">start</span>.<span class="ident">span</span>()));
         }
 
         <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">stop</span>, <span class="ident">iter_type</span>);
@@ -683,6 +689,8 @@
         <span class="comment">// If `input.stop` is a literal, instantiate it as a value.</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Expression::Literal</span>(<span class="ident">literal</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">stop</span> {
             <span class="ident">input</span>.<span class="ident">stop_value</span>.<span class="ident">replace</span>(<span class="prelude-val">Some</span>(<span class="ident">Value::from</span>(<span class="ident">literal</span>)));
+        } <span class="kw">else</span> {
+            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::loop_bound_must_be_a_literal</span>(<span class="ident">input</span>.<span class="ident">stop</span>.<span class="ident">span</span>()));
         }
     }
 
