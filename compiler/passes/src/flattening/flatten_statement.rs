@@ -17,9 +17,9 @@
 use crate::Flattener;
 
 use leo_ast::{
-    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, DefinitionStatement, Expression,
-    ExpressionReconstructor, FinalizeStatement, IterationStatement, Node, ReturnStatement, Statement,
-    StatementReconstructor, UnaryExpression, UnaryOperation,
+    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement,
+    DefinitionStatement, Expression, ExpressionReconstructor, FinalizeStatement, IterationStatement, Node,
+    ReturnStatement, Statement, StatementReconstructor, UnaryExpression, UnaryOperation,
 };
 
 impl StatementReconstructor for Flattener<'_> {
@@ -110,6 +110,96 @@ impl StatementReconstructor for Flattener<'_> {
         (Statement::dummy(Default::default()), statements)
     }
 
+    /// Rewrites a console statement into a flattened form.
+    /// Console statements at the top level only have their arguments flattened.
+    /// Console statements inside a conditional statement are flattened to such that the check is conditional on
+    /// the execution path being valid.
+    /// For example, the following snippet:
+    /// ```leo
+    /// if condition1 {
+    ///    if condition2 {
+    ///        console.assert(foo);
+    ///    }
+    /// }
+    /// ```
+    /// is flattened to:
+    /// ```leo
+    /// console.assert(!(condition1 && condition2) || foo);
+    /// ```
+    /// which is equivalent to the logical formula `(condition1 /\ condition2) ==> foo`.
+    fn reconstruct_console(&mut self, input: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
+        let mut statements = Vec::new();
+
+        // Flatten the arguments of the console statement.
+        let console = ConsoleStatement {
+            span: input.span,
+            function: match input.function {
+                ConsoleFunction::Assert(expression) => {
+                    let (expression, additional_statements) = self.reconstruct_expression(expression);
+                    statements.extend(additional_statements);
+                    ConsoleFunction::Assert(expression)
+                }
+                ConsoleFunction::AssertEq(left, right) => {
+                    let (left, additional_statements) = self.reconstruct_expression(left);
+                    statements.extend(additional_statements);
+                    let (right, additional_statements) = self.reconstruct_expression(right);
+                    statements.extend(additional_statements);
+                    ConsoleFunction::AssertEq(left, right)
+                }
+                ConsoleFunction::AssertNeq(left, right) => {
+                    let (left, additional_statements) = self.reconstruct_expression(left);
+                    statements.extend(additional_statements);
+                    let (right, additional_statements) = self.reconstruct_expression(right);
+                    statements.extend(additional_statements);
+                    ConsoleFunction::AssertNeq(left, right)
+                }
+            },
+        };
+
+        // Add the appropriate guards.
+        match self.construct_guard() {
+            // If the condition stack is empty, we can return the flattened console statement.
+            None => (Statement::Console(console), statements),
+            // Otherwise, we need to join the guard with the expression in the flattened console statement.
+            // Note given the guard and the expression, we construct the logical formula `guard => expression`,
+            // which is equivalent to `!guard || expression`.
+            Some(guard) => (
+                Statement::Console(ConsoleStatement {
+                    span: input.span,
+                    function: ConsoleFunction::Assert(Expression::Binary(BinaryExpression {
+                        // Take the logical negation of the guard.
+                        left: Box::new(Expression::Unary(UnaryExpression {
+                            op: UnaryOperation::Not,
+                            receiver: Box::new(guard),
+                            span: Default::default(),
+                        })),
+                        op: BinaryOperation::Or,
+                        span: Default::default(),
+                        right: Box::new(match console.function {
+                            // If the console statement is an `assert`, use the expression as is.
+                            ConsoleFunction::Assert(expression) => expression,
+                            // If the console statement is an `assert_eq`, construct a new equality expression.
+                            ConsoleFunction::AssertEq(left, right) => Expression::Binary(BinaryExpression {
+                                left: Box::new(left),
+                                op: BinaryOperation::Eq,
+                                right: Box::new(right),
+                                span: Default::default(),
+                            }),
+                            // If the console statement is an `assert_ne`, construct a new inequality expression.
+                            ConsoleFunction::AssertNeq(left, right) => Expression::Binary(BinaryExpression {
+                                left: Box::new(left),
+                                op: BinaryOperation::Neq,
+                                right: Box::new(right),
+                                span: Default::default(),
+                            }),
+                        }),
+                    })),
+                }),
+                statements,
+            ),
+        }
+    }
+
     /// Static single assignment converts definition statements into assignment statements.
     fn reconstruct_definition(&mut self, _definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         unreachable!("`DefinitionStatement`s should not exist in the AST at this phase of compilation.")
@@ -119,20 +209,7 @@ impl StatementReconstructor for Flattener<'_> {
     /// Stores the arguments to the finalize statement, which are later folded into a single finalize statement at the end of the function.
     fn reconstruct_finalize(&mut self, input: FinalizeStatement) -> (Statement, Self::AdditionalOutput) {
         // Construct the associated guard.
-        let guard = match self.condition_stack.is_empty() {
-            true => None,
-            false => {
-                let (first, rest) = self.condition_stack.split_first().unwrap();
-                Some(rest.iter().cloned().fold(first.clone(), |acc, condition| {
-                    Expression::Binary(BinaryExpression {
-                        op: BinaryOperation::And,
-                        left: Box::new(acc),
-                        right: Box::new(condition),
-                        span: Default::default(),
-                    })
-                }))
-            }
-        };
+        let guard = self.construct_guard();
 
         // For each finalize argument, add it and its associated guard to the appropriate list of finalize arguments.
         // Note that type checking guarantees that the number of arguments in a finalize statement is equal to the number of arguments in to the finalize block.
@@ -153,20 +230,7 @@ impl StatementReconstructor for Flattener<'_> {
     /// Stores the arguments to the return statement, which are later folded into a single return statement at the end of the function.
     fn reconstruct_return(&mut self, input: ReturnStatement) -> (Statement, Self::AdditionalOutput) {
         // Construct the associated guard.
-        let guard = match self.condition_stack.is_empty() {
-            true => None,
-            false => {
-                let (first, rest) = self.condition_stack.split_first().unwrap();
-                Some(rest.iter().cloned().fold(first.clone(), |acc, condition| {
-                    Expression::Binary(BinaryExpression {
-                        op: BinaryOperation::And,
-                        left: Box::new(acc),
-                        right: Box::new(condition),
-                        span: Default::default(),
-                    })
-                }))
-            }
-        };
+        let guard = self.construct_guard();
 
         // Add it to the list of return statements.
         self.returns.push((guard, input.expression));
