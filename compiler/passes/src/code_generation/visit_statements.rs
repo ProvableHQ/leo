@@ -57,7 +57,7 @@ impl<'a> CodeGenerator<'a> {
                     self.current_function.unwrap().output.iter()
                 };
                 let instructions = operand
-                    .split('\n')
+                    .split(' ')
                     .into_iter()
                     .zip_eq(output)
                     .map(|(operand, output)| {
@@ -151,10 +151,29 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_assign(&mut self, input: &'a AssignStatement) -> String {
-        match &input.place {
-            Expression::Identifier(identifier) => {
+        match (&input.place, &input.value) {
+            (Expression::Identifier(identifier), _) => {
                 let (operand, expression_instructions) = self.visit_expression(&input.value);
                 self.variable_mapping.insert(&identifier.name, operand);
+                expression_instructions
+            }
+            (Expression::Tuple(tuple), Expression::Call(_)) => {
+                let (operand, expression_instructions) = self.visit_expression(&input.value);
+                // Split out the destinations from the tuple.
+                let operands = operand.split(' ').collect::<Vec<_>>();
+                println!("{:?}", operands);
+                println!("{:?}", tuple);
+                // Add the destinations to the variable mapping.
+                tuple.elements.iter().zip_eq(operands).for_each(|(element, operand)| {
+                    match element {
+                        Expression::Identifier(identifier) => {
+                            self.variable_mapping.insert(&identifier.name, operand.to_string())
+                        }
+                        _ => {
+                            unreachable!("Type checking ensures that tuple elements on the lhs are always identifiers.")
+                        }
+                    };
+                });
                 expression_instructions
             }
             _ => unimplemented!(

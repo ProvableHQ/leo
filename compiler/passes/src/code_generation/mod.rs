@@ -25,20 +25,18 @@ mod visit_statements;
 
 mod visit_type;
 
-use crate::Pass;
+use crate::{Pass, SymbolTable};
 
 use leo_ast::Ast;
-use leo_errors::emitter::Handler;
 use leo_errors::Result;
 
 impl<'a> Pass for CodeGenerator<'a> {
-    type Input = (&'a Ast, &'a Handler);
+    type Input = (&'a Ast, &'a SymbolTable);
     type Output = Result<String>;
 
-    fn do_pass((ast, handler): Self::Input) -> Self::Output {
-        let mut generator = Self::new(handler);
+    fn do_pass((ast, symbol_table): Self::Input) -> Self::Output {
+        let mut generator = Self::new(symbol_table);
         let bytecode = generator.visit_program(ast.as_repr());
-        handler.last_err()?;
 
         Ok(bytecode)
     }

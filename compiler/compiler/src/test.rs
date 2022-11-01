@@ -192,7 +192,7 @@ fn temp_dir() -> PathBuf {
         .into_path()
 }
 
-fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>, handler: &Handler) -> Result<String, LeoError> {
+fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, LeoError> {
     let st = parsed.symbol_table_pass()?;
     let st = parsed.type_checker_pass(st)?;
     let st = parsed.loop_unrolling_pass(st)?;
@@ -205,7 +205,7 @@ fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>, handler: &Handler) -> R
     println!("Before codegen:\n{:?}", parsed.ast);
 
     // Compile Leo program to bytecode.
-    let bytecode = CodeGenerator::do_pass((&parsed.ast, handler))?;
+    let bytecode = CodeGenerator::do_pass((&parsed.ast, &st))?;
 
     println!("After codegen:\n{:?}", bytecode);
 
@@ -247,7 +247,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
 
     // Compile the program to bytecode.
     let program_name = format!("{}.{}", parsed.program_name, parsed.network);
-    let bytecode = handler.extend_if_error(compile_and_process(&mut parsed, handler))?;
+    let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
 
     // Run snarkvm package.
     {

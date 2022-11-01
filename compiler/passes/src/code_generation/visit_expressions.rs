@@ -21,6 +21,7 @@ use leo_ast::{
     UnaryOperation, UnitExpression,
 };
 use leo_span::sym;
+use std::borrow::Borrow;
 
 use std::fmt::Write as _;
 
@@ -276,7 +277,7 @@ impl<'a> CodeGenerator<'a> {
         }
     }
 
-    // TODO: Fix to allow zero or multiple outputs.
+    // TODO: Cleanup
     fn visit_call(&mut self, input: &'a CallExpression) -> (String, String) {
         let mut call_instruction = match &input.external {
             Some(external) => format!("    call {external}.aleo/{} ", input.function),
@@ -290,19 +291,55 @@ impl<'a> CodeGenerator<'a> {
             instructions.push_str(&argument_instructions);
         }
 
-        // Push destination register to call instruction.
-        let destination_register = format!("r{}", self.next_register);
-        writeln!(call_instruction, "into {destination_register};").expect("failed to write to string");
-        instructions.push_str(&call_instruction);
+        // Lookup the function return type.
+        let function_name = match input.function.borrow() {
+            Expression::Identifier(identifier) => identifier.name,
+            _ => unreachable!("Parsing guarantees that all `input.function` is always an identifier."),
+        };
+        let return_type = &self
+            .symbol_table
+            .borrow()
+            .functions
+            .get(&function_name)
+            .unwrap()
+            .output_type;
+        println!("return type: {:?}", return_type);
+        match return_type {
+            Type::Unit => (String::new(), instructions), // Do nothing
+            Type::Tuple(tuple) => match tuple.len() {
+                0 => unreachable!("Parsing guarantees that a tuple type has at least one element"),
+                1 => unreachable!("Type checking disallows singleton tuples."),
+                len => {
+                    let mut destinations = Vec::new();
+                    for _ in 0..len {
+                        let destination_register = format!("r{}", self.next_register);
+                        destinations.push(destination_register);
+                        self.next_register += 1;
+                    }
+                    let destinations = destinations.join(" ");
+                    writeln!(call_instruction, "into {destinations};", destinations = destinations)
+                        .expect("failed to write to string");
+                    instructions.push_str(&call_instruction);
 
-        // Increment the register counter.
-        self.next_register += 1;
+                    (destinations, call_instruction)
+                }
+            },
+            _ => {
+                // Push destination register to call instruction.
+                let destination_register = format!("r{}", self.next_register);
+                writeln!(call_instruction, "into {destination_register};").expect("failed to write to string");
+                instructions.push_str(&call_instruction);
 
-        (destination_register, instructions)
+                // Increment the register counter.
+                self.next_register += 1;
+
+                (destination_register, instructions)
+            }
+        }
     }
 
     fn visit_tuple(&mut self, input: &'a TupleExpression) -> (String, String) {
-        // Need to return a single string here so we will join the tuple elements with '\n'
+        // Need to return a single string here so we will join the tuple elements with ' '
         // and split them after this method is called.
         let mut tuple_elements = Vec::with_capacity(input.elements.len());
         let mut instructions = String::new();
@@ -315,7 +352,7 @@ impl<'a> CodeGenerator<'a> {
         }
 
         // CAUTION: does not return the destination_register.
-        (tuple_elements.join("\n"), instructions)
+        (tuple_elements.join(" "), instructions)
     }
 
     fn visit_unit(&mut self, _input: &'a UnitExpression) -> (String, String) {
