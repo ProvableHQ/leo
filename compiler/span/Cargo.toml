@@ -26,7 +26,7 @@ features = ["serde"]
 version = "0.2.1"
 
 [dependencies.scoped-tls]
-version = "1.0.0"
+version = "1.0.1"
 
 [dependencies.serde]
 version = "1.0.147"
