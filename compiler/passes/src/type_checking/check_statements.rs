@@ -322,6 +322,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // If `input.start` is a literal, instantiate it as a value.
         if let Expression::Literal(literal) = &input.start {
             input.start_value.replace(Some(Value::from(literal)));
+        } else {
+            self.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.start.span()));
         }
 
         self.visit_expression(&input.stop, iter_type);
@@ -329,6 +331,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // If `input.stop` is a literal, instantiate it as a value.
         if let Expression::Literal(literal) = &input.stop {
             input.stop_value.replace(Some(Value::from(literal)));
+        } else {
+            self.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.stop.span()));
         }
     }
 
