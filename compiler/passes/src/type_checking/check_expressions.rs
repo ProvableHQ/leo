@@ -143,7 +143,14 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                     // Check that `access.name` is a member of the struct.
                                     match struct_.members.iter().find(|member| member.name() == access.name.name) {
                                         // Case where `access.name` is a member of the struct.
-                                        Some(Member { type_, .. }) => return Some(type_.clone()),
+                                        Some(Member { type_, .. }) => {
+                                            // Check that the type of `access.name` is the same as `expected`.
+                                            return Some(self.assert_and_return_type(
+                                                type_.clone(),
+                                                expected,
+                                                access.span(),
+                                            ));
+                                        }
                                         // Case where `access.name` is not a member of the struct.
                                         None => {
                                             self.emit_err(TypeCheckerError::invalid_struct_variable(
