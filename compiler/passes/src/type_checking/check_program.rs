@@ -287,4 +287,32 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Unset `is_transition_function` flag.
         self.is_transition_function = false;
     }
+
+    fn visit_program(&mut self, input: &'a Program) {
+        match self.is_imported {
+            // If the program is imported, then it is not allowed to import any other programs.
+            true => {
+                input.imports.values().for_each(|(_, span)| {
+                    self.emit_err(TypeCheckerError::imported_program_cannot_import_program(*span))
+                });
+            }
+            // Otherwise, typecheck the imported programs.
+            false => {
+                // Set `self.is_imported`.
+                let previous_is_imported = core::mem::replace(&mut self.is_imported, true);
+
+                // Typecheck the imported programs.
+                input.imports.values().for_each(|import| self.visit_import(&import.0));
+
+                // Set `self.is_imported` to its previous state.
+                self.is_imported = previous_is_imported;
+            }
+        }
+
+        // Typecheck the program scopes.
+        input
+            .program_scopes
+            .values()
+            .for_each(|scope| self.visit_program_scope(scope));
+    }
 }

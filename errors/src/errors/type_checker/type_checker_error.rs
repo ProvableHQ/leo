@@ -430,4 +430,11 @@ create_messages!(
         msg: format!("Loop bound must be a literal."),
         help: None,
     }
+
+    @formatted
+    imported_program_cannot_import_program {
+        args: (),
+        msg: format!("An imported program cannot import another program."),
+        help: None,
+    }
 );

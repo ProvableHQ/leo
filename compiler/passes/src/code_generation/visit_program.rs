@@ -34,7 +34,7 @@ impl<'a> CodeGenerator<'a> {
                 &input
                     .imports
                     .iter()
-                    .map(|(identifier, imported_program)| self.visit_import(identifier, imported_program))
+                    .map(|(identifier, (imported_program, _))| self.visit_import(identifier, imported_program))
                     .join("\n"),
             );
 

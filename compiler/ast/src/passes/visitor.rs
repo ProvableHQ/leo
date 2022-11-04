@@ -193,7 +193,7 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
 /// A Visitor trait for the program represented by the AST.
 pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
     fn visit_program(&mut self, input: &'a Program) {
-        input.imports.values().for_each(|import| self.visit_import(import));
+        input.imports.values().for_each(|import| self.visit_import(&import.0));
 
         input
             .program_scopes
