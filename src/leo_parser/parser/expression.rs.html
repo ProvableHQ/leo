@@ -1006,7 +1006,7 @@
                     </span>} <span class="kw">else </span>{
                         <span class="comment">// Eat a struct member access.
                         </span>expr = Expression::Access(AccessExpression::Member(MemberAccess {
-                            span: expr.span(),
+                            span: expr.span() + name.span(),
                             inner: Box::new(expr),
                             name,
                         }))

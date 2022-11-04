@@ -696,6 +696,13 @@
 <span id="696">696</span>
 <span id="697">697</span>
 <span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -841,7 +848,14 @@
                                     <span class="comment">// Check that `access.name` is a member of the struct.
                                     </span><span class="kw">match </span>struct_.members.iter().find(|member| member.name() == access.name.name) {
                                         <span class="comment">// Case where `access.name` is a member of the struct.
-                                        </span><span class="prelude-val">Some</span>(Member { type_, .. }) =&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(type_.clone()),
+                                        </span><span class="prelude-val">Some</span>(Member { type_, .. }) =&gt; {
+                                            <span class="comment">// Check that the type of `access.name` is the same as `expected`.
+                                            </span><span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(
+                                                type_.clone(),
+                                                expected,
+                                                access.span(),
+                                            ));
+                                        }
                                         <span class="comment">// Case where `access.name` is not a member of the struct.
                                         </span><span class="prelude-val">None </span>=&gt; {
                                             <span class="self">self</span>.emit_err(TypeCheckerError::invalid_struct_variable(
