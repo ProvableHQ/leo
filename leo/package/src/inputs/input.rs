@@ -65,7 +65,7 @@ impl InputFile {
     /// Writes the standard input format to a file.
     pub fn write_to(self, path: &Path) -> Result<()> {
         let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(PackageError::io_error_input_file)?;
+        let mut file = File::create(path).map_err(PackageError::io_error_input_file)?;
 
         file.write_all(self.template().as_bytes())
             .map_err(PackageError::io_error_input_file)?;

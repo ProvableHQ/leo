@@ -73,7 +73,7 @@ impl Context {
         let build_manifest_path = build_path.join(Manifest::<Network>::file_name());
 
         // Write the file.
-        File::create(&build_manifest_path)
+        File::create(build_manifest_path)
             .map_err(PackageError::failed_to_open_manifest)?
             .write_all(manifest_string.as_bytes())
             .map_err(PackageError::failed_to_open_manifest)?;
