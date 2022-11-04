@@ -438,6 +438,13 @@
 <span id="438">438</span>
 <span id="439">439</span>
 <span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -868,6 +875,13 @@
     loop_bound_must_be_a_literal {
         args: (),
         msg: <span class="macro">format!</span>(<span class="string">&quot;Loop bound must be a literal.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    strings_are_not_supported {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Strings are not yet supported.&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 

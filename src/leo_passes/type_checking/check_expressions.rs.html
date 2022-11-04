@@ -704,6 +704,9 @@
 <span id="704">704</span>
 <span id="705">705</span>
 <span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1315,7 +1318,10 @@
             },
             Literal::Group(<span class="kw">_</span>) =&gt; <span class="self">self</span>.assert_and_return_type(Type::Group, expected, input.span()),
             Literal::Scalar(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="self">self</span>.assert_and_return_type(Type::Scalar, expected, input.span()),
-            Literal::String(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="self">self</span>.assert_and_return_type(Type::String, expected, input.span()),
+            Literal::String(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
+                <span class="self">self</span>.emit_err(TypeCheckerError::strings_are_not_supported(input.span()));
+                <span class="self">self</span>.assert_and_return_type(Type::String, expected, input.span())
+            }
         })
     }
 

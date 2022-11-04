@@ -423,6 +423,10 @@
 <span id="423">423</span>
 <span id="424">424</span>
 <span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -815,6 +819,10 @@
     <span class="doccomment">/// Emits an error if the type is not valid.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_type_is_valid(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, type_: <span class="kw-2">&amp;</span>Type) {
         <span class="kw">match </span>type_ {
+            <span class="comment">// String types are temporarily disabled.
+            </span>Type::String =&gt; {
+                <span class="self">self</span>.emit_err(TypeCheckerError::strings_are_not_supported(span));
+            }
             <span class="comment">// Check that the named composite type has been defined.
             </span>Type::Identifier(identifier) <span class="kw">if </span><span class="self">self</span>.symbol_table.borrow().lookup_struct(identifier.name).is_none() =&gt; {
                 <span class="self">self</span>.emit_err(TypeCheckerError::undefined_type(identifier.name, span));
